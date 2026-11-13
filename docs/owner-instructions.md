@@ -1,0 +1,19 @@
+# The owner's instructions and approvals (quoted)
+
+**What this file is.** `DECISIONS.md` says "Owner" where the owner decided or approved something. This file quotes the owner's own words for each such entry, so that a reader can check the entry against its source. The builder copied each quotation from the session transcript and checked it there on 2026-11-13. Times are UTC.
+
+**What this file is not.** It is not the full conversation. It quotes only the sentences that bear on a decision.
+
+| Time (2026-11-13) | The owner's words | Entries that rest on them |
+|---|---|---|
+| 11:11 (answers to the builder's questions) | First user: "Non-technical vibe coder". Option source: "Hybrid (Recommended)". Platform: "Browser on a computer". | D5 |
+| 11:35 | "please be sure to build a very stable, hardened, highly scalable codebase. Please ensure that you create backstops to prevent drift, milestones to keep yourself on track, waypoints where you create automatic saved-and-backed-up files, and please run an adversarial red-team swarm throughout the entire build (a small swarm is OK) to monitor progress in real time." | PLAN.md §7 and §8; hard rules 11 and 12 |
+| 11:54 | "How about you just make it for me to use only? No commercial use in terms of me licensing it out. I might use it to make apps or websites for commercial use, but I would be the owner." | D1 |
+| 11:54 (answers to the builder's questions) | What the owner builds: "Small-business websites, Dense operational apps, Consumer or SaaS web apps, Guided forms and intake flows". Builder tool: "Claude Code (Recommended)". The owner then approved the plan. | D2, D3, D4, D6, D7 |
+| 12:24 | "I know that the screenshot is just an example. The functionality looks awesome! The color scheme, etc. is the problem. Please make accessibility features optional. For private-use apps, just for me, I don't have to concern myself with those, and some accessibility standards are recommendations. So, please optimize for maximum capabilities in terms of frontend design, user options, customizability, etc." | D12, D13, D14 |
+| 12:26 | "Please study various high-end, sophisticated codebases, packs, etc. for sleek, modern, aesthetically beautiful and highly intuitive designs." | D19 (the builder chose the means) |
+| 12:40 | "Please build a much more capable knowledge base about UI, UX, and how design choices and aesthetic choices affect cognitive load, user satisfaction, and whether the application feels or seems intuitive to the user. I would like to have a much more modern, sleek, sophisticated look and feel to the outputs. Please help me make a great leap forward from boring, fungible LLM vibe-coded frontends to something amazing." | D18, D19 (the builder chose the means) |
+| 12:47 | "If needed, please build your own codebase to create capabilities. Please borrow from Hugging Face, GitHub, etc. Or create creative, innovative ways to help me make a noticeable and significant step towards closing the gap between vibe code fungible and boring app frontend design to something much closer to bespoke, talented-human, best-in-class code and design. I do not expect perfection or for you to close the gap completely today. I do expect serious progress." | D23 (the builder chose the means) |
+| 13:21 | "I approve: yes to all" (in reply to the builder's request to approve D16, D17, D22, and the Drive backups) | D16, D17, D22, D26 |
+
+**Entries with no owner statement behind them.** D8, D9, D10, D11, D15, D20, D21, D24, D25, D27, D28, D29, D30, D31, D32. `DECISIONS.md` marks each as "Recorded" or "Pending the owner".

@@ -10,7 +10,7 @@ Three adversarial reviewers examine the project: the security attacker, the conf
 
 | ID | Date | Reviewer | Severity | Finding | Evidence | Status |
 |---|---|---|---|---|---|---|
-| SEC-01 | 2026-11-13 | Security attacker | blocker | No package check is recorded in `DECISIONS.md` for any dependency | `reports/2026-11-13-security.md`, row SEC-01 | Open |
+| SEC-01 | 2026-11-13 | Security attacker | blocker | No package check is recorded in `DECISIONS.md` for any dependency | `reports/2026-11-13-security.md`, row SEC-01 | Fixed: `DECISIONS.md` now holds a row per direct dependency (30 rows) and decision D27 (waiting period of 7 days; 4 build tools moved to older versions). All checks re-run and pass. |
 | SEC-02 | 2026-11-13 | Security attacker | major | The page-database copy of the project always wins, and the browser copy is then overwritten: four ways to lose saved work | `reports/2026-11-13-security.md`, row SEC-02 | Open |
 | SEC-03 | 2026-11-13 | Security attacker | major | An unreadable saved project is thrown away by the first edit; a record that is cut off gives no warning at all | `reports/2026-11-13-security.md`, row SEC-03 | Open |
 | SEC-04 | 2026-11-13 | Security attacker | major | Tables that are looked up by name accept the names of built-in object members: a crafted link stops the Studio's links, and the import check lets 11 keys that are not Steps through | `reports/2026-11-13-security.md`, row SEC-04 | Open |
@@ -84,9 +84,9 @@ Three adversarial reviewers examine the project: the security attacker, the conf
 | W-08 | 2026-11-13 | Drift and truth auditor | minor | The defined-terms table is out of date | `reports/2026-11-13-drift-and-truth.md`, row W-08 | Open |
 | W-09 | 2026-11-13 | Drift and truth auditor | note | Smaller slips | `reports/2026-11-13-drift-and-truth.md`, row W-09 | Open |
 | R-02 | 2026-11-13 | Drift and truth auditor | major | Three stack substitutions were acted on before the owner acknowledged them (hard rule 2) | `reports/2026-11-13-drift-and-truth.md`, row R-02 | Open |
-| R-07 | 2026-11-13 | Drift and truth auditor | minor | No package check is recorded in `DECISIONS.md` (hard rule 7) | `reports/2026-11-13-drift-and-truth.md`, row R-07 | Open |
+| R-07 | 2026-11-13 | Drift and truth auditor | minor | No package check is recorded in `DECISIONS.md` (hard rule 7) | `reports/2026-11-13-drift-and-truth.md`, row R-07 | Fixed: `DECISIONS.md` now holds a row per direct dependency (30 rows) and decision D27 (waiting period of 7 days; 4 build tools moved to older versions). All checks re-run and pass. |
 | R-11 | 2026-11-13 | Drift and truth auditor | minor | `PROGRESS.md` and `WAYPOINTS.md` lagged the work (hard rule 11) | `reports/2026-11-13-drift-and-truth.md`, row R-11 | Open |
-| R-12 | 2026-11-13 | Drift and truth auditor | blocker | No red-team review ran at any unit of work or milestone gate before this one, and the log says otherwise | `reports/2026-11-13-drift-and-truth.md`, row R-12 | Open |
+| R-12 | 2026-11-13 | Drift and truth auditor | blocker | No red-team review ran at any unit of work or milestone gate before this one, and the log says otherwise | `reports/2026-11-13-drift-and-truth.md`, row R-12 | Corrected: the log's opening now states that no review ran at the M0-M3 gates. Acknowledged: the breach cannot be undone; a review now runs at every gate and every finding is logged. |
 | L-01 | 2026-11-13 | Drift and truth auditor | major | The page that ships carries no licence text and no notices | `reports/2026-11-13-drift-and-truth.md`, row L-01 | Open |
 | L-02 | 2026-11-13 | Drift and truth auditor | minor | The generated notices file has errors | `reports/2026-11-13-drift-and-truth.md`, row L-02 | Open |
 | L-03 | 2026-11-13 | Drift and truth auditor | minor | Two bundled fonts declare Reserved Font Names | `reports/2026-11-13-drift-and-truth.md`, row L-03 | Open |
