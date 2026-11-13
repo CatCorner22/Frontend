@@ -40,11 +40,11 @@ MUTANTS=[
  ('N05 Step lookup uses a plain object', S, "  return STEP_TABLE.get(id);", "  return (Object.fromEntries(STEP_TABLE) as Record<string, Step>)[id];"),
  ('N06 the import check keeps the file\'s Option name', E, "    const optionId = matchingOptionId(params, step);\n    let kind: DecisionKind = d.kind;", "    const optionId = d.optionId ?? matchingOptionId(params, step);\n    let kind: DecisionKind = d.kind;"),
  ('N07 the renderer does not check its parameters', M, "  assertKnownParams(p);\n  if (input.focus", "  if (input.focus"),
- ('N08 the error message repeats a key from the file', E, "    return { ok: false, error: section ? `The file does not match the project format. The problem is in its \"${section}\" part.` : NOT_A_PROJECT };", "    return { ok: false, error: `The file does not match the project format: ${result.error.issues[0]?.path.join('.')} ${result.error.issues[0]?.message}` };"),
+ ('N08 the error message repeats a key from the file', E, "    return { ok: false, error: section ? `The file does not match the project format. The problem is in the part that holds ${SECTION_WORDS[section]}.` : NOT_A_PROJECT };", "    return { ok: false, error: `The file does not match the project format: ${result.error.issues[0]?.path.join('.')} ${result.error.issues[0]?.message}` };"),
  ('N09 an outline button is checked against the painted first screen', T, "  const btnFill = filledButton(p) ? action : p.buttonFinish === 'soft' ? accentSoft : bg;", "  const btnFill = filledButton(p) ? action : p.buttonFinish === 'soft' ? accentSoft : bg;\n  if (p.buttonFinish === 'outline' && heroPainted) return basePaletteBroken(p);"),
  ('N10 a tuned slider resets the other sliders to the Step default', E, "  return withDecision(project, step, { ...project.params, [key]: clamped }, { kind: 'tuned',", "  return withDecision(project, step, { ...project.params, ...resolvePatch(step.options.find((o) => o.id === step.defaultOptionId)!, project.params), [key]: clamped }, { kind: 'tuned',"),
  ('N11 a source cites a record that does not exist', S, "const R09 = 'docs/research/09-sleek-finish-recipes.md';", "const R09 = 'docs/research/09-not-written-yet.md';"),
- ('N12 an exemplar names an unread company', S, "exemplar: { text: 'GOV.UK (generous spacing)', record: R04 }", "exemplar: { text: 'Linear, Apple', record: R04 }"),
+ ('N12 an exemplar names an unread company', S, "exemplar: { text: 'GOV.UK’s published design rules (generous spacing)', record: R04 }", "exemplar: { text: 'Linear, Apple', record: R04 }"),
 ]
 only=sys.argv[1:] 
 results=[]
