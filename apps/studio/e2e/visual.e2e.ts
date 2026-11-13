@@ -42,7 +42,9 @@ function mockup(params: DesignParams, focus: MockupFocus): string {
 let browser: Browser;
 let page: Page;
 beforeAll(async () => {
-  browser = await chromium.launch();
+  // Pin how the browser draws text, so that the same picture comes out on every machine. By default the browser takes font "hinting" from the
+  // machine's own settings; with hinting on, it also rounds each letter's width to whole pixels, so lines wrap at different words (CI runs 11 and 27).
+  browser = await chromium.launch({ args: ['--font-render-hinting=none', '--disable-lcd-text'] });
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
   page = await context.newPage();
 });
