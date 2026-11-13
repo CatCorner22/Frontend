@@ -1,7 +1,7 @@
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/node_modules/**', 'phase0/**', '**/*.cjs'] },
+  { ignores: ['.claude/**', '**/dist/**', '**/node_modules/**', 'phase0/**', '**/*.cjs'] },
   ...tseslint.configs.recommended,
   {
     files: ['**/*.ts', '**/*.tsx'],
