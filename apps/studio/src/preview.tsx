@@ -74,7 +74,10 @@ export function Thumbnail({ html, width, title, lazy = true, ratio = 0.62 }: Fra
   );
 }
 
-/** The large preview. It fills its pane; the page inside scrolls and responds to hover. */
+/**
+ * The large preview. It fills its pane; the page inside scrolls and responds to hover.
+ * The pane must get its height from the layout around it (a fixed height, or a share of a container of known height), never from its content.
+ */
 export function LargePreview({ html, width, title }: FrameProps): React.JSX.Element {
   const [ref, size] = useSize();
   const frameRef = useRef<HTMLIFrameElement | null>(null);
@@ -104,7 +107,8 @@ export function LargePreview({ html, width, title }: FrameProps): React.JSX.Elem
           title={title}
           sandbox=""
           srcDoc={html}
-          style={{ width, height: frameHeight, transform: `scale(${scale})`, transformOrigin: '0 0', marginLeft: Math.max(0, Math.round((size.width - width * scale) / 2)) }}
+          // The frame is taken out of the layout, so that the pane's height never depends on the page inside it.
+          style={{ position: 'absolute', top: 0, left: Math.max(0, Math.round((size.width - width * scale) / 2)), width, height: frameHeight, transform: `scale(${scale})`, transformOrigin: '0 0' }}
         />
       )}
     </div>

@@ -271,10 +271,12 @@ function StepsView(): React.JSX.Element {
           )}
           <span className="showing" aria-live="polite">Showing: <strong>{focused?.label ?? 'current design'}</strong></span>
         </div>
-        <button type="button" className="skip-preview" onClick={() => (document.querySelector('.options input[type="radio"]:checked') as HTMLElement | null)?.focus()}>
-          Skip the preview and go to the Options
-        </button>
-        <LargePreview html={large.html} width={width} title={`Large preview: ${focused?.label ?? 'current design'}`} />
+        <div className="preview-wrap">
+          <button type="button" className="skip-preview" onClick={() => (document.querySelector('.options input[type="radio"]:checked') as HTMLElement | null)?.focus()}>
+            Skip the preview and go to the Options
+          </button>
+          <LargePreview html={large.html} width={width} title={`Large preview: ${focused?.label ?? 'current design'}`} />
+        </div>
         {(focused?.warn || large.issues.length > 0 || found.length > 0) && (
           <div className="notes" role="status">
             {focused?.warn && <p className="note-warn"><strong>Common default.</strong> {focused.warn}</p>}

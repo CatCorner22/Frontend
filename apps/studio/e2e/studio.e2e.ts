@@ -273,6 +273,44 @@ describe('Studio', () => {
     }
   });
 
+  it('holds its height still in narrow and zoomed windows, with the main button within reach', async () => {
+    // A preview pane that took its height from the page inside it once made these screens grow without end (finding FTU-01).
+    for (const viewport of [{ width: 720, height: 450 }, { width: 400, height: 860 }, { width: 1099, height: 700 }]) {
+      for (const hash of ['#nav', '#accent', '#summary']) {
+        const { context, page } = await open(hash, viewport);
+        await page.waitForSelector('.large-preview iframe');
+        const height = (): Promise<number> => page.evaluate(() => document.documentElement.scrollHeight);
+        const samples: number[] = [];
+        for (let i = 0; i < 5; i++) {
+          samples.push(await height());
+          await page.waitForTimeout(400);
+        }
+        const label = `${hash} at ${viewport.width}x${viewport.height}: ${samples.join(', ')}`;
+        expect(Math.max(...samples) - Math.min(...samples), label).toBeLessThanOrEqual(2);
+        expect(samples[0]!, label).toBeLessThan(viewport.height * 12);
+        const pane = await page.evaluate(() => document.querySelector('.large-preview')!.getBoundingClientRect().height);
+        expect(pane, `preview pane, ${label}`).toBeGreaterThanOrEqual(190);
+        expect(pane, `preview pane, ${label}`).toBeLessThanOrEqual(viewport.height);
+        await context.close();
+      }
+    }
+  });
+
+  it('gives the large preview the room that is left over in a wide window', async () => {
+    // The preview once sat in the wrong layout row and lost a third of its height (finding FTU-17).
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }]) {
+      const { context, page } = await open('#accent', viewport);
+      await page.waitForSelector('.large-preview iframe');
+      const pane = await page.evaluate(() => document.querySelector('.large-preview')!.getBoundingClientRect().height);
+      expect(pane, `${viewport.width}x${viewport.height}`).toBeGreaterThanOrEqual(viewport.height * 0.38);
+      // Moving keyboard focus to the "skip the preview" control must not change the pane's size.
+      await page.focus('.skip-preview');
+      const paneFocused = await page.evaluate(() => document.querySelector('.large-preview')!.getBoundingClientRect().height);
+      expect(Math.abs(paneFocused - pane)).toBeLessThanOrEqual(1);
+      await context.close();
+    }
+  });
+
   it('never scrolls sideways at phone width', async () => {
     for (const hash of ['#directions', '#nav', '#accent', '#summary']) {
       const { context, page } = await open(hash, { width: 400, height: 860 });

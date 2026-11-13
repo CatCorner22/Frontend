@@ -42,7 +42,7 @@ kbd { font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1; paddi
 main:focus { outline: none; }
 /* Shown only when reached by keyboard: lets a keyboard user pass over the links inside the preview. */
 .skip-preview { position: absolute; left: -200vw; border: 0; cursor: pointer; font-weight: 600; background: var(--surface); color: var(--text); padding: 0.375rem 0.75rem; border-radius: var(--radius-control); box-shadow: var(--card-shadow); }
-.skip-preview:focus { position: static; justify-self: start; }
+.skip-preview:focus { left: 0.5rem; top: 0.5rem; z-index: 5; }
 
 .eyebrow { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
 .teach { color: var(--text-muted); max-width: 68ch; text-wrap: pretty; }
@@ -120,7 +120,11 @@ select, .name, .project-text {
 .dot[data-state="tuned"] { background: var(--accent); box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--accent); }
 .dot[data-state="defaulted"] { background: var(--border-strong); box-shadow: none; }
 
-.stage { position: relative; display: grid; grid-template-rows: auto auto auto minmax(12rem, 1fr) auto; gap: 0.75rem; min-height: 0; min-width: 0; padding: 1rem 1.25rem 1rem; }
+.stage { position: relative; display: flex; flex-direction: column; gap: 0.75rem; min-height: 0; min-width: 0; padding: 1rem 1.25rem 1rem; }
+.stage > * { flex: none; }
+/* The preview takes the height that is left over. Its own content never sets its height (the frame inside is out of the layout). */
+.stage > .preview-wrap { position: relative; display: flex; flex: 1 1 0; min-height: 12rem; }
+.preview-wrap > .large-preview { flex: 1 1 auto; min-width: 0; height: auto; }
 .step-head { display: grid; gap: 0.375rem; }
 .source { font-size: 0.8125rem; color: var(--text-muted); }
 .source summary, .tune summary, .notes summary { cursor: pointer; width: fit-content; }
@@ -199,7 +203,9 @@ select, .name, .project-text {
   html, body, #root, .app { height: auto; min-height: 100%; }
   .work { grid-template-columns: minmax(0, 1fr); height: auto; }
   .rail { order: 3; border-right: 0; border-top: 1px solid var(--border); padding: 1rem 0 2rem; }
-  .stage { padding: 1rem 0; grid-template-rows: auto auto auto 30rem auto; }
+  .stage { padding: 1rem 0; }
+  .stage > .preview-wrap { flex: none; height: min(30rem, 80vh); }
+  .summary-main { min-height: 0; grid-template-rows: auto auto auto auto min(30rem, 80vh); }
   .options { order: 2; border-left: 0; padding: 0 0 1.5rem; overflow: visible; }
   .actions.sticky { position: static; background: none; }
   .summary { grid-template-columns: minmax(0, 1fr); }
