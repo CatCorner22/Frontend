@@ -131,8 +131,9 @@ function basePalette(p: DesignParams): Palette {
   let heroText: Oklch = text;
   const heroPainted = p.colorStrategy === 'color-block';
   if (p.colorStrategy === 'duo') {
-    bandBg = accent2;
-    bandText = readableOn(accent2);
+    // On a dark page a bright slab of color glares, so the band takes a deep shade of the second color (decision D42).
+    bandBg = dark ? { l: 0.4, c: Math.min(p.accentChroma, 0.16), h: p.accent2Hue } : accent2;
+    bandText = readableOn(bandBg);
   }
   if (heroPainted) {
     // The first screen is painted in the accent; the band beneath it inverts to ink so that the two never merge.
@@ -439,6 +440,24 @@ function atmosphereTokens(p: DesignParams, pal: Palette): Record<string, string>
         `radial-gradient(ellipse 52% 46% at 56% 40%, ${toCssAlpha(glow3, dark ? 0.2 : 0.12)}, transparent 72%)`,
       ].join(', ');
       break;
+    case 'stars': {
+      // Eleven stars of three sizes, each at its own place in one of three tiles of different sizes. Because the tiles
+      // repeat at different distances, the eye finds no rows: the field looks scattered, not ruled (decision D42).
+      const star = (x: number, y: number, radius: number, color: Oklch, alpha: number): string =>
+        `radial-gradient(circle at ${x}% ${y}%, ${toCssAlpha(color, dark ? alpha : alpha * 0.6)} ${radius}px, transparent ${radius + 0.7}px)`;
+      const small: [number, number][] = [[7, 13], [31, 71], [58, 29], [86, 88]];
+      const medium: [number, number][] = [[14, 52], [43, 9], [69, 77], [92, 36]];
+      const large: [number, number][] = [[22, 81], [51, 44], [83, 12]];
+      out['--atmo-image'] = [
+        ...large.map(([x, y], i) => star(x, y, 1.3, i === 1 ? glow2 : ink, 0.95)),
+        ...medium.map(([x, y], i) => star(x, y, 0.9, i === 2 ? glow2 : ink, 0.7)),
+        ...small.map(([x, y]) => star(x, y, 0.6, ink, 0.45)),
+        `radial-gradient(ellipse 70% 80% at 50% -25%, ${toCssAlpha(glow, dark ? 0.3 : 0.16)}, transparent 70%)`,
+      ].join(', ');
+      out['--atmo-size'] = [...large.map(() => '523px 487px'), ...medium.map(() => '419px 397px'), ...small.map(() => '311px 283px'), '100% 100%'].join(', ');
+      out['--atmo-mask'] = 'linear-gradient(to bottom, #000 55%, transparent 100%)';
+      break;
+    }
     case 'grain':
       out['--grain-opacity'] = dark ? '0.16' : '0.11';
       break;

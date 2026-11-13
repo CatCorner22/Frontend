@@ -259,3 +259,45 @@ describe('contrast profiles', () => {
     expect(NOT_CHECKED.join(' ')).toMatch(/glow|glass/);
   });
 });
+
+describe('the background "Field of stars" and the band on a dark page (decision D42)', () => {
+  /** Counts the layers of a background value: the commas that sit outside every pair of round brackets, plus one. */
+  const layers = (value: string): number => {
+    let depth = 0;
+    let count = 1;
+    for (const ch of value) {
+      if (ch === '(') depth++;
+      else if (ch === ')') depth--;
+      else if (ch === ',' && depth === 0) count++;
+    }
+    return count;
+  };
+
+  it('gives every star layer its own tile size, so that no layer falls back to a default size', () => {
+    for (const theme of ['dark', 'light'] as const) {
+      const css = deriveTokens({ ...DEFAULT_PARAMS, atmosphere: 'stars', theme }, 'advise').css;
+      expect(layers(css['--atmo-image']!)).toBe(12);
+      expect(layers(css['--atmo-size']!)).toBe(layers(css['--atmo-image']!));
+    }
+  });
+
+  it('scatters the stars: tiles of three different sizes, and no two stars at the same place in a tile', () => {
+    const css = deriveTokens({ ...DEFAULT_PARAMS, atmosphere: 'stars', theme: 'dark' }, 'advise').css;
+    const places = [...css['--atmo-image']!.matchAll(/circle at ([\d.]+)% ([\d.]+)%/g)].map((m) => `${m[1]},${m[2]}`);
+    expect(places).toHaveLength(11);
+    expect(new Set(places).size).toBe(11);
+    expect(new Set(css['--atmo-size']!.split(', ').slice(0, 11)).size).toBe(3);
+  });
+
+  it('paints the band in a deep shade of the second color on a dark page, and in the second color itself on a light page', () => {
+    const base: DesignParams = { ...DEFAULT_PARAMS, colorStrategy: 'duo', accent2Hue: 18, accentChroma: 0.2 };
+    const dark = deriveTokens({ ...base, theme: 'dark' }, 'advise').hex;
+    const light = deriveTokens({ ...base, theme: 'light' }, 'advise').hex;
+    expect(light['--band-bg']).toBe(light['--accent-2']);
+    expect(dark['--band-bg']).not.toBe(dark['--accent-2']);
+    // Deep: clearly darker than the second color, yet clearly apart from the page.
+    expect(contrastHex(dark['--accent-2']!, dark['--band-bg']!)).toBeGreaterThan(2);
+    expect(contrastHex(dark['--band-bg']!, dark['--bg']!)).toBeGreaterThan(1.5);
+    expect(contrastHex(dark['--band-text']!, dark['--band-bg']!)).toBeGreaterThanOrEqual(4.5);
+  });
+});

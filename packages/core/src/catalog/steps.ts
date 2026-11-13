@@ -475,6 +475,7 @@ export const STEPS: Step[] = [
     defaultOptionId: 'plain',
     sources: [
       read('Background recipes in open-source code: Once UI and Magic UI (dot and line grids under a fading mask), ray.so (a spotlight glow), the cmdk website (an aurora), Open Props (grain). An AI research assistant read the source files for this Studio; no person has reviewed its record yet.', R09),
+      builder('The assistant that wrote this Studio made “Field of stars” at the owner’s request on 2026-11-13 (decision D42). No source was read for it.'),
       builder('The assistant that wrote this Studio made the Studio’s own backgrounds before that record existed. They use the same techniques, not the recorded values.'),
       read(`${KREBS} names decorative gradients.`, R04),
     ],
@@ -492,6 +493,7 @@ export const STEPS: Step[] = [
         exemplar: { text: 'The cmdk website (open-source code)', record: R09 },
         patch: { atmosphere: 'aurora' },
       },
+      { id: 'stars', label: 'Field of stars', what: 'Small dots of three sizes, scattered like stars, over a faint glow of the main color.', chooseWhen: 'Night, space, and wonder; made for a dark page.', risk: 'On a light page the stars turn into dark specks, which can look like dust. The stars fade out toward the bottom of the first screen, so that they do not sit under reading text.', patch: { atmosphere: 'stars' } },
       { id: 'grain', label: 'Fine grain texture', what: 'A fine speckle over the whole page, like paper or film.', chooseWhen: 'Warmth, print, craft; softens flat color.', risk: 'Too much grain looks dirty; costs a little rendering speed.', exemplar: { text: 'Open Props, an open-source project whose code was read (its noise textures)', record: R09 }, patch: { atmosphere: 'grain' } },
     ],
   },

@@ -466,6 +466,7 @@ const ATMOSPHERE_WORDS: Record<DesignParams['atmosphere'], string> = {
   'line-grid': 'a faint grid of lines behind the first screen',
   spotlight: 'a soft glow behind the first screen',
   aurora: 'soft clouds of color behind the first screen',
+  stars: 'a field of stars behind the first screen',
   grain: 'a fine film-grain texture',
 };
 
