@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PARAMS, DIRECTIONS, REASON_MAX, STEPS,
   applyDirection, closerOptions, conflicts, createProject, deriveTokens, describeDesign, designDistance, findStep, firstOpenStepId, generateDirections, keep,
-  matchingOptionId, nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setReason, startPlain, tune, wireframeParams,
+  matchingOptionId, nearestSliderValue, nextSliderValue, nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setReason, startPlain, tune, wireframeParams,
   type DesignParams, type Project,
 } from '../src/index.js';
 
@@ -109,6 +109,40 @@ describe('engine: fine-tuning by hand', () => {
     expect(p.params.accentLightness).toBe(start.params.accentLightness);
     expect(others(p, 'accent')).toEqual(others(start, 'accent'));
     expect(p.decisions['accent']).toMatchObject({ kind: 'tuned', optionId: null, rejected: [], values: { accentHue: 257, accentChroma: 0.19, accentLightness: 0.55 } });
+  });
+
+  it('walks a slider along its grid from any value, and never leaves its range (campaign 4, finding F-9)', () => {
+    const spacing = step('density').tunables!.find((t) => t.key === 'density')!;
+    expect([spacing.min, spacing.max, spacing.step]).toEqual([0.75, 1.45, 0.05]);
+    // From a value between two grid points, one key press goes to the next grid point in that direction.
+    expect(nextSliderValue(spacing, 1.12, 1)).toBe(1.15);
+    expect(nextSliderValue(spacing, 1.12, -1)).toBe(1.1);
+    // From a grid point, one key press moves one whole step.
+    expect(nextSliderValue(spacing, 1.1, 1)).toBe(1.15);
+    expect(nextSliderValue(spacing, 1.1, -1)).toBe(1.05);
+    expect(nextSliderValue(spacing, 1.12, 10)).toBe(1.45);
+    expect(nextSliderValue(spacing, 1.12, -10)).toBe(0.75);
+    expect(nextSliderValue(spacing, 1.45, 1)).toBe(1.45);
+    expect(nextSliderValue(spacing, 0.75, -1)).toBe(0.75);
+    expect(nextSliderValue(spacing, 1.12, 0)).toBe(1.12);
+    // A drag lands on the grid.
+    expect(nearestSliderValue(spacing, 1.1234567)).toBe(1.1);
+    expect(nearestSliderValue(spacing, 9)).toBe(1.45);
+    // Every slider of the Catalog: a walk from one end reaches the other, in steps, inside the range.
+    for (const s of STEPS) {
+      for (const t of s.tunables ?? []) {
+        let v = t.min;
+        let presses = 0;
+        while (v < t.max && presses < 5000) {
+          const next = nextSliderValue(t, v, 1);
+          expect(next, `${s.id} ${String(t.key)}`).toBeGreaterThan(v);
+          expect(next).toBeLessThanOrEqual(t.max);
+          v = next;
+          presses++;
+        }
+        expect(v, `${s.id} ${String(t.key)}`).toBe(t.max);
+      }
+    }
   });
 
   it('clamps to the slider range and refuses values that are not numbers or not adjustable', () => {

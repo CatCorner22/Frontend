@@ -233,6 +233,26 @@ export function tune(project: Project, stepId: string, key: keyof DesignParams, 
   return withDecision(project, step, { ...project.params, [key]: clamped }, { kind: 'tuned', rejected: previous?.rejected ?? [], at: now, ...(previous?.reason ? { reason: previous.reason } : {}) });
 }
 
+/** A value on a slider's grid: a whole number of steps, counted from zero, inside the slider's range. */
+export function nearestSliderValue(tunable: Tunable, value: number): number {
+  const onGrid = Number((Math.round(value / tunable.step) * tunable.step).toFixed(6));
+  return Math.min(tunable.max, Math.max(tunable.min, onGrid));
+}
+
+/**
+ * The value that a slider moves to from `current` when a key moves it by `steps` grid points (negative: toward the low end).
+ * A value between two grid points, such as a Direction's 1.12 on a grid of 0.05, moves to the next grid point in that
+ * direction (1.15 or 1.10). The slider itself is drawn without a grid, so its knob stands exactly on the value that the text
+ * beside it states (campaign 4, finding F-9: the browser moved the knob to the nearest grid point, 1.10, while the text said 1.12).
+ */
+export function nextSliderValue(tunable: Tunable, current: number, steps: number): number {
+  if (steps === 0) return current;
+  const tiny = tunable.step / 1000;
+  const first = steps > 0 ? Math.ceil((current + tiny) / tunable.step) : Math.floor((current - tiny) / tunable.step);
+  const target = (first + (steps > 0 ? steps - 1 : steps + 1)) * tunable.step;
+  return Math.min(tunable.max, Math.max(tunable.min, Number(target.toFixed(6))));
+}
+
 /** Put a Step back to the value the project started with, and remove its Decision. */
 export function revert(project: Project, stepId: string): Project {
   const step = mustStep(stepId);
@@ -670,7 +690,7 @@ function migrateV1(raw: Record<string, unknown>): unknown {
  * Bring a shape-checked project into line with this version's Catalog.
  * References are recomputed from the design values, which are the source of truth; nothing from the file is trusted as a reference.
  */
-function normalize(data: z.infer<typeof projectSchema>): { project: Project; notes: string[] } {
+function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { project: Project; notes: string[] } {
   const params = data.params as unknown as DesignParams;
   const base = data.base as unknown as DesignParams;
   assertKnownParams(params);
@@ -678,6 +698,7 @@ function normalize(data: z.infer<typeof projectSchema>): { project: Project; not
   const notes: string[] = [];
   let dropped = 0;
   let relabelled = 0;
+  let corrected = 0;
   let shortened = 0;
   const decisions: [string, Decision][] = [];
   for (const [key, d] of Object.entries(data.decisions)) {
@@ -693,6 +714,12 @@ function normalize(data: z.infer<typeof projectSchema>): { project: Project; not
       // The picked Option no longer exists in the Catalog, or its values changed. The values stay; the label changes.
       kind = 'tuned';
       relabelled++;
+    } else if (!migrated && d.optionId !== optionId) {
+      // The file's Decision names one Option, and the file's own design values show another (or none). The design values
+      // win, because the Mockup is drawn from them; the Studio says that it changed the Decision (campaign 4, finding F-3:
+      // a Decision was rewritten to a choice nobody made, without a word). A file from version 1 is exempt: bringing it up to
+      // date recomputes every Decision, and its own notice says so.
+      corrected++;
     }
     const rejected = kind === 'picked' ? optionIds.filter((id) => id !== optionId) : d.rejected.filter((id) => optionIds.includes(id) && id !== optionId);
     const fullReason = d.reason?.trim();
@@ -707,6 +734,7 @@ function normalize(data: z.infer<typeof projectSchema>): { project: Project; not
   }
   if (dropped > 0) notes.push(dropped === 1 ? 'One Decision in the file belongs to a Step that this version of the Studio does not have. It was left out.' : `${dropped} Decisions in the file belong to Steps that this version of the Studio does not have. They were left out.`);
   if (relabelled > 0) notes.push(relabelled === 1 ? 'One Decision named an Option that this version of the Catalog does not have. Its values were kept and it is now marked as hand-set.' : `${relabelled} Decisions named Options that this version of the Catalog does not have. Their values were kept and they are now marked as hand-set.`);
+  if (corrected > 0) notes.push(corrected === 1 ? 'One Decision in the file named a choice that the file’s own design values do not show. The Studio follows the design values, so it changed that Decision to match them.' : `${corrected} Decisions in the file named choices that the file’s own design values do not show. The Studio follows the design values, so it changed those Decisions to match them.`);
   if (shortened > 0) notes.push(shortened === 1 ? `One written reason was longer than ${REASON_MAX} characters. It was shortened to fit.` : `${shortened} written reasons were longer than ${REASON_MAX} characters. They were shortened to fit.`);
   const project: Project = { schemaVersion: SCHEMA_VERSION, name: data.name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content: data.content };
   return { project, notes };
@@ -726,7 +754,7 @@ export function parseProject(input: unknown): ParseResult {
     return { ok: false, error: section ? `The file does not match the project format. The problem is in the part that holds ${SECTION_WORDS[section]}.` : NOT_A_PROJECT };
   }
   try {
-    const { project, notes } = normalize(result.data);
+    const { project, notes } = normalize(result.data, version !== SCHEMA_VERSION);
     return { ok: true, project, migratedFrom: version === SCHEMA_VERSION ? null : version, notes };
   } catch {
     return { ok: false, error: 'The file does not match the project format. The problem is in the part that holds the design values.' };

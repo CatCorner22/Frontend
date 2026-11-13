@@ -131,6 +131,17 @@ describe('saved projects: references to the Catalog are recomputed, never truste
     }
   });
 
+  it('says so when it changes a Decision to match the file’s own design values (campaign 4, finding F-3)', () => {
+    // A file that the Studio wrote is consistent: opening it changes no Decision and gives no note.
+    expect(ok(roundTrip(busyProject())).notes).toEqual([]);
+    // A file edited by hand: the Decision says "Field of stars", the design value says "plain".
+    const edited = roundTrip(pick(createProject('P'), 'atmosphere', 'stars', AT)) as Record<string, any>;
+    edited.params.atmosphere = 'plain';
+    const result = ok(edited);
+    expect(result.project.decisions['atmosphere']).toMatchObject({ optionId: 'plain', values: { atmosphere: 'plain' } });
+    expect(result.notes).toEqual(['One Decision in the file named a choice that the file’s own design values do not show. The Studio follows the design values, so it changed that Decision to match them.']);
+  });
+
   it('marks a pick as hand-set when its Option is no longer in the Catalog, and keeps the value', () => {
     const base = roundTrip(pick(createProject('P'), 'radius', 'soft', AT)) as Record<string, any>;
     base.params.radius = 11;
