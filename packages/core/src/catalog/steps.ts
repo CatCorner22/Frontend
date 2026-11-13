@@ -76,7 +76,7 @@ export const STEPS: Step[] = [
     evidence: 'expert-opinion',
     reviewed: REVIEWED,
     options: [
-      { id: 'text-left', label: 'Headline left', what: 'Headline, short paragraph, and buttons, aligned to the left edge.', chooseWhen: 'The page has more than a few words, and you want them read in order.', risk: 'Plain, unless the type carries it.', patch: { hero: 'text-left' } },
+      { id: 'text-left', label: 'Headline left', what: 'Headline, short paragraph, and buttons, aligned to the left edge.', chooseWhen: 'The page has more than a few words, and you want them read in order.', risk: 'Plain, unless the letter style carries it.', patch: { hero: 'text-left' } },
       {
         id: 'centered', label: 'Everything centered', what: 'Everything centered on the page.', chooseWhen: 'The message is very short.', risk: 'A centered opening above a row of boxes is on published lists of looks that many AI-made pages share.',
         warn: { text: 'A centered opening is on published lists of looks that many AI-made pages share, so your page may look generic. If you pick it, add a distinctive letter style or one special touch. “Headline left” and “Very large headline” avoid the look.', source: read(`${KREBS}, pattern "centered hero plus Inter"; also ${OWNER_ANTI_SLOP}`, R04) },
@@ -111,7 +111,7 @@ export const STEPS: Step[] = [
         warn: { text: 'Three equal boxes in a row are on published lists of looks that many AI-made pages share, so your page may look generic. “Rows separated by lines” or “Numbered list beside a fixed title” says the same thing with more character.', source: read(`Anthropic’s frontend-design skill; also ${OWNER_ANTI_SLOP}`, R04) },
         patch: { sections: 'grid' },
       },
-      { id: 'bento', label: 'One large box, smaller boxes beside it', what: 'One large tile with a photo, and smaller tiles beside it, like the compartments of a lunch box.', chooseWhen: 'One item matters most, and the size of its tile should say so.', risk: 'Needs one item that deserves the big tile; equal items look arbitrary.', patch: { sections: 'bento' } },
+      { id: 'bento', label: 'One large box, smaller boxes beside it', what: 'One large box with a photo, and smaller boxes beside it, like the compartments of a lunch box.', chooseWhen: 'One item matters most, and the size of its box should say so.', risk: 'Needs one item that deserves the big box; equal items look arbitrary.', patch: { sections: 'bento' } },
       { id: 'ledger', label: 'Numbered list beside a fixed title', what: 'The section title stays fixed on the left while a numbered list scrolls on the right.', chooseWhen: 'You want an organized feel, like the contents page of a magazine, and the items have an order.', risk: 'On phones it collapses to a plain list.', patch: { sections: 'ledger' } },
     ],
   },
@@ -224,7 +224,7 @@ export const STEPS: Step[] = [
       { id: 'characterful', label: 'Lively, hand-cut headings', what: 'Bricolage Grotesque headings (lively, hand-cut) over Instrument Sans text.', chooseWhen: 'You want the headings themselves to be the personality.', risk: 'Strong flavor; it will define the brand.', patch: { fontHeading: 'bricolage-grotesque', fontBody: 'instrument-sans' } },
       { id: 'reading-serif', label: 'Letters with small feet throughout', what: 'Source Serif 4 for headings and for reading text.', chooseWhen: 'Long reading, or a deliberately traditional voice.', risk: 'Reading text in letters with small feet feels unusual in an application.', patch: { fontHeading: 'source-serif-4', fontBody: 'source-serif-4' } },
       {
-        id: 'neutral-modern', label: 'Neutral and unnoticed (Inter)', what: 'Inter throughout.', chooseWhen: 'You want the type to disappear, as in a dense tool.', risk: 'Inter is on published lists of looks that many AI-made pages share.',
+        id: 'neutral-modern', label: 'Neutral and unnoticed (Inter)', what: 'Inter throughout.', chooseWhen: 'You want the letters to go unnoticed, as in a tightly packed tool.', risk: 'Inter is on published lists of looks that many AI-made pages share.',
         warn: { text: 'Inter is on published lists of looks that many AI-made pages share, so your page may look generic. “Plain and sturdy” (Public Sans) gives the same neutral feel without that sameness.', source: read(`The Impeccable rule set, as recorded in the research ("Inter everywhere"); also ${OWNER_ANTI_SLOP}`, R04) },
         patch: { fontHeading: 'inter', fontBody: 'inter' },
       },
@@ -339,7 +339,7 @@ export const STEPS: Step[] = [
       { id: 'pure', label: 'Pure gray (no tint)', what: 'No tint at all.', chooseWhen: 'The most neutral choice; it lets photographs and the main color do the work.', risk: 'Can feel sterile.', exemplar: { text: 'IBM’s published design rules, named Carbon (grays with no tint)', record: R08 }, patch: { neutralHue: 0, neutralChroma: 0 } },
       { id: 'cool', label: 'Cool gray (a trace of blue)', what: 'A trace of blue.', chooseWhen: 'Technical, clinical, or corporate subjects.', risk: 'A safe choice; it will not set you apart.', exemplar: { text: 'Radix Colors, a published set of color scales (its “slate” grays)', record: R08 }, patch: { neutralHue: 255, neutralChroma: 0.012 } },
       { id: 'warm', label: 'Warm gray (a trace of yellow-brown)', what: 'A trace of yellow-brown.', chooseWhen: 'Human, hospitable, crafted subjects.', risk: 'A cream background with letters that have small feet is on published lists of newer looks that many AI-made pages share; pair it with a bold main color or with letters without feet.', exemplar: { text: 'Radix Colors, a published set of color scales (its “sand” grays)', record: R08 }, patch: { neutralHue: 80, neutralChroma: 0.014 } },
-      { id: 'sage', label: 'Green-gray', what: 'A trace of green.', chooseWhen: 'Health, outdoors, calm.', risk: 'Fights with red or pink accents.', exemplar: { text: 'Radix Colors, a published set of color scales (its “sage” grays)', record: R08 }, patch: { neutralHue: 155, neutralChroma: 0.012 } },
+      { id: 'sage', label: 'Green-gray', what: 'A trace of green.', chooseWhen: 'Health, outdoors, calm.', risk: 'Fights with a red or pink main color.', exemplar: { text: 'Radix Colors, a published set of color scales (its “sage” grays)', record: R08 }, patch: { neutralHue: 155, neutralChroma: 0.012 } },
       { id: 'mauve', label: 'Violet-gray', what: 'A trace of violet.', chooseWhen: 'Creative, cosmetic, or evening feel.', risk: 'Reads as cold next to warm photographs.', exemplar: { text: 'Radix Colors, a published set of color scales (its “mauve” grays)', record: R08 }, patch: { neutralHue: 310, neutralChroma: 0.012 } },
       { id: 'rose', label: 'Red-gray', what: 'A trace of red.', chooseWhen: 'Warmth with more energy than sand.', risk: 'Can look pink on some screens.', patch: { neutralHue: 25, neutralChroma: 0.013 } },
     ],
@@ -372,7 +372,7 @@ export const STEPS: Step[] = [
       { id: 'teal', label: 'Blue-green (teal)', what: 'Blue-green, calm and clinical.', chooseWhen: 'Health, wellness, water.', risk: 'Familiar in health care, so it may not set you apart.', patch: { accentHue: 195, accentChroma: 0.09, accentLightness: 0.45 } },
       { id: 'forest', label: 'Dark green', what: 'A dark, natural green.', chooseWhen: 'Outdoors, sustainability, money.', risk: 'Dark greens can look black in small text.', patch: { accentHue: 152, accentChroma: 0.11, accentLightness: 0.4 } },
       { id: 'leaf', label: 'Bright green', what: 'A bright, fresh green that takes dark text.', chooseWhen: 'Fresh, youthful, food.', risk: 'Bright greens need dark labels on buttons.', patch: { accentHue: 135, accentChroma: 0.19, accentLightness: 0.72 } },
-      { id: 'mustard', label: 'Golden yellow', what: 'A warm golden yellow that takes dark text.', chooseWhen: 'Optimistic, crafted, retro.', risk: 'Yellow links are hard to read on a light page. The Studio darkens link text to 3 to 1 against the page, the least at which a link stands out; “Fix for me” under “Contrast checks” takes it to 4.5 to 1.', patch: { accentHue: 88, accentChroma: 0.16, accentLightness: 0.8 } },
+      { id: 'mustard', label: 'Golden yellow', what: 'A warm golden yellow that takes dark text.', chooseWhen: 'Optimistic, crafted, retro.', risk: 'Yellow links are hard to read on a light page. The Studio darkens them, though not all the way to the guideline for reading text; “Fix for me” under “Contrast checks” takes them there.', patch: { accentHue: 88, accentChroma: 0.16, accentLightness: 0.8 } },
       { id: 'tangerine', label: 'Orange', what: 'A lively orange.', chooseWhen: 'Friendly and energetic.', risk: 'Can read as "sale" or "warning".', patch: { accentHue: 52, accentChroma: 0.19, accentLightness: 0.7 } },
       { id: 'vermilion', label: 'Red-orange', what: 'A hot red-orange.', chooseWhen: 'Bold, confident, culinary.', risk: 'Reads as error color in forms; keep error states distinct.', patch: { accentHue: 32, accentChroma: 0.2, accentLightness: 0.6 } },
       { id: 'crimson', label: 'Deep red', what: 'A deep red.', chooseWhen: 'Heritage, seriousness with warmth.', risk: 'Close to error red.', patch: { accentHue: 18, accentChroma: 0.19, accentLightness: 0.47 } },
@@ -383,7 +383,7 @@ export const STEPS: Step[] = [
         warn: { text: 'Violet and indigo are on published lists of looks that many AI-made pages share, so your page may look generic. “Dark purple” or “Bright blue” sits nearby without that sameness.', source: read(`${KREBS}, pattern "purple"; also ${OWNER_ANTI_SLOP}`, R04) },
         patch: { accentHue: 292, accentChroma: 0.2, accentLightness: 0.52 },
       },
-      { id: 'graphite', label: 'Near-black (no color)', what: 'Nearly black; no color of its own.', chooseWhen: 'Let typography and photographs carry the color.', risk: 'Links are harder to spot without underlines.', patch: { accentHue: 255, accentChroma: 0.015, accentLightness: 0.27 } },
+      { id: 'graphite', label: 'Near-black (no color)', what: 'Nearly black; no color of its own.', chooseWhen: 'Let the letter style and the photographs carry the color.', risk: 'Links are harder to spot without underlines.', patch: { accentHue: 255, accentChroma: 0.015, accentLightness: 0.27 } },
     ],
   },
   {
@@ -397,7 +397,7 @@ export const STEPS: Step[] = [
     owns: ['colorStrategy', 'accent2Hue'],
     focus: 'top',
     defaultOptionId: 'single-accent',
-    tunables: [{ key: 'accent2Hue', label: 'Second color', min: 0, max: 360, step: 1, unit: '°', nudge: 20 }],
+    tunables: [{ key: 'accent2Hue', label: 'Second color', min: 0, max: 360, step: 1, unit: '°', nudge: 20, onlyWhen: { key: 'colorStrategy', is: 'duo' } }],
     sources: [
       ownerFile('Your Training Manual: color schemes and the 60-30-10 rule of thumb. Nobody traced the rule to an original source; your own source assessment grades the Manual D.', R02),
       builder('The assistant that wrote this Studio chose which Options to offer and wrote the notes on each.'),
@@ -442,7 +442,7 @@ export const STEPS: Step[] = [
     stage: 'feel',
     title: 'How strongly does the text stand out from the background?',
     teach:
-      'Contrast is how strongly the text and the lines stand out from the background. Low contrast feels gentle. High contrast feels sharp and stays well above the guideline for readable text. When a pair of colors falls below that guideline, a contrast note under the large preview gives the measured figure.',
+      'Contrast is how strongly the text and the lines stand out from the background. Low contrast feels gentle. High contrast feels sharp and stays well above the guideline for readable text. The line under the large preview gives the measured figure for reading text on the card you are looking at.',
     variable: 'How strongly text and lines stand out from the background',
     owns: ['contrast'],
     focus: 'top',
@@ -481,11 +481,11 @@ export const STEPS: Step[] = [
     evidence: 'expert-opinion',
     reviewed: REVIEWED,
     options: [
-      { id: 'plain', label: 'Plain background', what: 'A clean, flat background.', chooseWhen: 'The type and the content are strong enough alone.', risk: 'None in particular.', exemplar: { text: 'GOV.UK’s published design rules', record: R08 }, patch: { atmosphere: 'plain' } },
+      { id: 'plain', label: 'Plain background', what: 'A clean, flat background.', chooseWhen: 'The letter style and the content are strong enough alone.', risk: 'None in particular.', exemplar: { text: 'GOV.UK’s published design rules', record: R08 }, patch: { atmosphere: 'plain' } },
       { id: 'horizon', label: 'Faint fade of color', what: 'A faint tint of the main color that fades down the first screen.', chooseWhen: 'A gentle lift without any pattern.', risk: 'Too strong a tint looks like a stock blend of colors.', patch: { atmosphere: 'horizon' } },
       { id: 'dot-grid', label: 'Dot grid', what: 'A field of tiny dots that fades toward the edges.', chooseWhen: 'A technical, drafting-table feel.', risk: 'Dots under reading text make it harder to read; the fade keeps them behind the headline only.', exemplar: { text: 'Once UI and Magic UI, two open-source sets of interface parts', record: R09 }, patch: { atmosphere: 'dot-grid' } },
       { id: 'line-grid', label: 'Line grid', what: 'Faint grid lines, like graph paper, fading toward the edges.', chooseWhen: 'Engineering, architecture, planning.', risk: 'Lines compete with thin letters.', exemplar: { text: 'Magic UI, an open-source set of interface parts (its “retro grid”)', record: R09 }, patch: { atmosphere: 'line-grid' } },
-      { id: 'spotlight', label: 'Soft glow from the top', what: 'A soft glow of the main color from the top center, like stage light.', chooseWhen: 'Focus and drama, especially on dark themes.', risk: 'On light themes it must stay faint.', exemplar: { text: 'ray.so, Raycast’s open-source website', record: R09 }, patch: { atmosphere: 'spotlight' } },
+      { id: 'spotlight', label: 'Soft glow from the top', what: 'A soft glow of the main color from the top center, like stage light.', chooseWhen: 'Focus and drama, especially on dark pages.', risk: 'On light pages it must stay faint.', exemplar: { text: 'ray.so, Raycast’s open-source website', record: R09 }, patch: { atmosphere: 'spotlight' } },
       {
         id: 'aurora', label: 'Soft clouds of color', what: 'Two or three soft clouds of related color behind the headline.', chooseWhen: 'A rich, atmospheric first impression.', risk: 'Purple-and-blue clouds of color are on published lists of looks that many AI-made pages share; the effect works when the colors come from your own main color.',
         warn: { text: 'Soft clouds of several colors are on published lists of looks that many AI-made pages share, so your page may look generic. They read as intended only when the colors are your own and stay soft. “Soft glow from the top” or “Faint fade of color” gives depth with one color.', source: ownerFile(`Your Training Manual labels aurora and mesh gradients "the AI default look"; ${KREBS} names decorative gradients.`, R02) },
@@ -501,7 +501,7 @@ export const STEPS: Step[] = [
     stage: 'feel',
     title: 'How rounded are the corners?',
     teach:
-      'This Step sets how rounded the corners of buttons and boxes are (designers call the amount the corner radius). Square corners feel precise and serious; round corners feel friendly. The Studio keeps your choice the same everywhere. It rounds a box one and a half times as much as the buttons inside it, so that the two curves run nearly side by side. The exact rule adds the gap between box and button to the button’s rounding; the Studio comes close to that rule and does not follow it exactly.',
+      'This Step sets how rounded the corners of buttons and boxes are (designers call the amount the corner radius). Square corners feel precise and serious; round corners feel friendly. The Studio keeps your choice the same everywhere, and it rounds a box a little more than the buttons inside it, so that the two curves look parallel.',
     variable: 'How rounded the corners of buttons and boxes are',
     owns: ['radius'],
     focus: 'contact',
@@ -510,6 +510,7 @@ export const STEPS: Step[] = [
     tunables: [{ key: 'radius', label: 'Corner rounding', min: 0, max: 28, step: 1, unit: 'px', nudge: 3, directions: ['sharper', 'rounder'] }],
     sources: [
       read('The concentric radius rule: Vercel Web Interface Guidelines and Jakub Krehel’s rules.', R04),
+      builder('The Studio rounds a box one and a half times as much as the buttons inside it. The exact rule adds the gap between box and button to the rounding of the button; the Studio comes close to that rule and does not follow it exactly.'),
       read('Shape values in open design systems: controls at 4 to 8 pixels and cards at 8 to 14 pixels; square corners in IBM Carbon and GOV.UK; pill buttons in Material 3 and Radix Themes.', R08),
       ownerFile('Your files list "broadsheet hairlines with zero radius" among five newer AI-default looks.', R01),
     ],
@@ -529,7 +530,7 @@ export const STEPS: Step[] = [
     stage: 'feel',
     title: 'How do boxes stand apart from the page?',
     teach:
-      'A box stands apart from the page by a line around it, a shadow under it, or a different shade of its own (designers call this elevation). In the published design rules that were studied for this Studio, a shadow is a stack of faint layers that starts with a one-pixel ring. One identical gray blur under every box is on published lists of looks that many AI-made pages share.',
+      'A box stands apart from the page by a line around it, a shadow under it, or a different shade of its own (designers call this elevation). In the published design rules that were studied for this Studio, a good shadow is made of several very faint shadows, plus a thin outline that you barely notice. One identical gray blur under every box is on published lists of looks that many AI-made pages share.',
     variable: 'What sets a box apart: a line, a shadow, or a shade',
     owns: ['elevation'],
     focus: 'about',
@@ -550,8 +551,8 @@ export const STEPS: Step[] = [
       { id: 'soft-shadow', label: 'Soft shadow', what: 'Boxes float on a gentle, tinted, three-layer shadow.', chooseWhen: 'A friendly sense of depth, as in products for the general public.', risk: 'Looks generic if every element floats; keep it for a few.', exemplar: { text: 'Radix Themes, an open-source set of interface parts (three to five faint layers in each shadow)', record: R09 }, patch: { elevation: 'soft-shadow' } },
       { id: 'float', label: 'Large soft shadow (floating)', what: 'Wide, soft, layered shadows: boxes hover well above the page.', chooseWhen: 'A calm, premium, product-showcase feel, for a few showcase panels.', risk: 'In the open-source code that was studied for this Studio, wide soft shadows sit under floating menus, not under boxes at rest. Crowded floating boxes look heavy.', patch: { elevation: 'float' } },
       { id: 'hard-shadow', label: 'Solid offset shadow (sticker)', what: 'A solid block of shadow with thick outlines, like a sticker.', chooseWhen: 'Bold, playful, poster-like (the style called neo-brutalism).', risk: 'A strong fashion; dates quickly.', patch: { elevation: 'hard-shadow' } },
-      { id: 'glass', label: 'Frosted glass', what: 'Translucent boxes that blur what is behind them, with a bright top edge. The navigation bar stays in view and frosts over the page.', chooseWhen: 'Depth and atmosphere; pairs with “Soft glow from the top” or “Soft clouds of color” behind the first screen.', risk: 'Needs color behind it to read as glass, and slows drawing a little on old devices. In the open-source code that was studied for this Studio, glass appears only on floating bars such as toolbars.', patch: { elevation: 'glass' } },
-      { id: 'tonal', label: 'Darker boxes with a light top edge', what: 'Boxes are a deeper tone with a faint top highlight, like a pressed panel.', chooseWhen: 'Dark themes and instrument-panel styles.', risk: 'Subtle on light themes.', exemplar: { text: 'coss ui, the design rules of Cal.com, on dark pages (boxes get lighter as they rise)', record: R09 }, patch: { elevation: 'tonal' } },
+      { id: 'glass', label: 'Frosted glass', what: 'See-through boxes that blur what is behind them, with a bright top edge. The menu stays in view and frosts over the page.', chooseWhen: 'Depth and atmosphere; pairs with “Soft glow from the top” or “Soft clouds of color” behind the first screen.', risk: 'Needs color behind it to read as glass, and slows drawing a little on old devices. In the open-source code that was studied for this Studio, glass appears only on floating bars such as toolbars.', patch: { elevation: 'glass' } },
+      { id: 'tonal', label: 'Darker boxes with a light top edge', what: 'Boxes are a deeper tone with a faint top highlight, like a pressed panel.', chooseWhen: 'Dark pages and instrument-panel styles.', risk: 'Subtle on light pages.', exemplar: { text: 'coss ui, the design rules of Cal.com, on dark pages (boxes get lighter as they rise)', record: R09 }, patch: { elevation: 'tonal' } },
     ],
   },
   {
@@ -603,7 +604,7 @@ export const STEPS: Step[] = [
     options: [
       { id: 'flat', label: 'Solid color', what: 'One solid color.', chooseWhen: 'A clean, plain, magazine-like feel.', risk: 'None in particular.', exemplar: { text: 'Radix Themes, an open-source set of interface parts (its “solid” button)', record: R09 }, patch: { buttonFinish: 'flat' } },
       { id: 'gloss', label: 'Glossy (lit from above)', what: 'A lighter top, a bright inner edge, a fine dark ring, and a tinted shadow beneath.', chooseWhen: 'A tactile, well-made, premium feel.', risk: 'Overdone gloss looks dated; this finish keeps it subtle.', exemplar: { text: 'Radix Themes, an open-source set of interface parts (its “classic” button), and coss ui, the design rules of Cal.com (its default button)', record: R09 }, patch: { buttonFinish: 'gloss' } },
-      { id: 'glow', label: 'Glowing', what: 'A solid button that casts a soft halo of its own color.', chooseWhen: 'Dark themes; one action that must draw the eye.', risk: 'A colored glow on everything is on published lists of looks that many AI-made pages share; keep it to this one button.', exemplar: { text: 'HeroUI, an open-source set of interface parts (its “shadow” button)', record: R09 }, patch: { buttonFinish: 'glow' } },
+      { id: 'glow', label: 'Glowing', what: 'A solid button that casts a soft halo of its own color.', chooseWhen: 'Dark pages; one action that must draw the eye.', risk: 'A colored glow on everything is on published lists of looks that many AI-made pages share; keep it to this one button.', exemplar: { text: 'HeroUI, an open-source set of interface parts (its “shadow” button)', record: R09 }, patch: { buttonFinish: 'glow' } },
       { id: 'outline', label: 'Outline only', what: 'No fill: a colored outline and colored label.', chooseWhen: 'Understated pages where the button should not dominate.', risk: 'The main action stands out less.', exemplar: { text: 'coss ui, the design rules of Cal.com (its “outline” button)', record: R09 }, patch: { buttonFinish: 'outline' } },
       { id: 'soft', label: 'Pale tint', what: 'A pale tint of the main color with a colored label.', chooseWhen: 'Gentle, friendly, low-pressure.', risk: 'Can look disabled if the tint is too pale.', exemplar: { text: 'ray.so, Raycast’s open-source website (its tinted button)', record: R09 }, patch: { buttonFinish: 'soft' } },
     ],
@@ -628,7 +629,7 @@ export const STEPS: Step[] = [
     reviewed: REVIEWED,
     options: [
       { id: 'solid', label: 'One color', what: 'One color.', chooseWhen: 'Always safe; lets the letter style speak.', risk: 'None in particular.', patch: { displayTreatment: 'solid' } },
-      { id: 'ink-gradient', label: 'Subtle fade, top to bottom', what: 'Full ink at the top fading slightly toward the bottom.', chooseWhen: 'Large, heavy headlines; modern product pages.', risk: 'Invisible on small or thin type.', exemplar: { text: 'The Supabase website and the React Email website (open-source code)', record: R09 }, patch: { displayTreatment: 'ink-gradient' } },
+      { id: 'ink-gradient', label: 'Subtle fade, top to bottom', what: 'Full ink at the top fading slightly toward the bottom.', chooseWhen: 'Large, heavy headlines; modern product pages.', risk: 'Invisible on small or thin letters.', exemplar: { text: 'The Supabase website and the React Email website (open-source code)', record: R09 }, patch: { displayTreatment: 'ink-gradient' } },
       {
         id: 'accent-gradient', label: 'Two-color gradient', what: 'The headline blends from the main color into a neighboring color.', chooseWhen: 'A deliberately vivid, energetic brand.', risk: 'A headline that blends two colors is on published lists of looks that many AI-made pages share.',
         warn: { text: 'A headline that blends two colors is on published lists of looks that many AI-made pages share, so your page may look generic. “Subtle fade, top to bottom” gives depth without it.', source: ownerFile('Your Anti-Slop Checklist ("gradient text"). The finish-recipes record describes when gradient text reads as a cliché.', R02) },
@@ -655,7 +656,7 @@ export const STEPS: Step[] = [
     evidence: 'expert-opinion',
     reviewed: REVIEWED,
     options: [
-      { id: 'none', label: 'No special touch', what: 'No decoration; typography and color carry the page.', chooseWhen: 'The earlier Decisions are already bold.', risk: 'May be forgettable if the earlier Decisions were all safe.', patch: { signature: 'none' } },
+      { id: 'none', label: 'No special touch', what: 'No decoration; the letter style and the color carry the page.', chooseWhen: 'The earlier Decisions are already bold.', risk: 'May be forgettable if the earlier Decisions were all safe.', patch: { signature: 'none' } },
       { id: 'marker', label: 'Highlighter stroke on a phrase', what: 'A highlighter stroke behind the key phrase of the headline.', chooseWhen: 'One phrase carries the promise.', risk: 'Only works with a phrase worth marking.', patch: { signature: 'marker' } },
       { id: 'big-numerals', label: 'Large numbers beside the services', what: 'Oversized numbers beside each service.', chooseWhen: 'The items form a real sequence or a short, countable set.', risk: 'Numbers on things that have no order are on published lists of looks that many AI-made pages share.', focus: 'services', patch: { signature: 'big-numerals' } },
       { id: 'color-band', label: 'Solid color band of facts', what: 'The strip of facts becomes a full-width band of solid main color with large figures.', chooseWhen: 'You have true, strong facts.', risk: 'Draws all attention to the numbers; they must be real.', focus: 'facts', patch: { signature: 'color-band' } },

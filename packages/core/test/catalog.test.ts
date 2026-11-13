@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CONFLICT_RULES, CONFLICT_TESTS, DEFAULT_PARAMS, DIRECTIONS, EVIDENCE_GRADES, FONTS, HARMONY_FIXES, HARMONY_RULES, NOT_CHECKED, PAIRS, PARAM_KEYS, RULES, SOURCE_BASES, STEPS,
   assertKnownParams, closerOptions, conflicts, createProject, describeDesign, designDistance, findDirection, findStep, generateDirections, harmonize, resolvePatch,
-  tradeWordsOutsideBrackets, vaguePhrasesIn,
+  CITED_NAMES, tradeWordsOutsideBrackets, vaguePhrasesIn,
   type DesignParams, type SourceRef,
 } from '../src/index.js';
 import { allStrings, repoFileExists } from './helpers.js';
@@ -93,7 +93,7 @@ describe('Catalog: Steps and Options (hard rule 5)', () => {
 
 describe('Catalog: plain words, and one name for one thing (decision D38, finding U2-03)', () => {
   /** Names are not descriptions: the name of a font or of a Direction may hold a trade word ("Public Sans", "Cobalt Wash"). */
-  const properNames = [...Object.values(FONTS).map((font) => font.label), ...DIRECTIONS.map((d) => d.name)];
+  const properNames = [...Object.values(FONTS).map((font) => font.label), ...DIRECTIONS.map((d) => d.name), ...CITED_NAMES];
 
   /** Every text that the Studio shows as explanation: Catalog text, and the sentences that the engine writes. Source lines are checked separately. */
   function shownTexts(): { where: string; text: string }[] {
@@ -116,6 +116,26 @@ describe('Catalog: plain words, and one name for one thing (decision D38, findin
     for (const line of NOT_CHECKED) add('what the contrast checks do not cover', line);
     return out;
   }
+
+  it('has a checker that fails the texts it must fail (finding T3-05)', () => {
+    // Outside round brackets a trade word is found, whatever its capitals, wherever it stands.
+    expect(tradeWordsOutsideBrackets('The accent is strong.')).toEqual(['accent']);
+    expect(tradeWordsOutsideBrackets('ACCENT colors and Serif letters')).toEqual(['accent', 'serif']);
+    expect(tradeWordsOutsideBrackets('a quiet hue')).toEqual(['hue']);
+    expect(tradeWordsOutsideBrackets('taken from a design system')).toEqual(['design system']);
+    expect(tradeWordsOutsideBrackets('letters without feet, or sans-serif')).toEqual(['sans-serif']);
+    // Inside round brackets it is allowed; between two bracketed parts it is found.
+    expect(tradeWordsOutsideBrackets('The main color (designers call it the accent color).')).toEqual([]);
+    expect(tradeWordsOutsideBrackets('(first) the accent sits here (second)')).toEqual(['accent']);
+    // A longer word that merely contains a trade word is not a trade word; neither is a name that was handed over.
+    expect(tradeWordsOutsideBrackets('HeroUI and accented letters')).toEqual([]);
+    expect(tradeWordsOutsideBrackets('Public Sans text', ['Public Sans'])).toEqual([]);
+    expect(tradeWordsOutsideBrackets('Public Sans text')).toEqual(['sans']);
+    // The vague phrases are found, whatever their capitals.
+    expect(vaguePhrasesIn('The Builder’s judgment')).toEqual(['the builder', 'builder’s']);
+    expect(vaguePhrasesIn('A Research Helper read the files.')).toEqual(['research helper']);
+    expect(vaguePhrasesIn('A plain sentence about the Studio.')).toEqual([]);
+  });
 
   it('uses a trade word only inside round brackets, as a word to learn', () => {
     const texts = shownTexts();

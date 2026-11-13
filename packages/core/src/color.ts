@@ -77,10 +77,13 @@ export function toHex(color: Oklch): string {
   return `#${h(r)}${h(g)}${h(b)}`;
 }
 
+/**
+ * The color as it is written to the page: six hexadecimal digits, which a browser draws exactly as given.
+ * An `oklch()` value would be converted and rounded by each browser in its own way, so the drawn color could differ by
+ * one step from the color that the contrast checks measured (finding T3-01). Hexadecimal digits leave nothing to convert.
+ */
 export function toCss(color: Oklch): string {
-  const g = toGamut(color);
-  const n = (v: number, d: number): string => Number(v.toFixed(d)).toString();
-  return `oklch(${n(g.l * 100, 2)}% ${n(g.c, 4)} ${n(g.h, 2)})`;
+  return toHex(color);
 }
 
 /** WCAG 2.x relative luminance of a color. */
@@ -98,20 +101,22 @@ export function contrast(a: Oklch, b: Oklch): number {
 
 /**
  * Move the lightness of `fg` away from `bg` until the pair reaches `target` contrast.
+ * The search measures the colors as they are written to the page (each channel rounded to one of 256 steps), so the result
+ * holds for what a browser draws; a search on unrounded colors could stop a hair short after rounding (finding T3-02).
  * Returns the adjusted color, or the best reachable color if the target is unreachable.
  */
 export function ensureContrast(fg: Oklch, bg: Oklch, target: number): Oklch {
-  if (contrast(fg, bg) >= target) return fg;
+  if (writtenContrast(fg, bg) >= target) return fg;
   const darker = fg.l <= bg.l;
   const tryDirection = (toward: number): Oklch => {
     let lo = fg.l;
     let hi = toward;
     let best: Oklch = { ...fg, l: toward };
-    if (contrast(best, bg) < target) return best;
+    if (writtenContrast(best, bg) < target) return best;
     for (let i = 0; i < 24; i++) {
       const mid = (lo + hi) / 2;
       const candidate = { ...fg, l: mid };
-      if (contrast(candidate, bg) >= target) {
+      if (writtenContrast(candidate, bg) >= target) {
         best = candidate;
         hi = mid;
       } else lo = mid;
@@ -119,9 +124,9 @@ export function ensureContrast(fg: Oklch, bg: Oklch, target: number): Oklch {
     return best;
   };
   const first = tryDirection(darker ? 0 : 1);
-  if (contrast(first, bg) >= target) return first;
+  if (writtenContrast(first, bg) >= target) return first;
   const second = tryDirection(darker ? 1 : 0);
-  return contrast(second, bg) > contrast(first, bg) ? second : first;
+  return writtenContrast(second, bg) > writtenContrast(first, bg) ? second : first;
 }
 
 /**
@@ -142,11 +147,14 @@ export function ensureContrastAll(fg: Oklch, backgrounds: Oklch[], target: numbe
   return out;
 }
 
-/** A color with transparency, as CSS. Used for hairlines, glows, and glass, which must sit naturally on any surface. */
+/**
+ * A see-through color as it is written to the page: exact red, green, and blue steps, and the share of the color that shows.
+ * Used for thin lines, glows, and glass, which must sit naturally on any background.
+ */
 export function toCssAlpha(color: Oklch, alpha: number): string {
-  const g = toGamut(color);
-  const n = (v: number, d: number): string => Number(v.toFixed(d)).toString();
-  return `oklch(${n(g.l * 100, 2)}% ${n(g.c, 4)} ${n(g.h, 2)} / ${n(alpha, 3)})`;
+  const { r, g, b } = toRgb(color);
+  const step = (v: number): number => Math.round(clamp01(v) * 255);
+  return `rgb(${step(r)} ${step(g)} ${step(b)} / ${Number(alpha.toFixed(3))})`;
 }
 
 /** The sRGB color that results when `fg` at `alpha` is painted over `bg` (composited in sRGB, as browsers do). */
@@ -185,20 +193,36 @@ function emittedRgb(color: Oklch): Rgb {
 }
 const mixRgb = (f: Rgb, alpha: number, b: Rgb): Rgb => ({ r: f.r * alpha + b.r * (1 - alpha), g: f.g * alpha + b.g * (1 - alpha), b: f.b * alpha + b.b * (1 - alpha) });
 
-/**
- * As `contrastOver`, but measured on the colors as they are written to the page (each channel rounded to one of 256 steps).
- * A pair that sits exactly on its requirement before rounding can fall just below it after rounding (finding T2-01),
- * so every pass-or-fail decision uses this measure.
- */
-export function contrastOverEmitted(fg: Oklch, alpha: number, bg: Oklch): number {
-  const f = emittedRgb(fg);
-  const b = emittedRgb(bg);
-  return ratio(luminanceRgb(alpha >= 1 ? f : mixRgb(f, alpha, b)), luminanceRgb(b));
+/** Contrast of two solid colors as they are written to the page. A browser draws these exactly. */
+export function writtenContrast(a: Oklch, b: Oklch): number {
+  return ratio(luminanceRgb(emittedRgb(a)), luminanceRgb(emittedRgb(b)));
 }
 
-/** As `contrastOnWash`, measured on the colors as they are written to the page. */
+/**
+ * A blend of two written colors as a browser may draw it at worst. Browsers round a blend in slightly different ways, so the
+ * blend is taken one step, on every channel, toward the color it is measured against. A pass then holds for what any browser draws.
+ */
+function worstBlend(blend: Rgb, againstLuminance: number): Rgb {
+  const step = luminanceRgb(blend) > againstLuminance ? -1 / 255 : 1 / 255;
+  return { r: clamp01(blend.r + step), g: clamp01(blend.g + step), b: clamp01(blend.b + step) };
+}
+
+/**
+ * As `contrastOver`, but measured on the colors as they are written to the page (finding T2-01, corrected by T3-01).
+ * Two solid colors: the exact figure, because the page receives exactly these colors.
+ * A see-through color over a background: the figure for the worst blend that a browser may draw (see `worstBlend`).
+ * Every pass-or-fail decision uses this measure.
+ */
+export function contrastOverEmitted(fg: Oklch, alpha: number, bg: Oklch): number {
+  if (alpha >= 1) return writtenContrast(fg, bg);
+  const back = luminanceRgb(emittedRgb(bg));
+  return ratio(luminanceRgb(worstBlend(mixRgb(emittedRgb(fg), alpha, emittedRgb(bg)), back)), back);
+}
+
+/** As `contrastOnWash`, measured on the colors as they are written to the page, with the worst blend for the see-through layer. */
 export function contrastOnWashEmitted(fg: Oklch, wash: Oklch, alpha: number, bg: Oklch): number {
-  return ratio(luminanceRgb(emittedRgb(fg)), luminanceRgb(mixRgb(emittedRgb(wash), alpha, emittedRgb(bg))));
+  const front = luminanceRgb(emittedRgb(fg));
+  return ratio(front, luminanceRgb(worstBlend(mixRgb(emittedRgb(wash), alpha, emittedRgb(bg)), front)));
 }
 
 /** The opaque hex that results when `fg` at `alpha` is painted over `bg`. */

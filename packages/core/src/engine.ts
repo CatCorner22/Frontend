@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { DIRECTIONS, findDirection, type Direction } from './catalog/directions.js';
 import { CONFLICT_RULES, HARMONY_RULES } from './catalog/rules.js';
 import { STEPS, findStep } from './catalog/steps.js';
-import type { Option, Step } from './catalog/types.js';
+import type { Option, Step, Tunable } from './catalog/types.js';
 import { A11Y_PROFILES, DEFAULT_PARAMS, PARAM_RANGES, PARAM_VALUES, assertKnownParams, type A11yProfile, type DesignParams } from './params.js';
 import { SAMPLE_CONTENT, type SiteContent } from './templates/smallBusiness.js';
 import { deriveTokens, type DerivedTokens } from './tokens.js';
@@ -236,7 +236,12 @@ export function tune(project: Project, stepId: string, key: keyof DesignParams, 
 /** Put a Step back to the value the project started with, and remove its Decision. */
 export function revert(project: Project, stepId: string): Project {
   const step = mustStep(stepId);
-  const params = { ...project.params, ...ownedValues(step, project.base) };
+  let params = { ...project.params, ...ownedValues(step, project.base) };
+  // If the starting design matched an Option whose value follows another value ("Two colors: a third of the wheel apart"),
+  // the Step goes back to that Option, not to the starting number: the second color is worked out again from the main
+  // color as it is now. Otherwise it would match no Option and would stop following (finding T3-03).
+  const follows = step.options.find((o) => o.id === matchingOptionId(project.base, step))?.derive;
+  if (follows) params = { ...params, [follows.key]: hueTurn(params[follows.from], follows.turn) };
   const decisions = Object.fromEntries(Object.entries(project.decisions).filter(([id]) => id !== stepId));
   return rederive(project, { ...project, params, decisions }, stepId);
 }
@@ -280,9 +285,14 @@ function hueNeighbor(hue: number, direction: -1 | 1): string {
  * Small variations of a Step's current values, made by nudging its adjustable values.
  * `round` shrinks the nudge, so repeated use narrows in. Each variation is named by what the eye will see.
  */
+/** The sliders of a Step that change the design as it stands. A slider for a second color, for example, does nothing on a page with one color. */
+export function activeTunables(step: Step, params: DesignParams): Tunable[] {
+  return (step.tunables ?? []).filter((t) => !t.onlyWhen || params[t.onlyWhen.key] === t.onlyWhen.is);
+}
+
 export function closerOptions(project: Project, stepId: string, round = 0): GeneratedOption[] {
   const step = mustStep(stepId);
-  const tunables = step.tunables ?? [];
+  const tunables = activeTunables(step, project.params);
   const shrink = 1 / (1 + round * 0.6);
   const isHue = (key: keyof DesignParams): boolean => key.toLowerCase().includes('hue');
   const here = (key: keyof DesignParams, min: number, max: number): number => Math.min(max, Math.max(min, project.params[key] as number));

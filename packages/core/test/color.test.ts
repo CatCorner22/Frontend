@@ -83,7 +83,8 @@ describe('contrast repair', () => {
   it('moves a color until it reaches the target, and keeps hue and chroma', () => {
     const paleYellow: Oklch = { l: 0.9, c: 0.12, h: 95 };
     const fixed = ensureContrast(paleYellow, WHITE, 4.5);
-    expect(contrast(fixed, WHITE)).toBeGreaterThanOrEqual(4.5);
+    // The target holds for the colors as they are written to the page, measured here by the tests' own contrast code (finding T3-02).
+    expect(contrastHex(toHex(fixed), toHex(WHITE))).toBeGreaterThanOrEqual(4.5);
     expect(contrast(fixed, WHITE)).toBeLessThan(4.6);
     expect(fixed.h).toBe(paleYellow.h);
     expect(fixed.c).toBe(paleYellow.c);
@@ -98,7 +99,7 @@ describe('contrast repair', () => {
 
   it('satisfies several backgrounds at once', () => {
     const fixed = ensureContrastAll({ l: 0.8, c: 0.16, h: 88 }, [{ l: 0.985, c: 0.005, h: 80 }, WHITE, { l: 0.955, c: 0.01, h: 80 }], 3);
-    for (const bg of [{ l: 0.985, c: 0.005, h: 80 }, WHITE, { l: 0.955, c: 0.01, h: 80 }]) expect(contrast(fixed, bg)).toBeGreaterThanOrEqual(3);
+    for (const bg of [{ l: 0.985, c: 0.005, h: 80 }, WHITE, { l: 0.955, c: 0.01, h: 80 }]) expect(contrastHex(toHex(fixed), toHex(bg))).toBeGreaterThanOrEqual(3);
   });
 
   it('picks a label color that reads on any fill', () => {

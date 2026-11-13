@@ -80,6 +80,8 @@ export interface Tunable {
   nudge: number;
   /** Words for a move down and a move up, for example "cooler" and "warmer". Defaults to "less" and "more". */
   directions?: [string, string];
+  /** The slider changes the design only while this value holds. While it does not, the Studio does not offer the slider (finding U3-06). */
+  onlyWhen?: { key: keyof DesignParams; is: string };
 }
 
 export interface Step {

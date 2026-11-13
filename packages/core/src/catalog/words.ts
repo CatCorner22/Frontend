@@ -13,6 +13,8 @@ export const TRADE_WORDS: readonly string[] = [
   'hairline', 'hairlines', 'aurora', 'wash', 'washed', 'monospace', 'mono', 'tabular', 'numerals', 'masthead', 'bento', 'CTA', 'lede', 'hero',
   'AI-default', 'listed sign', 'listed signs', 'design system', 'design systems', '60-30-10', 'signature', 'density', 'hierarchy', 'neutrals',
   'viewport', 'wireframe', 'token', 'tokens', 'typeface', 'typefaces', 'editorial', 'body text', 'focus ring',
+  // Added after the third review (finding U3-05): second names for things that already have a plain name.
+  'accents', 'typography', 'navigation', 'navigation bar', 'theme', 'themes', 'tile', 'tiles',
 ];
 
 /**
@@ -20,6 +22,12 @@ export const TRADE_WORDS: readonly string[] = [
  * in any text the Studio shows, the source lines included.
  */
 export const VAGUE_PHRASES: readonly string[] = ['research helper', 'reference files', 'your own checklist', 'the builder', 'builder’s', 'the tool'];
+
+/**
+ * Names of things that the texts cite and that happen to hold a trade word. A name is not a description, so the check sets
+ * these aside, together with the names of the fonts and of the Directions.
+ */
+export const CITED_NAMES: readonly string[] = ['Radix Themes'];
 
 const escapeForPattern = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 

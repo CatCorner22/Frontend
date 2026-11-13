@@ -39,7 +39,7 @@ export interface MeasuredPair {
 export interface DerivedTokens {
   /** CSS custom properties, ready to write into a `:root { }` block. */
   css: Record<string, string>;
-  /** The same colors as opaque hex, for exports that cannot read `oklch()`. */
+  /** The colors of the measured pairs, as hexadecimal digits: the same digits that the stylesheet carries. */
   hex: Record<string, string>;
   issues: TokenIssue[];
   /** Every checked pair with its final measured ratio, in every contrast profile. */
@@ -48,6 +48,8 @@ export interface DerivedTokens {
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 const round = (v: number, d = 3): number => Number(v.toFixed(d));
+/** A measured contrast figure for display: two decimals, always rounded down, so that 4.497 never reads as "4.5" (finding T3-02). */
+const figure = (v: number): number => Math.floor(v * 100 + 1e-9) / 100;
 const rem = (px: number): string => `${round(px / 16, 4)}rem`;
 /** Repairs aim slightly above each requirement, so that the colors still meet it after they are rounded for output. */
 const MARGIN = 1.012;
@@ -281,12 +283,12 @@ function applyProfile(p: DesignParams, pal: Palette, profile: A11yProfile): Toke
     if (was === undefined) continue;
     const now = measure(pal, s);
     const repaired = profile === 'enforce' && now >= s.required;
-    issues.push({ id: s.id, pair: s.pair, ratio: round(was, 2), required: s.required, outcome: repaired ? 'repaired' : 'warning', ...(repaired ? { after: round(now, 2) } : {}) });
+    issues.push({ id: s.id, pair: s.pair, ratio: figure(was), required: s.required, outcome: repaired ? 'repaired' : 'warning', ...(repaired ? { after: figure(now) } : {}) });
   }
   if (markerBefore !== null) {
     const now = measureMarker(pal);
     const repaired = profile === 'enforce' && now >= MARKER_PAIR.required;
-    issues.push({ ...MARKER_PAIR, ratio: round(markerBefore, 2), outcome: repaired ? 'repaired' : 'warning', ...(repaired ? { after: round(now, 2) } : {}) });
+    issues.push({ ...MARKER_PAIR, ratio: figure(markerBefore), outcome: repaired ? 'repaired' : 'warning', ...(repaired ? { after: figure(now) } : {}) });
   }
   return issues;
 }
@@ -295,18 +297,18 @@ function applyProfile(p: DesignParams, pal: Palette, profile: A11yProfile): Toke
 function measurePairs(p: DesignParams, pal: Palette): MeasuredPair[] {
   const out: MeasuredPair[] = PAIRS.filter((s) => !s.applies || s.applies(p, pal)).map((s) => {
     const ratio = measure(pal, s);
-    return { id: s.id, pair: s.pair, fgToken: TOKEN_OF[s.fg], bgToken: TOKEN_OF[s.bg], alpha: s.alpha ? pal[s.alpha] : 1, kind: 'text' as const, ratio: round(ratio, 2), required: s.required, passes: ratio >= s.required };
+    return { id: s.id, pair: s.pair, fgToken: TOKEN_OF[s.fg], bgToken: TOKEN_OF[s.bg], alpha: s.alpha ? pal[s.alpha] : 1, kind: 'text' as const, ratio: figure(ratio), required: s.required, passes: ratio >= s.required };
   });
   if (markerApplies(p)) {
     const ratio = measureMarker(pal);
-    out.push({ ...MARKER_PAIR, fgToken: TOKEN_OF.heroText, bgToken: TOKEN_OF.marker, alpha: pal.markerAlpha, kind: 'wash', ratio: round(ratio, 2), passes: ratio >= MARKER_PAIR.required });
+    out.push({ ...MARKER_PAIR, fgToken: TOKEN_OF.heroText, bgToken: TOKEN_OF.marker, alpha: pal.markerAlpha, kind: 'wash', ratio: figure(ratio), passes: ratio >= MARKER_PAIR.required });
   }
   return out;
 }
 
 /** A shadow color: near-black, faintly tinted toward the neutral hue, like a real shadow. */
 function shade(p: DesignParams, alpha: number): string {
-  return p.theme === 'dark' ? `oklch(0% 0 0 / ${alpha})` : `oklch(22% 0.03 ${round(p.neutralHue, 1)} / ${alpha})`;
+  return p.theme === 'dark' ? `rgb(0 0 0 / ${alpha})` : toCssAlpha({ l: 0.22, c: 0.03, h: p.neutralHue }, alpha);
 }
 
 function elevationTokens(p: DesignParams, pal: Palette): Record<string, string> {

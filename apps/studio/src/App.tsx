@@ -1,5 +1,5 @@
 import {
-  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, conflicts, deriveTokens, findStep, matchingOptionId, resolvePatch,
+  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, activeTunables, conflicts, deriveTokens, findStep, matchingOptionId, resolvePatch,
   type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, useEffect, useMemo, useRef, useState } from 'react';
@@ -52,6 +52,9 @@ const HUE_NAMES: [number, string][] = [[25, 'red'], [55, 'orange'], [95, 'yellow
 const hueName = (hue: number): string => HUE_NAMES.reduce((best, entry) => (Math.min(Math.abs(hue - entry[0]), 360 - Math.abs(hue - entry[0])) < Math.min(Math.abs(hue - best[0]), 360 - Math.abs(hue - best[0])) ? entry : best))[1];
 
 /** The value of one slider, in words a person can picture. */
+/** The colors that a slider meets on its way around the color wheel, in order. */
+const WHEEL = [0, 60, 120, 180, 240, 300].map(hueName).filter((name, i, all) => name !== all[i - 1]);
+
 function sliderValue(t: Tunable, raw: number): string {
   if (String(t.key).toLowerCase().includes('hue')) return `${Math.round(raw)}° (${hueName(raw)})`;
   if (t.key === 'radius' && raw > t.max) return 'fully round';
@@ -84,15 +87,38 @@ function nearestOption(params: DesignParams, step: Step): Step['options'][number
   return best;
 }
 
+/**
+ * How one slider's hand-set value differs from the value of the nearest standard Option, in words, with the figure in brackets.
+ * Null when the slider stands where that Option puts it.
+ */
+function movedFrom(t: Tunable, value: number, optionValue: unknown): string | null {
+  const name = t.label.toLowerCase().replace(/ \([^)]*\)/, '');
+  if (String(t.key).toLowerCase().includes('hue')) {
+    if (typeof optionValue === 'number' && Math.min(Math.abs(value - optionValue), 360 - Math.abs(value - optionValue)) < 0.5) return null;
+    return `${name} moved toward ${hueName(value)} (${Math.round(value)}° on the color wheel)`;
+  }
+  const figure = `${Number(Math.min(value, t.max).toFixed(3))}${t.unit ?? ''}`;
+  if (typeof optionValue !== 'number') return `${name} ${figure}`;
+  const gap = value - optionValue;
+  if (Math.abs(gap) < t.step / 2) return null;
+  const words = t.directions ?? ['less', 'more'];
+  return `${name} ${Math.abs(gap) / (t.max - t.min) < 0.12 ? 'a little' : 'clearly'} ${gap < 0 ? words[0] : words[1]} (${figure})`;
+}
+
 /** The current value of a Step, in words: the matching Option's name, or the hand-set values. */
 function valueLabel(project: Project, step: Step): string {
   const match = matchingOptionId(project.params, step);
   if (match) return step.options.find((o) => o.id === match)!.label;
   if (step.tunables?.length) {
-    // Words first, numbers second: a hand-set value is named by the standard Option it lies nearest to (finding U2-04).
-    const exact = step.tunables.map((t) => `${t.label.toLowerCase()} ${sliderValue(t, project.params[t.key] as number)}`).join(', ');
+    // Words first, figures second: a hand-set design is named by the standard Option it lies nearest to, and each slider
+    // that differs says in which direction and how far (findings U2-04, U3-03, U3-04).
     const near = nearestOption(project.params, step);
-    return near ? `close to “${near.label}” (${exact})` : exact;
+    const nearValues = near ? (resolvePatch(near, project.params) as Record<string, unknown>) : {};
+    const moved = activeTunables(step, project.params)
+      .map((t) => movedFrom(t, project.params[t.key] as number, nearValues[t.key]))
+      .filter((words): words is string => words !== null);
+    if (near) return moved.length > 0 ? `close to “${near.label}”: ${moved.join('; ')}` : `close to “${near.label}”`;
+    return moved.join('; ');
   }
   return step.owns
     .map((key) => {
@@ -110,7 +136,7 @@ function stepStatus(state: Pick<StudioState, 'project' | 'generated'>, step: Ste
   if (!decision) return { state: 'open', text: `Not decided yet. Now: ${value}` };
   if (decision.kind === 'picked') return { state: 'picked', text: `Picked: ${value}` };
   if (decision.kind === 'kept') return { state: 'kept', text: `Kept: ${value}` };
-  return { state: 'tuned', text: `Set by hand: ${value}` };
+  return { state: 'tuned', text: `Set by hand, ${value}` };
 }
 
 function describeIssue(issue: TokenIssue): string {
@@ -383,6 +409,7 @@ function StepsView(): React.JSX.Element {
   const thumbWidth = step.thumb?.width ?? width;
   const thumbRatio = step.thumb?.width ? (step.thumb.width < 600 ? 0.9 : 0.6) : THUMB_RATIO[s.device];
   const lookingAtApplied = !s.variations && shown.id === applied;
+  const sliders = activeTunables(step, s.project.params);
 
   const stateKey = JSON.stringify([s.project.params, s.project.content, s.project.a11y, step.id, s.variations?.round ?? -1, s.variations?.origin ?? null, wire, s.region]);
   const thumbs = useMemo(() => {
@@ -392,6 +419,7 @@ function StepsView(): React.JSX.Element {
   }, [stateKey, cards.length]);
   // Only the Motion Step plays the entrance; on every other Step the page stands still, so that a comparison is not blurred by a fade.
   const large = useMemo(() => mockupHtml(s.project, shownParams, { wireframe: wire, focus, still: step.id !== 'motion' }), [stateKey, shown.id, focus]);
+  const readingPair = large.pairs.find((pair) => pair.id === 'text-on-page');
   const clashes = useMemo(() => conflicts({ ...s.project, params: shownParams }).filter((c) => c.stepIds.includes(step.id)), [JSON.stringify(shownParams), step.id]);
 
   // Number keys flip between cards, as an optometrist flips lenses. Enter picks the card on show.
@@ -445,6 +473,7 @@ function StepsView(): React.JSX.Element {
             <summary>What changes on this Step, and where this guidance comes from</summary>
             <p><strong>The one thing that changes:</strong> {step.variable.toLowerCase()}. Everything else stays as it is.</p>
             <p><strong>How strong the guidance is:</strong> {EVIDENCE_LABEL[step.evidence]}. Reviewed on {step.reviewed}.</p>
+            <p>The lines below name the documents behind this guidance and say how each one is known. A name that begins with “Your” is one of your own files.</p>
             <ul>
               {step.sources.map((source) => <li key={source.text}>{source.text} <em>({BASIS_LABEL[source.basis]})</em></li>)}
             </ul>
@@ -476,6 +505,9 @@ function StepsView(): React.JSX.Element {
           </button>
           <LargePreview html={large.html} width={width} replay={replay} title={`Large preview of the sample website: ${shown.label}`} />
         </div>
+        {step.id === 'contrast' && readingPair && (
+          <p className="measure" role="status">Reading text on the page background, on the card you are looking at: {readingPair.ratio} to 1. The guideline asks for at least {readingPair.required} to 1.</p>
+        )}
         {(shown.warn || large.issues.length > 0 || clashes.length > 0) && (
           <div className="notes" role="status">
             {shown.warn && <p className="note-warn"><strong>Overused look.</strong> {shown.warn}{lookingAtApplied && !decision && s.project.direction !== null ? ' Your Direction starts with this Option; you can keep it or pick another one here.' : ''}</p>}
@@ -562,7 +594,7 @@ function StepsView(): React.JSX.Element {
             </>
           ) : (
             <>
-              {step.tunables && step.tunables.length > 0 && <button type="button" className="btn" onClick={s.startVariations}>Show small variations of “{shown.label}”</button>}
+              {sliders.length > 0 && <button type="button" className="btn" onClick={s.startVariations}>Show small variations of “{shown.label}”</button>}
               {!decision && <button type="button" className="btn quiet" onClick={s.decideLater}>Decide later</button>}
               <button type="button" className="btn quiet" onClick={s.previousStep}>{index === 0 ? 'Back to the Directions' : 'Previous Step'}</button>
               {canPutBack && <button type="button" className="btn quiet" onClick={s.putBack}>Put this Step back to how the project started</button>}
@@ -570,19 +602,24 @@ function StepsView(): React.JSX.Element {
           )}
         </div>
         {!s.variations && <ReasonField stepId={step.id} />}
-        {!s.variations && step.tunables && step.tunables.length > 0 && (
+        {!s.variations && sliders.length > 0 && (
           <details className="tune">
             <summary>Adjust with sliders</summary>
             <p className="hint">Each slider changes your design as it stands, one value at a time. The large preview follows. To go back, press Undo in the top bar.</p>
-            {step.tunables.map((t) => {
+            {sliders.map((t) => {
               const value = s.project.params[t.key] as number;
-              const ends = t.directions ?? (String(t.key).toLowerCase().includes('hue') ? ['around the', 'color wheel'] : ['less', 'more']);
+              const aroundTheWheel = String(t.key).toLowerCase().includes('hue');
+              const ends = t.directions ?? ['less', 'more'];
               return (
                 <label key={String(t.key)} className="slider">
                   <span className="slider-name">{t.label}</span>
                   <output htmlFor={`tune-${String(t.key)}`}>{sliderValue(t, value)}</output>
                   <input id={`tune-${String(t.key)}`} type="range" aria-label={t.label} aria-valuetext={sliderValue(t, value)} min={t.min} max={t.max} step={t.step} value={Math.min(value, t.max)} onChange={(e) => s.tuneValue(t.key, Number(e.target.value))} />
-                  <span className="slider-ends" aria-hidden="true"><span>{ends[0]}</span><span>{ends[1]}</span></span>
+                  {aroundTheWheel ? (
+                    <span className="slider-ends" aria-hidden="true"><span>Goes around the color wheel: {WHEEL.join(', ')}, and back to {WHEEL[0]}.</span></span>
+                  ) : (
+                    <span className="slider-ends" aria-hidden="true"><span>{ends[0]}</span><span>{ends[1]}</span></span>
+                  )}
                 </label>
               );
             })}
@@ -594,6 +631,12 @@ function StepsView(): React.JSX.Element {
 }
 
 // ───────── Summary ─────────
+
+/** The time at which a copy was kept, on the reader's own clock, or an empty text when the time is unknown. */
+function keptWhen(keptAt: string): string {
+  const time = new Date(keptAt);
+  return keptAt && !Number.isNaN(time.getTime()) ? time.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '';
+}
 
 /**
  * The file a kept copy downloads as: the kept text, character for character (finding S3-03). Only the file's name depends on
@@ -689,12 +732,12 @@ function SummaryView(): React.JSX.Element {
               <ul>
                 {keptCopies.map((copy, index) => (
                   <li key={`${copy.keptAt}-${index}`}>
-                    <span>{copy.why}{copy.keptAt ? ` Kept on ${copy.keptAt.slice(0, 10)} at ${copy.keptAt.slice(11, 16)} (UTC).` : ''}</span>
+                    <span>{copy.why}{keptWhen(copy.keptAt) && <> Kept on <span className="nowrap">{keptWhen(copy.keptAt)}</span>.</>}</span>
                     <span className="button-row">
                       <button type="button" className="btn quiet" onClick={() => { const file = keptCopyFile(copy, index); void saveFile(file.name, file.text); }}>Download this kept copy</button>
                       {removing === copy ? (
                         <>
-                          <button type="button" className="btn quiet" onClick={() => { removeBackup(copy); setRemoving(null); setKeptTick((n) => n + 1); }}>Yes, remove it for good</button>
+                          <button type="button" className="btn quiet" onClick={() => { setMessage(removeBackup(copy) ? 'The kept copy was removed.' : 'This browser did not let the Studio remove the kept copy.'); setRemoving(null); setKeptTick((n) => n + 1); }}>Yes, remove it for good</button>
                           <button type="button" className="btn quiet" onClick={() => setRemoving(null)}>No, keep it</button>
                         </>
                       ) : (

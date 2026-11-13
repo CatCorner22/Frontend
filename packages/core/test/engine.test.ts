@@ -274,6 +274,27 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
     consistent(back);
   });
 
+  it('goes back to the Option, not to the starting number, when the color Step itself is put back (finding T3-03)', () => {
+    // "Sticker Pop" starts with "Two colors: a third of the wheel apart".
+    const start = applyDirection(fresh(), 'sticker-pop');
+    expect(matchingOptionId(start.params, strategy)).toBe('duo-triad');
+    const red = pick(start, 'accent', 'crimson', AT);
+    expect(matchingOptionId(red.params, strategy)).toBe('duo-triad');
+    // Put the color Step back: the second color is a third of the wheel from the main color as it is now.
+    const back = revert(red, 'color-strategy');
+    expect(matchingOptionId(back.params, strategy)).toBe('duo-triad');
+    expect(back.params.accent2Hue).toBe(red.params.accent2Hue);
+    // It keeps following afterward.
+    const blue = pick(back, 'accent', 'cobalt', AT);
+    expect(matchingOptionId(blue.params, strategy)).toBe('duo-triad');
+    consistent(blue);
+    // The same holds after a hand-set second color is put back.
+    const tuned = tune(red, 'color-strategy', 'accent2Hue', 200, AT);
+    const untuned = revert(tuned, 'color-strategy');
+    expect(matchingOptionId(untuned.params, strategy)).toBe('duo-triad');
+    expect(matchingOptionId(pick(untuned, 'accent', 'cobalt', AT).params, strategy)).toBe('duo-triad');
+  });
+
   it('never moves a second color that the owner set by hand', () => {
     const tuned = tune(pick(fresh(), 'color-strategy', 'duo-triad', AT), 'color-strategy', 'accent2Hue', 200, AT);
     const changed = pick(tuned, 'accent', 'crimson', AT);

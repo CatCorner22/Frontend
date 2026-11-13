@@ -2,7 +2,7 @@
 // Run with `npm run e2e` (which builds the page first).
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { DIRECTIONS, FONTS, STEPS, applyDirection, createProject, pick, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, type Project } from '@refraction/core';
+import { CITED_NAMES, DIRECTIONS, FONTS, STEPS, applyDirection, createProject, pick, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, type Project } from '@refraction/core';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -247,7 +247,7 @@ describe('Studio: the Step flow keeps the design the person chose', () => {
     expect(await mainButton(page)).toBe('Pick “Links in a left column” and continue');
     await page.locator('.rail a', { hasText: 'First screen' }).click();
     await waitForStep(page, 'First screen');
-    expect(await page.locator('.banner').innerText()).toContain('You looked at “Links in a left column” on “Menu (navigation)” and did not pick it');
+    expect(await page.locator('.banner').innerText()).toContain('On the Step “Menu (navigation)” you looked at “Links in a left column” but did not pick it. Your design did not change.');
     await settle(page);
     expect((await stored(page))?.decisions ?? {}).toEqual({});
     await context.close();
@@ -557,6 +557,73 @@ describe('Studio: saved work is never replaced without a word', () => {
     expect(left.length).toBe(3);
     expect(left.filter((copy) => copy.text === 'the same text twice').length).toBe(1);
     expect(left.some((copy) => copy.text === '{"some":"other shape"}')).toBe(true);
+    // A new kept copy joins a store that already holds three: all four are there afterward (finding T3-04).
+    await page.getByRole('button', { name: 'Start a new project…' }).click();
+    await page.locator('dialog[open]').getByRole('button', { name: 'Yes, clear this project' }).click();
+    await settle(page);
+    const four = await keptCopies(page);
+    expect(four.length).toBe(4);
+    expect(four[0]!.text).toContain('Weeks of work');
+    for (const copy of left) expect(four.some((kept) => kept.text === copy.text), copy.text.slice(0, 40)).toBe(true);
+    expect(await page.locator('.kept-copies li').count()).toBe(0);
+    await context.close();
+  });
+
+  it('keeps a notice in view on a phone, so that Undo is seen to work (finding U3-01)', async () => {
+    const { context, page } = await open({ viewport: { width: 375, height: 800 }, hash: '#nav', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
+    await waitForStep(page, 'Menu (navigation)');
+    await page.locator('label.option', { hasText: 'Name left, links right' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await waitForStep(page, 'First screen');
+    await page.getByRole('button', { name: 'Undo', exact: true }).click();
+    const banner = page.locator('.banner');
+    await banner.waitFor();
+    expect(await banner.innerText()).toContain('Undone: the Step “Menu (navigation)” is back to how it was.');
+    // However far down the page the person is, the notice and its button stay on the screen.
+    for (const down of [400, 1200, 2400]) {
+      await page.evaluate((y) => window.scrollTo(0, y), down);
+      expect(await page.evaluate(() => window.scrollY), `scrolled to ${down}`).toBeGreaterThan(200);
+      const box = (await banner.boundingBox())!;
+      expect(box.y, `top of the notice at ${down}`).toBeGreaterThanOrEqual(0);
+      expect(box.y + box.height, `bottom of the notice at ${down}`).toBeLessThanOrEqual(800);
+    }
+    await banner.getByRole('button', { name: 'Go to “Menu (navigation)”' }).click();
+    await waitForStep(page, 'Menu (navigation)');
+    await context.close();
+  });
+
+  it('offers the “Second color” slider only while the page has a second color, and explains a color slider in one line (finding U3-06)', async () => {
+    const start = worked('Weeks of work');
+    expect(start.params.colorStrategy).not.toBe('duo');
+    const { context, page } = await open({ hash: '#color-strategy', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(start))) } });
+    await waitForStep(page, 'Amount of color');
+    // This design has one color: no slider for a second one, and no small variations of a color that is not there.
+    expect(await page.locator('details.tune').count()).toBe(0);
+    expect(await page.getByRole('button', { name: /^Show small variations/ }).count()).toBe(0);
+    await page.locator('label.option', { hasText: 'Two colors: opposites' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await page.evaluate(() => { window.location.hash = '#color-strategy'; });
+    await waitForStep(page, 'Amount of color');
+    await page.locator('summary', { hasText: 'Adjust with sliders' }).click();
+    expect(await page.getByRole('slider', { name: 'Second color' }).count()).toBe(1);
+    const fold = await page.locator('details.tune').innerText();
+    expect(fold).toContain('Goes around the color wheel');
+    expect(fold).not.toContain('around the\n');
+    await context.close();
+  });
+
+  it('always shows the measured figure for reading text on the Step about contrast (finding U3-17)', async () => {
+    const { context, page } = await open({ hash: '#contrast', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
+    await waitForStep(page, 'Text contrast');
+    const figure = async (): Promise<number> => Number(/looking at: ([\d.]+) to 1\. The guideline asks for at least 4\.5 to 1\./.exec(await page.locator('.measure').innerText())?.[1]);
+    const first = await figure();
+    expect(first).toBeGreaterThan(1);
+    // The figure follows the card on show.
+    await page.locator('label.option', { hasText: 'Low contrast (soft)' }).click();
+    const low = await figure();
+    await page.locator('label.option', { hasText: 'High contrast (crisp)' }).click();
+    const high = await figure();
+    expect(high).toBeGreaterThan(low);
     await context.close();
   });
 
@@ -565,7 +632,7 @@ describe('Studio: saved work is never replaced without a word', () => {
     const { context, page } = await open({ hash: '#density', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(tuned))) } });
     await waitForStep(page, 'Spacing');
     const status = await page.locator('.rail a[aria-current]').innerText();
-    expect(status).toMatch(/Set by hand: close to “(Roomy|Very roomy)” \(spacing 1\.4\)/);
+    expect(status).toMatch(/Set by hand, close to “(Roomy|Very roomy)”: spacing (a little|clearly) looser \(1\.4\)/);
     await context.close();
   });
 
@@ -598,6 +665,9 @@ describe('Studio: saved work is never replaced without a word', () => {
     await dialog.getByRole('button', { name: 'Start again' }).click();
     await settle(page);
     expect((await stored(page))!.direction).toBe('ember-noir');
+    // The notice of the action is on the screen, with Undo (finding U3-08: the Studio's own change of address used to clear it).
+    expect(await page.locator('.banner').innerText()).toContain('Started again from “Ember Noir”');
+    expect(await page.locator('.banner').getByRole('button', { name: 'Undo' }).count()).toBe(1);
     await page.reload();
     await page.waitForSelector('.cards');
     // Undo is gone after the reload; the replaced project is not.
@@ -610,6 +680,8 @@ describe('Studio: saved work is never replaced without a word', () => {
     await page.waitForSelector('.summary');
     expect(await page.locator('.kept-copies li').count()).toBe(1);
     expect(await page.locator('.kept-copies li').innerText()).toContain('Weeks of work');
+    // The kept copy says which event replaced the project (finding U3-09).
+    expect(await page.locator('.kept-copies li').innerText()).toContain('before you started again from “Ember Noir”');
     await context.close();
   });
 
@@ -938,7 +1010,7 @@ describe('Studio: plain words on every screen (decision D38, finding U2-03)', ()
   it('shows no trade word outside round brackets and no vague phrase on the Directions, on every Step, and on the Summary, with no error and no outside request', async () => {
     const { context, page, errors, requests } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
     // Names are not descriptions: the name of a font or of a Direction may hold a trade word ("Public Sans", "Cobalt Wash").
-    const properNames = [...Object.values(FONTS).map((font) => font.label), ...DIRECTIONS.map((d) => d.name)];
+    const properNames = [...Object.values(FONTS).map((font) => font.label), ...DIRECTIONS.map((d) => d.name), ...CITED_NAMES];
     /**
      * The words on the screen with every fold opened. The sample website is not included (it sits in frames).
      * The list of sources is returned apart: it names documents by their titles, so only the vague-phrase rule applies to it.

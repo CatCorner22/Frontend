@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_PARAMS, DIRECTIONS, NOT_CHECKED, PAIRS, SMALL_BUSINESS_CSS, STEPS, TOKEN_OF, deriveTokens, resolvePatch, tokensToCss, type DesignParams } from '../src/index.js';
 import { contrastHex, everyDesign, remeasure } from './helpers.js';
-import { toHex } from '../src/color.js';
 
 const designs = everyDesign();
 const direction = (id: string): DesignParams => DIRECTIONS.find((d) => d.id === id)!.params;
@@ -92,7 +91,9 @@ describe('contrast profiles', () => {
         const option = step.options[Math.floor(rand() * step.options.length)]!;
         params = { ...params, ...resolvePatch(option, params) };
         for (const tunable of step.tunables ?? []) {
-          if (rand() < 0.5) params = { ...params, [tunable.key]: tunable.min + Math.round((rand() * (tunable.max - tunable.min)) / tunable.step) * tunable.step };
+          // Half of the sliders move: most to a random stop, and about a third of those to one of the two ends, where rounding costs the most (finding T3-02).
+          const roll = rand();
+          if (roll < 0.5) params = { ...params, [tunable.key]: roll < 0.08 ? tunable.min : roll < 0.16 ? tunable.max : tunable.min + Math.round((rand() * (tunable.max - tunable.min)) / tunable.step) * tunable.step };
         }
       }
       for (const profile of ['advise', 'enforce'] as const) {
@@ -100,6 +101,13 @@ describe('contrast profiles', () => {
         for (const pair of t.pairs) {
           const measured = remeasure(pair, t.hex);
           const where = `design ${i} (${profile}): ${pair.id} (${pair.fgToken} on ${pair.bgToken}), reported ${pair.ratio}, measured ${measured.toFixed(3)}`;
+          // The stylesheet carries exactly the colors that were measured, as six hexadecimal digits, which a browser draws as given (finding T3-01).
+          for (const token of [pair.fgToken, pair.bgToken]) {
+            expect(t.hex[token], `${where}: ${token}`).toMatch(/^#[0-9a-f]{6}$/);
+            expect(t.css[token], `${where}: ${token} in the stylesheet`).toBe(t.hex[token]);
+          }
+          // A figure is rounded down, so a failing pair never shows its requirement as its figure (finding T3-02).
+          if (!pair.passes) expect(pair.ratio, where).toBeLessThan(pair.required);
           if (pair.passes) expect(measured, where).toBeGreaterThanOrEqual(pair.required);
           // Under Enforce ("Fix for me") no pair stays below its requirement: measured on 2026-11-13, 0 of 56,405 pairs over these designs.
           if (profile === 'enforce') expect(pair.passes, where).toBe(true);
@@ -159,11 +167,12 @@ describe('contrast profiles', () => {
       for (const displayTreatment of ['ink-gradient', 'accent-gradient'] as const) {
         const t = deriveTokens({ ...d.params, displayTreatment }, 'enforce');
         const ground = t.hex['--hero-bg']!;
-        const stops = [...t.css['--display-fill']!.matchAll(/oklch\(([\d.]+)% ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)/g)];
+        // Each end of the fill is written as six hexadecimal digits, or as red, green, and blue steps with the share that shows.
+        const stops = [...t.css['--display-fill']!.matchAll(/#([0-9a-f]{6})\b|rgb\((\d+) (\d+) (\d+) \/ ([\d.]+)\)/g)];
         expect(stops, `${d.label}: ${displayTreatment}`).toHaveLength(2);
         for (const stop of stops) {
-          const hex = toHex({ l: Number(stop[1]) / 100, c: Number(stop[2]), h: Number(stop[3]) });
-          const measured = contrastHex(hex, ground, stop[4] === undefined ? 1 : Number(stop[4]));
+          const hex = stop[1] !== undefined ? `#${stop[1]}` : `#${[stop[2], stop[3], stop[4]].map((n) => Number(n).toString(16).padStart(2, '0')).join('')}`;
+          const measured = contrastHex(hex, ground, stop[5] === undefined ? 1 : Number(stop[5]));
           expect(measured, `${d.label}: ${displayTreatment}, stop ${stop[0]} on ${ground}`).toBeGreaterThanOrEqual(3);
         }
         fills++;

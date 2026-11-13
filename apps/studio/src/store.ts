@@ -1,6 +1,6 @@
 // The Studio's state. Every change to the design goes through the engine in @refraction/core.
 import {
-  DIRECTIONS, STEPS, applyDirection, closerOptions, createProject, findDirection, findStep, firstOpenStepId, generateDirections, keep, matchingOptionId,
+  DIRECTIONS, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findStep, firstOpenStepId, generateDirections, keep, matchingOptionId,
   nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setReason, startPlain, tune,
   type A11yProfile, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type Project, type Step,
 } from '@refraction/core';
@@ -183,9 +183,9 @@ export const useStudio = create<StudioState>((set, get) => {
    * If the copy cannot be kept, because this browser's storage is full or blocked, the Studio does not replace the project
    * silently: it asks once more and says what is at stake (finding S3-01).
    */
-  const replaceKeepingCopy = (replace: () => void): void => {
+  const replaceKeepingCopy = (replace: () => void, event: string): void => {
     const current = get().project;
-    if (!hasWork(current) || keepBackup(JSON.stringify(current), `The project “${current.name.slice(0, 60)}”, as it was when you replaced it or started again.`)) {
+    if (!hasWork(current) || keepBackup(JSON.stringify(current), `The project “${current.name.slice(0, 60)}”, as it was before ${event}.`)) {
       replace();
       return;
     }
@@ -275,13 +275,17 @@ export const useStudio = create<StudioState>((set, get) => {
     const state = get();
     const step = stepOf(stepId);
     const leaving = state.view === 'steps' && (view !== 'steps' || step.id !== state.stepId) ? stepOf(state.stepId) : null;
-    let notice = state.notice?.sticky ? state.notice : null;
+    // The Studio sets the address when it moves, and the browser then reports that change back, which enters the same place
+    // a second time. That second entry must keep the notice of the action that caused the move (finding U3-08: "Started again
+    // from …" with its Undo button vanished at once).
+    const samePlace = state.view === view && state.stepId === step.id;
+    let notice = state.notice?.sticky || samePlace ? state.notice : null;
     if (leaving && !state.variations && state.shownId !== appliedCardId(state.project, leaving)) {
       // A card that was looked at and not picked would otherwise vanish without a word (finding FTU-30).
       const looked = leaving.options.find((o) => o.id === state.shownId)?.label;
       if (looked && !notice) {
         const from = leaving.id;
-        notice = { text: `You looked at “${looked}” on “${leaving.name}” and did not pick it, so your design did not change.`, actions: [{ label: `Go back to “${leaving.name}”`, run: () => { get().go('steps', from); get().show(leaving.options.find((o) => o.label === looked)!.id); } }] };
+        notice = { text: `On the Step “${leaving.name}” you looked at “${looked}” but did not pick it. Your design did not change.`, actions: [{ label: `Go back to “${leaving.name}”`, run: () => { get().go('steps', from); get().show(leaving.options.find((o) => o.label === looked)!.id); } }] };
       }
     }
     set({ view, stepId: step.id, variations: null, region: 'auto', shownId: appliedCardId(state.project, step), notice, focusTick: state.focusTick + 1 });
@@ -514,7 +518,7 @@ export const useStudio = create<StudioState>((set, get) => {
     startVariations() {
       const state = get();
       const step = stepOf(state.stepId);
-      if (!step.tunables?.length) return;
+      if (activeTunables(step, get().project.params).length === 0) return;
       // Variations start from what is on show: a card the owner is looking at, or the design as it stands.
       const origin = ownedValues(step, paramsForCard(state, state.shownId));
       const round = state.variations ? state.variations.round + 1 : 0;
@@ -552,7 +556,7 @@ export const useStudio = create<StudioState>((set, get) => {
         enter('steps', STEPS[0]!.id);
         if (hadWork) set({ notice: { text: `Started again from “${direction.name}”.`, actions: [{ label: 'Undo', run: () => get().undo() }] } });
       };
-      const start = (): void => replaceKeepingCopy(replace);
+      const start = (): void => replaceKeepingCopy(replace, `you started again from “${direction.name}”`);
       const decided = Object.keys(project.decisions).length;
       if (decided === 0) start();
       else set({ confirmation: { title: `Start again from “${direction.name}”?`, body: `This replaces your current design and clears your ${plural(decided, 'Decision', 'Decisions')}. You can undo it until you close or reload this page. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Start again', cancelLabel: 'Keep my project', run: start } });
@@ -566,7 +570,7 @@ export const useStudio = create<StudioState>((set, get) => {
         enter('steps', STEPS[0]!.id);
         if (hadWork) set({ notice: { text: 'Started again from the plain start.', actions: [{ label: 'Undo', run: () => get().undo() }] } });
       };
-      const start = (): void => replaceKeepingCopy(replace);
+      const start = (): void => replaceKeepingCopy(replace, 'you started again from the plain start');
       if (!hasWork(project)) start();
       else set({ confirmation: { title: 'Start again from the plain start?', body: `This replaces your current design (started from ${directionName(project, get().generated)}) and clears your ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}. You can undo it until you close or reload this page. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Start again', cancelLabel: 'Keep my project', run: start } });
     },
@@ -612,7 +616,7 @@ export const useStudio = create<StudioState>((set, get) => {
         enter('summary', firstOpenStepId(parsed.project));
         set({ notice: kept });
       };
-      const open = (): void => replaceKeepingCopy(replace);
+      const open = (): void => replaceKeepingCopy(replace, `you opened the file “${fileName.slice(0, 60)}”`);
       if (!hasWork(get().project)) open();
       else set({ confirmation: { title: 'Replace the open project with this file?', body: `The file ${fileName.slice(0, 80)} holds the project “${parsed.project.name}”. Opening it replaces the project on screen. You can undo it until you close or reload this page. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Open the file', cancelLabel: 'Keep my project', run: open } });
       return null;
@@ -633,7 +637,7 @@ export const useStudio = create<StudioState>((set, get) => {
               const kept = get().notice;
               enter('directions', STEPS[0]!.id);
               set({ notice: kept });
-            }),
+            }, 'you started a new project'),
         },
       });
     },
@@ -649,7 +653,7 @@ export const useStudio = create<StudioState>((set, get) => {
       const wholeProject = now.direction !== previous.direction || touched.length > 3;
       const first = touched[0];
       const text = wholeProject || !first
-        ? 'Undone: your project is back to how it was before the last change.'
+        ? `Undone: your earlier project is back, the one that started from ${directionName(previous, get().generated)}.`
         : touched.length === 1
           ? `Undone: the Step “${first.name}” is back to how it was.`
           : `Undone: the Steps ${touched.map((st) => `“${st.name}”`).join(' and ')} are back to how they were.`;

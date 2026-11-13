@@ -220,3 +220,76 @@ describe('Mockup: no look changes by accident (decision D8)', () => {
     expect(mean > 1.5 || share > 0.012).toBe(true);
   });
 });
+
+describe('Contrast: what the browser itself draws (finding T3-01)', () => {
+  it('draws every color pair that the Studio calls passing at or above its requirement, measured from pixels in the browser', async () => {
+    // The Studio writes each measured color to the page as six hexadecimal digits. This test hands those same texts to the
+    // browser, lets the browser paint them (a see-through color over its background included), reads the pixels back, and
+    // measures the contrast from the pixels. It measures the page, where the unit tests measure a model of the page.
+    let seed = 20261113;
+    const rand = (): number => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let v = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      v = (v + Math.imul(v ^ (v >>> 7), 61 | v)) ^ v;
+      return ((v ^ (v >>> 14)) >>> 0) / 4294967296;
+    };
+    const designs: { label: string; params: DesignParams }[] = [{ label: 'plain start', params: DEFAULT_PARAMS }, ...DIRECTIONS.map((d) => ({ label: d.id, params: d.params }))];
+    for (let i = 0; i < 400; i++) {
+      let params: DesignParams = i % 3 === 0 ? DEFAULT_PARAMS : DIRECTIONS[Math.floor(rand() * DIRECTIONS.length)]!.params;
+      for (const step of STEPS) {
+        params = { ...params, ...resolvePatch(step.options[Math.floor(rand() * step.options.length)]!, params) };
+        for (const tunable of step.tunables ?? []) {
+          const roll = rand();
+          if (roll < 0.5) params = { ...params, [tunable.key]: roll < 0.1 ? tunable.min : roll < 0.2 ? tunable.max : tunable.min + Math.round((rand() * (tunable.max - tunable.min)) / tunable.step) * tunable.step };
+        }
+      }
+      designs.push({ label: `random design ${i}`, params });
+    }
+    interface Job { label: string; fg: string; bg: string; ground: string; alpha: number; wash: boolean; required: number; passes: boolean }
+    const jobs: Job[] = [];
+    for (const design of designs) {
+      for (const profile of ['advise', 'enforce'] as const) {
+        const tokens = deriveTokens(design.params, profile);
+        for (const pair of tokens.pairs) {
+          jobs.push({ label: `${design.label} (${profile}): ${pair.id}`, fg: tokens.css[pair.fgToken]!, bg: tokens.css[pair.bgToken]!, ground: tokens.css['--hero-bg']!, alpha: pair.alpha, wash: pair.kind === 'wash', required: pair.required, passes: pair.passes });
+        }
+      }
+    }
+    // Every color handed to the browser is six hexadecimal digits: nothing is left for the browser to convert.
+    for (const job of jobs) for (const color of [job.fg, job.bg, job.ground]) expect(color, job.label).toMatch(/^#[0-9a-f]{6}$/);
+    const result = await page.evaluate((list) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 1;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+      const paint = (layers: [string, number][]): [number, number, number] => {
+        ctx.globalAlpha = 1;
+        ctx.clearRect(0, 0, 1, 1);
+        for (const [color, alpha] of layers) {
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = color;
+          ctx.fillRect(0, 0, 1, 1);
+        }
+        const pixel = ctx.getImageData(0, 0, 1, 1).data;
+        return [pixel[0]!, pixel[1]!, pixel[2]!];
+      };
+      const luminance = (rgb: [number, number, number]): number => {
+        const linear = (step: number): number => (step / 255 <= 0.04045 ? step / 255 / 12.92 : ((step / 255 + 0.055) / 1.055) ** 2.4);
+        return 0.2126 * linear(rgb[0]) + 0.7152 * linear(rgb[1]) + 0.0722 * linear(rgb[2]);
+      };
+      const contrast = (a: [number, number, number], b: [number, number, number]): number => (Math.max(luminance(a), luminance(b)) + 0.05) / (Math.min(luminance(a), luminance(b)) + 0.05);
+      const short: string[] = [];
+      let passing = 0;
+      for (const job of list) {
+        // A wash: solid text over a see-through layer on the first screen. Otherwise: a color, possibly see-through, over its background.
+        const drawn = job.wash ? contrast(paint([[job.fg, 1]]), paint([[job.ground, 1], [job.bg, job.alpha]])) : contrast(paint([[job.bg, 1], [job.fg, job.alpha]]), paint([[job.bg, 1]]));
+        if (job.passes) {
+          passing++;
+          if (drawn < job.required) short.push(`${job.label}: the browser draws ${drawn.toFixed(4)} to 1, the requirement is ${job.required}`);
+        }
+      }
+      return { short, passing };
+    }, jobs);
+    expect(result.short.slice(0, 5)).toEqual([]);
+    expect(result.passing).toBeGreaterThan(10000);
+  }, 120000);
+});
