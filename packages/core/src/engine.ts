@@ -174,8 +174,12 @@ function rederive(before: Project, after: Project, actedStepId: string): Project
     if (!step) continue;
     const optionId = matchingOptionId(params, step);
     const values = ownedValues(step, params);
-    if (decision.optionId === optionId && JSON.stringify(decision.values) === JSON.stringify(values)) continue;
-    decisions = { ...decisions, [stepId]: { ...decision, optionId, values } };
+    // A Decision never lists as rejected the Option that it holds. A slider moved onto the exact value of an Option that was
+    // rejected earlier would otherwise leave a record that contradicts itself; opening the saved project then "corrected" it
+    // and said that opening had changed details (campaign 4, finding F-14).
+    const rejected = optionId !== null && decision.rejected.includes(optionId) ? decision.rejected.filter((id) => id !== optionId) : decision.rejected;
+    if (decision.optionId === optionId && rejected === decision.rejected && JSON.stringify(decision.values) === JSON.stringify(values)) continue;
+    decisions = { ...decisions, [stepId]: { ...decision, optionId, values, rejected } };
     changed = true;
   }
   return changed ? { ...after, params, decisions } : after;

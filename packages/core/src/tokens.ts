@@ -533,6 +533,10 @@ function typeTokens(p: DesignParams): Record<string, string> {
   out['--h3-size'] = 'min(var(--text-xl), 7vw)';
   out['--numeral-size'] = 'min(var(--text-3xl), 11vw)';
   out['--brand-size'] = 'min(var(--text-lg), 6vw)';
+  // The main headline is the largest text on the page: it stays above the opening paragraph and above every section heading.
+  // Without this floor, a headline in capitals (which is set smaller, see --display-scale) fell below the section headings on
+  // phones and tablets (campaign 4, findings F-6 and F-13).
+  out['--h1-floor'] = 'max(calc(var(--lede-size) * 1.25), calc(var(--h2-size) * 1.15))';
   out['--font-heading'] = FONTS[p.fontHeading].stack;
   out['--font-body'] = FONTS[p.fontBody].stack;
   out['--font-mono'] = FONTS['jetbrains-mono'].stack;

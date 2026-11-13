@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PARAMS, DIRECTIONS, REASON_MAX, STEPS,
   applyDirection, closerOptions, conflicts, createProject, deriveTokens, describeDesign, designDistance, findStep, firstOpenStepId, generateDirections, keep,
-  matchingOptionId, nearestSliderValue, nextSliderValue, nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setReason, startPlain, tune, wireframeParams,
+  matchingOptionId, nearestSliderValue, nextSliderValue, nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, resolvePatch, revert, setReason, startPlain, tune, wireframeParams,
   type DesignParams, type Project,
 } from '../src/index.js';
 
@@ -145,6 +145,22 @@ describe('engine: fine-tuning by hand', () => {
     }
   });
 
+  it('never lists as rejected the Option that a Decision holds, when a slider lands on a rejected Option (campaign 4, finding F-14)', () => {
+    // Pick "crisp": the other Options of the Step are now rejected. Then move the slider onto the exact value of "soft".
+    const picked = pick(fresh(), 'contrast', 'crisp', AT);
+    expect(picked.decisions['contrast']!.rejected).toContain('soft');
+    const soft = step('contrast').options.find((o) => o.id === 'soft')!.patch.contrast as number;
+    const moved = tune(picked, 'contrast', 'contrast', soft, AT);
+    const decision = moved.decisions['contrast']!;
+    expect(decision).toMatchObject({ kind: 'tuned', optionId: 'soft' });
+    expect(decision.rejected).not.toContain('soft');
+    expect(decision.rejected).toEqual(['balanced']);
+    // Saving and opening the project changes nothing, so the Studio has no reason to say that opening changed details.
+    const reopened = parseProject(JSON.parse(JSON.stringify(moved)));
+    expect(reopened.ok && reopened.project.decisions['contrast']).toEqual(decision);
+    expect(reopened.ok && reopened.notes).toEqual([]);
+  });
+
   it('clamps to the slider range and refuses values that are not numbers or not adjustable', () => {
     expect(tune(fresh(), 'radius', 'radius', 500, AT).params.radius).toBe(28);
     expect(tune(fresh(), 'radius', 'radius', -5, AT).params.radius).toBe(0);
@@ -282,6 +298,7 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
     for (const [id, d] of Object.entries(p.decisions)) {
       expect(d.optionId, `${id}: the Decision names the Option that the design matches`).toBe(matchingOptionId(p.params, step(id)));
       expect(d.values, `${id}: the Decision holds the design's values`).toEqual(ownedValues(step(id), p.params));
+      if (d.optionId !== null) expect(d.rejected, `${id}: the Decision does not reject the Option it holds`).not.toContain(d.optionId);
     }
   };
 
@@ -375,7 +392,11 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
           ran = 'keep';
         } else if (kind === 2 && s.tunables?.length) {
           const tunable = any(s.tunables);
-          p = tune(p, s.id, tunable.key, tunable.min + rand() * (tunable.max - tunable.min), AT);
+          // Half of the slider moves land exactly on the value of one of the Step's Options, as a key press on the slider's
+          // grid does; the other half land anywhere. An exact landing on a rejected Option once left a Decision that
+          // contradicted itself (campaign 4, finding F-14), and a sweep with only "anywhere" values never met that case.
+          const onOption = rand() < 0.5 ? resolvePatch(any(s.options), p.params)[tunable.key] : undefined;
+          p = tune(p, s.id, tunable.key, typeof onOption === 'number' ? onOption : tunable.min + rand() * (tunable.max - tunable.min), AT);
           ran = 'slider';
         } else if (kind === 3 && s.tunables?.length && closerOptions(p, s.id).length > 0) {
           p = pickValues(p, s.id, any(closerOptions(p, s.id, Math.floor(rand() * 3))).values, AT);

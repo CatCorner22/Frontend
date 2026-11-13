@@ -199,21 +199,27 @@ describe('Mockup: fits a phone, and keeps the headline the largest text (campaig
     expect(wide).toEqual([]);
   }, 240_000);
 
-  it('never draws the main headline smaller than the reading text, at phone and desktop widths', async () => {
+  it('keeps the main headline the largest text: above the reading text and above every section heading, at phone, tablet, and desktop widths', async () => {
     const small: string[] = [];
-    for (const viewport of [{ width: 375, height: 800 }, { width: 1280, height: 800 }]) {
+    for (const viewport of [{ width: 375, height: 800 }, { width: 768, height: 900 }, { width: 1280, height: 800 }]) {
       await page.setViewportSize(viewport);
       for (const direction of [{ name: 'plain start', params: DEFAULT_PARAMS }, ...DIRECTIONS]) {
         for (const design of reachable(direction.params, ['size-scale', 'heading-treatment', 'hero', 'emphasis'])) {
           await show(mockup(design.params, 'top'));
-          const sizes = await page.evaluate(() => ({ h1: parseFloat(getComputedStyle(document.querySelector('.hero h1')!).fontSize), text: parseFloat(getComputedStyle(document.querySelector('.lede')!).fontSize) }));
-          if (sizes.h1 < sizes.text * 1.1) small.push(`${direction.name}, ${design.label}, ${viewport.width} px: headline ${sizes.h1.toFixed(1)} px, text ${sizes.text.toFixed(1)} px`);
+          const sizes = await page.evaluate(() => {
+            const size = (el: Element): number => parseFloat(getComputedStyle(el).fontSize);
+            return { h1: size(document.querySelector('.hero h1')!), text: size(document.querySelector('.lede')!), heading: Math.max(...[...document.querySelectorAll('h2, h3')].map(size)) };
+          });
+          const where = `${direction.name}, ${design.label}, ${viewport.width} px`;
+          if (sizes.h1 < sizes.text * 1.1) small.push(`${where}: headline ${sizes.h1.toFixed(1)} px, reading text ${sizes.text.toFixed(1)} px`);
+          // Campaign 4, finding F-13: on three Directions the headline (26 px) stood below the section headings (32 px) on a phone.
+          if (sizes.h1 < sizes.heading * 1.1) small.push(`${where}: headline ${sizes.h1.toFixed(1)} px, largest section heading ${sizes.heading.toFixed(1)} px`);
         }
       }
     }
     await page.setViewportSize({ width: 1280, height: 800 });
     expect(small).toEqual([]);
-  }, 480_000);
+  }, 600_000);
 });
 
 describe('Mockup: no look changes by accident (decision D8)', () => {
