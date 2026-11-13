@@ -1,7 +1,7 @@
 // Token derivation: a few design parameters in, the complete set of design tokens out.
 // A token is a named value (a color, a size, a shadow recipe) that the Mockup and the exported files both use.
 
-import { contrastOnWash, contrastOver, ensureContrast, ensureContrastAll, hexOver, readableOn, shiftH, shiftL, toCss, toCssAlpha, toHex, type Oklch } from './color.js';
+import { contrastOnWashEmitted, contrastOverEmitted, ensureContrast, ensureContrastAll, hexOver, readableOn, shiftH, shiftL, toCss, toCssAlpha, toHex, type Oklch } from './color.js';
 import { FONTS, type A11yProfile, type DesignParams } from './params.js';
 
 export interface TokenIssue {
@@ -228,10 +228,11 @@ export const NOT_CHECKED: readonly string[] = [
   'Anything a person must judge: whether the page reads well in sunlight, with a screen reader, or to a person with low vision.',
 ];
 
-const measure = (pal: Palette, spec: PairSpec): number => contrastOver(pal[spec.fg], spec.alpha ? pal[spec.alpha] : 1, pal[spec.bg]);
+// Every pair is measured on the colors as they are written to the page, so that "passes" means the emitted colors pass (finding T2-01).
+const measure = (pal: Palette, spec: PairSpec): number => contrastOverEmitted(pal[spec.fg], spec.alpha ? pal[spec.alpha] : 1, pal[spec.bg]);
 const markerApplies = (p: DesignParams): boolean => p.signature === 'marker';
 const MARKER_PAIR = { id: 'marked-phrase', pair: 'The headline phrase over its highlighter stroke', required: 3 };
-const measureMarker = (pal: Palette): number => contrastOnWash(pal.heroText, pal.marker, pal.markerAlpha, pal.heroBg);
+const measureMarker = (pal: Palette): number => contrastOnWashEmitted(pal.heroText, pal.marker, pal.markerAlpha, pal.heroBg);
 
 /**
  * Apply the contrast profile.

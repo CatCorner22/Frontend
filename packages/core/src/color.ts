@@ -177,6 +177,30 @@ export function contrastOnWash(fg: Oklch, wash: Oklch, alpha: number, bg: Oklch)
   return ratio(luminance(fg), luminanceRgb(rgbOver(wash, alpha, bg)));
 }
 
+const quantize = (v: number): number => Math.round(clamp01(v) * 255) / 255;
+/** The sRGB channels of a color as it is written to the page: each channel is one of 256 steps. */
+function emittedRgb(color: Oklch): Rgb {
+  const c = toRgb(color);
+  return { r: quantize(c.r), g: quantize(c.g), b: quantize(c.b) };
+}
+const mixRgb = (f: Rgb, alpha: number, b: Rgb): Rgb => ({ r: f.r * alpha + b.r * (1 - alpha), g: f.g * alpha + b.g * (1 - alpha), b: f.b * alpha + b.b * (1 - alpha) });
+
+/**
+ * As `contrastOver`, but measured on the colors as they are written to the page (each channel rounded to one of 256 steps).
+ * A pair that sits exactly on its requirement before rounding can fall just below it after rounding (finding T2-01),
+ * so every pass-or-fail decision uses this measure.
+ */
+export function contrastOverEmitted(fg: Oklch, alpha: number, bg: Oklch): number {
+  const f = emittedRgb(fg);
+  const b = emittedRgb(bg);
+  return ratio(luminanceRgb(alpha >= 1 ? f : mixRgb(f, alpha, b)), luminanceRgb(b));
+}
+
+/** As `contrastOnWash`, measured on the colors as they are written to the page. */
+export function contrastOnWashEmitted(fg: Oklch, wash: Oklch, alpha: number, bg: Oklch): number {
+  return ratio(luminanceRgb(emittedRgb(fg)), luminanceRgb(mixRgb(emittedRgb(wash), alpha, emittedRgb(bg))));
+}
+
 /** The opaque hex that results when `fg` at `alpha` is painted over `bg`. */
 export function hexOver(fg: Oklch, alpha: number, bg: Oklch): string {
   const c = rgbOver(fg, alpha, bg);

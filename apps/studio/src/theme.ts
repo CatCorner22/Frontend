@@ -36,7 +36,8 @@ const passes = (key: string): boolean => PASS_EXACT.has(key) || PASS_PREFIX.some
 function block(params: DesignParams): string {
   const tokens = deriveTokens(params, 'enforce').css;
   return Object.entries(tokens)
-    .filter(([key]) => passes(key))
+    // The same guard as the exporter's: a value with one of these characters could break out of the style block (finding S2-09).
+    .filter(([key, value]) => passes(key) && !/[<>{};]/.test(value))
     .map(([key, value]) => `${key}:${value};`)
     .join('');
 }

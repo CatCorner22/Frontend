@@ -94,6 +94,8 @@ const envelope = (project: unknown, savedAt = '2026-11-13T10:00:00.000Z'): strin
 const stored = (page: Page): Promise<Project | null> =>
   page.evaluate((key) => (JSON.parse(window.localStorage.getItem(key) ?? 'null') as { project: Project } | null)?.project ?? null, LOCAL_KEY);
 const rawStored = (page: Page, key: string): Promise<string | null> => page.evaluate((k) => window.localStorage.getItem(k), key);
+/** Every copy the Studio kept, newest first. */
+const keptCopies = async (page: Page): Promise<{ why: string; text: string }[]> => JSON.parse((await rawStored(page, BACKUP_KEY)) ?? '[]') as { why: string; text: string }[];
 const mainButton = (page: Page): Promise<string> => page.locator('.actions.sticky .primary').innerText();
 const settle = (page: Page): Promise<void> => page.waitForTimeout(700);
 
@@ -361,7 +363,7 @@ describe('Studio: saved work is never replaced without a word', () => {
       await page.locator('#project-name').fill('Something newer');
       await settle(page);
       expect((await stored(page))?.name, label).toBe('Something newer');
-      expect((JSON.parse((await rawStored(page, BACKUP_KEY))!) as { text: string }).text.length, label).toBeGreaterThan(100);
+      expect((await keptCopies(page))[0]!.text.length, label).toBeGreaterThan(100);
       await context.close();
     }
   });
@@ -394,8 +396,94 @@ describe('Studio: saved work is never replaced without a word', () => {
     const s2 = await open({ storage: { [LOCAL_KEY]: envelope(older, '2026-11-06T10:00:00.000Z') }, pageDb: { doc: { project: JSON.stringify(newer), savedAt: '2026-11-13T10:00:00.000Z' } } });
     await s2.page.waitForSelector('.cards');
     expect(await s2.page.locator('#project-name').inputValue()).toBe('Weeks of work');
-    expect((JSON.parse((await rawStored(s2.page, BACKUP_KEY))!) as { text: string }).text).toContain('Old copy from last week');
+    expect((await keptCopies(s2.page))[0]!.text).toContain('Old copy from last week');
     await s2.context.close();
+  });
+
+  it('never replaces a copy it kept earlier: each new kept copy joins the others (finding S2-01)', async () => {
+    const older = worked('Old copy from last week');
+    const newer = worked('Weeks of work');
+    // An earlier version of the Studio stored one kept copy, as a single record.
+    const earlier = JSON.stringify({ keptAt: '2026-11-01T08:00:00.000Z', why: 'A saved copy that could not be read.', text: '{"schemaVersion":3,"name":"work from a newer Studio"}' });
+    // Case 1: two readable copies differ. The older one is kept, next to the earlier kept copy.
+    const one = await open({ hash: '#summary', storage: { [BACKUP_KEY]: earlier, [LOCAL_KEY]: envelope(older, '2026-11-06T10:00:00.000Z') }, pageDb: { doc: { project: JSON.stringify(newer), savedAt: '2026-11-13T10:00:00.000Z' } } });
+    await one.page.waitForSelector('.summary');
+    const afterOne = (await keptCopies(one.page)).map((copy) => copy.text);
+    expect(afterOne.some((text) => text.includes('work from a newer Studio'))).toBe(true);
+    expect(afterOne.some((text) => text.includes('Old copy from last week'))).toBe(true);
+    // The Summary lists both, each with its own download.
+    expect(await one.page.locator('.kept-copies li').count()).toBe(2);
+    expect(await one.page.getByRole('button', { name: 'Download this kept copy' }).count()).toBe(2);
+    // Removing a kept copy takes two deliberate presses, and removes only that copy.
+    await one.page.getByRole('button', { name: 'Remove this kept copy…' }).first().click();
+    expect((await keptCopies(one.page)).length).toBe(2);
+    await one.page.getByRole('button', { name: 'Yes, remove it for good' }).click();
+    expect((await keptCopies(one.page)).map((copy) => copy.text).join(' ')).toContain('work from a newer Studio');
+    expect((await keptCopies(one.page)).length).toBe(1);
+    await one.context.close();
+    // Case 2: the stored copy cannot be read. It is kept, next to the earlier kept copy.
+    const two = await open({ storage: { [BACKUP_KEY]: earlier, [LOCAL_KEY]: '{"savedAt":"x","project":{"schemaVersion":2}}' } });
+    await two.page.locator('.banner').waitFor();
+    const afterTwo = (await keptCopies(two.page)).map((copy) => copy.text);
+    expect(afterTwo.some((text) => text.includes('work from a newer Studio'))).toBe(true);
+    expect(afterTwo.length).toBe(2);
+    await two.context.close();
+    // Case 3: content in the kept-copy store that this version cannot interpret is itself kept, not thrown away.
+    const three = await open({ storage: { [BACKUP_KEY]: 'not a record at all', [LOCAL_KEY]: '{"savedAt":"x","project":{"schemaVersion":2}}' } });
+    await three.page.locator('.banner').waitFor();
+    expect((await keptCopies(three.page)).map((copy) => copy.text)).toContain('not a record at all');
+    await three.context.close();
+  });
+
+  it('keeps the project that "Start again" replaces, so that it survives a reload (finding U2-01)', async () => {
+    const { context, page } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
+    await page.getByRole('button', { name: 'Start from Ember Noir' }).click();
+    const dialog = page.locator('dialog[open]');
+    await dialog.waitFor();
+    // The dialog no longer promises more than Undo can do.
+    expect(await dialog.innerText()).toContain('until you close or reload this page');
+    await dialog.getByRole('button', { name: 'Start again' }).click();
+    await settle(page);
+    expect((await stored(page))!.direction).toBe('ember-noir');
+    await page.reload();
+    await page.waitForSelector('.cards');
+    // Undo is gone after the reload; the replaced project is not.
+    const kept = await keptCopies(page);
+    expect(kept.length).toBe(1);
+    const replaced = JSON.parse(kept[0]!.text) as Project;
+    expect(replaced.direction).toBe('paper-and-ink');
+    expect(Object.keys(replaced.decisions)).toContain('nav');
+    await page.evaluate(() => { window.location.hash = '#summary'; });
+    await page.waitForSelector('.summary');
+    expect(await page.locator('.kept-copies li').count()).toBe(1);
+    expect(await page.locator('.kept-copies li').innerText()).toContain('Weeks of work');
+    await context.close();
+  });
+
+  it('keeps the saved copy as it was, when opening changes it (finding S2-02)', async () => {
+    const base = worked('Weeks of work');
+    const longReason = 'r'.repeat(500);
+    const future = { stepId: 'future-step', optionId: null, kind: 'kept', rejected: [], values: {}, at: '2026-11-01T10:00:00.000Z', reason: 'my notes on a future step' };
+    const original = envelope({ ...base, decisions: { ...base.decisions, nav: { ...base.decisions['nav']!, reason: longReason }, 'future-step': future } });
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: original } });
+    const banner = page.locator('.banner');
+    await banner.waitFor();
+    expect(await banner.innerText()).toContain('The Studio kept the copy as it was');
+    expect(await banner.innerText()).toContain('shortened');
+    // One ordinary change saves the opened project over the stored copy.
+    await page.locator('#project-name').fill('Weeks of work, renamed');
+    await settle(page);
+    expect(Object.keys((await stored(page))!.decisions)).not.toContain('future-step');
+    // The original, with the Decision and the whole reason, is among the kept copies.
+    const kept = (await keptCopies(page)).map((copy) => copy.text);
+    expect(kept.some((text) => text.includes('my notes on a future step') && text.includes(longReason))).toBe(true);
+    await context.close();
+    // The control: a project that this version wrote itself opens unchanged, so nothing is kept and nothing is announced.
+    const plain = await open({ storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(base))) } });
+    await plain.page.waitForSelector('.cards');
+    expect(await plain.page.locator('.banner').count()).toBe(0);
+    expect(await rawStored(plain.page, BACKUP_KEY)).toBeNull();
+    await plain.context.close();
   });
 
   it('keeps the browser copy when the page database holds something that is not a project (finding SEC-02, case a)', async () => {

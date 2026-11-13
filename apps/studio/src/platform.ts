@@ -135,23 +135,67 @@ export async function retryPageRead(): Promise<LoadResult['page']> {
   return readPage();
 }
 
-/** Keep a copy that is about to be replaced, or that could not be read. Returns false when the browser refuses. */
+export interface KeptCopy { keptAt: string; why: string; text: string }
+
+/**
+ * Every kept copy, newest first. The Studio keeps a copy whenever it is about to replace saved work, or cannot read it.
+ * An earlier version stored one copy only; that single copy, and any content this version cannot interpret, is carried over (finding S2-01).
+ */
+export function readBackups(): KeptCopy[] {
+  let raw: string | null;
+  try {
+    raw = window.localStorage.getItem(BACKUP_KEY);
+  } catch {
+    return [];
+  }
+  if (!raw) return [];
+  const one = (value: unknown): KeptCopy | null => {
+    if (typeof value !== 'object' || value === null) return null;
+    const record = value as Record<string, unknown>;
+    return typeof record['text'] === 'string' ? { keptAt: String(record['keptAt'] ?? ''), why: String(record['why'] ?? ''), text: record['text'] } : null;
+  };
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.map(one).filter((copy): copy is KeptCopy => copy !== null);
+    const single = one(parsed);
+    if (single) return [single];
+  } catch {
+    // Fall through: the content is kept as it is, as one copy.
+  }
+  return [{ keptAt: '', why: 'An earlier kept copy, in a form this version of the Studio does not know.', text: raw }];
+}
+
+/**
+ * Keep a copy that is about to be replaced, or that could not be read. It joins the copies already kept; it never replaces one.
+ * Returns false when the browser refuses (for example, storage is full); the copies already kept stay as they were.
+ */
 export function keepBackup(text: string, why: string): boolean {
   try {
-    window.localStorage.setItem(BACKUP_KEY, JSON.stringify({ keptAt: new Date().toISOString(), why, text }));
+    const kept = readBackups();
+    if (kept.some((copy) => copy.text === text)) return true;
+    window.localStorage.setItem(BACKUP_KEY, JSON.stringify([{ keptAt: new Date().toISOString(), why, text }, ...kept]));
     return true;
   } catch {
     return false;
   }
 }
 
-export function readBackup(): { keptAt: string; why: string; text: string } | null {
+/** Remove one kept copy, on the owner's explicit request. Returns false when the browser refuses. */
+export function removeBackup(copy: KeptCopy): boolean {
   try {
-    const raw = window.localStorage.getItem(BACKUP_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    if (typeof parsed['text'] !== 'string') return null;
-    return { keptAt: String(parsed['keptAt'] ?? ''), why: String(parsed['why'] ?? ''), text: parsed['text'] };
+    const rest = readBackups().filter((other) => !(other.text === copy.text && other.keptAt === copy.keptAt));
+    if (rest.length === 0) window.localStorage.removeItem(BACKUP_KEY);
+    else window.localStorage.setItem(BACKUP_KEY, JSON.stringify(rest));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** The text of the copy now stored in this browser, or null. Used to keep that copy before the owner's choice replaces it. */
+export function storedBrowserText(): string | null {
+  try {
+    return window.localStorage.getItem(LOCAL_KEY);
   } catch {
     return null;
   }

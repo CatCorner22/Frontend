@@ -150,6 +150,8 @@ describe('saved projects: references to the Catalog are recomputed, never truste
     const base = roundTrip(busyProject()) as Record<string, any>;
     base.decisions.nav.reason = 'r'.repeat(500);
     expect(ok(base).project.decisions['nav']!.reason).toHaveLength(280);
+    // The cut is announced, never silent (finding S2-02).
+    expect(ok(base).notes.join(' ')).toContain('shortened');
     base.decisions.nav.reason = 'r'.repeat(601);
     expect(parseProject(base).ok).toBe(false);
   });

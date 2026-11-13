@@ -74,6 +74,41 @@ describe('contrast profiles', () => {
     expect(checked).toBeGreaterThan(5000);
   });
 
+  it('a pair marked as passing passes when measured again from the emitted colors, across thousands of random combinations (finding T2-01)', () => {
+    // The designs above change one Option at a time. A shortfall of a fraction of a percent appeared only where three or more choices met,
+    // so this sweep combines a random Option on every Step with random slider values. The seed is fixed: the same designs every run.
+    let seed = 20261113;
+    const rand = (): number => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let v = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      v = (v + Math.imul(v ^ (v >>> 7), 61 | v)) ^ v;
+      return ((v ^ (v >>> 14)) >>> 0) / 4294967296;
+    };
+    let checked = 0;
+    for (let i = 0; i < 3000; i++) {
+      let params: DesignParams = i % 3 === 0 ? DEFAULT_PARAMS : DIRECTIONS[Math.floor(rand() * DIRECTIONS.length)]!.params;
+      for (const step of STEPS) {
+        const option = step.options[Math.floor(rand() * step.options.length)]!;
+        params = { ...params, ...resolvePatch(option, params) };
+        for (const tunable of step.tunables ?? []) {
+          if (rand() < 0.5) params = { ...params, [tunable.key]: tunable.min + Math.round((rand() * (tunable.max - tunable.min)) / tunable.step) * tunable.step };
+        }
+      }
+      for (const profile of ['advise', 'enforce'] as const) {
+        const t = deriveTokens(params, profile);
+        for (const pair of t.pairs) {
+          const measured = remeasure(pair, t.hex);
+          const where = `design ${i} (${profile}): ${pair.id} (${pair.fgToken} on ${pair.bgToken}), reported ${pair.ratio}, measured ${measured.toFixed(3)}`;
+          if (pair.passes) expect(measured, where).toBeGreaterThanOrEqual(pair.required);
+          // Under Enforce nothing may be left failing without a report.
+          if (profile === 'enforce' && !pair.passes) expect(t.issues.some((issue) => issue.id === pair.id && issue.outcome === 'warning'), where).toBe(true);
+          checked++;
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(100000);
+  }, 60000);
+
   it('Enforce says "repaired" only for a pair that now passes, and gives the ratio before and after', () => {
     let repairs = 0;
     for (const d of designs) {

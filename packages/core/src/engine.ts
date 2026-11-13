@@ -613,8 +613,9 @@ function migrateV1(raw: Record<string, unknown>): unknown {
         decisions.push([key, value]);
         continue;
       }
-      // "Skip: take the default" became "keep"; the reason field was never written in version 1.
-      const { reason: _reason, ...rest } = value;
+      // "Skip: take the default" became "keep". Version 1 never wrote a reason; a reason that someone added by hand is kept when it is text (finding S2-07).
+      const { reason: givenReason, ...withoutReason } = value;
+      const rest = typeof givenReason === 'string' ? { ...withoutReason, reason: givenReason } : withoutReason;
       const skipped = value['kind'] === 'defaulted';
       const upgraded = { ...rest, kind: skipped ? 'kept' : value['kind'], optionId: null, values: {}, ...(skipped ? { rejected: [] } : {}) };
       if (key === 'theme') {
@@ -639,6 +640,7 @@ function normalize(data: z.infer<typeof projectSchema>): { project: Project; not
   const notes: string[] = [];
   let dropped = 0;
   let relabelled = 0;
+  let shortened = 0;
   const decisions: [string, Decision][] = [];
   for (const [key, d] of Object.entries(data.decisions)) {
     const step = findStep(key);
@@ -655,7 +657,9 @@ function normalize(data: z.infer<typeof projectSchema>): { project: Project; not
       relabelled++;
     }
     const rejected = kind === 'picked' ? optionIds.filter((id) => id !== optionId) : d.rejected.filter((id) => optionIds.includes(id) && id !== optionId);
-    const reason = d.reason?.trim().slice(0, REASON_MAX);
+    const fullReason = d.reason?.trim();
+    const reason = fullReason?.slice(0, REASON_MAX);
+    if (fullReason !== undefined && fullReason.length > REASON_MAX) shortened++;
     decisions.push([key, { stepId: key, optionId, kind, rejected, values: ownedValues(step, params), at: ISO_TIME.test(d.at) && !Number.isNaN(Date.parse(d.at)) ? d.at : UNKNOWN_TIME, ...(reason ? { reason } : {}) }]);
   }
   let direction = data.direction;
@@ -665,6 +669,7 @@ function normalize(data: z.infer<typeof projectSchema>): { project: Project; not
   }
   if (dropped > 0) notes.push(dropped === 1 ? 'One Decision in the file belongs to a Step that this version of the Studio does not have. It was left out.' : `${dropped} Decisions in the file belong to Steps that this version of the Studio does not have. They were left out.`);
   if (relabelled > 0) notes.push(relabelled === 1 ? 'One Decision named an Option that this version of the Catalog does not have. Its values were kept and it is now marked as hand-set.' : `${relabelled} Decisions named Options that this version of the Catalog does not have. Their values were kept and they are now marked as hand-set.`);
+  if (shortened > 0) notes.push(shortened === 1 ? `One written reason was longer than ${REASON_MAX} characters. It was shortened to fit.` : `${shortened} written reasons were longer than ${REASON_MAX} characters. They were shortened to fit.`);
   const project: Project = { schemaVersion: SCHEMA_VERSION, name: data.name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content: data.content };
   return { project, notes };
 }

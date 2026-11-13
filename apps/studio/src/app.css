@@ -264,3 +264,10 @@ select, .name, .project-text {
   .check { min-height: 2.75rem; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+/* Copies the Studio kept (Summary). */
+.kept-copies { margin-top: 1rem; }
+.kept-copies h3 { margin: 0 0 0.25rem; font-size: 1rem; }
+.kept-copies ul { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.5rem; }
+.kept-copies li { display: grid; gap: 0.35rem; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md, 8px); }
+.kept-copies .button-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }

@@ -4,7 +4,7 @@ import {
 } from '@refraction/core';
 import { Component, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
-import { copyText, fileNameFor, probePreviews, readBackup, saveFile } from './platform';
+import { copyText, fileNameFor, probePreviews, readBackups, removeBackup, saveFile, type KeptCopy } from './platform';
 import { LargePreview, Thumbnail, mockupHtml } from './preview';
 import { CURRENT, DEVICE_WIDTH, appliedCardId, directionName, paramsForCard, stepOf, useStudio, type Device, type StudioState } from './store';
 import { STUDIO_PARAMS, applyStudioTheme, installSpecimenFonts } from './theme';
@@ -563,6 +563,24 @@ function StepsView(): React.JSX.Element {
 
 // ───────── Summary ─────────
 
+/**
+ * The file a kept copy downloads as. A copy that holds a project downloads as a project file that "Open a project file" accepts;
+ * anything else downloads exactly as it was kept.
+ */
+function keptCopyFile(copy: KeptCopy, index: number): { name: string; text: string } {
+  try {
+    const parsed: unknown = JSON.parse(copy.text);
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+      const inner = (parsed as Record<string, unknown>)['project'];
+      const project = typeof inner === 'string' ? (JSON.parse(inner) as unknown) : typeof inner === 'object' && inner !== null ? inner : parsed;
+      return { name: `refraction-kept-copy-${index + 1}.json`, text: JSON.stringify(project, null, 2) };
+    }
+  } catch {
+    // Not a record: download it exactly as it was kept.
+  }
+  return { name: `refraction-kept-copy-${index + 1}.txt`, text: copy.text };
+}
+
 function SummaryView(): React.JSX.Element {
   const s = useStudio();
   const heading = useHeadingFocus();
@@ -573,7 +591,10 @@ function SummaryView(): React.JSX.Element {
   const html = useMemo(() => mockupHtml(s.project, s.project.params, { wireframe: false, focus: 'top', still: true }), [s.project]);
   const clashes = useMemo(() => conflicts(s.project), [s.project]);
   const decided = STEPS.filter((st) => s.project.decisions[st.id]).length;
-  const backup = useMemo(() => readBackup(), [s.notice, s.saved]);
+  const [keptTick, setKeptTick] = useState(0);
+  const [removing, setRemoving] = useState<KeptCopy | null>(null);
+  // The list is read again after a notice, a save, or a removal.
+  const keptCopies = useMemo(() => readBackups(), [s.notice, s.saved, keptTick]);
   const fileName = fileNameFor(s.project.name);
 
   const download = async (): Promise<void> => {
@@ -629,9 +650,32 @@ function SummaryView(): React.JSX.Element {
             <button type="button" className="btn" onClick={() => void copy()}>Copy the project as text</button>
             <button type="button" className="btn" onClick={() => fileRef.current?.click()}>Open a project file</button>
             <input ref={fileRef} id="project-file" type="file" accept=".json,application/json" hidden onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
-            {backup && <button type="button" className="btn quiet" onClick={() => void saveFile('refraction-backup-copy.txt', backup.text)}>Download the kept copy ({backup.why.replace(/\.$/, '').toLowerCase()})</button>}
           </div>
           {message && <p className="note" role="status">{message}</p>}
+          {keptCopies.length > 0 && (
+            <div className="kept-copies">
+              <h3>Copies the Studio kept for you</h3>
+              <p className="note">The Studio keeps a copy whenever it is about to replace saved work, or cannot read it. A kept copy stays here until you remove it.</p>
+              <ul>
+                {keptCopies.map((copy, index) => (
+                  <li key={`${copy.keptAt}-${index}`}>
+                    <span>{copy.why}{copy.keptAt ? ` Kept on ${copy.keptAt.slice(0, 10)} at ${copy.keptAt.slice(11, 16)} (UTC).` : ''}</span>
+                    <span className="button-row">
+                      <button type="button" className="btn quiet" onClick={() => { const file = keptCopyFile(copy, index); void saveFile(file.name, file.text); }}>Download this kept copy</button>
+                      {removing === copy ? (
+                        <>
+                          <button type="button" className="btn quiet" onClick={() => { removeBackup(copy); setRemoving(null); setKeptTick((n) => n + 1); }}>Yes, remove it for good</button>
+                          <button type="button" className="btn quiet" onClick={() => setRemoving(null)}>No, keep it</button>
+                        </>
+                      ) : (
+                        <button type="button" className="btn quiet" onClick={() => setRemoving(copy)}>Remove this kept copy…</button>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {showText && <textarea id="project-text" className="project-text" readOnly value={text} aria-label="The project as text" onFocus={(e) => e.target.select()} />}
         </section>
         <section aria-labelledby="decisions-heading">
