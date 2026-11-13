@@ -52,7 +52,12 @@ afterAll(async () => {
 
 async function show(html: string): Promise<void> {
   await page.setContent(html, { waitUntil: 'load' });
-  await page.evaluate(() => document.fonts.ready);
+  // Load every declared typeface before any picture or measurement. Waiting for `document.fonts.ready` alone is not enough:
+  // a browser starts to load a typeface only when it first lays the page out, so a slow machine could take the picture too early.
+  await page.evaluate(async () => {
+    await Promise.all([...document.fonts].map((face) => face.load()));
+    await document.fonts.ready;
+  });
 }
 const shot = async (html: string): Promise<Buffer> => {
   await show(html);
