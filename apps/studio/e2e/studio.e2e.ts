@@ -511,8 +511,10 @@ describe('Studio: saved work is never replaced without a word', () => {
     await session.page.locator('#project-name').fill('Weeks of work, renamed');
     await settle(session.page);
     expect((await stored(session.page))!.name).toBe('Old copy from last week');
-    // After the person says so, saving resumes.
+    // After the person says so, saving resumes, and the work done during the pause is saved at once.
     await banner.getByRole('button', { name: 'Go on: let the Studio save over it' }).click();
+    await settle(session.page);
+    expect((await stored(session.page))!.name).toBe('Weeks of work, renamed');
     await session.page.locator('#project-name').fill('Weeks of work, renamed again');
     await settle(session.page);
     expect((await stored(session.page))!.name).toBe('Weeks of work, renamed again');

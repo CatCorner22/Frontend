@@ -325,6 +325,16 @@ export const useStudio = create<StudioState>((set, get) => {
   };
 
   /** Decide which saved copy to open. Neither store wins by default (finding SEC-02). */
+  /**
+   * The owner decided that the stored copy may be replaced: saving resumes. Work done while saving was paused is saved at once,
+   * so that the status line never looks settled while edits are still unsaved.
+   */
+  const resumeSaving = (): void => {
+    adoptStoredCopy();
+    set({ saved: 'idle', notice: null });
+    if (JSON.stringify(get().project) !== lastSavedText) persist();
+  };
+
   const openSaved = (loaded: LoadResult): void => {
     const copies: { where: 'page' | 'browser'; copy: RawCopy }[] = [];
     if (typeof loaded.page === 'object') copies.push({ where: 'page', copy: loaded.page });
@@ -386,7 +396,7 @@ export const useStudio = create<StudioState>((set, get) => {
           { label: 'Download the unreadable copy', run: () => void saveFile('unreadable-refraction-project.txt', first.copy.text) },
           {
             label: kept ? 'Start a new project (the unreadable copy stays in a backup)' : 'Start a new project and discard the unreadable copy',
-            run: () => { adoptStoredCopy(); set({ saved: 'idle', notice: null }); },
+            run: resumeSaving,
           },
         );
       }
@@ -398,7 +408,7 @@ export const useStudio = create<StudioState>((set, get) => {
       notes.push(`This browser’s storage is full or blocked, so the Studio could not keep ${unkept.length === 1 ? 'that copy' : 'those copies'}. It has stopped saving, so that nothing is replaced before you decide.`);
       actions.push(
         ...unkept.map((copy) => ({ label: copy.label, run: () => void saveFile(copy.fileName, copy.text) })),
-        { label: `Go on: let the Studio save over ${unkept.length === 1 ? 'it' : 'them'}`, run: () => { adoptStoredCopy(); set({ saved: 'idle', notice: null }); } },
+        { label: `Go on: let the Studio save over ${unkept.length === 1 ? 'it' : 'them'}`, run: resumeSaving },
       );
     }
     if (loaded.browser === 'blocked' && loaded.page === 'absent') notes.push('This browser does not let the Studio store anything, so your work cannot be saved here. Download the project file from the Summary before you close this page.');
