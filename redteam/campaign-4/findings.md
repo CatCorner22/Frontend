@@ -174,3 +174,135 @@ None.
 - **The preview frames**: they stayed locked and contained no script. The tests caught both planted defects, in the CSS guard and in the HTML escaping (T-037, T-042).
 - **Records against the code**: D42's statements and the research records held (T-021, T-045, T-057), and the "close to" labels are correct (T-003).
 - **Kept copies**: they survived a very long list and a copy in an unknown form (T-017). A damaged saved copy was kept before the Studio replaced it (T-026).
+
+---
+
+<!-- Round 2 (the retest round). Written by a second judge (a separate AI assistant that took no part in the attack and did not see the Studio's reply), 2026-11-13. The judge could not write files, so the lead saved the judge's text here, unchanged. Nothing above this line was edited. -->
+
+# Campaign 4, round 2: the retest judge's findings
+
+2026-11-13 · pin `dbddf15` (built pages in `.../scratchpad/target2/`; my working copy has no Studio or core code change since the pin: `git diff --stat dbddf15 HEAD -- apps packages scripts` is empty) · I received 29 attempts (R-001 to R-029).
+
+## Retest of round 1
+
+| finding | result | what you ran and saw |
+|---|---|---|
+| F-1 | retested-pass | I re-ran round-1 `b1-held-notice-lost.cjs` and `b4-held-variants.cjs`, pointed at target2 (copies in `/tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/judge2/rerun/set-1/`). After Undo and on the Summary, the stopped-saving notice stayed with its "Go on: let the Studio save over it" button (count 1), and the status line still read "Not saving". On reload, the session work ("Hours of new work, final") was in the kept copies. Variants (7) unreadable copy and (8) two tabs: the notice and its buttons stayed after Undo. R-013 shows the same result. |
+| F-2 | retest-failed (narrow) | Own script `.../judge2/j-f2.js`. **With a Direction:** "Reload to see the other copy" kept B's work ("This tab's copy of the project “B work that matters”, as it was before you reloaded…"). R-025's reload mode agrees (4/4). **Without a Direction** (the exact round-1 reproduction, `rerun/set-6/a4-held-reload-close.js` PART2, and my no-Direction run): B's typed name was discarded and the kept copies were `[]`. The cause is `hasWork()` (store.ts:163), which counts a project with no Direction and no Decision as "no work". Yet the notice says "Whichever you choose, the Studio first keeps the other copy". The remaining loss is only a project name, so S1. |
+| F-3 | retested-pass | Re-ran round-1 `hostile-file.cjs` on target2. The Decision still changes from "stars" to "plain", but the notice now says: "One Decision in the file named a choice that the file's own design values do not show. The Studio follows the design values, so it changed that Decision to match them." No request left the page. |
+| F-4 | retested-pass | I read `packages/core/src/catalog/steps.ts:496`. The Option text now says "some sit behind the headline and behind the first lines of text… The contrast checks do not measure text over a star." That matches what round 1 measured. I did not re-count pixels. |
+| F-5 | retested-pass | Re-ran `r07_sliders.js "Frontier Gazette" 9`: at the highest settings, frame W=375 and S=375, nothing went past the edge. Re-ran `r04_overflow_step9.js "Marquee Deco" 9` (changed `.check` to `.click` because the old call timed out): no frame was wider than the phone for any of the 5 Options, including "Very large headings". R-007 and R-015 (144 sessions) agree. |
+| F-6 | retested-pass | In the same r07 run, the `[min]` line (13 px, 1.067) gave a headline of 17.338 px, above the 13 px body text. R-007 agrees. |
+| F-7 | retested-pass | Re-ran `b2-full-midsession.cjs`. After Undo to the last saved state, and again 3 s later, the status line read "Cannot save here: this browser's storage is full or blocked…", not "Saving…". R-014 agrees. |
+| F-8 | retested-pass | `npx vitest run packages/core`: 143 passed. PROGRESS.md says 143. Browser tests: 52 in studio.e2e.ts (vitest list) and 76 visual. I counted the visual tests from the source loops: 23 + 9 + 1 + 3 + 19×2 + 1 + 1 = 76, which matches PROGRESS's 128 (52 + 76). 18 Directions is also correct. I did not run the browser suite. |
+| F-9 | retested-pass | Own script `.../judge2/j-f9.js` (Galactic Goth, Step 6, sliders): stored density 1.12, slider value "1.12", step "any", aria-valuetext "1.12". |
+
+## New findings
+
+```
+F-10 | 2026-11-13 | S2 | status: confirmed
+Attempts: R-016 (part 2), R-025 (close mode)
+Exam-question link: a. Two Studio tabs that have stopped saving and are closed at the same moment (closing the browser window) each try to keep their unsaved work as a copy, and one copy can replace the other, with no statement anywhere.
+Repro: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/judge2/scripts/set-1/a6-keep-both-then-close.js (the "close-two-held" lines). Set-up: tab A saves "A-edit-n"; tabs B and C stop saving and type "B-more-n" and "C-more-n"; B and C close together.
+Observed: In 2 of 10 trials (#5, #6), kept = ["B-more-n"] only. "C-more-n" was not stored, not kept, and tab A showed no notice. In the other 8 trials, both copies were kept.
+Reproductions: 2/10 (attacker: 1/10 in R-016 part 2, 1/4 in R-025).   Why it matters: The Studio promises that a tab which stopped saving keeps its work as a copy when it closes. Closing the window with two such tabs open can quietly lose one tab's work.
+Judge note: I graded it S2 rather than S3. Both tabs had said "Not saving: see the notice", it takes two or more stopped tabs, and the loss happened in about 1 of 5 closes. The attacker's cause (two tabs read and rewrite the shared kept-copies list at the same time) fits what I saw, but I did not trace it in the source. Playwright closes the tabs a few milliseconds apart. A real window close may space them differently. I did not test that.
+```
+
+```
+F-11 | 2026-11-13 | S2 | status: confirmed
+Attempts: R-028
+Exam-question link: a and b. The dialog shown when storage is full says "Undo brings it back only until you close or reload this page", but Undo remembers only the last 40 changes. After 40 ordinary changes (typing a 45-letter name is 45 changes), the replaced project cannot come back, and nothing says so.
+Repro: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/judge2/scripts/set-3/a1-history.js
+Observed: The saved project was Midnight Aurora with Decisions nav, hero and sections. Storage was made nearly full (capacity shim, 50 characters spare). The second dialog read "…If you go on, your current project is replaced; Undo brings it back only until you close or reload this page. To be safe, choose “Keep my project”…". After "Replace it without a kept copy": stored project direction null, 0 Decisions, backup key null. Then "Start from Soft Daylight" and typing a 45-character name. "undos possible: 40"; final stored direction soft-daylight; "OLD PROJECT RECOVERED BY UNDO? false". The last notice was "Undone: the project's name is “Baker” again." There was no message that the Undo history had run out.
+Reproductions: 1/1.   Why it matters: The owner trusts "Undo brings it back until you reload" and keeps working. A minute of typing later the old project is gone for good, in the same session, without a word.
+Judge note: Reaching it needs full storage and a click on the button marked as dangerous, after the dialog advised "Keep my project". That is why it is S2, not S3. The same Undo promise appears in the ordinary start-again, open-file and start-new dialogs (store.ts:640, 653, 699, 708). Those also keep a copy, so there the promise is untrue but nothing is lost. HISTORY_MAX = 40 is at store.ts:178.
+```
+
+```
+F-12 | 2026-11-13 | S1 | status: confirmed
+Attempts: R-016 (part 1), R-026, R-025 (keep mode)
+Exam-question link: a and b. When "Keep this tab's copy" is pressed in two stopped tabs at the same instant, both tabs can say "Saved in this browser" while storage holds only one. Or both stay stopped, and on closing one tab's work is neither stored nor kept.
+Repro: node .../judge2/scripts/set-1/a6-keep-both-then-close.js (the "keep+close" lines); node .../judge2/scripts/set-1/a7-keep-with-human-gap.js
+Observed: a6, 6 trials: 4 lost a piece of work. In trial #2, B and C both showed "Saved in this browser, on this computer" with no notice, stored = "B-more-2", and after closing "C-more-2" was nowhere. In trials #3, #4 and #6, both tabs showed "Not saving", and after closing one tab's work was missing. No leave-page question was asked. a7: with the presses 0 ms apart, 2 of 3 trials lost a piece. With gaps of 50, 150, 400 and 1000 ms, 0 of 12 lost anything, and every status line was true.
+Reproductions: 4/6 and 2/3 at 0 ms; 0/12 at 50 ms or more.   Why it matters: Two tabs can both claim "Saved" when only one is, and work can then disappear. It needs two clicks within a few milliseconds in two tabs.
+Judge note: By type this would be S2 (a false "Saved") or S3 (silent loss). I graded it S1 because one person with one mouse cannot press two buttons in two tabs within 50 ms. I did not check the attacker's cause (a stale storage read in the conflict check and in leaveSafely) in the source.
+```
+
+```
+F-13 | 2026-11-13 | S1 | status: confirmed
+Attempts: R-002
+Exam-question link: d (a broken layout). On three catalog Directions, with nothing touched, the Phone and Tablet previews draw the main headline smaller than every section heading.
+Repro: node .../judge2/scripts/set-4/h1h2.cjs
+Observed: Phone: Vector Horizon h1 26 px vs h2 31.875 px; Frontier Gazette 26.25 vs 31.875; Marquee Deco 26.25 vs 31.875. Tablet: 31.98 vs 35.15; 33.98 vs 37.35; 32.98 vs 36.25. Heading weights were equal. The control, Galactic Goth: h1 47.2 vs 31.9 (phone), 68.1 vs 47.2 (tablet).
+Reproductions: 1/1 (8 measurements).   Why it matters: The headline is meant to be the biggest thing on the page. On these looks, "What we do" outranks it, and the owner judges the look from this preview.
+Judge note: The source shows why. `.hero h1` is capped at `13vw * var(--display-scale)` (templates/smallBusiness.ts:220), while h2 is capped at 8.5vw (tokens.ts:532). For these Directions the h1 cap falls below the h2 cap. The caps were added for round-1 F-5. The browser test "keeps the headline the largest text" compares the headline only with the reading text, not with section headings, so it passes. I did not check the desktop width.
+```
+
+```
+F-14 | 2026-11-13 | S1 | status: confirmed
+Attempts: R-029, R-005
+Exam-question link: b (and a, mildly). If a slider is moved onto the exact value of an Option the owner had rejected, the saved Decision holds that Option and also lists it as rejected. On the next reload the Studio says "Opening changed some details of your saved project" and writes a kept copy, although the owner only moved a slider.
+Repro: a copy of the attacker's g-contrast-reload.cjs with a second reload added: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/judge2/g2.cjs
+Observed: The stored Decision was {"kind":"tuned","rejected":["soft","crisp"],"optionId":"soft","values":{"contrast":0.4}}, and the screen said "Large preview shows: Low contrast (soft) (in use)". After a plain reload the notice read "Opening changed some details of your saved project. The Studio kept the copy as it was; you can download it from the Summary." and a new key, refraction.project.backup, appeared. The stored Decision still held the contradiction. After a later pick on another Step and a second reload, there was no notice.
+Reproductions: 1/1 (the attacker's engine fuzz hit it in 2/400 runs).   Why it matters: The record of choices, which feeds the taste ledger, says the owner rejected the very Option now in use. The owner also gets an alarming "changed details" notice for an ordinary action.
+Judge note: Nothing is lost: the notice is true and a copy is kept. I did not run the attacker's fuzz test. My page run reproduces the defect directly.
+```
+
+```
+F-15 | 2026-11-13 | S1 | status: confirmed
+Attempts: R-017
+Exam-question link: b (a wrong label). After the Studio stops saving because opening changed the saved copy and storage is full, "Go on: let the Studio save over it" leaves the status at "Nothing to save yet", and the old form is still stored.
+Repro: node .../judge2/scripts/set-3/a2-resume-status.js
+Observed: On opening, the status read "Not saving: see the notice…" and the notice listed the left-out Decision with the buttons "Download your saved copy as it was" and "Go on: let the Studio save over it". After Go on: "status after Go on: Nothing to save yet", no notice, "stored copy unchanged (still the old form)? true". After a rename, the status read "Saved in this browser…" (stored name "Renamed after go on"). After Undo, "Saved…" (stored "My first project").
+Reproductions: 1/1.   Why it matters: The button promised a save that did not happen, and the status line describes a project that exists as having nothing to save.
+Judge note: Nothing is lost. The old form reopens the same way and asks again, and the next edit saves. resumeSaving() (store.ts:388) sets 'idle' and skips the save because the opened text equals lastSavedText. Reaching it needs full storage plus an older or foreign saved copy, so it is rare.
+```
+
+## Collateral findings
+
+None.
+
+## All attempts
+
+| id | disposition | one-line reason |
+|---|---|---|
+| R-001 | held | Unreadable copy and full storage: clear notice, copy untouched |
+| R-002 | finding F-13 | Headline smaller than section headings on three Directions, phone and tablet |
+| R-003 | not a finding | No "Next" button by design; the blank cards appeared only in a full-page screenshot (capture artifact) |
+| R-004 | held | A pick followed at once by a reload survived |
+| R-005 | finding F-14 | Engine fuzz: a tuned Decision names an Option it also lists as rejected |
+| R-006 | not a finding | Code reading only. Version 1's one "theme" Step covered contrast too; the split is documented in engine.ts:680 |
+| R-007 | held | Retest of F-5 and F-6: slider ends fit the phone; headline above body text |
+| R-008 | held | Keyboard path works at 640×360; Tab passes through the preview without a trap |
+| R-009 | held | 0 of 12 losses when a tab closes the moment it says "Saved" |
+| R-010 | no test | Chromium did not restore the page from the back-forward cache |
+| R-011 | not a finding | The Studio's "Sample website" label covers a headline word until scroll. Round 1 did not count this label either; cosmetic |
+| R-012 | not a finding | Near-flat sizes at the slider ends, but the headline is still largest; a matter of taste |
+| R-013 | not a finding | Stopped tab reloaded with full storage loses work, but the status had said "Not saving" and the browser asked before leaving (same as round-1 T-007) |
+| R-014 | held | Retest of F-7: "Cannot save here" stays after Undo |
+| R-015 | held | 144 slider-end sessions: no overflow, no clipping, no errors |
+| R-016 | finding F-10, F-12 | Part 2: closing two stopped tabs loses a kept copy (F-10). Part 1: double "Keep this tab's copy" gives a false "Saved" and loss (F-12) |
+| R-017 | finding F-15 | "Go on" leaves "Nothing to save yet" and does not save |
+| R-018 | not a finding | Hand-tuned Decision not recomputed: a documented choice, and the Summary says "Set by hand, close to…" |
+| R-019 | held | Code reading found no stale shownId path |
+| R-020 | not a finding | Conflict path never reached; in the one odd trial both tabs said "Not saving" and nothing was lost |
+| R-021 | not a finding | "Cannot save" stays after space is freed: over-cautious, no work at risk, the next edit or closing saves |
+| R-022 | held | Start screen fits 375 px; 18 Directions |
+| R-023 | held | 204-character name causes no overflow |
+| R-024 | held | Sliders inside a closed disclosure cannot be focused, as expected |
+| R-025 | finding F-10, F-12 | Close mode lost a kept copy (F-10); keep mode left storage and screens disagreeing (F-12); reload mode held |
+| R-026 | finding F-12 | Gives the rate: loss only at a 0 ms gap, none at 50 ms or more |
+| R-027 | not a finding | After F5 in a stopped tab, the typed work is a kept copy listed on the Summary; nothing lost, only no fresh notice |
+| R-028 | finding F-11 | "Undo brings it back" is untrue after 40 changes; the old project is lost |
+| R-029 | finding F-14 | Same defect as R-005, on the page: the Decision contradicts itself, and a reload shows "changed details" and writes a kept copy |
+
+## What held
+
+- The round-1 fixes for the stopped-saving notice (F-1), the "Saving…" line (F-7), phone overflow (F-5), the reversed headline (F-6), slider knob values (F-9), the silent Decision rewrite (F-3, now announced), the "Field of stars" text (F-4) and the record counts (F-8) all held when I re-ran them.
+- "Reload to see the other copy" now keeps this tab's work whenever the project has a Direction or a Decision. The gap left is a project with only a name.
+- A single tab, a reload inside the save delay, and closing the moment a tab says "Saved" lost nothing (R-004, R-009, R-027c).
+- With human-paced clicks (50 ms or more apart), two tabs never gave an untrue status and never lost work (R-026).
+- Full storage gave honest "Cannot save" and "Not saving" lines. Dangerous replacements asked first (R-001, R-014, F-7 re-run).
+- Slider ends across 6 Directions, 6 Steps and two device widths produced no overflow or clipping (R-015). The Studio itself fits 375 and 640 px (R-022, R-023, R-008).
+- No run made a network request or showed a page error. The hostile-file re-run injected nothing.

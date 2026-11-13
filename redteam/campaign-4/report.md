@@ -127,3 +127,61 @@ The lead wrote this section after the judge's findings and the report above were
 **One more defect, found by the Studio's side while it fixed the above.** Several browser tests failed once in a while (the judge's "not reproduced" attempt T-002 is one such failure). The cause was in the tests: they placed starting data through a script that read storage at the first instant of every load, and on a reload the browser sometimes showed that script an empty storage (4 of 16 trials); the script then replaced what the Studio had written. The tests now place starting data from an empty page. Without that script, nothing was lost in 410 reload trials (Chromium only). Correction of the same day: when this sentence was first written, the count stood at 390; a further 20 trials with the real storage filled to the brim brought it to 410, again with no loss. Those 20 trials also showed that an earlier reading ("the browser drops a large filler on a reload") was wrong: that loss, too, came from the start-of-load script. The measurements are filed in `docs/knowledge/sources/browser-storage-across-reload-measurements.md`.
 
 **What the Studio's side did not do.** It did not add a Content Security Policy to the Studio's own page (two attackers noted its absence as an observation; it is a known gap in `PROGRESS.md`). It did not test any browser other than Chromium.
+
+---
+
+# Round 2 (the retest round): the attackers' report
+
+Written 2026-11-13 by the lead, from the second judge's findings (appended to `findings.md`), before the Studio's side replied to them.
+
+## R2.1 Target pin
+
+Commit `dbddf15` (2026-11-13), the version that holds the fixes for round 1; built page `refraction-studio.html`, SHA-256 beginning `daae011765329d1f`.
+
+## R2.2 Run summary
+
+| Measure | Number |
+|---|---|
+| Lanes × rounds | 4 × 1 (the three lanes whose findings were fixed, with the same instructions and a note of what round 1 found; one new lane on cell 5, which round 1 left untried) |
+| Attempts logged | 29 |
+| Attempts that became part of a finding | 8 |
+| Attempts where the target held | 11 |
+| Reproduced, but not a finding | 9 |
+| No test | 1 |
+| Retest of the nine round-1 findings | 8 passed; 1 failed in a narrow case (F-2) |
+| New findings | 6, all confirmed by the judge's own re-run: S3: 0 · S2: 2 · S1: 4 |
+| Coverage cells filled, both rounds | 7 of 9 (cells 2 and 9 stay untried) |
+| Independence | Four separate attackers and a second, separate judge, on a different AI model from the lead. Not degraded. |
+| Cost, measured | About 574,000 tokens for the four lanes and about 167,000 for the judge: about 741,000. The lead's estimate was 0.5 million; the lanes ran over it. |
+| Campaign so far | 10 lane-runs, 87 attempts, 15 findings, about 1.78 million tokens |
+
+## R2.3 Retest results
+
+| Round-1 finding | Result |
+|---|---|
+| F-1 (the stopped-saving notice vanished after Undo) | retested-pass |
+| F-2 (the reload button discarded a tab's work) | **retest-failed, narrow**: the fix keeps the tab's copy whenever the project has a Direction or a Decision; a project that has only a name is still discarded, although the notice says "the Studio first keeps the other copy" |
+| F-3, F-4, F-5, F-6, F-7, F-8, F-9 | retested-pass |
+
+## R2.4 New findings, worst first
+
+| ID | Level | What happens | How an owner reaches it |
+|---|---|---|---|
+| F-10 | S2 | Two tabs that are not saving each keep their unsaved work as a copy when they close. When they close in the same moment, one copy can replace the other (2 of 10 trials for the judge). Introduced by the round-1 fix for F-2, which made closing tabs write the shared list of kept copies. | Closing a browser window that holds two stopped tabs. |
+| F-11 | S2 | The dialogs say "Undo brings it back only until you close or reload this page". Undo remembers 40 changes, and every typed letter of a project name is one change. After 40 changes, a project that was replaced without a kept copy (storage full) cannot come back, and nothing says so. | Storage full, the button marked as dangerous, then a minute of typing. |
+| F-12 | S1 | "Keep this tab's copy" pressed in two stopped tabs within a few milliseconds: both tabs can say "Saved" while storage holds one, and work can then disappear. With 50 ms or more between the presses, nothing went wrong in 12 trials. | Not reachable by one person with one mouse; graded down for that reason. |
+| F-13 | S1 | On "Vector Horizon", "Frontier Gazette", and "Marquee Deco", the phone and tablet previews draw the main headline smaller than the section headings (26 px against 32 px on a phone). | Starting from one of these Directions. |
+| F-14 | S1 | Moving a slider onto the exact value of an Option that the owner had rejected leaves a Decision that names that Option and also lists it as rejected. The next reload then says "Opening changed some details" and writes a kept copy. | Picking an Option, then moving the slider onto another Option's value. |
+| F-15 | S1 | After "Go on: let the Studio save over it" with nothing changed, the status says "Nothing to save yet" and the old form stays stored. | Storage full plus an older or foreign saved copy. |
+
+## R2.5 What held in round 2
+
+Eight of the nine round-1 fixes; a single tab in every timing the attackers tried; two tabs at human pace (50 ms or more between actions); full storage (honest status lines, a question before every dangerous replacement); the slider ends across six Directions, six Steps, and two device widths (144 sessions with no overflow); no request to the network and no page error in any run.
+
+## R2.6 Not tried in either round
+
+Cells 2 (a hostile file that corrupts work or crashes the Studio) and 9 (a wrong or misleading download); any browser other than Chromium; a real phone; the private page with its database; a page restored from the back-forward cache (the test browser never restored one).
+
+## R2.7 Recommended next steps
+
+Fix F-10 to F-15 and the narrow rest of F-2, each with a test; then run one more retest round. The charter planned two rounds (the method's default is three); a third round therefore needs a dated amendment to the charter.
