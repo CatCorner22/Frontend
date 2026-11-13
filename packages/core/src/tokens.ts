@@ -225,7 +225,7 @@ export const PAIRS: readonly PairSpec[] = [
 
 /** What the contrast checks do not cover. The Studio shows this list beside the contrast notes. */
 export const NOT_CHECKED: readonly string[] = [
-  'Text over a background glow, soft clouds of color, or a frosted-glass box, where the color behind the text varies from point to point.',
+  'Text over a background glow, soft clouds of color, a pattern of dots, lines, or stars, or a frosted-glass box, where the color behind the text varies from point to point.',
   'A headline filled with a fade or with a two-color gradient. “Fix for me” keeps both ends of the fill at 3 to 1 or better against the first screen; “Warn me” does not measure the fill.',
   'Text over your photographs.',
   'How a button or a link looks while the pointer is over it, or while it is pressed.',
@@ -525,6 +525,14 @@ function typeTokens(p: DesignParams): Record<string, string> {
   const min = Math.min(sizes['--text-2xl'] ?? b, max);
   const slope = (max - min) / (1280 - 375);
   out['--text-display'] = `clamp(${rem(min)}, ${round((min - slope * 375) / 16, 4)}rem + ${round(slope * 100, 3)}vw, ${rem(max)})`;
+  // Sizes on a narrow screen. Each large size has a cap tied to the width of the screen (the "vw" unit is one hundredth of that
+  // width), so that a heading at its largest setting still fits a phone (campaign 4, finding F-5). On a wide screen the caps
+  // stand far above every size that the sliders can reach, so they change nothing there.
+  out['--lede-size'] = 'min(var(--text-lg), 5.6vw)';
+  out['--h2-size'] = 'min(var(--text-2xl), 8.5vw)';
+  out['--h3-size'] = 'min(var(--text-xl), 7vw)';
+  out['--numeral-size'] = 'min(var(--text-3xl), 11vw)';
+  out['--brand-size'] = 'min(var(--text-lg), 6vw)';
   out['--font-heading'] = FONTS[p.fontHeading].stack;
   out['--font-body'] = FONTS[p.fontBody].stack;
   out['--font-mono'] = FONTS['jetbrains-mono'].stack;

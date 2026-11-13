@@ -152,6 +152,70 @@ describe('Mockup: targets and structure in the browser', () => {
   });
 });
 
+describe('Mockup: fits a phone, and keeps the headline the largest text (campaign 4, findings F-5 and F-6)', () => {
+  /** Every design that the sliders and the Options of the two type Steps can reach from a starting design, one change at a time, plus both slider ends at once. */
+  /** The Steps whose Options change how wide the page's parts are: sizes, capitals, the first screen, the sections, the top bar, the special touch. */
+  const WIDTH_STEPS = ['size-scale', 'heading-treatment', 'hero', 'emphasis', 'sections', 'nav', 'signature'];
+  it('names Steps that exist', () => {
+    for (const id of WIDTH_STEPS) expect(STEPS.some((step) => step.id === id), id).toBe(true);
+  });
+
+  function reachable(base: DesignParams, steps = WIDTH_STEPS): { label: string; params: DesignParams }[] {
+    const out: { label: string; params: DesignParams }[] = [{ label: 'as it is', params: base }];
+    const low: Record<string, number> = {};
+    const high: Record<string, number> = {};
+    for (const step of STEPS) {
+      for (const tunable of step.tunables ?? []) {
+        low[tunable.key] = tunable.min;
+        high[tunable.key] = tunable.max;
+      }
+      if (steps.includes(step.id)) {
+        for (const option of step.options) out.push({ label: `Option “${option.label}”`, params: { ...base, ...resolvePatch(option, base) } });
+      }
+    }
+    out.push({ label: 'every slider at its lowest', params: { ...base, ...low } as DesignParams }, { label: 'every slider at its highest', params: { ...base, ...high } as DesignParams });
+    return out;
+  }
+
+  it('never makes the page wider than a phone, whatever the Direction, the type Options, or the slider ends', async () => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    const wide: string[] = [];
+    for (const direction of [{ name: 'plain start', params: DEFAULT_PARAMS }, ...DIRECTIONS]) {
+      for (const design of reachable(direction.params)) {
+        await show(mockup(design.params, 'top'));
+        const report = await page.evaluate(() => {
+          const limit = document.documentElement.clientWidth;
+          if (document.documentElement.scrollWidth <= limit) return null;
+          const culprits = [...document.querySelectorAll<HTMLElement>('body *')]
+            .filter((el) => el.getClientRects().length > 0 && el.getBoundingClientRect().right > limit + 0.5 && !el.classList.contains('skip'))
+            .slice(0, 4)
+            .map((el) => `${el.tagName.toLowerCase()}${el.className ? '.' + String(el.className).split(' ')[0] : ''}→${Math.round(el.getBoundingClientRect().right)}`);
+          return `${document.documentElement.scrollWidth} px (${culprits.join(', ')})`;
+        });
+        if (report) wide.push(`${direction.name}, ${design.label}: ${report}`);
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
+    expect(wide).toEqual([]);
+  }, 240_000);
+
+  it('never draws the main headline smaller than the reading text, at phone and desktop widths', async () => {
+    const small: string[] = [];
+    for (const viewport of [{ width: 375, height: 800 }, { width: 1280, height: 800 }]) {
+      await page.setViewportSize(viewport);
+      for (const direction of [{ name: 'plain start', params: DEFAULT_PARAMS }, ...DIRECTIONS]) {
+        for (const design of reachable(direction.params, ['size-scale', 'heading-treatment', 'hero', 'emphasis'])) {
+          await show(mockup(design.params, 'top'));
+          const sizes = await page.evaluate(() => ({ h1: parseFloat(getComputedStyle(document.querySelector('.hero h1')!).fontSize), text: parseFloat(getComputedStyle(document.querySelector('.lede')!).fontSize) }));
+          if (sizes.h1 < sizes.text * 1.1) small.push(`${direction.name}, ${design.label}, ${viewport.width} px: headline ${sizes.h1.toFixed(1)} px, text ${sizes.text.toFixed(1)} px`);
+        }
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
+    expect(small).toEqual([]);
+  }, 480_000);
+});
+
 describe('Mockup: no look changes by accident (decision D8)', () => {
   /** Shrink a screenshot to a small picture inside the browser, and return it as a PNG. Small pictures forgive one-pixel differences in text rendering. */
   const shrink = async (png: Buffer): Promise<Buffer> => {

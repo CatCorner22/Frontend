@@ -493,7 +493,7 @@ export const STEPS: Step[] = [
         exemplar: { text: 'The cmdk website (open-source code)', record: R09 },
         patch: { atmosphere: 'aurora' },
       },
-      { id: 'stars', label: 'Field of stars', what: 'Small dots of three sizes, scattered like stars, over a faint glow of the main color.', chooseWhen: 'Night, space, and wonder; made for a dark page.', risk: 'On a light page the stars turn into dark specks, which can look like dust. The stars fade out toward the bottom of the first screen, so that they do not sit under reading text.', patch: { atmosphere: 'stars' } },
+      { id: 'stars', label: 'Field of stars', what: 'Small dots of three sizes, scattered like stars, over a faint glow of the main color.', chooseWhen: 'Night, space, and wonder; made for a dark page.', risk: 'On a light page the stars turn into dark specks, which can look like dust. The stars are small and few, but some sit behind the headline and behind the first lines of text; they fade out toward the bottom of the first screen. The contrast checks do not measure text over a star.', patch: { atmosphere: 'stars' } },
       { id: 'grain', label: 'Fine grain texture', what: 'A fine speckle over the whole page, like paper or film.', chooseWhen: 'Warmth, print, craft; softens flat color.', risk: 'Too much grain looks dirty; costs a little rendering speed.', exemplar: { text: 'Open Props, an open-source project whose code was read (its noise textures)', record: R09 }, patch: { atmosphere: 'grain' } },
     ],
   },
