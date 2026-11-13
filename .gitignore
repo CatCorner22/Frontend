@@ -1,2 +1,5 @@
 node_modules/
 dist/
+
+# Private working copies that review helpers use; never part of the repository.
+.claude/worktrees/
