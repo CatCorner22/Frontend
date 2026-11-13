@@ -1,0 +1,652 @@
+{
+ "part": "perception-cognition",
+ "generated": "2026-11-13",
+ "entries": [
+  {
+   "id": "preattentive-popout",
+   "topic": "attention",
+   "principle": "Pop-out: one strong difference is found at a glance",
+   "claim": "An element that differs from everything around it on one basic visual feature (colour, size, orientation, motion) is found almost at once, however many other elements surround it. The effect weakens when the difference is small or when the surrounding elements already differ from each other.",
+   "mechanism": "Early vision codes basic features across the whole view in parallel, before attention arrives ('pre-attentive' means 'before focused attention'). A unique feature therefore stands out without a search. A target defined by a combination of features, or one that resembles its neighbours, needs item-by-item inspection, so search time grows with the number of items.",
+   "effects": {
+    "cognitiveLoad": "lowers — the eye lands on the key element without a search",
+    "satisfaction": "unknown — not measured in the cited studies",
+    "perceivedIntuitiveness": "raises — the next step is visible without hunting"
+   },
+   "designMoves": [
+    "Give the single most important action in a view one feature that nothing else in the view shares (for example, the only filled accent-colour button).",
+    "Make the difference large: a clearly different colour or a clearly larger size, not a slightly darker shade.",
+    "Keep the rest of the view visually uniform so that the one exception stands out.",
+    "Encode one meaning with one feature; do not define 'primary action' as a combination such as blue plus bold plus outlined.",
+    "Reserve the accent colour for interactive or status meaning, not for decoration."
+   ],
+   "antiPatterns": [
+    "Several elements in one view styled as the primary action.",
+    "One accent colour used for decoration, headings, links and buttons at once, so no single use stands out.",
+    "Emphasis by a subtle difference (medium versus semibold weight) inside a busy page."
+   ],
+   "howToCheck": {
+    "machine": "Per viewport, count elements that carry the primary-action style and elements that use the accent colour. Flag more than one primary action per view and accent colour on elements that are neither interactive nor status. Report colour difference and size ratio between the primary action and its neighbours; the Catalog sets the thresholds, because research gives no universal cutoff.",
+    "human": "Show the page for a few seconds and ask a first-time viewer what they would click first. The answer should be the intended primary action."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Feature search versus conjunction search has been replicated for more than 40 years. Later work (Duncan and Humphreys 1989; Wolfe's guided search) replaced the strict parallel/serial split with a continuum: search slows as the target and the distractors grow more alike and as the distractors grow more varied. Laboratory displays are simpler than web pages, and these sources do not quantify the effect on real pages. Confirmed through search results, not full text."
+   },
+   "sources": [
+    {
+     "citation": "Treisman, A. M., & Gelade, G. (1980). A feature-integration theory of attention. Cognitive Psychology, 12(1), 97-136.",
+     "url": "https://www.cs.princeton.edu/courses/archive/spring08/cos598B/Readings/TreismanGelade1980.pdf",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Duncan, J., & Humphreys, G. W. (1989). Visual search and stimulus similarity. Psychological Review, 96(3), 433-458.",
+     "url": "https://www.mrc-cbu.cam.ac.uk/bibliography/articles/2331",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Wolfe, J. M., & Horowitz, T. S. (2017). Five factors that guide attention in visual search. Nature Human Behaviour, 1, 0058.",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9879335",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "Pop-out is relative: every added emphasised element weakens the others. Goals also steer attention (see goals-beat-salience), so a salient element that looks like an advertisement can still be ignored (see banner-blindness). Colour pop-out fails for viewers who cannot tell the two hues apart (see color-not-alone).",
+   "appliesTo": [
+    "emphasis",
+    "accent",
+    "hero",
+    "states",
+    "color-strategy"
+   ]
+  },
+  {
+   "id": "banner-blindness",
+   "topic": "attention",
+   "principle": "Banner blindness: people skip what looks like an advertisement",
+   "claim": "People who are looking for something ignore page regions that look like advertising or sit where advertising usually sits, even when the region holds the information they want.",
+   "mechanism": "Attention follows learned expectations about where useful content lives. Years of web use teach people that wide strips at the top, boxes in the right rail, and bright or animated blocks are advertising. They stop looking there, so content placed there is not read.",
+   "effects": {
+    "cognitiveLoad": "lowers — when essential content sits in the main flow, people find it without scanning promotional zones",
+    "satisfaction": "raises — the cited workload study found that advertisements raised perceived workload",
+    "perceivedIntuitiveness": "raises — content appears where people already look"
+   },
+   "designMoves": [
+    "Put essential information and primary actions in the main content column, in ordinary text and control styles.",
+    "Do not style important notices as wide, coloured, image-heavy strips with marketing copy.",
+    "Keep important content away from the right rail and from regions next to real advertisements.",
+    "Write notices in the same typeface and tone as the surrounding content.",
+    "Do not animate important content to make it noticed; animation is one of the cues that mark a block as advertising."
+   ],
+   "antiPatterns": [
+    "A critical deadline, price or eligibility rule placed in a banner-shaped promo block.",
+    "The only route to a key task presented as a graphical 'ad' for the feature.",
+    "A cookie-notice-like or promo-like bar used for service-critical alerts."
+   ],
+   "howToCheck": {
+    "machine": "Flag essential content (items the Prescription lists as must-see) that renders inside containers with advertisement-like geometry (wide short strips at the top, tall narrow boxes at the right), inside elements whose names suggest promotion (promo, banner, ad), or inside animated blocks.",
+    "human": "Run a find-the-information task with a few first-time users and note whether they overlook the block. Eye tracking is not required; a missed answer is the evidence."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "The term comes from Benway and Lane (1998), a small study in a newsletter. Burke, Hornof, Nilsen and Gorman (2005, ACM TOCHI) confirmed with controlled experiments that banners hinder visual search, raise perceived workload and are forgotten. Nielsen Norman Group eye-tracking studies (one heat map from 26 users on one page) repeat the finding for modern layouts. Details come from search results; the 1998 and 2005 full texts were not read."
+   },
+   "sources": [
+    {
+     "citation": "Benway, J. P., & Lane, D. M. (1998). Banner blindness: Web searchers often miss 'obvious' links. Internetworking: ITG Newsletter, 1.3.",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Burke, M., Hornof, A., Nilsen, E., & Gorman, N. (2005). High-cost banner blindness: Ads increase perceived workload, hinder visual search, and are forgotten. ACM Transactions on Computer-Human Interaction, 12(4), 423-445.",
+     "url": "https://www.doi.org/10.1145/1121112.1121116",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Pernice, K. (2018). Banner Blindness Revisited: Users Dodge Ads on Mobile and Desktop. Nielsen Norman Group.",
+     "url": "https://www.nngroup.com/articles/banner-blindness-old-and-new-findings/",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "The avoidance is learned, not built in, and it depends on the task: people who browse without a goal look at more of the page than people who search for an exact item. Inline advertisements on phones are harder to skip. The finding does not mean that a hero image is never seen; it means that advertisement-like styling is a risk for must-see content.",
+   "appliesTo": [
+    "hero",
+    "sections",
+    "emphasis",
+    "signature",
+    "nav"
+   ]
+  },
+  {
+   "id": "goals-beat-salience",
+   "topic": "attention",
+   "principle": "Goals steer the eye more than visual loudness does",
+   "claim": "When people use a page to get something done, where they look depends mainly on their task and on where they expect the answer to be, and only partly on which elements are bright, large or colourful.",
+   "mechanism": "Attention is guided by several sources at once: bottom-up salience (how much an element differs from its surroundings), top-down goals (what the person is looking for), the structure and meaning of the scene, recent history, and the value of the target. In real tasks the goal-driven sources dominate; a model that scores only image contrast predicts gaze poorly.",
+   "effects": {
+    "cognitiveLoad": "lowers — placing content where the task leads people removes search",
+    "satisfaction": "unknown — not measured in the cited reviews",
+    "perceivedIntuitiveness": "raises — the page matches the user's expectation of where things are"
+   },
+   "designMoves": [
+    "Decide the order of content from the user's task (what question comes first), then style it; do not rely on colour or size to rescue a poor order.",
+    "Place each action next to the content it acts on, where the task brings the eye.",
+    "Label things with the user's words, because people look for words that match their goal.",
+    "Test hierarchy with a task ('find the price', 'start a claim'), not with a preference question.",
+    "Treat automated 'attention heat map' predictions as a rough check of visual contrast, not as a forecast of where task-driven users will look."
+   ],
+   "antiPatterns": [
+    "Making an element larger or brighter to fix the fact that it sits where nobody expects it.",
+    "Approving a layout because a saliency-prediction tool coloured the call to action red.",
+    "Judging hierarchy on a mock-up with placeholder text, which removes the meaning that guides real users."
+   ],
+   "howToCheck": {
+    "machine": null,
+    "human": "Give three to five first-time users a concrete task and record the first place they click or look (a first-click test). Compare with the intended path."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Two review articles in peer-reviewed journals. Tatler, Hayhoe, Land and Ballard (2011) conclude that salience-based models account poorly for picture viewing and can fail badly during natural tasks. Wolfe and Horowitz (2017) list five guiding factors and state that a theory of search needs all five. Most underlying experiments use natural scenes and laboratory tasks, not web pages; the transfer to interfaces is an inference."
+   },
+   "sources": [
+    {
+     "citation": "Tatler, B. W., Hayhoe, M. M., Land, M. F., & Ballard, D. H. (2011). Eye guidance in natural vision: Reinterpreting salience. Journal of Vision, 11(5):5, 1-23.",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3134223",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Wolfe, J. M., & Horowitz, T. S. (2017). Five factors that guide attention in visual search. Nature Human Behaviour, 1, 0058.",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9879335",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "Salience still matters when the user has no specific goal (first glance at a landing page) and for alerts that must interrupt. The two entries work together: use pop-out for the one thing that must be seen, and use task order for everything else.",
+   "appliesTo": [
+    "hero",
+    "sections",
+    "emphasis",
+    "nav",
+    "copy"
+   ]
+  },
+  {
+   "id": "weak-signifiers",
+   "topic": "attention",
+   "principle": "Clickable things must look clickable",
+   "claim": "When buttons, links and tabs carry weak visual cues that they can be clicked, people take longer to find the element they need and look at more places on the way.",
+   "mechanism": "A signifier is a visible cue that tells a person what an element does. People scan for the cues they have learned (underline, filled or outlined shape, link colour). When interactive and static elements look alike, the cue is missing, and people must inspect or try each candidate.",
+   "effects": {
+    "cognitiveLoad": "lowers — strong cues remove guessing and trial clicks",
+    "satisfaction": "unknown — the cited study measured time and fixations, not satisfaction",
+    "perceivedIntuitiveness": "raises — people can tell at a glance what is interactive"
+   },
+   "designMoves": [
+    "Give every button a visible shape (fill or outline) that static text never has.",
+    "Mark text links with an underline or another non-colour cue, and never use the link colour for static text.",
+    "Keep one consistent style per kind of interactive element across the product.",
+    "Show hover, focus and pressed states so that the element confirms it is interactive.",
+    "Do not style headings or labels like links or buttons."
+   ],
+   "antiPatterns": [
+    "Plain text that acts as a button, with no border, fill or underline.",
+    "Static headings in the same colour as links.",
+    "Icon-only controls with no label and no visible boundary."
+   ],
+   "howToCheck": {
+    "machine": "For each link and button, compare computed styles with nearby static text: require at least one non-colour difference (underline, border, background, weight) and a pointer cursor. Flag static elements that share the link colour or the button style. Flag interactive elements with no hover or focus style change.",
+    "human": "Ask a first-time user to point at everything on the page that can be clicked, and compare with the truth."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "large-practitioner-study",
+    "strengthNote": "One Nielsen Norman Group eye-tracking experiment (Moran 2017) compared page pairs that differed only in signifier strength. Secondary summaries report about 22% more time and about 25% more fixations on weak-signifier pages; the sample size (71 participants, from memory) was not confirmed. The authors note that a full real-world task would probably show a smaller slowdown. Single study, practitioner-run, not peer reviewed."
+   },
+   "sources": [
+    {
+     "citation": "Moran, K. (2017). Flat UI Elements Attract Less Attention and Cause Uncertainty. Nielsen Norman Group.",
+     "url": "https://nngroup.com/articles/flat-ui-less-attention-cause-uncertainty",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "The study does not show that flat styling is bad in itself; it shows that removing the cues that separate interactive from static elements costs time. A flat design that keeps strong, consistent cues avoids the problem. The contrast of control boundaries also falls under a formal standard (see non-text-contrast-and-focus).",
+   "appliesTo": [
+    "states",
+    "emphasis",
+    "border-weight",
+    "elevation",
+    "nav",
+    "forms"
+   ]
+  },
+  {
+   "id": "working-memory-four-chunks",
+   "topic": "working-memory",
+   "principle": "Working memory holds about four chunks",
+   "claim": "A person can keep only about three to five separate items in mind at once while doing something else. Anything beyond that is lost unless the interface keeps it visible.",
+   "mechanism": "Working memory is the small mental workspace that holds information for the next few seconds. Its capacity is counted in chunks; a chunk is a unit the person already knows as one thing (a familiar word, a known date). When rehearsal and grouping are prevented, capacity averages about four chunks. Unfamiliar material forms more chunks than familiar material.",
+   "effects": {
+    "cognitiveLoad": "lowers — the screen, not the person, holds the information",
+    "satisfaction": "unknown — not measured in the cited review",
+    "perceivedIntuitiveness": "raises — people do not lose their place"
+   },
+   "designMoves": [
+    "Do not ask people to carry values from one screen to another; show the value where it is needed, or carry it for them.",
+    "Keep the things a person must compare visible side by side.",
+    "Show codes and long numbers in groups, and allow paste.",
+    "Keep instructions visible while the person carries them out; do not hide them behind a step that closes.",
+    "In multi-step flows, show a short summary of earlier answers."
+   ],
+   "antiPatterns": [
+    "A verification code shown on one screen that must be typed from memory on another.",
+    "Instructions in a dialog that disappears before the task starts.",
+    "A comparison that requires flipping between separate pages."
+   ],
+   "howToCheck": {
+    "machine": "In multi-step flows, detect values displayed in one step and requested as typed input in a later step without prefill. Flag one-time-code and long-number inputs that block paste. Flag instructions that refer to content not present in the current view.",
+    "human": "Walk through each task and list everything the user must remember between screens. More than a few items, or any unfamiliar code, is a defect."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Cowan (2001) is a target article in Behavioral and Brain Sciences that gathers a wide range of experiments and concludes that a central limit averages about four chunks (range three to five). The estimate applies when grouping and rehearsal are blocked; with familiar, groupable material people hold more. The exact number is still debated, but no serious estimate is large. Abstract confirmed."
+   },
+   "sources": [
+    {
+     "citation": "Cowan, N. (2001). The magical number 4 in short-term memory: A reconsideration of mental storage capacity. Behavioral and Brain Sciences, 24(1), 87-114.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/11515286/",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "The limit concerns what a person must hold in mind, not what a screen may show. It does not cap the number of visible menu items, options or table columns (see miller-seven-misreading).",
+   "appliesTo": [
+    "forms",
+    "sections",
+    "tables",
+    "onboarding",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "miller-seven-misreading",
+   "topic": "working-memory",
+   "principle": "'Seven plus or minus two' does not limit menus",
+   "claim": "Miller's 1956 number describes recall of items held in memory, and later work puts the real limit near four chunks. It says nothing about how many items a visible menu, list or navigation bar may contain.",
+   "mechanism": "A visible list needs no memory: the items stay on the screen and the person recognises the one they want. The cost of a long visible list is search time and label quality, not memory overflow.",
+   "effects": {
+    "cognitiveLoad": "mixed — dropping the false cap can make menus broader and shallower, which usually reduces wrong turns but lengthens each scan",
+    "satisfaction": "unknown — not measured",
+    "perceivedIntuitiveness": "mixed — depends on grouping and labels, not on the count"
+   },
+   "designMoves": [
+    "Decide menu length by the content and by testing, not by a count of seven.",
+    "Group long lists under clear headings and order them in a way people can predict (alphabetical, by task, by frequency).",
+    "Prefer one broad, well-labelled level to several narrow levels (see breadth-vs-depth).",
+    "Apply the real memory limit where memory is used: steps the user must remember, codes, unseen options."
+   ],
+   "antiPatterns": [
+    "Cutting or hiding navigation items to reach seven.",
+    "Splitting one clear list into nested sub-menus only to keep each level under seven.",
+    "Citing Miller's number as a rule for the number of options, tabs or bullet points."
+   ],
+   "howToCheck": {
+    "machine": null,
+    "human": "Check the reason given for a menu's length. If the reason is a number, replace it with a tree test (a test in which users find items in a text-only menu) or a card sort."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "The correction rests on Cowan (2001), who describes Miller's seven as a rough estimate and a rhetorical device, and on menu experiments such as Larson and Czerwinski (1998), in which broader, shallower structures of 512 items beat a deeper one. Nielsen Norman Group states the misconception directly (quoted here from secondary sources). The folklore claim itself ('menus must have 7 plus or minus 2 items') has grade D: no study supports it. Miller's paper is cited from memory."
+   },
+   "sources": [
+    {
+     "citation": "Miller, G. A. (1956). The magical number seven, plus or minus two: Some limits on our capacity for processing information. Psychological Review, 63(2), 81-97.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Cowan, N. (2001). The magical number 4 in short-term memory: A reconsideration of mental storage capacity. Behavioral and Brain Sciences, 24(1), 87-114.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/11515286/",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Larson, K., & Czerwinski, M. (1998). Web page design: Implications of memory, structure and scent for information retrieval. Proceedings of CHI 1998, 25-32.",
+     "url": "https://www.microsoft.com/en-us/research/publication/web-page-design-implications-memory-structure-scent-information-retrieval/",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Nielsen, J. (2009). Short-Term Memory and Web Usability. Nielsen Norman Group.",
+     "url": null,
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "Long menus still cost scan time, and very broad single levels performed worse than a medium breadth in the cited experiment. Spoken menus (phone systems, voice assistants) do load memory, because the options are not visible.",
+   "appliesTo": [
+    "nav",
+    "sections",
+    "forms",
+    "density"
+   ]
+  },
+  {
+   "id": "recognition-over-recall",
+   "topic": "working-memory",
+   "principle": "Recognition is easier than recall",
+   "claim": "People pick the right item from visible options far more easily than they produce it from memory. Interfaces that show options, history and examples are easier to use than interfaces that require typed commands or remembered names.",
+   "mechanism": "Memory retrieval works through cues. Recognition supplies the item itself as the cue; recall supplies few cues, so retrieval fails more often and takes more effort.",
+   "effects": {
+    "cognitiveLoad": "lowers — the interface supplies the cue",
+    "satisfaction": "raises — fewer failed attempts (practitioner evidence)",
+    "perceivedIntuitiveness": "raises — people can see what is possible"
+   },
+   "designMoves": [
+    "Show the available choices (menus, visible options, suggestions) and do not require remembered names or codes.",
+    "Offer search suggestions and recent items, which turn a recall task into a recognition task.",
+    "Label icons with text, because an unlabelled icon makes the person recall its meaning.",
+    "Show examples of the expected format next to an input.",
+    "Let people sign in without recalling a password where possible (password manager, passkey, emailed link)."
+   ],
+   "antiPatterns": [
+    "Functions reachable only by a typed command or an unlabelled gesture.",
+    "Icon-only toolbars for functions that people use rarely.",
+    "A blank search or prompt box with no suggestions, examples or history."
+   ],
+   "howToCheck": {
+    "machine": "Flag icon-only controls with no visible text label. Check that search inputs offer suggestions or recent queries, and that inputs with a required format show an example outside the field. Check that sign-in works with password managers (see autofill-and-password-managers).",
+    "human": "For each task, ask what the user must already know to complete it. Every item on that list should be visible or offered as a choice."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "expert-opinion",
+    "strengthNote": "This is usability heuristic 6 in Nielsen's list of ten, explained by Budiu (2014) for Nielsen Norman Group with reference to retrieval cues. The underlying memory finding is old and well replicated in psychology, but no primary memory experiment was checked for this entry. The standard WCAG 2.2 criterion 3.3.8 (Accessible Authentication) makes one case mandatory at level AA: a sign-in step must not depend on a memory test unless an alternative or a help mechanism exists."
+   },
+   "sources": [
+    {
+     "citation": "Budiu, R. (2014). Memory Recognition and Recall in User Interfaces. Nielsen Norman Group.",
+     "url": "https://www.nngroup.com/articles/recognition-and-recall/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.3.8 Accessible Authentication (Minimum), Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/22/accessible-authentication-minimum.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Experts often prefer recall-based routes (keyboard shortcuts, typed commands) because they are faster once learned; offer them in addition to visible options, not in place of them (see shortcuts-and-accelerators). Showing every option at once raises scan time, so pair this rule with grouping.",
+   "appliesTo": [
+    "nav",
+    "forms",
+    "states",
+    "onboarding",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "dont-ask-twice",
+   "topic": "working-memory",
+   "principle": "Never ask for the same information twice in one process",
+   "claim": "Within one multi-step process, information the user has already entered must be filled in automatically or offered for selection when it is needed again.",
+   "mechanism": "Re-entering information forces the person to recall or look up what they typed earlier. The W3C explanation notes that mental fatigue builds through a multi-step process, that recall adds to it, and that people then abandon the task or re-enter the data wrongly.",
+   "effects": {
+    "cognitiveLoad": "lowers — no recall of earlier answers and less typing",
+    "satisfaction": "raises — plausible, but not measured in the standard",
+    "perceivedIntuitiveness": "raises — the product appears to remember the user"
+   },
+   "designMoves": [
+    "Prefill later steps with values that the user entered in earlier steps, and keep them editable.",
+    "Offer a 'same as delivery address' style option where two fields usually match.",
+    "Keep entered values when a validation error sends the user back to a form.",
+    "Prefill the search field with the previous query on a results page.",
+    "Do not rely on browser autofill alone; the site itself must supply the repeated data."
+   ],
+   "antiPatterns": [
+    "Asking for an email address or reference number at two steps of the same flow.",
+    "Clearing the form after a server-side error.",
+    "Asking the user to confirm an email address by typing it again."
+   ],
+   "howToCheck": {
+    "machine": "Walk each multi-step flow with a script. Flag any step that requests a value already supplied in an earlier step without prefilling it or offering it for selection. Submit an invalid form and assert that valid field values survive.",
+    "human": "Complete each process once and note every moment at which known information is requested again."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 Success Criterion 3.3.7 Redundant Entry, Level A, read from the W3C source repository. Exceptions: re-entry that is essential, re-entry required for security (for example, confirming a new hidden password), and information that is no longer valid. The standard states the requirement; it reports no measured effect sizes."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.3.7 Redundant Entry, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/22/redundant-entry.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). Understanding Success Criterion 3.3.7: Redundant Entry.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/22/redundant-entry.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "The criterion covers one process in one session, not return visits. Prefilled data must stay editable, because carried-forward errors are otherwise locked in.",
+   "appliesTo": [
+    "forms",
+    "onboarding",
+    "states",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "cognitive-load-three-kinds",
+   "topic": "cognitive-load",
+   "principle": "Cognitive load has a part the task needs and a part the design adds",
+   "claim": "The mental effort of using an interface comes partly from the task itself and partly from how the interface presents it. Design can remove only the second part, and should spend its effort there.",
+   "mechanism": "Cognitive load theory starts from the small capacity of working memory. Intrinsic load comes from the number of interacting things the task itself requires the person to consider. Extraneous load comes from presentation: searching, cross-referencing, decoding. Germane load is the effort that goes into understanding and learning. When intrinsic and extraneous load together exceed capacity, performance and learning break down.",
+   "effects": {
+    "cognitiveLoad": "lowers — removing presentation-caused effort leaves capacity for the task",
+    "satisfaction": "unknown — the theory predicts performance and learning, not satisfaction",
+    "perceivedIntuitiveness": "raises — less effort goes into working out the interface"
+   },
+   "designMoves": [
+    "List what the task itself requires the user to think about; treat every other demand as a candidate for removal.",
+    "Break a task with many interacting parts into steps that each need only a few considerations.",
+    "Remove demands that come from presentation: searching for the next control, matching a legend to a chart, decoding jargon.",
+    "Keep related information together in space and time (see split-attention).",
+    "Do not simplify away information the task needs; hiding necessary content moves the load to memory."
+   ],
+   "antiPatterns": [
+    "Treating 'fewer elements on screen' as the goal when the hidden elements are needed for the task.",
+    "A step that asks for several unrelated decisions at once.",
+    "Instructions, the form they describe and the error list placed in three different places."
+   ],
+   "howToCheck": {
+    "machine": null,
+    "human": "Run a think-aloud test (the user says what they are thinking while working). Mark each hesitation as task-caused or presentation-caused. A workload questionnaire such as NASA-TLX can compare two versions."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Cognitive load theory has decades of peer-reviewed experiments and several meta-analyses for its individual effects (see split-attention, extraneous-content, signaling). Nearly all of that evidence comes from instruction and learning, not from interface use; the transfer to interfaces is an analogy that practitioners make routinely. The three-way split is debated: the 2019 review by the theory's authors treats germane load as a redistribution of effort and not as a separate added load, and independent critics note that the three kinds cannot be measured separately. Only bibliographic details were confirmed; the definitions are stated from memory."
+   },
+   "sources": [
+    {
+     "citation": "Sweller, J., van Merrienboer, J. J. G., & Paas, F. (2019). Cognitive architecture and instructional design: 20 years later. Educational Psychology Review, 31(2), 261-292.",
+     "url": "https://cris.maastrichtuniversity.nl/en/publications/cognitive-architecture-and-instructional-design-20years-later/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Sweller, J., van Merrienboer, J. J. G., & Paas, F. G. W. C. (1998). Cognitive architecture and instructional design. Educational Psychology Review, 10(3), 251-296.",
+     "url": "https://link.springer.com/content/pdf/10.1023/A:1022193728205.pdf",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "No script can measure cognitive load on a rendered page; counts of elements are weak proxies. 'Reduce cognitive load' is not a design move until it names the specific demand that is removed. For experienced users, guidance that helps novices can become extraneous (see expertise-reversal).",
+   "appliesTo": [
+    "sections",
+    "forms",
+    "density",
+    "onboarding",
+    "copy",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "split-attention",
+   "topic": "cognitive-load",
+   "principle": "Put related information together (split attention)",
+   "claim": "People understand and learn better when words sit next to the thing they describe than when the two are separated on the page or in time.",
+   "mechanism": "When related items are apart, the person must hold one in working memory while searching for the other, and then join them mentally. That holding and searching is effort that the layout causes and the task does not need.",
+   "effects": {
+    "cognitiveLoad": "lowers — no holding and searching between separated parts",
+    "satisfaction": "unknown — the meta-analyses measured learning outcomes",
+    "perceivedIntuitiveness": "raises — each explanation appears where the question arises"
+   },
+   "designMoves": [
+    "Place each error message next to its field, not only in a list at the top.",
+    "Label chart lines and segments directly; avoid a separate legend where space allows.",
+    "Put help text beside or directly under the control it explains.",
+    "Show the price, limit or consequence next to the button that commits the user to it.",
+    "Show feedback about an action at the place of the action."
+   ],
+   "antiPatterns": [
+    "A legend far from the chart, or colour keys the reader must memorise.",
+    "Field instructions on a previous page or in a separate help panel.",
+    "Footnote markers for information needed to make the decision."
+   ],
+   "howToCheck": {
+    "machine": "Measure the distance between each error message and its field, and between each hint and its control; flag hints or errors that are not adjacent. Flag charts with a detached legend and more than a few series. Flag required instructions that exist only inside a tooltip.",
+    "human": "For each explanation on the page, check whether the reader must look away from the thing explained to read it."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "meta-analysis",
+    "strengthNote": "Schroeder and Cenkci (2018) meta-analysed 58 independent comparisons (2,426 participants) and found a medium benefit of integrated over separated presentation (g = 0.63). Ginns (2006) analysed 50 studies and found a larger benefit (citing papers report d near 0.85; that figure was not checked against the original). All studies concern learning from instructional material; the application to forms and charts is an inference with good face validity."
+   },
+   "sources": [
+    {
+     "citation": "Schroeder, N. L., & Cenkci, A. T. (2018). Spatial contiguity and spatial split-attention effects in multimedia learning environments: A meta-analysis. Educational Psychology Review, 30(3), 679-701.",
+     "url": "https://www.clearinghouse.edu.tum.de/wp-content/uploads/2019/06/CHU_KR-23_Schroeder-2018_Lernmaterial.pdf",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Ginns, P. (2006). Integrating information: A meta-analysis of the spatial contiguity and temporal contiguity effects. Learning and Instruction, 16(6), 511-525.",
+     "url": null,
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "Integration helps when both parts are needed together and neither is understandable alone. If one part is self-sufficient, adding the other beside it is redundant (see extraneous-content). Very dense integrated displays can crowd small screens; a disclosure control directly beside the item is the fallback.",
+   "appliesTo": [
+    "forms",
+    "sections",
+    "tables",
+    "copy",
+    "states"
+   ]
+  },
+  {
+   "id": "extraneous-content",
+   "topic": "cognitive-load",
+   "principle": "Remove content that does not serve the task (redundancy and decoration)",
+   "claim": "Interesting but irrelevant additions reduce learning from the core material. Presenting the same words in two forms at once does not help, and in some studies it hurts.",
+   "mechanism": "Every element is read, or at least checked, before it can be ignored. Decorative or duplicated material uses working memory that the core content needs, and it can pull attention to the wrong idea.",
+   "effects": {
+    "cognitiveLoad": "lowers — fewer elements must be checked and set aside",
+    "satisfaction": "mixed — decoration can please while it distracts; the cited studies measured learning",
+    "perceivedIntuitiveness": "raises — the page states one thing at a time"
+   },
+   "designMoves": [
+    "In task flows (forms, checkout, intake steps), remove images, anecdotes and promotions that do not help the user complete the step.",
+    "Say each thing once: do not repeat the label as placeholder text and again as helper text.",
+    "Keep decorative media away from instructions and key numbers.",
+    "Keep short supporting labels; a few key words beside a picture or beside spoken content help.",
+    "Place brand storytelling on pages whose purpose is persuasion, not inside a task."
+   ],
+   "antiPatterns": [
+    "A stock photo and a slogan inside a multi-step form.",
+    "The same paragraph as on-page text and as an auto-playing narration.",
+    "'Did you know?' asides beside critical instructions."
+   ],
+   "howToCheck": {
+    "machine": "Inside task flows, count decorative images (empty alt text or presentation role), auto-playing media and promotional blocks. Flag strings that repeat within one control group (label, placeholder and hint with the same words).",
+    "human": "For each element in a task step, ask whether the user would be slower or less accurate without it. Remove the elements for which the answer is no."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "meta-analysis",
+    "strengthNote": "Seductive details: Sundararajan and Adesope (2020) meta-analysed the effect and found lower learning outcomes when interesting but irrelevant material was added (press coverage gives 58 studies; the effect size was not confirmed). Redundancy: Adesope and Nesbit (2012) found that spoken plus written text was no better than written text alone, though better than spoken text alone, and that a few condensed on-screen words helped. Kalyuga, Chandler and Sweller (1999) is the standard experiment showing harm from identical narration and text. The redundancy evidence is mixed, and all of it concerns learning, not task completion."
+   },
+   "sources": [
+    {
+     "citation": "Sundararajan, N., & Adesope, O. (2020). Keep it coherent: A meta-analysis of the seductive details effect. Educational Psychology Review, 32, 707-734.",
+     "url": "https://news.wsu.edu/2020/03/19/seductive-details-inhibit-learning/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Adesope, O. O., & Nesbit, J. C. (2012). Verbal redundancy in multimedia learning environments: A meta-analysis. Journal of Educational Psychology, 104(1), 250-263.",
+     "url": "https://rex.libraries.wsu.edu/esploro/outputs/journalArticle/Verbal-Redundancy-in-Multimedia-Learning-Environments/99900601157101842",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Kalyuga, S., Chandler, P., & Sweller, J. (1999). Managing split-attention and redundancy in multimedia instruction. Applied Cognitive Psychology, 13(4), 351-371.",
+     "url": null,
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "Redundancy across senses is required for accessibility: captions, text alternatives and an icon paired with a label serve people who cannot use one channel. The harm arises when the same person must process identical material twice. Secondary reports say the seductive-details effect was clear in short lessons and not significant in longer ones; that detail was not confirmed.",
+   "appliesTo": [
+    "sections",
+    "forms",
+    "hero",
+    "copy",
+    "signature",
+    "onboarding"
+   ]
+  },
+  {
+   "id": "signaling",
+   "topic": "cognitive-load",
+   "principle": "Signal what matters (cueing)",
+   "claim": "Cues that mark the important parts of content, such as headings, highlighted key terms, numbering and pointers, improve what people remember and, to a smaller degree, what they can apply.",
+   "mechanism": "A cue tells the reader where to look and how the parts relate, so less effort goes into finding the essential material and more into understanding it.",
+   "effects": {
+    "cognitiveLoad": "lowers — less searching for the essential material",
+    "satisfaction": "unknown — the meta-analysis reports learning outcomes",
+    "perceivedIntuitiveness": "raises — the structure of the content is visible"
+   },
+   "designMoves": [
+    "Give each section a heading that states its point.",
+    "Highlight only the few terms or numbers that the reader must not miss.",
+    "Number the steps of a procedure.",
+    "Use one cue type for one meaning (for example, bold for key terms only).",
+    "In explanatory graphics, point from the label to the part it names."
+   ],
+   "antiPatterns": [
+    "Bold, colour, capitals and icons all used in one paragraph.",
+    "Highlighting whole paragraphs, which marks nothing.",
+    "Headings that name a topic ('Overview') without stating anything."
+   ],
+   "howToCheck": {
+    "machine": "Report the share of body text that is bold or highlighted and flag a high share (the Catalog sets the limit; research gives none). Check that long text has headings, that heading levels do not skip, and that ordered procedures use ordered lists.",
+    "human": "Read only the headings and highlighted words. They should give the main message of the page."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "meta-analysis",
+    "strengthNote": "Schneider, Beege, Nebel and Rey (2018) meta-analysed 103 studies with 12,201 participants and report moderate gains for retention (g = 0.53) and smaller gains for transfer (g = 0.33); these figures come from a secondary summary and were not checked against the paper. Two other meta-analyses (Richter, Scheiter and Eitel 2016; Alpizar, Adesope and Wong 2020) point the same way. The evidence concerns learning materials."
+   },
+   "sources": [
+    {
+     "citation": "Schneider, S., Beege, M., Nebel, S., & Rey, G. D. (2018). A meta-analysis of how signaling affects learning with media. Educational Research Review, 23, 1-24. DOI 10.1016/j.edurev.2017.11.001.",
+     "url": null,
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "Signalling is a budget: each added cue weakens the others (see preattentive-popout). A cue on the wrong element misleads more than no cue.",
+   "appliesTo": [
+    "heading-treatment",
+    "emphasis",
+    "copy",
+    "sections",
+    "onboarding"
+   ]
+  }
+ ]
+}

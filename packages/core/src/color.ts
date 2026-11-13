@@ -124,3 +124,31 @@ export function readableOn(bg: Oklch, hue = bg.h): Oklch {
   const dark: Oklch = { l: 0.17, c: 0.02, h: hue };
   return contrast(light, bg) >= contrast(dark, bg) ? light : dark;
 }
+
+/** A color with transparency, as CSS. Used for hairlines, glows, and glass, which must sit naturally on any surface. */
+export function toCssAlpha(color: Oklch, alpha: number): string {
+  const g = toGamut(color);
+  const n = (v: number, d: number): string => Number(v.toFixed(d)).toString();
+  return `oklch(${n(g.l * 100, 2)}% ${n(g.c, 4)} ${n(g.h, 2)} / ${n(alpha, 3)})`;
+}
+
+/** The opaque hex that results when `fg` at `alpha` is painted over `bg` (composited in sRGB, as browsers do). */
+export function hexOver(fg: Oklch, alpha: number, bg: Oklch): string {
+  const f = toRgb(fg);
+  const b = toRgb(bg);
+  const mix = (x: number, y: number): string =>
+    Math.round(clamp01(x * alpha + y * (1 - alpha)) * 255)
+      .toString(16)
+      .padStart(2, '0');
+  return `#${mix(f.r, b.r)}${mix(f.g, b.g)}${mix(f.b, b.b)}`;
+}
+
+/** Shift lightness, keeping the result in range. */
+export function shiftL(color: Oklch, by: number): Oklch {
+  return { ...color, l: Math.min(0.995, Math.max(0.02, color.l + by)) };
+}
+
+/** Rotate hue. */
+export function shiftH(color: Oklch, by: number): Oklch {
+  return { ...color, h: (((color.h + by) % 360) + 360) % 360 };
+}

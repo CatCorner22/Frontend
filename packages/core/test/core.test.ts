@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  DIRECTIONS, applyDirection, designDistance, generateDirections,
   DEFAULT_PARAMS, FONTS, SAMPLE_CONTENT, STEPS, closerOptions, conflicts, contrast, createProject, deriveTokens, ensureContrast,
   escapeHtml, parseProject, pick, previewParams, renderSmallBusiness, resolvePatch, skip, toHex, tune, wireframeParams,
   type DesignParams, type Oklch,
@@ -131,11 +132,12 @@ describe('engine', () => {
     expect(closerOptions(project, 'nav')).toEqual([]);
   });
   it('flags conflicts without changing any Decision', () => {
-    let project = pick(createProject(), 'elevation', 'hard-shadow');
-    project = pick(project, 'radius', 'pill');
+    let project = pick(createProject(), 'heading-treatment', 'light-large');
+    project = pick(project, 'signature', 'outline-type');
     const found = conflicts(project);
-    expect(found.map((c) => c.id)).toContain('hard-pill');
-    expect(project.params.radius).toBe(999);
+    expect(found.map((c) => c.id)).toContain('outline-thin');
+    expect(project.params.signature).toBe('outline-type');
+    expect(project.params.headingWeight).toBe(400);
   });
   it('wireframe keeps structure and resets feel', () => {
     const p = wireframeParams({ ...DEFAULT_PARAMS, nav: 'side-rail', accentChroma: 0.2, fontHeading: 'fraunces' });
@@ -184,5 +186,58 @@ describe('Mockup', () => {
     const next = deriveTokens(previewParams(project, pill), 'off').css;
     const changed = Object.keys(next).filter((k) => next[k] !== base[k]);
     expect(changed.sort()).toEqual(['--radius-control', '--radius-small', '--radius-surface']);
+  });
+});
+
+describe('Directions', () => {
+  it('every Direction is a complete, valid, conflict-free design', () => {
+    const ids = new Set<string>();
+    for (const direction of DIRECTIONS) {
+      expect(ids.has(direction.id)).toBe(false);
+      ids.add(direction.id);
+      for (const field of [direction.name, direction.mood, direction.bestFor, direction.risk]) expect(field.trim().length).toBeGreaterThan(5);
+      const project = applyDirection(createProject(), direction);
+      expect(parseProject(JSON.parse(JSON.stringify(project))).ok, direction.id).toBe(true);
+      expect(conflicts(project).map((c) => c.id), direction.id).toEqual([]);
+      expect(deriveTokens(project.params, 'enforce').issues.every((i) => i.outcome === 'repaired')).toBe(true);
+    }
+  });
+  it('Directions differ from each other', () => {
+    for (let i = 0; i < DIRECTIONS.length; i++) for (let j = i + 1; j < DIRECTIONS.length; j++) {
+      expect(designDistance(DIRECTIONS[i]!.params, DIRECTIONS[j]!.params), `${DIRECTIONS[i]!.id} vs ${DIRECTIONS[j]!.id}`).toBeGreaterThan(3);
+    }
+  });
+  it('applying a Direction replaces the design and clears earlier Decisions', () => {
+    const picked = pick(createProject(), 'radius', 'pill');
+    const after = applyDirection(picked, 'graphite-precision');
+    expect(after.decisions).toEqual({});
+    expect(after.direction).toBe('Graphite Precision');
+    expect(after.params.elevation).toBe('ring');
+    expect(() => applyDirection(picked, 'no-such-direction')).toThrow();
+  });
+  it('the generator is repeatable, conflict-free, valid, and varied', () => {
+    const a = generateDirections(7, 6);
+    const b = generateDirections(7, 6);
+    expect(a.map((d) => d.params)).toEqual(b.map((d) => d.params));
+    expect(a.length).toBe(6);
+    expect(generateDirections(8, 6).map((d) => d.params)).not.toEqual(a.map((d) => d.params));
+    for (const direction of a) {
+      const project = applyDirection(createProject(), direction);
+      expect(conflicts(project)).toEqual([]);
+      expect(parseProject(JSON.parse(JSON.stringify(project))).ok).toBe(true);
+    }
+    for (let i = 0; i < a.length; i++) for (let j = i + 1; j < a.length; j++) expect(designDistance(a[i]!.params, a[j]!.params)).toBeGreaterThan(2);
+  });
+});
+
+describe('preview regions', () => {
+  it('opens the Mockup at the region a Step names', () => {
+    const tokens = deriveTokens(DEFAULT_PARAMS, 'off').css;
+    const html = renderSmallBusiness({ params: DEFAULT_PARAMS, tokens, content: SAMPLE_CONTENT, stage: 'feel', focus: 'contact', still: true });
+    expect(html).toContain('data-focus="contact"');
+    expect(html).toContain('data-still');
+    const proof = renderSmallBusiness({ params: { ...DEFAULT_PARAMS, emphasis: 'proof' }, tokens, content: SAMPLE_CONTENT, stage: 'feel', focus: 'facts' });
+    expect(proof).toContain('data-focus="top"');
+    for (const step of STEPS) expect(['top', 'facts', 'services', 'about', 'contact']).toContain(step.focus);
   });
 });

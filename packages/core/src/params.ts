@@ -3,14 +3,18 @@
 
 export type NavPattern = 'top-inline' | 'top-centered' | 'split-cta' | 'side-rail';
 export type HeroLayout = 'text-left' | 'centered' | 'split-media' | 'statement';
-export type SectionRhythm = 'stacked' | 'alternating' | 'grid' | 'ledger';
+export type SectionRhythm = 'stacked' | 'alternating' | 'grid' | 'ledger' | 'bento';
 export type ContentWidth = 'narrow' | 'standard' | 'wide';
 export type Emphasis = 'headline' | 'action' | 'proof';
 export type HeadingCase = 'sentence' | 'title' | 'upper';
 export type Numerals = 'proportional' | 'tabular' | 'mono';
 export type ColorStrategy = 'quiet' | 'single-accent' | 'duo' | 'tinted-surface' | 'color-block';
 export type Theme = 'light' | 'dark';
-export type Elevation = 'flat' | 'borders' | 'soft-shadow' | 'hard-shadow' | 'tonal';
+export type Elevation = 'flat' | 'borders' | 'ring' | 'soft-shadow' | 'float' | 'hard-shadow' | 'tonal' | 'glass';
+export type Atmosphere = 'plain' | 'horizon' | 'dot-grid' | 'line-grid' | 'spotlight' | 'aurora' | 'grain';
+export type ButtonFinish = 'flat' | 'gloss' | 'glow' | 'outline' | 'soft';
+export type DisplayTreatment = 'solid' | 'ink-gradient' | 'accent-gradient';
+export type MotionLevel = 'none' | 'subtle' | 'expressive';
 export type Signature = 'none' | 'marker' | 'big-numerals' | 'color-band' | 'outline-type' | 'corner-tag';
 export type A11yProfile = 'off' | 'advise' | 'enforce';
 
@@ -75,6 +79,14 @@ export interface DesignParams {
   /** Border thickness in px: 0, 1, 1.5, 2, or 3. */
   borderWeight: number;
   signature: Signature;
+
+  // Finish: the details that make a design read as refined
+  /** What sits behind the first screen: nothing, a grid, a glow, grain. */
+  atmosphere: Atmosphere;
+  buttonFinish: ButtonFinish;
+  /** How the largest headline is filled. */
+  displayTreatment: DisplayTreatment;
+  motion: MotionLevel;
 }
 
 export const DEFAULT_PARAMS: DesignParams = {
@@ -105,6 +117,10 @@ export const DEFAULT_PARAMS: DesignParams = {
   elevation: 'borders',
   borderWeight: 1,
   signature: 'none',
+  atmosphere: 'plain',
+  buttonFinish: 'flat',
+  displayTreatment: 'solid',
+  motion: 'subtle',
 };
 
 export interface FontInfo {

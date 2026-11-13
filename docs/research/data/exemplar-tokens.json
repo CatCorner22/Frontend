@@ -1,0 +1,3883 @@
+{
+  "generated": "2026-11-13",
+  "sources": [
+    {
+      "id": "tailwindcss",
+      "name": "Tailwind CSS v4 default theme",
+      "url": "https://github.com/tailwindlabs/tailwindcss",
+      "license": "MIT",
+      "verifiedHow": "npm pack tailwindcss@4.3.5; LICENSE file in tarball; read theme.css in full."
+    },
+    {
+      "id": "radix-colors",
+      "name": "Radix Colors",
+      "url": "https://github.com/radix-ui/colors",
+      "license": "MIT",
+      "verifiedHow": "npm pack @radix-ui/colors@3.0.0; LICENSE file; read <colour>.css, <colour>-dark.css, gray-alpha.css, black-alpha.css."
+    },
+    {
+      "id": "radix-themes",
+      "name": "Radix Themes",
+      "url": "https://github.com/radix-ui/themes",
+      "license": "MIT",
+      "verifiedHow": "npm pack @radix-ui/themes@3.3.0; LICENSE file; read src/styles/tokens/{color,radius,scaling,shadow,space,typography,cursor}.css, src/styles/tokens/colors/*.css, src/components/{animations,card,button,section,container,text}.css, src/components/_internal/{base-button,base-card,base-dialog}.css, src/helpers/get-matching-gray-color.ts."
+    },
+    {
+      "id": "shadcn-ui",
+      "name": "shadcn/ui (v4 registry, new-york-v4)",
+      "url": "https://github.com/shadcn-ui/ui",
+      "license": "MIT",
+      "verifiedHow": "raw.githubusercontent.com LICENSE.md on main; read apps/v4/registry/themes.ts, registry/base-colors.ts, registry/config.ts, registry/fonts.ts, lib/fonts.ts, lib/font-definitions.ts, app/globals.css, registry/new-york-v4/ui/{button,card,input,dialog,sidebar,tooltip,tabs,dropdown-menu}.tsx, blocks/{dashboard-01,login-03,login-04,sidebar-07}."
+    },
+    {
+      "id": "tweakcn",
+      "name": "tweakcn theme presets",
+      "url": "https://github.com/jnsahaj/tweakcn",
+      "license": "Apache-2.0",
+      "verifiedHow": "raw LICENSE on main (Apache License 2.0 text); read utils/theme-presets.ts (42 presets), config/theme.ts, utils/shadows.ts."
+    },
+    {
+      "id": "open-props",
+      "name": "Open Props",
+      "url": "https://github.com/argyleink/open-props",
+      "license": "MIT",
+      "verifiedHow": "npm pack open-props@1.7.23; LICENSE file; read src/props.{shadows,easing,sizes,borders,fonts,gray,stone,sand}.css, durations.min.css, src/extra/normalize.src.css, normalize.dark.css."
+    },
+    {
+      "id": "primer-primitives",
+      "name": "GitHub Primer Primitives",
+      "url": "https://github.com/primer/primitives",
+      "license": "MIT",
+      "verifiedHow": "npm pack @primer/primitives@11.10.0; LICENSE file; read dist/css/functional/themes/{light,dark,dark-dimmed}.css, dist/css/base/{motion,size,typography}, dist/css/functional/{motion,size,typography}."
+    },
+    {
+      "id": "primer-brand",
+      "name": "GitHub Primer Brand primitives",
+      "url": "https://github.com/primer/brand",
+      "license": "MIT",
+      "verifiedHow": "npm view @primer/brand-primitives license (MIT) — the 0.81.0 tarball has no LICENSE file; read lib/design-tokens/css/tokens/functional/{typography,animation,size}/*.css, base/typography/typography.css, functional/components/hero/base.css."
+    },
+    {
+      "id": "carbon",
+      "name": "IBM Carbon (themes, type, motion, layout)",
+      "url": "https://github.com/carbon-design-system/carbon",
+      "license": "Apache-2.0",
+      "verifiedHow": "npm pack @carbon/themes@11.85.0, @carbon/type@11.71.0, @carbon/motion@11.56.0, @carbon/layout@11.63.0; LICENSE file in each; read themes scss/generated/{_themes,_button-tokens}.scss, type scss/{_scale,_styles,_font-family}.scss, motion tokens/{motion,surfaces}.tokens.json, layout tokens/layout.tokens.json and src/index.ts. Component defaults (button radius, focus, transition) checked in @carbon/styles@1.119.0 css/styles.min.css (Apache-2.0, LICENSE file)."
+    },
+    {
+      "id": "govuk-frontend",
+      "name": "GOV.UK Frontend",
+      "url": "https://github.com/alphagov/govuk-frontend",
+      "license": "MIT",
+      "verifiedHow": "npm pack govuk-frontend@6.6.0; license field in package.json (no LICENSE file in tarball); read dist/govuk/settings/{_typography-responsive,_typography-font,_spacing,_measurements,_colours-functional,_colours-palette--internal,_links}.scss, helpers/_focused.scss, core/_typography.mixin.scss, components/button/{_mixin,_settings}.scss."
+    },
+    {
+      "id": "material-web",
+      "name": "Material Web (Material 3 tokens)",
+      "url": "https://github.com/material-components/material-web",
+      "license": "Apache-2.0",
+      "verifiedHow": "npm pack @material/web@2.5.0; LICENSE file; read tokens/versions/v0_192/_md-sys-{motion,shape,typescale,elevation,state}.scss, _md-ref-typeface.scss, _md-comp-{filled-button,elevated-card,dialog,filled-text-field}.scss, tokens/_md-comp-focus-ring.scss."
+    },
+    {
+      "id": "mantine",
+      "name": "Mantine default theme",
+      "url": "https://github.com/mantinedev/mantine",
+      "license": "MIT",
+      "verifiedHow": "npm pack @mantine/core@9.8.0; LICENSE file; read esm/core/MantineProvider/default-theme.mjs, default-colors.mjs, MantineCssVariables/default-css-variables-resolver.mjs."
+    },
+    {
+      "id": "daisyui",
+      "name": "daisyUI themes",
+      "url": "https://github.com/saadeghi/daisyui",
+      "license": "MIT",
+      "verifiedHow": "npm pack daisyui@5.8.0; LICENSE file; read theme/*.css for 25 themes and components/button.css."
+    },
+    {
+      "id": "heroui",
+      "name": "HeroUI (formerly NextUI) theme",
+      "url": "https://github.com/heroui-inc/heroui",
+      "license": "MIT",
+      "verifiedHow": "npm pack @heroui/theme@2.4.26; LICENSE file; read dist chunks for src/default-layout.ts, semantic colours, zinc scale, button and transition utilities."
+    },
+    {
+      "id": "park-ui",
+      "name": "Park UI Panda preset",
+      "url": "https://github.com/cschroeter/park-ui",
+      "license": "MIT",
+      "verifiedHow": "npm pack @park-ui/panda-preset@0.43.1; license field in package.json (no LICENSE file in tarball); read dist/index.js (shadows, textStyles, fontSizes, radii, durations, easings, animations) and dist/chunk-LS3ONKWL.js."
+    },
+    {
+      "id": "panda-preset",
+      "name": "Panda CSS base preset",
+      "url": "https://github.com/chakra-ui/panda",
+      "license": "MIT",
+      "verifiedHow": "npm pack @pandacss/preset-panda@2.5.0; LICENSE.md; read dist/index.js (spacing, shadows, easings, durations, radii)."
+    },
+    {
+      "id": "sonner",
+      "name": "Sonner",
+      "url": "https://github.com/emilkowalski/sonner",
+      "license": "MIT",
+      "verifiedHow": "npm pack sonner@2.0.8; LICENSE.md; read dist/styles.css and constants in dist/index.mjs."
+    },
+    {
+      "id": "vaul",
+      "name": "Vaul",
+      "url": "https://github.com/emilkowalski/vaul",
+      "license": "MIT",
+      "verifiedHow": "npm pack vaul@1.1.2; LICENSE.md; read style.css and constants in dist/index.mjs."
+    },
+    {
+      "id": "cmdk",
+      "name": "cmdk (example palette styles)",
+      "url": "https://github.com/pacocoursey/cmdk",
+      "license": "MIT",
+      "verifiedHow": "npm pack cmdk@1.1.1 (LICENSE.md; the package itself ships no CSS); read website/styles/cmdk/{vercel,linear,raycast}.scss and website/styles/globals.scss from the same repo via raw.githubusercontent.com."
+    },
+    {
+      "id": "base-ui",
+      "name": "Base UI docs demos",
+      "url": "https://github.com/mui/base-ui",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE on master; read docs/src/app/(docs)/react/components/{dialog,button,menu,tooltip,switch,toast,input}/demos/hero/css-modules/index.module.css."
+    },
+    {
+      "id": "emil-skills",
+      "name": "Emil Kowalski — skills (emil-design-eng, apple-design)",
+      "url": "https://github.com/emilkowalski/skills",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE on main; read skills/emil-design-eng/SKILL.md and skills/apple-design/SKILL.md as data (values extracted, instructions not followed)."
+    },
+    {
+      "id": "jakub-skill",
+      "name": "Jakub Krehel — make-interfaces-feel-better",
+      "url": "https://github.com/jakubkrehel/make-interfaces-feel-better",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE on main; read skills/make-interfaces-feel-better/{SKILL,surfaces,animations,typography}.md as data."
+    },
+    {
+      "id": "web-interface-guidelines",
+      "name": "Vercel Labs — Web Interface Guidelines",
+      "url": "https://github.com/vercel-labs/web-interface-guidelines",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE on main; read AGENTS.md as data."
+    },
+    {
+      "id": "tailwind-typography",
+      "name": "Tailwind Typography (prose)",
+      "url": "https://github.com/tailwindlabs/tailwindcss-typography",
+      "license": "MIT",
+      "verifiedHow": "npm pack @tailwindcss/typography@0.5.20; LICENSE file; read src/styles.js."
+    },
+    {
+      "id": "starlight",
+      "name": "Astro Starlight",
+      "url": "https://github.com/withastro/starlight",
+      "license": "MIT",
+      "verifiedHow": "npm pack @astrojs/starlight@0.42.11; LICENSE file; read dist/style/props.css."
+    },
+    {
+      "id": "catppuccin",
+      "name": "Catppuccin palette",
+      "url": "https://github.com/catppuccin/palette",
+      "license": "MIT",
+      "verifiedHow": "npm pack @catppuccin/palette@1.8.0; LICENSE file; read css/catppuccin.css."
+    },
+    {
+      "id": "rose-pine",
+      "name": "Rosé Pine palette",
+      "url": "https://github.com/rose-pine/palette",
+      "license": "MIT",
+      "verifiedHow": "npm pack @rose-pine/palette@4.0.1; license file; read dist/css/rose-pine.css."
+    },
+    {
+      "id": "flexoki",
+      "name": "Flexoki",
+      "url": "https://github.com/kepano/flexoki",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE on main; read css/flexoki.css and README.md."
+    },
+    {
+      "id": "magicui",
+      "name": "Magic UI",
+      "url": "https://github.com/magicuidesign/magicui",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE.md on main; read apps/www/registry/magicui/{bento-grid,marquee,blur-fade}.tsx."
+    },
+    {
+      "id": "vercel-commerce",
+      "name": "Vercel Commerce (Next.js Commerce)",
+      "url": "https://github.com/vercel/commerce",
+      "license": "MIT",
+      "verifiedHow": "raw license.md on main; read components/grid/three-items.tsx, components/layout/navbar/index.tsx, components/carousel.tsx."
+    },
+    {
+      "id": "precedent",
+      "name": "Precedent",
+      "url": "https://github.com/steven-tey/precedent",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE.md on main; read app/page.tsx and tailwind.config.js."
+    },
+    {
+      "id": "taxonomy",
+      "name": "Taxonomy",
+      "url": "https://github.com/shadcn-ui/taxonomy",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE.md on main; read app/(marketing)/page.tsx and app/layout.tsx."
+    },
+    {
+      "id": "astro-blog",
+      "name": "Astro blog example (based on Bear Blog CSS)",
+      "url": "https://github.com/withastro/astro/tree/main/examples/blog",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE of withastro/astro on main (MIT); the stylesheet header credits Bear Blog's default CSS as MIT; read examples/blog/src/styles/global.css and astro.config.mjs."
+    },
+    {
+      "id": "astro-paper",
+      "name": "AstroPaper",
+      "url": "https://github.com/satnaing/astro-paper",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE on main; read src/styles/{theme,global,typography}.css and astro.config.ts."
+    },
+    {
+      "id": "ionic",
+      "name": "Ionic Framework (iOS transitions)",
+      "url": "https://github.com/ionic-team/ionic-framework",
+      "license": "MIT",
+      "verifiedHow": "raw LICENSE on main; read core/src/utils/transition/ios.transition.ts and core/src/components/modal/animations/ios.enter.ts."
+    },
+    {
+      "id": "geist-font",
+      "name": "Geist font family",
+      "url": "https://github.com/vercel/geist-font",
+      "license": "OFL-1.1",
+      "verifiedHow": "npm pack geist@1.9.2; LICENSE.txt is the SIL Open Font License 1.1. Fonts only — no colour or spacing tokens are in the package."
+    },
+    {
+      "id": "fontsource",
+      "name": "Fontsource packages (availability and licence check for every font named in fontPairings)",
+      "url": "https://github.com/fontsource/font-files",
+      "license": "OFL-1.1 (checked per font)",
+      "verifiedHow": "npm view <@fontsource or @fontsource-variable package> license for: geist, geist-mono, inter, figtree, jetbrains-mono, cal-sans, ibm-plex-sans, ibm-plex-mono, mona-sans, hubot-sans, roboto, atkinson-hyperlegible, google-sans-code, source-serif-4, plus-jakarta-sans, lora, poppins, libre-baskerville, merriweather, dm-sans, space-mono, outfit, oxanium, fira-code, montserrat, source-code-pro, playfair-display — all returned OFL-1.1."
+    }
+  ],
+  "palettes": [
+    {
+      "id": "shadcn-neutral-light",
+      "name": "shadcn Neutral (light)",
+      "source": "shadcn-ui",
+      "mood": "plain, quiet, black-and-white; the accent is near-black ink",
+      "theme": "light",
+      "bg": "oklch(1 0 0)",
+      "surface": "oklch(1 0 0)",
+      "text": "oklch(0.145 0 0)",
+      "textMuted": "oklch(0.556 0 0)",
+      "border": "oklch(0.922 0 0)",
+      "accent": "oklch(0.205 0 0)",
+      "onAccent": "oklch(0.985 0 0)",
+      "accent2": null,
+      "notes": "Verbatim from apps/v4/registry/themes.ts, theme \"neutral\" light. surface=card; muted/secondary fill is oklch(0.97 0 0); focus ring colour oklch(0.708 0 0); base radius 0.625rem. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 19.8:1; muted text on bg 4.7:1; on-accent text on accent 17.2:1."
+    },
+    {
+      "id": "shadcn-stone-light",
+      "name": "shadcn Stone (light)",
+      "source": "shadcn-ui",
+      "mood": "plain but faintly warm; same structure as Neutral with a touch of brown in the greys",
+      "theme": "light",
+      "bg": "oklch(1 0 0)",
+      "surface": "oklch(1 0 0)",
+      "text": "oklch(0.147 0.004 49.25)",
+      "textMuted": "oklch(0.553 0.013 58.071)",
+      "border": "oklch(0.923 0.003 48.717)",
+      "accent": "oklch(0.216 0.006 56.043)",
+      "onAccent": "oklch(0.985 0.001 106.423)",
+      "accent2": null,
+      "notes": "Verbatim from apps/v4/registry/themes.ts, theme \"stone\" light. surface=card; muted/secondary fill is oklch(0.97 0.001 106.424); focus ring colour oklch(0.709 0.01 56.259); base radius 0.625rem. Chroma is tiny (0.001–0.013): the warmth is felt rather than seen. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 19.8:1; muted text on bg 4.8:1; on-accent text on accent 16.8:1."
+    },
+    {
+      "id": "shadcn-neutral-dark",
+      "name": "shadcn Neutral (dark)",
+      "source": "shadcn-ui",
+      "mood": "calm charcoal, soft white accent; nothing shouts",
+      "theme": "dark",
+      "bg": "oklch(0.145 0 0)",
+      "surface": "oklch(0.205 0 0)",
+      "text": "oklch(0.985 0 0)",
+      "textMuted": "oklch(0.708 0 0)",
+      "border": "oklch(1 0 0 / 10%)",
+      "accent": "oklch(0.922 0 0)",
+      "onAccent": "oklch(0.205 0 0)",
+      "accent2": null,
+      "notes": "Verbatim from apps/v4/registry/themes.ts, theme \"neutral\" dark. surface=card; muted/secondary fill is oklch(0.269 0 0); focus ring colour oklch(0.556 0 0); base radius 0.625rem. Dark borders are white at 10% opacity and inputs white at 15% rather than fixed greys. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 19:1; muted text on bg 7.6:1; on-accent text on accent 14.2:1."
+    },
+    {
+      "id": "tweakcn-vercel-light",
+      "name": "tweakcn Vercel (light)",
+      "source": "tweakcn",
+      "mood": "stark, high-contrast, engineered; pure black on near-white",
+      "theme": "light",
+      "bg": "oklch(0.99 0 0)",
+      "surface": "oklch(1.00 0 0)",
+      "text": "oklch(0 0 0)",
+      "textMuted": "oklch(0.44 0 0)",
+      "border": "oklch(0.92 0 0)",
+      "accent": "oklch(0 0 0)",
+      "onAccent": "oklch(1.00 0 0)",
+      "accent2": null,
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"vercel\" light. surface=card; muted fill oklch(0.97 0 0); ring oklch(0 0 0); radius 0.5rem; font-sans Geist, sans-serif. A community approximation of the Vercel look, not Vercel's own tokens. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 20.4:1; muted text on bg 7.5:1; on-accent text on accent 21:1."
+    },
+    {
+      "id": "tweakcn-claude-light",
+      "name": "tweakcn Claude (light)",
+      "source": "tweakcn",
+      "mood": "warm editorial; cream paper with a terracotta accent",
+      "theme": "light",
+      "bg": "#faf9f5",
+      "surface": "#faf9f5",
+      "text": "#3d3929",
+      "textMuted": "#83827d",
+      "border": "#dad9d4",
+      "accent": "#c96442",
+      "onAccent": "#ffffff",
+      "accent2": null,
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"claude\" light. surface=card; muted fill #ede9de; ring #c96442; radius 0.5rem. A community approximation, not an official token set. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 11:1; muted text on bg 3.7:1; on-accent text on accent 3.9:1."
+    },
+    {
+      "id": "tweakcn-mocha-mousse-light",
+      "name": "tweakcn Mocha Mousse (light)",
+      "source": "tweakcn",
+      "mood": "soft, earthy, café-like; beige paper and cocoa browns",
+      "theme": "light",
+      "bg": "#F1F0E5",
+      "surface": "#F1F0E5",
+      "text": "#56453F",
+      "textMuted": "#8A655A",
+      "border": "#BAAB92",
+      "accent": "#A37764",
+      "onAccent": "#FFFFFF",
+      "accent2": null,
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"mocha-mousse\" light. surface=card; muted fill #E4C7B8; ring #A37764; radius 0.5rem; font-sans DM Sans, sans-serif. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 7.9:1; muted text on bg 4.5:1; on-accent text on accent 3.9:1."
+    },
+    {
+      "id": "tweakcn-vintage-paper-light",
+      "name": "tweakcn Vintage Paper (light)",
+      "source": "tweakcn",
+      "mood": "old-book warmth; parchment with a leather-tan accent",
+      "theme": "light",
+      "bg": "#f5f1e6",
+      "surface": "#fffcf5",
+      "text": "#4a3f35",
+      "textMuted": "#7d6b56",
+      "border": "#dbd0ba",
+      "accent": "#a67c52",
+      "onAccent": "#ffffff",
+      "accent2": null,
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"vintage-paper\" light. surface=card; muted fill #ece5d8; ring #a67c52; radius 0.25rem; font-sans Libre Baskerville, serif. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 9.1:1; muted text on bg 4.5:1; on-accent text on accent 3.7:1."
+    },
+    {
+      "id": "tweakcn-elegant-luxury-light",
+      "name": "tweakcn Elegant Luxury (light)",
+      "source": "tweakcn",
+      "mood": "formal and rich; ivory with deep burgundy",
+      "theme": "light",
+      "bg": "#faf7f5",
+      "surface": "#faf7f5",
+      "text": "#1a1a1a",
+      "textMuted": "#57534e",
+      "border": "#f5e8d2",
+      "accent": "#9b2c2c",
+      "onAccent": "#ffffff",
+      "accent2": "#fef3c7",
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"elegant-luxury\" light. surface=card; muted fill #f0ebe8; ring #9b2c2c; radius 0.375rem; font-sans Poppins, sans-serif. accent2 = the preset's \"accent\" slot. accent2 here is a pale gold tint used for hover fills, not a second brand colour. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 16.3:1; muted text on bg 7.2:1; on-accent text on accent 7.5:1."
+    },
+    {
+      "id": "tweakcn-solar-dusk-light",
+      "name": "tweakcn Solar Dusk (light)",
+      "source": "tweakcn",
+      "mood": "sun-baked and warm; sand with burnt orange",
+      "theme": "light",
+      "bg": "#FDFBF7",
+      "surface": "#F8F4EE",
+      "text": "#4A3B33",
+      "textMuted": "#78716C",
+      "border": "#E4D9BC",
+      "accent": "#B45309",
+      "onAccent": "#FFFFFF",
+      "accent2": "#E4C090",
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"solar-dusk\" light. surface=card; muted fill #F1E9DA; ring #B45309; radius 0.3rem; font-sans Oxanium, sans-serif. accent2 = the preset's \"secondary\" slot. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 10.3:1; muted text on bg 4.6:1; on-accent text on accent 5:1."
+    },
+    {
+      "id": "tweakcn-kodama-grove-light",
+      "name": "tweakcn Kodama Grove (light)",
+      "source": "tweakcn",
+      "mood": "storybook nature; straw paper with moss green",
+      "theme": "light",
+      "bg": "#e4d7b0",
+      "surface": "#e7dbbf",
+      "text": "#5c4b3e",
+      "textMuted": "#85766a",
+      "border": "#b19681",
+      "accent": "#8d9d4f",
+      "onAccent": "#fdfbf6",
+      "accent2": null,
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"kodama-grove\" light. surface=card; muted fill #decea0; ring #9db18c; radius 0.425rem; font-sans Merriweather, serif. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 5.8:1; muted text on bg 3.1:1; on-accent text on accent 2.9:1."
+    },
+    {
+      "id": "tweakcn-sage-garden-light",
+      "name": "tweakcn Sage Garden (light)",
+      "source": "tweakcn",
+      "mood": "calm, herbal, spa-like; off-white with grey-green",
+      "theme": "light",
+      "bg": "#f8f7f4",
+      "surface": "#ffffff",
+      "text": "#1a1f2e",
+      "textMuted": "#6b7280",
+      "border": "#e8e6e1",
+      "accent": "#7c9082",
+      "onAccent": "#ffffff",
+      "accent2": "#ced4bf",
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"sage-garden\" light. surface=card; muted fill #e8e6e1; ring #7c9082; radius 0.35rem; font-sans Antic, ui-sans-serif, sans-serif, system-ui. accent2 = the preset's \"secondary\" slot. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 15.3:1; muted text on bg 4.5:1; on-accent text on accent 3.4:1."
+    },
+    {
+      "id": "tweakcn-perpetuity-light",
+      "name": "tweakcn Perpetuity (light)",
+      "source": "tweakcn",
+      "mood": "cool technical teal on pale aqua; reads like a terminal printout",
+      "theme": "light",
+      "bg": "#e8f0f0",
+      "surface": "#f2f7f7",
+      "text": "#0a4a55",
+      "textMuted": "#427a7e",
+      "border": "#cde0e2",
+      "accent": "#06858e",
+      "onAccent": "#ffffff",
+      "accent2": null,
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"perpetuity\" light. surface=card; muted fill #e0eaea; ring #06858e; radius 0.125rem; font-sans Courier New, monospace. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 8.5:1; muted text on bg 4.2:1; on-accent text on accent 4.4:1."
+    },
+    {
+      "id": "tweakcn-tangerine-light",
+      "name": "tweakcn Tangerine (light)",
+      "source": "tweakcn",
+      "mood": "friendly product look; cool grey page with a confident orange",
+      "theme": "light",
+      "bg": "#e8ebed",
+      "surface": "#ffffff",
+      "text": "#333333",
+      "textMuted": "#6b7280",
+      "border": "#dcdfe2",
+      "accent": "#e05d38",
+      "onAccent": "#ffffff",
+      "accent2": "#d6e4f0",
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"tangerine\" light. surface=card; muted fill #f9fafb; ring #e05d38; radius 0.75rem; font-sans Inter, sans-serif. accent2 = the preset's \"accent\" slot. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 10.6:1; muted text on bg 4:1; on-accent text on accent 3.6:1."
+    },
+    {
+      "id": "tweakcn-neo-brutalism-light",
+      "name": "tweakcn Neo Brutalism (light)",
+      "source": "tweakcn",
+      "mood": "loud, poster-like; black outlines with red, yellow and blue",
+      "theme": "light",
+      "bg": "#ffffff",
+      "surface": "#ffffff",
+      "text": "#000000",
+      "textMuted": "#333333",
+      "border": "#000000",
+      "accent": "#ff3333",
+      "onAccent": "#ffffff",
+      "accent2": "#ffff00",
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"neo-brutalism\" light. surface=card; muted fill #f0f0f0; ring #ff3333; radius 0px; font-sans DM Sans, sans-serif. accent2 = the preset's \"secondary\" slot. Third colour (accent slot) is #0066ff. Meant to be used with 0px radius and a hard 4px offset shadow. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 21:1; muted text on bg 12.6:1; on-accent text on accent 3.6:1."
+    },
+    {
+      "id": "tweakcn-retro-arcade-light",
+      "name": "tweakcn Retro Arcade (light)",
+      "source": "tweakcn",
+      "mood": "nostalgic and playful; Solarized cream with magenta and teal",
+      "theme": "light",
+      "bg": "#fdf6e3",
+      "surface": "#eee8d5",
+      "text": "#073642",
+      "textMuted": "#073642",
+      "border": "#839496",
+      "accent": "#d33682",
+      "onAccent": "#ffffff",
+      "accent2": "#2aa198",
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"retro-arcade\" light. surface=card; muted fill #93a1a1; ring #d33682; radius 0.25rem; font-sans Outfit, sans-serif. accent2 = the preset's \"secondary\" slot. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 12.1:1; muted text on bg 12.1:1; on-accent text on accent 4.5:1."
+    },
+    {
+      "id": "tweakcn-vercel-dark",
+      "name": "tweakcn Vercel (dark)",
+      "source": "tweakcn",
+      "mood": "pure black, white accent; severe and precise",
+      "theme": "dark",
+      "bg": "oklch(0 0 0)",
+      "surface": "oklch(0.14 0 0)",
+      "text": "oklch(1.00 0 0)",
+      "textMuted": "oklch(0.72 0 0)",
+      "border": "oklch(0.26 0 0)",
+      "accent": "oklch(1.00 0 0)",
+      "onAccent": "oklch(0 0 0)",
+      "accent2": null,
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"vercel\" dark. surface=card; muted fill oklch(0.23 0 0); ring oklch(0.72 0 0); radius 0.5rem; font-sans Geist, sans-serif. A community approximation of the Vercel look, not Vercel's own tokens. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 21:1; muted text on bg 8.5:1; on-accent text on accent 21:1."
+    },
+    {
+      "id": "tweakcn-supabase-dark",
+      "name": "tweakcn Supabase (dark)",
+      "source": "tweakcn",
+      "mood": "developer-tool dark; near-black with deep green",
+      "theme": "dark",
+      "bg": "#121212",
+      "surface": "#171717",
+      "text": "#e2e8f0",
+      "textMuted": "#a2a2a2",
+      "border": "#292929",
+      "accent": "#006239",
+      "onAccent": "#dde8e3",
+      "accent2": null,
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"supabase\" dark. surface=card; muted fill #1f1f1f; ring #4ade80; radius 0.5rem; font-sans Outfit, sans-serif. A community approximation, not an official token set. Focus ring is brighter green #4ade80. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 15.2:1; muted text on bg 7.3:1; on-accent text on accent 6:1."
+    },
+    {
+      "id": "tweakcn-claude-dark",
+      "name": "tweakcn Claude (dark)",
+      "source": "tweakcn",
+      "mood": "warm dark; brown-grey with soft terracotta",
+      "theme": "dark",
+      "bg": "#262624",
+      "surface": "#262624",
+      "text": "#c3c0b6",
+      "textMuted": "#b7b5a9",
+      "border": "#3e3e38",
+      "accent": "#d97757",
+      "onAccent": "#ffffff",
+      "accent2": null,
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"claude\" dark. surface=card; muted fill #1b1b19; ring #d97757; radius 0.5rem. A community approximation, not an official token set. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 8.3:1; muted text on bg 7.4:1; on-accent text on accent 3.1:1."
+    },
+    {
+      "id": "tweakcn-darkmatter-dark",
+      "name": "tweakcn Darkmatter (dark)",
+      "source": "tweakcn",
+      "mood": "moody console; almost-black with ember orange and dusty teal",
+      "theme": "dark",
+      "bg": "#121113",
+      "surface": "#121212",
+      "text": "#c1c1c1",
+      "textMuted": "#888888",
+      "border": "#222222",
+      "accent": "#e78a53",
+      "onAccent": "#121113",
+      "accent2": "#5f8787",
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"darkmatter\" dark. surface=card; muted fill #222222; ring #e78a53; radius 0.75rem; font-sans Geist Mono, ui-monospace, monospace. accent2 = the preset's \"secondary\" slot. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 10.5:1; muted text on bg 5.3:1; on-accent text on accent 7.3:1."
+    },
+    {
+      "id": "tweakcn-starry-night-dark",
+      "name": "tweakcn Starry Night (dark)",
+      "source": "tweakcn",
+      "mood": "painterly night sky; deep blue with star yellow",
+      "theme": "dark",
+      "bg": "#181a24",
+      "surface": "#23243a",
+      "text": "#e6eaf3",
+      "textMuted": "#7a88a1",
+      "border": "#2d2e3e",
+      "accent": "#3a5ba0",
+      "onAccent": "#ffe066",
+      "accent2": "#ffe066",
+      "notes": "Verbatim from utils/theme-presets.ts, preset \"starry-night\" dark. surface=card; muted fill #1d1e2f; ring #ffe066; radius 0.5rem; font-sans Libre Baskerville, serif. accent2 = the preset's \"secondary\" slot. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 14.4:1; muted text on bg 4.8:1; on-accent text on accent 5.1:1."
+    },
+    {
+      "id": "daisy-lofi",
+      "name": "daisyUI Lo-Fi",
+      "source": "daisyui",
+      "mood": "strict monochrome; black ink on white, zine-like",
+      "theme": "light",
+      "bg": "oklch(100% 0 0)",
+      "surface": "oklch(97% 0 0)",
+      "text": "oklch(0% 0 0)",
+      "textMuted": "color-mix(in oklab, oklch(0% 0 0) 60%, transparent)",
+      "border": "oklch(94% 0 0)",
+      "accent": "oklch(15.906% 0 0)",
+      "onAccent": "oklch(100% 0 0)",
+      "accent2": null,
+      "notes": "Colours verbatim from theme/lofi.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(26.861% 0 0). Shape: selector 2rem, field 0.25rem, box 0.5rem; border 1px; depth 0; noise 0. No second colour: secondary and accent are near-identical dark greys, so accent2 is null. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 21:1; muted text on bg n/a; on-accent text on accent 19.4:1."
+    },
+    {
+      "id": "daisy-nord",
+      "name": "daisyUI Nord",
+      "source": "daisyui",
+      "mood": "calm, cool, Scandinavian; grey-blue with muted steel blue",
+      "theme": "light",
+      "bg": "oklch(95.127% 0.007 260.731)",
+      "surface": "oklch(93.299% 0.01 261.788)",
+      "text": "oklch(32.437% 0.022 264.182)",
+      "textMuted": "color-mix(in oklab, oklch(32.437% 0.022 264.182) 60%, transparent)",
+      "border": "oklch(89.925% 0.016 262.749)",
+      "accent": "oklch(59.435% 0.077 254.027)",
+      "onAccent": "oklch(11.887% 0.015 254.027)",
+      "accent2": "oklch(69.651% 0.059 248.687)",
+      "notes": "Colours verbatim from theme/nord.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(77.464% 0.062 217.469). Shape: selector 1rem, field 0.25rem, box 0.5rem; border 1px; depth 0; noise 0. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 10.8:1; muted text on bg n/a; on-accent text on accent 5:1."
+    },
+    {
+      "id": "daisy-silk",
+      "name": "daisyUI Silk",
+      "source": "daisyui",
+      "mood": "refined and soft; warm off-white, near-black buttons with lime text",
+      "theme": "light",
+      "bg": "oklch(97% 0.0035 67.78)",
+      "surface": "oklch(95% 0.0081 61.42)",
+      "text": "oklch(40% 0.0081 61.42)",
+      "textMuted": "color-mix(in oklab, oklch(40% 0.0081 61.42) 60%, transparent)",
+      "border": "oklch(90% 0.0081 61.42)",
+      "accent": "oklch(23.27% 0.0249 284.3)",
+      "onAccent": "oklch(94.22% 0.2505 117.44)",
+      "accent2": null,
+      "notes": "Colours verbatim from theme/silk.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(23.27% 0.0249 284.3). Shape: selector 2rem, field 0.5rem, box 1rem; border 2px; depth 1; noise 0. The lime sits on the button label (primary-content), not on fills. Primary, secondary and accent are the same dark ink in this theme, so accent2 is null. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 8.5:1; muted text on bg n/a; on-accent text on accent 14.8:1."
+    },
+    {
+      "id": "daisy-caramellatte",
+      "name": "daisyUI Caramellatte",
+      "source": "daisyui",
+      "mood": "cosy coffee shop; cream and caramel with black buttons",
+      "theme": "light",
+      "bg": "oklch(98% 0.016 73.684)",
+      "surface": "oklch(95% 0.038 75.164)",
+      "text": "oklch(40% 0.123 38.172)",
+      "textMuted": "color-mix(in oklab, oklch(40% 0.123 38.172) 60%, transparent)",
+      "border": "oklch(90% 0.076 70.697)",
+      "accent": "oklch(0% 0 0)",
+      "onAccent": "oklch(100% 0 0)",
+      "accent2": "oklch(22.45% 0.075 37.85)",
+      "notes": "Colours verbatim from theme/caramellatte.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(46.44% 0.111 37.85). Shape: selector 2rem, field 0.5rem, box 1rem; border 2px; depth 1; noise 1. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 9.2:1; muted text on bg n/a; on-accent text on accent 21:1."
+    },
+    {
+      "id": "daisy-retro",
+      "name": "daisyUI Retro",
+      "source": "daisyui",
+      "mood": "1970s print; tan paper with dusty rose and mint",
+      "theme": "light",
+      "bg": "oklch(91.637% 0.034 90.515)",
+      "surface": "oklch(88.272% 0.049 91.774)",
+      "text": "oklch(41% 0.112 45.904)",
+      "textMuted": "color-mix(in oklab, oklch(41% 0.112 45.904) 60%, transparent)",
+      "border": "oklch(84.133% 0.065 90.856)",
+      "accent": "oklch(80% 0.114 19.571)",
+      "onAccent": "oklch(39% 0.141 25.723)",
+      "accent2": "oklch(92% 0.084 155.995)",
+      "notes": "Colours verbatim from theme/retro.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(68% 0.162 75.834). Shape: selector 0.25rem, field 0.25rem, box 0.5rem; border 1px; depth 0; noise 0. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 7.2:1; muted text on bg n/a; on-accent text on accent 5.3:1."
+    },
+    {
+      "id": "daisy-luxury",
+      "name": "daisyUI Luxury",
+      "source": "daisyui",
+      "mood": "black-tie; near-black with gold text and white buttons",
+      "theme": "dark",
+      "bg": "oklch(14.076% 0.004 285.822)",
+      "surface": "oklch(20.219% 0.004 308.229)",
+      "text": "oklch(75.687% 0.123 76.89)",
+      "textMuted": "color-mix(in oklab, oklch(75.687% 0.123 76.89) 60%, transparent)",
+      "border": "oklch(23.219% 0.004 308.229)",
+      "accent": "oklch(100% 0 0)",
+      "onAccent": "oklch(20% 0 0)",
+      "accent2": "oklch(27.581% 0.064 261.069)",
+      "notes": "Colours verbatim from theme/luxury.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(36.674% 0.051 338.825). Shape: selector 1rem, field 0.5rem, box 1rem; border 1px; depth 1; noise 0. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 9:1; muted text on bg n/a; on-accent text on accent 18.1:1."
+    },
+    {
+      "id": "daisy-sunset",
+      "name": "daisyUI Sunset",
+      "source": "daisyui",
+      "mood": "dusk; deep blue-grey with orange, pink and violet",
+      "theme": "dark",
+      "bg": "oklch(22% 0.019 237.69)",
+      "surface": "oklch(20% 0.019 237.69)",
+      "text": "oklch(77.383% 0.043 245.096)",
+      "textMuted": "color-mix(in oklab, oklch(77.383% 0.043 245.096) 60%, transparent)",
+      "border": "oklch(18% 0.019 237.69)",
+      "accent": "oklch(74.703% 0.158 39.947)",
+      "onAccent": "oklch(14.94% 0.031 39.947)",
+      "accent2": "oklch(72.537% 0.177 2.72)",
+      "notes": "Colours verbatim from theme/sunset.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(71.294% 0.166 299.844). Shape: selector 1rem, field 0.5rem, box 1rem; border 1px; depth 0; noise 0. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 8.5:1; muted text on bg n/a; on-accent text on accent 8.3:1."
+    },
+    {
+      "id": "daisy-coffee",
+      "name": "daisyUI Coffee",
+      "source": "daisyui",
+      "mood": "dark roast; plum-black with amber",
+      "theme": "dark",
+      "bg": "oklch(24% 0.023 329.708)",
+      "surface": "oklch(21% 0.021 329.708)",
+      "text": "oklch(72.354% 0.092 79.129)",
+      "textMuted": "color-mix(in oklab, oklch(72.354% 0.092 79.129) 60%, transparent)",
+      "border": "oklch(16% 0.019 329.708)",
+      "accent": "oklch(71.996% 0.123 62.756)",
+      "onAccent": "oklch(14.399% 0.024 62.756)",
+      "accent2": "oklch(34.465% 0.029 199.194)",
+      "notes": "Colours verbatim from theme/coffee.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(42.621% 0.074 224.389). Shape: selector 1rem, field 0.5rem, box 1rem; border 1px; depth 0; noise 0. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 6.7:1; muted text on bg n/a; on-accent text on accent 7.8:1."
+    },
+    {
+      "id": "daisy-abyss",
+      "name": "daisyUI Abyss",
+      "source": "daisyui",
+      "mood": "deep sea; dark teal with electric lime",
+      "theme": "dark",
+      "bg": "oklch(20% 0.08 209)",
+      "surface": "oklch(15% 0.08 209)",
+      "text": "oklch(90% 0.076 70.697)",
+      "textMuted": "color-mix(in oklab, oklch(90% 0.076 70.697) 60%, transparent)",
+      "border": "oklch(10% 0.08 209)",
+      "accent": "oklch(92% 0.2653 125)",
+      "onAccent": "oklch(50% 0.2653 125)",
+      "accent2": "oklch(83.27% 0.0764 298.3)",
+      "notes": "Colours verbatim from theme/abyss.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(43% 0 0). Shape: selector 2rem, field 0.25rem, box 0.5rem; border 1px; depth 1; noise 0. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 12.7:1; muted text on bg n/a; on-accent text on accent 4.6:1."
+    },
+    {
+      "id": "daisy-forest",
+      "name": "daisyUI Forest",
+      "source": "daisyui",
+      "mood": "night woodland; warm charcoal with leaf green",
+      "theme": "dark",
+      "bg": "oklch(20.84% 0.008 17.911)",
+      "surface": "oklch(18.522% 0.007 17.911)",
+      "text": "oklch(83.768% 0.001 17.911)",
+      "textMuted": "color-mix(in oklab, oklch(83.768% 0.001 17.911) 60%, transparent)",
+      "border": "oklch(16.203% 0.007 17.911)",
+      "accent": "oklch(68.628% 0.185 148.958)",
+      "onAccent": "oklch(0% 0 0)",
+      "accent2": "oklch(69.776% 0.135 168.327)",
+      "notes": "Colours verbatim from theme/forest.css. daisyUI has no muted-text or border token: textMuted is base-content at 60% (the mix its components use most for secondary text) and border is base-300 (my role choice). Third colour (--color-accent) oklch(70.628% 0.119 185.713). Shape: selector 1rem, field 2rem, box 1rem; border 1px; depth 0; noise 0. Fields are pill-shaped (radius-field 2rem). Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 10.8:1; muted text on bg n/a; on-accent text on accent 8:1."
+    },
+    {
+      "id": "radix-bronze-sand-light",
+      "name": "Radix Bronze + Sand (light)",
+      "source": "radix-colors",
+      "mood": "understated, expensive, hotel-stationery feel; warm grey with soft bronze",
+      "theme": "light",
+      "bg": "white",
+      "surface": "#f9f9f8",
+      "text": "#21201c",
+      "textMuted": "#63635e",
+      "border": "#e2e1de",
+      "accent": "#a18072",
+      "onAccent": "white",
+      "accent2": "#7d5e54",
+      "notes": "Hex steps from @radix-ui/colors bronze.css and sand.css. Pairing bronze+sand is the one Radix Themes picks in src/helpers/get-matching-gray-color.ts. Role mapping follows Radix Themes source: page bg white (tokens/color.css), text gray-12, secondary text gray-a11 (text.css; I give the opaque step 11), card ring gray-a5 (base-card.css; opaque step 5 given), solid button accent-9 with --bronze-contrast (tokens/colors/bronze.css). surface = gray step 2; accent2 = accent step 11 (the tinted-text step). Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 16.3:1; muted text on bg 6:1; on-accent text on accent 3.6:1."
+    },
+    {
+      "id": "radix-jade-sage-light",
+      "name": "Radix Jade + Sage (light)",
+      "source": "radix-colors",
+      "mood": "fresh and trustworthy; green-tinted greys with a clear jade",
+      "theme": "light",
+      "bg": "white",
+      "surface": "#f7f9f8",
+      "text": "#1a211e",
+      "textMuted": "#5f6563",
+      "border": "#dfe2e0",
+      "accent": "#29a383",
+      "onAccent": "white",
+      "accent2": "#208368",
+      "notes": "Hex steps from @radix-ui/colors jade.css and sage.css. Pairing jade+sage is the one Radix Themes picks in src/helpers/get-matching-gray-color.ts. Role mapping follows Radix Themes source: page bg white (tokens/color.css), text gray-12, secondary text gray-a11 (text.css; I give the opaque step 11), card ring gray-a5 (base-card.css; opaque step 5 given), solid button accent-9 with --jade-contrast (tokens/colors/jade.css). surface = gray step 2; accent2 = accent step 11 (the tinted-text step). Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 16.4:1; muted text on bg 6:1; on-accent text on accent 3.2:1."
+    },
+    {
+      "id": "radix-blue-slate-light",
+      "name": "Radix Blue + Slate (light)",
+      "source": "radix-colors",
+      "mood": "clean, familiar, software-like; cool greys with a bright blue",
+      "theme": "light",
+      "bg": "white",
+      "surface": "#f9f9fb",
+      "text": "#1c2024",
+      "textMuted": "#60646c",
+      "border": "#e0e1e6",
+      "accent": "#0090ff",
+      "onAccent": "white",
+      "accent2": "#0d74ce",
+      "notes": "Hex steps from @radix-ui/colors blue.css and slate.css. Pairing blue+slate is the one Radix Themes picks in src/helpers/get-matching-gray-color.ts. Role mapping follows Radix Themes source: page bg white (tokens/color.css), text gray-12, secondary text gray-a11 (text.css; I give the opaque step 11), card ring gray-a5 (base-card.css; opaque step 5 given), solid button accent-9 with --blue-contrast (tokens/colors/blue.css). surface = gray step 2; accent2 = accent step 11 (the tinted-text step). Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 16.4:1; muted text on bg 5.9:1; on-accent text on accent 3.3:1."
+    },
+    {
+      "id": "radix-tomato-mauve-light",
+      "name": "Radix Tomato + Mauve (light)",
+      "source": "radix-colors",
+      "mood": "energetic and warm; red-orange on faintly pink-grey neutrals",
+      "theme": "light",
+      "bg": "white",
+      "surface": "#faf9fb",
+      "text": "#211f26",
+      "textMuted": "#65636d",
+      "border": "#e3dfe6",
+      "accent": "#e54d2e",
+      "onAccent": "white",
+      "accent2": "#d13415",
+      "notes": "Hex steps from @radix-ui/colors tomato.css and mauve.css. Pairing tomato+mauve is the one Radix Themes picks in src/helpers/get-matching-gray-color.ts. Role mapping follows Radix Themes source: page bg white (tokens/color.css), text gray-12, secondary text gray-a11 (text.css; I give the opaque step 11), card ring gray-a5 (base-card.css; opaque step 5 given), solid button accent-9 with --tomato-contrast (tokens/colors/tomato.css). surface = gray step 2; accent2 = accent step 11 (the tinted-text step). Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 16.3:1; muted text on bg 5.9:1; on-accent text on accent 3.9:1."
+    },
+    {
+      "id": "radix-gold-sand-dark",
+      "name": "Radix Gold + Sand (dark)",
+      "source": "radix-colors",
+      "mood": "quiet luxury at night; warm near-black with muted gold",
+      "theme": "dark",
+      "bg": "#111110",
+      "surface": "#191918",
+      "text": "#eeeeec",
+      "textMuted": "#b5b3ad",
+      "border": "#31312e",
+      "accent": "#978365",
+      "onAccent": "white",
+      "accent2": "#cbb99f",
+      "notes": "Hex steps from @radix-ui/colors gold-dark.css and sand-dark.css. Pairing gold+sand is the one Radix Themes picks in src/helpers/get-matching-gray-color.ts. Role mapping follows Radix Themes source: page bg gray-1 (tokens/color.css), text gray-12, secondary text gray-a11 (text.css; I give the opaque step 11), card ring gray-a5 (base-card.css; opaque step 5 given), solid button accent-9 with --gold-contrast (tokens/colors/gold.css). surface = gray step 2; accent2 = accent step 11 (the tinted-text step). Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 16.3:1; muted text on bg 9:1; on-accent text on accent 3.7:1."
+    },
+    {
+      "id": "radix-teal-sage-dark",
+      "name": "Radix Teal + Sage (dark)",
+      "source": "radix-colors",
+      "mood": "calm and focused; green-black with clear teal",
+      "theme": "dark",
+      "bg": "#101211",
+      "surface": "#171918",
+      "text": "#eceeed",
+      "textMuted": "#adb5b2",
+      "border": "#2e3130",
+      "accent": "#12a594",
+      "onAccent": "white",
+      "accent2": "#0bd8b6",
+      "notes": "Hex steps from @radix-ui/colors teal-dark.css and sage-dark.css. Pairing teal+sage is the one Radix Themes picks in src/helpers/get-matching-gray-color.ts. Role mapping follows Radix Themes source: page bg gray-1 (tokens/color.css), text gray-12, secondary text gray-a11 (text.css; I give the opaque step 11), card ring gray-a5 (base-card.css; opaque step 5 given), solid button accent-9 with --teal-contrast (tokens/colors/teal.css). surface = gray step 2; accent2 = accent step 11 (the tinted-text step). Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 16.1:1; muted text on bg 9:1; on-accent text on accent 3.1:1."
+    },
+    {
+      "id": "primer-light",
+      "name": "GitHub Primer (light)",
+      "source": "primer-primitives",
+      "mood": "practical and dense; white, blue links, green go-button",
+      "theme": "light",
+      "bg": "#ffffff",
+      "surface": "#f6f8fa",
+      "text": "#1f2328",
+      "textMuted": "#59636e",
+      "border": "#d1d9e0",
+      "accent": "#0969da",
+      "onAccent": "#ffffff",
+      "accent2": "#1f883d",
+      "notes": "Verbatim from dist/css/functional/themes/light.css. accent = bgColor-accent-emphasis (links/selection: fgColor-accent #0969da); accent2 = bgColor-success-emphasis, which Primer uses for the primary button. Inset/sunken bg #f6f8fa. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 15.8:1; muted text on bg 6.1:1; on-accent text on accent 5.2:1."
+    },
+    {
+      "id": "primer-dark",
+      "name": "GitHub Primer (dark)",
+      "source": "primer-primitives",
+      "mood": "ink-blue black; crisp and technical",
+      "theme": "dark",
+      "bg": "#0d1117",
+      "surface": "#151b23",
+      "text": "#f0f6fc",
+      "textMuted": "#9198a1",
+      "border": "#3d444d",
+      "accent": "#1f6feb",
+      "onAccent": "#ffffff",
+      "accent2": "#238636",
+      "notes": "Verbatim from dist/css/functional/themes/dark.css. accent = bgColor-accent-emphasis (links/selection: fgColor-accent #4493f8); accent2 = bgColor-success-emphasis, which Primer uses for the primary button. Inset/sunken bg #010409. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 17.4:1; muted text on bg 6.5:1; on-accent text on accent 4.6:1."
+    },
+    {
+      "id": "primer-dark-dimmed",
+      "name": "GitHub Primer (dark dimmed)",
+      "source": "primer-primitives",
+      "mood": "softer low-glare dark; slate grey rather than black",
+      "theme": "dark",
+      "bg": "#212830",
+      "surface": "#262c36",
+      "text": "#d1d7e0",
+      "textMuted": "#9198a1",
+      "border": "#3d444d",
+      "accent": "#316dca",
+      "onAccent": "#f0f6fc",
+      "accent2": "#347d39",
+      "notes": "Verbatim from dist/css/functional/themes/dark-dimmed.css. accent = bgColor-accent-emphasis (links/selection: fgColor-accent #478be6); accent2 = bgColor-success-emphasis, which Primer uses for the primary button. Inset/sunken bg #151b23. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 10.3:1; muted text on bg 5.1:1; on-accent text on accent 4.6:1."
+    },
+    {
+      "id": "carbon-g10",
+      "name": "IBM Carbon Gray 10",
+      "source": "carbon",
+      "mood": "institutional, grid-like, serious; light grey page with white panels and one strong blue",
+      "theme": "light",
+      "bg": "#f4f4f4",
+      "surface": "#ffffff",
+      "text": "#161616",
+      "textMuted": "#525252",
+      "border": "#e0e0e0",
+      "accent": "#0f62fe",
+      "onAccent": "#ffffff",
+      "accent2": null,
+      "notes": "Verbatim from @carbon/themes scss/generated/_themes.scss ($g10); accent is button-primary from scss/generated/_button-tokens.scss (#0f62fe in all four themes). Link colour #0f62fe; focus colour #0f62fe; strong border #8d8d8d. Greys are fully neutral (no tint). Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 16.5:1; muted text on bg 7.1:1; on-accent text on accent 5:1."
+    },
+    {
+      "id": "carbon-g100",
+      "name": "IBM Carbon Gray 100",
+      "source": "carbon",
+      "mood": "control-room dark; flat neutral greys with the same strong blue",
+      "theme": "dark",
+      "bg": "#161616",
+      "surface": "#262626",
+      "text": "#f4f4f4",
+      "textMuted": "#c6c6c6",
+      "border": "#525252",
+      "accent": "#0f62fe",
+      "onAccent": "#ffffff",
+      "accent2": null,
+      "notes": "Verbatim from @carbon/themes scss/generated/_themes.scss ($g100); accent is button-primary from scss/generated/_button-tokens.scss (#0f62fe in all four themes). Link colour #78a9ff; focus colour #ffffff; strong border #6f6f6f. Greys are fully neutral (no tint). Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 16.5:1; muted text on bg 10.6:1; on-accent text on accent 5:1."
+    },
+    {
+      "id": "govuk-light",
+      "name": "GOV.UK",
+      "source": "govuk-frontend",
+      "mood": "plain-spoken, official, maximally legible",
+      "theme": "light",
+      "bg": "#ffffff",
+      "surface": "#f4f8fb",
+      "text": "#0b0c0c",
+      "textMuted": "#484949",
+      "border": "#cecece",
+      "accent": "#0f7a52",
+      "onAccent": "#ffffff",
+      "accent2": "#1d70b8",
+      "notes": "Hex from dist/govuk/settings/_colours-palette--internal.scss mapped through dist/govuk/settings/_colours-functional.scss: text=black, secondary-text=black tint-25, border=black tint-80, template-background=blue tint-95 (used here as surface), brand=blue (accent2). accent is the default button colour (green, components/button/_settings.scss). Links #1a65a6 (blue shade-10); focus is yellow #ffdd00 with black text. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 19.6:1; muted text on bg 9:1; on-accent text on accent 5.3:1."
+    },
+    {
+      "id": "baseui-ink-light",
+      "name": "Base UI demo ink outline",
+      "source": "base-ui",
+      "mood": "drafting-table minimal; black hairlines on white, square corners",
+      "theme": "light",
+      "bg": "white",
+      "surface": "white",
+      "text": "oklch(14.5% 0 0deg)",
+      "textMuted": "oklch(43.9% 0 0deg)",
+      "border": "oklch(14.5% 0 0deg)",
+      "accent": "oklch(14.5% 0 0deg)",
+      "onAccent": "white",
+      "accent2": null,
+      "notes": "From docs/src/app/(docs)/react/components/{dialog,button}/demos/hero/css-modules/index.module.css on master. Borders are 1px in the text colour; hover fill oklch(97% 0 0deg), pressed oklch(92.2% 0 0deg); popups use a hard 0.25rem offset shadow at 12% black. Dark variant in the same files: bg oklch(14.5% 0 0deg), white text and borders, no shadow. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 19.8:1; muted text on bg 7.8:1; on-accent text on accent 19.8:1."
+    },
+    {
+      "id": "catppuccin-latte",
+      "name": "Catppuccin Latte",
+      "source": "catppuccin",
+      "mood": "soft pastel daylight; cool lilac-grey paper",
+      "theme": "light",
+      "bg": "#eff1f5",
+      "surface": "#e6e9ef",
+      "text": "#4c4f69",
+      "textMuted": "#6c6f85",
+      "border": "#ccd0da",
+      "accent": "#1e66f5",
+      "onAccent": "#eff1f5",
+      "accent2": "#fe640b",
+      "notes": "Hex verbatim from @catppuccin/palette css/catppuccin.css (base, mantle, text, subtext0, surface0, blue, peach). The palette only names colours; choosing blue as accent, peach as accent2 and base as on-accent text is my role mapping. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 7.1:1; muted text on bg 4.4:1; on-accent text on accent 4.3:1."
+    },
+    {
+      "id": "catppuccin-mocha",
+      "name": "Catppuccin Mocha",
+      "source": "catppuccin",
+      "mood": "cosy pastel dark; blue-black with soft candy accents",
+      "theme": "dark",
+      "bg": "#1e1e2e",
+      "surface": "#181825",
+      "text": "#cdd6f4",
+      "textMuted": "#a6adc8",
+      "border": "#313244",
+      "accent": "#fab387",
+      "onAccent": "#11111b",
+      "accent2": "#94e2d5",
+      "notes": "Hex verbatim from @catppuccin/palette css/catppuccin.css (base, mantle, text, subtext0, surface0, peach, teal, crust). Accent/accent2/on-accent role choices are mine; I avoided the palette's mauve to stay clear of the purple cliché. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 11.3:1; muted text on bg 7.4:1; on-accent text on accent 10.6:1."
+    },
+    {
+      "id": "rose-pine-dawn",
+      "name": "Rosé Pine Dawn",
+      "source": "rose-pine",
+      "mood": "gentle and literary; rosy cream with ink-blue pine",
+      "theme": "light",
+      "bg": "#faf4ed",
+      "surface": "#fffaf3",
+      "text": "#575279",
+      "textMuted": "#797593",
+      "border": "#dfdad9",
+      "accent": "#286983",
+      "onAccent": "#fffaf3",
+      "accent2": "#d7827e",
+      "notes": "Hex verbatim from @rose-pine/palette dist/css/rose-pine.css (base, surface, text, subtle, highlight-med, pine, rose). Using pine as accent, rose as accent2 and surface as on-accent text is my role mapping. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 6.7:1; muted text on bg 4:1; on-accent text on accent 5.9:1."
+    },
+    {
+      "id": "rose-pine-main",
+      "name": "Rosé Pine",
+      "source": "rose-pine",
+      "mood": "dusky and romantic; aubergine-black with powder rose",
+      "theme": "dark",
+      "bg": "#191724",
+      "surface": "#1f1d2e",
+      "text": "#e0def4",
+      "textMuted": "#908caa",
+      "border": "#403d52",
+      "accent": "#ebbcba",
+      "onAccent": "#191724",
+      "accent2": "#31748f",
+      "notes": "Hex verbatim from @rose-pine/palette dist/css/rose-pine.css. Accent/accent2/on-accent role choices are mine. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 13.4:1; muted text on bg 5.5:1; on-accent text on accent 10.5:1."
+    },
+    {
+      "id": "flexoki-light",
+      "name": "Flexoki (light)",
+      "source": "flexoki",
+      "mood": "ink on warm paper; made for long reading",
+      "theme": "light",
+      "bg": "#FFFCF0",
+      "surface": "#F2F0E5",
+      "text": "#100F0F",
+      "textMuted": "#6F6E69",
+      "border": "#E6E4D9",
+      "accent": "#24837B",
+      "onAccent": "#FFFCF0",
+      "accent2": "#BC5215",
+      "notes": "Hex verbatim from css/flexoki.css (paper, base-50, black, base-600, base-100, cyan-600, orange-600). The README says the 600 accents are for light mode; the bg/text/border role assignment and the choice of cyan+orange are mine, not read from a file. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 18.6:1; muted text on bg 5:1; on-accent text on accent 4.4:1."
+    },
+    {
+      "id": "flexoki-dark",
+      "name": "Flexoki (dark)",
+      "source": "flexoki",
+      "mood": "warm charcoal; the same inky calm at night",
+      "theme": "dark",
+      "bg": "#100F0F",
+      "surface": "#1C1B1A",
+      "text": "#CECDC3",
+      "textMuted": "#878580",
+      "border": "#282726",
+      "accent": "#3AA99F",
+      "onAccent": "#100F0F",
+      "accent2": "#DA702C",
+      "notes": "Hex verbatim from css/flexoki.css (black, base-950, base-200, base-500, base-900, cyan-400, orange-400). Role assignment and accent choice are mine, not read from a file. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 12:1; muted text on bg 5.2:1; on-accent text on accent 6.7:1."
+    },
+    {
+      "id": "astropaper-dark",
+      "name": "AstroPaper (dark)",
+      "source": "astro-paper",
+      "mood": "night-blue blog with a bright orange highlighter",
+      "theme": "dark",
+      "bg": "#212737",
+      "surface": "#343f60",
+      "text": "#eaedf3",
+      "textMuted": "#afb9ca",
+      "border": "#ab4b08",
+      "accent": "#ff6b01",
+      "onAccent": "#ffffff",
+      "accent2": null,
+      "notes": "Verbatim from src/styles/theme.css [data-theme=\"dark\"] (background, muted, foreground, muted-foreground, border, accent, accent-foreground). The border is a burnt orange, not a grey — unusual and deliberate. Light theme in the same file: #fdfdfd / #282728 / accent #006cac / border #ece9e9. Computed by me (WCAG 2 contrast, sRGB, out-of-gamut OKLCH clipped): text on bg 12.7:1; muted text on bg 7.5:1; on-accent text on accent 2.9:1."
+    }
+  ],
+  "neutralScales": [
+    {
+      "id": "radix-gray",
+      "source": "radix-colors",
+      "steps": [
+        "#fcfcfc",
+        "#f9f9f9",
+        "#f0f0f0",
+        "#e8e8e8",
+        "#e0e0e0",
+        "#d9d9d9",
+        "#cecece",
+        "#bbbbbb",
+        "#8d8d8d",
+        "#838383",
+        "#646464",
+        "#202020"
+      ],
+      "character": "pure",
+      "notes": "12 steps, light. @radix-ui/colors gray.css. Step roles in Radix Themes: 1–2 backgrounds, 3–5 component fills, 6–8 borders, 9–10 solid, 11–12 text."
+    },
+    {
+      "id": "radix-mauve",
+      "source": "radix-colors",
+      "steps": [
+        "#fdfcfd",
+        "#faf9fb",
+        "#f2eff3",
+        "#eae7ec",
+        "#e3dfe6",
+        "#dbd8e0",
+        "#d0cdd7",
+        "#bcbac7",
+        "#8e8c99",
+        "#84828e",
+        "#65636d",
+        "#211f26"
+      ],
+      "character": "tinted-purple (very slight)",
+      "notes": "12 steps, light. @radix-ui/colors mauve.css. Step roles in Radix Themes: 1–2 backgrounds, 3–5 component fills, 6–8 borders, 9–10 solid, 11–12 text."
+    },
+    {
+      "id": "radix-slate",
+      "source": "radix-colors",
+      "steps": [
+        "#fcfcfd",
+        "#f9f9fb",
+        "#f0f0f3",
+        "#e8e8ec",
+        "#e0e1e6",
+        "#d9d9e0",
+        "#cdced6",
+        "#b9bbc6",
+        "#8b8d98",
+        "#80838d",
+        "#60646c",
+        "#1c2024"
+      ],
+      "character": "cool (blue-tinted)",
+      "notes": "12 steps, light. @radix-ui/colors slate.css. Step roles in Radix Themes: 1–2 backgrounds, 3–5 component fills, 6–8 borders, 9–10 solid, 11–12 text."
+    },
+    {
+      "id": "radix-sage",
+      "source": "radix-colors",
+      "steps": [
+        "#fbfdfc",
+        "#f7f9f8",
+        "#eef1f0",
+        "#e6e9e8",
+        "#dfe2e0",
+        "#d7dad9",
+        "#cbcfcd",
+        "#b8bcba",
+        "#868e8b",
+        "#7c8481",
+        "#5f6563",
+        "#1a211e"
+      ],
+      "character": "tinted-green",
+      "notes": "12 steps, light. @radix-ui/colors sage.css. Step roles in Radix Themes: 1–2 backgrounds, 3–5 component fills, 6–8 borders, 9–10 solid, 11–12 text."
+    },
+    {
+      "id": "radix-olive",
+      "source": "radix-colors",
+      "steps": [
+        "#fcfdfc",
+        "#f8faf8",
+        "#eff1ef",
+        "#e7e9e7",
+        "#dfe2df",
+        "#d7dad7",
+        "#cccfcc",
+        "#b9bcb8",
+        "#898e87",
+        "#7f847d",
+        "#60655f",
+        "#1d211c"
+      ],
+      "character": "tinted-yellow-green",
+      "notes": "12 steps, light. @radix-ui/colors olive.css. Step roles in Radix Themes: 1–2 backgrounds, 3–5 component fills, 6–8 borders, 9–10 solid, 11–12 text."
+    },
+    {
+      "id": "radix-sand",
+      "source": "radix-colors",
+      "steps": [
+        "#fdfdfc",
+        "#f9f9f8",
+        "#f1f0ef",
+        "#e9e8e6",
+        "#e2e1de",
+        "#dad9d6",
+        "#cfceca",
+        "#bcbbb5",
+        "#8d8d86",
+        "#82827c",
+        "#63635e",
+        "#21201c"
+      ],
+      "character": "warm (yellow-brown tint)",
+      "notes": "12 steps, light. @radix-ui/colors sand.css. Step roles in Radix Themes: 1–2 backgrounds, 3–5 component fills, 6–8 borders, 9–10 solid, 11–12 text."
+    },
+    {
+      "id": "radix-slate-dark",
+      "source": "radix-colors",
+      "steps": [
+        "#111113",
+        "#18191b",
+        "#212225",
+        "#272a2d",
+        "#2e3135",
+        "#363a3f",
+        "#43484e",
+        "#5a6169",
+        "#696e77",
+        "#777b84",
+        "#b0b4ba",
+        "#edeef0"
+      ],
+      "character": "cool (blue-tinted), dark",
+      "notes": "12 steps, dark. @radix-ui/colors slate-dark.css."
+    },
+    {
+      "id": "radix-sand-dark",
+      "source": "radix-colors",
+      "steps": [
+        "#111110",
+        "#191918",
+        "#222221",
+        "#2a2a28",
+        "#31312e",
+        "#3b3a37",
+        "#494844",
+        "#62605b",
+        "#6f6d66",
+        "#7c7b74",
+        "#b5b3ad",
+        "#eeeeec"
+      ],
+      "character": "warm, dark",
+      "notes": "12 steps, dark. @radix-ui/colors sand-dark.css."
+    },
+    {
+      "id": "radix-gray-dark",
+      "source": "radix-colors",
+      "steps": [
+        "#111111",
+        "#191919",
+        "#222222",
+        "#2a2a2a",
+        "#313131",
+        "#3a3a3a",
+        "#484848",
+        "#606060",
+        "#6e6e6e",
+        "#7b7b7b",
+        "#b4b4b4",
+        "#eeeeee"
+      ],
+      "character": "pure, dark",
+      "notes": "12 steps, dark. @radix-ui/colors gray-dark.css."
+    },
+    {
+      "id": "tailwind-slate",
+      "source": "tailwindcss",
+      "steps": [
+        "oklch(98.4% 0.003 247.858)",
+        "oklch(96.8% 0.007 247.896)",
+        "oklch(92.9% 0.013 255.508)",
+        "oklch(86.9% 0.022 252.894)",
+        "oklch(70.4% 0.04 256.788)",
+        "oklch(55.4% 0.046 257.417)",
+        "oklch(44.6% 0.043 257.281)",
+        "oklch(37.2% 0.044 257.287)",
+        "oklch(27.9% 0.041 260.031)",
+        "oklch(20.8% 0.042 265.755)",
+        "oklch(12.9% 0.042 264.695)"
+      ],
+      "character": "cool (strong blue tint)",
+      "notes": "11 steps (50–950), OKLCH, verbatim from tailwindcss@4.3.5 theme.css. shadcn/ui's \"slate\" base colour is built from these same values where one exists."
+    },
+    {
+      "id": "tailwind-gray",
+      "source": "tailwindcss",
+      "steps": [
+        "oklch(98.5% 0.002 247.839)",
+        "oklch(96.7% 0.003 264.542)",
+        "oklch(92.8% 0.006 264.531)",
+        "oklch(87.2% 0.01 258.338)",
+        "oklch(70.7% 0.022 261.325)",
+        "oklch(55.1% 0.027 264.364)",
+        "oklch(44.6% 0.03 256.802)",
+        "oklch(37.3% 0.034 259.733)",
+        "oklch(27.8% 0.033 256.848)",
+        "oklch(21% 0.034 264.665)",
+        "oklch(13% 0.028 261.692)"
+      ],
+      "character": "cool (mild blue tint)",
+      "notes": "11 steps (50–950), OKLCH, verbatim from tailwindcss@4.3.5 theme.css. shadcn/ui's \"gray\" base colour is built from these same values where one exists."
+    },
+    {
+      "id": "tailwind-zinc",
+      "source": "tailwindcss",
+      "steps": [
+        "oklch(98.5% 0 none)",
+        "oklch(96.7% 0.001 286.375)",
+        "oklch(92% 0.004 286.32)",
+        "oklch(87.1% 0.006 286.286)",
+        "oklch(70.5% 0.015 286.067)",
+        "oklch(55.2% 0.016 285.938)",
+        "oklch(44.2% 0.017 285.786)",
+        "oklch(37% 0.013 285.805)",
+        "oklch(27.4% 0.006 286.033)",
+        "oklch(21% 0.006 285.885)",
+        "oklch(14.1% 0.005 285.823)"
+      ],
+      "character": "cool-neutral (faint violet tint)",
+      "notes": "11 steps (50–950), OKLCH, verbatim from tailwindcss@4.3.5 theme.css. shadcn/ui's \"zinc\" base colour is built from these same values where one exists."
+    },
+    {
+      "id": "tailwind-neutral",
+      "source": "tailwindcss",
+      "steps": [
+        "oklch(98.5% 0 none)",
+        "oklch(97% 0 none)",
+        "oklch(92.2% 0 none)",
+        "oklch(87% 0 none)",
+        "oklch(70.8% 0 none)",
+        "oklch(55.6% 0 none)",
+        "oklch(43.9% 0 none)",
+        "oklch(37.1% 0 none)",
+        "oklch(26.9% 0 none)",
+        "oklch(20.5% 0 none)",
+        "oklch(14.5% 0 none)"
+      ],
+      "character": "pure",
+      "notes": "11 steps (50–950), OKLCH, verbatim from tailwindcss@4.3.5 theme.css. shadcn/ui's \"neutral\" base colour is built from these same values where one exists."
+    },
+    {
+      "id": "tailwind-stone",
+      "source": "tailwindcss",
+      "steps": [
+        "oklch(98.5% 0.001 106.423)",
+        "oklch(97% 0.001 106.424)",
+        "oklch(92.3% 0.003 48.717)",
+        "oklch(86.9% 0.005 56.366)",
+        "oklch(70.9% 0.01 56.259)",
+        "oklch(55.3% 0.013 58.071)",
+        "oklch(44.4% 0.011 73.639)",
+        "oklch(37.4% 0.01 67.558)",
+        "oklch(26.8% 0.007 34.298)",
+        "oklch(21.6% 0.006 56.043)",
+        "oklch(14.7% 0.004 49.25)"
+      ],
+      "character": "warm (faint brown tint)",
+      "notes": "11 steps (50–950), OKLCH, verbatim from tailwindcss@4.3.5 theme.css. shadcn/ui's \"stone\" base colour is built from these same values where one exists."
+    },
+    {
+      "id": "tailwind-taupe",
+      "source": "tailwindcss",
+      "steps": [
+        "oklch(98.6% 0.002 67.8)",
+        "oklch(96% 0.002 17.2)",
+        "oklch(92.2% 0.005 34.3)",
+        "oklch(86.8% 0.007 39.5)",
+        "oklch(71.4% 0.014 41.2)",
+        "oklch(54.7% 0.021 43.1)",
+        "oklch(43.8% 0.017 39.3)",
+        "oklch(36.7% 0.016 35.7)",
+        "oklch(26.8% 0.011 36.5)",
+        "oklch(21.4% 0.009 43.1)",
+        "oklch(14.7% 0.004 49.3)"
+      ],
+      "character": "warm (rosy-brown tint)",
+      "notes": "11 steps (50–950), OKLCH, verbatim from tailwindcss@4.3.5 theme.css. shadcn/ui's \"taupe\" base colour is built from these same values where one exists."
+    },
+    {
+      "id": "tailwind-olive",
+      "source": "tailwindcss",
+      "steps": [
+        "oklch(98.8% 0.003 106.5)",
+        "oklch(96.6% 0.005 106.5)",
+        "oklch(93% 0.007 106.5)",
+        "oklch(88% 0.011 106.6)",
+        "oklch(73.7% 0.021 106.9)",
+        "oklch(58% 0.031 107.3)",
+        "oklch(46.6% 0.025 107.3)",
+        "oklch(39.4% 0.023 107.4)",
+        "oklch(28.6% 0.016 107.4)",
+        "oklch(22.8% 0.013 107.4)",
+        "oklch(15.3% 0.006 107.1)"
+      ],
+      "character": "tinted-yellow-green",
+      "notes": "11 steps (50–950), OKLCH, verbatim from tailwindcss@4.3.5 theme.css. shadcn/ui's \"olive\" base colour is built from these same values where one exists."
+    },
+    {
+      "id": "tailwind-mist",
+      "source": "tailwindcss",
+      "steps": [
+        "oklch(98.7% 0.002 197.1)",
+        "oklch(96.3% 0.002 197.1)",
+        "oklch(92.5% 0.005 214.3)",
+        "oklch(87.2% 0.007 219.6)",
+        "oklch(72.3% 0.014 214.4)",
+        "oklch(56% 0.021 213.5)",
+        "oklch(45% 0.017 213.2)",
+        "oklch(37.8% 0.015 216)",
+        "oklch(27.5% 0.011 216.9)",
+        "oklch(21.8% 0.008 223.9)",
+        "oklch(14.8% 0.004 228.8)"
+      ],
+      "character": "tinted-cyan (cool)",
+      "notes": "11 steps (50–950), OKLCH, verbatim from tailwindcss@4.3.5 theme.css. shadcn/ui's \"mist\" base colour is built from these same values where one exists."
+    },
+    {
+      "id": "tailwind-mauve",
+      "source": "tailwindcss",
+      "steps": [
+        "oklch(98.5% 0 none)",
+        "oklch(96% 0.003 325.6)",
+        "oklch(92.2% 0.005 325.62)",
+        "oklch(86.5% 0.012 325.68)",
+        "oklch(71.1% 0.019 323.02)",
+        "oklch(54.2% 0.034 322.5)",
+        "oklch(43.5% 0.029 321.78)",
+        "oklch(36.4% 0.029 323.89)",
+        "oklch(26.3% 0.024 320.12)",
+        "oklch(21.2% 0.019 322.12)",
+        "oklch(14.5% 0.008 326)"
+      ],
+      "character": "tinted-magenta",
+      "notes": "11 steps (50–950), OKLCH, verbatim from tailwindcss@4.3.5 theme.css. shadcn/ui's \"mauve\" base colour is built from these same values where one exists."
+    },
+    {
+      "id": "open-props-gray",
+      "source": "open-props",
+      "steps": [
+        "#f8f9fa",
+        "#f1f3f5",
+        "#e9ecef",
+        "#dee2e6",
+        "#ced4da",
+        "#adb5bd",
+        "#868e96",
+        "#495057",
+        "#343a40",
+        "#212529",
+        "#16191d",
+        "#0d0f12",
+        "#030507"
+      ],
+      "character": "cool (blue-grey)",
+      "notes": "13 steps (0–12). src/props.gray.css. Steps 0–9 are the same hexes as Mantine's gray."
+    },
+    {
+      "id": "open-props-stone",
+      "source": "open-props",
+      "steps": [
+        "#f8fafb",
+        "#f2f4f6",
+        "#ebedef",
+        "#e0e4e5",
+        "#d1d6d8",
+        "#b1b6b9",
+        "#979b9d",
+        "#7e8282",
+        "#666968",
+        "#50514f",
+        "#3a3a37",
+        "#252521",
+        "#121210"
+      ],
+      "character": "cool light end drifting to warm dark end",
+      "notes": "13 steps (0–12). src/props.stone.css."
+    },
+    {
+      "id": "open-props-sand",
+      "source": "open-props",
+      "steps": [
+        "#f8fafb",
+        "#e6e4dc",
+        "#d5cfbd",
+        "#c2b9a0",
+        "#aea58c",
+        "#9a9178",
+        "#867c65",
+        "#736a53",
+        "#5f5746",
+        "#4b4639",
+        "#38352d",
+        "#252521",
+        "#121210"
+      ],
+      "character": "warm (khaki)",
+      "notes": "13 steps (0–12). src/props.sand.css. Much more saturated than Radix sand — reads as a colour, not a grey."
+    },
+    {
+      "id": "mantine-gray",
+      "source": "mantine",
+      "steps": [
+        "#f8f9fa",
+        "#f1f3f5",
+        "#e9ecef",
+        "#dee2e6",
+        "#ced4da",
+        "#adb5bd",
+        "#868e96",
+        "#495057",
+        "#343a40",
+        "#212529"
+      ],
+      "character": "cool (blue-grey)",
+      "notes": "10 steps (0–9). esm/core/MantineProvider/default-colors.mjs."
+    },
+    {
+      "id": "mantine-dark",
+      "source": "mantine",
+      "steps": [
+        "#C9C9C9",
+        "#b8b8b8",
+        "#828282",
+        "#696969",
+        "#424242",
+        "#3b3b3b",
+        "#2e2e2e",
+        "#242424",
+        "#1f1f1f",
+        "#141414"
+      ],
+      "character": "pure, dark-mode surface scale (light to dark)",
+      "notes": "10 steps (0–9). Same file. Body bg in dark scheme is dark-7 (#242424), text dark-0."
+    },
+    {
+      "id": "flexoki-base",
+      "source": "flexoki",
+      "steps": [
+        "#FFFCF0",
+        "#F2F0E5",
+        "#E6E4D9",
+        "#DAD8CE",
+        "#CECDC3",
+        "#B7B5AC",
+        "#9F9D96",
+        "#878580",
+        "#6F6E69",
+        "#575653",
+        "#403E3C",
+        "#343331",
+        "#282726",
+        "#1C1B1A",
+        "#100F0F"
+      ],
+      "character": "warm (paper and ink)",
+      "notes": "15 steps: paper, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, black. css/flexoki.css."
+    },
+    {
+      "id": "sonner-gray",
+      "source": "sonner",
+      "steps": [
+        "hsl(0, 0%, 99%)",
+        "hsl(0, 0%, 97.3%)",
+        "hsl(0, 0%, 95.1%)",
+        "hsl(0, 0%, 93%)",
+        "hsl(0, 0%, 90.9%)",
+        "hsl(0, 0%, 88.7%)",
+        "hsl(0, 0%, 85.8%)",
+        "hsl(0, 0%, 78%)",
+        "hsl(0, 0%, 56.1%)",
+        "hsl(0, 0%, 52.3%)",
+        "hsl(0, 0%, 43.5%)",
+        "hsl(0, 0%, 9%)"
+      ],
+      "character": "pure",
+      "notes": "12 steps in HSL, hue 0 / saturation 0. dist/styles.css."
+    },
+    {
+      "id": "heroui-zinc",
+      "source": "heroui",
+      "steps": [
+        "#fafafa",
+        "#f4f4f5",
+        "#e4e4e7",
+        "#d4d4d8",
+        "#a1a1aa",
+        "#71717a",
+        "#52525b",
+        "#3f3f46",
+        "#27272a",
+        "#18181b"
+      ],
+      "character": "cool-neutral (faint violet tint)",
+      "notes": "10 steps (50–900). @heroui/theme dist/chunk-3LKKH4AR.mjs (src colours/zinc). HeroUI uses zinc for its content1–4 surface layers."
+    }
+  ],
+  "shadowRecipes": [
+    {
+      "id": "tailwind-default",
+      "source": "tailwindcss",
+      "character": "soft two-layer, neutral black at 10%",
+      "sm": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+      "md": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+      "lg": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+      "notes": "theme.css --shadow-sm/md/lg. Also --shadow-xs 0 1px 2px 0 rgb(0 0 0 / 0.05) and --shadow-2xl 0 25px 50px -12px rgb(0 0 0 / 0.25). @pandacss/preset-panda ships the identical values."
+    },
+    {
+      "id": "shadcn-new-york-usage",
+      "source": "shadcn-ui",
+      "character": "barely-there; shadow is a hint, borders do the work",
+      "sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      "md": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+      "lg": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+      "notes": "shadcn has no shadow tokens of its own; these are the Tailwind values behind the classes its components use: shadow-xs on inputs and outline buttons (ui/input.tsx, ui/button.tsx), shadow-sm on cards (ui/card.tsx), shadow-lg on dialogs (ui/dialog.tsx). Filled buttons have no shadow."
+    },
+    {
+      "id": "radix-themes-light",
+      "source": "radix-themes",
+      "character": "hairline ring plus soft ambient; edges stay crisp",
+      "sm": "0 0 0 1px var(--gray-a3), 0 0 0 0.5px var(--black-a1), 0 1px 1px 0 var(--gray-a2), 0 2px 1px -1px var(--black-a1), 0 1px 3px 0 var(--black-a1)",
+      "md": "0 0 0 1px var(--gray-a3), 0 2px 3px -2px var(--gray-a3), 0 3px 12px -4px var(--black-a2), 0 4px 16px -8px var(--black-a2)",
+      "lg": "0 0 0 1px var(--gray-a3), 0 12px 60px var(--black-a3), 0 12px 32px -16px var(--gray-a5)",
+      "notes": "src/styles/tokens/shadow.css --shadow-2/3/5 (light, fallback block). Every level starts with a 1px ring in gray-a3. Token values: gray-a2 #00000006, gray-a3 #0000000f, gray-a5 #0000001f (gray-alpha.css); black-a1/a2/a3 = rgba(0,0,0,0.05/0.1/0.15) (black-alpha.css). --shadow-1 is an inset recipe; --shadow-4 and --shadow-6 also exist."
+    },
+    {
+      "id": "radix-themes-dark",
+      "source": "radix-themes",
+      "character": "lighter ring, much heavier black; depth comes from the ring",
+      "sm": "0 0 0 1px var(--gray-a6), 0 0 0 0.5px var(--black-a3), 0 1px 1px 0 var(--black-a6), 0 2px 1px -1px var(--black-a6), 0 1px 3px 0 var(--black-a5)",
+      "md": "0 0 0 1px var(--gray-a6), 0 2px 3px -2px var(--black-a3), 0 3px 8px -2px var(--black-a6), 0 4px 12px -4px var(--black-a7)",
+      "lg": "0 0 0 1px var(--gray-a6), 0 12px 60px var(--black-a5), 0 12px 32px -16px var(--black-a7)",
+      "notes": "Same file, dark block. Ring strengthens to gray-a6 and black layers go up to black-a7 (rgba(0,0,0,0.5))."
+    },
+    {
+      "id": "open-props",
+      "source": "open-props",
+      "character": "many thin layers; one strength knob",
+      "sm": "0 3px 5px -2px hsl(var(--shadow-color) / var(--shadow-strength-4)), 0 7px 14px -5px hsl(var(--shadow-color) / var(--shadow-strength-6))",
+      "md": "0 -1px 3px 0 hsl(var(--shadow-color) / var(--shadow-strength-3)), 0 1px 2px -5px hsl(var(--shadow-color) / var(--shadow-strength-3)), 0 2px 5px -5px hsl(var(--shadow-color) / var(--shadow-strength-5)), 0 4px 12px -5px hsl(var(--shadow-color) / var(--shadow-strength-6)), 0 12px 15px -5px hsl(var(--shadow-color) / var(--shadow-strength-8))",
+      "lg": "0 -1px 2px 0 hsl(var(--shadow-color) / var(--shadow-strength-3)), 0 2px 1px -2px hsl(var(--shadow-color) / var(--shadow-strength-4)), 0 5px 5px -2px hsl(var(--shadow-color) / var(--shadow-strength-4)), 0 10px 10px -2px hsl(var(--shadow-color) / var(--shadow-strength-5)), 0 20px 20px -2px hsl(var(--shadow-color) / var(--shadow-strength-6)), 0 40px 40px -2px hsl(var(--shadow-color) / var(--shadow-strength-8))",
+      "notes": "src/props.shadows.css --shadow-2/3/5. --shadow-color is \"220 3% 15%\" and --shadow-strength 1% in light, so layers sit at 3–10% alpha; in dark the colour becomes \"220 40% 2%\" and strength 25% (OS dark media query) or 10% (extra/normalize.dark.css). --shadow-1 is 0 1px 2px -1px hsl(var(--shadow-color) / var(--shadow-strength-10))."
+    },
+    {
+      "id": "primer-light",
+      "source": "primer-primitives",
+      "character": "tinted blue-grey, very low alpha at rest and deep when floating",
+      "sm": "0 1px 1px 0 #1f23280a, 0 1px 2px 0 #1f232808",
+      "md": "0 0 0 1px #d1d9e040, 0 6px 12px -3px #25292e0a, 0 6px 18px 0 #25292e1f",
+      "lg": "0 0 0 1px #d1d9e000, 0 40px 80px 0 #25292e3d",
+      "notes": "dist/css/functional/themes/light.css. sm = shadow-resting-small (buttons), md = shadow-floating-small (dropdowns), lg = shadow-floating-large (dialogs). Also shadow-resting-medium 0 1px 1px 0 #25292e1a, 0 3px 6px 0 #25292e1f and shadow-inset inset 0 1px 0 0 #1f23280a."
+    },
+    {
+      "id": "primer-dark",
+      "source": "primer-primitives",
+      "character": "solid near-black with a 1px border ring",
+      "sm": "0 1px 1px 0 #01040999, 0 1px 3px 0 #01040999",
+      "md": "0 0 0 1px #3d444d, 0 6px 12px -3px #01040966, 0 6px 18px 0 #01040966",
+      "lg": "0 0 0 1px #3d444d, 0 24px 48px 0 #010409",
+      "notes": "dist/css/functional/themes/dark.css. sm = shadow-resting-small (buttons), md = shadow-floating-small (dropdowns), lg = shadow-floating-large (dialogs). Also shadow-resting-medium 0 1px 1px 0 #01040966, 0 3px 6px 0 #010409cc and shadow-inset inset 0 1px 0 0 #0104093d."
+    },
+    {
+      "id": "mantine",
+      "source": "mantine",
+      "character": "tight contact shadow plus a long soft drop with negative spread",
+      "sm": "0 1px 3px rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 10px 15px -5px, rgba(0, 0, 0, 0.04) 0 7px 7px -5px",
+      "md": "0 1px 3px rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 20px 25px -5px, rgba(0, 0, 0, 0.04) 0 10px 10px -5px",
+      "lg": "0 1px 3px rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 28px 23px -7px, rgba(0, 0, 0, 0.04) 0 12px 12px -7px",
+      "notes": "esm/core/MantineProvider/default-theme.mjs shadows.sm/md/lg. Source writes lengths with rem(n); shown here as the px numbers passed to rem(). xs is \"0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1)\"."
+    },
+    {
+      "id": "heroui-light",
+      "source": "heroui",
+      "character": "wide diffuse glow with a 1px dark hairline",
+      "sm": "0px 0px 5px 0px rgb(0 0 0 / 0.02), 0px 2px 10px 0px rgb(0 0 0 / 0.06), 0px 0px 1px 0px rgb(0 0 0 / 0.3)",
+      "md": "0px 0px 15px 0px rgb(0 0 0 / 0.03), 0px 2px 30px 0px rgb(0 0 0 / 0.08), 0px 0px 1px 0px rgb(0 0 0 / 0.3)",
+      "lg": "0px 0px 30px 0px rgb(0 0 0 / 0.04), 0px 30px 60px 0px rgb(0 0 0 / 0.12), 0px 0px 1px 0px rgb(0 0 0 / 0.3)",
+      "notes": "@heroui/theme dist/chunk-HUBDRSA4.mjs (src/default-layout.ts) boxShadow small/medium/large."
+    },
+    {
+      "id": "heroui-dark",
+      "source": "heroui",
+      "character": "same shape, stronger, with an inner white hairline",
+      "sm": "0px 0px 5px 0px rgb(0 0 0 / 0.05), 0px 2px 10px 0px rgb(0 0 0 / 0.2), inset 0px 0px 1px 0px rgb(255 255 255 / 0.15)",
+      "md": "0px 0px 15px 0px rgb(0 0 0 / 0.06), 0px 2px 30px 0px rgb(0 0 0 / 0.22), inset 0px 0px 1px 0px rgb(255 255 255 / 0.15)",
+      "lg": "0px 0px 30px 0px rgb(0 0 0 / 0.07), 0px 30px 60px 0px rgb(0 0 0 / 0.26), inset 0px 0px 1px 0px rgb(255 255 255 / 0.15)",
+      "notes": "Same file, darkLayout.boxShadow."
+    },
+    {
+      "id": "park-ui",
+      "source": "park-ui",
+      "character": "one soft drop plus a 1px outline in the grey scale",
+      "sm": "0px 2px 4px {colors.gray.a3}, 0px 0px 1px {colors.gray.a7}",
+      "md": "0px 4px 8px {colors.gray.a3}, 0px 0px 1px {colors.gray.a7}",
+      "lg": "0px 8px 16px {colors.gray.a3}, 0px 0px 1px {colors.gray.a7}",
+      "notes": "@park-ui/panda-preset dist/index.js shadows.sm/md/lg (_light). The {colors.gray.aN} references are Radix alpha steps. Dark variant swaps the drop to {colors.black.a10} and makes the outline inset."
+    },
+    {
+      "id": "starlight-light",
+      "source": "starlight",
+      "character": "short, stacked, crisp; four to five small layers",
+      "sm": "0px 1px 1px hsla(0, 0%, 0%, 0.06), 0px 2px 1px hsla(0, 0%, 0%, 0.06)",
+      "md": "0px 8px 4px hsla(0, 0%, 0%, 0.03), 0px 5px 2px hsla(0, 0%, 0%, 0.03), 0px 3px 2px hsla(0, 0%, 0%, 0.06), 0px 1px 1px hsla(0, 0%, 0%, 0.06)",
+      "lg": "0px 25px 7px rgba(0, 0, 0, 0.01), 0px 16px 6px hsla(0, 0%, 0%, 0.03), 0px 9px 5px hsla(223, 13%, 10%, 0.08), 0px 4px 4px hsla(0, 0%, 0%, 0.16), 0px 4px 2px hsla(0, 0%, 0%, 0.04)",
+      "notes": "@astrojs/starlight dist/style/props.css, light theme block. The default (dark) block uses the same geometry at roughly 2–6x the alpha."
+    },
+    {
+      "id": "jakub-shadow-as-border",
+      "source": "jakub-skill",
+      "character": "shadow used instead of a border: 1px ring + lift + ambient",
+      "sm": "0px 0px 0px 1px oklch(0 0 0 / 0.06), 0px 1px 2px -1px oklch(0 0 0 / 0.06), 0px 2px 4px 0px oklch(0 0 0 / 0.04)",
+      "md": "0px 0px 0px 1px oklch(0 0 0 / 0.08), 0px 1px 2px -1px oklch(0 0 0 / 0.08), 0px 2px 4px 0px oklch(0 0 0 / 0.06)",
+      "lg": null,
+      "notes": "skills/make-interfaces-feel-better/surfaces.md --shadow-border (sm) and --shadow-border-hover (md, the hover state, not a bigger elevation). Dark mode collapses to a single ring: 0 0 0 1px oklch(1 0 0 / 0.08), hover 0.13."
+    },
+    {
+      "id": "magicui-bento-card",
+      "source": "magicui",
+      "character": "near-invisible ring with a long, faint drop",
+      "sm": null,
+      "md": "0 0 0 1px rgba(0,0,0,.03), 0 2px 4px rgba(0,0,0,.05), 0 12px 24px rgba(0,0,0,.05)",
+      "lg": null,
+      "notes": "apps/www/registry/magicui/bento-grid.tsx. Dark: no drop at all — an inner top glow \"0 -20px 80px -20px #ffffff1f inset\" plus a 1px rgba(255,255,255,.1) border."
+    },
+    {
+      "id": "baseui-hard-offset",
+      "source": "base-ui",
+      "character": "hard offset, no blur; looks printed",
+      "sm": "0.25rem 0.25rem 0 rgb(0 0 0 / 12%)",
+      "md": "0.25rem 0.25rem 0 rgb(0 0 0 / 12%)",
+      "lg": "0.25rem 0.25rem 0 rgb(0 0 0 / 12%)",
+      "notes": "One recipe for every popup (dialog, menu, tooltip, toast) in the Base UI docs demos; removed entirely in dark mode. Files: docs/src/app/(docs)/react/components/*/demos/hero/css-modules/index.module.css."
+    },
+    {
+      "id": "tweakcn-default",
+      "source": "tweakcn",
+      "character": "small and neutral; the shadcn-like default",
+      "sm": "0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10)",
+      "md": "0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10)",
+      "lg": "0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10)",
+      "notes": "Computed, not copied: preset parameters (colour hsl(0 0% 0%), opacity 0.1, blur 3px, spread 0px, offset 0 1px) from utils/theme-presets.ts defaults in config/theme.ts (shadow colour there is oklch(0 0 0), written here as hsl) run through the formula in utils/shadows.ts (layer 1 = x y blur spread colour@opacity; layer 2 = x {1|2|4}px {2|4|6}px (spread−1) colour@opacity). The exact colour string tweakcn emits may be formatted differently."
+    },
+    {
+      "id": "tweakcn-neo-brutalism",
+      "source": "tweakcn",
+      "character": "hard 4px offset, solid black, zero blur",
+      "sm": "4px 4px 0px 0px hsl(0 0% 0% / 1.00), 4px 1px 2px -1px hsl(0 0% 0% / 1.00)",
+      "md": "4px 4px 0px 0px hsl(0 0% 0% / 1.00), 4px 2px 4px -1px hsl(0 0% 0% / 1.00)",
+      "lg": "4px 4px 0px 0px hsl(0 0% 0% / 1.00), 4px 4px 6px -1px hsl(0 0% 0% / 1.00)",
+      "notes": "Computed, not copied: preset parameters (colour hsl(0 0% 0%), opacity 1, blur 0px, spread 0px, offset 4px 4px) from utils/theme-presets.ts \"neo-brutalism\" run through the formula in utils/shadows.ts (layer 1 = x y blur spread colour@opacity; layer 2 = x {1|2|4}px {2|4|6}px (spread−1) colour@opacity). The exact colour string tweakcn emits may be formatted differently."
+    },
+    {
+      "id": "tweakcn-elegant-luxury",
+      "source": "tweakcn",
+      "character": "wide soft glow tinted burgundy-brown",
+      "sm": "1px 1px 16px -2px hsl(0 63% 18% / 0.12), 1px 1px 2px -3px hsl(0 63% 18% / 0.12)",
+      "md": "1px 1px 16px -2px hsl(0 63% 18% / 0.12), 1px 2px 4px -3px hsl(0 63% 18% / 0.12)",
+      "lg": "1px 1px 16px -2px hsl(0 63% 18% / 0.12), 1px 4px 6px -3px hsl(0 63% 18% / 0.12)",
+      "notes": "Computed, not copied: preset parameters (colour hsl(0 63% 18%), opacity 0.12, blur 16px, spread -2px, offset 1px 1px) from utils/theme-presets.ts \"elegant-luxury\" run through the formula in utils/shadows.ts (layer 1 = x y blur spread colour@opacity; layer 2 = x {1|2|4}px {2|4|6}px (spread−1) colour@opacity). The exact colour string tweakcn emits may be formatted differently."
+    },
+    {
+      "id": "tweakcn-claymorphism",
+      "source": "tweakcn",
+      "character": "puffy; positive spread makes shapes look inflated",
+      "sm": "2px 2px 10px 4px hsl(240 4% 60% / 0.18), 2px 1px 2px 3px hsl(240 4% 60% / 0.18)",
+      "md": "2px 2px 10px 4px hsl(240 4% 60% / 0.18), 2px 2px 4px 3px hsl(240 4% 60% / 0.18)",
+      "lg": "2px 2px 10px 4px hsl(240 4% 60% / 0.18), 2px 4px 6px 3px hsl(240 4% 60% / 0.18)",
+      "notes": "Computed, not copied: preset parameters (colour hsl(240 4% 60%), opacity 0.18, blur 10px, spread 4px, offset 2px 2px) from utils/theme-presets.ts \"claymorphism\" run through the formula in utils/shadows.ts (layer 1 = x y blur spread colour@opacity; layer 2 = x {1|2|4}px {2|4|6}px (spread−1) colour@opacity). The exact colour string tweakcn emits may be formatted differently."
+    },
+    {
+      "id": "tweakcn-vercel",
+      "source": "tweakcn",
+      "character": "tight 1px/2px contact shadow, fairly dark",
+      "sm": "0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18)",
+      "md": "0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 2px 4px -1px hsl(0 0% 0% / 0.18)",
+      "lg": "0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 4px 6px -1px hsl(0 0% 0% / 0.18)",
+      "notes": "Computed, not copied: preset parameters (colour hsl(0 0% 0%), opacity 0.18, blur 2px, spread 0px, offset 0px 1px) from utils/theme-presets.ts \"vercel\" run through the formula in utils/shadows.ts (layer 1 = x y blur spread colour@opacity; layer 2 = x {1|2|4}px {2|4|6}px (spread−1) colour@opacity). The exact colour string tweakcn emits may be formatted differently."
+    },
+    {
+      "id": "tweakcn-pastel-dreams",
+      "source": "tweakcn",
+      "character": "low, wide and faint; floats gently",
+      "sm": "0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 1px 2px -5px hsl(0 0% 0% / 0.08)",
+      "md": "0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 2px 4px -5px hsl(0 0% 0% / 0.08)",
+      "lg": "0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 4px 6px -5px hsl(0 0% 0% / 0.08)",
+      "notes": "Computed, not copied: preset parameters (colour hsl(0 0% 0%), opacity 0.08, blur 16px, spread -4px, offset 0px 8px) from utils/theme-presets.ts \"pastel-dreams\" run through the formula in utils/shadows.ts (layer 1 = x y blur spread colour@opacity; layer 2 = x {1|2|4}px {2|4|6}px (spread−1) colour@opacity). The exact colour string tweakcn emits may be formatted differently."
+    },
+    {
+      "id": "tweakcn-vintage-paper",
+      "source": "tweakcn",
+      "character": "slightly sideways, brown-tinted; like paper on a desk",
+      "sm": "2px 3px 5px 0px hsl(28 13% 20% / 0.12), 2px 1px 2px -1px hsl(28 13% 20% / 0.12)",
+      "md": "2px 3px 5px 0px hsl(28 13% 20% / 0.12), 2px 2px 4px -1px hsl(28 13% 20% / 0.12)",
+      "lg": "2px 3px 5px 0px hsl(28 13% 20% / 0.12), 2px 4px 6px -1px hsl(28 13% 20% / 0.12)",
+      "notes": "Computed, not copied: preset parameters (colour hsl(28 13% 20%), opacity 0.12, blur 5px, spread 0px, offset 2px 3px) from utils/theme-presets.ts \"vintage-paper\" run through the formula in utils/shadows.ts (layer 1 = x y blur spread colour@opacity; layer 2 = x {1|2|4}px {2|4|6}px (spread−1) colour@opacity). The exact colour string tweakcn emits may be formatted differently."
+    },
+    {
+      "id": "cmdk-palette",
+      "source": "cmdk",
+      "character": "single huge soft drop for a floating command window",
+      "sm": null,
+      "md": null,
+      "lg": "0 16px 70px rgb(0 0 0 / 20%)",
+      "notes": "website/styles/globals.scss --cmdk-shadow, used by the Vercel, Linear and Raycast example palettes."
+    },
+    {
+      "id": "sonner-toast",
+      "source": "sonner",
+      "character": "one modest drop",
+      "sm": null,
+      "md": "0px 4px 12px rgba(0, 0, 0, 0.1)",
+      "lg": null,
+      "notes": "sonner dist/styles.css toast box-shadow. Focus adds \"0 0 0 2px rgba(0, 0, 0, 0.2)\"."
+    },
+    {
+      "id": "astro-blog-tinted",
+      "source": "astro-blog",
+      "character": "three layers tinted blue-grey rather than black",
+      "sm": null,
+      "md": null,
+      "lg": "0 2px 6px rgba(96, 115, 159, 25%), 0 8px 24px rgba(96, 115, 159, 33%), 0 16px 32px rgba(96, 115, 159, 33%)",
+      "notes": "withastro/astro examples/blog/src/styles/global.css --box-shadow with --gray (96, 115, 159) substituted in."
+    },
+    {
+      "id": "govuk-button-edge",
+      "source": "govuk-frontend",
+      "character": "solid 2px bottom edge, no blur; a physical button",
+      "sm": "0 2px 0 $govuk-button-shadow-colour",
+      "md": null,
+      "lg": null,
+      "notes": "dist/govuk/components/button/_mixin.scss: box-shadow 0 $button-shadow-size 0 …, where $button-shadow-size = $govuk-border-width-form-element = 2px (settings/_measurements.scss). On press the button moves down 2px (top: $button-shadow-size). I did not read the computed shadow colour."
+    },
+    {
+      "id": "daisyui-depth",
+      "source": "daisyui",
+      "character": "short shadow tinted with the button's own colour",
+      "sm": "0 3px 2px -2px color-mix(in oklab, var(--btn-bg) calc(var(--depth) * 30%), #0000), 0 4px 3px -2px color-mix(in oklab, var(--btn-bg) calc(var(--depth) * 30%), #0000)",
+      "md": null,
+      "lg": null,
+      "notes": "daisyui components/button.css --btn-shadow. Themes switch it on or off with --depth: 1 or 0; with depth on, labels also get text-shadow 0 .5px oklch(100% 0 0 / calc(var(--depth) * .15))."
+    }
+  ],
+  "radiusFamilies": [
+    {
+      "id": "radix-none",
+      "source": "radix-themes",
+      "character": "square",
+      "control": "0px",
+      "surface": "0px",
+      "pill": false,
+      "notes": "tokens/radius.css [data-radius=\"none\"]: --radius-factor 0."
+    },
+    {
+      "id": "radix-small",
+      "source": "radix-themes",
+      "character": "tight, slightly softened",
+      "control": "3px",
+      "surface": "6px",
+      "pill": false,
+      "notes": "factor 0.75 applied to the base scale 3, 4, 6, 8, 12, 16px. control = size-2 button (--radius-2 = 4px × 0.75); surface = size-1/2 card (--radius-4 = 8px × 0.75)."
+    },
+    {
+      "id": "radix-medium",
+      "source": "radix-themes",
+      "character": "moderate; the default",
+      "control": "4px",
+      "surface": "8px",
+      "pill": false,
+      "notes": "factor 1. Buttons size 1–4 use --radius-1…4 (3, 4, 6, 8px) (components/_internal/base-button.css); cards use 8px (sizes 1–2), 12px (3–4), 16px (5) (components/card.css). Radius grows with component size."
+    },
+    {
+      "id": "radix-large",
+      "source": "radix-themes",
+      "character": "soft",
+      "control": "6px",
+      "surface": "12px",
+      "pill": false,
+      "notes": "factor 1.5."
+    },
+    {
+      "id": "radix-full",
+      "source": "radix-themes",
+      "character": "pill controls on soft cards",
+      "control": "9999px",
+      "surface": "12px",
+      "pill": true,
+      "notes": "factor 1.5 plus --radius-full: 9999px; buttons use max(var(--radius-N), var(--radius-full)), so controls go fully round while panels keep the \"large\" radius."
+    },
+    {
+      "id": "shadcn-default",
+      "source": "shadcn-ui",
+      "character": "moderate with larger cards",
+      "control": "8px",
+      "surface": "14px",
+      "pill": false,
+      "notes": "apps/v4/app/globals.css: --radius 0.625rem (10px); --radius-md = ×0.8 (8px, buttons/inputs use rounded-md); --radius-lg = ×1 (10px, dialogs); --radius-xl = ×1.4 (14px, cards use rounded-xl). Also sm ×0.6, 2xl ×1.8, 3xl ×2.2, 4xl ×2.6. Preset choices in registry/config.ts: none 0, small 0.45rem, medium 0.625rem, large 0.875rem."
+    },
+    {
+      "id": "tailwind-scale",
+      "source": "tailwindcss",
+      "character": "general-purpose ladder",
+      "control": "6px",
+      "surface": "12px",
+      "pill": false,
+      "notes": "theme.css: xs 2px, sm 4px, md 6px, lg 8px, xl 12px, 2xl 16px, 3xl 24px, 4xl 32px. It is a scale, not a recommendation; picking md for controls and xl for surfaces is my reading of common usage."
+    },
+    {
+      "id": "primer",
+      "source": "primer-primitives",
+      "character": "compact and businesslike",
+      "control": "6px",
+      "surface": "12px",
+      "pill": false,
+      "notes": "dist/css/functional/size/radius.css: small 3px, medium 6px (default), large 12px, full for pills. Surface = large is my assignment; the file only says large is for \"larger surfaces\"."
+    },
+    {
+      "id": "primer-brand",
+      "source": "primer-brand",
+      "character": "marketing-soft",
+      "control": "8px",
+      "surface": "16px",
+      "pill": false,
+      "notes": "@primer/brand-primitives functional/size/border.css: small 4px, medium 8px, large 16px, xlarge 24px, full. Control/surface assignment is mine."
+    },
+    {
+      "id": "carbon",
+      "source": "carbon",
+      "character": "square-first",
+      "control": "0px",
+      "surface": "0px",
+      "pill": false,
+      "notes": "Tokens in @carbon/layout tokens/layout.tokens.json: 0, 2px, 4px, 8px, 16px, 24px, max. Defaults checked in @carbon/styles@1.119.0 css/styles.min.css: .cds--btn corners are var(--cds-button-radius, 0), i.e. square unless a context sets the variable; the base .cds--tile rule sets no radius (an optional \"rounded\" tile variant uses 0.5rem)."
+    },
+    {
+      "id": "material-3",
+      "source": "material-web",
+      "character": "pill buttons, generously rounded containers",
+      "control": "9999px",
+      "surface": "12px",
+      "pill": true,
+      "notes": "tokens/versions/v0_192: shape scale 0, 4, 8, 12, 16, 28px, full (_md-sys-shape.scss). Filled button = corner-full at 40px height; elevated card = corner-medium 12px; dialog = corner-extra-large 28px; filled text field = 4px top corners only."
+    },
+    {
+      "id": "mantine",
+      "source": "mantine",
+      "character": "friendly default",
+      "control": "8px",
+      "surface": "8px",
+      "pill": false,
+      "notes": "default-theme.mjs radius: xs 2px, sm 4px, md 8px, lg 16px, xl 32px; defaultRadius is \"md\", so 8px is what components get unless told otherwise."
+    },
+    {
+      "id": "heroui",
+      "source": "heroui",
+      "character": "soft and rounded throughout",
+      "control": "12px",
+      "surface": "14px",
+      "pill": false,
+      "notes": "@heroui/theme default-layout: radius small 8px, medium 12px, large 14px. Control = medium and surface = large is my assignment."
+    },
+    {
+      "id": "govuk",
+      "source": "govuk-frontend",
+      "character": "square, no exceptions",
+      "control": "0px",
+      "surface": "0px",
+      "pill": false,
+      "notes": "components/button/_mixin.scss sets border-radius: 0. Form inputs use a 2px black border instead of rounding."
+    },
+    {
+      "id": "baseui-demos",
+      "source": "base-ui",
+      "character": "square with hairline borders",
+      "control": "0px",
+      "surface": "0px",
+      "pill": false,
+      "notes": "Base UI docs demo CSS sets border-radius: 0 on buttons, menus and toasts."
+    },
+    {
+      "id": "open-props",
+      "source": "open-props",
+      "character": "two small steps then very round",
+      "control": "5px",
+      "surface": "1rem",
+      "pill": false,
+      "notes": "src/props.borders.css: --radius-1 2px, -2 5px, -3 1rem, -4 2rem, -5 4rem, -6 8rem, --radius-round 1e5px. Also organic \"blob\" and hand-drawn radii. Control/surface assignment is mine."
+    },
+    {
+      "id": "daisyui-default",
+      "source": "daisyui",
+      "character": "small fields inside slightly rounder boxes",
+      "control": "0.25rem",
+      "surface": "0.5rem",
+      "pill": false,
+      "notes": "theme/light.css: --radius-field 0.25rem (buttons, inputs), --radius-box 0.5rem (cards, modals), --radius-selector 0.5rem (checkboxes, toggles, badges). daisyUI splits radius into these three roles."
+    },
+    {
+      "id": "daisyui-soft",
+      "source": "daisyui",
+      "character": "soft with pill toggles",
+      "control": "0.5rem",
+      "surface": "1rem",
+      "pill": false,
+      "notes": "The most common triple across daisyUI themes (dim, sunset, night, coffee, winter, garden, emerald…): field 0.5rem, box 1rem, selector 1rem."
+    },
+    {
+      "id": "daisyui-silk",
+      "source": "daisyui",
+      "character": "soft boxes, fully round selectors, 2px borders",
+      "control": "0.5rem",
+      "surface": "1rem",
+      "pill": false,
+      "notes": "theme/silk.css and theme/caramellatte.css: field 0.5rem, box 1rem, selector 2rem, --border 2px."
+    },
+    {
+      "id": "daisyui-pill-fields",
+      "source": "daisyui",
+      "character": "pill buttons and inputs on soft cards",
+      "control": "2rem",
+      "surface": "1rem",
+      "pill": true,
+      "notes": "theme/cupcake.css and theme/forest.css: field 2rem, box 1rem, selector 1rem."
+    },
+    {
+      "id": "daisyui-corporate",
+      "source": "daisyui",
+      "character": "uniformly small",
+      "control": "0.25rem",
+      "surface": "0.25rem",
+      "pill": false,
+      "notes": "theme/corporate.css: all three roles 0.25rem. theme/black.css sets all three to 0."
+    },
+    {
+      "id": "park-ui-md",
+      "source": "park-ui",
+      "character": "three nested levels",
+      "control": "0.375rem",
+      "surface": "0.5rem",
+      "pill": false,
+      "notes": "@park-ui/panda-preset dist/chunk-LS3ONKWL.js createRadii(\"md\"): l1 = sm (0.25rem), l2 = md (0.375rem), l3 = lg (0.5rem). Each preset size (xs…2xl) shifts all three levels one step. Mapping l2→control, l3→surface is my reading."
+    },
+    {
+      "id": "tweakcn-sharp",
+      "source": "tweakcn",
+      "character": "zero radius for brutalist / mono looks",
+      "control": "0px",
+      "surface": "0px",
+      "pill": false,
+      "notes": "presets neo-brutalism and doom-64 use radius 0px; mono uses 0rem; perpetuity 0.125rem."
+    },
+    {
+      "id": "tweakcn-bubbly",
+      "source": "tweakcn",
+      "character": "very round",
+      "control": "1.12rem",
+      "surface": "1.96rem",
+      "pill": false,
+      "notes": "presets violet-bloom (radius 1.4rem), twitter (1.3rem), claymorphism (1.25rem), pastel-dreams (1.5rem). Values shown are violet-bloom's 1.4rem run through shadcn's multipliers (×0.8 control, ×1.4 card) — computed by me."
+    },
+    {
+      "id": "cmdk-vercel-palette",
+      "source": "cmdk",
+      "character": "nested 12 / 8 / 4",
+      "control": "8px",
+      "surface": "12px",
+      "pill": false,
+      "notes": "website/styles/cmdk/vercel.scss: palette 12px with 8px padding, rows 8px, kbd and badges 4px."
+    }
+  ],
+  "typeScales": [
+    {
+      "id": "tailwind",
+      "source": "tailwindcss",
+      "basePx": 16,
+      "sizesPx": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        30,
+        36,
+        48,
+        60,
+        72,
+        96,
+        128
+      ],
+      "lineHeights": [
+        1.333,
+        1.429,
+        1.5,
+        1.556,
+        1.4,
+        1.333,
+        1.2,
+        1.111,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "headingWeight": null,
+      "headingTracking": null,
+      "notes": "theme.css --text-xs…9xl with paired line-heights (written as calc(1 / 0.75) etc.; rounded here to 3 places). Line-height falls as size rises and is exactly 1 from 48px up. No heading weight or tracking is prescribed; tracking tokens are tighter −0.05em, tight −0.025em, wide 0.025em."
+    },
+    {
+      "id": "radix-themes",
+      "source": "radix-themes",
+      "basePx": 16,
+      "sizesPx": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        28,
+        35,
+        60
+      ],
+      "lineHeights": [
+        "16px",
+        "20px",
+        "24px",
+        "26px",
+        "28px",
+        "30px",
+        "36px",
+        "40px",
+        "60px"
+      ],
+      "headingWeight": 700,
+      "headingTracking": [
+        "0.0025em",
+        "0em",
+        "0em",
+        "-0.0025em",
+        "-0.005em",
+        "-0.00625em",
+        "-0.0075em",
+        "-0.01em",
+        "-0.025em"
+      ],
+      "notes": "src/styles/tokens/typography.css. Tracking is set per step: slightly open at 12px, tightening to −0.025em at 60px. Headings get their own tighter line-heights for steps 2–5: 18, 22, 24, 26px. Big jump from step 8 (35px) to 9 (60px). Weights offered: 300, 400, 500, 700."
+    },
+    {
+      "id": "carbon",
+      "source": "carbon",
+      "basePx": 16,
+      "sizesPx": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        28,
+        32,
+        36,
+        42,
+        48,
+        54,
+        60,
+        68,
+        76,
+        84,
+        92
+      ],
+      "lineHeights": [
+        1.42857,
+        1.5,
+        1.4,
+        1.28572,
+        1.25,
+        1.199,
+        1.19
+      ],
+      "headingWeight": "heading-01/02: 600; heading-03/04/05: 400; heading-06/07: 300",
+      "headingTracking": "0 (0.16px on the 14px heading-01)",
+      "notes": "@carbon/type scss/_scale.scss formula Yn = Yn-1 + (floor((n−2)/4)+1)×2 starting at 12px; I computed the first 17 steps from it. lineHeights listed are for heading-01…07 (14, 16, 20, 28, 32, 42, 54px) from scss/_styles.scss. Body-01 is 14px/1.42857. Large headings get lighter, not bolder."
+    },
+    {
+      "id": "govuk",
+      "source": "govuk-frontend",
+      "basePx": 19,
+      "sizesPx": [
+        16,
+        19,
+        24,
+        27,
+        36,
+        48,
+        80
+      ],
+      "lineHeights": [
+        "20px",
+        "25px",
+        "30px",
+        "30px",
+        "40px",
+        "50px",
+        "80px"
+      ],
+      "headingWeight": 700,
+      "headingTracking": null,
+      "notes": "dist/govuk/settings/_typography-responsive.scss, tablet-and-up values. Mobile values: 16/20, 19/25, 21/25, 21/25, 27/30, 32/35, 53/55. Roles from core/_typography.mixin.scss: body 19px (small 16, large 24); headings s/m/l/xl = 19, 24, 36, 48px, all bold; 27 and 80 are spare steps. Only two weights exist: 400 and 700 (settings/_typography-font.scss). The typeface itself (GDS Transport) is not open-licensed."
+    },
+    {
+      "id": "material-3",
+      "source": "material-web",
+      "basePx": 16,
+      "sizesPx": [
+        11,
+        12,
+        14,
+        16,
+        22,
+        24,
+        28,
+        32,
+        36,
+        45,
+        57
+      ],
+      "lineHeights": [
+        "16px",
+        "16px",
+        "20px",
+        "24px",
+        "28px",
+        "32px",
+        "36px",
+        "40px",
+        "44px",
+        "52px",
+        "64px"
+      ],
+      "headingWeight": 400,
+      "headingTracking": "0 for headline/display-small/medium; −0.25px on display-large",
+      "notes": "tokens/versions/v0_192/_md-sys-typescale.scss (rem converted to px). Roles: label 11/12/14 (weight 500), body 12/14/16 (400), title 14/16 (500) and 22 (400), headline 24/28/32 (400), display 36/45/57 (400). Small text gets positive tracking: body-large 0.5px, body-medium 0.25px, label-medium 0.5px."
+    },
+    {
+      "id": "mantine",
+      "source": "mantine",
+      "basePx": 16,
+      "sizesPx": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        26,
+        34
+      ],
+      "lineHeights": [
+        1.4,
+        1.45,
+        1.55,
+        1.6,
+        1.65,
+        1.4,
+        1.35,
+        1.3
+      ],
+      "headingWeight": 700,
+      "headingTracking": null,
+      "notes": "default-theme.mjs. Text sizes xs–xl 12–20px with line-heights 1.4–1.65 (they rise with size, unusual); headings h6…h1 = 14, 16, 18, 22, 26, 34px with line-heights 1.5, 1.5, 1.45, 1.4, 1.35, 1.3. The array merges the five text sizes with h3, h2, h1. \"medium\" weight is 600."
+    },
+    {
+      "id": "primer-product",
+      "source": "primer-primitives",
+      "basePx": 14,
+      "sizesPx": [
+        12,
+        14,
+        16,
+        20,
+        32,
+        40
+      ],
+      "lineHeights": [
+        1.625,
+        1.5,
+        1.5,
+        1.625,
+        1.5,
+        1.375
+      ],
+      "headingWeight": 600,
+      "headingTracking": null,
+      "notes": "dist/css/base/typography/typography.css and functional/typography/typography.css. Default UI text is 14px. Roles: caption 12/1.25, body small 12/1.625, body medium 14/1.5, body large 16/1.5, title small 16 (600), title medium 20/1.625 (600), title large 32/1.5 (600), display 40/1.375 (500). Only six sizes."
+    },
+    {
+      "id": "primer-brand-marketing",
+      "source": "primer-brand",
+      "basePx": 16,
+      "sizesPx": [
+        14,
+        16,
+        18,
+        20,
+        22,
+        28,
+        34,
+        40,
+        48,
+        56,
+        64
+      ],
+      "lineHeights": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.4,
+        1.35,
+        1.3,
+        1.2,
+        1.18,
+        1.1,
+        1.08
+      ],
+      "headingWeight": "425–480 (variable-font weights; 425 at the largest size, 480 at the smallest heading)",
+      "headingTracking": "−0.035em on the 64px step at ≥1012px; otherwise 0",
+      "notes": "@primer/brand-primitives functional/typography/typography-responsive.css, ≥1012px values of --brand-text-size-100…1000. Mobile sizes: 14, 16, 18, 18, 20, 22, 24, 28, 32, 36, 40. Heading tokens override line-height to 1.0–1.3. I assume headings draw from this same size ladder; the heading size tokens were not in the file I read."
+    },
+    {
+      "id": "tailwind-typography-prose",
+      "source": "tailwind-typography",
+      "basePx": 16,
+      "sizesPx": [
+        14,
+        16,
+        20,
+        24,
+        36
+      ],
+      "lineHeights": [
+        1.714,
+        1.75,
+        1.6,
+        1.333,
+        1.111
+      ],
+      "headingWeight": "h1 800, h2 700, h3 600",
+      "headingTracking": null,
+      "notes": "src/styles.js \"base\" variant: code 14, body 16/28, lead and h3 20/32, h2 24/32, h1 36/40. Measure max-width 65ch. Paragraph spacing 1.25em; h2 margin 2em above / 1em below. The \"lg\" variant: body 18/32, lead 22/32, h3 24/36, h2 30/40, h1 48/48."
+    },
+    {
+      "id": "starlight-docs",
+      "source": "starlight",
+      "basePx": 16,
+      "sizesPx": [
+        12,
+        13,
+        14,
+        16,
+        18,
+        20,
+        24,
+        29,
+        35,
+        42,
+        64
+      ],
+      "lineHeights": [
+        1.75,
+        1.2
+      ],
+      "headingWeight": null,
+      "headingTracking": null,
+      "notes": "@astrojs/starlight dist/style/props.css. Only two line-heights: 1.75 for body, 1.2 for headings. h1 = 35px, h2 = 29px, h3 = 24px, h4 = 20px, h5 = 18px; small body 13px. I did not read heading weights."
+    },
+    {
+      "id": "open-props",
+      "source": "open-props",
+      "basePx": 16,
+      "sizesPx": [
+        8,
+        12,
+        16,
+        17.6,
+        20,
+        24,
+        32,
+        40,
+        48,
+        56
+      ],
+      "lineHeights": [
+        0.95,
+        1.1,
+        1.25,
+        1.375,
+        1.5,
+        1.75,
+        2
+      ],
+      "headingWeight": 900,
+      "headingTracking": null,
+      "notes": "src/props.fonts.css --font-size-00…8 and --font-lineheight-00…5 (the line-heights are a separate ladder, not paired to sizes). extra/normalize.src.css gives headings weight 900, line-height 1.25, text-wrap: balance, and caps h1 at 20ch and h2 at 25ch wide. Fluid sizes exist, e.g. clamp(2rem, 9vw, 3.5rem)."
+    },
+    {
+      "id": "park-ui",
+      "source": "park-ui",
+      "basePx": 16,
+      "sizesPx": [
+        12,
+        14,
+        16,
+        18,
+        20,
+        24,
+        30,
+        36,
+        48,
+        60,
+        72
+      ],
+      "lineHeights": [
+        "18px",
+        "20px",
+        "24px",
+        "28px",
+        "30px",
+        "32px",
+        "38px",
+        "44px",
+        "60px",
+        "72px",
+        "92px"
+      ],
+      "headingWeight": null,
+      "headingTracking": "−0.02em from 36px up",
+      "notes": "@park-ui/panda-preset dist/index.js fontSizes xs…7xl and textStyles. Tracking switches on at the 4xl step."
+    },
+    {
+      "id": "astro-blog-major-third",
+      "source": "astro-blog",
+      "basePx": 20,
+      "sizesPx": [
+        20,
+        25,
+        31.26,
+        39.06,
+        48.82,
+        61.04
+      ],
+      "lineHeights": [
+        1.7,
+        1.2
+      ],
+      "headingWeight": null,
+      "headingTracking": null,
+      "notes": "withastro/astro examples/blog/src/styles/global.css: body 20px/1.7; h5…h1 = 1.25em, 1.563em, 1.953em, 2.441em, 3.052em (a 1.25 ratio; px computed by me); headings line-height 1.2. A large-type reading layout."
+    },
+    {
+      "id": "heroui",
+      "source": "heroui",
+      "basePx": 16,
+      "sizesPx": [
+        12,
+        14,
+        16,
+        18
+      ],
+      "lineHeights": [
+        "16px",
+        "20px",
+        "24px",
+        "28px"
+      ],
+      "headingWeight": null,
+      "headingTracking": null,
+      "notes": "@heroui/theme default-layout fontSize tiny/small/medium/large with matching lineHeight. Component text only; no heading scale."
+    }
+  ],
+  "fontPairings": [
+    {
+      "id": "shadcn-nova-geist",
+      "source": "shadcn-ui",
+      "heading": "Geist",
+      "body": "Geist",
+      "mono": "Geist Mono",
+      "mood": "precise, modern, developer-product",
+      "fontsAreOpenLicense": true,
+      "notes": "apps/v4/registry/config.ts preset \"nova\": font geist, fontHeading inherit; apps/v4/lib/fonts.ts pairs Geist with Geist Mono. Fontsource: @fontsource-variable/geist, @fontsource-variable/geist-mono (OFL-1.1)."
+    },
+    {
+      "id": "shadcn-vega-inter",
+      "source": "shadcn-ui",
+      "heading": "Inter",
+      "body": "Inter",
+      "mono": null,
+      "mood": "neutral, dependable, invisible",
+      "fontsAreOpenLicense": true,
+      "notes": "registry/config.ts presets \"vega\", \"mira\" and \"luma\" all use font inter with heading inherit. Inter is also the schema default."
+    },
+    {
+      "id": "shadcn-maia-figtree",
+      "source": "shadcn-ui",
+      "heading": "Figtree",
+      "body": "Figtree",
+      "mono": null,
+      "mood": "friendly and rounded without being childish",
+      "fontsAreOpenLicense": true,
+      "notes": "registry/config.ts preset \"maia\": font figtree (paired with the Hugeicons icon set)."
+    },
+    {
+      "id": "shadcn-lyra-jetbrains-mono",
+      "source": "shadcn-ui",
+      "heading": "JetBrains Mono",
+      "body": "JetBrains Mono",
+      "mono": "JetBrains Mono",
+      "mood": "technical, terminal-like; everything monospaced",
+      "fontsAreOpenLicense": true,
+      "notes": "registry/config.ts preset \"lyra\": font jetbrains-mono (paired with Phosphor icons)."
+    },
+    {
+      "id": "taxonomy-calsans-inter",
+      "source": "taxonomy",
+      "heading": "Cal Sans",
+      "body": "Inter",
+      "mono": null,
+      "mood": "confident startup; chunky geometric headlines over plain text",
+      "fontsAreOpenLicense": true,
+      "notes": "shadcn-ui/taxonomy app/layout.tsx: --font-heading = CalSans-SemiBold (local file), --font-sans = Inter. Cal Sans is OFL (@fontsource/cal-sans)."
+    },
+    {
+      "id": "carbon-plex",
+      "source": "carbon",
+      "heading": "IBM Plex Sans",
+      "body": "IBM Plex Sans",
+      "mono": "IBM Plex Mono",
+      "mood": "engineered, corporate, slightly quirky letterforms",
+      "fontsAreOpenLicense": true,
+      "notes": "@carbon/type scss/_font-family.scss. IBM Plex Serif and Plex Sans Condensed are also defined there."
+    },
+    {
+      "id": "primer-brand-mona",
+      "source": "primer-brand",
+      "heading": "Mona Sans",
+      "body": "Mona Sans",
+      "mono": null,
+      "mood": "contemporary tech brand; wide range of in-between weights",
+      "fontsAreOpenLicense": true,
+      "notes": "@primer/brand-primitives base/typography/typography.css: sansSerif \"Mona Sans\", alt \"Hubot Sans\", monospace \"Mona Sans Mono\". Mona Sans and Hubot Sans are on Fontsource (OFL-1.1); I did not find Mona Sans Mono there, so mono is null."
+    },
+    {
+      "id": "material-roboto",
+      "source": "material-web",
+      "heading": "Roboto",
+      "body": "Roboto",
+      "mono": null,
+      "mood": "familiar Android/Google neutrality",
+      "fontsAreOpenLicense": true,
+      "notes": "tokens/versions/v0_192/_md-ref-typeface.scss: brand and plain typeface both Roboto; weights 400, 500, 700."
+    },
+    {
+      "id": "astro-blog-atkinson",
+      "source": "astro-blog",
+      "heading": "Atkinson Hyperlegible",
+      "body": "Atkinson Hyperlegible",
+      "mono": null,
+      "mood": "warm, highly legible, accessible-first",
+      "fontsAreOpenLicense": true,
+      "notes": "withastro/astro examples/blog global.css uses var(--font-atkinson); astro.config.mjs registers it as a local font named \"Atkinson\" (atkinson-regular.woff / atkinson-bold.woff), which I take to be Atkinson Hyperlegible. @fontsource/atkinson-hyperlegible is OFL-1.1."
+    },
+    {
+      "id": "astropaper-google-sans-code",
+      "source": "astro-paper",
+      "heading": "Google Sans Code",
+      "body": "Google Sans Code",
+      "mono": "Google Sans Code",
+      "mood": "hacker-blog; soft monospace for everything",
+      "fontsAreOpenLicense": true,
+      "notes": "satnaing/astro-paper src/styles/theme.css: --font-app: var(--font-google-sans-code); astro.config.ts loads \"Google Sans Code\" from Google Fonts. @fontsource-variable/google-sans-code is OFL-1.1."
+    },
+    {
+      "id": "tweakcn-modern-minimal",
+      "source": "tweakcn",
+      "heading": "Inter",
+      "body": "Inter",
+      "mono": "JetBrains Mono",
+      "mood": "clean product UI with a bookish serif in reserve",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"modern-minimal\": font-sans Inter, sans-serif; font-serif Source Serif 4, serif; font-mono JetBrains Mono, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (Source Serif 4) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    },
+    {
+      "id": "tweakcn-violet-bloom",
+      "source": "tweakcn",
+      "heading": "Plus Jakarta Sans",
+      "body": "Plus Jakarta Sans",
+      "mono": "IBM Plex Mono",
+      "mood": "soft, contemporary, slightly tightened",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"violet-bloom\": font-sans Plus Jakarta Sans, sans-serif; font-serif Lora, serif; font-mono IBM Plex Mono, monospace; letter-spacing -0.025em. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (Lora) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    },
+    {
+      "id": "tweakcn-elegant-luxury",
+      "source": "tweakcn",
+      "heading": "Poppins",
+      "body": "Poppins",
+      "mono": "IBM Plex Mono",
+      "mood": "geometric sans with a classical serif in reserve; formal",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"elegant-luxury\": font-sans Poppins, sans-serif; font-serif Libre Baskerville, serif; font-mono IBM Plex Mono, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (Libre Baskerville) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    },
+    {
+      "id": "tweakcn-vintage-paper",
+      "source": "tweakcn",
+      "heading": "Libre Baskerville",
+      "body": "Libre Baskerville",
+      "mono": "IBM Plex Mono",
+      "mood": "bookish; a serif is used as the main text face",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"vintage-paper\": font-sans Libre Baskerville, serif; font-serif Lora, serif; font-mono IBM Plex Mono, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (Lora) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    },
+    {
+      "id": "tweakcn-kodama-grove",
+      "source": "tweakcn",
+      "heading": "Merriweather",
+      "body": "Merriweather",
+      "mono": "JetBrains Mono",
+      "mood": "storybook; sturdy serif for all text",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"kodama-grove\": font-sans Merriweather, serif; font-serif Source Serif 4, serif; font-mono JetBrains Mono, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (Source Serif 4) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    },
+    {
+      "id": "tweakcn-neo-brutalism",
+      "source": "tweakcn",
+      "heading": "DM Sans",
+      "body": "DM Sans",
+      "mono": "Space Mono",
+      "mood": "blunt and graphic",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"neo-brutalism\": font-sans DM Sans, sans-serif; font-serif n/a; font-mono Space Mono, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (none) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's. Preset has no usable serif slot."
+    },
+    {
+      "id": "tweakcn-retro-arcade",
+      "source": "tweakcn",
+      "heading": "Outfit",
+      "body": "Outfit",
+      "mono": "Space Mono",
+      "mood": "rounded-geometric and playful",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"retro-arcade\": font-sans Outfit, sans-serif; font-serif n/a; font-mono Space Mono, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (none) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    },
+    {
+      "id": "tweakcn-solar-dusk",
+      "source": "tweakcn",
+      "heading": "Oxanium",
+      "body": "Oxanium",
+      "mono": "Fira Code",
+      "mood": "squared sci-fi display face softened by a serif in reserve",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"solar-dusk\": font-sans Oxanium, sans-serif; font-serif Merriweather, serif; font-mono Fira Code, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (Merriweather) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    },
+    {
+      "id": "tweakcn-nature",
+      "source": "tweakcn",
+      "heading": "Montserrat",
+      "body": "Montserrat",
+      "mono": "Source Code Pro",
+      "mood": "wide friendly sans, traditional serif in reserve",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"nature\": font-sans Montserrat, sans-serif; font-serif Merriweather, serif; font-mono Source Code Pro, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (Merriweather) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    },
+    {
+      "id": "tweakcn-midnight-bloom",
+      "source": "tweakcn",
+      "heading": "Montserrat",
+      "body": "Montserrat",
+      "mono": "Source Code Pro",
+      "mood": "magazine-like when the high-contrast serif is used for titles",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"midnight-bloom\": font-sans Montserrat, sans-serif; font-serif Playfair Display, serif; font-mono Source Code Pro, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (Playfair Display) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    },
+    {
+      "id": "tweakcn-supabase-outfit",
+      "source": "tweakcn",
+      "heading": "Outfit",
+      "body": "Outfit",
+      "mono": null,
+      "mood": "clean geometric, slightly airy (letter-spacing 0.025em)",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"supabase\": font-sans Outfit, sans-serif; font-serif ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif; font-mono monospace; letter-spacing 0.025em. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (ui-serif) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's. Preset mono is the generic \"monospace\" keyword, so mono is null."
+    },
+    {
+      "id": "tweakcn-mono-geist-mono",
+      "source": "tweakcn",
+      "heading": "Geist Mono",
+      "body": "Geist Mono",
+      "mono": "Geist Mono",
+      "mood": "all-monospace minimalism",
+      "fontsAreOpenLicense": true,
+      "notes": "utils/theme-presets.ts \"mono\": font-sans Geist Mono, monospace; font-serif Geist Mono, monospace; font-mono Geist Mono, monospace. tweakcn applies font-sans everywhere, so heading = body here; the serif slot (Geist Mono) is available if headings should contrast — using it for headings would be the catalog's choice, not the source's."
+    }
+  ],
+  "motion": [
+    {
+      "id": "tailwind-default",
+      "source": "tailwindcss",
+      "character": "quick and uniform",
+      "durationsMs": {
+        "default": 150
+      },
+      "easings": {
+        "default": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "in": "cubic-bezier(0.4, 0, 1, 1)",
+        "out": "cubic-bezier(0, 0, 0.2, 1)",
+        "inOut": "cubic-bezier(0.4, 0, 0.2, 1)"
+      },
+      "notes": "theme.css --default-transition-duration 150ms and --ease-in/out/in-out. Panda preset uses the same curves with durations 50, 100, 150, 200, 300, 400, 500ms."
+    },
+    {
+      "id": "radix-themes",
+      "source": "radix-themes",
+      "character": "snappy, exits faster than entrances, tiny travel",
+      "durationsMs": {
+        "hoverOut": 120,
+        "hoverIn": 40,
+        "tooltip": 140,
+        "popoverOpen": 160,
+        "popoverClose": 100,
+        "dialogOpen": 200,
+        "dialogClose": 100,
+        "switchThumb": 140
+      },
+      "easings": {
+        "popups": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "switchThumb": "cubic-bezier(0.45, 0.05, 0.55, 0.95)"
+      },
+      "notes": "src/components/animations.css, _internal/base-dialog.css, card.css, tooltip.css, switch.css. Popups slide just 4px and scale from 0.97. Cards transition box-shadow over 120ms but switch to 40ms on hover/press so the response feels instant and the release relaxed."
+    },
+    {
+      "id": "carbon",
+      "source": "carbon",
+      "character": "two modes: efficient \"productive\" and dramatic \"expressive\"",
+      "durationsMs": {
+        "fast01": 70,
+        "fast02": 110,
+        "moderate01": 150,
+        "moderate02": 240,
+        "slow01": 400,
+        "slow02": 700
+      },
+      "easings": {
+        "standardProductive": "cubic-bezier(0.2, 0, 0.38, 0.9)",
+        "standardExpressive": "cubic-bezier(0.4, 0.14, 0.3, 1)",
+        "entranceProductive": "cubic-bezier(0, 0, 0.38, 0.9)",
+        "entranceExpressive": "cubic-bezier(0, 0, 0.3, 1)",
+        "exitProductive": "cubic-bezier(0.2, 0, 1, 0.9)",
+        "exitExpressive": "cubic-bezier(0.4, 0.14, 1, 1)"
+      },
+      "notes": "@carbon/motion tokens/motion.tokens.json. Buttons transition background, border and shadow in 70ms with the entrance-productive curve (@carbon/styles css/styles.min.css). Recipes in surfaces.tokens.json: accordion = moderate-01 with entrance-productive; tooltip/popover = fast-02 with entrance-expressive, scaling from 0.96."
+    },
+    {
+      "id": "material-3",
+      "source": "material-web",
+      "character": "longer, weighty, strongly decelerating",
+      "durationsMs": {
+        "short1": 50,
+        "short2": 100,
+        "short3": 150,
+        "short4": 200,
+        "medium1": 250,
+        "medium2": 300,
+        "medium3": 350,
+        "medium4": 400,
+        "long1": 450,
+        "long2": 500,
+        "long3": 550,
+        "long4": 600,
+        "extraLong1": 700,
+        "extraLong2": 800,
+        "extraLong3": 900,
+        "extraLong4": 1000
+      },
+      "easings": {
+        "standard": "cubic-bezier(0.2, 0, 0, 1)",
+        "standardAccelerate": "cubic-bezier(0.3, 0, 1, 1)",
+        "standardDecelerate": "cubic-bezier(0, 0, 0, 1)",
+        "emphasized": "cubic-bezier(0.2, 0, 0, 1)",
+        "emphasizedAccelerate": "cubic-bezier(0.3, 0, 0.8, 0.15)",
+        "emphasizedDecelerate": "cubic-bezier(0.05, 0.7, 0.1, 1)",
+        "legacy": "cubic-bezier(0.4, 0, 0.2, 1)"
+      },
+      "notes": "tokens/versions/v0_192/_md-sys-motion.scss. Park UI borrows three of these curves (default, emphasized-in, emphasized-out) with fade-in 250ms, slide-in 400ms and all exits 200ms."
+    },
+    {
+      "id": "primer",
+      "source": "primer-primitives",
+      "character": "named by purpose: hover, enter, exit, move",
+      "durationsMs": {
+        "micro": 100,
+        "short": 200,
+        "medium": 300,
+        "long": 500
+      },
+      "easings": {
+        "hover": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+        "enter": "cubic-bezier(0.3, 0.8, 0.6, 1)",
+        "exit": "cubic-bezier(0.7, 0.1, 0.75, 0.9)",
+        "move": "cubic-bezier(0.6, 0, 0.2, 1)",
+        "linear": "cubic-bezier(0, 0, 1, 1)"
+      },
+      "notes": "dist/css/base/motion/motion.css and functional/motion/motion.css. Composite tokens: enter = 300ms + enter curve; exit = 200ms + exit curve; hover = 100ms; state change = 200ms + move curve."
+    },
+    {
+      "id": "primer-brand",
+      "source": "primer-brand",
+      "character": "slow, gliding marketing reveals",
+      "durationsMs": {
+        "faster": 200,
+        "fast": 300,
+        "default": 600,
+        "extended": 700
+      },
+      "easings": {
+        "default": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "glide": "cubic-bezier(0.33, 1, 0.68, 1)"
+      },
+      "notes": "@primer/brand-primitives functional/animation/base.css. Reveal variants: slide 15px; scale-in from 0.96; scale-in-up from 0.96 with 24px travel."
+    },
+    {
+      "id": "open-props",
+      "source": "open-props",
+      "character": "a large menu: five strengths of every curve plus springs and bounces",
+      "durationsMs": {
+        "instant": 0,
+        "quick1": 80,
+        "quick2": 120,
+        "moderate1": 180,
+        "moderate2": 260,
+        "gentle1": 320,
+        "gentle2": 420
+      },
+      "easings": {
+        "ease3": "cubic-bezier(.25, 0, .3, 1)",
+        "easeOut3": "cubic-bezier(0, 0, .3, 1)",
+        "easeOut5": "cubic-bezier(0, 0, 0, 1)",
+        "easeInOut3": "cubic-bezier(.5, 0, .5, 1)",
+        "elasticOut3": "cubic-bezier(.5, 1.25, .75, 1.25)",
+        "squish3": "cubic-bezier(.5, -.5, .1, 1.5)",
+        "expoOut": "cubic-bezier(.19,1,.22,1)",
+        "quintOut": "cubic-bezier(.23,1,.32,1)",
+        "circOut": "cubic-bezier(.075,.82,.165,1)"
+      },
+      "notes": "Durations from durations.min.css; easings from src/props.easing.css (a selection — the file has ~90, including linear() spring and bounce curves --ease-spring-1…5 and --ease-bounce-1…5). normalize animates focus outline-offset over 145ms with --ease-2."
+    },
+    {
+      "id": "vaul-drawer",
+      "source": "vaul",
+      "character": "iOS-sheet feel: long and very smooth",
+      "durationsMs": {
+        "drawer": 500
+      },
+      "easings": {
+        "drawer": "cubic-bezier(0.32, 0.72, 0, 1)"
+      },
+      "notes": "vaul style.css and dist/index.mjs (TRANSITIONS.DURATION 0.5, EASE [0.32, 0.72, 0, 1]). Also VELOCITY_THRESHOLD 0.4, CLOSE_THRESHOLD 0.25, background BORDER_RADIUS 8, NESTED_DISPLACEMENT 16, WINDOW_TOP_OFFSET 26."
+    },
+    {
+      "id": "ionic-ios",
+      "source": "ionic",
+      "character": "the iOS navigation curve as implemented in open code",
+      "durationsMs": {
+        "pagePush": 540,
+        "modal": 500
+      },
+      "easings": {
+        "ios": "cubic-bezier(0.32,0.72,0,1)"
+      },
+      "notes": "ionic-framework core/src/utils/transition/ios.transition.ts (DURATION 540, EASING, outgoing page fades to 0.8 opacity) and components/modal/animations/ios.enter.ts (500ms; the page behind scales down and gets 10px top corners)."
+    },
+    {
+      "id": "sonner-toast",
+      "source": "sonner",
+      "character": "unhurried stack movement, quick fades",
+      "durationsMs": {
+        "stackMove": 400,
+        "fadeOut": 200,
+        "fadeIn": 300,
+        "removedBehindStack": 500,
+        "lifetime": 4000,
+        "unmountDelay": 200
+      },
+      "easings": {
+        "default": "ease"
+      },
+      "notes": "sonner dist/styles.css (\"transform 400ms, opacity 400ms, height 400ms, box-shadow 200ms\") and dist/index.mjs constants. Uses the plain CSS ease keyword."
+    },
+    {
+      "id": "cmdk-palette",
+      "source": "cmdk",
+      "character": "near-instant; only fills and height animate",
+      "durationsMs": {
+        "itemFill": 150,
+        "listHeight": 100,
+        "rootTransform": 100
+      },
+      "easings": {
+        "default": "ease"
+      },
+      "notes": "website/styles/cmdk/vercel.scss and raycast.scss. Selection highlight itself does not animate (transition-property: none until :active)."
+    },
+    {
+      "id": "baseui-demos",
+      "source": "base-ui",
+      "character": "minimal: 100ms pops, 150ms toggles",
+      "durationsMs": {
+        "popup": 100,
+        "switchAndBackdrop": 150,
+        "toastMove": 500,
+        "toastFade": 250
+      },
+      "easings": {
+        "popup": "ease-out",
+        "toggle": "ease",
+        "toast": "cubic-bezier(0.22, 1, 0.36, 1)"
+      },
+      "notes": "Base UI docs demo CSS modules (dialog, menu, tooltip, switch, toast). Popups scale from 0.98."
+    },
+    {
+      "id": "shadcn-new-york",
+      "source": "shadcn-ui",
+      "character": "short fades with a slight zoom",
+      "durationsMs": {
+        "dialog": 200,
+        "sidebar": 200
+      },
+      "easings": {
+        "sidebar": "linear"
+      },
+      "notes": "ui/dialog.tsx: duration-200 with fade-in-0 + zoom-in-95 (scale from 0.95). ui/sidebar.tsx: width transitions 200ms linear. Tooltips slide 8px (slide-in-from-*-2) and zoom from 0.95. Other transitions fall back to Tailwind's 150ms default."
+    },
+    {
+      "id": "heroui",
+      "source": "heroui",
+      "character": "springy overshoot, squish on press",
+      "durationsMs": {},
+      "easings": {
+        "softSpring": "cubic-bezier(0.155, 1.105, 0.295, 1.12)"
+      },
+      "notes": "@heroui/theme dist/chunk-AB35BAQT.mjs transition timing \"soft-spring\"; buttons scale to 0.97 while pressed (dist/chunk-BGEKJ4Q5.mjs). I did not read duration values."
+    },
+    {
+      "id": "emil-design-eng",
+      "source": "emil-skills",
+      "character": "strong ease-out, everything under 300ms",
+      "durationsMs": {
+        "buttonPress": [
+          100,
+          160
+        ],
+        "tooltip": [
+          125,
+          200
+        ],
+        "dropdown": [
+          150,
+          250
+        ],
+        "modalDrawer": [
+          200,
+          500
+        ],
+        "staggerStep": [
+          30,
+          80
+        ]
+      },
+      "easings": {
+        "out": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "inOut": "cubic-bezier(0.77, 0, 0.175, 1)",
+        "drawer": "cubic-bezier(0.32, 0.72, 0, 1)"
+      },
+      "notes": "emilkowalski/skills skills/emil-design-eng/SKILL.md. Each pair of numbers is a range (min, max) given as guidance, not a token. Also stated there: never ease-in for UI; press = scale(0.97) over 160ms ease-out; enter from scale(0.95) + opacity 0, never from scale(0); springs with bounce 0.1–0.3 at most."
+    },
+    {
+      "id": "jakub-make-interfaces-feel-better",
+      "source": "jakub-skill",
+      "character": "short blurred fades; no bounce at all",
+      "durationsMs": {
+        "enter": 300,
+        "exit": 150,
+        "staggerStep": 100,
+        "titleWordStagger": 80,
+        "iconSwap": 300,
+        "staggerItem": 400
+      },
+      "easings": {
+        "cssSpringApproximation": "cubic-bezier(0.2, 0, 0, 1)",
+        "enter": "ease-out"
+      },
+      "notes": "jakubkrehel/make-interfaces-feel-better skills/…/animations.md. Enter = opacity 0→1 + translateY 12px→0 + blur 4px→0; exit moves only −12px and is half as long. Icon swap: scale 0.25→1 with blur 4px, spring duration 0.3, bounce 0. Press scale 0.96."
+    },
+    {
+      "id": "apple-style-springs",
+      "source": "emil-skills",
+      "character": "critically damped springs; bounce only after a flick",
+      "durationsMs": {
+        "press": 100,
+        "reducedMotionFade": 200
+      },
+      "easings": {
+        "defaultSpring": "damping 1.0, response 0.3–0.4",
+        "momentumSpring": "damping ~0.8, response 0.3–0.4"
+      },
+      "notes": "emilkowalski/skills skills/apple-design/SKILL.md — a third-party write-up of Apple's approach, not Apple source. Press example: scale(0.97) with transform 100ms ease-out. ~10px movement threshold before a drag commits."
+    },
+    {
+      "id": "precedent-landing",
+      "source": "precedent",
+      "character": "gentle staggered fade-up on page load",
+      "durationsMs": {
+        "fadeUp": 500,
+        "tooltipSlide": 300
+      },
+      "easings": {
+        "tooltip": "cubic-bezier(0.16, 1, 0.3, 1)"
+      },
+      "notes": "steven-tey/precedent tailwind.config.js: fade-up moves 10px, reaching 0.6 opacity at 80% of the way; tooltip slide moves 6px."
+    },
+    {
+      "id": "magicui-blur-fade",
+      "source": "magicui",
+      "character": "blur-in reveal as content scrolls into view",
+      "durationsMs": {
+        "reveal": 400,
+        "baseDelay": 40
+      },
+      "easings": {
+        "reveal": "easeOut"
+      },
+      "notes": "magicuidesign/magicui apps/www/registry/magicui/blur-fade.tsx defaults: duration 0.4s, offset 6px, blur 6px, in-view margin −50px, fires once. Marquee default loop is 40s."
+    },
+    {
+      "id": "daisyui-button",
+      "source": "daisyui",
+      "character": "plain 200ms ease-out on colour and transform",
+      "durationsMs": {
+        "button": 200
+      },
+      "easings": {
+        "button": "cubic-bezier(0,0,.2,1)"
+      },
+      "notes": "daisyui components/button.css: transition-property color, background-color, border-color, box-shadow, transform."
+    }
+  ],
+  "spacingScales": [
+    {
+      "id": "tailwind",
+      "source": "tailwindcss",
+      "basePx": 4,
+      "steps": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        64,
+        80,
+        96
+      ],
+      "notes": "tailwindcss@4.3.5 theme.css defines only --spacing: 0.25rem; any multiple (including halves) is valid. The steps listed are illustrative multiples of that 4px base, not a list that exists in the source."
+    },
+    {
+      "id": "panda",
+      "source": "panda-preset",
+      "basePx": 4,
+      "steps": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        48,
+        56,
+        64,
+        80,
+        96,
+        112,
+        128
+      ],
+      "notes": "@pandacss/preset-panda dist/index.js spacing tokens 0–32 (rem converted to px); the file continues up to 24rem. This is the classic Tailwind-style named scale written out."
+    },
+    {
+      "id": "radix-themes",
+      "source": "radix-themes",
+      "basePx": 4,
+      "steps": [
+        4,
+        8,
+        12,
+        16,
+        24,
+        32,
+        40,
+        48,
+        64
+      ],
+      "notes": "src/styles/tokens/space.css, --space-1…9, each multiplied by --scaling (0.9, 0.95, 1, 1.05, 1.1). Only nine steps — deliberately short."
+    },
+    {
+      "id": "carbon",
+      "source": "carbon",
+      "basePx": 8,
+      "steps": [
+        2,
+        4,
+        8,
+        12,
+        16,
+        24,
+        32,
+        40,
+        48,
+        64,
+        80,
+        96,
+        160
+      ],
+      "notes": "@carbon/layout tokens/layout.tokens.json spacing-01…13 (rem converted to px). \"Mini unit\" is 8px (src/index.ts). Larger layout-01…07 set: 16, 24, 32, 48, 64, 96, 160."
+    },
+    {
+      "id": "govuk",
+      "source": "govuk-frontend",
+      "basePx": 5,
+      "steps": [
+        0,
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        40,
+        50,
+        60
+      ],
+      "notes": "dist/govuk/settings/_spacing.scss $govuk-spacing-points 0–9. A 5px base, not 4 or 8. Responsive scale shrinks steps 4–9 on mobile to 15, 15, 20, 25, 30, 40."
+    },
+    {
+      "id": "open-props",
+      "source": "open-props",
+      "basePx": 4,
+      "steps": [
+        4,
+        8,
+        16,
+        20,
+        24,
+        28,
+        32,
+        48,
+        64,
+        80,
+        120,
+        160,
+        240,
+        320,
+        480
+      ],
+      "notes": "src/props.sizes.css --size-px-1…15. Skips 12px; jumps get large quickly. Fluid variants exist, e.g. --size-fluid-3: clamp(1.5rem, 3vw, 2rem)."
+    },
+    {
+      "id": "mantine",
+      "source": "mantine",
+      "basePx": 16,
+      "steps": [
+        10,
+        12,
+        16,
+        20,
+        32
+      ],
+      "notes": "default-theme.mjs spacing xs–xl. Five named steps only."
+    },
+    {
+      "id": "primer",
+      "source": "primer-primitives",
+      "basePx": 4,
+      "steps": [
+        2,
+        4,
+        6,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        48,
+        64,
+        80,
+        96,
+        112,
+        128
+      ],
+      "notes": "dist/css/base/size/size.css --base-size-*. Stack gaps: condensed 8, normal 16, spacious 24. Control heights: small 28, medium 32, large 40."
+    }
+  ],
+  "layoutPatterns": [
+    {
+      "id": "shadcn-dashboard-inset",
+      "source": "shadcn-ui",
+      "name": "Dashboard with an inset content panel",
+      "description": "Left sidebar 18rem wide; top bar 3rem tall. The main area is a separate rounded panel (14px corners, small shadow) set 8px in from the edges on the sidebar-coloured background. Inside it: a vertical stack with 16px gaps (24px from tablet up); first a row of stat cards that goes 1 → 2 → 4 columns as the panel widens (16px gaps, 16–24px side padding), then a full-width chart, then a data table. Stat cards carry a very faint bottom-to-top tint of the accent colour (5%) and a large number in fixed-width digits.",
+      "goodFor": "admin panels, analytics, back-office tools",
+      "notes": "blocks/dashboard-01/page.tsx (--sidebar-width: calc(var(--spacing) * 72), --header-height: calc(var(--spacing) * 12)), components/section-cards.tsx, ui/sidebar.tsx SidebarInset (m-2, rounded-xl, shadow-sm). Column changes use container queries (@xl/main, @5xl/main), not viewport breakpoints."
+    },
+    {
+      "id": "shadcn-collapsible-sidebar",
+      "source": "shadcn-ui",
+      "name": "Collapsible app sidebar",
+      "description": "Sidebar 16rem wide that collapses to a 3rem icon-only rail; on phones it becomes an 18rem slide-over. Keyboard shortcut Cmd/Ctrl+B. Width animates over 200ms at constant speed. The header bar is 4rem tall and shrinks to 3rem when the sidebar is collapsed; it holds the toggle, a short vertical divider and a breadcrumb. Content area: 16px padding and 16px gaps, a row of three 16:9 tiles above one tall panel, all with 14px corners.",
+      "goodFor": "apps with many sections where screen width matters",
+      "notes": "ui/sidebar.tsx (SIDEBAR_WIDTH \"16rem\", SIDEBAR_WIDTH_ICON \"3rem\", SIDEBAR_WIDTH_MOBILE \"18rem\", shortcut \"b\", duration-200 ease-linear); blocks/sidebar-07/page.tsx."
+    },
+    {
+      "id": "shadcn-auth-centered",
+      "source": "shadcn-ui",
+      "name": "Centred sign-in column on a muted page",
+      "description": "Full-height page in the muted background colour with 24px padding (40px from tablet up). One centred column, max 24rem wide, 24px gaps: a small logo lockup (24px rounded square plus name) above a single form card.",
+      "goodFor": "sign-in, sign-up, single-question forms",
+      "notes": "blocks/login-03/page.tsx (min-h-svh, bg-muted, p-6 md:p-10, max-w-sm, gap-6)."
+    },
+    {
+      "id": "shadcn-auth-split-card",
+      "source": "shadcn-ui",
+      "name": "Two-panel sign-in card",
+      "description": "Same muted full-height page. One card, max 24rem on phones and 56rem from tablet up, with no inner padding and clipped corners, split into two equal columns: the form on one side (24px padding, 32px from tablet up; centred 24px bold title with a balanced subtitle; three equal social buttons in a row 16px apart) and an image filling the other side (hidden on phones).",
+      "goodFor": "sign-in pages that want some brand imagery",
+      "notes": "blocks/login-04/page.tsx and components/login-form.tsx (max-w-sm md:max-w-4xl, Card overflow-hidden p-0, grid md:grid-cols-2, image column \"relative hidden bg-muted md:block\")."
+    },
+    {
+      "id": "shadcn-dialog",
+      "source": "shadcn-ui",
+      "name": "Standard centred modal",
+      "description": "Centred box, max 32rem wide on larger screens and the viewport minus 2rem on phones; 24px padding, 16px gaps, 10px corners, a border plus a large shadow; page behind dimmed with black at 50%. Appears with a 200ms fade and a slight zoom from 95%.",
+      "goodFor": "confirmations, short forms",
+      "notes": "ui/dialog.tsx (max-w-[calc(100%-2rem)] sm:max-w-lg, p-6, gap-4, rounded-lg, shadow-lg, overlay bg-black/50, duration-200, zoom-in-95)."
+    },
+    {
+      "id": "taxonomy-centered-hero",
+      "source": "taxonomy",
+      "name": "Centred text hero with a pill announcement, then a feature grid",
+      "description": "Hero section with modest padding on phones (24px top, 32px bottom) growing to 128px top and bottom on desktop. Everything centred in a column max 64rem wide with 16px gaps: a small pill link (muted fill, 14px medium text), a headline stepping 30 → 48 → 60 → 72px, a muted paragraph max 42rem wide at 20px, and two large buttons side by side 16px apart. Next section: lightly tinted band with 32 → 96px vertical padding, a centred intro max 58rem wide, then cards in 1 → 2 → 3 columns (max 64rem, 16px gaps). Each card is a bordered box with 8px padding around an inner 180px-tall panel with 24px padding: 48px icon at the top, bold title and short text at the bottom.",
+      "goodFor": "product or project landing pages that lead with words",
+      "notes": "shadcn-ui/taxonomy app/(marketing)/page.tsx (lg:py-32, max-w-[64rem], max-w-[42rem], max-w-[58rem], rounded-2xl pill, sm:grid-cols-2 md:grid-cols-3)."
+    },
+    {
+      "id": "precedent-gradient-hero",
+      "source": "precedent",
+      "name": "Narrow hero with gradient headline and pill buttons",
+      "description": "Centred column only 36rem wide with 20px side padding. Top to bottom: a fully rounded badge link; a bold headline at 36px (72px with 80px line-height from tablet up), letter-spacing −0.02em, lines balanced, the text itself filled with a diagonal black-to-warm-grey gradient; a grey paragraph (20px from tablet up) 24px below; two fully rounded buttons 20px apart (solid black that flips to white on hover; white with a grey border and medium shadow). Then, 40px lower, a three-column card grid (one column on phones) up to 80rem wide with 20px gaps. The pieces fade up 10px over 0.5s with start delays of 0.15s, 0.25s and 0.3s.",
+      "goodFor": "launch pages, open-source project home pages",
+      "notes": "steven-tey/precedent app/page.tsx and tailwind.config.js. The display font in the source is a local SF Pro file, which is not open-licensed — substitute one."
+    },
+    {
+      "id": "primer-brand-hero",
+      "source": "primer-brand",
+      "name": "Tall marketing hero with light-weight display type",
+      "description": "Hero block with 128px padding above and below (96px in the narrow variant). Display text runs 40px on phones, 56px from 768px and 64px from 1012px, set at an unusually light heading weight (about 425–440 on a variable font) with line-height 1.0–1.1 and, at the largest size, letter-spacing −0.035em.",
+      "goodFor": "brand and marketing pages that should feel calm and expensive rather than loud",
+      "notes": "@primer/brand-primitives functional/components/hero/base.css and functional/typography/typography-responsive.css."
+    },
+    {
+      "id": "commerce-three-item-grid",
+      "source": "vercel-commerce",
+      "name": "One large tile with two smaller tiles beside it",
+      "description": "A 6-column, 2-row grid with 16px gaps and 16px side and bottom padding, up to 96rem wide and never taller than the viewport minus 200px. The first tile spans 4 columns and both rows; the other two span 2 columns and one row each, stacked on the right. Every tile is a square. On phones the three stack in one column.",
+      "goodFor": "shop home pages, featured work, any \"hero item plus two more\" opening",
+      "notes": "vercel/commerce components/grid/three-items.tsx (md:grid-cols-6 md:grid-rows-2, md:col-span-4 md:row-span-2, md:col-span-2 md:row-span-1, aspect-square, max-w-(--breakpoint-2xl), lg:max-h-[calc(100vh-200px)])."
+    },
+    {
+      "id": "commerce-thirds-navbar",
+      "source": "vercel-commerce",
+      "name": "Navigation bar in three equal thirds",
+      "description": "Bar with 16px padding (24px at the sides on desktop) divided into three equal thirds: left holds the logo, site name (uppercase, 14px medium) and text links 24px apart (14px, mid-grey, underlined on hover with a 4px gap); the middle holds a centred search box; the right holds the cart, aligned to the edge. On phones a menu button replaces the links.",
+      "goodFor": "shops and content sites where search deserves the centre",
+      "notes": "vercel/commerce components/layout/navbar/index.tsx (md:w-1/3 ×3, p-4 lg:px-6, gap-6 text-sm, underline-offset-4)."
+    },
+    {
+      "id": "commerce-carousel-strip",
+      "source": "vercel-commerce",
+      "name": "Auto-scrolling strip of square tiles",
+      "description": "A single row that scrolls sideways, 16px gaps. Each tile is square, 30% of the viewport height but never more than 275px; two-thirds of the screen wide on phones and one-third from tablet up, capped at 475px. The item list is repeated three times so the loop never runs out.",
+      "goodFor": "related items, galleries, logo rows",
+      "notes": "vercel/commerce components/carousel.tsx (h-[30vh] max-h-[275px] w-2/3 max-w-[475px] md:w-1/3, animate-carousel, products tripled)."
+    },
+    {
+      "id": "magicui-bento",
+      "source": "magicui",
+      "name": "Bento feature grid",
+      "description": "Three columns, every row exactly 22rem tall, 16px gaps; each card chooses how many columns it spans. Cards have 12px corners and the near-invisible ring-and-drop shadow, with a background illustration on top and an icon (48px), title (20px semibold) and short grey text at the bottom-left. On desktop hover the text block slides up 40px, the icon shrinks to 75% and a link row slides in from 40px below — all over 300ms.",
+      "goodFor": "feature overviews, portfolio highlights",
+      "notes": "magicuidesign/magicui apps/www/registry/magicui/bento-grid.tsx (auto-rows-[22rem] grid-cols-3 gap-4, rounded-xl, lg:group-hover:-translate-y-10, group-hover:scale-75, duration-300)."
+    },
+    {
+      "id": "magicui-marquee",
+      "source": "magicui",
+      "name": "Endless marquee row",
+      "description": "A row of items repeated four times end to end with 1rem gaps and 8px padding, sliding continuously on a 40-second loop. Options: pause while hovered, reverse direction, vertical.",
+      "goodFor": "logo walls, testimonial rows",
+      "notes": "apps/www/registry/magicui/marquee.tsx ([--duration:40s] [--gap:1rem], repeat = 4, group-hover:[animation-play-state:paused])."
+    },
+    {
+      "id": "cmdk-command-palette",
+      "source": "cmdk",
+      "name": "Command palette window",
+      "description": "Floating window max 640px wide with 12px corners, 8px inner padding, a 1px border and one large soft shadow. Search field at the top in 17px text with a line under it and 16px of space below. Results are rows 48px tall with 8px corners, 16px side padding, 4px between rows and 18px icons; the list is at most 400px tall and its height animates over 100ms as results change. Group headings are 12px grey. Keyboard hints sit at the right as 20px-high chips with 4px corners.",
+      "goodFor": "search-first navigation, power-user actions",
+      "notes": "pacocoursey/cmdk website/styles/cmdk/vercel.scss. Sibling files: linear.scss (8px corners, no outer padding, 18px input with 20px padding) and raycast.scss (rows 40px tall, 8px side padding)."
+    },
+    {
+      "id": "sonner-toast-stack",
+      "source": "sonner",
+      "name": "Stacked toast notifications",
+      "description": "Toasts 356px wide, 24px from the screen edge (16px on phones), with 8px corners, 16px padding and 13px text. Up to three show at once; when collapsed, each toast behind the front one is 5% smaller and shifted by one 14px gap so its edge peeks out; hovering expands the stack with 14px between toasts. Each disappears after 4 seconds.",
+      "goodFor": "non-blocking confirmations and errors",
+      "notes": "sonner dist/index.mjs (TOAST_WIDTH 356, GAP 14, VISIBLE_TOASTS_AMOUNT 3, VIEWPORT_OFFSET 24px, MOBILE_VIEWPORT_OFFSET 16px, TOAST_LIFETIME 4000) and dist/styles.css (--scale: var(--toasts-before) * 0.05 + 1). \"Hovering expands\" is how I read the data-expanded rules; I did not run it."
+    },
+    {
+      "id": "vaul-bottom-sheet",
+      "source": "vaul",
+      "name": "Bottom sheet over a shrunken page",
+      "description": "A panel slides up from the bottom over 500ms on the iOS-style curve. At its top is a small grab handle, 32×5px, fully rounded, 70% opacity, with an invisible 44px touch area. Optionally the page behind shrinks slightly (by 26px of its width), moves down 14px and gets 8px corners so it looks like a card underneath. Letting go closes the sheet if it has been dragged past 25% or flicked faster than 0.4.",
+      "goodFor": "phone-first menus, pickers and detail views",
+      "notes": "vaul style.css and dist/index.mjs (WINDOW_TOP_OFFSET 26, BORDER_RADIUS 8, CLOSE_THRESHOLD 0.25, VELOCITY_THRESHOLD 0.4, NESTED_DISPLACEMENT 16; getScale = (innerWidth − 26) / innerWidth)."
+    },
+    {
+      "id": "baseui-compact-dialog",
+      "source": "base-ui",
+      "name": "Small dialog set slightly above centre",
+      "description": "Dialog 24rem wide (never closer than 1.5rem to the screen edges), 16px padding, 16px gaps, nudged 2rem above true centre. Title 16px bold on a 24px line; description 14px on a 20px line in grey; buttons right-aligned 12px apart, each 32px tall. Backdrop is black at only 20% (50% in dark mode).",
+      "goodFor": "quiet confirmations in dense tools",
+      "notes": "mui/base-ui docs dialog demo CSS module (width 24rem, max-width calc(100% - 3rem), margin-top -2rem)."
+    },
+    {
+      "id": "starlight-docs-shell",
+      "source": "starlight",
+      "name": "Documentation shell",
+      "description": "Fixed top bar 3.5rem tall (12px vertical, 16px horizontal padding). Left navigation sidebar 18.75rem (300px) wide. Reading column 45rem (720px) wide with 16px side padding. On narrow screens a 3rem \"on this page\" bar sits under the top bar; it disappears from 72rem up. Body line-height 1.75, headings 1.2.",
+      "goodFor": "documentation, handbooks, knowledge bases",
+      "notes": "@astrojs/starlight dist/style/props.css (--sl-nav-height, --sl-sidebar-width, --sl-content-width, --sl-mobile-toc-height). I did not read the width of the desktop right-hand contents column."
+    },
+    {
+      "id": "astro-blog-single-column",
+      "source": "astro-blog",
+      "name": "Large-type single reading column",
+      "description": "One column 720px wide (never wider than the screen minus 2em) with 3em padding above and below. Body text is 20px at 1.7 line-height; headings step up by a 1.25 ratio to about 61px at 1.2 line-height. The page background is white with a soft blue-grey wash only across the top 600px.",
+      "goodFor": "personal blogs, essays, simple marketing pages",
+      "notes": "withastro/astro examples/blog/src/styles/global.css (main width 720px, max-width calc(100% - 2em), padding 3em 1em; background-size 100% 600px)."
+    },
+    {
+      "id": "astropaper-narrow-blog",
+      "source": "astro-paper",
+      "name": "Narrow blog with a wavy active link",
+      "description": "Content column 48rem wide, centred, with 16px side padding. The current page in the navigation is marked with a 2px wavy underline sitting 8px below the text. Keyboard focus is a 2px dashed outline in the accent colour. Jumping to an anchor leaves 1rem of space above it.",
+      "goodFor": "writing-focused sites that want a little personality",
+      "notes": "satnaing/astro-paper src/styles/global.css (max-w-3xl, \"underline decoration-wavy decoration-2 underline-offset-8\", outline-dashed, :target scroll-margin-block 1rem)."
+    },
+    {
+      "id": "tailwind-prose-article",
+      "source": "tailwind-typography",
+      "name": "Article body rhythm",
+      "description": "Text measure capped at 65 characters. 16px text on a 28px line; paragraphs 20px apart. Second-level headings get 48px above and 24px below; third-level 32px above and 12px below. Lists are indented 26px with 8px between items. Images and quotes get 32px margins; horizontal rules 48px. Quotes are italic with a 4px bar on the left. Links are underlined at weight 500.",
+      "goodFor": "articles, docs pages, long descriptions",
+      "notes": "@tailwindcss/typography src/styles.js \"base\" variant (px values are the numerators of its em() calls)."
+    },
+    {
+      "id": "govuk-fixed-page",
+      "source": "govuk-frontend",
+      "name": "Fixed-width page with fraction columns",
+      "description": "Page width 960px with 30px gutters. Columns come only in simple fractions: one-quarter, one-third, one-half, two-thirds, three-quarters, full. All spacing is in 5px steps and shrinks one or two steps on phones. Nothing is rounded.",
+      "goodFor": "forms, step-by-step services, anything where clarity beats style",
+      "notes": "govuk-frontend dist/govuk/settings/_measurements.scss ($govuk-page-width 960px, $govuk-gutter 30px, $govuk-grid-widths) and _spacing.scss."
+    },
+    {
+      "id": "carbon-column-grid",
+      "source": "carbon",
+      "name": "4 / 8 / 16-column grid",
+      "description": "Column count doubles with screen size: 4 columns from 320px with no side margin, 8 columns from 672px with 16px margins, 16 columns from 1056px and 1312px with 16px margins, and 16 columns from 1584px with 24px margins. Everything snaps to an 8px unit.",
+      "goodFor": "data-heavy products that need strict alignment",
+      "notes": "@carbon/layout src/index.ts breakpoints (sm 320, md 672, lg 1056, xlg 1312, max 1584) and miniUnit 8."
+    },
+    {
+      "id": "radix-containers-sections",
+      "source": "radix-themes",
+      "name": "Four container widths and four section spacings",
+      "description": "Content containers come in four fixed widths: 448, 688, 880 and 1136px. Page sections get 24, 40, 64 or 80px of space above and below. One global multiplier (90–110%) scales all of it together.",
+      "goodFor": "picking page width and vertical rhythm as two simple choices",
+      "notes": "@radix-ui/themes src/components/container.css (--container-1…4) and section.css; tokens/scaling.css."
+    },
+    {
+      "id": "open-props-readable-widths",
+      "source": "open-props",
+      "name": "Widths measured in characters",
+      "description": "Body text blocks are capped at 45 or 60 characters wide; headings are capped much narrower so they wrap into balanced lines: 20 characters for h1, 25 for h2, 35 for h3 and below.",
+      "goodFor": "text-led pages; keeps headlines from running in one long line",
+      "notes": "open-props src/props.sizes.css (--size-content-2 45ch, --size-content-3 60ch, --size-header-1/2/3 20/25/35ch) and src/extra/normalize.src.css."
+    }
+  ],
+  "microDetails": [
+    {
+      "id": "focus-ring-soft-3px",
+      "source": "shadcn-ui",
+      "rule": "Keyboard focus = the border turns the ring colour and a 3px ring appears in that colour at 50% opacity; the browser outline is removed.",
+      "css": "outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50  /* Tailwind classes, ui/button.tsx and ui/input.tsx */"
+    },
+    {
+      "id": "focus-outline-2px-offset",
+      "source": "radix-themes",
+      "rule": "Keyboard focus = 2px solid outline in step 8 of the accent scale, 2px away from solid buttons but inset by 1px on soft, outline and card surfaces.",
+      "css": "outline: 2px solid var(--focus-8); outline-offset: 2px; /* -1px on soft/outline/surface variants and cards */"
+    },
+    {
+      "id": "focus-outline-inset",
+      "source": "primer-primitives",
+      "rule": "Focus outline is 2px wide and drawn 2px inside the element so it never overflows its container.",
+      "css": "--focus-outline-width: 0.125rem; --focus-outline-offset: -0.125rem;"
+    },
+    {
+      "id": "focus-yellow-block",
+      "source": "govuk-frontend",
+      "rule": "Focused links get a solid yellow background, black text and a 4px black bar underneath — no ring at all.",
+      "css": "outline: 3px solid transparent; color: #0b0c0c; background-color: #ffdd00; box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;",
+      "notes": "helpers/_focused.scss govuk-focused-text with functional colours resolved (focus = yellow #ffdd00, focus-text = black #0b0c0c)."
+    },
+    {
+      "id": "focus-input-double-border",
+      "source": "govuk-frontend",
+      "rule": "Focused inputs get a 3px yellow outline flush to the edge and their 2px black border doubles to 4px via an inset shadow, so the box does not change size.",
+      "css": "outline: 3px solid #ffdd00; outline-offset: 0; box-shadow: inset 0 0 0 2px #0b0c0c;"
+    },
+    {
+      "id": "focus-double-inset-line",
+      "source": "carbon",
+      "rule": "A focused primary button gets a 1px line in the focus colour at its very edge and a 1px line in the page background just inside it — a ring drawn entirely inside the button, so nothing shifts or overflows.",
+      "css": "box-shadow: inset 0 0 0 1px var(--cds-focus, #0f62fe), inset 0 0 0 2px var(--cds-background, #fff);",
+      "notes": "@carbon/styles@1.119.0 css/styles.min.css .cds--btn--primary:focus (the --cds-button-focus-color wrapper variable omitted)."
+    },
+    {
+      "id": "focus-ring-material",
+      "source": "material-web",
+      "rule": "Focus ring is 3px wide, sits 2px outside the element and animates in from 8px wide.",
+      "css": null,
+      "notes": "tokens/_md-comp-focus-ring.scss: width 3px, outward-offset 2px, active-width 8px. I did not read the duration value."
+    },
+    {
+      "id": "focus-offset-animates",
+      "source": "open-props",
+      "rule": "The focus outline starts tight and eases out to 5px away from the element over 145ms, drawing the eye to where focus landed.",
+      "css": ":where(:not(:active):focus-visible) { outline-offset: 5px; } :where(:focus-visible) { transition: outline-offset 145ms var(--ease-2); }"
+    },
+    {
+      "id": "focus-dashed",
+      "source": "astro-paper",
+      "rule": "Focus is shown with a 2px dashed outline in the accent colour, 1px away from the element.",
+      "css": "outline-accent outline-offset-1 focus-visible:outline-2 focus-visible:outline-dashed  /* Tailwind classes */"
+    },
+    {
+      "id": "press-scale-097",
+      "source": "emil-skills",
+      "rule": "Buttons shrink to 97% while pressed, over 160ms with ease-out.",
+      "css": "button { transition: transform 160ms ease-out; } button:active { transform: scale(0.97); }",
+      "notes": "HeroUI does the same: data-[pressed=true]:scale-[0.97] (@heroui/theme)."
+    },
+    {
+      "id": "press-scale-096",
+      "source": "jakub-skill",
+      "rule": "Buttons shrink to 96% on press; never go below 95% because it looks exaggerated.",
+      "css": "button:active { scale: 0.96; }",
+      "notes": "Disagrees slightly with the 0.97 used by Emil Kowalski and HeroUI."
+    },
+    {
+      "id": "press-filter",
+      "source": "radix-themes",
+      "rule": "The \"classic\" button darkens on press with a filter instead of changing colour: 92% brightness and 110% saturation in light mode, 108% brightness in dark mode.",
+      "css": "filter: brightness(0.92) saturate(1.1); /* dark: brightness(1.08) */"
+    },
+    {
+      "id": "press-drop-2px",
+      "source": "govuk-frontend",
+      "rule": "Buttons have a solid 2px bottom edge and move down 2px when pressed, like a physical key.",
+      "css": "box-shadow: 0 2px 0 <darker button colour>; /* :active */ top: 2px;"
+    },
+    {
+      "id": "hover-opacity-90",
+      "source": "shadcn-ui",
+      "rule": "Hover on a filled button is the same colour at 90% opacity (secondary buttons 80%) rather than a separate hover colour.",
+      "css": "hover:bg-primary/90  /* secondary: hover:bg-secondary/80 */"
+    },
+    {
+      "id": "hover-fast-in-slow-out",
+      "source": "radix-themes",
+      "rule": "Hover effects switch on in 40ms and fade back over 120ms, so the interface feels instant but never flickers.",
+      "css": ".card { transition: box-shadow 120ms; } .card:hover { transition-duration: 40ms; }"
+    },
+    {
+      "id": "hover-only-with-mouse",
+      "source": "radix-themes",
+      "rule": "Hover styles are wrapped so they apply only on devices that can really hover; touch screens never get stuck hover states.",
+      "css": "@media (hover: hover) { .button:hover { background-color: var(--accent-10); } }",
+      "notes": "Base UI demos do the same."
+    },
+    {
+      "id": "state-layer-opacities",
+      "source": "material-web",
+      "rule": "Interaction states are a translucent overlay of the content colour: 8% on hover, 12% on focus, 12% when pressed, 16% while dragged.",
+      "css": null,
+      "notes": "tokens/versions/v0_192/_md-sys-state.scss."
+    },
+    {
+      "id": "cursor-default-on-buttons",
+      "source": "radix-themes",
+      "rule": "Buttons, checkboxes, switches and menu items keep the normal arrow cursor; only links get the pointing hand.",
+      "css": "--cursor-button: default; --cursor-link: pointer; --cursor-disabled: not-allowed;",
+      "notes": "Mantine's default theme agrees (cursorType: \"default\"). AstroPaper does the opposite and sets cursor: pointer on every enabled button."
+    },
+    {
+      "id": "disabled-half-opacity",
+      "source": "shadcn-ui",
+      "rule": "Disabled controls are shown at 50% opacity and ignore the pointer.",
+      "css": "disabled:pointer-events-none disabled:opacity-50",
+      "notes": "HeroUI also uses 0.5 (disabledOpacity). Radix Themes instead uses fixed greys: text gray-a8 on a gray-a3 fill."
+    },
+    {
+      "id": "tracking-tightens-with-size",
+      "source": "radix-themes",
+      "rule": "Letter-spacing is set per size: +0.0025em at 12px, 0 at 14–16px, then steadily tighter to −0.01em at 35px and −0.025em at 60px.",
+      "css": "--letter-spacing-1: 0.0025em; --letter-spacing-3: 0em; --letter-spacing-6: -0.00625em; --letter-spacing-8: -0.01em; --letter-spacing-9: -0.025em;"
+    },
+    {
+      "id": "tracking-display-only",
+      "source": "park-ui",
+      "rule": "Text from 36px upward gets −0.02em letter-spacing; smaller text is left alone.",
+      "css": null,
+      "notes": "@park-ui/panda-preset textStyles 4xl–7xl. Primer Brand goes further at 64px: −0.035em. Precedent's hero uses −0.02em. Material 3 does the reverse for small text, adding +0.5px at 12px labels."
+    },
+    {
+      "id": "big-headings-get-lighter",
+      "source": "carbon",
+      "rule": "Heading weight drops as size rises: 600 at 14–16px, 400 at 20–32px, 300 at 42px and above.",
+      "css": null,
+      "notes": "@carbon/type scss/_styles.scss heading-01…07. Primer Brand does similar with variable weights (480 down to 425). Tailwind Typography does the opposite (h3 600, h2 700, h1 800)."
+    },
+    {
+      "id": "balanced-headings",
+      "source": "open-props",
+      "rule": "Headings wrap into lines of even length; body text avoids leaving a single word on the last line.",
+      "css": "h1, h2, h3 { text-wrap: balance; } p { text-wrap: pretty; }",
+      "notes": "balance on headings: open-props normalize.src.css, Precedent hero, shadcn tooltip/login text. \"pretty\" for body is from Jakub Krehel's typography.md."
+    },
+    {
+      "id": "antialiased-text",
+      "source": "radix-themes",
+      "rule": "Text is rendered with grayscale antialiasing so it looks thinner and crisper on macOS.",
+      "css": "-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;",
+      "notes": "Also on Taxonomy's body (antialiased), Mantine (fontSmoothing: true) and recommended in Jakub Krehel's skill."
+    },
+    {
+      "id": "tabular-numbers",
+      "source": "shadcn-ui",
+      "rule": "Numbers that change or sit in columns use fixed-width digits so nothing jiggles.",
+      "css": "font-variant-numeric: tabular-nums;",
+      "notes": "shadcn dashboard stat cards (tabular-nums); a MUST in vercel-labs/web-interface-guidelines AGENTS.md; also in Jakub Krehel's skill."
+    },
+    {
+      "id": "inline-code-sizing",
+      "source": "radix-themes",
+      "rule": "Inline code is set at 95% of the surrounding text size with −0.007em letter-spacing and padding of 0.1em top and bottom, 0.25em at the sides.",
+      "css": "--code-font-size-adjust: 0.95; --code-letter-spacing: -0.007em; --code-padding-top: 0.1em; --code-padding-left: 0.25em;"
+    },
+    {
+      "id": "serif-italic-emphasis",
+      "source": "radix-themes",
+      "rule": "Emphasis and quotes switch to an italic serif, enlarged to 118% and tightened by −0.025em so it sits evenly beside the sans text.",
+      "css": "--em-font-family: 'Times New Roman', 'Times', serif; --em-font-size-adjust: 1.18; --em-font-style: italic; --em-letter-spacing: -0.025em;"
+    },
+    {
+      "id": "mobile-inputs-16px",
+      "source": "shadcn-ui",
+      "rule": "Form fields use 16px text on phones (so iOS does not zoom in) and 14px on larger screens.",
+      "css": "text-base md:text-sm",
+      "notes": "ui/input.tsx. Same rule as a MUST in web-interface-guidelines; the Astro blog example also sets inputs to 16px."
+    },
+    {
+      "id": "prose-measure-65ch",
+      "source": "tailwind-typography",
+      "rule": "Long-form text is never wider than 65 characters; links are underlined at weight 500, bold text is 600, and block quotes are italic with a 4px bar.",
+      "css": "max-width: 65ch;",
+      "notes": "src/styles.js DEFAULT block."
+    },
+    {
+      "id": "link-underline-thickens",
+      "source": "govuk-frontend",
+      "rule": "Link underlines are thin (1px) and sit slightly below the text (offset 0.1578em); on hover the underline thickens to 3px.",
+      "css": "text-decoration-thickness: max(1px, .0625rem); text-underline-offset: 0.1578em; /* hover */ text-decoration-thickness: max(3px, .1875rem, .12em);",
+      "notes": "settings/_links.scss variables; the property names are my mapping of those variables."
+    },
+    {
+      "id": "underline-offset-4",
+      "source": "shadcn-ui",
+      "rule": "Text links show no underline until hover, and the underline then sits 4px below the text.",
+      "css": "text-primary underline-offset-4 hover:underline",
+      "notes": "ui/button.tsx \"link\" variant; Vercel Commerce nav links use the same offset."
+    },
+    {
+      "id": "heading-line-heights-separate",
+      "source": "radix-themes",
+      "rule": "Headings use tighter line-heights than body text of the same size: 18, 22, 24, 26px for 14, 16, 18, 20px headings versus 20, 24, 26, 28px for body.",
+      "css": "--heading-line-height-3: calc(22px * var(--scaling)); --line-height-3: calc(24px * var(--scaling));"
+    },
+    {
+      "id": "dark-borders-white-alpha",
+      "source": "shadcn-ui",
+      "rule": "In dark mode, borders are white at 10% opacity and input borders white at 15%, instead of fixed greys, so they work on any dark surface.",
+      "css": "--border: oklch(1 0 0 / 10%); --input: oklch(1 0 0 / 15%);",
+      "notes": "apps/v4/registry/themes.ts dark blocks. HeroUI uses 15% both ways: rgba(17,17,17,0.15) light, rgba(255,255,255,0.15) dark."
+    },
+    {
+      "id": "muted-border-is-alpha",
+      "source": "primer-primitives",
+      "rule": "The \"muted\" border is the default border colour at 70% opacity, not a second colour.",
+      "css": "--borderColor-default: #d1d9e0; --borderColor-muted: #d1d9e0b3;"
+    },
+    {
+      "id": "shadow-ring-first-layer",
+      "source": "radix-themes",
+      "rule": "Every elevation level starts with a 1px ring (spread-only shadow) in a translucent grey, then adds blur layers; the ring keeps edges crisp on any background.",
+      "css": "box-shadow: 0 0 0 1px var(--gray-a3), 0 2px 3px -2px var(--gray-a3), 0 3px 12px -4px var(--black-a2), 0 4px 16px -8px var(--black-a2);",
+      "notes": "Recurs in Primer (0 0 0 1px …), Park UI (0 0 1px gray.a7), HeroUI (0 0 1px rgb(0 0 0 / 0.3)), Magic UI and Jakub Krehel's \"shadow as border\"."
+    },
+    {
+      "id": "shadow-instead-of-border",
+      "source": "primer-primitives",
+      "rule": "A 1px inset shadow is used in place of a border when the border may appear or disappear, so the element never changes size.",
+      "css": "--boxShadow-thin: inset 0 0 0 0.0625rem; --boxShadow-thick: inset 0 0 0 0.125rem;",
+      "notes": "dist/css/functional/size/border.css, with var(--borderWidth-thin/thick) resolved to their rem values."
+    },
+    {
+      "id": "dark-mode-single-ring",
+      "source": "jakub-skill",
+      "rule": "In dark mode, drop the layered shadows and keep only a 1px white ring at 8% (13% on hover) — blur shadows are invisible on dark backgrounds.",
+      "css": "--shadow-border: 0 0 0 1px oklch(1 0 0 / 0.08); --shadow-border-hover: 0 0 0 1px oklch(1 0 0 / 0.13);",
+      "notes": "HeroUI and Radix Themes disagree: they keep drop shadows in dark mode and make them several times stronger."
+    },
+    {
+      "id": "half-pixel-highlight",
+      "source": "open-props",
+      "rule": "Inset surfaces get a half-pixel light line on the bottom edge and a half-pixel dark line on the top edge to fake a bevel.",
+      "css": "--inner-shadow-highlight: inset 0 -.5px 0 0 #fff, inset 0 .5px 0 0 #0001;"
+    },
+    {
+      "id": "bevelled-classic-button",
+      "source": "radix-themes",
+      "rule": "The \"classic\" button is built from five inset shadows (dark hairline, 2px dark base, accent hairline, two white highlights at the top) over a subtle vertical gradient — a soft 3D look without images.",
+      "css": "box-shadow: inset 0 0 0 1px var(--gray-a4), inset 0 -2px 1px var(--gray-a3), inset 0 0 0 1px var(--accent-9), inset 0 4px 2px -2px var(--white-a9), inset 0 2px 1px -1px var(--white-a9);",
+      "notes": "components/_internal/base-button.css, light-mode tokens substituted into the classic variant rule."
+    },
+    {
+      "id": "concentric-radius",
+      "source": "jakub-skill",
+      "rule": "When a rounded box sits inside another, outer radius = inner radius + the padding between them (e.g. 12px inner with 8px padding → 20px outer). Beyond about 24px of padding, treat them as unrelated.",
+      "css": ".card { border-radius: 20px; padding: 8px; } .card-inner { border-radius: 12px; }",
+      "notes": "surfaces.md. web-interface-guidelines says the same (\"nested radii: child ≤ parent; concentric\")."
+    },
+    {
+      "id": "image-hairline",
+      "source": "jakub-skill",
+      "rule": "Images get a 1px outline of pure black at 10% (pure white at 10% in dark mode) so their edges stay defined against any background.",
+      "css": "img { outline: 1px solid oklch(0 0 0 / 0.1); outline-offset: -1px; }",
+      "notes": "surfaces.md, verbatim (the −1px offset keeps the outline inside the image so it adds nothing to layout). The file insists on pure black/white, never a tinted near-black."
+    },
+    {
+      "id": "translucent-panel",
+      "source": "radix-themes",
+      "rule": "Floating panels can be translucent: white at 70% with a very heavy 64px backdrop blur; form-control surfaces (text fields, selects, checkboxes) use white at 85%.",
+      "css": "--color-panel-translucent: rgba(255, 255, 255, 0.7); --backdrop-filter-panel: blur(64px); --color-surface: rgba(255, 255, 255, 0.85);"
+    },
+    {
+      "id": "glass-toolbar",
+      "source": "emil-skills",
+      "rule": "Apple-style glass bar: white at 60%, 20px backdrop blur with saturation boosted to 180%, and a brighter 1px top edge (white at 40%) as if catching light.",
+      "css": ".toolbar { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px) saturate(180%); border-top: 1px solid rgba(255, 255, 255, 0.4); }",
+      "notes": "skills/apple-design/SKILL.md — a third-party description of the look, not Apple code."
+    },
+    {
+      "id": "overlay-dimming",
+      "source": "shadcn-ui",
+      "rule": "The page behind a modal is dimmed with black at 50%.",
+      "css": "bg-black/50",
+      "notes": "The systems disagree: Radix Themes uses 40% light / 60% dark (--color-overlay: black-a6 / black-a8); Base UI demos use 20% light / 50% dark."
+    },
+    {
+      "id": "accent-wash-on-cards",
+      "source": "shadcn-ui",
+      "rule": "Stat cards carry a bottom-to-top gradient from the accent colour at 5% into the plain card colour — just enough to stop them looking flat.",
+      "css": "bg-gradient-to-t from-primary/5 to-card shadow-xs",
+      "notes": "blocks/dashboard-01/components/section-cards.tsx."
+    },
+    {
+      "id": "selection-colour",
+      "source": "radix-themes",
+      "rule": "Selected text is highlighted with step 5 of the translucent accent scale rather than the browser blue.",
+      "css": ".radix-themes ::selection { background-color: var(--focus-a5); }"
+    },
+    {
+      "id": "depth-and-noise-switches",
+      "source": "daisyui",
+      "rule": "Each theme has two on/off switches: \"depth\" adds a short colour-tinted shadow and a 0.5px text shadow to buttons; \"noise\" adds a grain texture. Flat themes set both to 0.",
+      "css": "--depth: 1; --noise: 0;",
+      "notes": "theme/*.css and components/button.css. Of the 25 themes read, depth is on in light, dark, cupcake, silk, caramellatte, luxury, abyss and autumn; noise is on only in caramellatte."
+    },
+    {
+      "id": "tinted-shadows",
+      "source": "astro-blog",
+      "rule": "Shadows are tinted toward the page's own hue (blue-grey 96,115,159) instead of pure black.",
+      "css": "box-shadow: 0 2px 6px rgba(96, 115, 159, 25%), 0 8px 24px rgba(96, 115, 159, 33%), 0 16px 32px rgba(96, 115, 159, 33%);",
+      "notes": "Same idea: Primer light shadows use #25292e / #1f2328, tweakcn Elegant Luxury uses hsl(0 63% 18%), daisyUI tints with the button colour. web-interface-guidelines: \"tint borders/shadows/text toward bg hue\"."
+    },
+    {
+      "id": "control-heights",
+      "source": "shadcn-ui",
+      "rule": "Button heights: 24px (xs), 32px (sm), 36px (default), 40px (lg). Inputs are 36px to match the default button.",
+      "css": "h-6 | h-8 | h-9 | h-10",
+      "notes": "ui/button.tsx, ui/input.tsx. Others: Radix Themes 24/32/40/48px; Primer 28/32/40px; Carbon 24/32/40/48/64/80px; Material 3 filled button 40px; Base UI demo buttons 32px."
+    },
+    {
+      "id": "button-padding-scale",
+      "source": "radix-themes",
+      "rule": "Button side padding grows with height: 8px at 24px tall, 12px at 32px, 16px at 40px, 24px at 48px; corner radius steps up at each size too (3, 4, 6, 8px).",
+      "css": null,
+      "notes": "components/button.css and _internal/base-button.css. Button text is weight 500."
+    },
+    {
+      "id": "card-padding-equals-gap",
+      "source": "shadcn-ui",
+      "rule": "Cards use one number for everything: 24px padding, 24px between sections, 14px corners, 1px border and the smallest shadow.",
+      "css": "flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm",
+      "notes": "ui/card.tsx; header/content add px-6."
+    },
+    {
+      "id": "tooltip-inverted",
+      "source": "shadcn-ui",
+      "rule": "Tooltips invert the page colours (text colour as background), with 12px text and 12px × 6px padding.",
+      "css": "rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background",
+      "notes": "ui/tooltip.tsx."
+    },
+    {
+      "id": "menu-shell",
+      "source": "shadcn-ui",
+      "rule": "Dropdown menus are at least 8rem wide with 4px inner padding, the control radius, a border and a medium shadow.",
+      "css": "min-w-[8rem] rounded-md border bg-popover p-1 shadow-md",
+      "notes": "ui/dropdown-menu.tsx."
+    },
+    {
+      "id": "hit-area-44",
+      "source": "vaul",
+      "rule": "A control that looks small (a 32×5px drag handle) still gets an invisible touch target of at least 44×44px.",
+      "css": "width: max(100%, 2.75rem); height: max(100%, 2.75rem); position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);",
+      "notes": "vaul style.css [data-vaul-handle-hitarea]. web-interface-guidelines: hit target ≥24px, ≥44px on mobile. Jakub Krehel: 44px touch, at least 40px on dense desktop."
+    },
+    {
+      "id": "kbd-chip",
+      "source": "cmdk",
+      "rule": "Keyboard-shortcut hints are 20px-high chips with 4px corners, 4px padding and 12px uppercase text on a light grey fill.",
+      "css": "kbd { font-size: 12px; min-width: 20px; padding: 4px; height: 20px; border-radius: 4px; text-transform: uppercase; }",
+      "notes": "website/styles/cmdk/vercel.scss."
+    },
+    {
+      "id": "elevation-six-levels",
+      "source": "material-web",
+      "rule": "Depth is limited to six fixed levels: 0, 1, 3, 6, 8 and 12 (density-independent pixels).",
+      "css": null,
+      "notes": "tokens/versions/v0_192/_md-sys-elevation.scss."
+    },
+    {
+      "id": "global-scaling-knob",
+      "source": "radix-themes",
+      "rule": "One multiplier (0.9, 0.95, 1, 1.05 or 1.1) scales every space, font size, line-height and radius together, giving compact or roomy versions of the same design.",
+      "css": "[data-scaling='95%'] { --scaling: 0.95; } --space-4: calc(16px * var(--scaling));"
+    },
+    {
+      "id": "radius-from-one-variable",
+      "source": "shadcn-ui",
+      "rule": "All corner sizes derive from one base radius by fixed multipliers: ×0.6, ×0.8, ×1, ×1.4, ×1.8, ×2.2, ×2.6.",
+      "css": "--radius: 0.625rem; --radius-sm: calc(var(--radius) * 0.6); --radius-md: calc(var(--radius) * 0.8); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) * 1.4);",
+      "notes": "apps/v4/app/globals.css."
+    },
+    {
+      "id": "theme-level-tracking-and-spacing",
+      "source": "tweakcn",
+      "rule": "A theme can carry its own global letter-spacing and spacing unit, e.g. −0.025em with a 0.27rem unit (Violet Bloom) or +0.025em (Supabase); the default is 0em and 0.25rem.",
+      "css": "--letter-spacing: -0.025em; --spacing: 0.27rem;",
+      "notes": "utils/theme-presets.ts; defaults in config/theme.ts."
+    },
+    {
+      "id": "enter-from-almost-full-size",
+      "source": "radix-themes",
+      "rule": "Popups appear from 97% scale with a 4px slide, never from zero.",
+      "css": "@keyframes rt-slide-from-top { from { transform: translateY(4px) scale(0.97); } to { transform: translateY(0) scale(1); } }",
+      "notes": "Same idea elsewhere: shadcn zoom-in-95 (0.95), Base UI demos 0.98, Carbon popover 0.96, Primer Brand 0.96. Emil Kowalski: start at 0.9 or higher (0.95 in his example); Jakub Krehel uses 0.25 but only for small icons swapping."
+    },
+    {
+      "id": "exit-faster-than-enter",
+      "source": "radix-themes",
+      "rule": "Closing is quicker than opening: popovers 160ms in / 100ms out, dialogs 200ms in / 100ms out.",
+      "css": null,
+      "notes": "components/animations.css, _internal/base-dialog.css. Primer: enter 300ms / exit 200ms. Park UI: in 250–400ms / out 200ms. Jakub Krehel: enter 300ms / exit 150ms."
+    },
+    {
+      "id": "blur-fade-enter",
+      "source": "jakub-skill",
+      "rule": "Content enters by fading in while moving up 12px and sharpening from a 4px blur; it leaves by moving only 12px and taking half the time.",
+      "css": ".item { opacity: 0; transform: translateY(12px); filter: blur(4px); animation: fadeInUp 400ms ease-out forwards; }",
+      "notes": "animations.md. Magic UI blur-fade is the same idea with 6px offset, 6px blur, 0.4s."
+    },
+    {
+      "id": "stagger-delay",
+      "source": "emil-skills",
+      "rule": "When several items appear in sequence, delay each by 30–80ms; longer makes the page feel slow.",
+      "css": ".item:nth-child(2) { animation-delay: 50ms; } .item:nth-child(3) { animation-delay: 100ms; }",
+      "notes": "Sources disagree: Jakub Krehel suggests about 100ms between groups (80ms between words of a title); Precedent's hero uses delays of 0.15s, 0.25s and 0.3s."
+    },
+    {
+      "id": "no-transition-all",
+      "source": "web-interface-guidelines",
+      "rule": "Never write \"transition: all\"; list the properties, and animate only transform and opacity, never width, height, top or left.",
+      "css": "transition: transform 200ms ease-out, opacity 200ms ease-out;",
+      "notes": "AGENTS.md Animation section; same rule in Emil Kowalski's skill (the example value is his)."
+    },
+    {
+      "id": "reduced-motion-gate",
+      "source": "radix-themes",
+      "rule": "Popup animations exist only inside a \"no-preference\" motion query, so people who ask for reduced motion get none by default.",
+      "css": "@media (prefers-reduced-motion: no-preference) { .rt-PopperContent { animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); } }"
+    },
+    {
+      "id": "duration-by-size",
+      "source": "open-props",
+      "rule": "Duration can be computed from how far and how large the moving thing is: distance × 0.5 + width × 0.35 + height × 0.3, in milliseconds.",
+      "css": "--duration-calculated: calc((var(--animated-element-distance, 0)*0.5 + var(--animated-element-width, 0)*0.35 + var(--animated-element-height, 0)*0.3)*1ms);",
+      "notes": "open-props durations.min.css."
+    },
+    {
+      "id": "hold-to-confirm",
+      "source": "emil-skills",
+      "rule": "For destructive actions, a hold-to-confirm fill takes 2 seconds at constant speed while held and snaps back in 200ms on release.",
+      "css": ".overlay { clip-path: inset(0 100% 0 0); transition: clip-path 200ms ease-out; } .button:active .overlay { clip-path: inset(0 0 0 0); transition: clip-path 2s linear; }"
+    },
+    {
+      "id": "list-scroll-containment",
+      "source": "cmdk",
+      "rule": "Scrolling to the end of a popup list must not scroll the page behind it, and off-screen rows skip rendering work.",
+      "css": "[cmdk-list] { overscroll-behavior: contain; } [cmdk-item] { content-visibility: auto; }",
+      "notes": "website/styles/cmdk/*.scss. web-interface-guidelines makes overscroll-behavior: contain a MUST for modals and drawers."
+    },
+    {
+      "id": "sheet-overdrag-fill",
+      "source": "vaul",
+      "rule": "A bottom sheet extends an invisible copy of its background 200% below itself, so dragging it upward past its resting point never reveals a gap.",
+      "css": "[data-vaul-drawer][data-vaul-drawer-direction='bottom']::after { content: ''; position: absolute; top: 100%; left: 0; right: 0; height: 200%; background: inherit; }"
+    },
+    {
+      "id": "anchor-scroll-margin",
+      "source": "astro-paper",
+      "rule": "Jumping to an in-page anchor leaves 1rem of breathing room above the target.",
+      "css": ":target { scroll-margin-block: 1rem; }",
+      "notes": "web-interface-guidelines: scroll-margin-top on headings is a MUST."
+    }
+  ]
+}

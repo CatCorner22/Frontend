@@ -1,6 +1,7 @@
 // The engine: pure functions that turn picks into a project state. No React, no browser APIs.
 
 import { z } from 'zod';
+import { DIRECTION_BY_ID, type Direction } from './catalog/directions.js';
 import { STEPS, STEP_BY_ID } from './catalog/steps.js';
 import type { Option, Step } from './catalog/types.js';
 import { DEFAULT_PARAMS, FONTS, type A11yProfile, type DesignParams } from './params.js';
@@ -29,13 +30,15 @@ export interface Project {
   name: string;
   template: 'small-business';
   a11y: A11yProfile;
+  /** The Direction this project started from, if any. A generated Direction is recorded by its name. */
+  direction: string | null;
   params: DesignParams;
   decisions: Record<string, Decision>;
   content: SiteContent;
 }
 
 export function createProject(name = 'Untitled project'): Project {
-  return { schemaVersion: SCHEMA_VERSION, name, template: 'small-business', a11y: 'advise', params: { ...DEFAULT_PARAMS }, decisions: {}, content: { ...SAMPLE_CONTENT } };
+  return { schemaVersion: SCHEMA_VERSION, name, template: 'small-business', a11y: 'advise', direction: null, params: { ...DEFAULT_PARAMS }, decisions: {}, content: { ...SAMPLE_CONTENT } };
 }
 
 /** The parameter values an Option sets, given the current state. */
@@ -68,11 +71,153 @@ const WIREFRAME: Partial<DesignParams> = {
   elevation: 'borders',
   borderWeight: 1,
   signature: 'none',
+  atmosphere: 'plain',
+  buttonFinish: 'flat',
+  displayTreatment: 'solid',
+  motion: 'none',
 };
 
 /** Grayscale wireframe version of a design: structure stays, every Feel value resets. "Structure before decoration." */
 export function wireframeParams(params: DesignParams): DesignParams {
   return { ...params, ...WIREFRAME };
+}
+
+/**
+ * Start from a Direction: every parameter is set at once, and earlier Decisions are cleared,
+ * because they described a different design. The Steps then refine the Direction one variable at a time.
+ */
+export function applyDirection(project: Project, direction: Direction | string): Project {
+  const found = typeof direction === 'string' ? DIRECTION_BY_ID[direction] : direction;
+  if (!found) throw new Error(`Unknown Direction "${String(direction)}"`);
+  return { ...project, direction: found.name, params: { ...found.params }, decisions: {} };
+}
+
+// ───────── Generated Directions: taste-constrained composition ─────────
+
+/** A small seeded random generator (mulberry32), so that a seed always yields the same Directions. */
+function seeded(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Harmony rules: adjustments that keep a random combination coherent. */
+function harmonize(p: DesignParams): DesignParams {
+  const out = { ...p };
+  // A painted first screen is already loud: keep its background and headline plain.
+  if (out.colorStrategy === 'color-block') {
+    if (out.atmosphere === 'aurora' || out.atmosphere === 'spotlight' || out.atmosphere === 'horizon') out.atmosphere = 'plain';
+    out.displayTreatment = 'solid';
+  }
+  // Glow reads on dark pages; on light pages gloss does the same job.
+  if (out.buttonFinish === 'glow' && out.theme === 'light') out.buttonFinish = 'gloss';
+  // The sticker look owns its buttons and wants thick lines.
+  if (out.elevation === 'hard-shadow') {
+    out.buttonFinish = 'flat';
+    out.borderWeight = Math.max(out.borderWeight, 2);
+  }
+  // Shadows vanish on dark pages.
+  if (out.theme === 'dark' && (out.elevation === 'soft-shadow' || out.elevation === 'float')) out.elevation = 'tonal';
+  // Thin headings cannot carry an outline or a sheen.
+  if (out.headingWeight < 600 && out.signature === 'outline-type') out.signature = 'marker';
+  if (out.headingWeight < 500 && out.displayTreatment === 'ink-gradient') out.displayTreatment = 'solid';
+  // The statement opening exists for the headline.
+  if (out.hero === 'statement') out.emphasis = 'headline';
+  // A narrow page has no room for side-by-side text and photo, or for a side rail.
+  if (out.contentWidth === 'narrow') {
+    if (out.hero === 'split-media') out.hero = 'text-left';
+    if (out.nav === 'side-rail') out.contentWidth = 'standard';
+    if (out.sections === 'bento' || out.sections === 'alternating') out.sections = 'stacked';
+  }
+  // Capitals need restraint: no dramatic scale, no statement opening.
+  if (out.headingCase === 'upper') {
+    out.scaleRatio = Math.min(out.scaleRatio, 1.3);
+    if (out.hero === 'statement') out.hero = 'text-left';
+  }
+  // An outlined phrase needs sturdy letterforms; delicate serifs break apart.
+  if (out.signature === 'outline-type' && DELICATE_FACES.has(out.fontHeading)) out.signature = 'marker';
+  // Dense tools do not animate entrances.
+  if (out.density < 0.9 && out.motion === 'expressive') out.motion = 'subtle';
+  return out;
+}
+
+const DELICATE_FACES = new Set<string>(['playfair-display', 'newsreader', 'fraunces', 'source-serif-4', 'system-serif']);
+
+const CATEGORICAL: (keyof DesignParams)[] = ['nav', 'hero', 'sections', 'fontHeading', 'fontBody', 'colorStrategy', 'theme', 'elevation', 'signature', 'atmosphere', 'buttonFinish', 'displayTreatment'];
+
+/** How different two designs are: categorical differences plus scaled numeric differences. */
+export function designDistance(a: DesignParams, b: DesignParams): number {
+  let dist = 0;
+  for (const key of CATEGORICAL) if (a[key] !== b[key]) dist += 1;
+  const hue = Math.abs(a.accentHue - b.accentHue);
+  dist += Math.min(hue, 360 - hue) / 60;
+  const radius = (v: number): number => Math.min(v, 28) / 28;
+  dist += Math.abs(radius(a.radius) - radius(b.radius)) > 0.3 ? 0.5 : 0;
+  dist += Math.abs(a.density - b.density) * 2;
+  dist += Math.abs(a.headingWeight - b.headingWeight) / 400;
+  return dist;
+}
+
+/**
+ * Compose new Directions from the Catalog: one random Option per Step, adjusted by the harmony rules,
+ * kept only if conflict-free, then chosen to be as different as possible from each other and from `avoid`.
+ */
+export function generateDirections(seed: number, count: number, avoid: DesignParams[] = []): Direction[] {
+  const rand = seeded(seed);
+  const candidates: { params: DesignParams; labels: Record<string, string> }[] = [];
+  for (let attempt = 0; attempt < count * 14 && candidates.length < count * 7; attempt++) {
+    let project = createProject('generated');
+    const labels: Record<string, string> = {};
+    for (const step of STEPS) {
+      // Options that carry an AI-default warning are chosen rarely.
+      const weights = step.options.map((o) => (o.warn ? 0.12 : 1));
+      const total = weights.reduce((x, y) => x + y, 0);
+      let roll = rand() * total;
+      let chosen = step.options[0]!;
+      for (let i = 0; i < step.options.length; i++) {
+        roll -= weights[i]!;
+        if (roll <= 0) {
+          chosen = step.options[i]!;
+          break;
+        }
+      }
+      project = pick(project, step.id, chosen.id, '');
+      labels[step.id] = chosen.label;
+    }
+    const params = harmonize(project.params);
+    if (conflicts({ ...project, params }).length > 0) continue;
+    candidates.push({ params, labels });
+  }
+  const chosen: { params: DesignParams; labels: Record<string, string> }[] = [];
+  const reference = [...avoid];
+  while (chosen.length < count && candidates.length > 0) {
+    let bestIndex = 0;
+    let bestScore = -1;
+    candidates.forEach((c, i) => {
+      const score = reference.length === 0 ? 1 : Math.min(...reference.map((r) => designDistance(c.params, r)));
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    });
+    const [winner] = candidates.splice(bestIndex, 1);
+    if (!winner) break;
+    chosen.push(winner);
+    reference.push(winner.params);
+  }
+  return chosen.map((c, i) => ({
+    id: `generated-${seed}-${i}`,
+    name: `${c.labels['accent'] ?? 'Custom'} · ${c.labels['typeface'] ?? ''} · ${c.labels['elevation'] ?? ''}`.replace(/\s+·\s+$/, ''),
+    mood: `${c.params.theme === 'dark' ? 'Dark' : 'Light'} page, ${(c.labels['color-strategy'] ?? '').toLowerCase()} color, ${(c.labels['atmosphere'] ?? '').toLowerCase()} background.`,
+    bestFor: 'Composed from the Catalog under the harmony rules. Judge it by eye.',
+    risk: 'A generated combination has not been reviewed by a person.',
+    params: c.params,
+  }));
 }
 
 function decide(project: Project, step: Step, option: Option, kind: DecisionKind, now: string): Project {
@@ -170,12 +315,17 @@ export interface Conflict {
 export function conflicts(project: Project): Conflict[] {
   const p = project.params;
   const out: Conflict[] = [];
-  if (p.elevation === 'hard-shadow' && p.radius >= 999) out.push({ id: 'hard-pill', stepIds: ['elevation', 'radius'], message: 'A hard offset shadow under pill-shaped buttons looks detached. Consider a radius of 14 px or less, or a soft shadow.' });
   if (p.signature === 'outline-type' && p.headingWeight < 600) out.push({ id: 'outline-thin', stepIds: ['signature', 'heading-treatment'], message: 'An outlined phrase needs a heavy heading weight to stay readable. Raise the weight to 600 or more, or choose another signature.' });
   if (p.signature === 'marker' && p.colorStrategy === 'quiet' && p.accentChroma < 0.05) out.push({ id: 'marker-gray', stepIds: ['signature', 'accent'], message: 'The marker highlight uses the accent color, and the accent is nearly gray, so the highlight will barely show.' });
   if (p.hero === 'statement' && p.emphasis !== 'headline') out.push({ id: 'statement-emphasis', stepIds: ['hero', 'emphasis'], message: 'The statement opening exists to make the headline dominant, but another element is set to be found first. The two picks pull against each other.' });
   if (p.numerals === 'mono' && p.fontHeading === 'jetbrains-mono') out.push({ id: 'mono-mono', stepIds: ['numerals', 'typeface'], message: 'Monospace numbers have no effect when the headings are already monospace.' });
-  if (p.theme === 'dark' && p.elevation === 'soft-shadow') out.push({ id: 'dark-shadow', stepIds: ['theme', 'elevation'], message: 'Shadows are nearly invisible on dark pages. Tonal surfaces or lines separate boxes better in a dark theme.' });
+  if (p.contentWidth === 'narrow' && p.hero === 'split-media') out.push({ id: 'narrow-split', stepIds: ['content-width', 'hero'], message: 'A narrow page leaves too little room for text and a photo side by side. Choose a wider page, or an opening without the photo.' });
+  if (p.headingCase === 'upper' && p.scaleRatio > 1.34) out.push({ id: 'caps-dramatic', stepIds: ['heading-treatment', 'size-scale'], message: 'Capital letters at a dramatic size fill the screen and are slow to read. Choose a calmer size jump, or sentence case.' });
+  if (p.signature === 'outline-type' && DELICATE_FACES.has(p.fontHeading)) out.push({ id: 'outline-delicate', stepIds: ['signature', 'typeface'], message: 'An outlined phrase breaks apart in a delicate serif. Choose a sturdy sans-serif heading, or the marker highlight.' });
+  if ((p.buttonFinish === 'gloss' || p.buttonFinish === 'glow') && p.elevation === 'hard-shadow') out.push({ id: 'sticker-finish', stepIds: ['button-finish', 'elevation'], message: 'The hard offset shadow gives buttons a sticker edge, which replaces the gloss or glow. Choose a flat button, or a different way of separating boxes.' });
+  if (p.displayTreatment === 'ink-gradient' && p.headingWeight < 500) out.push({ id: 'sheen-thin', stepIds: ['display-treatment', 'heading-treatment'], message: 'The ink sheen barely shows on thin headings. Raise the heading weight, or keep the headline solid.' });
+  if (p.atmosphere === 'aurora' && p.theme === 'dark' && p.accentHue >= 265 && p.accentHue <= 315) out.push({ id: 'purple-aurora', stepIds: ['atmosphere', 'accent'], message: 'A purple aurora on a dark page is the most recognizable AI-default background. Another accent hue, or the spotlight, will set it apart.' });
+  if (p.theme === 'dark' && (p.elevation === 'soft-shadow' || p.elevation === 'float')) out.push({ id: 'dark-shadow', stepIds: ['theme', 'elevation'], message: 'Shadows are nearly invisible on dark pages. Tonal surfaces or lines separate boxes better in a dark theme.' });
   if (p.fontHeading === 'fraunces' && p.neutralHue > 50 && p.neutralHue < 110 && p.neutralChroma > 0.008 && p.theme === 'light') out.push({ id: 'cream-serif', stepIds: ['typeface', 'neutral'], message: 'A warm serif on a cream page is a recognizable AI-default look. A bolder accent, a cooler neutral, or a color-block strategy will set it apart.' });
   if (p.theme === 'dark' && p.contrast > 0.8 && p.accentChroma > 0.17 && p.accentHue > 100 && p.accentHue < 160) out.push({ id: 'black-acid', stepIds: ['theme', 'accent'], message: 'Near-black with one acid-green accent is a recognizable AI-default look.' });
   return out;
@@ -209,7 +359,7 @@ const shortText = z.string().max(600);
 const paramsSchema = z.object({
   nav: z.enum(['top-inline', 'top-centered', 'split-cta', 'side-rail']),
   hero: z.enum(['text-left', 'centered', 'split-media', 'statement']),
-  sections: z.enum(['stacked', 'alternating', 'grid', 'ledger']),
+  sections: z.enum(['stacked', 'alternating', 'grid', 'ledger', 'bento']),
   contentWidth: z.enum(['narrow', 'standard', 'wide']),
   emphasis: z.enum(['headline', 'action', 'proof']),
   density: num(0.5, 2),
@@ -231,9 +381,13 @@ const paramsSchema = z.object({
   theme: z.enum(['light', 'dark']),
   contrast: num(0, 1),
   radius: num(0, 999),
-  elevation: z.enum(['flat', 'borders', 'soft-shadow', 'hard-shadow', 'tonal']),
+  elevation: z.enum(['flat', 'borders', 'ring', 'soft-shadow', 'float', 'hard-shadow', 'tonal', 'glass']),
   borderWeight: num(0, 8),
   signature: z.enum(['none', 'marker', 'big-numerals', 'color-band', 'outline-type', 'corner-tag']),
+  atmosphere: z.enum(['plain', 'horizon', 'dot-grid', 'line-grid', 'spotlight', 'aurora', 'grain']),
+  buttonFinish: z.enum(['flat', 'gloss', 'glow', 'outline', 'soft']),
+  displayTreatment: z.enum(['solid', 'ink-gradient', 'accent-gradient']),
+  motion: z.enum(['none', 'subtle', 'expressive']),
 });
 
 const contentSchema = z.object({
@@ -262,6 +416,7 @@ const projectSchema = z.object({
   name: z.string().max(120),
   template: z.literal('small-business'),
   a11y: z.enum(['off', 'advise', 'enforce']),
+  direction: z.string().max(120).nullable(),
   params: paramsSchema,
   decisions: z.record(z.string().max(60), decisionSchema),
   content: contentSchema,

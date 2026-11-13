@@ -1,4 +1,5 @@
 import type { DesignParams } from '../params.js';
+import type { MockupFocus } from '../templates/smallBusiness.js';
 
 export type Stage = 'structure' | 'feel';
 
@@ -39,12 +40,16 @@ export interface Tunable {
 export interface Step {
   id: string;
   stage: Stage;
+  /** A short name for lists. */
+  name: string;
   /** The question the Step asks. */
   title: string;
   /** The design concept, explained for a person with no design vocabulary. */
   teach: string;
   /** The one thing that changes between the Options. */
   variable: string;
+  /** The region of the Mockup where the change shows; previews open there. */
+  focus: MockupFocus;
   options: Option[];
   defaultOptionId: string;
   tunables?: Tunable[];

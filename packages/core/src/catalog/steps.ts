@@ -10,11 +10,13 @@ export const STEPS: Step[] = [
   // ───────────── Stage 2: Structure ─────────────
   {
     id: 'nav',
+    name: 'Navigation',
     stage: 'structure',
     title: 'How do visitors move around the site?',
     teach:
       'Navigation is the set of links that appears on every page. Visitors look for it where other sites put it, so the familiar place is the easy place. Hidden menus get used far less than visible ones.',
     variable: 'Navigation pattern',
+    focus: 'top',
     defaultOptionId: 'top-inline',
     source: 'Nielsen Norman Group on visible navigation; owner’s Option Space report, Phase 3',
     evidence: 'measured',
@@ -28,11 +30,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'hero',
+    name: 'First screen',
     stage: 'structure',
     title: 'How does the first screen open?',
     teach:
       'The "hero" is the first screenful. It answers three questions in a few seconds: what is this, is it for me, and what do I do next. The arrangement decides which of those the eye meets first.',
     variable: 'Arrangement of the first screen',
+    focus: 'top',
     defaultOptionId: 'text-left',
     source: 'Owner’s Training Manual, layout archetypes; exemplar review',
     evidence: 'expert-opinion',
@@ -46,11 +50,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'sections',
+    name: 'Repeated items',
     stage: 'structure',
     title: 'How does the list of services read?',
     teach:
       'Repeated items (services, features, products) need a pattern. The pattern tells visitors whether to compare the items, read them in order, or scan for one.',
     variable: 'Layout of repeated items',
+    focus: 'services',
     defaultOptionId: 'stacked',
     source: 'Owner’s Training Manual, layout archetypes; anti-default lists',
     evidence: 'expert-opinion',
@@ -59,16 +65,19 @@ export const STEPS: Step[] = [
       { id: 'stacked', label: 'Rows with rules', what: 'Each service is a full-width row, separated by thin lines.', chooseWhen: 'Each item needs a sentence or two, and scanning down is natural.', risk: 'Long lists feel like a table.', exemplar: 'Stripe documentation, Linear', patch: { sections: 'stacked' } },
       { id: 'alternating', label: 'Alternating photo and text', what: 'Each service gets a photo and text side by side; sides alternate down the page.', chooseWhen: 'You have a photograph for every item.', risk: 'Needs real images; makes the page long.', exemplar: 'Apple product pages', patch: { sections: 'alternating' } },
       { id: 'grid', label: 'Cards in a grid', what: 'Each service sits in its own box, three across.', chooseWhen: 'The items are parallel and visitors compare them.', risk: 'Three identical cards is a well-known AI-default pattern.', warn: 'Three equal cards is a common AI default. Rows with rules, or the ledger, say the same thing with more character.', patch: { sections: 'grid' } },
+      { id: 'bento', label: 'Bento', what: 'One large tile with a photo, and smaller tiles beside it.', chooseWhen: 'One item matters most, and the size of its tile should say so.', risk: 'Needs one item that deserves the big tile; equal items look arbitrary.', exemplar: 'Apple, Linear feature pages', patch: { sections: 'bento' } },
       { id: 'ledger', label: 'Ledger', what: 'The section title stays fixed on the left while a numbered list scrolls on the right.', chooseWhen: 'You want an editorial, organized feel and the items have an order.', risk: 'On phones it collapses to a plain list.', exemplar: 'Editorial sites, annual reports', patch: { sections: 'ledger' } },
     ],
   },
   {
     id: 'content-width',
+    name: 'Page width',
     stage: 'structure',
     title: 'How wide is the page?',
     teach:
       'The page has a maximum width so that lines of text stay comfortable to read (about 45 to 75 characters). Narrow pages feel like a letter; wide pages feel like an application.',
     variable: 'Maximum page width',
+    focus: 'top',
     defaultOptionId: 'standard',
     source: 'Line-length research summarized in the owner’s Master Guide §12',
     evidence: 'measured',
@@ -81,11 +90,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'emphasis',
+    name: 'Emphasis',
     stage: 'structure',
     title: 'What should the eye find first?',
     teach:
       'Every screen has one thing that wins. Designers call this hierarchy. If everything is equally loud, nothing is found first. Squint at each option: the thing you still see is the winner.',
     variable: 'The dominant element of the first screen',
+    focus: 'top',
     defaultOptionId: 'headline',
     source: 'Refactoring UI (hierarchy); owner’s intuitiveness protocol, question 5',
     evidence: 'expert-opinion',
@@ -98,11 +109,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'density',
+    name: 'Spacing',
     stage: 'structure',
     title: 'How much room does everything get?',
     teach:
       'Density is how tightly things are packed. Tight layouts show more at once and suit tools used all day. Loose layouts feel calm and premium and suit pages that are read once.',
     variable: 'Spacing between and inside elements',
+    focus: 'top',
     defaultOptionId: 'default',
     tunables: [{ key: 'density', label: 'Spacing', min: 0.75, max: 1.45, step: 0.05, nudge: 0.07 }],
     source: 'Polaris and Linear (dense) versus GOV.UK and Refactoring UI (generous)',
@@ -119,11 +132,13 @@ export const STEPS: Step[] = [
   // ───────────── Stage 3: Feel ─────────────
   {
     id: 'typeface',
+    name: 'Typeface',
     stage: 'feel',
     title: 'What voice do the letters have?',
     teach:
       'A typeface is the design of the letters. It sets the tone before anyone reads a word: a serif (letters with small feet) feels established; a geometric sans (round, even letters) feels friendly; a grotesque feels neutral. Pairing one face for headings with a quieter one for reading text is the classic move.',
     variable: 'Typeface for headings and for body text',
+    focus: 'top',
     defaultOptionId: 'civic',
     source: 'Owner’s Training Manual, typography; Fontsource catalog (all fonts open-licensed)',
     evidence: 'expert-opinion',
@@ -143,11 +158,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'heading-treatment',
+    name: 'Heading style',
     stage: 'feel',
     title: 'How do the headings speak?',
     teach:
       'The same typeface can whisper or shout. Weight is the thickness of the strokes. Tracking is the space between letters: large headings usually look better slightly tightened, and capitals need extra space.',
     variable: 'Weight, letter spacing, and case of headings',
+    focus: 'top',
     defaultOptionId: 'calm',
     tunables: [
       { key: 'headingWeight', label: 'Weight', min: 300, max: 900, step: 50, nudge: 100 },
@@ -165,11 +182,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'size-scale',
+    name: 'Text size',
     stage: 'feel',
     title: 'How big is the text, and how big is the jump to headings?',
     teach:
       'Sizes come from a scale: each step is the previous one multiplied by a fixed ratio. A small ratio keeps everything close in size (calm, dense). A large ratio makes headings tower over the text (dramatic).',
     variable: 'Body text size and the ratio between sizes',
+    focus: 'top',
     defaultOptionId: 'standard',
     tunables: [
       { key: 'baseSize', label: 'Body size', min: 13, max: 22, step: 0.5, unit: 'px', nudge: 1 },
@@ -187,11 +206,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'numerals',
+    name: 'Numbers',
     stage: 'feel',
     title: 'How do numbers look?',
     teach:
       'In most fonts, a "1" is narrower than an "8", so columns of numbers wobble. Tabular numerals give every digit the same width, which keeps prices, times, and phone numbers steady. Monospace numbers add a technical flavor.',
     variable: 'Style of digits',
+    focus: 'facts',
     defaultOptionId: 'tabular',
     source: 'Vercel Web Interface Guidelines; Jakub Krehel',
     evidence: 'expert-opinion',
@@ -204,11 +225,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'neutral',
+    name: 'Neutral tint',
     stage: 'feel',
     title: 'What temperature are the grays?',
     teach:
       'Most of any interface is "neutral": backgrounds, borders, and text. A neutral is rarely pure gray. A trace of blue feels cool and technical; a trace of yellow or red feels warm and human. This choice colors the whole page more than the accent does.',
     variable: 'Hue and strength of the tint in backgrounds, borders, and text',
+    focus: 'top',
     defaultOptionId: 'cool',
     tunables: [
       { key: 'neutralHue', label: 'Tint hue', min: 0, max: 360, step: 1, unit: '°', nudge: 18 },
@@ -228,11 +251,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'accent',
+    name: 'Accent color',
     stage: 'feel',
     title: 'What is the one color people remember?',
     teach:
       'The accent is the single strong color: buttons, links, and highlights. Hue is the kind of color (its place on the rainbow). Chroma is how vivid it is. Lightness is how light or dark. One committed accent beats several timid ones.',
     variable: 'Hue, vividness, and lightness of the accent color',
+    focus: 'top',
     defaultOptionId: 'ink-blue',
     tunables: [
       { key: 'accentHue', label: 'Hue', min: 0, max: 360, step: 1, unit: '°', nudge: 14 },
@@ -260,11 +285,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'color-strategy',
+    name: 'Use of color',
     stage: 'feel',
     title: 'How much color, and where?',
     teach:
       'The same accent can appear as a few small touches or as whole painted areas. A common guide is 60-30-10: about sixty percent neutral, thirty percent a supporting tone, ten percent accent. Breaking that guide on purpose is how bold sites get bold.',
     variable: 'Where the accent color is applied',
+    focus: 'top',
     defaultOptionId: 'single-accent',
     tunables: [{ key: 'accent2Hue', label: 'Second color hue', min: 0, max: 360, step: 1, unit: '°', nudge: 20 }],
     source: 'Owner’s Training Manual, color schemes; exemplar review',
@@ -282,11 +309,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'theme',
+    name: 'Light or dark',
     stage: 'feel',
     title: 'Light or dark, soft or crisp?',
     teach:
       'Theme is whether the page is light with dark text or dark with light text. Contrast is how far the text and lines sit from the background. Soft contrast feels gentle; crisp contrast feels sharp and is easier to read in bright light.',
     variable: 'Light or dark page, and the strength of contrast',
+    focus: 'top',
     defaultOptionId: 'light-crisp',
     tunables: [{ key: 'contrast', label: 'Contrast', min: 0, max: 1, step: 0.05, nudge: 0.12 }],
     source: 'Linear theme model (base, accent, contrast); Master Guide §13 on dark mode',
@@ -300,12 +329,37 @@ export const STEPS: Step[] = [
     ],
   },
   {
+    id: 'atmosphere',
+    name: 'Atmosphere',
+    stage: 'feel',
+    title: 'What is in the air behind the first screen?',
+    teach:
+      'Atmosphere is what sits behind the content of the first screen: nothing, a faint grid, a soft glow, or film grain. It sets a mood before anyone reads. The well-made versions are barely there. The same effect turned up loud is what makes a page look machine-made.',
+    variable: 'Background treatment of the first screen',
+    focus: 'top',
+    defaultOptionId: 'plain',
+    source: 'Read from open design systems and templates (see docs/research/09); Linear, Vercel, Stripe, Supabase marketing pages',
+    evidence: 'expert-opinion',
+    reviewed: REVIEWED,
+    options: [
+      { id: 'plain', label: 'Nothing', what: 'A clean, flat background.', chooseWhen: 'The type and the content are strong enough alone.', risk: 'None. Restraint is never wrong.', exemplar: 'GOV.UK, Apple', patch: { atmosphere: 'plain' } },
+      { id: 'horizon', label: 'Horizon wash', what: 'A faint wash of the accent color that fades down the first screen.', chooseWhen: 'A gentle lift without any pattern.', risk: 'Too strong a wash looks like a default gradient.', patch: { atmosphere: 'horizon' } },
+      { id: 'dot-grid', label: 'Dot grid', what: 'A field of tiny dots that fades toward the edges.', chooseWhen: 'A technical, drafting-table feel.', risk: 'Dots under body text reduce legibility; the fade keeps them behind the headline only.', exemplar: 'Vercel, Supabase', patch: { atmosphere: 'dot-grid' } },
+      { id: 'line-grid', label: 'Line grid', what: 'Faint grid lines, like graph paper, fading toward the edges.', chooseWhen: 'Engineering, architecture, planning.', risk: 'Lines compete with thin typefaces.', exemplar: 'Linear, Stripe', patch: { atmosphere: 'line-grid' } },
+      { id: 'spotlight', label: 'Spotlight', what: 'A soft glow of accent color from the top center, like stage light.', chooseWhen: 'Focus and drama, especially on dark themes.', risk: 'On light themes it must stay faint.', exemplar: 'Linear, Raycast', patch: { atmosphere: 'spotlight' } },
+      { id: 'aurora', label: 'Aurora', what: 'Two or three soft clouds of related color behind the headline.', chooseWhen: 'A rich, atmospheric first impression.', risk: 'Purple-and-blue aurora is the classic AI-default background; it works when the colors come from your own accent.', warn: 'Aurora gradients are a common AI default. They read as intentional only when the hues belong to your palette and stay soft.', exemplar: 'Stripe', patch: { atmosphere: 'aurora' } },
+      { id: 'grain', label: 'Film grain', what: 'A fine speckle over the whole page, like paper or film.', chooseWhen: 'Warmth, print, craft; softens flat color.', risk: 'Too much grain looks dirty; costs a little rendering speed.', exemplar: 'Editorial and studio sites', patch: { atmosphere: 'grain' } },
+    ],
+  },
+  {
     id: 'radius',
+    name: 'Corners',
     stage: 'feel',
     title: 'How sharp are the corners?',
     teach:
       'Corner radius is how rounded the corners of buttons and boxes are. Square corners feel precise and serious; round corners feel friendly. Whatever you pick, the tool keeps it consistent, and it rounds outer boxes a little more than the controls inside them so that nested corners look parallel.',
     variable: 'Corner radius of controls and boxes',
+    focus: 'contact',
     defaultOptionId: 'subtle',
     tunables: [{ key: 'radius', label: 'Radius', min: 0, max: 28, step: 1, unit: 'px', nudge: 3 }],
     source: 'Concentric radius rule (Vercel, Jakub Krehel); owner’s Training Manual, shape',
@@ -321,11 +375,13 @@ export const STEPS: Step[] = [
   },
   {
     id: 'elevation',
+    name: 'Depth',
     stage: 'feel',
     title: 'How do boxes separate from the page?',
     teach:
       'Elevation is how a card or panel stands apart from the background. Lines, shadows, and changes of tone all do this job. Good shadows are layered and faintly tinted, like real ones; a single gray blur is what makes a page look machine-made.',
     variable: 'How surfaces separate: lines, shadows, or tone',
+    focus: 'about',
     defaultOptionId: 'borders',
     source: 'Josh Comeau on layered shadows; Vercel guidelines (two shadow layers minimum); neo-brutalist convention',
     evidence: 'expert-opinion',
@@ -333,18 +389,23 @@ export const STEPS: Step[] = [
     options: [
       { id: 'flat', label: 'Flat fills', what: 'Boxes are a slightly different tone; no lines, no shadows.', chooseWhen: 'Calm and modern.', risk: 'Boxes can disappear on poor screens.', patch: { elevation: 'flat' } },
       { id: 'borders', label: 'Lines', what: 'Thin outlines; no shadows.', chooseWhen: 'Crisp, technical, dependable.', risk: 'Many outlines get busy.', exemplar: 'Linear, GitHub', patch: { elevation: 'borders' } },
+      { id: 'ring', label: 'Ring and whisper', what: 'A one-pixel ring with a barely visible shadow: a crisp edge that looks machined.', chooseWhen: 'Precise, modern, technical. The most refined all-round choice.', risk: 'Very quiet; needs good spacing to carry the layout.', exemplar: 'Vercel, Linear', patch: { elevation: 'ring' } },
       { id: 'soft-shadow', label: 'Soft layered shadow', what: 'Boxes float on a gentle, tinted, three-layer shadow.', chooseWhen: 'Approachable depth, as in consumer products.', risk: 'Looks generic if every element floats; keep it for a few.', exemplar: 'Stripe, Apple', patch: { elevation: 'soft-shadow' } },
+      { id: 'float', label: 'Floating panels', what: 'Wide, soft, layered shadows: boxes hover well above the page.', chooseWhen: 'A calm, premium, product-showcase feel.', risk: 'Needs generous spacing; crowded floating boxes look heavy.', exemplar: 'Apple', patch: { elevation: 'float' } },
       { id: 'hard-shadow', label: 'Hard offset shadow', what: 'A solid block of shadow with thick outlines, like a sticker.', chooseWhen: 'Bold, playful, poster-like (neo-brutalist).', risk: 'A strong fashion; dates quickly.', exemplar: 'Gumroad', patch: { elevation: 'hard-shadow' } },
+      { id: 'glass', label: 'Glass', what: 'Translucent boxes that blur what is behind them, with a bright top edge. The navigation bar stays in view and frosts over the page.', chooseWhen: 'Depth and atmosphere; pairs with a glow or aurora background.', risk: 'Needs color behind it to read as glass; costs some rendering speed on old devices.', exemplar: 'Apple, Raycast', patch: { elevation: 'glass' } },
       { id: 'tonal', label: 'Tonal with highlight', what: 'Boxes are a deeper tone with a faint top highlight, like a pressed panel.', chooseWhen: 'Dark themes and instrument-panel styles.', risk: 'Subtle on light themes.', exemplar: 'Material 3', patch: { elevation: 'tonal' } },
     ],
   },
   {
     id: 'border-weight',
+    name: 'Line weight',
     stage: 'feel',
     title: 'How heavy are the lines?',
     teach:
       'Lines divide and outline. A hairline nearly disappears and feels refined. A heavy line is a statement and makes forms very easy to see.',
     variable: 'Thickness of rules and outlines',
+    focus: 'services',
     defaultOptionId: 'hairline',
     tunables: [{ key: 'borderWeight', label: 'Thickness', min: 0, max: 4, step: 0.5, unit: 'px', nudge: 0.5 }],
     source: 'GOV.UK (2 px form borders); Linear (hairlines)',
@@ -358,12 +419,54 @@ export const STEPS: Step[] = [
     ],
   },
   {
+    id: 'button-finish',
+    name: 'Button finish',
+    stage: 'feel',
+    title: 'How is the main button made?',
+    teach:
+      'The main button is the most-pressed object on the page, so its finish matters. A flat button is honest and quiet. A glossy button imitates light falling from above (a lighter top edge, a darker ring, a soft shadow), which makes it look pressable. The finish should match how the boxes on the page are made.',
+    variable: 'Finish of the main button',
+    focus: 'top',
+    defaultOptionId: 'flat',
+    source: 'Button recipes read from open design systems (see docs/research/09); Vercel Web Interface Guidelines on hover and press states',
+    evidence: 'expert-opinion',
+    reviewed: REVIEWED,
+    options: [
+      { id: 'flat', label: 'Flat', what: 'One solid color.', chooseWhen: 'Clean, honest, editorial.', risk: 'None in particular.', exemplar: 'GOV.UK, Stripe', patch: { buttonFinish: 'flat' } },
+      { id: 'gloss', label: 'Gloss', what: 'A lighter top, a bright inner edge, a fine dark ring, and a tinted shadow beneath.', chooseWhen: 'A tactile, well-made, premium feel.', risk: 'Overdone gloss looks dated; this recipe keeps it subtle.', exemplar: 'Linear, Raycast', patch: { buttonFinish: 'gloss' } },
+      { id: 'glow', label: 'Glow', what: 'A solid button that casts a soft halo of its own color.', chooseWhen: 'Dark themes; one action that must draw the eye.', risk: 'Colored glow on every element is a known AI tell; keep it to this one button.', patch: { buttonFinish: 'glow' } },
+      { id: 'outline', label: 'Outline', what: 'No fill: a colored outline and colored label.', chooseWhen: 'Understated pages where the button should not dominate.', risk: 'The main action stands out less.', patch: { buttonFinish: 'outline' } },
+      { id: 'soft', label: 'Soft tint', what: 'A pale tint of the accent with a colored label.', chooseWhen: 'Gentle, friendly, low-pressure.', risk: 'Can look disabled if the tint is too pale.', exemplar: 'Notion, Radix Themes', patch: { buttonFinish: 'soft' } },
+    ],
+  },
+  {
+    id: 'display-treatment',
+    name: 'Headline fill',
+    stage: 'feel',
+    title: 'How is the big headline filled?',
+    teach:
+      'Large type can carry more than one flat color. A quiet "ink gradient" (full strength at the top, slightly fading at the bottom) gives a headline a sheen that reads as refined. A loud two-color gradient reads as a template.',
+    variable: 'Fill of the largest headline',
+    focus: 'top',
+    defaultOptionId: 'solid',
+    source: 'Display-type recipes read from open templates (see docs/research/09); anti-default lists on gradient text',
+    evidence: 'expert-opinion',
+    reviewed: REVIEWED,
+    options: [
+      { id: 'solid', label: 'Solid', what: 'One color.', chooseWhen: 'Always safe; lets the typeface speak.', risk: 'None.', patch: { displayTreatment: 'solid' } },
+      { id: 'ink-gradient', label: 'Ink sheen', what: 'Full ink at the top fading slightly toward the bottom.', chooseWhen: 'Large, heavy headlines; modern product pages.', risk: 'Invisible on small or thin type.', exemplar: 'Linear, Vercel', patch: { displayTreatment: 'ink-gradient' } },
+      { id: 'accent-gradient', label: 'Color gradient', what: 'The headline runs from the accent color into a neighboring hue.', chooseWhen: 'A deliberately vivid, energetic brand.', risk: 'Gradient headline text is one of the most recognizable AI defaults.', warn: 'Gradient text is a common AI default. The ink sheen gives depth without the cliché.', patch: { displayTreatment: 'accent-gradient' } },
+    ],
+  },
+  {
     id: 'signature',
+    name: 'Signature',
     stage: 'feel',
     title: 'What is the one memorable move?',
     teach:
       'The best-made sites are restrained everywhere except one place. That one place is the signature: the thing a visitor would describe to a friend. Choose one. Spending boldness in a single spot reads as confidence; spending it everywhere reads as noise.',
     variable: 'One distinctive decorative element',
+    focus: 'top',
     defaultOptionId: 'none',
     source: 'Anthropic frontend-design skill ("one orchestrated moment"); owner’s anti-slop checklist ("bold choices spent in one place")',
     evidence: 'expert-opinion',
@@ -375,6 +478,25 @@ export const STEPS: Step[] = [
       { id: 'color-band', label: 'Solid band', what: 'The facts strip becomes a full-width band of solid accent color with large figures.', chooseWhen: 'You have true, strong facts.', risk: 'Draws all attention to the numbers; they must be real.', patch: { signature: 'color-band' } },
       { id: 'outline-type', label: 'Outlined phrase', what: 'The key phrase of the headline appears as an outline only.', chooseWhen: 'Display-sized headlines with a heavy typeface.', risk: 'Hard to read at small sizes and with thin typefaces.', patch: { signature: 'outline-type' } },
       { id: 'corner-tag', label: 'Tilted tag', what: 'The small label above the headline becomes a tilted colored tag.', chooseWhen: 'A touch of informality or craft.', risk: 'Too casual for formal subjects.', patch: { signature: 'corner-tag' } },
+    ],
+  },
+  {
+    id: 'motion',
+    name: 'Motion',
+    stage: 'feel',
+    title: 'How much does the page move?',
+    teach:
+      'Motion explains change: where something came from, and that a press registered. Good motion is fast (under a third of a second), starts quickly and settles gently, and never repeats without cause. The more often a person sees an animation, the shorter it must be. Hover over the large preview to feel each option.',
+    variable: 'Amount and character of animation',
+    focus: 'top',
+    defaultOptionId: 'subtle',
+    source: 'Emil Kowalski and Jakub Krehel motion rules; IBM Carbon productive versus expressive motion; WCAG 2.3.3 on reduced motion',
+    evidence: 'expert-opinion',
+    reviewed: REVIEWED,
+    options: [
+      { id: 'none', label: 'None', what: 'Everything changes instantly.', chooseWhen: 'Tools used hundreds of times a day; maximum speed.', risk: 'Abrupt on a marketing page.', exemplar: 'Superhuman, keyboard-driven tools', patch: { motion: 'none' } },
+      { id: 'subtle', label: 'Subtle', what: 'Quick, quiet responses: buttons press in, colors ease on hover.', chooseWhen: 'Most sites. Responsive without drawing attention.', risk: 'None in particular.', exemplar: 'Linear, Stripe', patch: { motion: 'subtle' } },
+      { id: 'expressive', label: 'Expressive', what: 'The first screen rises into place in sequence; boxes lift on hover.', chooseWhen: 'Pages seen rarely, where a moment of delight is welcome.', risk: 'Fade-and-rise on every section is a known AI tell; here it happens once, at the top.', exemplar: 'Apple, Family', patch: { motion: 'expressive' } },
     ],
   },
 ];
