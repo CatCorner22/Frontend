@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.0. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
+Version 1.1. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
 
 Stale-after: 90
 
@@ -19,10 +19,13 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - The Studio never overwrites a saved project that it cannot read; it offers that project as a download. §10.04
 - The Studio asks before a file, a new Direction, or a new project replaces your work, and Undo brings the work back. §10.05
 - When another tab changed the project, the Studio stops saving and says so. §10.06
+- A notice that needs your answer stays on screen until you answer. §10.07
+- A tab that is not saving keeps its unsaved work as a copy when it reloads or closes. §10.08
 - A saved project loads back exactly as it was saved. §20.01
 - The Studio refuses a file that is not a project, in fixed words that repeat nothing from the file. §20.02
 - The Mockup contains no script, no event handler, and no outside address. §30.01
 - The Studio sends no request to any outside address. §30.04
+- The Mockup fits a phone at every setting. §30.05
 - A color pair that the Studio calls passing passes when a browser draws it. §40.02
 - "Fix for me" says "repaired" only for a pair that now passes. §40.03
 - The Studio never calls its output "WCAG compliant", "ADA compliant", or "accessible". §40.04
@@ -42,15 +45,19 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [10.04 The Studio never overwrites a saved project that it cannot read](#1004-the-studio-never-overwrites-a-saved-project-that-it-cannot-read)
   - [10.05 The Studio asks before a replace action, and Undo brings the work back](#1005-the-studio-asks-before-a-replace-action-and-undo-brings-the-work-back)
   - [10.06 When another tab changed the project, the Studio stops saving and says so](#1006-when-another-tab-changed-the-project-the-studio-stops-saving-and-says-so)
+  - [10.07 A notice that needs the owner's answer stays on screen until the owner answers](#1007-a-notice-that-needs-the-owners-answer-stays-on-screen-until-the-owner-answers)
+  - [10.08 A tab that is not saving keeps its unsaved work as a copy when it reloads or closes](#1008-a-tab-that-is-not-saving-keeps-its-unsaved-work-as-a-copy-when-it-reloads-or-closes)
 - [20 Project files](#20-project-files)
   - [20.01 A saved project loads back exactly as it was saved](#2001-a-saved-project-loads-back-exactly-as-it-was-saved)
   - [20.02 The Studio refuses a file that is not a project, in fixed words](#2002-the-studio-refuses-a-file-that-is-not-a-project-in-fixed-words)
   - [20.03 A project that an earlier version saved loads with the design unchanged](#2003-a-project-that-an-earlier-version-saved-loads-with-the-design-unchanged)
+  - [20.04 The Studio says so when it changes a Decision of an opened file](#2004-the-studio-says-so-when-it-changes-a-decision-of-an-opened-file)
 - [30 The preview (Mockup)](#30-the-preview-mockup)
   - [30.01 The Mockup contains no script, no event handler, and no outside address](#3001-the-mockup-contains-no-script-no-event-handler-and-no-outside-address)
   - [30.02 Text from a project is drawn as text, never as markup](#3002-text-from-a-project-is-drawn-as-text-never-as-markup)
   - [30.03 Each preview sits in a locked frame](#3003-each-preview-sits-in-a-locked-frame)
   - [30.04 The Studio sends no request to any outside address](#3004-the-studio-sends-no-request-to-any-outside-address)
+  - [30.05 The Mockup fits a phone at every setting, and the headline stays the largest text](#3005-the-mockup-fits-a-phone-at-every-setting-and-the-headline-stays-the-largest-text)
 - [40 Colors and contrast](#40-colors-and-contrast)
   - [40.01 The Studio writes every color as exact digits](#4001-the-studio-writes-every-color-as-exact-digits)
   - [40.02 A color pair that the Studio calls passing passes when a browser draws it](#4002-a-color-pair-that-the-studio-calls-passing-passes-when-a-browser-draws-it)
@@ -139,9 +146,29 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 <!-- index: two tabs | second tab; another window; see also: saving -->
 
-- **Rule.** A tab that finds that another tab changed the stored project stops saving and says so ("changed in another tab or window"), until the owner chooses, for example with "Keep this tab’s copy". [S3]
-- **Test.** "stops saving, and says so, when another tab changed the project (finding SEC-06)".
-- **Open.** The fourth red-team review (2026-11-13) attacks this area with fast actions in several tabs; see `redteam/campaign-4/`.
+- **Rule.** A tab that finds that another tab changed the stored project stops saving and says so ("changed in another tab or window"), until the owner chooses "Keep this tab’s copy" or "Reload to see the other copy"; whichever the owner chooses, the Studio first keeps the other copy. [S3]
+- **Exceptions.** When storage is full and the other copy cannot be kept, the Studio asks once more before it goes on.
+- **Test.** "stops saving, and says so, when another tab changed the project (finding SEC-06)"; "keeps this tab’s copy before "Reload to see the other copy" reloads (finding F-2)"; "asks before "Reload to see the other copy" discards a tab’s copy that it cannot keep, because storage is full (finding F-2)".
+- **Examples.** Campaign 4 found that the reload button discarded the tab's work without a word (finding F-2); the fix and its two tests date from 2026-11-13.
+- Last verified: 2026-11-13
+
+### [10.07] A notice that needs the owner's answer stays on screen until the owner answers
+
+<!-- index: standing notice | stopped saving; not saving; hold; see also: saving -->
+
+- **Rule.** A notice that needs the owner's answer (for example after the Studio has stopped saving) has its own row at the top of the page, cannot be dismissed, and is not replaced by any other notice. [S1 at D44]
+- **Test.** "keeps the notice of a stopped save, with its buttons, through Undo and a change of screen: unreadable saved copy (finding F-1)"; "keeps the notice of a stopped save through Undo and a change of screen: a second tab (finding F-1)"; and the lines after "An Undo and a look at the Summary do not remove the notice" in "stops saving at opening when it cannot keep a copy that a save would replace, until the person decides (finding S3-01)". [S3]
+- **Examples.** Before 2026-11-13, one press of Undo replaced the notice, and with it the only buttons that resume saving (campaign 4, finding F-1).
+- **Policy.** The status line says "Not saving: see the notice at the top of the page"; that sentence must always be true.
+- Last verified: 2026-11-13
+
+### [10.08] A tab that is not saving keeps its unsaved work as a copy when it reloads or closes
+
+<!-- index: unsaved work | closing a tab; leaving the page; see also: kept copy -->
+
+- **Rule.** When a tab that is not saving reloads or closes, the Studio keeps the tab's unsaved work as a kept copy; when it can neither save nor keep the work, the browser asks its own "leave this page?" question. [S1 at D44]
+- **Test.** "keeps unsaved work as a copy when a tab that is not saving closes or reloads". [S3]
+- **Open.** No automatic test covers the browser's own "leave this page?" question; the test browser answers it by itself. A browser may also close a tab without running the page's last code (for example when it crashes); the copy is then not kept.
 - Last verified: 2026-11-13
 
 ## [20] Project files
@@ -171,6 +198,16 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "loads a version-1 project that started from a Direction, with the design unchanged"; "fills in the four finish values that the earliest version-1 files lack"; in the browser, "upgrades a project saved by version 1 of the Studio, with the design unchanged (finding M-07)". [S2; S3]
 - Last verified: 2026-11-13
 
+### [20.04] The Studio says so when it changes a Decision of an opened file
+
+<!-- index: changed Decision | corrected file; hand-edited file; see also: project file -->
+
+- **Rule.** When a file's Decision names one choice and the file's own design values show another, the Studio follows the design values, changes the Decision to match, and says in the opening notice how many Decisions it changed. [S2]
+- **Exceptions.** A file from version 1 of the Studio: bringing it up to date works every Decision out again, and the notice says that the file was brought up to date.
+- **Test.** "says so when it changes a Decision to match the file’s own design values (campaign 4, finding F-3)".
+- **Policy.** The Mockup is drawn from the design values, so they are the truth; a silent change to the record of choices would be a second, hidden truth.
+- Last verified: 2026-11-13
+
 ## [30] The preview (Mockup)
 
 ### [30.01] The Mockup contains no script, no event handler, and no outside address
@@ -196,7 +233,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **Rule.** Each preview is a frame with an empty sandbox (no script, no forms, no access to the Studio), and the Mockup carries a content policy that allows only its own styles and embedded data. [S3; S7]
 - **Test.** "opens on the Directions with working, sandboxed pictures, no errors, and no outside request". The unit tests in `mockup.test.ts` pin the content policy's text.
-- **Open.** The fourth red-team review (2026-11-13) attacks this area; see `redteam/campaign-4/`.
+- **Examples.** Campaign 4 (2026-11-13) attacked this area with hostile values in every field, in storage, and in the address: nothing left the frame, and the tests caught two defects that an attacker planted on purpose.
 - Last verified: 2026-11-13
 
 ### [30.04] The Studio sends no request to any outside address
@@ -207,6 +244,16 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "shows no trade word outside round brackets and no vague phrase on the Directions, on every Step, and on the Summary, with no error and no outside request".
 - **Policy.** Hard rule 7: no CDN scripts, no remote fonts, no analytics. [S10 at hard rule 7]
 - **Exceptions.** On the private page, the page's own database receives the project (§10.01); that request goes to the page's host, not to a third party.
+- Last verified: 2026-11-13
+
+### [30.05] The Mockup fits a phone at every setting, and the headline stays the largest text
+
+<!-- index: phone width | overflow; narrow screen; heading size; see also: Mockup -->
+
+- **Rule.** At a width of 375 pixels, no Direction, no Option of the Steps that change sizes and layout, and no slider end makes the Mockup wider than the screen; and the main headline is never smaller than the opening paragraph. [S4]
+- **Test.** "never makes the page wider than a phone, whatever the Direction, the type Options, or the slider ends"; "never draws the main headline smaller than the reading text, at phone and desktop widths".
+- **Exceptions.** The test changes one Step at a time from each Direction, plus all sliders at their lowest and all at their highest. It does not try every combination of Options.
+- **Open.** Measured in Chromium, at 375 pixels and 1280 pixels only.
 - Last verified: 2026-11-13
 
 ## [40] Colors and contrast
@@ -330,11 +377,13 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Mockup** (UF: preview): the HTML and CSS page on which every Option renders. §30.01
 - **Option**: one of the concrete choices that a Step offers. §50.02
 - **Replace action**: an opened file, a new Direction, or a new project that takes the place of the current work. §10.05
+- **Standing notice** (UF: hold): a notice that needs the owner's answer; it has its own row and stays until the owner answers. The word avoids "decision", because a Decision is the recorded result of a Step. §10.07
 - **Step**: one screen of the Studio that asks for one design decision. §50.02
 
 ## [85] Changelog
 
 - 2026-11-13 v1.0: created with 25 guarantees.
+- 2026-11-13 v1.1: after campaign 4, added §10.07, §10.08, §20.04, and §30.05; §10.06 now covers both buttons; §30.03 states the campaign's result. 29 guarantees.
 
 ## [90] Sources
 
@@ -352,10 +401,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §40.01, §60.01, §70.02, §70.03
-- [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03
-- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §20.02, §20.03, §30.02, §30.03, §30.04, §60.01
-- [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §40.02, §70.02
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.07, §10.08, §40.01, §60.01, §70.02, §70.03
+- [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04
+- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §20.02, §20.03, §30.02, §30.03, §30.04, §60.01
+- [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §70.02
 - [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.04
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03
 - [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §60.01, §60.02
@@ -382,12 +431,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **C**
 
+- **changed Decision** — §20.04; *see also* project file
+- closing a tab — *see* unsaved work
 - **compliance claim** — §40.04
 - content policy — *see* locked frame
 - contrast — *see* contrast check
 - **contrast check** — §40.02; *see also* written color
 - copy — *see* kept copy
 - **core** — §70.01
+- corrected file — *see* changed Decision
 - corrupt — *see* unreadable project
 
 **D**
@@ -415,7 +467,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **H**
 
+- hand-edited file — *see* changed Decision
+- heading size — *see* phone width
 - hex — *see* written color
+- hold — *see* standing notice
 - **hostile text** — §30.02; *see also* Mockup
 
 **I**
@@ -434,6 +489,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **L**
 
+- leaving the page — *see* unsaved work
 - **locked frame** — §30.03
 
 **M**
@@ -443,8 +499,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **N**
 
+- narrow screen — *see* phone width
 - network — *see* outside request
 - new project — *see* replace action
+- not saving — *see* standing notice
 
 **O**
 
@@ -453,12 +511,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - open a file — *see* project file
 - Option — *see* Step
 - **outside request** — §30.04
+- overflow — *see* phone width
 
 **P**
 
 - package — *see* dependency
 - packages/core — *see* core
 - passing pair — *see* contrast check
+- **phone width** — §30.05; *see also* Mockup
 - pick — *see* Decision
 - pinned version — *see* dependency
 - **plain words** — §60.01
@@ -482,9 +542,11 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - script — *see* Mockup
 - second tab — *see* two tabs
 - **source** — §60.02
+- **standing notice** — §10.07; *see also* saving
 - start again — *see* replace action
 - starting look — *see* Direction
 - **Step** — §50.02
+- stopped saving — *see* standing notice
 - storage — *see* saving
 - storage full — *see* kept copy
 - **stored picture** — §70.02
@@ -499,6 +561,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - undo — *see* replace action
 - **unreadable project** — §10.04; *see also* kept copy
+- **unsaved work** — §10.08; *see also* kept copy
 - upgrade — *see* old project
 
 **V**
@@ -517,7 +580,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_42 sections, 10 sources, 24 index terms. Cadence: 90 days. Generated content last changed 2026-11-13._
+_46 sections, 10 sources, 28 index terms. Cadence: 90 days. Generated content last changed 2026-11-13._
 
 - No findings.
 <!-- health:end -->
