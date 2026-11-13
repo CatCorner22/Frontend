@@ -4,7 +4,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Current milestone: M4 (Step screen). Not complete.
 
-**Why M4 is not complete.** Its exit test has three parts: the owner uses the Studio on the private page; a keyboard-only pass; the owner picks the Studio's own look. The keyboard pass now runs as an automated test. The owner's trial has not happened. The second red-team review ran on 2026-11-13 (decision D34): it found 3 blockers, all fixed and tested the same day, and 12 major findings, of which 1 is still open (U2-08 Options that look alike) and 3 are fixed in part (U2-04, U2-06, T2-03). Nobody has reviewed the fixes themselves; hard rule 12 asks for that at the M4 gate.
+**Why M4 is not complete.** Its exit test has three parts: the owner uses the Studio on the private page; a keyboard-only pass; the owner picks the Studio's own look. The keyboard pass now runs as an automated test. The owner's trial has not happened. The second red-team review ran on 2026-11-13 (decision D34): it found 3 blockers, all fixed and tested the same day, and 12 major findings, of which 1 is still open (U2-08 Options that look alike) and 3 are fixed in part (U2-04, U2-06, T2-03). The third review ran the same day (decision D41), on those fixes and on the plain-words rewrite: 2 blockers, both fixed and tested; 14 major findings, 12 fixed and 2 fixed in part (U3-02, U3-05). Nobody has reviewed the fixes of the third review; hard rule 12 asks for that at the M4 gate.
 
 **Milestone status, stated plainly.**
 
@@ -12,7 +12,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 |---|---|
 | M0 | Exit test met after correction on 2026-11-13: the results file now matches the measured data; the scorecard is applied and marked as judged by a model. |
 | M1 | Met late. CI was red when M2 work began (finding M-02). No session setup script (decision D32). |
-| M2 | Met: 134 unit tests (2026-11-13); the core imports no React and no browser API. |
+| M2 | Met: 137 unit tests (2026-11-13); the core imports no React and no browser API. |
 | M3 | Exit test met in CI since 2026-11-13 (pixel-difference tests, stored-picture gate). One part still open: nobody has confirmed that the private page shows the embedded pictures. |
 | M4 | In progress. |
 
@@ -20,7 +20,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 - **Core** (`packages/core`): 23 Steps (6 Layout, 17 Look and feel), 14 Directions and a Direction generator, 12 conflict rules and 11 harmony rules as Catalog records, token derivation with 29 measured contrast pairs, the Mockup for Template 1 (one page), saved-project format version 2 with a migration from version 1.
 - **Studio** (`apps/studio`): Directions, Steps, Summary, and Licences screens; storage that reads both saved copies and never overwrites what it cannot read; Undo; confirmations before work is replaced.
-- **Checks in CI:** type check, lint, boundary rule, 134 unit tests, licence-notices check, 102 browser tests (38 on the Studio, 64 visual tests of the Mockup), bundle-size budget, dependency audit.
+- **Checks in CI:** type check, lint, boundary rule, 137 unit tests, licence-notices check, 110 browser tests (45 on the Studio, 65 on the Mockup: 64 visual tests and 1 measurement of drawn colors), bundle-size budget, dependency audit.
 - **Red team:** first review on 2026-11-13: 137 findings (6 blockers, 55 major, 56 minor, 20 notes). Every finding has a status in `redteam/FINDINGS.md`. `redteam/tools/plant-defects.py` plants 39 defects; the unit suite catches 38.
 - **Private page:** https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc (the version number is in `WAYPOINTS.md`).
 - **Literal names (2026-11-13).** Every Step, Option, and slider in the Catalog now carries a name that says what a person sees (for example "Ring and whisper" became "Thin outline with a faint shadow"; "Accent color" became "Main color"). The "Contrast checks" choices read "Off", "Warn me", "Fix for me". Identifiers did not change, so saved projects open as before. No red-team review covered this change (D33).
@@ -28,11 +28,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **Names of the Contrast checks choices.** The Studio shows "Off", "Warn me", "Fix for me". The code and older documents call the same three `off` / "Advise" and `enforce` / "Enforce".
 - **Visual tests draw text the same way on every machine (decision D35).** CI runs 11, 26, and 27 failed because GitHub's machine applied font hinting and this one did not. The tests now fix that setting.
 - **Plain words (2026-11-13, decision D38).** Every text the Studio shows was rewritten so that a reader needs no design vocabulary: the question, the teaching text, and the "one thing that changes" line of all 23 Steps; the Option texts, the overused-look warnings, the named examples, the messages about Decisions that pull against each other, the engine's own sentences, and the names of the contrast pairs. A trade word now appears only in round brackets, as a word to learn. Three unit tests and one browser test enforce the rule; the builder planted four defects and each test failed as it should. While planning, the builder found and fixed three defects of its own: 7 of the 12 messages about Decisions called Options by retired names; the engine said "accent color" where the Step says "Main color"; and the teaching text of "Text contrast" promised a figure that the notes show only for a failing pair.
+- **Third red-team review (2026-11-13, decision D41).** Reports: `redteam/reports/2026-11-13-c-*.md`. 50 rows in `redteam/FINDINGS.md` (47 from the reviewers, 3 that the builder found while planning), each with a status. Fixed and tested: the Studio never saves over a copy that it could not keep (S3-01, decision D40); colors reach the page as exact digits, and a browser test measures the drawn pixels (T3-01, decision D39); "Fix for me" cannot stall just below a requirement (T3-02); "Put back" keeps a second color following (T3-03); a notice stays in view on a phone (U3-01); a hand-set value reads as words (U3-03, U3-04); the "Second color" slider shows only when there is a second color (U3-06).
+- **The builder's own sweeps (2026-11-13).** Every check and all browser tests passed 5 times in a row in a clean copy, while three reviewers loaded the machine (the one failure seen once earlier did not recur). The defect-planting tool: 38 of 39 planted defects caught; the survivor (N04, "reports repaired without measuring again") cannot be told apart from correct code, because "Fix for me" repairs every pair in every design that the sweeps reach. The engine sweep takes every action the Studio can take.
 
 ## Next
 
 1. The owner tries the Studio and answers the open questions below.
-2. Fix the open major finding of the second review (U2-08; finish U2-04, U2-06, and T2-03), then have the reviewers check the fixes (hard rule 12). M4 cannot close before that.
+2. Fix the open major finding of the second review (U2-08; finish U2-06 and T2-03) and the two major findings of the third review that are fixed in part (U3-02, U3-05); then have the reviewers check the fixes (hard rule 12). M4 cannot close before that.
 3. M5: import the knowledge base into the Catalog (teaching text, craft layer, floors); Stage 1 (Brief, the owner's real content) and Stage 4 (Behavior) Steps; an inner page for Template 1; group the 13 accents; use `data/exemplar-tokens.json` and `data/sleek-recipes.json` for values that a record supports.
 4. M6: export bundle. M7: the Fitter.
 
@@ -46,6 +48,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 6. Dependabot opened 7 pull requests against the working branch (numbers 1 to 7). The builder recommends leaving them unmerged: D27 requires a 7-day wait and a recorded check for each version.
 7. Dependabot's "cooldown" setting would enforce the 7-day wait by itself (finding S2-06). The builder could not verify its spelling (the network blocks docs.github.com) and did not add it.
 8. The Drive backup of waypoint W4 was not sent: the file is larger than the connector accepts in one call. Split it, skip it, or rely on GitHub?
+9. The third review's reviewers used about 595,000 tokens; the plan's estimate was 300,000 to 450,000.
 
 ## Known gaps (every plan item that is absent or partial)
 
@@ -64,6 +67,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **One unexplained test failure.** The browser test "dresses the Studio in the project’s design when asked, and remembers the choice" failed once in 5 local runs on 2026-11-13 (the checkbox read as unchecked after a reload). The Studio writes the preference at once and reads it first at start; no cause was found. The test is unchanged. If it fails again, investigate before anything else.
 - **Second review, still open (major):** some Option cards look alike at card size, for example the three "Text contrast" cards (U2-08).
 - **Second review, still open (minor, selected):** no leave-page warning while saving is paused (S2-03); the local test file shares its browser storage with every other local HTML file, so use it for testing only (S2-05); "Warn me" does not measure a headline filled with a gradient (T2-03). The full list is in `redteam/FINDINGS.md`.
+- **Third review, still open (selected):** two things still have two names on screen (the Step "Background at the top of the page" asks about "the first screen"; the card for the current values has three names) (U3-05); the values that sliders announce to a screen reader are bare numbers (U3-11); two tabs that keep a copy at the same moment could lose one, which the reviewer inferred and did not reproduce (S3-06); the drawn-color measurement runs in Chromium only (T3-01).
 
 ## Reading status (what the records support)
 
