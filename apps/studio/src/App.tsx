@@ -45,8 +45,8 @@ const SAVE_LABEL: Record<StudioState['saved'], string> = {
 };
 const PROFILE_MEANING: Record<A11yProfile, string> = {
   off: 'Off: no contrast notes are shown.',
-  advise: 'Advise: the Studio notes colors that are hard to tell apart, and changes nothing.',
-  enforce: 'Enforce: the Studio adjusts colors that are hard to tell apart, and lists each change.',
+  advise: 'Warn me: the Studio notes colors that are hard to tell apart, and changes nothing.',
+  enforce: 'Fix for me: the Studio adjusts colors that are hard to tell apart, and lists each change.',
 };
 const HUE_NAMES: [number, string][] = [[25, 'red'], [55, 'orange'], [95, 'yellow'], [140, 'green'], [195, 'teal'], [258, 'blue'], [298, 'violet'], [345, 'pink']];
 const hueName = (hue: number): string => HUE_NAMES.reduce((best, entry) => (Math.min(Math.abs(hue - entry[0]), 360 - Math.abs(hue - entry[0])) < Math.min(Math.abs(hue - best[0]), 360 - Math.abs(hue - best[0])) ? entry : best))[1];
@@ -118,8 +118,8 @@ function TopBar(): React.JSX.Element {
         <label htmlFor="a11y-profile">Contrast checks</label>
         <select id="a11y-profile" value={s.project.a11y} aria-describedby="a11y-meaning" onChange={(e) => s.setProfile(e.target.value as A11yProfile)}>
           <option value="off">Off</option>
-          <option value="advise">Advise</option>
-          <option value="enforce">Enforce</option>
+          <option value="advise">Warn me</option>
+          <option value="enforce">Fix for me</option>
         </select>
         <span id="a11y-meaning" className="profile-meaning">{PROFILE_MEANING[s.project.a11y]}</span>
       </div>
@@ -459,7 +459,7 @@ function StepsView(): React.JSX.Element {
                 <summary>{large.issues.length === 1 ? '1 contrast note' : `${large.issues.length} contrast notes`} ({s.project.a11y === 'enforce' ? 'adjusted for you' : 'advice; nothing was changed'})</summary>
                 <p>Contrast is how far apart two colors are in lightness, as a ratio. 1 to 1 means no difference; 21 to 1 is black on white. Body text is usually easy to read from 4.5 to 1 upward.</p>
                 <ul>{large.issues.map((i) => <li key={i.id}>{describeIssue(i)}</li>)}</ul>
-                {s.project.a11y === 'advise' && <p>To fix a note, pick a darker or lighter color on the Step that sets it, or set “Contrast checks” to Enforce.</p>}
+                {s.project.a11y === 'advise' && <p>To fix a note, pick a darker or lighter color on the Step that sets it, or set “Contrast checks” to “Fix for me”.</p>}
                 <p>The Studio does not check: {NOT_CHECKED.map((line) => line.replace(/\.$/, '')).join('; ').toLowerCase()}.</p>
               </details>
             )}
@@ -540,7 +540,7 @@ function StepsView(): React.JSX.Element {
         {!s.variations && <ReasonField stepId={step.id} />}
         {!s.variations && step.tunables && step.tunables.length > 0 && (
           <details className="tune">
-            <summary>Fine-tune by hand</summary>
+            <summary>Adjust with sliders</summary>
             <p className="hint">Each slider changes your design as it stands, one value at a time. The large preview follows. To go back, press Undo in the top bar.</p>
             {step.tunables.map((t) => {
               const value = s.project.params[t.key] as number;

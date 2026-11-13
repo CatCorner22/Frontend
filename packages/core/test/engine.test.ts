@@ -194,7 +194,7 @@ describe('engine: small variations', () => {
     expect(new Set(options.map((o) => JSON.stringify(o.values))).size).toBe(options.length);
     expect(new Set(options.map((o) => o.label)).size).toBe(options.length);
     const labels = options.map((o) => o.label).join(' | ');
-    expect(labels).toMatch(/Hue: a little toward (violet|teal)/);
+    expect(labels).toMatch(/Color \(hue\): a little toward (violet|teal)/);
     expect(labels).toMatch(/Vividness: a little (duller|more vivid)/);
     expect(labels).not.toMatch(/: (less|more)$/);
     for (const o of options) for (const key of Object.keys(o.values)) expect(step('accent').owns as string[]).toContain(key);
@@ -210,7 +210,7 @@ describe('engine: small variations', () => {
     const pill = pick(fresh(), 'radius', 'pill', AT);
     const options = closerOptions(pill, 'radius', 0);
     expect(options).toHaveLength(1);
-    expect(options[0]!.label).toBe('Radius: a little sharper');
+    expect(options[0]!.label).toBe('Corner rounding: a little sharper');
     expect(options[0]!.values.radius).toBe(25);
     expect(closerOptions(fresh(), 'nav')).toEqual([]);
   });

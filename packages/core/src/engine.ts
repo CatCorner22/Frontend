@@ -145,7 +145,7 @@ function mustStep(stepId: string): Step {
 }
 
 /**
- * Recompute every value that follows another value. A picked Option such as "Two colors, opposite" keeps its
+ * Recompute every value that follows another value. A picked Option such as "Two colors: opposites" keeps its
  * second hue opposite the accent, however the accent changes later. Hand-tuned values are never recomputed.
  */
 function rederive(project: Project): Project {

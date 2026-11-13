@@ -182,11 +182,11 @@ describe('Studio: the Step flow keeps the design the person chose', () => {
   it('"Decide later" changes nothing and records nothing (finding FTU-03)', async () => {
     const { context, page } = await open();
     await page.getByRole('button', { name: 'Start from Soft Daylight' }).click();
-    await waitForStep(page, 'Navigation');
+    await waitForStep(page, 'Menu (navigation)');
     await page.getByRole('button', { name: 'Decide later' }).click();
     await waitForStep(page, 'First screen');
     await page.getByRole('button', { name: 'Decide later' }).click();
-    await waitForStep(page, 'Repeated items');
+    await waitForStep(page, 'List of services');
     await settle(page);
     const project = (await stored(page))!;
     expect(project.decisions).toEqual({});
@@ -196,9 +196,9 @@ describe('Studio: the Step flow keeps the design the person chose', () => {
 
   it('a slider changes only its own value, and the main button keeps the adjustment (findings FTU-05, FTU-06)', async () => {
     const { context, page } = await open({ hash: '#accent', storage: { [LOCAL_KEY]: envelope(applyDirection(createProject('Sliders'), 'soft-daylight')) } });
-    await waitForStep(page, 'Accent color');
+    await waitForStep(page, 'Main color');
     // Look at another card first; the slider must still start from the design as it stands.
-    await page.locator('label.option', { hasText: 'Plum' }).click();
+    await page.locator('label.option', { hasText: 'Dark purple' }).click();
     await page.locator('details.tune summary').click();
     await page.locator('#tune-accentHue').focus();
     await page.keyboard.press('ArrowRight');
@@ -209,7 +209,7 @@ describe('Studio: the Step flow keeps the design the person chose', () => {
     expect(await page.locator('.option[data-in-use] .option-title').innerText()).toContain('Your design now');
     expect(await mainButton(page)).toBe('Continue to the next Step');
     await page.locator('.actions.sticky .primary').click();
-    await waitForStep(page, 'Use of color');
+    await waitForStep(page, 'Amount of color');
     await settle(page);
     project = (await stored(page))!;
     expect(project.params.accentHue).toBe(257);
@@ -221,12 +221,12 @@ describe('Studio: the Step flow keeps the design the person chose', () => {
 
   it('says so when the person leaves a Step with a card on show that was not picked (finding FTU-30)', async () => {
     const { context, page } = await open({ hash: '#nav' });
-    await waitForStep(page, 'Navigation');
-    await page.locator('label.option', { hasText: 'Side rail' }).click();
-    expect(await mainButton(page)).toBe('Pick “Side rail” and continue');
+    await waitForStep(page, 'Menu (navigation)');
+    await page.locator('label.option', { hasText: 'Links in a left column' }).click();
+    expect(await mainButton(page)).toBe('Pick “Links in a left column” and continue');
     await page.locator('.rail a', { hasText: 'First screen' }).click();
     await waitForStep(page, 'First screen');
-    expect(await page.locator('.banner').innerText()).toContain('You looked at “Side rail” on “Navigation” and did not pick it');
+    expect(await page.locator('.banner').innerText()).toContain('You looked at “Links in a left column” on “Menu (navigation)” and did not pick it');
     await settle(page);
     expect((await stored(page))?.decisions ?? {}).toEqual({});
     await context.close();
@@ -234,15 +234,15 @@ describe('Studio: the Step flow keeps the design the person chose', () => {
 
   it('offers small variations that keep the original as the first card and return to where the person was (finding FTU-23)', async () => {
     const { context, page } = await open({ hash: '#accent' });
-    await waitForStep(page, 'Accent color');
-    await page.locator('label.option', { hasText: 'Crimson' }).click();
-    await page.getByRole('button', { name: 'Show small variations of “Crimson”' }).click();
+    await waitForStep(page, 'Main color');
+    await page.locator('label.option', { hasText: 'Deep red' }).click();
+    await page.getByRole('button', { name: 'Show small variations of “Deep red”' }).click();
     const titles = await page.locator('.option .option-title').allInnerTexts();
     expect(titles[0]).toContain('As it was');
-    expect(titles.join(' | ')).toMatch(/Hue: a little toward (orange|pink)/);
+    expect(titles.join(' | ')).toMatch(/Color \(hue\): a little toward (orange|pink)/);
     expect(titles.join(' | ')).not.toMatch(/: (less|more)(\s|$)/);
     await page.getByRole('button', { name: 'Back to the standard Options' }).click();
-    expect(await page.locator('.option[data-shown] .option-title').innerText()).toContain('Crimson');
+    expect(await page.locator('.option[data-shown] .option-title').innerText()).toContain('Deep red');
     await context.close();
   });
 });
@@ -264,7 +264,7 @@ describe('Studio: keyboard', () => {
     };
     await tabTo((f) => f.text === 'Start from Graphite Precision');
     await page.keyboard.press('Enter');
-    await waitForStep(page, 'Navigation');
+    await waitForStep(page, 'Menu (navigation)');
     // Focus lands on the card on show; number keys compare, and focus follows the card.
     expect((await focusState(page))?.id).toBe('option-split-cta');
     await page.keyboard.press('4');
@@ -277,7 +277,7 @@ describe('Studio: keyboard', () => {
     // The main button is one or two Tab presses from the cards.
     expect(await tabTo((f) => f.text.includes('and continue'))).toBeLessThanOrEqual(2);
     await page.keyboard.press('Enter');
-    await waitForStep(page, 'Repeated items');
+    await waitForStep(page, 'List of services');
     // After the main button, focus moves to the new Step's card, so a second Enter on the old button cannot decide an unseen Step.
     expect((await focusState(page))?.id).toMatch(/^option-/);
     await page.keyboard.press('ArrowDown');
@@ -294,7 +294,7 @@ describe('Studio: keyboard', () => {
 
   it('treats the list of Steps as one stop for the Tab key, with arrow keys inside', async () => {
     const { context, page } = await open({ hash: '#typeface' });
-    await waitForStep(page, 'Typeface');
+    await waitForStep(page, 'Letter style (typeface)');
     expect(await page.locator('.rail a[tabindex="0"]').count()).toBe(1);
     await page.locator('.rail a[tabindex="0"]').focus();
     await page.keyboard.press('ArrowDown');
@@ -314,16 +314,16 @@ describe('Studio: keyboard', () => {
 
   it('keeps number keys working after the other controls were used, and ignores them while the person types', async () => {
     const { context, page } = await open({ hash: '#nav' });
-    await waitForStep(page, 'Navigation');
+    await waitForStep(page, 'Menu (navigation)');
     await page.selectOption('#preview-region', 'top');
     await page.keyboard.press('3');
     expect(await mainButton(page)).toContain('Links centered, button right');
     await page.locator('#wireframe-toggle').focus();
     await page.keyboard.press('2');
-    expect(await mainButton(page)).toContain('Centered masthead');
+    expect(await mainButton(page)).toContain('Name centered, links below');
     await page.locator('#project-name').focus();
     await page.keyboard.press('4');
-    expect(await mainButton(page)).toContain('Centered masthead');
+    expect(await mainButton(page)).toContain('Name centered, links below');
     await context.close();
   });
 });
@@ -420,8 +420,8 @@ describe('Studio: saved work is never replaced without a word', () => {
 
   it('saves at once when the page goes to the background (finding P-06)', async () => {
     const { context, page } = await open({ hash: '#nav' });
-    await waitForStep(page, 'Navigation');
-    await page.locator('label.option', { hasText: 'Side rail' }).click();
+    await waitForStep(page, 'Menu (navigation)');
+    await page.locator('label.option', { hasText: 'Links in a left column' }).click();
     await page.locator('.actions.sticky .primary').click();
     await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
     expect((await stored(page))?.decisions['nav']?.optionId).toBe('side-rail');
@@ -509,7 +509,7 @@ describe('Studio: opening a file', () => {
     const project = createProject(hostile.slice(0, 110));
     project.content = { ...project.content, business: hostile, headline: hostile, tag: hostile, nav: [hostile], services: [{ title: hostile, body: hostile }], facts: [{ value: hostile, label: hostile }], fees: [{ item: hostile, price: hostile }], promise: hostile, footerNote: hostile, hours: hostile, aboutBody: hostile, contactBody: hostile };
     const { context, page, errors, requests } = await open({ hash: '#nav', storage: { [LOCAL_KEY]: envelope(project) } });
-    await waitForStep(page, 'Navigation');
+    await waitForStep(page, 'Menu (navigation)');
     await page.waitForSelector('.large-preview iframe');
     await page.waitForTimeout(500);
     expect(await page.evaluate(() => (window as unknown as { __pwned?: number }).__pwned)).toBeUndefined();
@@ -543,7 +543,7 @@ describe('Studio: addresses and the browser’s Back button', () => {
 
   it('adds one history entry per Step and none per comparison, so Back returns to the previous Step (finding FTU-16)', async () => {
     const { context, page } = await open({ hash: '#nav' });
-    await waitForStep(page, 'Navigation');
+    await waitForStep(page, 'Menu (navigation)');
     const before = await page.evaluate(() => window.history.length);
     for (const key of ['2', '3', '4', '1', '2']) await page.keyboard.press(key);
     await page.waitForTimeout(300);
@@ -552,12 +552,12 @@ describe('Studio: addresses and the browser’s Back button', () => {
     await waitForStep(page, 'First screen');
     await page.keyboard.press('3');
     await page.keyboard.press('Enter');
-    await waitForStep(page, 'Repeated items');
+    await waitForStep(page, 'List of services');
     expect(await page.evaluate(() => window.history.length)).toBe(before + 2);
     await page.goBack();
     await waitForStep(page, 'First screen');
     await page.goBack();
-    await waitForStep(page, 'Navigation');
+    await waitForStep(page, 'Menu (navigation)');
     await context.close();
   });
 });
@@ -584,8 +584,8 @@ describe('Studio: its own interface', () => {
 
   it('shows every notice in a row of its own, where a mouse can dismiss it (finding FTU-27)', async () => {
     const { context, page } = await open({ hash: '#nav' });
-    await waitForStep(page, 'Navigation');
-    await page.locator('label.option', { hasText: 'Side rail' }).click();
+    await waitForStep(page, 'Menu (navigation)');
+    await page.locator('label.option', { hasText: 'Links in a left column' }).click();
     await page.locator('.rail a', { hasText: 'First screen' }).click();
     const banner = page.locator('.banner');
     await banner.waitFor();
@@ -686,7 +686,7 @@ describe('Studio: layout', () => {
   it('opens a phone-wide window at phone width, and starts each Step at its top', async () => {
     const { context, page } = await open({ viewport: { width: 400, height: 860 } });
     await page.getByRole('button', { name: 'Start from Soft Daylight' }).click();
-    await waitForStep(page, 'Navigation');
+    await waitForStep(page, 'Menu (navigation)');
     expect(await page.locator('.stage .segmented button[aria-pressed="true"]').innerText()).toBe('Phone');
     expect(await page.evaluate(() => window.scrollY)).toBeLessThan(40);
     await context.close();

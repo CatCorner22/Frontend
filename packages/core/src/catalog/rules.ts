@@ -31,7 +31,7 @@ export const CONFLICT_RULES: RuleRecord[] = [
   },
   {
     id: 'dark-shadow', kind: 'conflict', stepIds: ['theme', 'elevation'],
-    text: 'Soft shadows show weakly on a dark page. The tool makes them several times stronger there, as some of the open design systems that were read do; others replace the shadow with a light ring. If the boxes do not stand apart in the preview, pick "Tonal with highlight" or "Lines".',
+    text: 'Soft shadows show weakly on a dark page. The tool makes them several times stronger there, as some of the open design systems that were read do; others replace the shadow with a light ring. If the boxes do not stand apart in the preview, pick "Darker boxes with a light top edge" or "Thin outlines".',
     source: { text: 'Open design systems disagree on shadows in dark mode: Radix, HeroUI, and Primer strengthen them; Jakub Krehel and Magic UI replace them with a light ring.', basis: 'read', record: R08 },
     evidence: 'expert-opinion', reviewed: REVIEWED,
   },

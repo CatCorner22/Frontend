@@ -23,6 +23,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **Checks in CI:** type check, lint, boundary rule, 122 unit tests, licence-notices check, 96 browser tests (32 on the Studio, 64 visual tests of the Mockup), bundle-size budget, dependency audit.
 - **Red team:** first review on 2026-11-13: 137 findings (6 blockers, 55 major, 56 minor, 20 notes). Every finding has a status in `redteam/FINDINGS.md`. `redteam/tools/plant-defects.py` plants 39 defects; the unit suite catches 38.
 - **Private page:** https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc (the version number is in `WAYPOINTS.md`).
+- **Literal names (2026-11-13).** Every Step, Option, and slider in the Catalog now carries a name that says what a person sees (for example "Ring and whisper" became "Thin outline with a faint shadow"; "Accent color" became "Main color"). The "Contrast checks" choices read "Off", "Warn me", "Fix for me". Identifiers did not change, so saved projects open as before. No red-team review covered this change (D33).
 
 ## Next
 
@@ -53,6 +54,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - Tests ran in Chromium only. No screen reader was used.
 - The dependency audit shows 9 moderate advisories, all one advisory in a package inside the lint tools; nothing ships to the browser.
 - Drive backups (D26): the upload has failed on every attempt so far (connector errors).
+- **One unexplained test failure.** The browser test "dresses the Studio in the project’s design when asked, and remembers the choice" failed once in 5 local runs on 2026-11-13 (the checkbox read as unchecked after a reload). The Studio writes the preference at once and reads it first at start; no cause was found. The test is unchanged. If it fails again, investigate before anything else.
 
 ## Reading status (what the records support)
 
