@@ -647,6 +647,645 @@
     "sections",
     "onboarding"
    ]
+  },
+  {
+   "id": "proximity-and-common-region",
+   "topic": "gestalt",
+   "principle": "Grouping by proximity and common region",
+   "claim": "Elements that sit close together, or inside the same bounded area, are seen as one group. Spacing and enclosure therefore tell the viewer what belongs together, whether or not the designer intended the message.",
+   "mechanism": "The visual system organises a scene into groups early and automatically, before the person reads anything. Nearness is one grouping cue. A shared boundary or background (common region) is another, and experiments indicate that it is a separate cue that nearness does not explain.",
+   "effects": {
+    "cognitiveLoad": "lowers — the layout shows the structure, so the reader does not have to work it out",
+    "satisfaction": "unknown — an early display study linked well-formed groups to better subjective ratings; modern evidence is thin",
+    "perceivedIntuitiveness": "raises — related things look related"
+   },
+   "designMoves": [
+    "Make the space inside a group clearly smaller than the space between groups.",
+    "Place each label closer to its own field than to the neighbouring field, and each heading closer to the text below it than to the text above it.",
+    "Group with spacing first. Add a border or a background (a card) only when spacing alone is ambiguous, for example when groups sit side by side.",
+    "Do not nest bordered boxes inside bordered boxes.",
+    "Keep unrelated or risky controls apart, for example a delete action away from a save action."
+   ],
+   "antiPatterns": [
+    "Equal spacing everywhere, so nothing is grouped.",
+    "A label that sits midway between two fields.",
+    "Cards inside cards inside panels.",
+    "A caption closer to the next image than to its own."
+   ],
+   "howToCheck": {
+    "machine": "From bounding boxes, compare gaps: the label-to-own-control gap must be smaller than the label-to-previous-control gap; the space above a heading must exceed the space below it; within-group gaps must be smaller than between-group gaps (the Catalog sets the ratio). Count the nesting depth of containers that have a border or background.",
+    "human": "Squint at the page or blur a screenshot. The blobs that remain should match the intended groups."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Proximity dates from Wertheimer's work in the 1920s and is reviewed, with common region and other newer principles, by Wagemans and colleagues (2012, Psychological Bulletin). Palmer (1992) introduced common region and argued that it cannot be reduced to proximity or closure. For interfaces, Tullis (1983, 1984) found that grouping measures helped predict search time on character displays; that work is old and its formulas did not generalise well in a later test. The claim that one cue always beats another is not supported: results depend on cue strength."
+   },
+   "sources": [
+    {
+     "citation": "Wagemans, J., Elder, J. H., Kubovy, M., Palmer, S. E., Peterson, M. A., Singh, M., & von der Heydt, R. (2012). A century of Gestalt psychology in visual perception: I. Perceptual grouping and figure-ground organization. Psychological Bulletin, 138(6), 1172-1217.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/22845751/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Palmer, S. E. (1992). Common region: A new principle of perceptual grouping. Cognitive Psychology, 24(3), 436-447.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/1516361/",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Tullis, T. S. (1983). The formatting of alphanumeric displays: A review and analysis. Human Factors, 25(6), 657-682.",
+     "url": null,
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "Grouping cues can conflict (near but differently coloured; far but in one box), and the outcome then depends on how strong each cue is. Borders and backgrounds add visual elements, so heavy use raises clutter (see clutter-and-crowding).",
+   "appliesTo": [
+    "sections",
+    "density",
+    "forms",
+    "border-weight",
+    "elevation",
+    "radius",
+    "tables"
+   ]
+  },
+  {
+   "id": "similarity-grouping",
+   "topic": "gestalt",
+   "principle": "Grouping by similarity",
+   "claim": "Elements that look alike in colour, shape, size or typeface are seen as belonging together and as doing the same kind of thing.",
+   "mechanism": "Similarity is one of the classic automatic grouping cues. Viewers extend it into an expectation: things that look the same should behave the same, and things that look different should behave differently.",
+   "effects": {
+    "cognitiveLoad": "lowers — one learned style predicts the behaviour of every element that shares it",
+    "satisfaction": "unknown — not measured in the cited review",
+    "perceivedIntuitiveness": "raises — behaviour can be predicted from appearance"
+   },
+   "designMoves": [
+    "Give every element with the same function the same appearance across the product.",
+    "Give elements with different functions visibly different appearances.",
+    "Limit the number of distinct styles for buttons, links, headings and tags.",
+    "Use a shared look to connect related items that cannot sit together, such as status labels in different places.",
+    "Do not reuse an interactive style on a static element."
+   ],
+   "antiPatterns": [
+    "Three different button styles for actions of equal weight.",
+    "Tags that look like buttons but cannot be clicked.",
+    "The same colour meaning 'selected' in one place and 'error' in another."
+   ],
+   "howToCheck": {
+    "machine": "Cluster the computed styles of interactive elements by role (button, link, tab, tag). Report the number of style variants per role; flag roles with many variants and flag two roles that share one style. Flag static elements whose style matches an interactive cluster.",
+    "human": "Collect one screenshot of every button and link style in the product and ask whether each difference carries a meaning."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Similarity grouping is a classic principle covered in the Wagemans et al. (2012) review. Its strength relative to other cues varies: search results cite Palmer and Rock (1994) for uniform connectedness overcoming proximity and similarity. The step from 'grouped' to 'expected to behave alike' is the standard consistency argument in usability practice and is formalised in WCAG 3.2.4 Consistent Identification (Level AA)."
+   },
+   "sources": [
+    {
+     "citation": "Wagemans, J., Elder, J. H., Kubovy, M., Palmer, S. E., Peterson, M. A., Singh, M., & von der Heydt, R. (2012). A century of Gestalt psychology in visual perception: I. Perceptual grouping and figure-ground organization. Psychological Bulletin, 138(6), 1172-1217.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/22845751/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.2.4 Consistent Identification, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/consistent-identification.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Similarity by colour alone fails for people who cannot distinguish the colours (see color-not-alone). Too much sameness removes hierarchy; the one primary action should break the pattern on purpose (see preattentive-popout).",
+   "appliesTo": [
+    "states",
+    "emphasis",
+    "accent",
+    "typeface",
+    "radius",
+    "border-weight",
+    "nav"
+   ]
+  },
+  {
+   "id": "alignment-continuity",
+   "topic": "gestalt",
+   "principle": "Alignment and good continuation",
+   "claim": "Elements whose edges line up are seen as related and are quicker to scan, because the eye follows an implied line. Edges that almost line up create extra visual groups that mean nothing.",
+   "mechanism": "Good continuation is the tendency to link elements that lie along a smooth path. A shared edge forms such a path, so the eye can run down a column without re-finding the start of each item. Every additional edge position is another path to follow.",
+   "effects": {
+    "cognitiveLoad": "lowers — fewer starting points to find while scanning",
+    "satisfaction": "raises — an early display study found layout predictability among the best predictors of user ratings",
+    "perceivedIntuitiveness": "raises — the layout looks ordered and predictable"
+   },
+   "designMoves": [
+    "Align text, labels and controls to a small number of shared vertical edges.",
+    "Left-align running text and form labels in left-to-right languages, so every line starts at the same place.",
+    "Right-align numbers in table columns so digits of equal value line up.",
+    "Remove near-misses: edges that differ by a few pixels should be made equal.",
+    "Reserve centred alignment for short, isolated items such as a hero headline."
+   ],
+   "antiPatterns": [
+    "Each card or section with its own left margin.",
+    "Centred paragraphs or centred form fields, which give every line a different start.",
+    "Icons, labels and values that almost line up."
+   ],
+   "howToCheck": {
+    "machine": "Per section, collect the left-edge x positions of text blocks and controls. Report the number of distinct edges and flag pairs of edges that differ by 1 to 4 CSS pixels. Flag centred text blocks longer than a few lines.",
+    "human": "Draw vertical guide lines on a screenshot at each left edge. Count them and question each one."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Good continuation is a classic grouping principle (Wagemans et al. 2012). Interface evidence is older and narrower: Tullis measured 'layout complexity' (how far item positions follow a predictable scheme) on 520 character-based displays, and with local density it was the strongest predictor of subjective ratings; his regression predicted search time with R-squared .51 and ratings with R-squared .81. A 1988 test found these formulas less general than hoped. No modern, large study of alignment on web pages was found."
+   },
+   "sources": [
+    {
+     "citation": "Wagemans, J., Elder, J. H., Kubovy, M., Palmer, S. E., Peterson, M. A., Singh, M., & von der Heydt, R. (2012). A century of Gestalt psychology in visual perception: I. Perceptual grouping and figure-ground organization. Psychological Bulletin, 138(6), 1172-1217.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/22845751/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Tullis, T. S. (1984). Predicting the usability of alphanumeric displays. Doctoral dissertation, Rice University.",
+     "url": "https://core.ac.uk/display/4438915",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "In right-to-left scripts the shared edge is the right edge. Strict alignment can conflict with optical balance (an icon may need a small offset to look aligned). The quantitative evidence comes from text terminals of the early 1980s.",
+   "appliesTo": [
+    "sections",
+    "content-width",
+    "forms",
+    "tables",
+    "numerals",
+    "density"
+   ]
+  },
+  {
+   "id": "figure-ground-closure",
+   "topic": "gestalt",
+   "principle": "Figure, ground and closure",
+   "claim": "People separate what they see into a figure in front and a ground behind before they read any of it, and they mentally complete shapes that are partly hidden. Layering cues therefore decide what looks active, and a visibly cut-off element signals that more content exists.",
+   "mechanism": "Figure-ground organisation assigns each border to one side, which becomes the object; the other side recedes. Cues include enclosure, contrast and learned experience. Closure is the tendency to see an incomplete shape as a whole one that continues out of view.",
+   "effects": {
+    "cognitiveLoad": "lowers — the active layer is obvious, so attention is not split between layers",
+    "satisfaction": "unknown — not measured in the cited review",
+    "perceivedIntuitiveness": "raises — people can tell what is in front and whether more follows"
+   },
+   "designMoves": [
+    "When a dialog opens, dim or mute the page behind it so that the dialog is the only figure.",
+    "Give floating layers (menus, popovers, sticky bars) a surface that differs from the page through contrast, a border or a shadow.",
+    "Show one layer above the page at a time.",
+    "Let an element be visibly cut off at the bottom of the first screen, so people know that the page continues.",
+    "Keep images behind text low in contrast, or put a solid surface under the text."
+   ],
+   "antiPatterns": [
+    "A modal with no backdrop, so that page and dialog compete.",
+    "Body text set directly on a busy photograph.",
+    "Stacked popovers and dialogs.",
+    "A full-screen first section that ends exactly at the fold and looks like the end of the page."
+   ],
+   "howToCheck": {
+    "machine": "When a dialog opens, assert that a backdrop exists and that the page behind is inert. For text over images, sample the text contrast across the whole text box and use the minimum. At common viewport heights, assert that an element crosses the fold line or that a scroll cue exists.",
+    "human": "Ask a first-time viewer which part of the screen is active, and whether there is more below."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Figure-ground organisation and closure are established perceptual findings reviewed by Wagemans et al. (2012). The interface applications listed here (backdrops, layered surfaces, cut-off content at the fold) are extrapolations supported by practitioner observation, not by controlled studies found in this search. The 'looks like the end of the page' problem is a Nielsen Norman Group observation recalled from memory and not verified."
+   },
+   "sources": [
+    {
+     "citation": "Wagemans, J., Elder, J. H., Kubovy, M., Palmer, S. E., Peterson, M. A., Singh, M., & von der Heydt, R. (2012). A century of Gestalt psychology in visual perception: I. Perceptual grouping and figure-ground organization. Psychological Bulletin, 138(6), 1172-1217.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/22845751/",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "Shadows are a convention, not a requirement; contrast or borders can separate layers equally well. Where a boundary is needed to identify a control, WCAG 1.4.11 requires 3:1 contrast against adjacent colours (see non-text-contrast-and-focus).",
+   "appliesTo": [
+    "elevation",
+    "hero",
+    "sections",
+    "states",
+    "border-weight",
+    "neutral"
+   ]
+  },
+  {
+   "id": "fitts-and-steering",
+   "topic": "motor-and-choice",
+   "principle": "Fitts's law and the steering law: size, distance and path width",
+   "claim": "The time to point at a target rises with its distance and falls with its size. The time to move a pointer along a path, such as through a nested menu, rises with the path's length and falls with its width.",
+   "mechanism": "Aimed movement trades speed for accuracy: a far or small target needs more corrective sub-movements. Fitts's law states that movement time grows with the logarithm of distance divided by width. The steering law extends it to paths: time grows in proportion to path length divided by path width. Both predict movement only, not the time to find the target or to decide.",
+   "effects": {
+    "cognitiveLoad": "none — the laws concern motor effort; fewer slips mean fewer corrections",
+    "satisfaction": "unknown — not measured in the cited sources",
+    "perceivedIntuitiveness": "raises — controls are easy to hit and menus do not close unexpectedly"
+   },
+   "designMoves": [
+    "Make frequently used controls large, and place the next action near the place where the pointer or finger already is.",
+    "Make the whole row, card or label clickable, not only the text or the icon.",
+    "Keep destructive actions away from frequent ones.",
+    "Avoid long, narrow hover corridors: open sub-menus on click, or keep them open while the pointer moves diagonally toward them.",
+    "Make menu items tall and wide enough to be an easy path."
+   ],
+   "antiPatterns": [
+    "A small text link as the only target for a primary action.",
+    "A checkbox whose label is not clickable.",
+    "Multi-level hover menus that close when the pointer leaves a thin strip.",
+    "'Confirm' and 'Delete' side by side at the same size."
+   ],
+   "howToCheck": {
+    "machine": "Measure target sizes and the centre-to-centre distance between consecutive controls in each scripted task. Flag controls whose clickable box is smaller than their visible row or label. Flag sub-menus that open only on hover, and report the height of the corridor the pointer must stay inside.",
+    "human": "Operate the interface quickly with a mouse and with a thumb. Note every mis-click and every menu that closes by accident."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Fitts's law (1954) is one of the most replicated quantitative results in human-computer interaction; MacKenzie (1992) reviews it and gives the form now used in pointing research. Accot and Zhai (1997) derived and tested the steering law for tunnels. Limits: on touchscreens the finger adds a fixed imprecision, so plain Fitts's law fits small targets less well (Bi, Li and Zhai 2013 proposed a corrected model; later studies did not always find it better). Fitts's original paper is cited from memory."
+   },
+   "sources": [
+    {
+     "citation": "Fitts, P. M. (1954). The information capacity of the human motor system in controlling the amplitude of movement. Journal of Experimental Psychology, 47(6), 381-391.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "MacKenzie, I. S. (1992). Fitts' law as a research and design tool in human-computer interaction. Human-Computer Interaction, 7(1), 91-139.",
+     "url": "https://www.yorku.ca/mack/HCI.html",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Accot, J., & Zhai, S. (1997). Beyond Fitts' law: Models for trajectory-based HCI tasks. Proceedings of CHI 1997, 295-302.",
+     "url": "https://www.chi1997.chistatic.hosting.acm.org/proceedings/paper/ja.html",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Bi, X., Li, Y., & Zhai, S. (2013). FFitts law: Modeling finger touch with Fitts' law. Proceedings of CHI 2013, 1363-1372.",
+     "url": "https://research.google/pubs/pub41645/",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "The gain from size flattens because the relation is logarithmic: doubling an already large button saves little. The mouse advantage of screen edges and corners (the pointer stops there) rarely applies to content inside a browser window. On phones, reach and the hand covering the screen matter as much as size (see thumb-reach and touch-target-size).",
+   "appliesTo": [
+    "states",
+    "forms",
+    "nav",
+    "mobile",
+    "density"
+   ]
+  },
+  {
+   "id": "hick-hyman-limits",
+   "topic": "motor-and-choice",
+   "principle": "Hick-Hyman law and its limits",
+   "claim": "The time to choose among well-learned alternatives grows with the logarithm of their number: each doubling adds a constant amount. The law describes decisions among options the person already knows. It does not describe scanning an unfamiliar list, and it does not justify removing options.",
+   "mechanism": "With practised alternatives, people narrow the choice in steps, so time grows slowly. With an unfamiliar list, people read item by item, so time grows roughly in a straight line with length. Because the growth for learned choices is logarithmic, one organised list of sixteen is faster than two successive choices among smaller lists that each add their own fixed cost.",
+   "effects": {
+    "cognitiveLoad": "mixed — predictable order lowers search effort; the number of options alone is a weak guide",
+    "satisfaction": "unknown — the law predicts time, not satisfaction",
+    "perceivedIntuitiveness": "raises — stable, ordered lists let people jump to the item"
+   },
+   "designMoves": [
+    "Order long lists in a way people can predict (alphabetical, numeric, grouped by task), so that they jump instead of scanning.",
+    "Keep item positions stable, so that repeated choices become fast.",
+    "Do not split a well-organised list into extra levels only to shorten each level.",
+    "For first-time users, cut scanning with clear labels and group headings.",
+    "Mark the common or recommended option."
+   ],
+   "antiPatterns": [
+    "Citing 'Hick's law' to remove options that users need.",
+    "Menus that reorder themselves.",
+    "A long list with no order or grouping."
+   ],
+   "howToCheck": {
+    "machine": "Report the number of options at each decision point. Flag lists above a Catalog-set length that are neither sorted nor grouped. Flag menus whose item order differs between page loads.",
+    "human": "Time first-time and repeat users on the same choice. A large gap that persists after practice points to poor order or labels, not to the number of options."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Hick (1952) and Hyman (1953) are classic reaction-time experiments, cited here from memory. Liu, Gori, Rioul, Beaudouin-Lafon and Guiard (CHI 2020) reviewed the choice-reaction literature and concluded that the law argues against the popular 'less is better' reading and that visual search and decision making should be analysed directly. Cockburn, Gutwin and Greenberg (CHI 2007) built and validated a menu model in which novices search visually, experts decide according to Hick-Hyman, and pointing follows Fitts's law."
+   },
+   "sources": [
+    {
+     "citation": "Hick, W. E. (1952). On the rate of gain of information. Quarterly Journal of Experimental Psychology, 4(1), 11-26.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Hyman, R. (1953). Stimulus information as a determinant of reaction time. Journal of Experimental Psychology, 45(3), 188-196.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Liu, W., Gori, J., Rioul, O., Beaudouin-Lafon, M., & Guiard, Y. (2020). How relevant is Hick's law for HCI? Proceedings of CHI 2020, 1-11.",
+     "url": "https://archivesic.ccsd.cnrs.fr/INFRES/hal-02867301v1",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Cockburn, A., Gutwin, C., & Greenberg, S. (2007). A predictive model of menu performance. Proceedings of CHI 2007, 627-636.",
+     "url": "https://sciweavers.org/node/43064",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "The law assumes equally practised alternatives and simple responses. Whether many options reduce motivation or decision quality is a separate question (see choice-overload).",
+   "appliesTo": [
+    "nav",
+    "forms",
+    "sections",
+    "density"
+   ]
+  },
+  {
+   "id": "choice-overload",
+   "topic": "motor-and-choice",
+   "principle": "Choice overload is conditional, not general",
+   "claim": "Offering more options does not reliably reduce choosing or satisfaction: across 50 experiments the average effect was close to zero. Overload appears under specific conditions, namely complex options, a difficult task, unclear preferences and a goal of deciding now.",
+   "mechanism": "A large set costs effort only when the person must compare items that are hard to compare and has no rule for narrowing. When preferences are clear or the set is easy to filter, more options raise the chance of a good match.",
+   "effects": {
+    "cognitiveLoad": "mixed — aids to comparison lower effort; cutting options lowers it only when the options were hard to compare",
+    "satisfaction": "mixed — the meta-analysis found effects in both directions",
+    "perceivedIntuitiveness": "raises — categories, filters and a recommended option give people a way in"
+   },
+   "designMoves": [
+    "Where options are complex, help people compare: describe every option with the same attributes, and offer categories, filters and a comparison table.",
+    "Mark a recommended or most common option.",
+    "Let people narrow by their own criteria before they see the full set.",
+    "Keep the set small when the decision is a quick side decision, such as an add-on at checkout.",
+    "Do not remove options that people come looking for."
+   ],
+   "antiPatterns": [
+    "Citing the 'jam study' as proof that fewer options always sell more.",
+    "Many options described with different attributes, so they cannot be compared.",
+    "A long plan list with no recommendation and no filter."
+   ],
+   "howToCheck": {
+    "machine": "Count equal-weight options per decision (plans, calls to action, add-ons). Flag sets above the Catalog limit that have no recommended option, no grouping and no filter. Flag comparison sets whose items list different attributes.",
+    "human": "Ask test users to choose and to explain the choice. Trouble explaining it signals that options are hard to compare, whatever their number."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "meta-analysis",
+    "strengthNote": "Scheibehenne, Greifeneder and Todd (2010) analysed 63 conditions from 50 published and unpublished experiments (5,036 participants) and found a mean effect of virtually zero with large variation between studies. Chernev, Bockenholt and Goodman (2015) identified four moderators (choice set complexity, task difficulty, preference uncertainty, decision goal) under which overload occurs. The famous jam experiment (Iyengar and Lepper 2000) is one study in that literature and is cited from memory."
+   },
+   "sources": [
+    {
+     "citation": "Scheibehenne, B., Greifeneder, R., & Todd, P. M. (2010). Can there ever be too many options? A meta-analytic review of choice overload. Journal of Consumer Research, 37(3), 409-425.",
+     "url": "https://abcwest.cogs.indiana.edu/pmwiki/pdf/scheibehenne.options.2010.pdf",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Chernev, A., Bockenholt, U., & Goodman, J. (2015). Choice overload: A conceptual review and meta-analysis. Journal of Consumer Psychology, 25(2), 333-358.",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Iyengar, S. S., & Lepper, M. R. (2000). When choice is demotivating: Can one desire too much of a good thing? Journal of Personality and Social Psychology, 79(6), 995-1006.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "The studies concern consumer choices, not navigation menus. A reanalysis (McShane and Bockenholt 2018) found that the effect can reverse when the moderators are low, so cutting options can also hurt.",
+   "appliesTo": [
+    "sections",
+    "hero",
+    "forms",
+    "nav",
+    "copy"
+   ]
+  },
+  {
+   "id": "response-time-limits",
+   "topic": "response-time",
+   "principle": "Response-time limits: about 0.1, 1 and 10 seconds",
+   "claim": "Three rough limits organise response-time design: about 0.1 second feels instant, about 1 second keeps the user's train of thought, and about 10 seconds is the limit for holding attention on a waiting task. They are rounded orders of magnitude from expert synthesis, not measured cliffs.",
+   "mechanism": "Within about a tenth of a second, people perceive a visual change as caused by their own action. Up to about a second they notice the delay but stay in the flow of the task. After several seconds attention drifts to other things, and the person must re-orient when the result arrives.",
+   "effects": {
+    "cognitiveLoad": "lowers — immediate feedback removes doubt about whether the input registered",
+    "satisfaction": "raises — a study of button feedback found consistently high perceived quality at delays of 100 ms or less and low quality at 300 ms or more",
+    "perceivedIntuitiveness": "raises — the interface appears to respond directly to the user"
+   },
+   "designMoves": [
+    "Acknowledge every input within about 100 ms with a visible change, such as a pressed state or the new value shown at once.",
+    "For waits longer than about 1 second, show that the system is busy.",
+    "For waits that approach 10 seconds, show progress, allow cancelling, and let the person do something else.",
+    "Respond first and load afterwards: show the new view at once and fill it as data arrives.",
+    "For long generated output, such as answers from an AI model, show partial results or named stages as they complete."
+   ],
+   "antiPatterns": [
+    "A button that shows no change until the server answers.",
+    "A spinner that runs past ten seconds with no progress information and no way out.",
+    "Quoting a '400 ms Doherty threshold' as a scientific cutoff."
+   ],
+   "howToCheck": {
+    "machine": "Script each interaction and record the time from the input event to the first paint that changes the target, and to the final result. Flag no visible feedback within 100 ms, waits over 1 s with no busy indicator, and waits over 10 s with no progress display or cancel control.",
+    "human": "Use the product on a slow connection and a slow phone. Note each moment of doubt about whether an input registered."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "expert-opinion",
+    "strengthNote": "Miller (1968) proposed response-time limits for 17 kinds of interaction and called them his best calculated guesses that needed empirical validation. Nielsen (1993) condensed the idea into the three limits. Google's threshold rationale (read in full) cites perception research that supports a range around 100 ms: Michotte's causality experiments and a button-feedback study by Kaaresoja and colleagues. The 1 s and 10 s limits have less direct support. Famous but weak: the '400 ms Doherty threshold'. Doherty and Thadani (1982, IBM) reported that user productivity rose as system response time fell below two seconds; the scanned report shows a curve, not a break at 400 ms, and commenters who read it found no such threshold. The exact figure has grade D."
+   },
+   "sources": [
+    {
+     "citation": "Miller, R. B. (1968). Response time in man-computer conversational transactions. Proceedings of the AFIPS Fall Joint Computer Conference, 33, 267-277.",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Nielsen, J. (1993). Usability Engineering. Academic Press. (Chapter 5 gives the 0.1, 1 and 10 second limits.)",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Google (web.dev). Defining the Core Web Vitals metrics thresholds.",
+     "url": "https://raw.githubusercontent.com/GoogleChrome/web.dev/main/src/site/content/en/blog/defining-core-web-vitals-thresholds/index.md",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Doherty, W. J., & Thadani, A. J. (1982). The economic value of rapid response time. IBM report GE20-0752-0.",
+     "url": "https://archive.computerhistory.org/resources/access/text/2024/03/102751398-05-01-acc.pdf",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "Tolerance depends on expectation and feedback: people wait longer when they see progress. Direct manipulation is far more sensitive: studies of touch dragging report that people perceive delays well below 100 ms (Deber and colleagues 2015; figures not confirmed). The contribution of Card, Robertson and Mackinlay (1991) to the three limits was not checked.",
+   "appliesTo": [
+    "performance",
+    "states",
+    "motion",
+    "ai-ux",
+    "forms"
+   ]
+  },
+  {
+   "id": "inp-responsiveness",
+   "topic": "response-time",
+   "principle": "Interaction to Next Paint (INP): 200 ms is the 'good' bar",
+   "claim": "Interaction to Next Paint measures how long a page takes to show a visual response after a click, tap or key press. Google's Core Web Vitals rate 200 ms or less as good and more than 500 ms as poor, judged at the 75th percentile of visits.",
+   "mechanism": "The browser cannot paint while long script tasks occupy its main thread, so a slow handler leaves the screen frozen after an input. INP observes the interactions during a visit and reports one of the slowest. Judging at the 75th percentile means three of four visits meet the target.",
+   "effects": {
+    "cognitiveLoad": "lowers — no frozen moments in which the user must wonder whether to repeat the input",
+    "satisfaction": "raises — by design of the metric; the thresholds were chosen partly from research on perceived delay",
+    "perceivedIntuitiveness": "raises — the page reacts when touched"
+   },
+   "designMoves": [
+    "Show a cheap visual change immediately in every input handler, and move heavy work after the paint.",
+    "Split long script tasks so that the browser can paint between them.",
+    "Keep the number of page elements and the size of each re-render small.",
+    "Measure INP on real visits with the web-vitals library, and budget for mid-range phones.",
+    "Avoid components that re-render the whole page on each keystroke."
+   ],
+   "antiPatterns": [
+    "Running validation, analytics and rendering in one blocking handler.",
+    "Judging responsiveness only on a fast development machine.",
+    "Hydrating a large page in one long task while the user already taps."
+   ],
+   "howToCheck": {
+    "machine": "Load the web-vitals library, script typical interactions in Playwright with CPU throttling, and record INP and the slowest interaction; flag values over 200 ms. In production, collect field values and evaluate the 75th percentile. The library exports the thresholds as [200, 500].",
+    "human": "Use the page on a low-end phone and note any tap that appears to do nothing at first."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "large-practitioner-study",
+    "strengthNote": "INP is a vendor-defined metric, not a formal standard. Google chose Core Web Vitals thresholds by two criteria, read in its own rationale: quality of experience (research on perceived delay) and achievability (at least 10% of origins in the Chrome User Experience Report already met 'good'). The 200 ms bar is therefore a compromise between perception research near 100 ms and what sites can reach. Google announced that INP would replace First Input Delay as the responsiveness metric in March 2024; the announcement and the library source were read from Google's repositories."
+   },
+   "sources": [
+    {
+     "citation": "Google (web.dev) (2023). Advancing Interaction to Next Paint (announcement that INP becomes a Core Web Vital in March 2024).",
+     "url": "https://raw.githubusercontent.com/GoogleChrome/web.dev/main/src/site/content/en/blog/inp-cwv/index.md",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Google Chrome team. web-vitals JavaScript library, README (thresholds for INP, LCP and CLS).",
+     "url": "https://raw.githubusercontent.com/GoogleChrome/web-vitals/main/README.md",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Google (web.dev). Defining the Core Web Vitals metrics thresholds.",
+     "url": "https://raw.githubusercontent.com/GoogleChrome/web.dev/main/src/site/content/en/blog/defining-core-web-vitals-thresholds/index.md",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "A laboratory script measures only the interactions it performs; field data differ. INP does not cover hovering or scrolling. A page can pass INP and still feel slow if the first paint after input is a spinner that stays for seconds (see progress-indicators).",
+   "appliesTo": [
+    "performance",
+    "states",
+    "forms",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "progress-indicators",
+   "topic": "response-time",
+   "principle": "Show progress during waits",
+   "claim": "People tolerate a wait better when they can see that work is in progress and how far it has come, and the way an indicator moves changes how long the wait feels. Evidence that placeholder 'skeleton' screens beat spinners is thin.",
+   "mechanism": "An indicator answers three questions: was the request accepted, is the system still working, and how much longer will it take. Uncertainty makes time feel longer. Perceived duration is elastic: a bar that speeds up toward the end feels faster than one that slows down.",
+   "effects": {
+    "cognitiveLoad": "lowers — the person does not have to monitor for failure or decide whether to retry",
+    "satisfaction": "raises — participants in the first study described a more positive experience with a progress bar",
+    "perceivedIntuitiveness": "raises — the system's state is visible"
+   },
+   "designMoves": [
+    "Use a simple busy indicator for short waits and a determinate indicator (percent or named steps) for long ones.",
+    "Never let a bar stop near the end; prefer progress that accelerates toward completion.",
+    "Name the stages of multi-stage work, for example 'searching', 'drafting', 'checking'.",
+    "Keep the content that is already known visible and load only the part that changes.",
+    "If placeholders are used, match the final layout so that nothing jumps when content arrives."
+   ],
+   "antiPatterns": [
+    "A frozen screen with no indicator.",
+    "A fake bar that reaches 100% and then waits.",
+    "A full-page spinner for a small partial update.",
+    "A skeleton whose layout shifts when the real content loads."
+   ],
+   "howToCheck": {
+    "machine": "Throttle the network in a scripted run. Assert that an indicator appears for any wait over 1 s, that it carries a progressbar role or busy state, and that layout shift when content replaces placeholders stays within the 'good' Cumulative Layout Shift threshold of 0.1.",
+    "human": "Watch a first-time user during a slow operation. Repeated clicks or a question such as 'is it stuck?' mean that the indicator fails."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Myers (CHI 1985) ran the first experiment on percent-done indicators and found that users preferred them (details from secondary sources). Harrison, Yeo and Hudson (CHI 2010) found that a bar with ribbing that moves backward and decelerates reduced perceived duration by 11%; Harrison and colleagues (UIST 2007) compared nine bars of equal duration with different pacing. These are small laboratory studies. Skeleton screens: one small conference study (Mejtoft, Langstrom and Soderstrom 2018) found higher average ratings of perceived speed for skeletons than for spinners, and a secondary source reports that the differences were not statistically significant. That part of the claim has grade C."
+   },
+   "sources": [
+    {
+     "citation": "Myers, B. A. (1985). The importance of percent-done progress indicators for computer-human interfaces. Proceedings of CHI 1985, 11-17.",
+     "url": "https://dblp.uni-trier.de/rec/conf/chi/Myers85.html",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Harrison, C., Yeo, Z., & Hudson, S. E. (2010). Faster progress bars: Manipulating perceived duration with visual augmentations. Proceedings of CHI 2010, 1545-1548.",
+     "url": "https://www.figlab.com/research/2010/faster-progress-bars",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Harrison, C., Amento, B., Kuznetsov, S., & Bell, R. (2007). Rethinking the progress bar. Proceedings of UIST 2007, 115-118.",
+     "url": "https://www.chrisharrison.net/index.php/Research/ProgressBars",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Mejtoft, T., Langstrom, A., & Soderstrom, U. (2018). The effect of skeleton screens: Users' perception of speed and ease of navigation. Proceedings of ECCE 2018. DOI 10.1145/3232078.3232086.",
+     "url": null,
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "An indicator changes perception, not the real wait; shortening the wait is better. Animated indicators that run for more than five seconds beside other content fall under WCAG 2.2.2, although a loading animation shown while the user cannot interact can count as essential. Invented progress values mislead.",
+   "appliesTo": [
+    "states",
+    "performance",
+    "motion",
+    "ai-ux",
+    "forms"
+   ]
+  },
+  {
+   "id": "latency-costs-gradual",
+   "topic": "response-time",
+   "principle": "Slowness costs users gradually; there is no single abandonment threshold",
+   "claim": "Slower responses reduce user activity by degrees. In web-search studies, people noticed added delay only above a threshold that depended on how fast the system normally was, and they clicked more on results that were served faster.",
+   "mechanism": "People adapt to the usual speed of a system and notice departures from it. Each added delay raises the chance that a person gives up or does less, so the cost accumulates smoothly and has no single cliff.",
+   "effects": {
+    "cognitiveLoad": "lowers — shorter waits mean fewer interruptions to the task",
+    "satisfaction": "raises — faster result pages drew more clicks in the cited log study; satisfaction itself was not measured there",
+    "perceivedIntuitiveness": "unknown — not measured"
+   },
+   "designMoves": [
+    "Treat speed as a continuous budget and not as a pass or fail line.",
+    "Load the main content first; Core Web Vitals rate a Largest Contentful Paint of 2.5 s or less as good.",
+    "Keep speed consistent, because users of a fast system notice slow moments more.",
+    "Measure on real devices and networks, not only in the laboratory.",
+    "Remove work that delays the first useful view, such as large scripts and late-loading fonts."
+   ],
+   "antiPatterns": [
+    "Quoting 'users leave after 3 seconds' as a law.",
+    "Optimising a laboratory score while real visits stay slow.",
+    "A fast first page followed by slow steps inside the task."
+   ],
+   "howToCheck": {
+    "machine": "Measure Largest Contentful Paint, INP and Cumulative Layout Shift with the web-vitals library under network and CPU throttling. Flag values beyond the 'good' thresholds exported by the library (LCP 2,500 ms, INP 200 ms, CLS 0.1).",
+    "human": "Review field data by page type and device, and look for slow steps inside key tasks."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Arapakis, Bai and Cambazoglu (SIGIR 2014) combined a controlled user study with a large Yahoo search log. Live experiments at Google and Bing (Brutlag 2009 and a joint industry talk) reported fewer searches per user when delay was added; the exact figures were not confirmed. Widely quoted vendor statistics, such as '53% of mobile visits are abandoned if a page takes longer than 3 seconds' (attributed from memory to Google, 2016 to 2017), come from unpublished analytics and have grade C at best. The verified evidence concerns web search; other kinds of site may differ."
+   },
+   "sources": [
+    {
+     "citation": "Arapakis, I., Bai, X., & Cambazoglu, B. B. (2014). Impact of response latency on user behavior in web search. Proceedings of SIGIR 2014, 103-112.",
+     "url": "https://dblp.org/rec/conf/sigir/ArapakisBC14.html",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Google Chrome team. web-vitals JavaScript library, README (thresholds for INP, LCP and CLS).",
+     "url": "https://raw.githubusercontent.com/GoogleChrome/web-vitals/main/README.md",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Effects per 100 ms are small and matter mostly at scale. Tolerance for a wait rises with the value of the result and with visible progress.",
+   "appliesTo": [
+    "performance",
+    "hero",
+    "states"
+   ]
   }
  ]
 }
