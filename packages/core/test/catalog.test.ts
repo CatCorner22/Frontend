@@ -5,7 +5,8 @@ import {
   CITED_NAMES, tradeWordsOutsideBrackets, vaguePhrasesIn,
   type DesignParams, type SourceRef,
 } from '../src/index.js';
-import { allStrings, repoFileExists } from './helpers.js';
+import { readFileSync, readdirSync } from 'node:fs';
+import { allStrings, repoFileExists, repoPath } from './helpers.js';
 
 const isDate = (s: unknown): boolean => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s;
 
@@ -346,5 +347,20 @@ describe('Catalog: rules about how Decisions fit together', () => {
       const params = harmonize({ ...DEFAULT_PARAMS, ...triggers[id] });
       expect(conflicts({ ...createProject(), params }).map((c) => c.id), id).not.toContain(id);
     }
+  });
+});
+
+describe('claims about output (hard rule 8)', () => {
+  it('writes "WCAG compliant", "ADA compliant", or "accessible" in no source file of the core or of the Studio', () => {
+    const sourceFiles = (dir: string): string[] =>
+      readdirSync(repoPath(dir), { withFileTypes: true }).flatMap((entry) =>
+        entry.isDirectory() ? sourceFiles(`${dir}/${entry.name}`) : /\.(ts|tsx|css|html)$/.test(entry.name) ? [`${dir}/${entry.name}`] : [],
+      );
+    const files = [...sourceFiles('packages/core/src'), ...sourceFiles('apps/studio/src')];
+    expect(files.length, 'the list of source files must not be empty or nearly so').toBeGreaterThanOrEqual(15);
+    const forbidden = /WCAG[- ]compliant|ADA[- ]compliant|\baccessible\b/i;
+    for (const file of files) expect(readFileSync(repoPath(file), 'utf8').match(forbidden)?.[0], file).toBeUndefined();
+    // The checker fails the texts it must fail.
+    for (const bad of ['This page is WCAG compliant.', 'ADA-compliant output', 'an accessible design']) expect(forbidden.test(bad), bad).toBe(true);
   });
 });
