@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PARAMS, DIRECTIONS, REASON_MAX, STEPS,
-  applyDirection, closerOptions, conflicts, createProject, describeDesign, designDistance, findStep, firstOpenStepId, generateDirections, keep,
+  applyDirection, closerOptions, conflicts, createProject, deriveTokens, describeDesign, designDistance, findStep, firstOpenStepId, generateDirections, keep,
   matchingOptionId, nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setReason, startPlain, tune, wireframeParams,
   type DesignParams, type Project,
 } from '../src/index.js';
@@ -292,18 +292,36 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
     const any = <T,>(list: readonly T[]): T => list[Math.floor(rand() * list.length)]!;
     const canonical = (value: unknown): unknown =>
       Array.isArray(value) ? value.map(canonical) : typeof value === 'object' && value !== null ? Object.fromEntries(Object.keys(value).sort().map((k) => [k, canonical((value as Record<string, unknown>)[k])])) : value;
+    const actions: Record<string, number> = {};
     for (let run = 0; run < 300; run++) {
       let p = rand() < 0.5 ? fresh() : applyDirection(fresh(), any(DIRECTIONS).id);
       for (let action = 0; action < 20; action++) {
         const s = any(STEPS);
-        const kind = Math.floor(rand() * 4);
-        if (kind === 0) p = pick(p, s.id, any(s.options).id, AT);
-        else if (kind === 1) p = keep(p, s.id, AT);
-        else if (kind === 2 && s.tunables?.length) {
+        // Every action the Studio can take on a project: pick, keep, slider, small variation, reason, put back, a new Direction, the plain start.
+        const kind = Math.floor(rand() * 8);
+        let ran = 'put back';
+        if (kind === 0 || kind === 6) {
+          p = pick(p, s.id, any(s.options).id, AT);
+          ran = 'pick';
+        } else if (kind === 1) {
+          p = keep(p, s.id, AT);
+          ran = 'keep';
+        } else if (kind === 2 && s.tunables?.length) {
           const tunable = any(s.tunables);
           p = tune(p, s.id, tunable.key, tunable.min + rand() * (tunable.max - tunable.min), AT);
+          ran = 'slider';
+        } else if (kind === 3 && s.tunables?.length && closerOptions(p, s.id).length > 0) {
+          p = pickValues(p, s.id, any(closerOptions(p, s.id, Math.floor(rand() * 3))).values, AT);
+          ran = 'small variation';
+        } else if (kind === 4 && p.decisions[s.id]) {
+          p = setReason(p, s.id, rand() < 0.3 ? '' : `reason ${run}-${action}`);
+          ran = 'reason';
+        } else if (kind === 5 && rand() < 0.25) {
+          p = rand() < 0.5 ? applyDirection(p, any(DIRECTIONS).id) : startPlain(p);
+          ran = 'new start';
         } else p = revert(p, s.id);
         consistent(p);
+        actions[ran] = (actions[ran] ?? 0) + 1;
       }
       const reloaded = parseProject(JSON.parse(JSON.stringify(p)));
       expect(reloaded.ok).toBe(true);
@@ -311,7 +329,12 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
       const plain = JSON.parse(JSON.stringify(p)) as Project;
       for (const id of Object.keys(plain.decisions)) expect(canonical(JSON.parse(JSON.stringify(reloaded.project.decisions[id] ?? null))), `run ${run}: the Decision on ${id}`).toEqual(canonical(plain.decisions[id]));
       expect(canonical(JSON.parse(JSON.stringify(reloaded.project))), `run ${run}`).toEqual(canonical(plain));
+      // The state at the end of each run still yields colors and messages without a fault.
+      expect(() => deriveTokens(p.params, 'enforce')).not.toThrow();
+      expect(() => conflicts(p)).not.toThrow();
     }
+    // Every kind of action really ran, many times.
+    for (const name of ['pick', 'keep', 'slider', 'small variation', 'reason', 'new start', 'put back']) expect(actions[name] ?? 0, `the action "${name}" ran ${actions[name] ?? 0} times`).toBeGreaterThan(100);
   }, 60000);
 });
 

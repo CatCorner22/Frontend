@@ -155,7 +155,7 @@ describe('Studio: first screen', () => {
 
 describe('Studio: the Step flow keeps the design the person chose', () => {
   it('keeps every value of a dark Direction when the main button is pressed on all Steps (findings FTU-02, P-04)', async () => {
-    const { context, page, errors } = await open();
+    const { context, page, errors, requests } = await open();
     await page.getByRole('button', { name: 'Start from Midnight Aurora' }).click();
     const labels: string[] = [];
     for (const step of STEPS) {
@@ -178,6 +178,8 @@ describe('Studio: the Step flow keeps the design the person chose', () => {
     expect(labels.filter((l) => l === 'Keep my design and continue').length).toBeGreaterThan(3);
     expect(await page.locator('.summary-main').innerText()).toContain(`You have decided ${STEPS.length} of ${STEPS.length} Steps`);
     expect(errors).toEqual([]);
+    // The walk through every Step asked no outside address for anything.
+    expect(requests).toEqual([]);
     await context.close();
   });
 
@@ -251,7 +253,7 @@ describe('Studio: the Step flow keeps the design the person chose', () => {
 
 describe('Studio: keyboard', () => {
   it('can be used from the first screen to the Summary with the keyboard alone, with focus visible at every stop', async () => {
-    const { context, page, errors } = await open();
+    const { context, page, errors, requests } = await open();
     const seen: string[] = [];
     const tabTo = async (match: (f: { id: string; text: string }) => boolean, limit = 60): Promise<number> => {
       for (let presses = 1; presses <= limit; presses++) {
@@ -291,6 +293,8 @@ describe('Studio: keyboard', () => {
     await settle(page);
     expect((await stored(page))!.decisions['nav']).toMatchObject({ kind: 'picked', optionId: 'side-rail' });
     expect(errors).toEqual([]);
+    // The walk through every Step asked no outside address for anything.
+    expect(requests).toEqual([]);
     await context.close();
   });
 
