@@ -42,8 +42,6 @@ export interface Notice {
   /** A notice that reports a problem is announced at once; an ordinary one waits its turn. */
   urgent?: boolean;
   actions?: NoticeAction[];
-  /** A notice that needs a decision cannot be dismissed without one. */
-  sticky?: boolean;
 }
 
 export interface Confirmation {
@@ -75,6 +73,12 @@ export interface StudioState {
   generated: Direction[];
   saved: SaveState;
   notice: Notice | null;
+  /**
+   * A notice that needs the owner's decision, for example after the Studio has stopped saving. It has its own place on the screen,
+   * it cannot be dismissed, and no other notice can take its place: it stays until the owner decides (campaign 4, finding F-1:
+   * an Undo replaced it, and with it the only buttons that resume saving).
+   */
+  hold: Notice | null;
   confirmation: Confirmation | null;
 
   init(): Promise<void>;
@@ -175,6 +179,12 @@ const HISTORY_MAX = 40;
 const SAVE_DELAY_MS = 300;
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 let lastSavedText: string | null = null;
+/** The result of the last save attempt, or `idle` before the first one. */
+let lastOutcome: SaveState = 'idle';
+/** True once the owner chose to reload: the leave-page question is then not asked a second time. */
+let leavingOnPurpose = false;
+const EITHER_WAY = 'Whichever you choose, the Studio first keeps the other copy; you then find it on the Summary, under “Copies the Studio kept for you”.';
+const WHY_LEFT = (name: string): string => `The work in the project “${name.slice(0, 60)}” that was not yet saved when you left or reloaded the page.`;
 
 export const useStudio = create<StudioState>((set, get) => {
   /**
@@ -209,7 +219,7 @@ export const useStudio = create<StudioState>((set, get) => {
     const adopt = (): void => {
       adoptStoredCopy();
       if (forgetLastSave) lastSavedText = null;
-      set({ saved: 'saving', notice: null });
+      set({ saved: 'saving', hold: null, notice: null });
       void saveNow();
     };
     const stored = storedProjectText();
@@ -229,28 +239,74 @@ export const useStudio = create<StudioState>((set, get) => {
     });
   };
 
+  /**
+   * The owner chose the other tab's copy. This tab's project is kept first, so that the choice destroys nothing; if it cannot
+   * be kept, the Studio asks once more (campaign 4, finding F-2: the reload discarded this tab's work without a word).
+   */
+  const seeOtherCopy = (): void => {
+    const reload = (): void => {
+      leavingOnPurpose = true;
+      window.location.reload();
+    };
+    const mine = get().project;
+    if (!hasWork(mine) || keepBackup(JSON.stringify(mine), `This tab’s copy of the project “${mine.name.slice(0, 60)}”, as it was before you reloaded to see the other copy.`)) {
+      reload();
+      return;
+    }
+    set({
+      confirmation: {
+        title: 'The Studio could not keep this tab’s copy',
+        body: 'This browser’s storage is full, or it does not let the Studio store anything, so the Studio cannot keep this tab’s copy of your project. If you reload, the work in this tab is gone for good. To be safe, choose “Stay here”, download the project file from the Summary, and then reload.',
+        confirmLabel: 'Reload and lose this tab’s copy',
+        cancelLabel: 'Stay here',
+        danger: true,
+        run: reload,
+      },
+    });
+  };
+
+  /**
+   * The page is about to close or reload. Returns true when the work on screen is safe: saved, or kept as a copy.
+   * While the Studio is not saving, it must not write the saved project, so it keeps the unsaved work as a copy instead;
+   * a kept copy joins the list and replaces nothing.
+   */
+  const leaveSafely = (): boolean => {
+    const { project, saved } = get();
+    const text = JSON.stringify(project);
+    if (text === lastSavedText || !hasWork(project)) return true;
+    if (saved === 'held') return keepBackup(text, WHY_LEFT(project.name));
+    clearTimeout(saveTimer);
+    return saveBrowserNow(text, new Date().toISOString()) === 'saved' || keepBackup(text, WHY_LEFT(project.name));
+  };
+
   const saveNow = async (): Promise<void> => {
     clearTimeout(saveTimer);
     if (get().saved === 'held') return;
     const text = JSON.stringify(get().project);
-    if (text === lastSavedText) return;
+    if (text === lastSavedText) {
+      // Nothing to write: the project is back at its last saved state, for example after an Undo. The status line must still
+      // settle. It repeats the result of the last attempt, so that a "cannot save" statement stays while it is still true
+      // (campaign 4, finding F-7: the line stayed at "Saving…" for good).
+      if (get().saved === 'saving') set({ saved: lastOutcome });
+      return;
+    }
     const outcome = await saveProject(text);
     if (outcome === 'conflict') {
       set({
         saved: 'held',
-        notice: {
-          text: 'This project was changed in another tab or window after this one opened it. The Studio has stopped saving here, so that neither copy replaces the other without your say.',
+        hold: {
+          text: `This project was changed in another tab or window after this one opened it. The Studio has stopped saving here, so that neither copy replaces the other without your say. ${EITHER_WAY}`,
           urgent: true,
-          sticky: true,
           actions: [
             { label: 'Keep this tab’s copy', run: () => keepThisTab(false) },
-            { label: 'Reload to see the other copy', run: () => window.location.reload() },
+            { label: 'Reload to see the other copy', run: seeOtherCopy },
           ],
         },
       });
       return;
     }
     if (outcome !== 'failed') lastSavedText = text;
+    lastOutcome = outcome;
     // Only report the outcome if nothing changed while the save ran.
     if (JSON.stringify(get().project) === text) set({ saved: outcome });
   };
@@ -279,7 +335,7 @@ export const useStudio = create<StudioState>((set, get) => {
     // a second time. That second entry must keep the notice of the action that caused the move (finding U3-08: "Started again
     // from …" with its Undo button vanished at once).
     const samePlace = state.view === view && state.stepId === step.id;
-    let notice = state.notice?.sticky || samePlace ? state.notice : null;
+    let notice = samePlace ? state.notice : null;
     if (leaving && !state.variations && state.shownId !== appliedCardId(state.project, leaving)) {
       // A card that was looked at and not picked would otherwise vanish without a word (finding FTU-30).
       const looked = leaving.options.find((o) => o.id === state.shownId)?.label;
@@ -331,7 +387,7 @@ export const useStudio = create<StudioState>((set, get) => {
    */
   const resumeSaving = (): void => {
     adoptStoredCopy();
-    set({ saved: 'idle', notice: null });
+    set({ saved: 'idle', hold: null, notice: null });
     if (JSON.stringify(get().project) !== lastSavedText) persist();
   };
 
@@ -356,6 +412,7 @@ export const useStudio = create<StudioState>((set, get) => {
     if (chosen) {
       lastSavedText = JSON.stringify(chosen.result.project);
       saved = chosen.where;
+      lastOutcome = chosen.where;
       notes.push(...chosen.result.notes);
       // Opening can change a saved copy (an older version, a Step this Catalog lacks, a detail it cannot keep). The next save would then
       // replace the original, so the Studio keeps the original first and says so (finding S2-02).
@@ -412,7 +469,9 @@ export const useStudio = create<StudioState>((set, get) => {
       );
     }
     if (loaded.browser === 'blocked' && loaded.page === 'absent') notes.push('This browser does not let the Studio store anything, so your work cannot be saved here. Download the project file from the Summary before you close this page.');
-    set({ saved, notice: notes.length > 0 ? { text: notes.join(' '), urgent: bad.length > 0 || unkept.length > 0, sticky, ...(actions.length > 0 ? { actions } : {}) } : null });
+    const opening: Notice | null = notes.length > 0 ? { text: notes.join(' '), urgent: bad.length > 0 || unkept.length > 0, ...(actions.length > 0 ? { actions } : {}) } : null;
+    // A notice that needs a decision takes the place that no other notice can take.
+    set(sticky ? { saved, hold: opening, notice: null } : { saved, notice: opening });
 
     if (loaded.page === 'timeout') {
       // The page database did not answer. Nothing is written there until a read succeeds (finding SEC-02, case d).
@@ -424,7 +483,8 @@ export const useStudio = create<StudioState>((set, get) => {
         const pageIsNewer = (later.savedAt ?? '') > (chosen?.copy.savedAt ?? '');
         if (!pageIsNewer) return;
         const laterProject = result.project;
-        set({ notice: { text: 'A newer copy of this project was found saved on this page.', sticky: true, actions: [{ label: 'Open the newer copy', run: () => replaceProject(laterProject, 'Opened the newer copy.') }, { label: 'Keep what I have', run: () => set({ notice: null }) }] } });
+        if (get().hold) return;
+        set({ hold: { text: 'A newer copy of this project was found saved on this page.', actions: [{ label: 'Open the newer copy', run: () => { set({ hold: null }); replaceProject(laterProject, 'Opened the newer copy.'); } }, { label: 'Keep what I have', run: () => set({ hold: null }) }] } });
       });
     }
   };
@@ -445,6 +505,7 @@ export const useStudio = create<StudioState>((set, get) => {
     generated: [],
     saved: 'idle',
     notice: null,
+    hold: null,
     confirmation: null,
 
     async init() {
@@ -455,12 +516,19 @@ export const useStudio = create<StudioState>((set, get) => {
         if (next) enter(next.view, next.stepId ?? get().stepId, false);
       });
       window.addEventListener('pagehide', () => get().flush());
+      // Work that is neither saved nor kept as a copy would vanish with the page. The browser then asks its own
+      // "leave this page?" question; the Studio cannot word that question, and it can only ask it this way.
+      window.addEventListener('beforeunload', (event) => {
+        if (leavingOnPurpose || leaveSafely()) return;
+        event.preventDefault();
+        event.returnValue = '';
+      });
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') get().flush();
       });
       watchOtherTabs(() => {
         if (get().saved === 'held') return;
-        set({ saved: 'held', notice: { text: 'This project was just changed in another tab or window. The Studio has stopped saving here, so that neither copy replaces the other without your say.', urgent: true, sticky: true, actions: [{ label: 'Keep this tab’s copy', run: () => keepThisTab(true) }, { label: 'Reload to see the other copy', run: () => window.location.reload() }] } });
+        set({ saved: 'held', hold: { text: `This project was just changed in another tab or window. The Studio has stopped saving here, so that neither copy replaces the other without your say. ${EITHER_WAY}`, urgent: true, actions: [{ label: 'Keep this tab’s copy', run: () => keepThisTab(true) }, { label: 'Reload to see the other copy', run: seeOtherCopy }] } });
       });
       try {
         openSaved(await loadSaved());
@@ -662,11 +730,15 @@ export const useStudio = create<StudioState>((set, get) => {
       const touched = STEPS.filter((st) => differs(now.decisions[st.id], previous.decisions[st.id]) || differs(ownedValues(st, now.params), ownedValues(st, previous.params)));
       const wholeProject = now.direction !== previous.direction || touched.length > 3;
       const first = touched[0];
-      const text = wholeProject || !first
+      // A change that touched no Step: the name, or the Contrast checks setting. Saying "your earlier project is back" for a
+      // changed name would overstate what Undo did.
+      const small = !wholeProject && !first ? (now.name !== previous.name ? `Undone: the project’s name is “${previous.name.slice(0, 60)}” again.` : now.a11y !== previous.a11y ? 'Undone: the Contrast checks setting is back to how it was.' : null) : null;
+      const text = small
+        ?? (wholeProject || !first
         ? `Undone: your earlier project is back, the one that started from ${directionName(previous, get().generated)}.`
         : touched.length === 1
           ? `Undone: the Step “${first.name}” is back to how it was.`
-          : `Undone: the Steps ${touched.map((st) => `“${st.name}”`).join(' and ')} are back to how they were.`;
+          : `Undone: the Steps ${touched.map((st) => `“${st.name}”`).join(' and ')} are back to how they were.`);
       const elsewhere = !wholeProject && first && first.id !== stepId ? first : null;
       set({
         project: previous, history: history.slice(0, -1), variations: null, shownId: appliedCardId(previous, stepOf(stepId)),
@@ -677,7 +749,7 @@ export const useStudio = create<StudioState>((set, get) => {
     },
 
     dismissNotice() {
-      if (!get().notice?.sticky) set({ notice: null });
+      set({ notice: null });
     },
 
     answerConfirmation(yes) {
@@ -689,7 +761,11 @@ export const useStudio = create<StudioState>((set, get) => {
     flush() {
       // The page is closing or going to the background: write the browser copy at once (finding P-06).
       clearTimeout(saveTimer);
-      if (get().saved === 'held') return;
+      if (get().saved === 'held') {
+        // Not saving: the saved project must stay as it is. The unsaved work is kept as a copy instead, which replaces nothing.
+        leaveSafely();
+        return;
+      }
       const text = JSON.stringify(get().project);
       if (text === lastSavedText) return;
       // The browser copy is written first, in this same instant; the page database follows if the page lives long enough.

@@ -1,12 +1,15 @@
 // End-to-end tests: they drive the built Studio page in a real browser, the way a person would.
 // Run with `npm run e2e` (which builds the page first).
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { CITED_NAMES, DIRECTIONS, FONTS, STEPS, applyDirection, createProject, pick, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, type Project } from '@refraction/core';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const pageUrl = new URL('../dist/artifact/local-test.html', import.meta.url).href;
+/** An empty page beside the Studio's page. Every local file shares one storage in this browser, so a test can fill storage here first. */
+const blankUrl = new URL('../dist/artifact/blank-for-tests.html', import.meta.url);
 const axeSource = readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
 const fixtureV1 = readFileSync(new URL('../../../packages/core/test/fixtures/project-v1-direction.json', import.meta.url), 'utf8');
 const LOCAL_KEY = 'refraction.project.v2';
@@ -15,6 +18,7 @@ const BACKUP_KEY = 'refraction.project.backup';
 
 let browser: Browser;
 beforeAll(async () => {
+  writeFileSync(fileURLToPath(blankUrl), '<!doctype html><title>Blank page for tests</title>');
   browser = await chromium.launch();
 });
 afterAll(async () => {
@@ -49,13 +53,34 @@ async function open(options: OpenOptions = {}): Promise<Session> {
   page.on('request', (request) => {
     if (!/^(file|data|about|blob):/.test(request.url())) requests.push(request.url());
   });
+  // A test can give this browser's storage a fixed capacity (see `fillStorage`). The capacity is itself stored, so it holds after
+  // a reload, from before the Studio starts. A write beyond it is refused with the same error that a browser gives when its
+  // storage is full.
+  await page.addInitScript(() => {
+    if (window.top !== window) return;
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (this: Storage, key: string, value: string): void {
+      const capacity = this === window.localStorage ? window.localStorage.getItem('test.capacity') : null;
+      if (capacity !== null && key !== 'test.capacity') {
+        let used = 0;
+        for (let i = 0; i < this.length; i++) {
+          const k = this.key(i)!;
+          used += k.length + (this.getItem(k) ?? '').length;
+        }
+        const old = this.getItem(key);
+        const next = used - (old === null ? 0 : key.length + old.length) + key.length + String(value).length;
+        if (next > Number(capacity)) throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+      }
+      original.call(this, key, value);
+    };
+  });
   if (options.storage) {
-    await page.addInitScript((entries) => {
-      // The script also runs inside each sandboxed preview frame, which has no storage: seed the top page only.
-      if (window.top !== window) return;
-      // Seed once: a reload must see what the Studio itself wrote, not the seed again.
-      if (window.sessionStorage.getItem('seeded')) return;
-      window.sessionStorage.setItem('seeded', '1');
+    // Place the starting data from an empty page, then go to the Studio. An earlier version placed it from a script that ran at
+    // the first instant of every load and looked for a "placed already" marker in storage. On a reload, the browser sometimes
+    // showed that script an empty storage (4 of 16 trials, 2026-11-13); the script then placed the starting data again and so
+    // replaced what the Studio had written. Several tests failed now and then for that reason, and blamed the Studio.
+    await page.goto(blankUrl.href);
+    await page.evaluate((entries) => {
       for (const [key, value] of Object.entries(entries)) window.localStorage.setItem(key, value);
     }, options.storage);
   }
@@ -96,8 +121,33 @@ const stored = (page: Page): Promise<Project | null> =>
 const rawStored = (page: Page, key: string): Promise<string | null> => page.evaluate((k) => window.localStorage.getItem(k), key);
 /** Every copy the Studio kept, newest first. */
 const keptCopies = async (page: Page): Promise<{ why: string; text: string }[]> => JSON.parse((await rawStored(page, BACKUP_KEY)) ?? '[]') as { why: string; text: string }[];
-/** Fill this browser's storage until only about `spare` characters are free, as a browser with many sites' data would be. */
-const fillStorage = (page: Page, spare: number): Promise<number> =>
+/**
+ * Make this browser's storage full, with `spare` characters free: from now on, and after a reload, a write beyond that is refused.
+ * Returns true when a write that is larger than the spare room is indeed refused.
+ *
+ * Why the tests do not write five megabytes for this. They did, until 2026-11-13: fill the real storage, then reload. In 5 of 20
+ * trials the browser dropped the filler on the reload, storage was not full, and the test failed for a reason of its own (it
+ * waited for a button that, correctly, was not there). `fillRealStorage` still fills the real storage, for a test that does not reload.
+ */
+const fillStorage = (page: Page, spare: number): Promise<boolean> =>
+  page.evaluate((room) => {
+    const store = window.localStorage;
+    let used = 'test.capacity'.length + 12;
+    for (let i = 0; i < store.length; i++) {
+      const k = store.key(i)!;
+      if (k !== 'test.capacity') used += k.length + (store.getItem(k) ?? '').length;
+    }
+    store.setItem('test.capacity', String(used + room).padStart(12, '0'));
+    try {
+      store.setItem('test.probe', 'x'.repeat(room + 1));
+      store.removeItem('test.probe');
+      return false;
+    } catch {
+      return true;
+    }
+  }, spare);
+/** Fill the browser's real storage until only about `spare` characters are free. Not reliable across a reload (see `fillStorage`). */
+const fillRealStorage = (page: Page, spare: number): Promise<number> =>
   page.evaluate((room) => {
     let low = 0;
     let high = 12_000_000;
@@ -378,7 +428,7 @@ describe('Studio: saved work is never replaced without a word', () => {
       await page.getByRole('button', { name: 'Start from Ember Noir' }).click();
       await settle(page);
       expect(await rawStored(page, LOCAL_KEY), label).toBe(text);
-      expect(await page.locator('.save-state').innerText(), label).toBe('Not saving: see the notice');
+      expect(await page.locator('.save-state').innerText(), label).toBe('Not saving: see the notice at the top of the page');
       // After the person decides, the unreadable copy sits in the backup slot and saving resumes.
       await page.locator('.banner').getByRole('button', { name: /^Start a new project/ }).click();
       await page.locator('#project-name').fill('Something newer');
@@ -459,7 +509,7 @@ describe('Studio: saved work is never replaced without a word', () => {
   it('asks once more before it replaces a project whose copy it cannot keep, because storage is full (finding S3-01)', async () => {
     const { context, page } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
     await page.waitForSelector('.summary');
-    expect(await fillStorage(page, 200)).toBeGreaterThan(100_000);
+    expect(await fillStorage(page, 200)).toBe(true);
     const dialog = page.locator('dialog[open]');
     // First the usual question, then a second one that says the copy could not be kept.
     await page.getByRole('button', { name: 'Start a new project…' }).click();
@@ -501,16 +551,22 @@ describe('Studio: saved work is never replaced without a word', () => {
     await session.page.evaluate(([key, text]) => window.localStorage.setItem(key!, text!), [LOCAL_KEY, envelope(older, '2026-11-06T10:00:00.000Z')]);
     await fillStorage(session.page, 200);
     await session.page.reload();
-    const banner = session.page.locator('.banner');
+    const banner = session.page.locator('.banner.hold');
     await banner.waitFor();
     expect(await banner.innerText()).toContain('could not keep that copy');
     expect(await banner.innerText()).toContain('It has stopped saving');
     expect(await banner.getByRole('button', { name: 'Download the older copy' }).count()).toBe(1);
-    expect(await session.page.locator('.save-state').innerText()).toBe('Not saving: see the notice');
+    expect(await session.page.locator('.save-state').innerText()).toBe('Not saving: see the notice at the top of the page');
     // Work goes on, and the older copy in this browser is not replaced.
     await session.page.locator('#project-name').fill('Weeks of work, renamed');
     await settle(session.page);
     expect((await stored(session.page))!.name).toBe('Old copy from last week');
+    // An Undo and a look at the Summary do not remove the notice or its buttons (campaign 4, finding F-1).
+    await session.page.locator('#project-name').fill('Weeks of work, renamed twice');
+    await session.page.locator('.top').getByRole('button', { name: 'Undo', exact: true }).click();
+    await session.page.locator('.top-nav a', { hasText: 'Summary' }).click();
+    await session.page.waitForSelector('.summary');
+    expect(await session.page.locator('.banner.hold').getByRole('button', { name: 'Go on: let the Studio save over it' }).count()).toBe(1);
     // After the person says so, saving resumes, and the work done during the pause is saved at once.
     await banner.getByRole('button', { name: 'Go on: let the Studio save over it' }).click();
     await settle(session.page);
@@ -758,6 +814,167 @@ describe('Studio: saved work is never replaced without a word', () => {
     await page.getByRole('button', { name: 'Keep this tab’s copy' }).click();
     await settle(page);
     expect((await stored(page))?.name).toBe('Changed here too');
+    await context.close();
+  });
+});
+
+describe('Studio: a stopped save stays answerable, and no tab loses its work to a reload (campaign 4)', () => {
+  const HELD = 'Not saving: see the notice at the top of the page';
+  const state = (page: Page): Promise<string> => page.locator('.save-state').innerText();
+  const topUndo = (page: Page) => page.locator('.top').getByRole('button', { name: 'Undo', exact: true });
+  /** What a hurried person does while the Studio waits for an answer: more work, Undo, and a look at another screen. */
+  const carryOn = async (page: Page): Promise<void> => {
+    await page.locator('#project-name').fill('Work done while not saving');
+    await page.locator('#project-name').fill('More work done while not saving');
+    await topUndo(page).click();
+    await page.locator('.top-nav a', { hasText: 'Summary' }).click();
+    await page.waitForSelector('.summary');
+  };
+
+  it('keeps the notice of a stopped save, with its buttons, through Undo and a change of screen: unreadable saved copy (finding F-1)', async () => {
+    const cutOff = '{"savedAt":"2026-11-13T10:00:00.000Z","project":{"schemaVer';
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: cutOff } });
+    const hold = page.locator('.banner.hold');
+    await hold.waitFor();
+    expect(await hold.innerText()).toContain('could not be read');
+    await page.getByRole('button', { name: 'Start from Soft Daylight' }).click();
+    await page.waitForSelector('.cards');
+    await carryOn(page);
+    // The other notice ("Undone: …") has its own row; the notice that needs an answer is still there, and it cannot be dismissed.
+    expect(await hold.count()).toBe(1);
+    expect(await hold.getByRole('button', { name: 'Dismiss' }).count()).toBe(0);
+    expect(await state(page)).toBe(HELD);
+    expect(await rawStored(page, LOCAL_KEY)).toBe(cutOff);
+    // The answer still works: saving resumes, and the work on screen is saved at once.
+    await hold.getByRole('button', { name: /^Start a new project/ }).click();
+    await settle(page);
+    expect(await hold.count()).toBe(0);
+    expect((await stored(page))?.name).toBe(await page.locator('#project-name').inputValue());
+    expect(await state(page)).toBe('Saved in this browser, on this computer');
+    await context.close();
+  });
+
+  it('keeps the notice of a stopped save through Undo and a change of screen: a second tab (finding F-1)', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Shared project')) } });
+    await page.waitForSelector('.cards');
+    const other = await context.newPage();
+    await other.goto(pageUrl);
+    await other.waitForSelector('.cards');
+    await other.locator('#project-name').fill('Changed in the other tab');
+    await other.waitForTimeout(700);
+    const hold = page.locator('.banner.hold');
+    await hold.waitFor();
+    await carryOn(page);
+    expect(await hold.getByRole('button', { name: 'Keep this tab’s copy' }).count()).toBe(1);
+    expect(await hold.getByRole('button', { name: 'Reload to see the other copy' }).count()).toBe(1);
+    expect(await state(page)).toBe(HELD);
+    expect((await stored(page))?.name).toBe('Changed in the other tab');
+    await context.close();
+  });
+
+  it('keeps this tab’s copy before "Reload to see the other copy" reloads (finding F-2)', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Shared project')) } });
+    await page.waitForSelector('.cards');
+    const other = await context.newPage();
+    await other.goto(pageUrl);
+    await other.waitForSelector('.cards');
+    await other.locator('#project-name').fill('Changed in the other tab');
+    await other.waitForTimeout(700);
+    const hold = page.locator('.banner.hold');
+    await hold.waitFor();
+    expect(await hold.innerText()).toContain('Whichever you choose, the Studio first keeps the other copy');
+    await page.locator('#project-name').fill('Work in this tab that matters');
+    await settle(page);
+    await hold.getByRole('button', { name: 'Reload to see the other copy' }).click();
+    await page.waitForSelector('.cards');
+    await expect.poll(() => page.locator('#project-name').inputValue()).toBe('Changed in the other tab');
+    const kept = await keptCopies(page);
+    expect(kept.map((copy) => (JSON.parse(copy.text) as Project).name)).toContain('Work in this tab that matters');
+    expect(kept.find((copy) => copy.text.includes('Work in this tab that matters'))!.why).toContain('before you reloaded to see the other copy');
+    await context.close();
+  });
+
+  it('asks before "Reload to see the other copy" discards a tab’s copy that it cannot keep, because storage is full (finding F-2)', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Shared project')) } });
+    await page.waitForSelector('.cards');
+    const other = await context.newPage();
+    await other.goto(pageUrl);
+    await other.waitForSelector('.cards');
+    await other.locator('#project-name').fill('Changed in the other tab');
+    await other.waitForTimeout(700);
+    await page.locator('.banner.hold').waitFor();
+    await page.locator('#project-name').fill('Work in this tab that matters');
+    await fillStorage(page, 0);
+    await page.locator('.banner.hold').getByRole('button', { name: 'Reload to see the other copy' }).click();
+    const dialog = page.locator('dialog.confirm');
+    await dialog.waitFor();
+    expect(await dialog.innerText()).toContain('The Studio could not keep this tab’s copy');
+    await dialog.getByRole('button', { name: 'Stay here' }).click();
+    // Nothing reloaded: the work is still on screen.
+    expect(await page.locator('#project-name').inputValue()).toBe('Work in this tab that matters');
+    await context.close();
+  });
+
+  it('keeps unsaved work as a copy when a tab that is not saving closes or reloads', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Shared project')) } });
+    await page.waitForSelector('.cards');
+    const other = await context.newPage();
+    await other.goto(pageUrl);
+    await other.waitForSelector('.cards');
+    await other.locator('#project-name').fill('Changed in the other tab');
+    await other.waitForTimeout(700);
+    await page.locator('.banner.hold').waitFor();
+    await page.locator('#project-name').fill('Typed in the stopped tab');
+    await page.reload();
+    await page.waitForSelector('.cards');
+    // The saved project is the other tab's, untouched; the stopped tab's work is among the kept copies.
+    expect((await stored(page))?.name).toBe('Changed in the other tab');
+    const kept = await keptCopies(page);
+    expect(kept.some((copy) => copy.text.includes('Typed in the stopped tab') && copy.why.includes('was not yet saved when you left or reloaded the page'))).toBe(true);
+    await context.close();
+  });
+
+  it('settles the status line when a save has nothing to write, and keeps saying that storage is full while it is (finding F-7)', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('A')) } });
+    await page.waitForSelector('.cards');
+    // An edit and its Undo, faster than the save delay: nothing to write, and the line must not stay at "Saving…".
+    await page.locator('#project-name').fill('A, changed');
+    await topUndo(page).click();
+    // Undo says what it did: only the name went back.
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('Undone: the project’s name is “A” again.');
+    await settle(page);
+    expect(await state(page)).toBe('Saved in this browser, on this computer');
+    // Storage full, in the browser's real storage: the save fails and says so; an Undo back to the saved state keeps that statement.
+    expect(await fillRealStorage(page, 0)).toBeGreaterThan(100_000);
+    await page.locator('#project-name').fill('A, with a much longer name than before, so that it cannot fit');
+    await settle(page);
+    expect(await state(page)).toContain('Cannot save here');
+    await topUndo(page).click();
+    await settle(page);
+    expect(await state(page)).toContain('Cannot save here');
+    expect((await stored(page))?.name).toBe('A');
+    await context.close();
+  });
+
+  it('draws a slider’s knob exactly on the value that the text states, and walks the grid with the keys (finding F-9)', async () => {
+    const { context, page } = await open();
+    await page.getByRole('button', { name: 'Start from Galactic Goth' }).click();
+    await page.waitForSelector('.cards');
+    await page.locator('.rail a', { hasText: 'Spacing' }).first().click();
+    await page.locator('summary', { hasText: 'Adjust with sliders' }).click();
+    const slider = page.locator('#tune-density');
+    expect(await slider.inputValue()).toBe('1.12');
+    expect(await slider.getAttribute('aria-valuetext')).toContain('1.12');
+    await slider.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(() => slider.inputValue()).toBe('1.15');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(() => slider.inputValue()).toBe('1.05');
+    await page.keyboard.press('End');
+    await expect.poll(() => slider.inputValue()).toBe('1.45');
+    await page.keyboard.press('Home');
+    await expect.poll(() => slider.inputValue()).toBe('0.75');
     await context.close();
   });
 });

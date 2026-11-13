@@ -113,6 +113,7 @@ select, .name, .project-text {
 .banner { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.625rem max(16px, env(safe-area-inset-right, 0px)) 0.625rem max(16px, env(safe-area-inset-left, 0px)); background: var(--accent-soft); border-bottom: 1px solid var(--border); font-size: 0.875rem; }
 .banner p { flex: 1 1 24rem; max-width: 90ch; }
 .banner-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.banner.hold { border-left: 4px solid var(--accent); }
 .confirm { max-width: min(32rem, calc(100vw - 2rem)); padding: 1.25rem; border: 0; border-radius: var(--radius-surface); background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border), 0 24px 64px -16px rgb(0 0 0 / 0.5); }
 .confirm::backdrop { background: rgb(10 12 16 / 0.5); }
 .confirm h2 { font-size: 1.125rem; letter-spacing: var(--heading-tracking); text-transform: none; color: var(--text); font-weight: var(--heading-weight); }
@@ -254,7 +255,7 @@ select, .name, .project-text {
   /* The main button stays in reach while the cards scroll past. */
   .actions.sticky { bottom: 0; }
   /* A notice stays in view while the page scrolls, so that the answer to a press (Undo, for example) is never off the screen (finding U3-01). */
-  .banner { position: sticky; top: 0; z-index: 6; }
+  .banners { position: sticky; top: 0; z-index: 6; }
   .summary { grid-template-columns: minmax(0, 1fr); }
   .summary-side { position: static; height: min(26rem, 62vh); order: -1; }
   .top-nav { margin-inline: 0; }

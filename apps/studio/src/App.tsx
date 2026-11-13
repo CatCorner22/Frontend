@@ -1,5 +1,5 @@
 import {
-  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, activeTunables, conflicts, deriveTokens, findStep, matchingOptionId, resolvePatch,
+  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, activeTunables, conflicts, deriveTokens, findStep, matchingOptionId, nearestSliderValue, nextSliderValue, resolvePatch,
   type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, useEffect, useMemo, useRef, useState } from 'react';
@@ -41,7 +41,7 @@ const SAVE_LABEL: Record<StudioState['saved'], string> = {
   page: 'Saved on this page',
   browser: 'Saved in this browser, on this computer',
   failed: 'Cannot save here: this browser’s storage is full or blocked. Download the project file before you close this page.',
-  held: 'Not saving: see the notice',
+  held: 'Not saving: see the notice at the top of the page',
 };
 const PROFILE_MEANING: Record<A11yProfile, string> = {
   off: 'Off: no contrast notes are shown.',
@@ -186,17 +186,34 @@ function TopBar(): React.JSX.Element {
   );
 }
 
+/** How many grid points each key moves a slider. Home and End go to the ends. */
+const SLIDER_KEYS: Record<string, number> = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1, PageDown: -10, PageUp: 10, Home: -Infinity, End: Infinity };
+
 function NoticeBar(): React.JSX.Element | null {
   const notice = useStudio((s) => s.notice);
+  const hold = useStudio((s) => s.hold);
   const dismiss = useStudio((s) => s.dismissNotice);
-  if (!notice) return null;
+  if (!notice && !hold) return null;
   return (
-    <div className="banner" role={notice.urgent ? 'alert' : 'status'}>
-      <p>{notice.text}</p>
-      <div className="banner-actions">
-        {notice.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={action.run}>{action.label}</button>)}
-        {!notice.sticky && <button type="button" className="btn small quiet" onClick={dismiss}>Dismiss</button>}
-      </div>
+    <div className="banners">
+      {/* A notice that needs a decision has its own row. It has no "Dismiss", and no other notice replaces it. */}
+      {hold && (
+        <div className="banner hold" role={hold.urgent ? 'alert' : 'status'}>
+          <p>{hold.text}</p>
+          <div className="banner-actions">
+            {hold.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={action.run}>{action.label}</button>)}
+          </div>
+        </div>
+      )}
+      {notice && (
+        <div className="banner" role={notice.urgent ? 'alert' : 'status'}>
+          <p>{notice.text}</p>
+          <div className="banner-actions">
+            {notice.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={action.run}>{action.label}</button>)}
+            <button type="button" className="btn small quiet" onClick={dismiss}>Dismiss</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -614,7 +631,13 @@ function StepsView(): React.JSX.Element {
                 <label key={String(t.key)} className="slider">
                   <span className="slider-name">{t.label}</span>
                   <output htmlFor={`tune-${String(t.key)}`}>{sliderValue(t, value)}</output>
-                  <input id={`tune-${String(t.key)}`} type="range" aria-label={t.label} aria-valuetext={sliderValue(t, value)} min={t.min} max={t.max} step={t.step} value={Math.min(value, t.max)} onChange={(e) => s.tuneValue(t.key, Number(e.target.value))} />
+                  <input id={`tune-${String(t.key)}`} type="range" aria-label={t.label} aria-valuetext={sliderValue(t, value)} min={t.min} max={t.max} step="any" value={Math.min(value, t.max)} onChange={(e) => s.tuneValue(t.key, nearestSliderValue(t, Number(e.target.value)))} onKeyDown={(e) => {
+                    // The slider is drawn without a grid, so that its knob stands exactly on the value; the keys walk the grid here.
+                    const steps = SLIDER_KEYS[e.key];
+                    if (steps === undefined) return;
+                    e.preventDefault();
+                    s.tuneValue(t.key, steps === -Infinity ? t.min : steps === Infinity ? t.max : nextSliderValue(t, Math.min(value, t.max), steps));
+                  }} />
                   {aroundTheWheel ? (
                     <span className="slider-ends" aria-hidden="true"><span>Goes around the color wheel: {WHEEL.join(', ')}, and back to {WHEEL[0]}.</span></span>
                   ) : (
