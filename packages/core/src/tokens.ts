@@ -465,7 +465,9 @@ function displayTokens(p: DesignParams, pal: Palette, profile: A11yProfile): Rec
       from = ensureContrast(from, ground, 3 * MARGIN);
       to = ensureContrast(to, ground, 3 * MARGIN);
     }
-    return { '--display-fill': `linear-gradient(96deg, ${toCss(from)} 4%, ${toCss(to)} 96%)` };
+    // The ends are written as exact digits. The blend between them runs in the OKLab color space, where the middle keeps a
+    // lightness between its two ends; a blend in plain red-green-blue can dip darker in the middle (finding T3-15).
+    return { '--display-fill': `linear-gradient(96deg in oklab, ${toCss(from)} 4%, ${toCss(to)} 96%)` };
   }
   return { '--display-fill': 'none' };
 }

@@ -123,7 +123,11 @@ describe('Catalog: plain words, and one name for one thing (decision D38, findin
     expect(tradeWordsOutsideBrackets('ACCENT colors and Serif letters')).toEqual(['accent', 'serif']);
     expect(tradeWordsOutsideBrackets('a quiet hue')).toEqual(['hue']);
     expect(tradeWordsOutsideBrackets('taken from a design system')).toEqual(['design system']);
-    expect(tradeWordsOutsideBrackets('letters without feet, or sans-serif')).toEqual(['sans-serif']);
+    expect(tradeWordsOutsideBrackets('letters without feet, or sans-serif')).toEqual(['serif', 'sans', 'sans-serif']);
+    // Its plural counts, and so does a hyphenated compound (finding T3-07).
+    expect(tradeWordsOutsideBrackets('Fights with red or pink accents.')).toContain('accent');
+    expect(tradeWordsOutsideBrackets('accent-colored buttons')).toEqual(['accent']);
+    expect(tradeWordsOutsideBrackets('soft washes of color')).toEqual(['wash']);
     // Inside round brackets it is allowed; between two bracketed parts it is found.
     expect(tradeWordsOutsideBrackets('The main color (designers call it the accent color).')).toEqual([]);
     expect(tradeWordsOutsideBrackets('(first) the accent sits here (second)')).toEqual(['accent']);

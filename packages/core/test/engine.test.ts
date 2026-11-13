@@ -295,6 +295,18 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
     expect(matchingOptionId(pick(untuned, 'accent', 'cobalt', AT).params, strategy)).toBe('duo-triad');
   });
 
+  it('never moves a hand-set second color, even one that lands exactly on a following Option (finding T3-12)', () => {
+    const base = pick(fresh(), 'color-strategy', 'duo-triad', AT);
+    const opposite = (base.params.accentHue + 180) % 360;
+    const tuned = tune(base, 'color-strategy', 'accent2Hue', opposite, AT);
+    expect(tuned.decisions['color-strategy']!.kind).toBe('tuned');
+    // The hand-set value happens to equal "Two colors: opposites". It is still the owner's own value, so it does not follow.
+    expect(matchingOptionId(tuned.params, strategy)).toBe('duo-complement');
+    const changed = pick(tuned, 'accent', 'crimson', AT);
+    expect(changed.params.accentHue).not.toBe(base.params.accentHue);
+    expect(changed.params.accent2Hue).toBe(opposite);
+  });
+
   it('never moves a second color that the owner set by hand', () => {
     const tuned = tune(pick(fresh(), 'color-strategy', 'duo-triad', AT), 'color-strategy', 'accent2Hue', 200, AT);
     const changed = pick(tuned, 'accent', 'crimson', AT);

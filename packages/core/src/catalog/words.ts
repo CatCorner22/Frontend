@@ -14,7 +14,7 @@ export const TRADE_WORDS: readonly string[] = [
   'AI-default', 'listed sign', 'listed signs', 'design system', 'design systems', '60-30-10', 'signature', 'density', 'hierarchy', 'neutrals',
   'viewport', 'wireframe', 'token', 'tokens', 'typeface', 'typefaces', 'editorial', 'body text', 'focus ring',
   // Added after the third review (finding U3-05): second names for things that already have a plain name.
-  'accents', 'typography', 'navigation', 'navigation bar', 'theme', 'themes', 'tile', 'tiles',
+  'accents', 'typography', 'navigation', 'navigation bar', 'theme', 'themes', 'tile', 'tiles', 'radii', 'legibility',
 ];
 
 /**
@@ -40,7 +40,9 @@ export function tradeWordsOutsideBrackets(text: string, properNames: readonly st
   // Longer names first, so that "Source Serif 4" goes before a shorter name inside it could be taken.
   for (const name of [...properNames].sort((a, b) => b.length - a.length)) if (name) bare = bare.split(name).join(' ');
   bare = bare.replace(/\([^()]*\)/g, ' ');
-  return TRADE_WORDS.filter((word) => new RegExp(`(?<![A-Za-z-])${escapeForPattern(word)}(?![A-Za-z-])`, 'i').test(bare));
+  // A trade word counts in its plural ("accents") and inside a hyphenated compound ("accent-colored") too; only a longer word
+  // that merely contains it ("accented", "HeroUI") does not (finding T3-07).
+  return TRADE_WORDS.filter((word) => new RegExp(`(?<![A-Za-z])${escapeForPattern(word)}(?:s|es)?(?![A-Za-z])`, 'i').test(bare));
 }
 
 /** The vague phrases that `text` holds. */

@@ -457,8 +457,8 @@ export const STEPS: Step[] = [
     reviewed: REVIEWED,
     options: [
       { id: 'soft', label: 'Low contrast (soft)', what: 'Text and lines in gentler tones.', chooseWhen: 'Gentle, calm, low-stress pages with large text.', risk: 'Small or secondary text may fall below the 4.5 to 1 guideline; read the contrast notes.', patch: { contrast: 0.4 } },
-      { id: 'balanced', label: 'Medium contrast', what: 'Between soft and crisp.', chooseWhen: 'You want calm without giving up much legibility.', risk: 'None in particular.', patch: { contrast: 0.65 } },
-      { id: 'crisp', label: 'High contrast (crisp)', what: 'Near-black text on a light page, or bright text on a dark page, with clear lines.', chooseWhen: 'Most sites; the best all-round legibility.', risk: 'None in particular.', patch: { contrast: 0.85 } },
+      { id: 'balanced', label: 'Medium contrast', what: 'Between soft and crisp.', chooseWhen: 'You want calm without making the text much harder to read.', risk: 'None in particular.', patch: { contrast: 0.65 } },
+      { id: 'crisp', label: 'High contrast (crisp)', what: 'Near-black text on a light page, or bright text on a dark page, with clear lines.', chooseWhen: 'Most sites; text that is easy to read in most conditions.', risk: 'None in particular.', patch: { contrast: 0.85 } },
     ],
   },
   {
@@ -467,14 +467,14 @@ export const STEPS: Step[] = [
     stage: 'feel',
     title: 'What sits behind the first screen?',
     teach:
-      'This Step sets what sits behind the words on the first screen: nothing, a faint grid, a soft glow, or a fine grain like film. The background sets a mood before anyone reads. Keep it faint: on the websites whose code was studied for this Studio, a grid shows at 5 to 20 percent strength and fades out at the edges. Turned up loud, the same background is on published lists of looks that many AI-made pages share.',
+      'This Step sets what sits behind the words on the first screen: nothing, a faint grid, a soft glow, or a fine grain like film. The background sets a mood before anyone reads. In the open-source code that was studied for this Studio, these backgrounds stay faint: a grid shows at 5 to 20 percent strength and fades out at the edges. Turned up loud, the same background is on published lists of looks that many AI-made pages share.',
     variable: 'The background of the first screen',
     owns: ['atmosphere'],
     focus: 'top',
     thumb: { width: 900 },
     defaultOptionId: 'plain',
     sources: [
-      read('Background recipes in open-source code: Once UI and Magic UI (dot and line grids under a fading mask), ray.so (a spotlight glow), the cmdk website (an aurora), Open Props (grain). A helper program read the source files for this Studio; no person has reviewed its record yet.', R09),
+      read('Background recipes in open-source code: Once UI and Magic UI (dot and line grids under a fading mask), ray.so (a spotlight glow), the cmdk website (an aurora), Open Props (grain). An AI research assistant read the source files for this Studio; no person has reviewed its record yet.', R09),
       builder('The assistant that wrote this Studio made the Studio’s own backgrounds before that record existed. They use the same techniques, not the recorded values.'),
       read(`${KREBS} names decorative gradients.`, R04),
     ],
@@ -483,16 +483,16 @@ export const STEPS: Step[] = [
     options: [
       { id: 'plain', label: 'Plain background', what: 'A clean, flat background.', chooseWhen: 'The letter style and the content are strong enough alone.', risk: 'None in particular.', exemplar: { text: 'GOV.UK’s published design rules', record: R08 }, patch: { atmosphere: 'plain' } },
       { id: 'horizon', label: 'Faint fade of color', what: 'A faint tint of the main color that fades down the first screen.', chooseWhen: 'A gentle lift without any pattern.', risk: 'Too strong a tint looks like a stock blend of colors.', patch: { atmosphere: 'horizon' } },
-      { id: 'dot-grid', label: 'Dot grid', what: 'A field of tiny dots that fades toward the edges.', chooseWhen: 'A technical, drafting-table feel.', risk: 'Dots under reading text make it harder to read; the fade keeps them behind the headline only.', exemplar: { text: 'Once UI and Magic UI, two open-source sets of interface parts', record: R09 }, patch: { atmosphere: 'dot-grid' } },
-      { id: 'line-grid', label: 'Line grid', what: 'Faint grid lines, like graph paper, fading toward the edges.', chooseWhen: 'Engineering, architecture, planning.', risk: 'Lines compete with thin letters.', exemplar: { text: 'Magic UI, an open-source set of interface parts (its “retro grid”)', record: R09 }, patch: { atmosphere: 'line-grid' } },
-      { id: 'spotlight', label: 'Soft glow from the top', what: 'A soft glow of the main color from the top center, like stage light.', chooseWhen: 'Focus and drama, especially on dark pages.', risk: 'On light pages it must stay faint.', exemplar: { text: 'ray.so, Raycast’s open-source website', record: R09 }, patch: { atmosphere: 'spotlight' } },
+      { id: 'dot-grid', label: 'Dot grid', what: 'A field of tiny dots that fades toward the edges.', chooseWhen: 'A technical, drafting-table feel.', risk: 'Dots under reading text make it harder to read; the fade keeps them behind the headline only.', exemplar: { text: 'Once UI and Magic UI, two open-source projects whose code was read', record: R09 }, patch: { atmosphere: 'dot-grid' } },
+      { id: 'line-grid', label: 'Line grid', what: 'Faint grid lines, like graph paper, fading toward the edges.', chooseWhen: 'Engineering, architecture, planning.', risk: 'Lines compete with thin letters.', exemplar: { text: 'Magic UI, an open-source project whose code was read (its “retro grid”)', record: R09 }, patch: { atmosphere: 'line-grid' } },
+      { id: 'spotlight', label: 'Soft glow from the top', what: 'A soft glow of the main color from the top center, like stage light.', chooseWhen: 'Focus and drama, especially on dark pages.', risk: 'On light pages it must stay faint.', exemplar: { text: 'ray.so, an open-source website whose code was read', record: R09 }, patch: { atmosphere: 'spotlight' } },
       {
         id: 'aurora', label: 'Soft clouds of color', what: 'Two or three soft clouds of related color behind the headline.', chooseWhen: 'A rich, atmospheric first impression.', risk: 'Purple-and-blue clouds of color are on published lists of looks that many AI-made pages share; the effect works when the colors come from your own main color.',
         warn: { text: 'Soft clouds of several colors are on published lists of looks that many AI-made pages share, so your page may look generic. They read as intended only when the colors are your own and stay soft. “Soft glow from the top” or “Faint fade of color” gives depth with one color.', source: ownerFile(`Your Training Manual labels aurora and mesh gradients "the AI default look"; ${KREBS} names decorative gradients.`, R02) },
         exemplar: { text: 'The cmdk website (open-source code)', record: R09 },
         patch: { atmosphere: 'aurora' },
       },
-      { id: 'grain', label: 'Fine grain texture', what: 'A fine speckle over the whole page, like paper or film.', chooseWhen: 'Warmth, print, craft; softens flat color.', risk: 'Too much grain looks dirty; costs a little rendering speed.', exemplar: { text: 'Open Props, an open-source set of design values (its noise textures)', record: R09 }, patch: { atmosphere: 'grain' } },
+      { id: 'grain', label: 'Fine grain texture', what: 'A fine speckle over the whole page, like paper or film.', chooseWhen: 'Warmth, print, craft; softens flat color.', risk: 'Too much grain looks dirty; costs a little rendering speed.', exemplar: { text: 'Open Props, an open-source project whose code was read (its noise textures)', record: R09 }, patch: { atmosphere: 'grain' } },
     ],
   },
   {
@@ -510,7 +510,7 @@ export const STEPS: Step[] = [
     tunables: [{ key: 'radius', label: 'Corner rounding', min: 0, max: 28, step: 1, unit: 'px', nudge: 3, directions: ['sharper', 'rounder'] }],
     sources: [
       read('The concentric radius rule: Vercel Web Interface Guidelines and Jakub Krehel’s rules.', R04),
-      builder('The Studio rounds a box one and a half times as much as the buttons inside it. The exact rule adds the gap between box and button to the rounding of the button; the Studio comes close to that rule and does not follow it exactly.'),
+      builder('The Studio rounds a box one and a half times as much as the buttons inside it. The exact rule adds the gap between box and button to the rounding of the button; the Studio comes close to that rule and does not follow it exactly. Small parts get half the rounding of a button. With “Fully round (pill shape)”, buttons and small parts are fully round and boxes get corners of 28 pixels.'),
       read('Shape values in open design systems: controls at 4 to 8 pixels and cards at 8 to 14 pixels; square corners in IBM Carbon and GOV.UK; pill buttons in Material 3 and Radix Themes.', R08),
       ownerFile('Your files list "broadsheet hairlines with zero radius" among five newer AI-default looks.', R01),
     ],
@@ -520,7 +520,7 @@ export const STEPS: Step[] = [
       { id: 'square', label: 'Square corners', what: 'No rounding.', chooseWhen: 'A magazine-like, architectural, or serious feel.', risk: 'Square corners with very thin lines everywhere are on a published list of newer looks that many AI-made pages share.', exemplar: { text: 'IBM’s published design rules, named Carbon, and GOV.UK’s (square corners)', record: R08 }, patch: { radius: 0 } },
       { id: 'crisp', label: 'Barely rounded (3 px)', what: '3 pixels: barely softened.', chooseWhen: 'Precise and professional.', risk: 'None in particular.', exemplar: { text: 'GitHub’s published design rules, named Primer (3 pixels is its “small” rounding)', record: TOKENS }, patch: { radius: 3 } },
       { id: 'subtle', label: 'Slightly rounded (8 px)', what: '8 pixels.', chooseWhen: 'A neutral, current look.', risk: 'A common choice; it will not set you apart.', exemplar: { text: 'Material 3, a published set of design rules (8 pixels is one of its corner steps)', record: R08 }, patch: { radius: 8 } },
-      { id: 'soft', label: 'Clearly rounded (14 px)', what: '14 pixels: clearly rounded.', chooseWhen: 'Friendly and approachable.', risk: 'Large radii on small elements look bubbly.', patch: { radius: 14 } },
+      { id: 'soft', label: 'Clearly rounded (14 px)', what: '14 pixels: clearly rounded.', chooseWhen: 'Friendly and approachable.', risk: 'Very round corners on small things look bubbly.', patch: { radius: 14 } },
       { id: 'pill', label: 'Fully round (pill shape)', what: 'Fully rounded buttons; generously rounded boxes.', chooseWhen: 'A playful feel; products for the general public; pages used mostly on phones.', risk: 'Pills waste horizontal space and suit short labels only.', exemplar: { text: 'Material 3, a published set of design rules, and Radix Themes, an open-source set of interface parts (pill-shaped buttons)', record: R08 }, patch: { radius: 999 } },
     ],
   },
@@ -571,14 +571,14 @@ export const STEPS: Step[] = [
     tunables: [{ key: 'borderWeight', label: 'Line thickness', min: 0, max: 4, step: 0.5, unit: 'px', nudge: 0.5, directions: ['thinner', 'thicker'] }],
     sources: [
       read('GOV.UK Design System: 2-pixel form borders.', R04),
-      read('coss ui and Radix Themes source code: thin translucent edges (black at 8 percent on light pages in coss ui). A helper program read the source files for this Studio; no person has reviewed its record yet.', R09),
+      read('coss ui and Radix Themes source code: thin translucent edges (black at 8 percent on light pages in coss ui). An AI research assistant read the source files for this Studio; no person has reviewed its record yet.', R09),
     ],
     evidence: 'expert-opinion',
     reviewed: REVIEWED,
     options: [
       { id: 'none', label: 'No dividing lines', what: 'Page dividers vanish; inputs keep a thin outline.', chooseWhen: 'Spacing alone should organize the page.', risk: 'Sections can run together.', patch: { borderWeight: 0 } },
       { id: 'hairline', label: 'Thin lines (1 px)', what: '1 pixel.', chooseWhen: 'A refined, quiet page.', risk: 'None in particular.', exemplar: { text: 'coss ui, the design rules of Cal.com, and Radix Themes, an open-source set of interface parts (thin see-through edges)', record: R09 }, patch: { borderWeight: 1 } },
-      { id: 'medium', label: 'Medium lines (2 px)', what: '2 pixels.', chooseWhen: 'Clear, sturdy forms; high legibility.', risk: 'Heavier look.', exemplar: { text: 'GOV.UK’s published design rules (2-pixel borders on form fields)', record: R04 }, patch: { borderWeight: 2 } },
+      { id: 'medium', label: 'Medium lines (2 px)', what: '2 pixels.', chooseWhen: 'Clear, sturdy form fields that are easy to see.', risk: 'Heavier look.', exemplar: { text: 'GOV.UK’s published design rules (2-pixel borders on form fields)', record: R04 }, patch: { borderWeight: 2 } },
       { id: 'bold', label: 'Thick lines (3 px)', what: '3 pixels.', chooseWhen: 'Graphic, poster-like styles.', risk: 'Overpowers delicate letter styles.', patch: { borderWeight: 3 } },
     ],
   },
@@ -595,7 +595,7 @@ export const STEPS: Step[] = [
     thumb: { width: 440 },
     defaultOptionId: 'flat',
     sources: [
-      read('Button recipes in open-source code: Radix Themes (solid and "classic" beveled buttons), coss ui (a lit top edge; an outline button), HeroUI (a colored shadow), ray.so (a tinted button). A helper program read the source files for this Studio; no person has reviewed its record yet.', R09),
+      read('Button recipes in open-source code: Radix Themes (solid and "classic" beveled buttons), coss ui (a lit top edge; an outline button), HeroUI (a colored shadow), ray.so (a tinted button). An AI research assistant read the source files for this Studio; no person has reviewed its record yet.', R09),
       builder('The assistant that wrote this Studio made the Studio’s own button styles before that record existed. They use the same techniques, not the recorded values.'),
       read(`${KREBS} names colored glow.`, R04),
     ],
@@ -604,9 +604,9 @@ export const STEPS: Step[] = [
     options: [
       { id: 'flat', label: 'Solid color', what: 'One solid color.', chooseWhen: 'A clean, plain, magazine-like feel.', risk: 'None in particular.', exemplar: { text: 'Radix Themes, an open-source set of interface parts (its “solid” button)', record: R09 }, patch: { buttonFinish: 'flat' } },
       { id: 'gloss', label: 'Glossy (lit from above)', what: 'A lighter top, a bright inner edge, a fine dark ring, and a tinted shadow beneath.', chooseWhen: 'A tactile, well-made, premium feel.', risk: 'Overdone gloss looks dated; this finish keeps it subtle.', exemplar: { text: 'Radix Themes, an open-source set of interface parts (its “classic” button), and coss ui, the design rules of Cal.com (its default button)', record: R09 }, patch: { buttonFinish: 'gloss' } },
-      { id: 'glow', label: 'Glowing', what: 'A solid button that casts a soft halo of its own color.', chooseWhen: 'Dark pages; one action that must draw the eye.', risk: 'A colored glow on everything is on published lists of looks that many AI-made pages share; keep it to this one button.', exemplar: { text: 'HeroUI, an open-source set of interface parts (its “shadow” button)', record: R09 }, patch: { buttonFinish: 'glow' } },
+      { id: 'glow', label: 'Glowing', what: 'A solid button that casts a soft halo of its own color.', chooseWhen: 'Dark pages; one action that must draw the eye.', risk: 'A colored glow on everything is on published lists of looks that many AI-made pages share; keep it to this one button.', exemplar: { text: 'HeroUI, an open-source project whose code was read (its “shadow” button)', record: R09 }, patch: { buttonFinish: 'glow' } },
       { id: 'outline', label: 'Outline only', what: 'No fill: a colored outline and colored label.', chooseWhen: 'Understated pages where the button should not dominate.', risk: 'The main action stands out less.', exemplar: { text: 'coss ui, the design rules of Cal.com (its “outline” button)', record: R09 }, patch: { buttonFinish: 'outline' } },
-      { id: 'soft', label: 'Pale tint', what: 'A pale tint of the main color with a colored label.', chooseWhen: 'Gentle, friendly, low-pressure.', risk: 'Can look disabled if the tint is too pale.', exemplar: { text: 'ray.so, Raycast’s open-source website (its tinted button)', record: R09 }, patch: { buttonFinish: 'soft' } },
+      { id: 'soft', label: 'Pale tint', what: 'A pale tint of the main color with a colored label.', chooseWhen: 'Gentle, friendly, low-pressure.', risk: 'Can look disabled if the tint is too pale.', exemplar: { text: 'ray.so, an open-source website whose code was read (its tinted button)', record: R09 }, patch: { buttonFinish: 'soft' } },
     ],
   },
   {
@@ -622,7 +622,7 @@ export const STEPS: Step[] = [
     thumb: { width: 760 },
     defaultOptionId: 'solid',
     sources: [
-      read('Headline recipes in open-source code: Supabase (".heading-gradient") and the React Email site (".text-gradient"). A helper program read the source files for this Studio; no person has reviewed its record yet.', R09),
+      read('Headline recipes in open-source code: Supabase (".heading-gradient") and the React Email site (".text-gradient"). An AI research assistant read the source files for this Studio; no person has reviewed its record yet.', R09),
       ownerFile('Your Anti-Slop Checklist lists gradient text among the signs of AI-default design.', R02),
     ],
     evidence: 'expert-opinion',
