@@ -1,0 +1,527 @@
+{
+  "label": "a",
+  "bytes": 60077,
+  "externalRequests": [],
+  "viewports": {
+    "375": {
+      "structure": {
+        "lang": "en",
+        "h1Visible": 1,
+        "mainCount": 1,
+        "skipLink": true,
+        "clickableDivs": 0,
+        "inlineHandlers": 0,
+        "emojiInText": false,
+        "svgOrImg": 4,
+        "interactiveCount": 9,
+        "targetsUnder24": 1,
+        "targetsUnder44": 3,
+        "horizontalOverflow": false,
+        "bodyFontSizePx": 18,
+        "inputsWithoutLabel": 0
+      },
+      "census": {
+        "distinct": {
+          "color": 4,
+          "background": 4,
+          "fontSize": 7,
+          "fontFamily": 1,
+          "radius": 3,
+          "shadow": 0,
+          "borderColor": 4
+        },
+        "values": {
+          "color": [
+            "rgb(24, 32, 47)",
+            "rgb(74, 83, 101)",
+            "rgb(29, 58, 143)",
+            "rgb(255, 255, 255)"
+          ],
+          "background": [
+            "rgb(244, 185, 40)",
+            "rgb(255, 255, 255)",
+            "rgb(29, 58, 143)",
+            "rgb(235, 233, 225)"
+          ],
+          "fontSize": [
+            "18px",
+            "13px",
+            "16px",
+            "15px",
+            "33.6px",
+            "19.2px",
+            "20.8px"
+          ],
+          "fontFamily": [
+            "system-ui"
+          ],
+          "radius": [
+            "8px",
+            "10px",
+            "12px"
+          ],
+          "shadow": [],
+          "borderColor": [
+            "rgb(244, 185, 40)",
+            "rgb(105, 113, 133)",
+            "rgb(29, 58, 143)",
+            "rgb(211, 210, 202)"
+          ]
+        },
+        "gradients": 0,
+        "animated": 0,
+        "transitionAll": 0
+      },
+      "axe": []
+    },
+    "768": {
+      "structure": {
+        "lang": "en",
+        "h1Visible": 1,
+        "mainCount": 1,
+        "skipLink": true,
+        "clickableDivs": 0,
+        "inlineHandlers": 0,
+        "emojiInText": false,
+        "svgOrImg": 4,
+        "interactiveCount": 9,
+        "targetsUnder24": 1,
+        "targetsUnder44": 3,
+        "horizontalOverflow": false,
+        "bodyFontSizePx": 18,
+        "inputsWithoutLabel": 0
+      },
+      "census": {
+        "distinct": {
+          "color": 4,
+          "background": 4,
+          "fontSize": 7,
+          "fontFamily": 1,
+          "radius": 3,
+          "shadow": 0,
+          "borderColor": 4
+        },
+        "values": {
+          "color": [
+            "rgb(24, 32, 47)",
+            "rgb(74, 83, 101)",
+            "rgb(29, 58, 143)",
+            "rgb(255, 255, 255)"
+          ],
+          "background": [
+            "rgb(244, 185, 40)",
+            "rgb(255, 255, 255)",
+            "rgb(29, 58, 143)",
+            "rgb(235, 233, 225)"
+          ],
+          "fontSize": [
+            "18px",
+            "13px",
+            "16px",
+            "15px",
+            "56px",
+            "19.2px",
+            "25.6px"
+          ],
+          "fontFamily": [
+            "system-ui"
+          ],
+          "radius": [
+            "8px",
+            "10px",
+            "12px"
+          ],
+          "shadow": [],
+          "borderColor": [
+            "rgb(244, 185, 40)",
+            "rgb(105, 113, 133)",
+            "rgb(29, 58, 143)",
+            "rgb(211, 210, 202)"
+          ]
+        },
+        "gradients": 0,
+        "animated": 0,
+        "transitionAll": 0
+      },
+      "axe": []
+    },
+    "1280": {
+      "structure": {
+        "lang": "en",
+        "h1Visible": 1,
+        "mainCount": 1,
+        "skipLink": true,
+        "clickableDivs": 0,
+        "inlineHandlers": 0,
+        "emojiInText": false,
+        "svgOrImg": 4,
+        "interactiveCount": 12,
+        "targetsUnder24": 1,
+        "targetsUnder44": 3,
+        "horizontalOverflow": false,
+        "bodyFontSizePx": 18,
+        "inputsWithoutLabel": 0
+      },
+      "census": {
+        "distinct": {
+          "color": 4,
+          "background": 4,
+          "fontSize": 7,
+          "fontFamily": 1,
+          "radius": 3,
+          "shadow": 1,
+          "borderColor": 4
+        },
+        "values": {
+          "color": [
+            "rgb(24, 32, 47)",
+            "rgb(74, 83, 101)",
+            "rgb(29, 58, 143)",
+            "rgb(255, 255, 255)"
+          ],
+          "background": [
+            "rgb(244, 185, 40)",
+            "rgb(255, 255, 255)",
+            "rgb(29, 58, 143)",
+            "rgb(235, 233, 225)"
+          ],
+          "fontSize": [
+            "18px",
+            "13px",
+            "16px",
+            "15px",
+            "56px",
+            "19.2px",
+            "25.6px"
+          ],
+          "fontFamily": [
+            "system-ui"
+          ],
+          "radius": [
+            "8px",
+            "10px",
+            "12px"
+          ],
+          "shadow": [
+            "rgb(244, 185, 40) 0px -4px 0px 0px inset"
+          ],
+          "borderColor": [
+            "rgb(244, 185, 40)",
+            "rgb(105, 113, 133)",
+            "rgb(29, 58, 143)",
+            "rgb(211, 210, 202)"
+          ]
+        },
+        "gradients": 0,
+        "animated": 0,
+        "transitionAll": 0
+      },
+      "axe": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "nodes": 1,
+          "help": "Elements must have their visible text as part of their accessible name"
+        }
+      ],
+      "keyboard": {
+        "stops": 12,
+        "withoutVisibleFocus": [],
+        "thinOutline": 0
+      }
+    }
+  },
+  "flows": {
+    "success": {
+      "end": {
+        "reachedSuccess": true,
+        "failureCopy": false,
+        "alternativesVisible": true,
+        "steps": 7
+      },
+      "log": [
+        {
+          "step": 0,
+          "heading": "Bring your notice.\nLeave with a preparation plan.",
+          "clicked": "Start preparing"
+        },
+        {
+          "step": 1,
+          "heading": "There is a problem",
+          "clicked": "Continue"
+        },
+        {
+          "step": 2,
+          "heading": "Does your paperwork show a hearing, response, or other date?",
+          "clicked": "Continue"
+        },
+        {
+          "step": 3,
+          "heading": "Your document checklist",
+          "clicked": "Continue"
+        },
+        {
+          "step": 4,
+          "heading": "How should the clinic contact you?",
+          "clicked": "Continue"
+        },
+        {
+          "step": 5,
+          "heading": "Check your preparation summary",
+          "clicked": "Send request"
+        },
+        {
+          "step": 6,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        }
+      ],
+      "probedEmpty": {
+        "alert": false,
+        "ariaInvalid": 0,
+        "errorText": true,
+        "focusTag": "div",
+        "clicked": "Continue"
+      }
+    },
+    "server-error": {
+      "end": {
+        "reachedSuccess": false,
+        "failureCopy": true,
+        "alternativesVisible": true,
+        "steps": 14
+      },
+      "log": [
+        {
+          "step": 0,
+          "heading": "Bring your notice.\nLeave with a preparation plan.",
+          "clicked": "Start preparing"
+        },
+        {
+          "step": 1,
+          "heading": "There is a problem",
+          "clicked": "Continue"
+        },
+        {
+          "step": 2,
+          "heading": "Does your paperwork show a hearing, response, or other date?",
+          "clicked": "Continue"
+        },
+        {
+          "step": 3,
+          "heading": "Your document checklist",
+          "clicked": "Continue"
+        },
+        {
+          "step": 4,
+          "heading": "How should the clinic contact you?",
+          "clicked": "Continue"
+        },
+        {
+          "step": 5,
+          "heading": "Check your preparation summary",
+          "clicked": "Send request"
+        },
+        {
+          "step": 6,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 7,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 8,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 9,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 10,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 11,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 12,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 13,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        }
+      ],
+      "probedEmpty": {
+        "alert": false,
+        "ariaInvalid": 0,
+        "errorText": true,
+        "focusTag": "div",
+        "clicked": "Continue"
+      }
+    },
+    "offline": {
+      "end": {
+        "reachedSuccess": false,
+        "failureCopy": true,
+        "alternativesVisible": true,
+        "steps": 14
+      },
+      "log": [
+        {
+          "step": 0,
+          "heading": "Bring your notice.\nLeave with a preparation plan.",
+          "clicked": "Start preparing"
+        },
+        {
+          "step": 1,
+          "heading": "There is a problem",
+          "clicked": "Continue"
+        },
+        {
+          "step": 2,
+          "heading": "Does your paperwork show a hearing, response, or other date?",
+          "clicked": "Continue"
+        },
+        {
+          "step": 3,
+          "heading": "Your document checklist",
+          "clicked": "Continue"
+        },
+        {
+          "step": 4,
+          "heading": "How should the clinic contact you?",
+          "clicked": "Continue"
+        },
+        {
+          "step": 5,
+          "heading": "Check your preparation summary",
+          "clicked": "Send request"
+        },
+        {
+          "step": 6,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 7,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 8,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 9,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 10,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 11,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 12,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        },
+        {
+          "step": 13,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        }
+      ],
+      "probedEmpty": {
+        "alert": false,
+        "ariaInvalid": 0,
+        "errorText": true,
+        "focusTag": "div",
+        "clicked": "Continue"
+      }
+    },
+    "slow": {
+      "end": {
+        "reachedSuccess": true,
+        "failureCopy": false,
+        "alternativesVisible": true,
+        "steps": 7
+      },
+      "log": [
+        {
+          "step": 0,
+          "heading": "Bring your notice.\nLeave with a preparation plan.",
+          "clicked": "Start preparing"
+        },
+        {
+          "step": 1,
+          "heading": "There is a problem",
+          "clicked": "Continue"
+        },
+        {
+          "step": 2,
+          "heading": "Does your paperwork show a hearing, response, or other date?",
+          "clicked": "Continue"
+        },
+        {
+          "step": 3,
+          "heading": "Your document checklist",
+          "clicked": "Continue"
+        },
+        {
+          "step": 4,
+          "heading": "How should the clinic contact you?",
+          "clicked": "Continue"
+        },
+        {
+          "step": 5,
+          "heading": "Check your preparation summary",
+          "clicked": "Send request"
+        },
+        {
+          "step": 6,
+          "heading": "Check your preparation summary",
+          "clicked": "Sending…"
+        }
+      ],
+      "probedEmpty": {
+        "alert": false,
+        "ariaInvalid": 0,
+        "errorText": true,
+        "focusTag": "div",
+        "clicked": "Continue"
+      }
+    }
+  },
+  "reflow320": {
+    "overflow": false,
+    "scrollWidth": 320
+  },
+  "axeEnd": [],
+  "refresh": {
+    "before": "housing",
+    "after": "housing",
+    "kept": true
+  },
+  "hasPrintStyles": true,
+  "usesInnerHTML": 0,
+  "reducedMotionQuery": true
+}

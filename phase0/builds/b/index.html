@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Prepare for intake — ClearPath Legal Clinic</title>
+<style>
+:root {
+  --color-bg: #F7F4EE;
+  --color-surface: #FFFFFF;
+  --color-text: #172033;
+  --color-text-muted: #526174;
+  --color-action: #0B5D5E;
+  --color-action-hover: #084748;
+  --color-action-text: #FFFFFF;
+  --color-border-control: #526174;
+  --color-rule: #DED8CB;
+  --color-focus: #B45309;
+  --color-error: #9F1239;
+  --color-error-surface: #FDF2F4;
+  --color-link: #1D4ED8;
+
+  --font-title: Georgia, "Times New Roman", serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --text-sm: 0.9375rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.40625rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.1875rem;
+  --leading-body: 1.55;
+  --leading-heading: 1.2;
+
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+  --space-6: 1.5rem;  --space-8: 2rem;   --space-12: 3rem;
+
+  --radius-control: 0.375rem;
+  --border-control: 2px;
+  --border-rule: 1px;
+  --focus-width: 3px;
+  --focus-offset: 2px;
+  --target-min: 2.75rem;
+  --content-measure: 65ch;
+
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3, p, ul, dl, dd, dt, fieldset, legend, address { margin: 0; padding: 0; }
+
+h1, h2, h3 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  line-height: var(--leading-heading);
+  text-wrap: balance;
+}
+h1 { font-size: var(--text-xl); }
+h2 { font-size: var(--text-lg); }
+h3 { font-size: var(--text-base); }
+
+p, li, dd { text-wrap: pretty; }
+
+a { color: var(--color-link); text-decoration: underline; text-underline-offset: var(--space-1); }
+
+:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+
+.wrap {
+  max-width: calc(var(--content-measure) + var(--space-4) + var(--space-4));
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+.vh:not(:focus):not(:active) {
+  position: absolute;
+  width: var(--border-rule);
+  height: var(--border-rule);
+  margin: calc(var(--border-rule) * -1);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.nums { font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; }
+.muted { color: var(--color-text-muted); }
+.strong { font-weight: 600; }
+
+/* Skip link */
+.skip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+  padding-inline: var(--space-4);
+  background: var(--color-surface);
+}
+
+/* Top bar */
+.site-header { border-bottom: var(--border-rule) solid var(--color-rule); }
+.site-header .wrap { padding-block: var(--space-3) var(--space-1); }
+.site-name {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: var(--text-base);
+  line-height: var(--leading-heading);
+}
+.site-nav ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-6);
+  row-gap: 0;
+}
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+}
+.site-nav a[aria-current="page"] {
+  color: var(--color-text);
+  font-weight: 700;
+  text-decoration-thickness: var(--focus-width);
+}
+
+/* Main column */
+main { padding-block: var(--space-8) var(--space-12); }
+main:focus { outline: none; }
+
+.flow > * + * { margin-top: var(--space-6); }
+.tight > * + * { margin-top: var(--space-2); }
+
+.step-count { color: var(--color-text-muted); font-weight: 600; }
+
+/* Lists */
+.plain-list { padding-left: var(--space-6); }
+.plain-list li + li { margin-top: var(--space-2); }
+
+/* Fields */
+fieldset { border: 0; min-width: 0; }
+legend { display: block; width: 100%; }
+legend:has(h1) { padding-bottom: var(--space-4); }
+.label, .field label.label, legend.label {
+  display: block;
+  font-weight: 600;
+}
+.hint { color: var(--color-text-muted); font-size: var(--text-sm); }
+.field > * + * { margin-top: var(--space-2); }
+
+.error-msg { color: var(--color-error); font-weight: 600; }
+.field.has-error {
+  border-left: calc(var(--border-control) * 2) solid var(--color-error);
+  padding-left: var(--space-4);
+}
+
+input[type="text"], input[type="tel"], input[type="email"], input[type="date"], select {
+  display: block;
+  width: 100%;
+  min-height: var(--target-min);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-control) solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-base);
+  line-height: var(--leading-heading);
+}
+.field.has-error input { border-color: var(--color-error); }
+
+.options { display: grid; gap: var(--space-2); }
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--target-min);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-control) solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+.option input {
+  flex: none;
+  width: var(--space-6);
+  height: var(--space-6);
+  margin: 0;
+  accent-color: var(--color-action);
+}
+.option span { min-width: 0; }
+.option:has(input:checked) {
+  border-width: calc(var(--border-control) * 2);
+  border-color: var(--color-text);
+  padding: calc(var(--space-3) - var(--border-control)) calc(var(--space-4) - var(--border-control));
+}
+@supports selector(:has(*)) {
+  .option:has(input:focus-visible) {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+  }
+  .option input:focus-visible { outline: none; }
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--target-min);
+  padding: var(--space-2) var(--space-6);
+  border: var(--border-control) solid var(--color-action);
+  border-radius: var(--radius-control);
+  background: var(--color-action);
+  color: var(--color-action-text);
+  font: inherit;
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: var(--leading-heading);
+  text-align: center;
+  cursor: pointer;
+}
+.btn-secondary {
+  background: transparent;
+  border-color: var(--color-border-control);
+  color: var(--color-text);
+}
+.actions, .send-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.send-group { gap: var(--space-2); }
+.status {
+  min-height: calc(var(--text-base) * var(--leading-body));
+  color: var(--color-text);
+  font-weight: 600;
+}
+@media (min-width: 480px) {
+  .actions, .send-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .send-group { gap: var(--space-3); }
+}
+
+@media (hover: hover) {
+  .btn:hover { background: var(--color-action-hover); border-color: var(--color-action-hover); }
+  .btn-secondary:hover { background: var(--color-surface); border-color: var(--color-text); }
+  .option:hover { border-color: var(--color-text); }
+  a:hover { text-decoration-thickness: var(--border-control); }
+}
+
+/* Inline links that stand alone */
+.link-row a, .change a, .error-summary a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+}
+
+/* Answers and summary rows */
+.rows { border-top: var(--border-rule) solid var(--color-rule); }
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-4);
+  align-items: center;
+  padding-block: var(--space-2);
+  border-bottom: var(--border-rule) solid var(--color-rule);
+}
+.row dt { grid-column: 1; color: var(--color-text-muted); font-weight: 600; }
+.row dd.value { grid-column: 1; overflow-wrap: anywhere; }
+.row dd.change { grid-column: 2; grid-row: 1 / span 2; }
+
+.secondary-block {
+  margin-top: var(--space-12);
+  padding-top: var(--space-6);
+  border-top: var(--border-rule) solid var(--color-rule);
+}
+.secondary-block > * + * { margin-top: var(--space-3); }
+.secondary-block:focus { outline: none; }
+.secondary-block:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+.contact-methods > * + * { margin-top: var(--space-2); }
+address { font-style: normal; }
+
+/* The one bordered box per screen: summary or alert */
+.summary {
+  padding: var(--space-4);
+  border: var(--border-control) solid var(--color-text);
+  background: var(--color-surface);
+}
+.summary > * + * { margin-top: var(--space-4); }
+.summary-head > * + * { margin-top: var(--space-1); }
+.summary-section > * + * { margin-top: var(--space-2); }
+@media (min-width: 480px) {
+  .summary { padding: var(--space-6); }
+}
+
+.error-summary {
+  padding: var(--space-4);
+  border: calc(var(--border-control) * 2) solid var(--color-error);
+  background: var(--color-error-surface);
+}
+.error-summary > * + * { margin-top: var(--space-2); }
+.error-summary ul { list-style: none; }
+.error-summary a { color: var(--color-error); font-weight: 600; }
+.error-summary h2 { color: var(--color-text); }
+
+/* Prototype controls */
+.proto {
+  border-top: var(--border-rule) solid var(--color-rule);
+  padding-block: var(--space-6) var(--space-12);
+}
+.proto .wrap > * + * { margin-top: var(--space-2); }
+.proto h2 { font-size: var(--text-base); }
+
+@media (min-width: 768px) {
+  h1 { font-size: var(--text-2xl); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+@media (forced-colors: active) {
+  .btn, .option, .summary, .error-summary, input, select { border-color: CanvasText; }
+  .option:has(input:checked) { border-color: Highlight; }
+  :focus-visible { outline-color: Highlight; }
+}
+
+@media print {
+  html { font-size: 75%; }
+  body { background: var(--color-surface); }
+  .site-header, .skip, .proto, .change, noscript { display: none !important; }
+  #step > :not(.print-keep) { display: none !important; }
+  main { padding-block: 0; }
+  .wrap { max-width: none; padding-inline: 0; }
+  .summary { break-inside: avoid; }
+  .secondary-block { margin-top: var(--space-6); break-inside: avoid; }
+  a { color: var(--color-text); text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip vh" href="#main" id="skip-link">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <p class="site-name">ClearPath Legal Clinic</p>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="#prepare" data-nav="prepare">Prepare for intake</a></li>
+        <li><a href="#what-to-bring" data-nav="what-to-bring">What to bring</a></li>
+        <li><a href="#other-ways" data-nav="other-ways">Other ways to get help</a></li>
+        <li><a href="#privacy" data-nav="privacy">Privacy</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+  <div id="step" class="flow">
+    <noscript>
+      <h1>Prepare for intake</h1>
+      <p>This guide needs JavaScript to run. You can still contact the clinic using the details below.</p>
+    </noscript>
+  </div>
+
+  <section class="secondary-block" id="other-ways" tabindex="-1" aria-labelledby="other-ways-title">
+    <h2 id="other-ways-title">Other ways to get help</h2>
+    <p>You can contact the clinic directly at any point.</p>
+    <address class="contact-methods">
+      <p><span class="strong">Call</span> <a class="nowrap nums" href="tel:5550142">555-0142</a> (weekdays 9 to 5)</p>
+      <p><span class="strong">Visit</span> 200&nbsp;Example Street, Room&nbsp;4 (walk-in Tuesdays and Thursdays, 1 to 4)</p>
+    </address>
+  </section>
+</main>
+
+<section class="proto" aria-labelledby="proto-title">
+  <div class="wrap">
+    <h2 id="proto-title">Prototype controls</h2>
+    <p class="hint">For testing only. Nothing on this page is sent anywhere.</p>
+    <div class="field">
+      <label class="label" for="sim-outcome">Simulated send outcome</label>
+      <select id="sim-outcome">
+        <option value="success">Success</option>
+        <option value="server-error">Server error</option>
+        <option value="slow">Slow, then success</option>
+        <option value="offline">Offline</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  var SITE = 'ClearPath Legal Clinic';
+  var REFERENCE = 'CP-1042';
+  var NOTE = 'This is not legal advice and is not a review of your case. It is a summary you can use when contacting the clinic.';
+
+  var TOPICS = [
+    ['housing', 'Housing or eviction'],
+    ['benefits', 'Benefits'],
+    ['work', 'Work or wages'],
+    ['family', 'Family safety'],
+    ['debt', 'Debt or collections'],
+    ['other', 'Something else']
+  ];
+
+  var BRING = [
+    'The notice or letter you received, with its envelope if you have it',
+    'Any other papers about the same issue',
+    'A photo ID if you have one',
+    'A list of dates and events in order',
+    'Names of other people or organizations involved',
+    'Your questions for the clinic'
+  ];
+
+  var PREFS = [
+    { id: 'phone', label: 'Phone call', field: 'Phone number', type: 'tel', autocomplete: 'tel', inputmode: 'tel',
+      missing: 'Enter a phone number, including the area code' },
+    { id: 'text', label: 'Text message', field: 'Mobile number for texts', type: 'tel', autocomplete: 'tel', inputmode: 'tel',
+      missing: 'Enter a mobile number, including the area code' },
+    { id: 'email', label: 'Email', field: 'Email address', type: 'email', autocomplete: 'email', inputmode: 'email',
+      missing: 'Enter an email address, like name@example.com' }
+  ];
+
+  var FLOW = ['home', 'topic', 'date', 'checklist', 'contact', 'review', 'request'];
+  var STEP_NUMBER = { topic: 1, date: 2, checklist: 3, contact: 4, review: 5, request: 6 };
+  var STEP_TOTAL = 6;
+
+  /* Name and contact detail live in memory only. Topic, date, step, and the sent flag persist for the session. */
+  var state = {
+    topic: '', date: '', step: 'home', sent: false,
+    pref: '', name: '', phone: '', text: '', email: '',
+    sending: false, failed: false
+  };
+  var sendToken = 0;
+  var currentView = '';
+
+  var stepEl = document.getElementById('step');
+  var mainEl = document.getElementById('main');
+  var otherWays = document.getElementById('other-ways');
+  var outcomeSelect = document.getElementById('sim-outcome');
+
+  /* ---------- storage ---------- */
+
+  function store(key, value) {
+    try { window.sessionStorage.setItem('clearpath.' + key, value); } catch (e) { /* storage unavailable */ }
+  }
+  function read(key) {
+    try { return window.sessionStorage.getItem('clearpath.' + key) || ''; } catch (e) { return ''; }
+  }
+  function loadState() {
+    var topic = read('topic');
+    var date = read('date');
+    var step = read('step');
+    if (topicLabel(topic)) { state.topic = topic; }
+    if (isDate(date)) { state.date = date; }
+    state.sent = read('sent') === 'yes';
+    if (FLOW.indexOf(step) !== -1 || step === 'done') { state.step = step; }
+  }
+  function resetAll() {
+    state.topic = ''; state.date = ''; state.step = 'home'; state.sent = false;
+    state.pref = ''; state.name = ''; state.phone = ''; state.text = ''; state.email = '';
+    state.sending = false; state.failed = false;
+    store('topic', ''); store('date', ''); store('step', 'home'); store('sent', '');
+  }
+
+  /* ---------- helpers ---------- */
+
+  function el(tag, attrs, kids) {
+    var node = document.createElement(tag);
+    var key, value, i;
+    if (attrs) {
+      for (key in attrs) {
+        if (!Object.prototype.hasOwnProperty.call(attrs, key)) { continue; }
+        value = attrs[key];
+        if (value === null || value === undefined || value === false) { continue; }
+        if (key === 'text') { node.textContent = value; }
+        else if (key === 'class') { node.className = value; }
+        else if (key.slice(0, 2) === 'on') { node.addEventListener(key.slice(2), value); }
+        else { node.setAttribute(key, value === true ? '' : value); }
+      }
+    }
+    if (kids) {
+      for (i = 0; i < kids.length; i++) {
+        if (kids[i] === null || kids[i] === undefined || kids[i] === false) { continue; }
+        node.appendChild(typeof kids[i] === 'string' ? document.createTextNode(kids[i]) : kids[i]);
+      }
+    }
+    return node;
+  }
+
+  function topicLabel(id) {
+    for (var i = 0; i < TOPICS.length; i++) { if (TOPICS[i][0] === id) { return TOPICS[i][1]; } }
+    return '';
+  }
+  function pref(id) {
+    for (var i = 0; i < PREFS.length; i++) { if (PREFS[i].id === id) { return PREFS[i]; } }
+    return null;
+  }
+  function isDate(value) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(value);
+  }
+  function formatDate(value) {
+    var parts = value.split('-');
+    var d = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+    if (isNaN(d.getTime())) { return value; }
+    try {
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+    } catch (e) { return value; }
+  }
+
+  function contactErrors() {
+    var errs = [];
+    var p = pref(state.pref);
+    var value, digits;
+    if (!p) {
+      errs.push({ id: 'pref', focus: 'pref-phone', control: 'pref', msg: 'Choose how the clinic should contact you' });
+    }
+    if (!state.name.trim()) {
+      errs.push({ id: 'first-name', focus: 'first-name', control: 'first-name', msg: 'Enter your first name' });
+    }
+    if (p) {
+      value = state[p.id].trim();
+      if (p.id === 'email') {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          errs.push({ id: 'detail-email', focus: 'detail-email', control: 'detail-email', msg: p.missing });
+        }
+      } else {
+        digits = value.replace(/\D/g, '');
+        if (digits.length < 7 || digits.length > 15) {
+          errs.push({ id: 'detail-' + p.id, focus: 'detail-' + p.id, control: 'detail-' + p.id, msg: p.missing });
+        }
+      }
+    }
+    return errs;
+  }
+
+  /* ---------- shared pieces ---------- */
+
+  function heading(id, text) {
+    var n = STEP_NUMBER[id];
+    var h1 = el('h1', { id: 'step-title', tabindex: '-1', text: text });
+    if (!n) { return h1; }
+    return el('div', { class: 'tight' }, [
+      el('p', { class: 'step-count', text: 'Step ' + n + ' of ' + STEP_TOTAL }),
+      h1
+    ]);
+  }
+
+  function primary(label, type, onclick) {
+    return el('button', { class: 'btn', type: type || 'submit', text: label, onclick: onclick });
+  }
+  function secondary(label, onclick) {
+    return el('button', { class: 'btn btn-secondary', type: 'button', text: label, onclick: onclick });
+  }
+  function back(to) {
+    return secondary('Back', function () { go(to); });
+  }
+
+  function bringList() {
+    var ul = el('ul', { class: 'plain-list' });
+    BRING.forEach(function (item) { ul.appendChild(el('li', { text: item })); });
+    return ul;
+  }
+
+  function contactMethods() {
+    return el('address', { class: 'contact-methods' }, [
+      el('p', null, [
+        el('span', { class: 'strong', text: 'Call' }), ' ',
+        el('a', { class: 'nowrap nums', href: 'tel:5550142', text: '555-0142' }),
+        ' (weekdays 9 to 5)'
+      ]),
+      el('p', null, [
+        el('span', { class: 'strong', text: 'Visit' }),
+        ' 200 Example Street, Room 4 (walk-in Tuesdays and Thursdays, 1 to 4)'
+      ])
+    ]);
+  }
+
+  /* Rows of answers. upTo is the number of completed steps to show; withChange adds a "Change" link per answer. */
+  function answerRows(upTo, withChange, extra) {
+    var rows = [];
+    var p = pref(state.pref);
+    var haveContact = contactErrors().length === 0;
+
+    function add(label, value, target, numeric) {
+      var kids = [
+        el('dt', { text: label }),
+        el('dd', { class: 'value' + (numeric ? ' nums' : ''), text: value })
+      ];
+      if (withChange && target) {
+        kids.push(el('dd', { class: 'change' }, [
+          el('a', { href: '#' + target }, ['Change', el('span', { class: 'vh', text: ' ' + label.toLowerCase() })])
+        ]));
+      }
+      rows.push(el('div', { class: 'row' }, kids));
+    }
+
+    if (upTo >= 1 && state.topic) { add('Help topic', topicLabel(state.topic), 'topic'); }
+    if (upTo >= 2 && state.topic) {
+      add('Date printed on paperwork', state.date ? formatDate(state.date) : 'No printed date supplied', 'date', true);
+    }
+    if (upTo >= 4) {
+      if (haveContact) {
+        add('Contact preference', p.label, 'contact');
+        add('First name', state.name.trim(), 'contact');
+        add(p.field, state[p.id].trim(), 'contact', p.id !== 'email');
+      } else if (state.sent) {
+        add('Contact details', 'Not kept on this device', '');
+      }
+    }
+    if (extra) { extra.forEach(function (r) { add(r[0], r[1], '', true); }); }
+    if (!rows.length) { return null; }
+    return el('dl', { class: 'rows' }, rows);
+  }
+
+  function answersSoFar(upTo) {
+    var rows = answerRows(upTo, true);
+    if (!rows) { return null; }
+    return el('section', { class: 'secondary-block', 'aria-labelledby': 'answers-title' }, [
+      el('h2', { id: 'answers-title', text: 'Your answers so far' }),
+      rows
+    ]);
+  }
+
+  function summaryBlock(final) {
+    var kids = [
+      el('div', { class: 'summary-head' }, [
+        el('p', { class: 'muted strong', text: SITE }),
+        el('h2', { id: 'summary-title', text: 'Preparation summary' })
+      ]),
+      answerRows(4, !final, final ? [['Prototype reference', REFERENCE]] : null),
+      el('div', { class: 'summary-section' }, [
+        el('h3', { text: 'What to bring' }),
+        bringList()
+      ])
+    ];
+    if (final) { kids.push(el('p', { text: NOTE })); }
+    return el('section', { class: 'summary print-keep', 'aria-labelledby': 'summary-title' }, kids);
+  }
+
+  /* ---------- errors ---------- */
+
+  function clearErrors() {
+    var old = stepEl.querySelector('.error-summary[data-kind="validation"]');
+    if (old) { old.parentNode.removeChild(old); }
+    Array.prototype.forEach.call(stepEl.querySelectorAll('.error-msg'), function (m) {
+      m.hidden = true; m.textContent = '';
+    });
+    Array.prototype.forEach.call(stepEl.querySelectorAll('.has-error'), function (f) {
+      f.classList.remove('has-error');
+    });
+    Array.prototype.forEach.call(stepEl.querySelectorAll('[aria-invalid]'), function (c) {
+      var base = c.getAttribute('data-describedby');
+      c.removeAttribute('aria-invalid');
+      if (base) { c.setAttribute('aria-describedby', base); } else { c.removeAttribute('aria-describedby'); }
+    });
+  }
+
+  function showErrors(errs) {
+    clearErrors();
+    var list = el('ul');
+    errs.forEach(function (err) {
+      var msg = document.getElementById(err.id + '-error');
+      var control = document.getElementById(err.control);
+      var field, base;
+      list.appendChild(el('li', null, [
+        el('a', {
+          href: '#' + err.focus, text: err.msg,
+          onclick: function (ev) {
+            var target = document.getElementById(err.focus);
+            ev.preventDefault();
+            if (target) { target.focus(); }
+          }
+        })
+      ]));
+      if (msg) { msg.textContent = 'Error: ' + err.msg; msg.hidden = false; }
+      if (control) {
+        base = control.getAttribute('data-describedby');
+        control.setAttribute('aria-invalid', 'true');
+        control.setAttribute('aria-describedby', (base ? base + ' ' : '') + err.id + '-error');
+        field = control.closest('.field');
+        if (field) { field.classList.add('has-error'); }
+      }
+    });
+    var box = el('div', {
+      class: 'error-summary', role: 'alert', tabindex: '-1',
+      'aria-labelledby': 'error-title', 'data-kind': 'validation'
+    }, [
+      el('h2', { id: 'error-title', text: 'There is a problem' }),
+      list
+    ]);
+    stepEl.insertBefore(box, stepEl.firstChild);
+    box.focus();
+  }
+
+  /* ---------- field builders ---------- */
+
+  function radioGroup(opts) {
+    /* opts: id, legend (node or string), name, options [[value,label]], value, onchange */
+    var legend = typeof opts.legend === 'string'
+      ? el('legend', { class: 'label', text: opts.legend })
+      : el('legend', null, [opts.legend]);
+    var options = el('div', { class: 'options' });
+    opts.options.forEach(function (o) {
+      var input = el('input', {
+        type: 'radio', name: opts.name, id: opts.id + '-' + o[0], value: o[0],
+        onchange: function () { opts.onchange(o[0]); }
+      });
+      if (opts.value === o[0]) { input.checked = true; }
+      options.appendChild(el('label', { class: 'option', for: opts.id + '-' + o[0] }, [input, el('span', { text: o[1] })]));
+    });
+    return el('fieldset', { class: 'field', id: opts.id, role: 'radiogroup' }, [
+      legend,
+      el('p', { class: 'error-msg', id: opts.id + '-error', hidden: true }),
+      options
+    ]);
+  }
+
+  function inputField(opts) {
+    /* opts: id, label, hint, type, autocomplete, inputmode, value, oninput, extra attrs */
+    var attrs = {
+      id: opts.id, name: opts.id, type: opts.type, autocomplete: opts.autocomplete, inputmode: opts.inputmode,
+      oninput: function (ev) { opts.oninput(ev.target); },
+      onchange: function (ev) { opts.oninput(ev.target); }
+    };
+    var key, input;
+    if (opts.hint) {
+      attrs['aria-describedby'] = opts.id + '-hint';
+      attrs['data-describedby'] = opts.id + '-hint';
+    }
+    if (opts.extra) { for (key in opts.extra) { attrs[key] = opts.extra[key]; } }
+    input = el('input', attrs);
+    input.value = opts.value || '';
+    return el('div', { class: 'field', id: opts.id + '-field', hidden: opts.hidden }, [
+      el('label', { class: 'label', for: opts.id, text: opts.label }),
+      opts.hint ? el('p', { class: 'hint', id: opts.id + '-hint', text: opts.hint }) : null,
+      el('p', { class: 'error-msg', id: opts.id + '-error', hidden: true }),
+      input
+    ]);
+  }
+
+  /* ---------- views ---------- */
+
+  var VIEWS = {};
+
+  VIEWS.home = function () {
+    return {
+      title: 'Prepare for intake',
+      nodes: [
+        heading('home', 'Bring your notice. Leave with a preparation plan.'),
+        el('p', { text: 'Answer a few general questions to prepare for a ClearPath intake request. You do not need an account, and you should not upload case documents here.' }),
+        el('div', { class: 'actions' }, [
+          primary('Start preparing', 'button', function () { go('topic'); })
+        ]),
+        el('p', { class: 'link-row' }, [
+          el('a', { href: '#other-ways', text: 'Other ways to contact the clinic', onclick: focusOtherWays })
+        ])
+      ]
+    };
+  };
+
+  VIEWS.topic = function () {
+    var h1 = el('h1', { id: 'step-title', tabindex: '-1', text: 'What do you need help with?' });
+    var form = el('form', { class: 'flow', novalidate: true, onsubmit: function (ev) {
+      ev.preventDefault();
+      if (!state.topic) {
+        showErrors([{ id: 'topic', focus: 'topic-housing', control: 'topic', msg: 'Choose a topic to continue' }]);
+        return;
+      }
+      go('date');
+    } }, [
+      radioGroup({
+        id: 'topic', name: 'topic', legend: h1, options: TOPICS, value: state.topic,
+        onchange: function (v) { state.topic = v; store('topic', v); }
+      }),
+      el('div', { class: 'actions' }, [primary('Continue to paperwork date'), back('home')])
+    ]);
+    return {
+      title: 'Choose a help topic',
+      nodes: [
+        el('div', { class: 'tight' }, [
+          el('p', { class: 'step-count', text: 'Step 1 of ' + STEP_TOTAL }),
+          form
+        ])
+      ]
+    };
+  };
+
+  VIEWS.date = function () {
+    var form = el('form', { class: 'flow', novalidate: true, onsubmit: function (ev) {
+      var input = document.getElementById('printed-date');
+      ev.preventDefault();
+      if (input.validity && input.validity.badInput) {
+        showErrors([{ id: 'printed-date', focus: 'printed-date', control: 'printed-date',
+          msg: 'Enter the whole date as it is printed, or leave it blank' }]);
+        return;
+      }
+      if (input.value && !isDate(input.value)) {
+        showErrors([{ id: 'printed-date', focus: 'printed-date', control: 'printed-date',
+          msg: 'Enter the date as year, month, and day, or leave it blank' }]);
+        return;
+      }
+      state.date = input.value; store('date', state.date);
+      go('checklist');
+    } }, [
+      inputField({
+        id: 'printed-date', label: 'Date printed on your paperwork',
+        hint: 'Leave this blank if no date is printed.',
+        type: 'date', autocomplete: 'off', value: state.date,
+        extra: { class: 'nums' },
+        oninput: function (input) {
+          if (input.value === '' || isDate(input.value)) { state.date = input.value; store('date', state.date); }
+        }
+      }),
+      el('p', { class: 'strong', text: 'If a date is close or you fear losing housing, benefits, safety, or income, contact the clinic or another qualified local service directly rather than waiting for an online response.' }),
+      el('div', { class: 'actions' }, [primary('Continue to checklist'), back('topic')])
+    ]);
+    return {
+      title: 'Printed date',
+      nodes: [
+        heading('date', 'Does your paperwork show a hearing, response, or other date?'),
+        el('p', { text: 'Select the date only if it is printed on your paperwork. We will show it in your preparation summary. We will not calculate a deadline or tell you what legal action to take.' }),
+        form,
+        answersSoFar(1)
+      ]
+    };
+  };
+
+  VIEWS.checklist = function () {
+    return {
+      title: 'What to bring',
+      nodes: [
+        heading('checklist', 'What to bring to your intake'),
+        el('p', { text: 'These are general things to gather before you contact the clinic. Do not upload them here.' }),
+        bringList(),
+        el('div', { class: 'actions' }, [
+          primary('Continue to contact details', 'button', function () { go('contact'); }),
+          back('date')
+        ]),
+        answersSoFar(2)
+      ]
+    };
+  };
+
+  VIEWS.contact = function () {
+    var detailFields = PREFS.map(function (p) {
+      return inputField({
+        id: 'detail-' + p.id, label: p.field, type: p.type, autocomplete: p.autocomplete, inputmode: p.inputmode,
+        value: state[p.id], hidden: state.pref !== p.id,
+        extra: p.id === 'email' ? { autocapitalize: 'none', spellcheck: 'false' } : { class: 'nums' },
+        oninput: function (input) { state[p.id] = input.value; }
+      });
+    });
+    var form = el('form', { class: 'flow', novalidate: true, onsubmit: function (ev) {
+      var errs = contactErrors();
+      ev.preventDefault();
+      if (errs.length) { showErrors(errs); return; }
+      go('review');
+    } }, [
+      radioGroup({
+        id: 'pref', name: 'pref', legend: 'Contact preference',
+        options: PREFS.map(function (p) { return [p.id, p.label]; }), value: state.pref,
+        onchange: function (v) {
+          state.pref = v;
+          PREFS.forEach(function (p) {
+            document.getElementById('detail-' + p.id + '-field').hidden = p.id !== v;
+          });
+        }
+      }),
+      inputField({
+        id: 'first-name', label: 'First name', type: 'text', autocomplete: 'given-name',
+        value: state.name, extra: { autocapitalize: 'words', spellcheck: 'false' },
+        oninput: function (input) { state.name = input.value; }
+      })
+    ].concat(detailFields, [
+      el('div', { class: 'actions' }, [primary('Continue to summary'), back('checklist')])
+    ]));
+    return {
+      title: 'Contact details',
+      nodes: [
+        heading('contact', 'How should the clinic contact you?'),
+        el('p', { text: 'We ask only for a first name and one way to reach you. Your name and contact detail are not saved on this device.' }),
+        form,
+        answersSoFar(2)
+      ]
+    };
+  };
+
+  VIEWS.review = function () {
+    return {
+      title: 'Check your preparation summary',
+      nodes: [
+        heading('review', 'Check your preparation summary'),
+        el('p', { class: 'print-keep', text: NOTE }),
+        summaryBlock(false),
+        el('div', { class: 'actions' }, [
+          primary('Continue to request an intake', 'button', function () { go('request'); }),
+          secondary('Print this summary', function () { window.print(); }),
+          back('contact')
+        ])
+      ]
+    };
+  };
+
+  function failureBox() {
+    return el('div', {
+      class: 'error-summary', role: 'alert', tabindex: '-1',
+      'aria-labelledby': 'failure-title', 'data-kind': 'failure'
+    }, [
+      el('h2', { id: 'failure-title', text: 'Your request was not sent. Your answers are still on this device.' }),
+      el('p', { text: 'Try again, or use one of the alternative contact methods below.' }),
+      contactMethods()
+    ]);
+  }
+
+  VIEWS.request = function () {
+    var status = el('p', { class: 'status', id: 'send-status', 'aria-live': 'polite' });
+    var sendButton = primary(state.failed ? 'Try sending again' : 'Send my request', 'button', function () {
+      var token, outcome, wait;
+      if (state.sending) { return; }   /* ignore repeat presses; the button stays enabled and keeps its label */
+      state.sending = true;
+      token = ++sendToken;
+      outcome = outcomeSelect.value;
+      wait = outcome === 'slow' ? 3000 : (outcome === 'offline' ? 300 : 900);
+      status.textContent = 'Sending your request…';
+      window.setTimeout(function () {
+        var old, box;
+        if (token !== sendToken) { return; }
+        state.sending = false;
+        if (outcome === 'success' || outcome === 'slow') {
+          state.sent = true; state.failed = false; store('sent', 'yes');
+          go('done');
+          return;
+        }
+        state.failed = true;
+        status.textContent = '';
+        sendButton.textContent = 'Try sending again';
+        old = stepEl.querySelector('.error-summary[data-kind="failure"]');
+        if (old) { old.parentNode.removeChild(old); }
+        box = failureBox();
+        stepEl.insertBefore(box, stepEl.firstChild);
+        box.focus();
+      }, wait);
+    });
+    return {
+      title: 'Request an intake',
+      nodes: [
+        state.failed ? failureBox() : null,
+        heading('request', 'Request an intake'),
+        el('p', { text: 'Submitting this form asks the clinic to contact you about availability. It does not create an attorney–client relationship or confirm representation.' }),
+        el('div', { class: 'actions' }, [
+          el('div', { class: 'send-group' }, [sendButton, status]),
+          back('review')
+        ]),
+        answersSoFar(4)
+      ]
+    };
+  };
+
+  VIEWS.done = function () {
+    return {
+      title: 'Your preparation summary is ready',
+      nodes: [
+        heading('done', 'Your preparation summary is ready.'),
+        el('p', null, [
+          'Prototype reference: ',
+          el('span', { class: 'nums nowrap', text: REFERENCE }),
+          '. In a real service, the next message would explain the clinic’s actual response process. Do not submit another request for the same issue.'
+        ]),
+        summaryBlock(true),
+        el('div', { class: 'actions' }, [
+          primary('Print my summary', 'button', function () { window.print(); }),
+          secondary('Prepare for a different issue', function () { resetAll(); go('home'); })
+        ])
+      ]
+    };
+  };
+
+  function returnButton() {
+    var atStart = state.step === 'home';
+    return el('div', { class: 'actions' }, [
+      primary(atStart ? 'Start preparing' : 'Return to preparing', 'button', function () {
+        go(atStart ? 'topic' : state.step);
+      })
+    ]);
+  }
+
+  VIEWS['what-to-bring'] = function () {
+    return {
+      title: 'What to bring',
+      nodes: [
+        heading('what-to-bring', 'What to bring'),
+        el('p', { text: 'These are general things to gather before you contact the clinic. Do not upload them here.' }),
+        bringList(),
+        returnButton()
+      ]
+    };
+  };
+
+  VIEWS.privacy = function () {
+    var ul = el('ul', { class: 'plain-list' });
+    [
+      'You do not need an account.',
+      'This site does not collect case documents or a description of what happened. Do not upload or type them here.',
+      'Your help topic and any printed date are kept on this device until you close this tab, so that a refresh does not lose them.',
+      'Your first name and contact detail are not saved on this device.',
+      'This is a prototype. Nothing you enter is sent anywhere.'
+    ].forEach(function (t) { ul.appendChild(el('li', { text: t })); });
+    return {
+      title: 'Privacy',
+      nodes: [heading('privacy', 'Privacy'), ul, returnButton()]
+    };
+  };
+
+  /* ---------- routing ---------- */
+
+  function guard(id) {
+    var inFlow = FLOW.indexOf(id) !== -1;
+    if (state.sent && inFlow) { return 'done'; }
+    if (id === 'done' && !state.sent) { id = 'request'; }
+    if (FLOW.indexOf(id) >= 2 && !state.topic) { return 'topic'; }
+    if ((id === 'review' || id === 'request') && contactErrors().length) { return 'contact'; }
+    return id;
+  }
+
+  function replaceHash(id) {
+    try { window.history.replaceState(null, '', '#' + id); } catch (e) { /* ignore */ }
+  }
+
+  function render(id, moveFocus) {
+    var view = VIEWS[id]();
+    var h1;
+    if (currentView === 'request' && id !== 'request') { sendToken++; state.sending = false; }
+    currentView = id;
+
+    while (stepEl.firstChild) { stepEl.removeChild(stepEl.firstChild); }
+    view.nodes.forEach(function (n) { if (n) { stepEl.appendChild(n); } });
+
+    if (FLOW.indexOf(id) !== -1 || id === 'done') { state.step = id; store('step', id); }
+    document.title = view.title + ' — ' + SITE;
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-nav]'), function (a) {
+      var key = a.getAttribute('data-nav');
+      var active = key === id || (key === 'prepare' && (FLOW.indexOf(id) !== -1 || id === 'done'));
+      if (active) { a.setAttribute('aria-current', 'page'); } else { a.removeAttribute('aria-current'); }
+    });
+
+    if (moveFocus) {
+      window.scrollTo(0, 0);
+      h1 = document.getElementById('step-title');
+      if (h1) { h1.focus({ preventScroll: true }); }
+    }
+  }
+
+  function focusOtherWays(ev) {
+    if (ev) { ev.preventDefault(); }
+    otherWays.focus({ preventScroll: true });
+    otherWays.scrollIntoView();
+  }
+
+  function route(moveFocus) {
+    var id = window.location.hash.replace(/^#/, '');
+    var toOtherWays = id === 'other-ways';
+    var target;
+    if (!VIEWS[id]) {
+      id = currentView && toOtherWays ? currentView : state.step;
+      if (!VIEWS[id]) { id = 'home'; }
+      replaceHash(id);
+    }
+    target = guard(id);
+    if (target !== id) { id = target; replaceHash(id); }
+    if (!(toOtherWays && currentView === id)) { render(id, moveFocus && !toOtherWays); }
+    if (toOtherWays) { focusOtherWays(); }
+  }
+
+  function go(id) {
+    if (window.location.hash === '#' + id) { route(true); } else { window.location.hash = id; }
+  }
+
+  /* ---------- wiring ---------- */
+
+  document.getElementById('skip-link').addEventListener('click', function (ev) {
+    ev.preventDefault();
+    mainEl.focus();
+  });
+
+  document.querySelector('[data-nav="other-ways"]').addEventListener('click', focusOtherWays);
+
+  document.querySelector('[data-nav="prepare"]').addEventListener('click', function (ev) {
+    ev.preventDefault();
+    go(state.step);
+  });
+
+  window.addEventListener('hashchange', function () { route(true); });
+
+  loadState();
+  route(false);
+}());
+</script>
+</body>
+</html>

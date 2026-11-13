@@ -1,0 +1,9 @@
+// Builds a side-by-side contact sheet with neutral labels for blind judging.
+const { chromium } = require('playwright'); const fs = require('fs'); const path = require('path');
+const [outPng, leftLabel, leftDir, rightLabel, rightDir] = process.argv.slice(2);
+const pick = (dir) => { const f = fs.readdirSync(dir); const steps = f.filter((x) => /^flow-success-step\d+\.png$/.test(x)).sort(); return ['home-1280.png', 'home-375.png', steps[1], steps[2], steps[4], 'flow-success-error-empty-topic.png', 'flow-server-error-end.png'].filter((x) => x && f.includes(x)); };
+const b64 = (p) => 'data:image/png;base64,' + fs.readFileSync(p).toString('base64');
+const rows = ['Home, desktop (1280)', 'Home, phone (375)', 'Step: topic', 'Step: printed date', 'Step: later step', 'Error: nothing chosen', 'Failure: request not sent'];
+const L = pick(leftDir), R = pick(rightDir);
+const html = `<body style="margin:0;font:16px system-ui;background:#fff;color:#111"><h1 style="margin:16px 24px">Proof experiment: same product, same model, two prompts</h1>` + rows.map((r, i) => `<h2 style="margin:24px 24px 8px;font-size:18px">${r}</h2><div style="display:flex;gap:24px;padding:0 24px;align-items:flex-start">${[[leftLabel, leftDir, L[i]], [rightLabel, rightDir, R[i]]].map(([lab, d, f]) => `<figure style="margin:0;flex:1"><figcaption style="font-weight:700;margin-bottom:6px">Build ${lab}</figcaption>${f ? `<img src="${b64(path.join(d, f))}" style="width:${i === 0 ? '100%' : '300px'};border:1px solid #999">` : '(none)'}</figure>`).join('')}</div>`).join('') + '</body>';
+(async () => { const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1500, height: 900 }, deviceScaleFactor: 1 }); await p.setContent(html); await p.waitForTimeout(500); await p.screenshot({ path: outPng, fullPage: true }); await b.close(); })();
