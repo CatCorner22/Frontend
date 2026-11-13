@@ -96,6 +96,23 @@ const stored = (page: Page): Promise<Project | null> =>
 const rawStored = (page: Page, key: string): Promise<string | null> => page.evaluate((k) => window.localStorage.getItem(k), key);
 /** Every copy the Studio kept, newest first. */
 const keptCopies = async (page: Page): Promise<{ why: string; text: string }[]> => JSON.parse((await rawStored(page, BACKUP_KEY)) ?? '[]') as { why: string; text: string }[];
+/** Fill this browser's storage until only about `spare` characters are free, as a browser with many sites' data would be. */
+const fillStorage = (page: Page, spare: number): Promise<number> =>
+  page.evaluate((room) => {
+    let low = 0;
+    let high = 12_000_000;
+    while (low < high) {
+      const middle = Math.ceil((low + high) / 2);
+      try {
+        window.localStorage.setItem('filler', 'x'.repeat(middle));
+        low = middle;
+      } catch {
+        high = middle - 1;
+      }
+    }
+    window.localStorage.setItem('filler', 'x'.repeat(Math.max(0, low - room)));
+    return low;
+  }, spare);
 const mainButton = (page: Page): Promise<string> => page.locator('.actions.sticky .primary').innerText();
 const settle = (page: Page): Promise<void> => page.waitForTimeout(700);
 
@@ -437,6 +454,110 @@ describe('Studio: saved work is never replaced without a word', () => {
     await three.page.locator('.banner').waitFor();
     expect((await keptCopies(three.page)).map((copy) => copy.text)).toContain('not a record at all');
     await three.context.close();
+  });
+
+  it('asks once more before it replaces a project whose copy it cannot keep, because storage is full (finding S3-01)', async () => {
+    const { context, page } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
+    await page.waitForSelector('.summary');
+    expect(await fillStorage(page, 200)).toBeGreaterThan(100_000);
+    const dialog = page.locator('dialog[open]');
+    // First the usual question, then a second one that says the copy could not be kept.
+    await page.getByRole('button', { name: 'Start a new project…' }).click();
+    await dialog.getByRole('button', { name: 'Yes, clear this project' }).click();
+    await expect.poll(() => dialog.innerText()).toContain('The Studio could not keep a copy of your project');
+    expect(await dialog.innerText()).toContain('storage is full');
+    await dialog.getByRole('button', { name: 'Keep my project' }).click();
+    await settle(page);
+    // Nothing was replaced, and nothing claims that a copy exists.
+    expect((await stored(page))!.name).toBe('Weeks of work');
+    expect(await rawStored(page, BACKUP_KEY)).toBeNull();
+    // The same holds for a start from another Direction.
+    await page.evaluate(() => { window.location.hash = '#directions'; });
+    await page.getByRole('button', { name: 'Start from Ember Noir' }).click();
+    await dialog.getByRole('button', { name: 'Start again' }).click();
+    await expect.poll(() => dialog.innerText()).toContain('The Studio could not keep a copy of your project');
+    await dialog.getByRole('button', { name: 'Keep my project' }).click();
+    await settle(page);
+    expect((await stored(page))!.direction).toBe('paper-and-ink');
+    // Going on is the person's explicit, second choice.
+    await page.evaluate(() => { window.location.hash = '#summary'; });
+    await page.waitForSelector('.summary');
+    await page.getByRole('button', { name: 'Start a new project…' }).click();
+    await dialog.getByRole('button', { name: 'Yes, clear this project' }).click();
+    await dialog.getByRole('button', { name: 'Replace it without a kept copy' }).click();
+    await settle(page);
+    expect((await stored(page))!.name).toBe('My project');
+    await context.close();
+  });
+
+  it('stops saving at opening when it cannot keep a copy that a save would replace, until the person decides (finding S3-01)', async () => {
+    const older = worked('Old copy from last week');
+    const newer = worked('Weeks of work');
+    // Two readable copies differ, and storage has no room to keep the older one. The filler key takes the room before the Studio starts.
+    const session = await open({ storage: { [LOCAL_KEY]: envelope(older, '2026-11-06T10:00:00.000Z') }, pageDb: { doc: { project: JSON.stringify(newer), savedAt: '2026-11-13T10:00:00.000Z' } } });
+    await session.page.waitForSelector('.cards');
+    // The first opening had room and kept the older copy. Take that copy away, fill the storage, and open again.
+    await session.page.evaluate((key) => window.localStorage.removeItem(key), BACKUP_KEY);
+    await session.page.evaluate(([key, text]) => window.localStorage.setItem(key!, text!), [LOCAL_KEY, envelope(older, '2026-11-06T10:00:00.000Z')]);
+    await fillStorage(session.page, 200);
+    await session.page.reload();
+    const banner = session.page.locator('.banner');
+    await banner.waitFor();
+    expect(await banner.innerText()).toContain('could not keep that copy');
+    expect(await banner.innerText()).toContain('It has stopped saving');
+    expect(await banner.getByRole('button', { name: 'Download the older copy' }).count()).toBe(1);
+    expect(await session.page.locator('.save-state').innerText()).toBe('Not saving: see the notice');
+    // Work goes on, and the older copy in this browser is not replaced.
+    await session.page.locator('#project-name').fill('Weeks of work, renamed');
+    await settle(session.page);
+    expect((await stored(session.page))!.name).toBe('Old copy from last week');
+    // After the person says so, saving resumes.
+    await banner.getByRole('button', { name: 'Go on: let the Studio save over it' }).click();
+    await session.page.locator('#project-name').fill('Weeks of work, renamed again');
+    await settle(session.page);
+    expect((await stored(session.page))!.name).toBe('Weeks of work, renamed again');
+    await session.context.close();
+  });
+
+  it('really replaces an unreadable copy once the person chooses to discard it, even when storage is full (finding S3-02)', async () => {
+    const garbage = `not a project at all ${'y'.repeat(8000)}`;
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: garbage } });
+    await page.locator('.banner').waitFor();
+    // The first opening had room and kept the unreadable text. Take that copy away, fill the storage, and open again.
+    await page.evaluate((key) => window.localStorage.removeItem(key), BACKUP_KEY);
+    await fillStorage(page, 100);
+    await page.reload();
+    const banner = page.locator('.banner');
+    await banner.waitFor();
+    await banner.getByRole('button', { name: 'Start a new project and discard the unreadable copy' }).click();
+    await page.getByRole('button', { name: 'Start from Ember Noir' }).click();
+    await settle(page);
+    // The person chose to discard: the next save replaces the unreadable text, and the Studio says that it saved.
+    expect((await stored(page))?.direction).toBe('ember-noir');
+    expect(await page.locator('.save-state').innerText()).toBe('Saved in this browser, on this computer');
+    await context.close();
+  });
+
+  it('hands over a kept copy character for character, and removes exactly one copy (findings S3-03, S3-04, S3-05)', async () => {
+    const odd = '{"from":"another tool","project":{"only":"this part"},"notes":"keep me"}';
+    const twin = { keptAt: '2026-11-01T08:00:00.000Z', why: 'A saved copy that could not be read.', text: 'the same text twice' };
+    // The store holds a copy with extra fields, two identical copies, and one list member that is not a kept copy at all.
+    const seeded = JSON.stringify([{ keptAt: '2026-11-02T08:00:00.000Z', why: 'A saved copy that could not be read.', text: odd }, twin, twin, { some: 'other shape' }]);
+    const { context, page } = await open({ hash: '#summary', storage: { [BACKUP_KEY]: seeded, [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
+    await page.waitForSelector('.summary');
+    // Nothing is dropped: four members, four copies.
+    expect(await page.locator('.kept-copies li').count()).toBe(4);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download this kept copy' }).first().click()]);
+    expect(download.suggestedFilename()).toBe('refraction-kept-copy-1.json');
+    expect(readFileSync((await download.path())!, 'utf8')).toBe(odd);
+    // Removing one of the two identical copies leaves the other.
+    await page.locator('.kept-copies li').nth(1).getByRole('button', { name: 'Remove this kept copy…' }).click();
+    await page.getByRole('button', { name: 'Yes, remove it for good' }).click();
+    const left = await keptCopies(page);
+    expect(left.length).toBe(3);
+    expect(left.filter((copy) => copy.text === 'the same text twice').length).toBe(1);
+    expect(left.some((copy) => copy.text === '{"some":"other shape"}')).toBe(true);
+    await context.close();
   });
 
   it('reads a hand-set value back in words first, with the number in brackets (finding U2-04)', async () => {

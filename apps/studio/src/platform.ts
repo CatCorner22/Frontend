@@ -136,6 +136,7 @@ export async function retryPageRead(): Promise<LoadResult['page']> {
 }
 
 export interface KeptCopy { keptAt: string; why: string; text: string }
+const UNKNOWN_FORM = 'An earlier kept copy, in a form this version of the Studio does not know.';
 
 /**
  * Every kept copy, newest first. The Studio keeps a copy whenever it is about to replace saved work, or cannot read it.
@@ -156,13 +157,14 @@ export function readBackups(): KeptCopy[] {
   };
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (Array.isArray(parsed)) return parsed.map(one).filter((copy): copy is KeptCopy => copy !== null);
+    // A list member that this version cannot interpret is kept as it is, as a copy of its own; nothing is dropped (finding S3-04).
+    if (Array.isArray(parsed)) return parsed.map((member) => one(member) ?? { keptAt: '', why: UNKNOWN_FORM, text: typeof member === 'string' ? member : JSON.stringify(member) });
     const single = one(parsed);
     if (single) return [single];
   } catch {
     // Fall through: the content is kept as it is, as one copy.
   }
-  return [{ keptAt: '', why: 'An earlier kept copy, in a form this version of the Studio does not know.', text: raw }];
+  return [{ keptAt: '', why: UNKNOWN_FORM, text: raw }];
 }
 
 /**
@@ -183,7 +185,11 @@ export function keepBackup(text: string, why: string): boolean {
 /** Remove one kept copy, on the owner's explicit request. Returns false when the browser refuses. */
 export function removeBackup(copy: KeptCopy): boolean {
   try {
-    const rest = readBackups().filter((other) => !(other.text === copy.text && other.keptAt === copy.keptAt));
+    const rest = readBackups();
+    // Exactly one copy goes, even when two copies hold the same text and time (finding S3-05).
+    const index = rest.findIndex((other) => other.text === copy.text && other.keptAt === copy.keptAt);
+    if (index === -1) return true;
+    rest.splice(index, 1);
     if (rest.length === 0) window.localStorage.removeItem(BACKUP_KEY);
     else window.localStorage.setItem(BACKUP_KEY, JSON.stringify(rest));
     return true;
@@ -192,10 +198,15 @@ export function removeBackup(copy: KeptCopy): boolean {
   }
 }
 
-/** The text of the copy now stored in this browser, or null. Used to keep that copy before the owner's choice replaces it. */
-export function storedBrowserText(): string | null {
+/**
+ * The project now stored in this browser, as text, or null. Used to keep that copy before the owner's choice replaces it.
+ * A stored copy carries its save time around the project; the project itself is returned, so that the kept copy opens
+ * as a project file. Text that is not a stored copy at all is returned exactly as it is.
+ */
+export function storedProjectText(): string | null {
   try {
-    return window.localStorage.getItem(LOCAL_KEY);
+    const raw = window.localStorage.getItem(LOCAL_KEY);
+    return raw === null ? null : (openEnvelope(raw)?.text ?? raw);
   } catch {
     return null;
   }
@@ -205,6 +216,8 @@ export function storedBrowserText(): string | null {
 export type SaveOutcome = 'page' | 'browser' | 'failed' | 'conflict';
 
 let writing: Promise<void> = Promise.resolve();
+/** Stored text that the owner has said may be replaced without a kept copy. */
+let replaceableText: string | null = null;
 
 /** Write the browser copy now, without waiting. Returns false when the browser refuses or another tab saved in between. */
 export function saveBrowserNow(projectText: string, savedAt: string): 'saved' | 'failed' | 'conflict' {
@@ -213,7 +226,7 @@ export function saveBrowserNow(projectText: string, savedAt: string): 'saved' | 
     if (existing) {
       const stored = openEnvelope(existing);
       // Text that is not a saved copy at all is kept in the backup slot before anything replaces it.
-      if (!stored && !keepBackup(existing, 'A saved copy that could not be read.')) return 'failed';
+      if (!stored && existing !== replaceableText && !keepBackup(existing, 'A saved copy that could not be read.')) return 'failed';
       // Another tab or window saved after this tab last looked: do not replace its work silently.
       if (stored && stored.savedAt !== browserSavedAtSeen && stored.text !== projectText) return 'conflict';
     }
@@ -230,6 +243,8 @@ export function adoptStoredCopy(): void {
   try {
     const existing = window.localStorage.getItem(LOCAL_KEY);
     browserSavedAtSeen = existing ? (openEnvelope(existing)?.savedAt ?? null) : null;
+    // The owner decided that this exact text may be replaced, whether or not a copy of it could be kept (finding S3-02).
+    replaceableText = existing;
   } catch {
     // Storage blocked: nothing to adopt.
   }

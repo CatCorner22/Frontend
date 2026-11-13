@@ -77,7 +77,7 @@ describe('Mockup: text is rendered as text (hard rule 6)', () => {
         expect(html).not.toMatch(/(https?:)?\/\/(?!www\.w3\.org\/2000\/svg)/i);
         expect(html).not.toMatch(/@import|<link|<iframe|<object|<embed|<base/i);
         // Exactly one `http-equiv` line is allowed: the content policy that forbids every outside load (finding S2-09). Any other one (a refresh, for example) fails.
-        expect(html.match(/<meta http-equiv[^>]*>/gi)).toEqual([`<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:">`]);
+        expect(html.match(/<meta http-equiv[^>]*>/gi)).toEqual([`<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; form-action 'none'; base-uri 'none'">`]);
       }
     }
   });

@@ -40,7 +40,7 @@ const SAVE_LABEL: Record<StudioState['saved'], string> = {
   saving: 'Saving…',
   page: 'Saved on this page',
   browser: 'Saved in this browser, on this computer',
-  failed: 'Cannot save here. Download the project file before you close this page.',
+  failed: 'Cannot save here: this browser’s storage is full or blocked. Download the project file before you close this page.',
   held: 'Not saving: see the notice',
 };
 const PROFILE_MEANING: Record<A11yProfile, string> = {
@@ -596,21 +596,19 @@ function StepsView(): React.JSX.Element {
 // ───────── Summary ─────────
 
 /**
- * The file a kept copy downloads as. A copy that holds a project downloads as a project file that "Open a project file" accepts;
- * anything else downloads exactly as it was kept.
+ * The file a kept copy downloads as: the kept text, character for character (finding S3-03). Only the file's name depends on
+ * the content: ".json" when the text is a record (the Studio keeps projects in that form, and "Open a project file" accepts
+ * such a file), ".txt" otherwise.
  */
 function keptCopyFile(copy: KeptCopy, index: number): { name: string; text: string } {
+  let record = false;
   try {
     const parsed: unknown = JSON.parse(copy.text);
-    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-      const inner = (parsed as Record<string, unknown>)['project'];
-      const project = typeof inner === 'string' ? (JSON.parse(inner) as unknown) : typeof inner === 'object' && inner !== null ? inner : parsed;
-      return { name: `refraction-kept-copy-${index + 1}.json`, text: JSON.stringify(project, null, 2) };
-    }
+    record = typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed);
   } catch {
-    // Not a record: download it exactly as it was kept.
+    // Not a record.
   }
-  return { name: `refraction-kept-copy-${index + 1}.txt`, text: copy.text };
+  return { name: `refraction-kept-copy-${index + 1}.${record ? 'json' : 'txt'}`, text: copy.text };
 }
 
 function SummaryView(): React.JSX.Element {

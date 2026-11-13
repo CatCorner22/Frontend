@@ -6,7 +6,7 @@ import {
 } from '@refraction/core';
 import { create } from 'zustand';
 import {
-  adoptStoredCopy, keepBackup, loadPrefs, storedBrowserText, loadSaved, retryPageRead, saveBrowserNow, saveFile, savePrefs, saveProject, watchOtherTabs,
+  adoptStoredCopy, keepBackup, loadPrefs, storedProjectText, loadSaved, retryPageRead, saveBrowserNow, saveFile, savePrefs, saveProject, watchOtherTabs,
   type LoadResult, type RawCopy,
 } from './platform';
 
@@ -178,22 +178,55 @@ let lastSavedText: string | null = null;
 
 export const useStudio = create<StudioState>((set, get) => {
   /**
-   * Keep the project that is about to be replaced. Undo brings it back only until the page closes or reloads;
-   * the kept copy stays until the owner removes it (finding U2-01).
+   * Replace the open project, and keep a copy of it first. Undo brings the old project back only until the page closes or
+   * reloads; the kept copy stays until the owner removes it (finding U2-01).
+   * If the copy cannot be kept, because this browser's storage is full or blocked, the Studio does not replace the project
+   * silently: it asks once more and says what is at stake (finding S3-01).
    */
-  const keepReplaced = (): void => {
+  const replaceKeepingCopy = (replace: () => void): void => {
     const current = get().project;
-    if (hasWork(current)) keepBackup(JSON.stringify(current), `The project “${current.name.slice(0, 60)}”, as it was when you replaced it or started again.`);
+    if (!hasWork(current) || keepBackup(JSON.stringify(current), `The project “${current.name.slice(0, 60)}”, as it was when you replaced it or started again.`)) {
+      replace();
+      return;
+    }
+    set({
+      confirmation: {
+        title: 'The Studio could not keep a copy of your project',
+        body: 'This browser’s storage is full, or it does not let the Studio store anything, so the Studio cannot keep a copy of your current project. If you go on, your current project is replaced; Undo brings it back only until you close or reload this page. To be safe, choose “Keep my project”, download the project file from the Summary, and then try again.',
+        confirmLabel: 'Replace it without a kept copy',
+        cancelLabel: 'Keep my project',
+        danger: true,
+        run: replace,
+      },
+    });
   };
 
-  /** The owner chose this tab's copy over another tab's copy. The other copy is kept first, so that the choice destroys nothing (finding S2-04). */
+  /**
+   * The owner chose this tab's copy over another tab's copy. The other copy is kept first, so that the choice destroys nothing
+   * (finding S2-04). If it cannot be kept, the Studio asks once more before it replaces the other copy (finding S3-01).
+   */
   const keepThisTab = (forgetLastSave: boolean): void => {
-    const stored = storedBrowserText();
-    if (stored !== null) keepBackup(stored, 'The copy from another tab or window, replaced when you chose to keep this one.');
-    adoptStoredCopy();
-    if (forgetLastSave) lastSavedText = null;
-    set({ saved: 'saving', notice: null });
-    void saveNow();
+    const adopt = (): void => {
+      adoptStoredCopy();
+      if (forgetLastSave) lastSavedText = null;
+      set({ saved: 'saving', notice: null });
+      void saveNow();
+    };
+    const stored = storedProjectText();
+    if (stored === null || keepBackup(stored, 'The copy from another tab or window, replaced when you chose to keep this one.')) {
+      adopt();
+      return;
+    }
+    set({
+      confirmation: {
+        title: 'The Studio could not keep the other copy',
+        body: 'This browser’s storage is full, or it does not let the Studio store anything, so the Studio cannot keep the copy from the other tab or window. If you go on, this tab’s project replaces that copy for good.',
+        confirmLabel: 'Replace the other copy',
+        cancelLabel: 'Do not replace it',
+        danger: true,
+        run: adopt,
+      },
+    });
   };
 
   const saveNow = async (): Promise<void> => {
@@ -303,6 +336,8 @@ export const useStudio = create<StudioState>((set, get) => {
     let saved: SaveState = 'idle';
     let sticky = false;
     const actions: NoticeAction[] = [];
+    /** Copies that the Studio wanted to keep before any save could replace them, and could not (this browser's storage is full or blocked). */
+    const unkept: { label: string; fileName: string; text: string }[] = [];
 
     if (chosen) {
       lastSavedText = JSON.stringify(chosen.result.project);
@@ -311,12 +346,20 @@ export const useStudio = create<StudioState>((set, get) => {
       // Opening can change a saved copy (an older version, a Step this Catalog lacks, a detail it cannot keep). The next save would then
       // replace the original, so the Studio keeps the original first and says so (finding S2-02).
       if (changedOnOpening(chosen.copy.text, chosen.result.project)) {
-        const keptOriginal = keepBackup(chosen.copy.text, 'Your saved copy as it was, before the Studio changed details on opening it.');
-        notes.push(keptOriginal ? 'Opening changed some details of your saved project. The Studio kept the copy as it was; you can download it from the Summary.' : 'Opening changed some details of your saved project, and this browser did not let the Studio keep the copy as it was.');
+        if (keepBackup(chosen.copy.text, 'Your saved copy as it was, before the Studio changed details on opening it.')) {
+          notes.push('Opening changed some details of your saved project. The Studio kept the copy as it was; you can download it from the Summary.');
+        } else {
+          notes.push('Opening changed some details of your saved project.');
+          unkept.push({ label: 'Download your saved copy as it was', fileName: 'refraction-saved-copy-as-it-was.json', text: chosen.copy.text });
+        }
       }
       if (other && JSON.stringify(other.result.project) !== lastSavedText) {
-        const kept = keepBackup(other.copy.text, 'The older of two saved copies that differed.');
-        notes.push(`The copy saved on this page and the copy saved in this browser differed. The Studio opened the newer one${kept ? ' and kept the older one; you can download it from the Summary' : ''}.`);
+        if (keepBackup(other.copy.text, 'The older of two saved copies that differed.')) {
+          notes.push('The copy saved on this page and the copy saved in this browser differed. The Studio opened the newer one and kept the older one; you can download it from the Summary.');
+        } else {
+          notes.push('The copy saved on this page and the copy saved in this browser differed. The Studio opened the newer one.');
+          unkept.push({ label: 'Download the older copy', fileName: 'refraction-older-copy.json', text: other.copy.text });
+        }
       }
       set({ project: chosen.result.project });
     }
@@ -325,7 +368,11 @@ export const useStudio = create<StudioState>((set, get) => {
       const reason = first.result.ok ? '' : first.result.error;
       const kept = keepBackup(first.copy.text, 'A saved copy that could not be read.');
       if (chosen) {
-        notes.push(`One saved copy could not be read (${reason}) ${kept ? 'The Studio kept it untouched; you can download it from the Summary.' : ''}`.trim());
+        if (kept) notes.push(`One saved copy could not be read (${reason}) The Studio kept it untouched; you can download it from the Summary.`);
+        else {
+          notes.push(`One saved copy could not be read (${reason})`);
+          unkept.push({ label: 'Download the copy that could not be read', fileName: 'unreadable-refraction-project.txt', text: first.copy.text });
+        }
       } else {
         // No readable copy at all. Nothing is saved until the owner decides, so that the unreadable copy cannot be overwritten (finding SEC-03).
         saved = 'held';
@@ -340,8 +387,18 @@ export const useStudio = create<StudioState>((set, get) => {
         );
       }
     }
+    if (unkept.length > 0) {
+      // The Studio does not save over a copy that it could not keep, until the owner decides (finding S3-01).
+      saved = 'held';
+      sticky = true;
+      notes.push(`This browser’s storage is full or blocked, so the Studio could not keep ${unkept.length === 1 ? 'that copy' : 'those copies'}. It has stopped saving, so that nothing is replaced before you decide.`);
+      actions.push(
+        ...unkept.map((copy) => ({ label: copy.label, run: () => void saveFile(copy.fileName, copy.text) })),
+        { label: `Go on: let the Studio save over ${unkept.length === 1 ? 'it' : 'them'}`, run: () => { adoptStoredCopy(); set({ saved: 'idle', notice: null }); } },
+      );
+    }
     if (loaded.browser === 'blocked' && loaded.page === 'absent') notes.push('This browser does not let the Studio store anything, so your work cannot be saved here. Download the project file from the Summary before you close this page.');
-    set({ saved, notice: notes.length > 0 ? { text: notes.join(' '), urgent: bad.length > 0, sticky, ...(actions.length > 0 ? { actions } : {}) } : null });
+    set({ saved, notice: notes.length > 0 ? { text: notes.join(' '), urgent: bad.length > 0 || unkept.length > 0, sticky, ...(actions.length > 0 ? { actions } : {}) } : null });
 
     if (loaded.page === 'timeout') {
       // The page database did not answer. Nothing is written there until a read succeeds (finding SEC-02, case d).
@@ -489,13 +546,13 @@ export const useStudio = create<StudioState>((set, get) => {
 
     requestDirection(direction) {
       const { project } = get();
-      const start = (): void => {
+      const replace = (): void => {
         const hadWork = hasWork(project);
-        keepReplaced();
         commit(applyDirection(get().project, direction));
         enter('steps', STEPS[0]!.id);
         if (hadWork) set({ notice: { text: `Started again from “${direction.name}”.`, actions: [{ label: 'Undo', run: () => get().undo() }] } });
       };
+      const start = (): void => replaceKeepingCopy(replace);
       const decided = Object.keys(project.decisions).length;
       if (decided === 0) start();
       else set({ confirmation: { title: `Start again from “${direction.name}”?`, body: `This replaces your current design and clears your ${plural(decided, 'Decision', 'Decisions')}. You can undo it until you close or reload this page. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Start again', cancelLabel: 'Keep my project', run: start } });
@@ -503,13 +560,13 @@ export const useStudio = create<StudioState>((set, get) => {
 
     requestPlainStart() {
       const { project } = get();
-      const start = (): void => {
+      const replace = (): void => {
         const hadWork = hasWork(project);
-        keepReplaced();
         commit(startPlain(get().project));
         enter('steps', STEPS[0]!.id);
         if (hadWork) set({ notice: { text: 'Started again from the plain start.', actions: [{ label: 'Undo', run: () => get().undo() }] } });
       };
+      const start = (): void => replaceKeepingCopy(replace);
       if (!hasWork(project)) start();
       else set({ confirmation: { title: 'Start again from the plain start?', body: `This replaces your current design (started from ${directionName(project, get().generated)}) and clears your ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}. You can undo it until you close or reload this page. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Start again', cancelLabel: 'Keep my project', run: start } });
     },
@@ -549,13 +606,13 @@ export const useStudio = create<StudioState>((set, get) => {
     requestImport(data, fileName) {
       const parsed = parseProject(data);
       if (!parsed.ok) return parsed.error;
-      const open = (): void => {
-        keepReplaced();
+      const replace = (): void => {
         replaceProject(parsed.project, [`Opened the project “${parsed.project.name}”.`, parsed.migratedFrom !== null ? 'An earlier version of the Studio made this file; it was brought up to date.' : '', ...parsed.notes].filter(Boolean).join(' '));
         const kept = get().notice;
         enter('summary', firstOpenStepId(parsed.project));
         set({ notice: kept });
       };
+      const open = (): void => replaceKeepingCopy(replace);
       if (!hasWork(get().project)) open();
       else set({ confirmation: { title: 'Replace the open project with this file?', body: `The file ${fileName.slice(0, 80)} holds the project “${parsed.project.name}”. Opening it replaces the project on screen. You can undo it until you close or reload this page. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Open the file', cancelLabel: 'Keep my project', run: open } });
       return null;
@@ -570,13 +627,13 @@ export const useStudio = create<StudioState>((set, get) => {
           confirmLabel: 'Yes, clear this project',
           cancelLabel: 'Keep it',
           danger: true,
-          run: () => {
-            keepReplaced();
-            replaceProject(createProject('My project'), 'Started a new project.');
-            const kept = get().notice;
-            enter('directions', STEPS[0]!.id);
-            set({ notice: kept });
-          },
+          run: () =>
+            replaceKeepingCopy(() => {
+              replaceProject(createProject('My project'), 'Started a new project.');
+              const kept = get().notice;
+              enter('directions', STEPS[0]!.id);
+              set({ notice: kept });
+            }),
         },
       });
     },
