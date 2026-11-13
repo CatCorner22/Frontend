@@ -585,7 +585,22 @@ export const useStudio = create<StudioState>((set, get) => {
       const { history, stepId } = get();
       const previous = history[history.length - 1];
       if (!previous) return;
-      set({ project: previous, history: history.slice(0, -1), variations: null, shownId: appliedCardId(previous, stepOf(stepId)), notice: { text: 'Undone.' } });
+      // Say what came back and where, so that an Undo of an earlier Step is not invisible (finding U2-07).
+      const now = get().project;
+      const differs = (a: unknown, b: unknown): boolean => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null);
+      const touched = STEPS.filter((st) => differs(now.decisions[st.id], previous.decisions[st.id]) || differs(ownedValues(st, now.params), ownedValues(st, previous.params)));
+      const wholeProject = now.direction !== previous.direction || touched.length > 3;
+      const first = touched[0];
+      const text = wholeProject || !first
+        ? 'Undone: your project is back to how it was before the last change.'
+        : touched.length === 1
+          ? `Undone: the Step “${first.name}” is back to how it was.`
+          : `Undone: the Steps ${touched.map((st) => `“${st.name}”`).join(' and ')} are back to how they were.`;
+      const elsewhere = !wholeProject && first && first.id !== stepId ? first : null;
+      set({
+        project: previous, history: history.slice(0, -1), variations: null, shownId: appliedCardId(previous, stepOf(stepId)),
+        notice: { text, ...(elsewhere ? { actions: [{ label: `Go to “${elsewhere.name}”`, run: () => get().go('steps', elsewhere.id) }] } : {}) },
+      });
       persist();
       refocus();
     },

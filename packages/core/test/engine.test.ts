@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PARAMS, DIRECTIONS, REASON_MAX, STEPS,
   applyDirection, closerOptions, conflicts, createProject, describeDesign, designDistance, findStep, firstOpenStepId, generateDirections, keep,
-  matchingOptionId, nextStepId, ownedValues, pick, pickValues, prevStepId, previewParams, revert, setReason, startPlain, tune, wireframeParams,
+  matchingOptionId, nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setReason, startPlain, tune, wireframeParams,
   type DesignParams, type Project,
 } from '../src/index.js';
 
@@ -237,6 +237,84 @@ describe('engine: the gray layout view', () => {
   });
 });
 
+describe('engine: a second color follows the main color (finding T2-02)', () => {
+  const strategy = step('color-strategy');
+  /** A design that matches "a third of the wheel apart" with no Decision on that Step, as a Direction gives it. */
+  const fromDirection = (): Project => {
+    const picked = pick(fresh(), 'color-strategy', 'duo-triad', AT);
+    return { ...picked, decisions: {}, base: picked.params };
+  };
+  const consistent = (p: Project): void => {
+    for (const [id, d] of Object.entries(p.decisions)) {
+      expect(d.optionId, `${id}: the Decision names the Option that the design matches`).toBe(matchingOptionId(p.params, step(id)));
+      expect(d.values, `${id}: the Decision holds the design's values`).toEqual(ownedValues(step(id), p.params));
+    }
+  };
+
+  it('follows when the Option came from a Direction, with no Decision on that Step', () => {
+    const start = fromDirection();
+    const changed = pick(start, 'accent', 'crimson', AT);
+    expect(changed.params.accentHue).not.toBe(start.params.accentHue);
+    expect(matchingOptionId(changed.params, strategy)).toBe('duo-triad');
+  });
+
+  it('follows when the owner kept the Option, and the kept Decision stays true', () => {
+    const kept = keep(fromDirection(), 'color-strategy', AT);
+    const changed = pick(kept, 'accent', 'crimson', AT);
+    expect(matchingOptionId(changed.params, strategy)).toBe('duo-triad');
+    expect(changed.decisions['color-strategy']!.kind).toBe('kept');
+    consistent(changed);
+  });
+
+  it('follows when a Step is put back to how the project started', () => {
+    const p = pick(pick(fresh(), 'color-strategy', 'duo-complement', AT), 'accent', 'crimson', AT);
+    const back = revert(p, 'accent');
+    expect(back.params.accentHue).toBe(fresh().params.accentHue);
+    expect(matchingOptionId(back.params, strategy)).toBe('duo-complement');
+    consistent(back);
+  });
+
+  it('never moves a second color that the owner set by hand', () => {
+    const tuned = tune(pick(fresh(), 'color-strategy', 'duo-triad', AT), 'color-strategy', 'accent2Hue', 200, AT);
+    const changed = pick(tuned, 'accent', 'crimson', AT);
+    expect(changed.params.accent2Hue).toBe(200);
+    consistent(changed);
+  });
+
+  it('keeps every Decision true to the design through 300 random sequences of actions, and through save and reload', () => {
+    let seed = 7;
+    const rand = (): number => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let v = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      v = (v + Math.imul(v ^ (v >>> 7), 61 | v)) ^ v;
+      return ((v ^ (v >>> 14)) >>> 0) / 4294967296;
+    };
+    const any = <T,>(list: readonly T[]): T => list[Math.floor(rand() * list.length)]!;
+    const canonical = (value: unknown): unknown =>
+      Array.isArray(value) ? value.map(canonical) : typeof value === 'object' && value !== null ? Object.fromEntries(Object.keys(value).sort().map((k) => [k, canonical((value as Record<string, unknown>)[k])])) : value;
+    for (let run = 0; run < 300; run++) {
+      let p = rand() < 0.5 ? fresh() : applyDirection(fresh(), any(DIRECTIONS).id);
+      for (let action = 0; action < 20; action++) {
+        const s = any(STEPS);
+        const kind = Math.floor(rand() * 4);
+        if (kind === 0) p = pick(p, s.id, any(s.options).id, AT);
+        else if (kind === 1) p = keep(p, s.id, AT);
+        else if (kind === 2 && s.tunables?.length) {
+          const tunable = any(s.tunables);
+          p = tune(p, s.id, tunable.key, tunable.min + rand() * (tunable.max - tunable.min), AT);
+        } else p = revert(p, s.id);
+        consistent(p);
+      }
+      const reloaded = parseProject(JSON.parse(JSON.stringify(p)));
+      expect(reloaded.ok).toBe(true);
+      if (!reloaded.ok) continue;
+      const plain = JSON.parse(JSON.stringify(p)) as Project;
+      for (const id of Object.keys(plain.decisions)) expect(canonical(JSON.parse(JSON.stringify(reloaded.project.decisions[id] ?? null))), `run ${run}: the Decision on ${id}`).toEqual(canonical(plain.decisions[id]));
+      expect(canonical(JSON.parse(JSON.stringify(reloaded.project))), `run ${run}`).toEqual(canonical(plain));
+    }
+  }, 60000);
+});
+
 describe('engine: generated Directions', () => {
   const seed = 20261113;
   it('is repeatable, conflict-free, valid, and distinct', () => {
@@ -252,6 +330,10 @@ describe('engine: generated Directions', () => {
       expect(d.reviewed).toBeNull();
     }
     for (const [i, x] of a.entries()) for (const y of a.slice(i + 1)) expect(designDistance(x.params, y.params)).toBeGreaterThan(1);
+  });
+
+  it('never offers a generated Direction whose own choices pull against each other, over 60 seeds (decision D23)', () => {
+    for (let s = 1; s <= 60; s++) for (const d of generateDirections(s, 6)) expect(conflicts({ ...fresh(), params: d.params }), `seed ${s}: ${d.name}`).toEqual([]);
   });
 
   it('describes each generated Direction by its final values (finding P-08)', () => {

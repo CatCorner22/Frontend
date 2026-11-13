@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_PARAMS, DIRECTIONS, NOT_CHECKED, PAIRS, SMALL_BUSINESS_CSS, STEPS, TOKEN_OF, deriveTokens, resolvePatch, tokensToCss, type DesignParams } from '../src/index.js';
 import { contrastHex, everyDesign, remeasure } from './helpers.js';
+import { toHex } from '../src/color.js';
 
 const designs = everyDesign();
 const direction = (id: string): DesignParams => DIRECTIONS.find((d) => d.id === id)!.params;
@@ -108,6 +109,68 @@ describe('contrast profiles', () => {
     }
     expect(checked).toBeGreaterThan(100000);
   }, 60000);
+
+  it('holds every pair to its pinned requirement and opacity, and the stylesheet draws those opacities (finding T2-05)', () => {
+    // A change to a requirement or to an opacity must be made here too, on purpose. 4.5 is the requirement for text; 3 for large text, borders of controls, and focus rings.
+    const pinned: Record<string, [number, string | null]> = {
+    'text-on-page': [4.5, null],
+    'text-on-card': [4.5, null],
+    'text-on-tone': [4.5, null],
+    'text-on-field': [4.5, null],
+    'muted-on-page': [4.5, null],
+    'muted-on-card': [4.5, null],
+    'muted-on-tone': [4.5, null],
+    'muted-on-field': [4.5, null],
+    'link-on-page': [4.5, null],
+    'link-on-card': [4.5, null],
+    'text-on-hero': [4.5, null],
+    'lede-on-hero': [4.5, 'heroLedeAlpha'],
+    'fact-labels-in-hero': [4.5, 'softLabelAlpha'],
+    'band-figures': [3, null],
+    'band-labels': [4.5, 'softLabelAlpha'],
+    'solid-band-figures': [3, null],
+    'solid-band-labels': [4.5, 'softLabelAlpha'],
+    'button-label': [4.5, null],
+    'soft-button-label': [4.5, null],
+    'outline-button-on-page': [4.5, null],
+    'outline-button-on-card': [4.5, null],
+    'outline-button-on-rail': [4.5, null],
+    'field-border-on-card': [3, null],
+    'field-border-on-field': [3, null],
+    'focus-on-page': [3, null],
+    'focus-on-card': [3, null],
+    'focus-on-rail': [3, null],
+    'focus-on-hero': [3, null],
+    'tag-label': [4.5, null],
+    };
+    expect(Object.fromEntries(PAIRS.map((s) => [s.id, [s.required, s.alpha ?? null]]))).toEqual(pinned);
+    // The two opacities that the pairs assume are the ones the stylesheet applies, and the tokens carry the same numbers.
+    expect(SMALL_BUSINESS_CSS).toMatch(/\.lede \{[^}]*opacity: var\(--hero-lede-alpha\)/);
+    expect(SMALL_BUSINESS_CSS).toMatch(/opacity: var\(--soft-label-alpha\)/);
+    const painted = deriveTokens({ ...DEFAULT_PARAMS, colorStrategy: 'color-block' }, 'off');
+    const lede = painted.pairs.find((pair) => pair.id === 'lede-on-hero')!;
+    expect(lede.alpha).toBe(Number(painted.css['--hero-lede-alpha']));
+    expect(lede.alpha).toBeLessThan(1);
+  });
+
+  it('Enforce keeps both ends of a headline fill (fade or two-color gradient) at 3 to 1 or better against the first screen (finding T2-03)', () => {
+    let fills = 0;
+    for (const d of designs) {
+      for (const displayTreatment of ['ink-gradient', 'accent-gradient'] as const) {
+        const t = deriveTokens({ ...d.params, displayTreatment }, 'enforce');
+        const ground = t.hex['--hero-bg']!;
+        const stops = [...t.css['--display-fill']!.matchAll(/oklch\(([\d.]+)% ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)/g)];
+        expect(stops, `${d.label}: ${displayTreatment}`).toHaveLength(2);
+        for (const stop of stops) {
+          const hex = toHex({ l: Number(stop[1]) / 100, c: Number(stop[2]), h: Number(stop[3]) });
+          const measured = contrastHex(hex, ground, stop[4] === undefined ? 1 : Number(stop[4]));
+          expect(measured, `${d.label}: ${displayTreatment}, stop ${stop[0]} on ${ground}`).toBeGreaterThanOrEqual(3);
+        }
+        fills++;
+      }
+    }
+    expect(fills).toBeGreaterThan(200);
+  });
 
   it('Enforce says "repaired" only for a pair that now passes, and gives the ratio before and after', () => {
     let repairs = 0;

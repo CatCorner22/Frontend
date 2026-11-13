@@ -145,29 +145,45 @@ function mustStep(stepId: string): Step {
 }
 
 /**
- * Recompute every value that follows another value. A picked Option such as "Two colors: opposites" keeps its
- * second hue opposite the accent, however the accent changes later. Hand-tuned values are never recomputed.
+ * Recompute every value that follows another value, then bring every Decision's record up to date.
+ *
+ * An Option such as "Two colors: opposites" keeps its second hue opposite the main color, however the main color changes later.
+ * That holds whether the owner picked the Option, kept it, or received it from a Direction (finding T2-02). The rule: if the design
+ * matched such an Option before the change, it still follows that Option after the change. Two exceptions keep the owner's hand
+ * in charge: a hand-tuned Decision is never recomputed, and the Step the owner just acted on keeps exactly what the action set.
  */
-function rederive(project: Project): Project {
-  let { params, decisions } = project;
+function rederive(before: Project, after: Project, actedStepId: string): Project {
+  let { params, decisions } = after;
   let changed = false;
   for (const step of STEPS) {
-    const decision = decisions[step.id];
-    if (!decision || decision.kind !== 'picked') continue;
-    const derive = step.options.find((o) => o.id === decision.optionId)?.derive;
+    if (!step.options.some((o) => o.derive)) continue;
+    if (decisions[step.id]?.kind === 'tuned') continue;
+    // For the Step the owner acted on, the Option is the one the action set. For every other Step it is the one the design matched
+    // before the change: after the change, a stale second hue can match a different Option by coincidence (a 60-degree move does it).
+    const optionId = step.id === actedStepId ? matchingOptionId(params, step) : matchingOptionId(before.params, step);
+    const derive = step.options.find((o) => o.id === optionId)?.derive;
     if (!derive) continue;
     const value = hueTurn(params[derive.from], derive.turn);
     if (same(params[derive.key], value)) continue;
     params = { ...params, [derive.key]: value };
-    decisions = { ...decisions, [step.id]: { ...decision, values: { ...decision.values, [derive.key]: value } } };
     changed = true;
   }
-  return changed ? { ...project, params, decisions } : project;
+  // Every Decision names the Option that the design matches now, and holds the values that the design has now.
+  for (const [stepId, decision] of Object.entries(decisions)) {
+    const step = findStep(stepId);
+    if (!step) continue;
+    const optionId = matchingOptionId(params, step);
+    const values = ownedValues(step, params);
+    if (decision.optionId === optionId && JSON.stringify(decision.values) === JSON.stringify(values)) continue;
+    decisions = { ...decisions, [stepId]: { ...decision, optionId, values } };
+    changed = true;
+  }
+  return changed ? { ...after, params, decisions } : after;
 }
 
 function withDecision(project: Project, step: Step, params: DesignParams, decision: Omit<Decision, 'stepId' | 'values' | 'optionId'>): Project {
   const full: Decision = { ...decision, stepId: step.id, optionId: matchingOptionId(params, step), values: ownedValues(step, params) };
-  return rederive({ ...project, params, decisions: { ...project.decisions, [step.id]: full } });
+  return rederive(project, { ...project, params, decisions: { ...project.decisions, [step.id]: full } }, step.id);
 }
 
 /** Pick one of the Catalog's Options for a Step. */
@@ -222,7 +238,7 @@ export function revert(project: Project, stepId: string): Project {
   const step = mustStep(stepId);
   const params = { ...project.params, ...ownedValues(step, project.base) };
   const decisions = Object.fromEntries(Object.entries(project.decisions).filter(([id]) => id !== stepId));
-  return rederive({ ...project, params, decisions });
+  return rederive(project, { ...project, params, decisions }, stepId);
 }
 
 export const REASON_MAX = 280;

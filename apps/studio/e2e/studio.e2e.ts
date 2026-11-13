@@ -435,6 +435,25 @@ describe('Studio: saved work is never replaced without a word', () => {
     await three.context.close();
   });
 
+  it('names each slider for a screen reader, and Undo says what it undid and where (findings U2-05, U2-07)', async () => {
+    const { context, page } = await open({ hash: '#heading-treatment', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
+    await waitForStep(page, 'Heading style');
+    await page.locator('summary', { hasText: 'Adjust with sliders' }).click();
+    expect(await page.getByRole('slider', { name: 'Thickness of the letters' }).count()).toBe(1);
+    expect(await page.getByRole('slider', { name: 'Letter spacing' }).count()).toBe(1);
+    // Pick an Option, which moves on to the next Step; then undo from there.
+    await page.locator('label.option', { hasText: 'Thin and elegant' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await waitForStep(page, 'Text size');
+    await page.getByRole('button', { name: 'Undo', exact: true }).click();
+    const banner = page.locator('.banner');
+    await banner.waitFor();
+    expect(await banner.innerText()).toContain('Undone: the Step “Heading style” is back to how it was.');
+    await banner.getByRole('button', { name: 'Go to “Heading style”' }).click();
+    await waitForStep(page, 'Heading style');
+    await context.close();
+  });
+
   it('keeps the project that "Start again" replaces, so that it survives a reload (finding U2-01)', async () => {
     const { context, page } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
     await page.getByRole('button', { name: 'Start from Ember Noir' }).click();

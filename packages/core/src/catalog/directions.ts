@@ -201,7 +201,7 @@ export const DIRECTIONS: Direction[] = [
     name: 'Sunlit Studio',
     mood: 'Morning light in a workshop: golden, open, optimistic.',
     bestFor: 'Makers, cafes, wellness, family businesses.',
-    risk: 'Yellow buttons need dark labels, and the Studio sets them. It also darkens yellow links until they stand out from the page.',
+    risk: 'Yellow buttons need dark labels, and the Studio sets them. It also darkens yellow links to 3 to 1 against the page, the least at which a link stands out; text reads best at 4.5 to 1, and “Fix for me” under “Contrast checks” takes the links there.',
     ...record,
     params: d({
       nav: 'top-inline', hero: 'split-media', sections: 'grid', contentWidth: 'standard', emphasis: 'headline', density: 1.18,

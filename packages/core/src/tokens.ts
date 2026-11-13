@@ -184,7 +184,7 @@ const solidBand = (p: DesignParams, pal: Palette): boolean => p.signature === 'c
 const factsInBand = (p: DesignParams): boolean => p.emphasis !== 'proof';
 
 /**
- * Every color pair that the Mockup draws, derived from the template's stylesheet.
+ * The color pairs that the Mockup draws in solid or translucent color, derived from the template's stylesheet (`NOT_CHECKED` lists what is left out).
  * Text needs 4.5:1. Large text, control boundaries, and focus rings need 3:1 (WCAG 2.2, criteria 1.4.3 and 1.4.11).
  * A unit test measures each pair again from the emitted tokens.
  */
@@ -223,6 +223,7 @@ export const PAIRS: readonly PairSpec[] = [
 /** What the contrast checks do not cover. The Studio shows this list beside the contrast notes. */
 export const NOT_CHECKED: readonly string[] = [
   'Text over a background glow, an aurora, or a glass panel, where the color behind the text varies from point to point.',
+  'A headline filled with a fade or with a two-color gradient. “Fix for me” keeps both ends of the fill at 3 to 1 or better against the first screen; “Warn me” does not measure the fill.',
   'Text over your photographs.',
   'Hover and pressed states.',
   'Anything a person must judge: whether the page reads well in sunlight, with a screen reader, or to a person with low vision.',
@@ -449,7 +450,10 @@ function displayTokens(p: DesignParams, pal: Palette, profile: A11yProfile): Rec
   const ground = pal.heroBg;
   if (p.displayTreatment === 'ink-gradient') {
     // A quiet sheen: full ink at the top, fading slightly toward the bottom.
-    return { '--display-fill': `linear-gradient(to bottom, ${toCss(pal.heroText)} 28%, ${toCssAlpha(pal.heroText, 0.56)} 112%)` };
+    let fade = 0.56;
+    // Large text needs 3:1. Under "Fix for me" the faded end is strengthened until it holds that against the first screen (finding T2-03).
+    if (profile === 'enforce') while (fade < 1 && contrastOverEmitted(pal.heroText, fade, ground) < 3 * MARGIN) fade = round(fade + 0.04, 2);
+    return { '--display-fill': `linear-gradient(to bottom, ${toCss(pal.heroText)} 28%, ${toCssAlpha(pal.heroText, Math.min(1, fade))} 112%)` };
   }
   if (p.displayTreatment === 'accent-gradient') {
     let from = pal.heroPainted ? pal.heroText : pal.accentText;

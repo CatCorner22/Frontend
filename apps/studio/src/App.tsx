@@ -481,6 +481,7 @@ function StepsView(): React.JSX.Element {
             {s.variations ? `${step.name}: small variations${s.variations.round > 0 ? `, finer (round ${s.variations.round + 1})` : ''}` : step.name}
           </legend>
           <p id="cards-hint" className="hint">
+            <span className="hint-count">This Step has {cards.length} cards; scroll down if you do not see them all. </span>
             <span className="hint-keys">Click a card to see it large. Keys 1 to {Math.min(cards.length, 9)} do the same{cards.length > 9 ? '; the arrow keys reach every card' : ''}. Enter picks the card on show.</span>
             <span className="hint-touch">Tap a card to see it large. Then tap the main button to pick it.</span>
           </p>
@@ -549,7 +550,7 @@ function StepsView(): React.JSX.Element {
                 <label key={String(t.key)} className="slider">
                   <span className="slider-name">{t.label}</span>
                   <output htmlFor={`tune-${String(t.key)}`}>{sliderValue(t, value)}</output>
-                  <input id={`tune-${String(t.key)}`} type="range" min={t.min} max={t.max} step={t.step} value={Math.min(value, t.max)} onChange={(e) => s.tuneValue(t.key, Number(e.target.value))} />
+                  <input id={`tune-${String(t.key)}`} type="range" aria-label={t.label} aria-valuetext={sliderValue(t, value)} min={t.min} max={t.max} step={t.step} value={Math.min(value, t.max)} onChange={(e) => s.tuneValue(t.key, Number(e.target.value))} />
                   <span className="slider-ends" aria-hidden="true"><span>{ends[0]}</span><span>{ends[1]}</span></span>
                 </label>
               );
