@@ -25,6 +25,13 @@ const REVIEWED = '2026-11-13';
 const COMPOSED: SourceRef[] = [{ text: 'Composed by the assistant that wrote this Studio from the Catalog’s Options and judged by eye on rendered Mockups. No outside source was consulted, and no person has reviewed it.', basis: 'builder' }];
 const record = { sources: COMPOSED, evidence: 'expert-opinion' as const, reviewed: REVIEWED };
 
+/** A Direction that rests on a search summary: the summary is filed in `docs/knowledge/sources/`; nobody read the pages themselves. */
+const researched = (text: string, file: string): { sources: SourceRef[]; evidence: 'expert-opinion'; reviewed: string } => ({
+  sources: [{ text, basis: 'snippet', record: `docs/knowledge/sources/${file}` }, ...COMPOSED],
+  evidence: 'expert-opinion',
+  reviewed: REVIEWED,
+});
+
 const d = (overrides: Partial<DesignParams>): DesignParams => ({ ...DEFAULT_PARAMS, ...overrides });
 
 export const DIRECTIONS: Direction[] = [
@@ -222,6 +229,62 @@ export const DIRECTIONS: Direction[] = [
       fontHeading: 'source-serif-4', fontBody: 'instrument-sans', headingWeight: 600, headingTracking: -0.02, headingCase: 'sentence', baseSize: 18, scaleRatio: 1.3, numerals: 'tabular',
       neutralHue: 150, neutralChroma: 0.012, accentHue: 152, accentChroma: 0.11, accentLightness: 0.4, colorStrategy: 'single-accent', theme: 'light', contrast: 0.86,
       radius: 6, elevation: 'borders', borderWeight: 1, signature: 'big-numerals', atmosphere: 'grain', buttonFinish: 'flat', displayTreatment: 'solid', motion: 'subtle',
+    }),
+  },
+  {
+    id: 'vector-horizon',
+    name: 'Vector Horizon',
+    mood: 'A flight deck at night: thin lines, a faint grid, capital letters, and one electric color. Precise and forward-looking.',
+    bestFor: 'Technology products, engineering firms, anything that sells the future.',
+    risk: 'Capital letters and outlined letters tire the eye in long passages, so keep the text short. The look borrows from film screens; on a plain local business it can feel like a costume.',
+    ...researched('A search summary on screens made to look futuristic: dark screens, one neon color, grids, read-outs, and glow.', 'futuristic-screen-look.md'),
+    params: d({
+      nav: 'split-cta', hero: 'text-left', sections: 'ledger', contentWidth: 'wide', emphasis: 'headline', density: 0.98,
+      fontHeading: 'space-grotesk', fontBody: 'instrument-sans', headingWeight: 600, headingTracking: 0.05, headingCase: 'upper', baseSize: 16, scaleRatio: 1.3, numerals: 'mono',
+      neutralHue: 245, neutralChroma: 0.02, accentHue: 205, accentChroma: 0.14, accentLightness: 0.8, colorStrategy: 'single-accent', theme: 'dark', contrast: 0.92,
+      radius: 2, elevation: 'borders', borderWeight: 1, signature: 'outline-type', atmosphere: 'line-grid', buttonFinish: 'glow', displayTreatment: 'solid', motion: 'expressive',
+    }),
+  },
+  {
+    id: 'frontier-gazette',
+    name: 'Frontier Gazette',
+    mood: 'A small-town newspaper and a wanted poster: sun-faded paper, heavy capital letters, rust red, and denim blue.',
+    bestFor: 'Ranches, outfitters, diners and saloons, craft makers, country inns.',
+    risk: 'Cream paper with letters that have small feet is on published lists of newer looks that many AI-made pages share; the heavy capitals, the rust red, and the paper grain keep this one specific. It is a costume: it suits a business with a story to tell, and it will look odd on a clinic or a software product.',
+    ...researched('A search summary on the American West look in print: wood-type poster lettering, dense centered layouts, and a palette of rust, tan, cream, black, and faded blue.', 'american-west-graphic-style.md'),
+    params: d({
+      nav: 'top-centered', hero: 'centered', sections: 'stacked', contentWidth: 'standard', emphasis: 'headline', density: 1.05,
+      fontHeading: 'playfair-display', fontBody: 'source-serif-4', headingWeight: 800, headingTracking: 0.07, headingCase: 'upper', baseSize: 17, scaleRatio: 1.3, numerals: 'proportional',
+      neutralHue: 78, neutralChroma: 0.03, accentHue: 38, accentChroma: 0.15, accentLightness: 0.5, accent2Hue: 245, colorStrategy: 'duo', theme: 'light', contrast: 0.85,
+      radius: 0, elevation: 'borders', borderWeight: 2, signature: 'corner-tag', atmosphere: 'grain', buttonFinish: 'flat', displayTreatment: 'solid', motion: 'subtle',
+    }),
+  },
+  {
+    id: 'galactic-goth',
+    name: 'Galactic Goth',
+    mood: 'Deep space in velvet: a violet-black sky full of stars, frosted boxes, royal purple, and one deep red. Dramatic and elegant.',
+    bestFor: 'Studios, musicians, tattoo and piercing shops, game and book makers, evening venues.',
+    risk: 'Purple on a dark page is on published lists of looks that many AI-made pages share; the stars, the deep red, and the elegant headings keep this one specific. The elegant heading letters need to be large to stay readable, so reading text stays in plain letters.',
+    ...researched('A search summary on the gothic look on the web: near-black pages, deep red and dark purple, ornate headings, and the warning that text must not blur into a dark background.', 'gothic-web-look.md'),
+    params: d({
+      nav: 'split-cta', hero: 'text-left', sections: 'bento', contentWidth: 'standard', emphasis: 'headline', density: 1.12,
+      fontHeading: 'playfair-display', fontBody: 'manrope', headingWeight: 700, headingTracking: -0.012, headingCase: 'sentence', baseSize: 16.5, scaleRatio: 1.42, numerals: 'proportional',
+      neutralHue: 305, neutralChroma: 0.022, accentHue: 302, accentChroma: 0.2, accentLightness: 0.58, accent2Hue: 18, colorStrategy: 'duo', theme: 'dark', contrast: 0.9,
+      radius: 14, elevation: 'glass', borderWeight: 1, signature: 'none', atmosphere: 'stars', buttonFinish: 'glow', displayTreatment: 'ink-gradient', motion: 'expressive',
+    }),
+  },
+  {
+    id: 'marquee-deco',
+    name: 'Marquee Deco',
+    mood: 'A theater front from the 1920s: black and gold, even capital letters, square corners, and a light from above.',
+    bestFor: 'Theaters, cocktail bars, hotels, jewelers, events with a sense of occasion.',
+    risk: 'Gold on black reads as luxury only when everything else is restrained; one more decoration tips it into a casino. Thin capital letters need generous size.',
+    ...record,
+    params: d({
+      nav: 'top-centered', hero: 'centered', sections: 'alternating', contentWidth: 'standard', emphasis: 'headline', density: 1.15,
+      fontHeading: 'outfit', fontBody: 'dm-sans', headingWeight: 500, headingTracking: 0.1, headingCase: 'upper', baseSize: 16.5, scaleRatio: 1.3, numerals: 'tabular',
+      neutralHue: 80, neutralChroma: 0.008, accentHue: 88, accentChroma: 0.13, accentLightness: 0.8, colorStrategy: 'single-accent', theme: 'dark', contrast: 0.9,
+      radius: 0, elevation: 'borders', borderWeight: 1, signature: 'color-band', atmosphere: 'spotlight', buttonFinish: 'outline', displayTreatment: 'solid', motion: 'subtle',
     }),
   },
 ];

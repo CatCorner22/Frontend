@@ -314,7 +314,7 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
     consistent(changed);
   });
 
-  it('keeps every Decision true to the design through 300 random sequences of actions, and through save and reload', () => {
+  it('keeps every Decision true to the design through 400 random sequences of actions, and through save and reload', () => {
     let seed = 7;
     const rand = (): number => {
       seed = (seed + 0x6d2b79f5) | 0;
@@ -326,7 +326,7 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
     const canonical = (value: unknown): unknown =>
       Array.isArray(value) ? value.map(canonical) : typeof value === 'object' && value !== null ? Object.fromEntries(Object.keys(value).sort().map((k) => [k, canonical((value as Record<string, unknown>)[k])])) : value;
     const actions: Record<string, number> = {};
-    for (let run = 0; run < 300; run++) {
+    for (let run = 0; run < 400; run++) {
       let p = rand() < 0.5 ? fresh() : applyDirection(fresh(), any(DIRECTIONS).id);
       for (let action = 0; action < 20; action++) {
         const s = any(STEPS);
