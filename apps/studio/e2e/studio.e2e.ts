@@ -2,7 +2,7 @@
 // Run with `npm run e2e` (which builds the page first).
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { DIRECTIONS, STEPS, applyDirection, createProject, pick, type Project } from '@refraction/core';
+import { DIRECTIONS, STEPS, applyDirection, createProject, pick, type Project, tune } from '@refraction/core';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -433,6 +433,15 @@ describe('Studio: saved work is never replaced without a word', () => {
     await three.page.locator('.banner').waitFor();
     expect((await keptCopies(three.page)).map((copy) => copy.text)).toContain('not a record at all');
     await three.context.close();
+  });
+
+  it('reads a hand-set value back in words first, with the number in brackets (finding U2-04)', async () => {
+    const tuned = tune(worked('Weeks of work'), 'density', 'density', 1.4, '2026-11-13T09:30:00.000Z');
+    const { context, page } = await open({ hash: '#density', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(tuned))) } });
+    await waitForStep(page, 'Spacing');
+    const status = await page.locator('.rail a[aria-current]').innerText();
+    expect(status).toMatch(/Set by hand: close to “(Roomy|Very roomy)” \(spacing 1\.4\)/);
+    await context.close();
   });
 
   it('names each slider for a screen reader, and Undo says what it undid and where (findings U2-05, U2-07)', async () => {

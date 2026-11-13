@@ -1,5 +1,5 @@
 import {
-  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, conflicts, deriveTokens, findStep, matchingOptionId,
+  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, conflicts, deriveTokens, findStep, matchingOptionId, resolvePatch,
   type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, useEffect, useMemo, useRef, useState } from 'react';
@@ -58,11 +58,42 @@ function sliderValue(t: Tunable, raw: number): string {
   return `${Number(Math.min(raw, t.max).toFixed(3))}${t.unit ?? ''}`;
 }
 
+/** The standard Option whose values lie nearest to the design's values, for a Step with sliders. */
+function nearestOption(params: DesignParams, step: Step): Step['options'][number] | null {
+  let best: Step['options'][number] | null = null;
+  let bestDistance = Infinity;
+  for (const option of step.options) {
+    const patch = resolvePatch(option, params) as Record<string, unknown>;
+    let distance = 0;
+    for (const key of step.owns) {
+      const want = patch[key];
+      const have = params[key];
+      if (want === undefined) continue;
+      const tunable = step.tunables?.find((t) => t.key === key);
+      if (typeof want === 'number' && typeof have === 'number' && tunable) {
+        const gap = Math.abs(want - have);
+        // A hue is a position on a wheel: 350 degrees and 10 degrees are 20 apart.
+        distance += String(key).toLowerCase().includes('hue') ? Math.min(gap, 360 - gap) / 180 : gap / (tunable.max - tunable.min);
+      } else if (want !== have) distance += 1;
+    }
+    if (distance < bestDistance) {
+      best = option;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
 /** The current value of a Step, in words: the matching Option's name, or the hand-set values. */
 function valueLabel(project: Project, step: Step): string {
   const match = matchingOptionId(project.params, step);
   if (match) return step.options.find((o) => o.id === match)!.label;
-  if (step.tunables?.length) return step.tunables.map((t) => `${t.label.toLowerCase()} ${sliderValue(t, project.params[t.key] as number)}`).join(', ');
+  if (step.tunables?.length) {
+    // Words first, numbers second: a hand-set value is named by the standard Option it lies nearest to (finding U2-04).
+    const exact = step.tunables.map((t) => `${t.label.toLowerCase()} ${sliderValue(t, project.params[t.key] as number)}`).join(', ');
+    const near = nearestOption(project.params, step);
+    return near ? `close to “${near.label}” (${exact})` : exact;
+  }
   return step.owns
     .map((key) => {
       const value = project.params[key];
