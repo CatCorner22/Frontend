@@ -164,7 +164,8 @@ function TopBar(): React.JSX.Element {
       </a>
       <label className="name-field">
         <span className="visually-hidden">Project name</span>
-        <input id="project-name" className="name" value={s.project.name} placeholder="Name this project" onChange={(e) => s.rename(e.target.value)} spellCheck={false} autoComplete="off" maxLength={120} />
+        {/* Until the saved project is open, the field shows a placeholder project; typing into it then would be typing into nothing. */}
+        <input id="project-name" className="name" value={s.project.name} placeholder="Name this project" disabled={!s.ready} onChange={(e) => s.rename(e.target.value)} spellCheck={false} autoComplete="off" maxLength={120} />
       </label>
       <nav className="top-nav" aria-label="Parts of the Studio">
         <a href="#directions" aria-current={s.view === 'directions' ? 'page' : undefined}>1. Directions</a>
@@ -173,7 +174,7 @@ function TopBar(): React.JSX.Element {
       </nav>
       <div className="profile">
         <label htmlFor="a11y-profile">Contrast checks</label>
-        <select id="a11y-profile" value={s.project.a11y} aria-describedby="a11y-meaning" onChange={(e) => s.setProfile(e.target.value as A11yProfile)}>
+        <select id="a11y-profile" value={s.project.a11y} aria-describedby="a11y-meaning" disabled={!s.ready} onChange={(e) => s.setProfile(e.target.value as A11yProfile)}>
           <option value="off">Off</option>
           <option value="advise">Warn me</option>
           <option value="enforce">Fix for me</option>
@@ -658,9 +659,10 @@ function StepsView(): React.JSX.Element {
 // ───────── Summary ─────────
 
 /** The time at which a copy was kept, on the reader's own clock, or an empty text when the time is unknown. */
+const KEPT_TIME = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 function keptWhen(keptAt: string): string {
   const time = new Date(keptAt);
-  return keptAt && !Number.isNaN(time.getTime()) ? time.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '';
+  return keptAt && !Number.isNaN(time.getTime()) ? KEPT_TIME.format(time) : '';
 }
 
 /**
@@ -690,9 +692,19 @@ function SummaryView(): React.JSX.Element {
   const clashes = useMemo(() => conflicts(s.project), [s.project]);
   const decided = STEPS.filter((st) => s.project.decisions[st.id]).length;
   const [keptTick, setKeptTick] = useState(0);
-  const [removing, setRemoving] = useState<KeptCopy | null>(null);
-  // The list is read again after a notice, a save, or a removal.
-  const keptCopies = useMemo(() => readBackups(), [s.notice, s.saved, keptTick]);
+  // The kept copy that the owner is about to remove, by a name that stays the same when the list is read again. Holding the
+  // list member itself made the question "Yes, remove it for good / No, keep it" vanish whenever the list was read again
+  // (code review, finding "screen 7").
+  const [removing, setRemoving] = useState<string | null>(null);
+  // The list is read again after a notice (every action that keeps a copy posts one), after a removal, and when the owner
+  // comes back to this tab (another tab may have kept a copy). It is not read on every change of the save status: that read
+  // and redrew the whole list twice for each typed letter (code review, finding "saving 8").
+  const keptCopies = useMemo(() => readBackups(), [s.notice, s.hold, keptTick]);
+  useEffect(() => {
+    const again = (): void => setKeptTick((n) => n + 1);
+    window.addEventListener('focus', again);
+    return () => window.removeEventListener('focus', again);
+  }, []);
   const fileName = fileNameFor(s.project.name);
 
   const download = async (): Promise<void> => {
@@ -755,22 +767,26 @@ function SummaryView(): React.JSX.Element {
               <h3>Copies the Studio kept for you</h3>
               <p className="note">The Studio keeps a copy whenever it is about to replace saved work, or cannot read it. A kept copy stays here until you remove it.</p>
               <ul>
-                {keptCopies.map((copy, index) => (
-                  <li key={`${copy.keptAt}-${index}`}>
-                    <span>{copy.why}{keptWhen(copy.keptAt) && <> Kept on <span className="nowrap">{keptWhen(copy.keptAt)}</span>.</>}</span>
+                {keptCopies.map((copy, index) => {
+                  const id = copy.key ?? `listed|${copy.keptAt}|${copy.text.length}|${index}`;
+                  const when = keptWhen(copy.keptAt);
+                  return (
+                  <li key={id}>
+                    <span>{copy.why}{when && <> Kept on <span className="nowrap">{when}</span>.</>}</span>
                     <span className="button-row">
                       <button type="button" className="btn quiet" onClick={() => { const file = keptCopyFile(copy, index); void saveFile(file.name, file.text); }}>Download this kept copy</button>
-                      {removing === copy ? (
+                      {removing === id ? (
                         <>
                           <button type="button" className="btn quiet" onClick={() => { setMessage(removeBackup(copy) ? 'The kept copy was removed.' : 'This browser did not let the Studio remove the kept copy.'); setRemoving(null); setKeptTick((n) => n + 1); s.saveAgain(); }}>Yes, remove it for good</button>
                           <button type="button" className="btn quiet" onClick={() => setRemoving(null)}>No, keep it</button>
                         </>
                       ) : (
-                        <button type="button" className="btn quiet" onClick={() => setRemoving(copy)}>Remove this kept copy…</button>
+                        <button type="button" className="btn quiet" onClick={() => setRemoving(id)}>Remove this kept copy…</button>
                       )}
                     </span>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </div>
           )}

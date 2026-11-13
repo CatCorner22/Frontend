@@ -38,7 +38,20 @@ interface OpenOptions {
   /** Text to place in browser storage before the Studio starts, by key. */
   storage?: Record<string, string>;
   /** A stand-in for the private page's database: the stored document, and whether writes fail. */
-  pageDb?: { doc: { project: string; savedAt?: string } | null; failWrites?: boolean };
+  pageDb?: {
+    doc: { project: string; savedAt?: string } | null;
+    failWrites?: boolean;
+    /** Each read answers only after this many milliseconds. */
+    getDelay?: number;
+    /** The first read fails; later reads answer. */
+    firstGetRejects?: boolean;
+    /** A write never answers. */
+    setHangs?: boolean;
+    /** The page has a runtime object, but it lacks the function that hands out the database. */
+    noUse?: boolean;
+  };
+  /** Return as soon as the page's frame is there, without waiting until the saved project is open. */
+  dontWaitUntilOpen?: boolean;
 }
 
 async function open(options: OpenOptions = {}): Promise<Session> {
@@ -87,30 +100,38 @@ async function open(options: OpenOptions = {}): Promise<Session> {
   if (options.pageDb) {
     await page.addInitScript((db) => {
       if (window.top !== window) return;
-      const state = { doc: db.doc as { project: string; savedAt?: string } | null };
+      const state = { doc: db.doc as { project: string; savedAt?: string } | null, reads: 0 };
       (window as unknown as Record<string, unknown>)['__pageDb'] = state;
-      (window as unknown as Record<string, unknown>)['claude'] = {
-        use: (name: string) =>
-          Promise.resolve(
-            name !== 'db'
-              ? null
-              : {
-                  doc: () => ({
-                    get: () => Promise.resolve({ exists: state.doc !== null, data: () => state.doc ?? undefined }),
-                    set: (data: { project: string; savedAt: string }) => {
-                      if (db.failWrites) return Promise.reject(new Error('write refused'));
-                      state.doc = data;
-                      return Promise.resolve();
+      const later = <T,>(value: () => T, ms: number): Promise<T> => new Promise((resolve) => setTimeout(() => resolve(value()), ms));
+      (window as unknown as Record<string, unknown>)['claude'] = db.noUse
+        ? {}
+        : {
+            use: (name: string) =>
+              Promise.resolve(
+                name !== 'db'
+                  ? null
+                  : {
+                      doc: () => ({
+                        get: () => {
+                          state.reads += 1;
+                          if (db.firstGetRejects && state.reads === 1) return Promise.reject(new Error('read refused'));
+                          return later(() => ({ exists: state.doc !== null, data: () => state.doc ?? undefined }), db.getDelay ?? 0);
+                        },
+                        set: (data: { project: string; savedAt: string }) => {
+                          if (db.setHangs) return new Promise<void>(() => undefined);
+                          if (db.failWrites) return Promise.reject(new Error('write refused'));
+                          state.doc = data;
+                          return Promise.resolve();
+                        },
+                      }),
                     },
-                  }),
-                },
-          ),
-      };
+              ),
+          };
     }, options.pageDb);
   }
   await page.goto(pageUrl + (options.hash ?? ''));
   await page.waitForSelector('.top');
-  await page.waitForFunction(() => !document.querySelector('.loading'));
+  if (!options.dontWaitUntilOpen) await page.waitForFunction(() => !document.querySelector('.loading'));
   return { context, page, errors, requests };
 }
 
@@ -964,7 +985,7 @@ describe('Studio: a stopped save stays answerable, and no tab loses its work to 
     // The saved project is the other tab's, untouched; the stopped tab's work is among the kept copies.
     expect((await stored(page))?.name).toBe('Changed in the other tab');
     const kept = await keptCopies(page);
-    expect(kept.some((copy) => copy.text.includes('Typed in the stopped tab') && copy.why.includes('was not yet saved when you left or reloaded the page'))).toBe(true);
+    expect(kept.some((copy) => copy.text.includes('Typed in the stopped tab') && copy.why.includes('as it was when you last left the tab, reloaded it, or closed it'))).toBe(true);
     // Nobody could read a notice while the page reloaded, so the next opening says what happened and where the copy is.
     const notice = page.locator('.banner:not(.hold)');
     expect(await notice.innerText()).toContain('kept that page’s unsaved work as a copy');
@@ -1164,6 +1185,139 @@ describe('Studio: a stopped save stays answerable, and no tab loses its work to 
     await expect.poll(() => slider.inputValue()).toBe('1.45');
     await page.keyboard.press('Home');
     await expect.poll(() => slider.inputValue()).toBe('0.75');
+    await context.close();
+  });
+});
+
+describe('Studio: a slow or faulty page database never costs a saved copy (code review of 2026-11-13)', () => {
+  const pageDoc = (page: Page): Promise<{ project: string; savedAt?: string } | null> => page.evaluate(() => (window as unknown as { __pageDb: { doc: { project: string; savedAt?: string } | null } }).__pageDb.doc);
+
+  it('saves nothing while the saved project is still opening: leaving, a tab switch, and typing change no copy (finding "saving 0")', async () => {
+    const saved = envelope(worked('Weeks of work'));
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: saved }, pageDb: { doc: null, getDelay: 2500 }, dontWaitUntilOpen: true });
+    // The page database has not answered yet, so the project is not open.
+    expect(await page.locator('.loading').count()).toBe(1);
+    expect(await page.locator('#project-name').isDisabled()).toBe(true);
+    await page.evaluate(() => {
+      window.dispatchEvent(new Event('pagehide'));
+      Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+      window.dispatchEvent(new Event('beforeunload'));
+    });
+    expect(await rawStored(page, LOCAL_KEY)).toBe(saved);
+    expect(await keptCopies(page)).toEqual([]);
+    // Once the project is open, it is the saved one, and the field works.
+    await page.waitForFunction(() => !document.querySelector('.loading'), undefined, { timeout: 10000 });
+    expect(await page.locator('#project-name').inputValue()).toBe('Weeks of work');
+    expect(await page.locator('#project-name').isDisabled()).toBe(false);
+    expect((await stored(page))?.direction).toBe('paper-and-ink');
+    await context.close();
+  });
+
+  it('opens the browser copy when the page has a runtime that cannot hand out a database (finding "saving 1")', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Weeks of work')) }, pageDb: { doc: null, noUse: true } });
+    await page.waitForSelector('.cards');
+    expect(await page.locator('#project-name').inputValue()).toBe('Weeks of work');
+    await page.locator('#project-name').fill('Weeks of work, continued');
+    await settle(page);
+    expect((await stored(page))?.name).toBe('Weeks of work, continued');
+    expect(await page.locator('.save-state').innerText()).toBe('Saved in this browser, on this computer');
+    await context.close();
+  });
+
+  it('keeps a copy that the page database hands over late, before any save can replace it (findings "saving 2" and "gaps 3")', async () => {
+    const older = worked('Older, in this browser');
+    const newer = worked('Newer, on the page');
+    // The first read of the page database fails, so the Studio opens the browser copy. The second read answers with a newer copy.
+    const session = await open({ storage: { [LOCAL_KEY]: envelope(older, '2026-11-06T10:00:00.000Z') }, pageDb: { doc: { project: JSON.stringify(newer), savedAt: '2026-11-13T10:00:00.000Z' }, firstGetRejects: true } });
+    const { page } = session;
+    await page.waitForSelector('.cards');
+    const hold = page.locator('.banner.hold');
+    await hold.waitFor();
+    expect(await hold.innerText()).toContain('A newer copy of this project was found saved on this page. The Studio kept it');
+    expect((await keptCopies(page)).map((copy) => (JSON.parse(copy.text) as Project).name)).toContain('Newer, on the page');
+    // "Keep what I have", then an edit: the page copy is replaced now, and the kept copy still holds it.
+    await hold.getByRole('button', { name: 'Keep what I have' }).click();
+    await page.locator('#project-name').fill('Older, and edited');
+    await settle(page);
+    expect((JSON.parse((await pageDoc(page))!.project) as Project).name).toBe('Older, and edited');
+    expect((await keptCopies(page)).map((copy) => (JSON.parse(copy.text) as Project).name)).toContain('Newer, on the page');
+    await session.context.close();
+
+    // The same start; this time the owner opens the newer copy. The replaced project is kept, and the Step screen works.
+    const second = await open({ hash: '#radius', storage: { [LOCAL_KEY]: envelope(tune(older, 'radius', 'radius', 9, '2026-11-13T09:30:00.000Z'), '2026-11-06T10:00:00.000Z') }, pageDb: { doc: { project: JSON.stringify(newer), savedAt: '2026-11-13T10:00:00.000Z' }, firstGetRejects: true } });
+    await second.page.locator('.banner.hold').getByRole('button', { name: 'Open the newer copy' }).click();
+    await expect.poll(() => second.page.locator('#project-name').inputValue()).toBe('Newer, on the page');
+    expect((await keptCopies(second.page)).some((copy) => copy.text.includes('Older, in this browser'))).toBe(true);
+    // The main button acts on the opened project, without an error.
+    await second.page.locator('.actions.sticky .primary').click();
+    await settle(second.page);
+    expect(second.errors).toEqual([]);
+    expect((await stored(second.page))?.name).toBe('Newer, on the page');
+    await second.context.close();
+
+    // A late copy that cannot be read is kept as well, and the Studio says so.
+    const third = await open({ storage: { [LOCAL_KEY]: envelope(older, '2026-11-06T10:00:00.000Z') }, pageDb: { doc: { project: '{"cut off', savedAt: '2026-11-13T10:00:00.000Z' }, firstGetRejects: true } });
+    await third.page.waitForSelector('.cards');
+    await expect.poll(async () => (await keptCopies(third.page)).map((copy) => copy.text)).toContain('{"cut off');
+    expect(await third.page.locator('.banner').innerText()).toContain('could not be read. The Studio kept it');
+    await third.context.close();
+  });
+
+  it('says "Saved in this browser" when a write to the page database never answers, and goes on saving (finding "saving 3")', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Weeks of work')) }, pageDb: { doc: null, setHangs: true } });
+    await page.waitForSelector('.cards');
+    await page.locator('#project-name').fill('Weeks of work, first change');
+    await settle(page);
+    expect((await stored(page))?.name).toBe('Weeks of work, first change');
+    expect(await page.locator('.save-state').innerText()).toBe('Saving…');
+    // After the time limit for a page write, the status settles on what is true: the browser holds the work.
+    await expect.poll(() => page.locator('.save-state').innerText(), { timeout: 15000, interval: 1000 }).toBe('Saved in this browser, on this computer');
+    await context.close();
+  }, 40000);
+
+  it('keeps what another tab saved before "Start a new project" in a stopped tab replaces it (finding "saving 4")', async () => {
+    const garbage = 'not a project at all';
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: garbage } });
+    await page.locator('.banner.hold').waitFor();
+    const other = await context.newPage();
+    await other.goto(pageUrl);
+    await other.locator('.banner.hold').getByRole('button', { name: /^Start a new project/ }).click();
+    await other.getByRole('button', { name: 'Start from Ember Noir' }).click();
+    await other.waitForSelector('.cards');
+    await other.locator('#project-name').fill('Work done in the other tab');
+    await other.waitForTimeout(700);
+    await other.close();
+    // The first tab was asked about the unreadable copy. Its answer must not cost the other tab's work.
+    await page.locator('.banner.hold').getByRole('button', { name: /^Start a new project/ }).click();
+    await settle(page);
+    expect((await keptCopies(page)).some((copy) => copy.text.includes('Work done in the other tab'))).toBe(true);
+    await context.close();
+  });
+
+  it('keeps one running copy for a tab that is not saving, however often the tab goes to the background (finding "saving 7")', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Shared project')) } });
+    await page.waitForSelector('.cards');
+    const other = await context.newPage();
+    await other.goto(pageUrl);
+    await other.waitForSelector('.cards');
+    await other.locator('#project-name').fill('Changed in the other tab');
+    await page.locator('.banner.hold').waitFor();
+    const toBackground = (): Promise<void> =>
+      page.evaluate(() => {
+        Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+        Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+    for (const name of ['Stopped tab, first', 'Stopped tab, second', 'Stopped tab, third']) {
+      await page.locator('#project-name').fill(name);
+      await toBackground();
+    }
+    const kept = (await keptCopies(page)).filter((copy) => copy.text.includes('Stopped tab'));
+    expect(kept.length).toBe(1);
+    expect(kept[0]!.text).toContain('Stopped tab, third');
+    expect(kept[0]!.why).toContain('as it was when you last left the tab, reloaded it, or closed it');
     await context.close();
   });
 });

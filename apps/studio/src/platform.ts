@@ -44,6 +44,8 @@ const COPY_PREFIX = `${BACKUP_KEY}.`;
 export const PREFS_KEY = 'refraction.prefs.v1';
 const DOC_PATH = 'projects/current';
 const READ_TIMEOUT_MS = 10_000;
+/** A write to the page database that has not answered after this time counts as not done; later writes do not wait for it. */
+const WRITE_TIMEOUT_MS = 10_000;
 
 /** One saved copy, as raw text. The caller parses and checks it. */
 export interface RawCopy {
@@ -70,8 +72,11 @@ let dbPromise: Promise<Db | null> | null = null;
 function database(): Promise<Db | null> {
   if (!dbPromise) {
     const rt = runtime();
+    // The call sits inside a promise chain, so that a runtime whose `use` is missing, throws at once, or returns something
+    // that is not a promise counts as "no page database", instead of stopping the Studio from opening the browser copy
+    // (code review of 2026-11-13, finding "saving 1").
     dbPromise = rt
-      ? withTimeout(rt.use('db').catch(() => null), READ_TIMEOUT_MS).then((db) => (db === TIMED_OUT ? null : db))
+      ? withTimeout(Promise.resolve().then(() => rt.use('db')).catch(() => null), READ_TIMEOUT_MS).then((db) => (db === TIMED_OUT || !db || typeof db.doc !== 'function' ? null : db))
       : Promise.resolve(null);
   }
   return dbPromise;
@@ -244,6 +249,53 @@ export function keepBackup(text: string, why: string): boolean {
   }
 }
 
+let runningCopy: string | null = null;
+/**
+ * Keep a copy of work that grows while it cannot be saved (a tab that is not saving, each time it goes to the background or
+ * closes). The new copy takes the place of the one this tab kept the time before, so that one stopped session leaves one
+ * copy, not one per tab switch (code review, finding "saving 7"). The new copy is written before the earlier one is removed.
+ */
+export function keepRunningCopy(text: string, why: string): boolean {
+  const store = window.localStorage;
+  try {
+    if (readBackups().some((copy) => copy.text === text)) return true;
+  } catch {
+    return false;
+  }
+  const keptAt = new Date().toISOString();
+  const key = `${COPY_PREFIX}${keptAt}.${(keptInThisTab++).toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+  const value = `${JSON.stringify({ keptAt, why })}\n${text}`;
+  const earlier = runningCopy;
+  try {
+    store.setItem(key, value);
+    if (earlier !== null) store.removeItem(earlier);
+    runningCopy = key;
+    return true;
+  } catch {
+    // No room for both. Put the new copy in the earlier one's place; if even that fails, put the earlier one back.
+    if (earlier === null) return false;
+    let before: string | null = null;
+    try {
+      before = store.getItem(earlier);
+      store.removeItem(earlier);
+      store.setItem(key, value);
+      runningCopy = key;
+      return true;
+    } catch {
+      try {
+        if (before !== null) store.setItem(earlier, before);
+      } catch {
+        // Storage refuses everything; the earlier copy is gone from this attempt, and the caller reports the failure.
+      }
+      return false;
+    }
+  }
+}
+/** The owner settled the stopped save: the next stopped session keeps a copy of its own. */
+export function endRunningCopy(): void {
+  runningCopy = null;
+}
+
 const KEPT_NOTE_KEY = 'refraction.kept.note';
 /** Leave word for the next opening: a page kept unsaved work as a copy while it closed or reloaded, when it could tell nobody. */
 export function leaveKeptNote(): void {
@@ -362,11 +414,12 @@ export async function saveProject(projectText: string): Promise<SaveOutcome> {
   let outcome: SaveOutcome = browser === 'saved' ? 'browser' : 'failed';
   const db = await database();
   if (db && pageReadSucceeded) {
-    const next = writing.then(() => db.doc(DOC_PATH).set({ project: projectText, savedAt }));
-    writing = next.catch(() => undefined);
+    // A write has a time limit, as a read has. Without one, a single write that never answered left the status line at
+    // "Saving…" for the rest of the session, and every later write waited behind it (code review, finding "saving 3").
+    const next = writing.then(() => withTimeout(db.doc(DOC_PATH).set({ project: projectText, savedAt }), WRITE_TIMEOUT_MS));
+    writing = next.then(() => undefined, () => undefined);
     try {
-      await next;
-      outcome = 'page';
+      if ((await next) !== TIMED_OUT) outcome = 'page';
     } catch {
       // Keep the browser outcome.
     }
