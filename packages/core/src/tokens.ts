@@ -1,17 +1,39 @@
 // Token derivation: a few design parameters in, the complete set of design tokens out.
 // A token is a named value (a color, a size, a shadow recipe) that the Mockup and the exported files both use.
 
-import { contrast, ensureContrast, hexOver, readableOn, shiftH, shiftL, toCss, toCssAlpha, toHex, type Oklch } from './color.js';
+import { contrastOnWash, contrastOver, ensureContrast, ensureContrastAll, hexOver, readableOn, shiftH, shiftL, toCss, toCssAlpha, toHex, type Oklch } from './color.js';
 import { FONTS, type A11yProfile, type DesignParams } from './params.js';
 
 export interface TokenIssue {
   id: string;
   /** Plain-language description of the pair that was checked. */
   pair: string;
+  /** The contrast ratio measured before any repair. */
   ratio: number;
   required: number;
-  /** `repaired` means the Enforce profile changed a color to meet the requirement. */
+  /**
+   * `warning`: the pair is below the requirement and was left as picked.
+   * `repaired`: the Enforce profile changed a color, and the pair was measured again and now meets the requirement.
+   */
   outcome: 'warning' | 'repaired';
+  /** The ratio after the repair, measured again. Present only when the outcome is `repaired`. */
+  after?: number;
+}
+
+/** One color pair that the Mockup draws, as measured from the final colors. */
+export interface MeasuredPair {
+  id: string;
+  pair: string;
+  /** The tokens that hold the two colors. */
+  fgToken: string;
+  bgToken: string;
+  /** Opacity at which the foreground is drawn (1 for solid). For the highlighter stroke: the opacity of the stroke. */
+  alpha: number;
+  /** `text`: the foreground, at `alpha`, over the background. `wash`: solid text over a wash of `bgToken` at `alpha` on the first screen. */
+  kind: 'text' | 'wash';
+  ratio: number;
+  required: number;
+  passes: boolean;
 }
 
 export interface DerivedTokens {
@@ -20,42 +42,47 @@ export interface DerivedTokens {
   /** The same colors as opaque hex, for exports that cannot read `oklch()`. */
   hex: Record<string, string>;
   issues: TokenIssue[];
+  /** Every checked pair with its final measured ratio, in every contrast profile. */
+  pairs: MeasuredPair[];
 }
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 const round = (v: number, d = 3): number => Number(v.toFixed(d));
 const rem = (px: number): string => `${round(px / 16, 4)}rem`;
+/** Repairs aim slightly above each requirement, so that the colors still meet it after they are rounded for output. */
+const MARGIN = 1.012;
 const WHITE: Oklch = { l: 1, c: 0, h: 0 };
 const BLACK: Oklch = { l: 0, c: 0, h: 0 };
 
-interface Palette {
-  bg: Oklch;
-  surface: Oklch;
-  surface2: Oklch;
-  /** Hairlines are the text color at low opacity, so that they sit naturally on any surface. */
-  hairlineAlpha: number;
-  borderStrong: Oklch;
-  text: Oklch;
-  textMuted: Oklch;
-  accent: Oklch;
-  onAccent: Oklch;
-  accentText: Oklch;
-  accentSoft: Oklch;
-  accent2: Oklch;
-  onAccent2: Oklch;
-  action: Oklch;
-  onAction: Oklch;
-  /** The label of the main button and what it sits on; these depend on the button finish. */
-  btnLabel: Oklch;
-  btnBackdrop: Oklch;
-  bandBg: Oklch;
-  bandText: Oklch;
-  heroBg: Oklch | null;
-  heroText: Oklch;
-  focus: Oklch;
-}
+/** The colors of the palette. Each one is written out as the token named in `TOKEN_OF`. */
+type ColorKey =
+  | 'bg' | 'surface' | 'surface2' | 'cardBg' | 'borderStrong' | 'text' | 'textMuted'
+  | 'accent' | 'onAccent' | 'accentText' | 'accentSoft' | 'accent2' | 'onAccent2'
+  | 'action' | 'onAction' | 'btnLabel' | 'btnFill'
+  | 'bandBg' | 'bandText' | 'bandSolidBg' | 'bandSolidText'
+  | 'heroBg' | 'heroText' | 'focus' | 'focusHero' | 'marker';
+
+type AlphaKey = 'softLabelAlpha' | 'heroLedeAlpha' | 'markerAlpha';
+
+type Palette = Record<ColorKey, Oklch> &
+  Record<AlphaKey, number> & {
+    /** Hairlines are the text color at low opacity, so that they sit naturally on any surface. */
+    hairlineAlpha: number;
+    /** True when the first screen is painted in the accent ("Color block"). */
+    heroPainted: boolean;
+  };
+
+export const TOKEN_OF: Record<ColorKey, string> = {
+  bg: '--bg', surface: '--surface', surface2: '--surface-2', cardBg: '--card-surface', borderStrong: '--border-strong', text: '--text', textMuted: '--text-muted',
+  accent: '--accent', onAccent: '--on-accent', accentText: '--accent-text', accentSoft: '--accent-soft', accent2: '--accent-2', onAccent2: '--on-accent-2',
+  action: '--action', onAction: '--on-action', btnLabel: '--btn-label', btnFill: '--btn-fill',
+  bandBg: '--band-bg', bandText: '--band-text', bandSolidBg: '--band-solid-bg', bandSolidText: '--band-solid-text',
+  heroBg: '--hero-bg', heroText: '--hero-text', focus: '--focus', focusHero: '--focus-hero', marker: '--marker-ink',
+};
 
 const filledButton = (p: DesignParams): boolean => p.buttonFinish === 'flat' || p.buttonFinish === 'gloss' || p.buttonFinish === 'glow';
+/** Cards take the second surface tone when no line or shadow separates them. */
+const tonalCards = (p: DesignParams): boolean => p.elevation === 'flat' || p.elevation === 'tonal';
 
 function basePalette(p: DesignParams): Palette {
   const dark = p.theme === 'dark';
@@ -76,6 +103,7 @@ function basePalette(p: DesignParams): Palette {
     surface = tinted ? { l: 0.988, c: 0.014, h: p.accentHue } : { l: 1, c: 0, h: p.neutralHue };
     surface2 = tinted ? { l: 0.93, c: 0.04, h: p.accentHue } : n(0.955, 1.3);
   }
+  const cardBg = tonalCards(p) ? surface2 : surface;
 
   const text = dark ? n(lerp(0.87, 0.97, k), 1.2) : n(lerp(0.33, 0.15, k), 2.2);
   const textMuted = dark ? n(lerp(0.67, 0.76, k), 1.5) : n(lerp(0.57, 0.44, k), 2.2);
@@ -97,13 +125,14 @@ function basePalette(p: DesignParams): Palette {
 
   let bandBg: Oklch = accentSoft;
   let bandText: Oklch = text;
-  let heroBg: Oklch | null = null;
+  let heroBg: Oklch = bg;
   let heroText: Oklch = text;
+  const heroPainted = p.colorStrategy === 'color-block';
   if (p.colorStrategy === 'duo') {
     bandBg = accent2;
     bandText = readableOn(accent2);
   }
-  if (p.colorStrategy === 'color-block') {
+  if (heroPainted) {
     // The first screen is painted in the accent; the band beneath it inverts to ink so that the two never merge.
     bandBg = text;
     bandText = bg;
@@ -111,75 +140,166 @@ function basePalette(p: DesignParams): Palette {
     heroText = readableOn(accent);
   }
 
-  // Accent used as text (links, small labels) keeps the hue but must stay legible on the page: at least 3:1 in every profile.
-  // The picked accent itself, as used for fills, never changes.
-  const accentText = ensureContrast(accent, heroBg ?? bg, 3);
+  // Decision D24: the accent, used as text (links, small labels) or as the focus ring, keeps its hue but stands
+  // at least 3:1 from every surface it is drawn on, in every contrast profile. The picked accent, as used for fills, never changes.
+  const surfaces = [bg, cardBg, ...(p.nav === 'side-rail' ? [surface2] : [])];
+  const accentText = ensureContrastAll(accent, [bg, cardBg], 3 * MARGIN);
+  const focus = ensureContrastAll(p.colorStrategy === 'duo' ? accent2 : accent, surfaces, 3 * MARGIN);
+  // On a painted first screen the accent cannot ring itself; the ring takes the ink of that screen.
+  const focusHero = heroPainted ? heroText : focus;
+
   // Outline and soft buttons carry their color in the label, not in a fill.
   const labelInk = quiet ? text : accentText;
   const btnLabel = filledButton(p) ? onAction : labelInk;
-  const btnBackdrop = filledButton(p) ? action : p.buttonFinish === 'soft' ? accentSoft : (heroBg ?? bg);
+  const btnFill = filledButton(p) ? action : p.buttonFinish === 'soft' ? accentSoft : bg;
+
+  // The highlighter stroke: the accent (or the second color) at part strength, whatever the color strategy.
+  const marker = heroPainted ? heroText : p.colorStrategy === 'duo' ? accent2 : accent;
 
   return {
-    bg, surface, surface2, hairlineAlpha, borderStrong, text, textMuted,
-    accent, onAccent: readableOn(accent), accentText: ensureContrast(accent, bg, 3), accentSoft, accent2, onAccent2: readableOn(accent2),
-    action, onAction, btnLabel, btnBackdrop, bandBg, bandText, heroBg, heroText,
-    focus: p.colorStrategy === 'duo' ? accent2 : accent,
+    bg, surface, surface2, cardBg, hairlineAlpha, borderStrong, text, textMuted,
+    accent, onAccent: readableOn(accent), accentText, accentSoft, accent2, onAccent2: readableOn(accent2),
+    action, onAction, btnLabel, btnFill, bandBg, bandText, bandSolidBg: accent, bandSolidText: readableOn(accent),
+    heroBg, heroText, heroPainted, focus, focusHero, marker,
+    softLabelAlpha: 0.78, heroLedeAlpha: 0.88, markerAlpha: dark ? 0.5 : 0.3,
   };
 }
 
-interface Check {
+interface PairSpec {
   id: string;
   pair: string;
-  fg: keyof Palette;
-  bg: keyof Palette;
+  fg: ColorKey;
+  bg: ColorKey;
+  /** The palette field that holds the opacity of the foreground, when the Mockup draws it translucent. */
+  alpha?: 'softLabelAlpha' | 'heroLedeAlpha';
   required: number;
-  /** In Enforce, which side moves. Fills move so that labels stay white or black. */
+  /** In Enforce, which side moves. Fills move so that their labels stay near-white or near-black. */
   move: 'fg' | 'bg';
+  applies?: (p: DesignParams, pal: Palette) => boolean;
 }
 
-// Text needs 4.5:1; control boundaries and focus indicators need 3:1 (WCAG 2.2, criteria 1.4.3 and 1.4.11).
-const CHECKS: Check[] = [
-  { id: 'text-on-bg', pair: 'Body text on the page background', fg: 'text', bg: 'bg', required: 4.5, move: 'fg' },
-  { id: 'text-on-surface', pair: 'Body text on cards', fg: 'text', bg: 'surface', required: 4.5, move: 'fg' },
-  { id: 'muted-on-bg', pair: 'Secondary text on the page background', fg: 'textMuted', bg: 'bg', required: 4.5, move: 'fg' },
-  { id: 'muted-on-surface', pair: 'Secondary text on cards', fg: 'textMuted', bg: 'surface', required: 4.5, move: 'fg' },
-  { id: 'button-label', pair: 'Main button label on its background', fg: 'btnLabel', bg: 'btnBackdrop', required: 4.5, move: 'bg' },
-  { id: 'accent-text-on-bg', pair: 'Links on the page background', fg: 'accentText', bg: 'bg', required: 4.5, move: 'fg' },
-  { id: 'band-text', pair: 'Text on the colored band', fg: 'bandText', bg: 'bandBg', required: 4.5, move: 'bg' },
-  { id: 'control-border', pair: 'Input borders against the page background', fg: 'borderStrong', bg: 'bg', required: 3, move: 'fg' },
-  { id: 'focus-on-bg', pair: 'Focus ring against the page background', fg: 'focus', bg: 'bg', required: 3, move: 'fg' },
+const sideRail = (p: DesignParams): boolean => p.nav === 'side-rail';
+const outlineButton = (p: DesignParams): boolean => p.buttonFinish === 'outline';
+const solidBand = (p: DesignParams, pal: Palette): boolean => p.signature === 'color-band' && !pal.heroPainted;
+const factsInBand = (p: DesignParams): boolean => p.emphasis !== 'proof';
+
+/**
+ * Every color pair that the Mockup draws, derived from the template's stylesheet.
+ * Text needs 4.5:1. Large text, control boundaries, and focus rings need 3:1 (WCAG 2.2, criteria 1.4.3 and 1.4.11).
+ * A unit test measures each pair again from the emitted tokens.
+ */
+export const PAIRS: readonly PairSpec[] = [
+  { id: 'text-on-page', pair: 'Body text on the page background', fg: 'text', bg: 'bg', required: 4.5, move: 'fg' },
+  { id: 'text-on-card', pair: 'Body text on boxes', fg: 'text', bg: 'cardBg', required: 4.5, move: 'fg' },
+  { id: 'text-on-tone', pair: 'Body text on the tinted section', fg: 'text', bg: 'surface2', required: 4.5, move: 'fg' },
+  { id: 'text-on-field', pair: 'Typed text in form fields', fg: 'text', bg: 'surface', required: 4.5, move: 'fg' },
+  { id: 'muted-on-page', pair: 'Secondary text on the page background', fg: 'textMuted', bg: 'bg', required: 4.5, move: 'fg' },
+  { id: 'muted-on-card', pair: 'Secondary text on boxes', fg: 'textMuted', bg: 'cardBg', required: 4.5, move: 'fg' },
+  { id: 'muted-on-tone', pair: 'Secondary text on the tinted section', fg: 'textMuted', bg: 'surface2', required: 4.5, move: 'fg' },
+  { id: 'muted-on-field', pair: 'Small labels on the lightest surface', fg: 'textMuted', bg: 'surface', required: 4.5, move: 'fg' },
+  { id: 'link-on-page', pair: 'Links on the page background', fg: 'accentText', bg: 'bg', required: 4.5, move: 'fg' },
+  { id: 'link-on-card', pair: 'Links on boxes', fg: 'accentText', bg: 'cardBg', required: 4.5, move: 'fg' },
+  { id: 'text-on-hero', pair: 'Text on the colored first screen', fg: 'heroText', bg: 'heroBg', required: 4.5, move: 'bg', applies: (_p, pal) => pal.heroPainted },
+  { id: 'lede-on-hero', pair: 'The opening paragraph on the colored first screen', fg: 'heroText', bg: 'heroBg', alpha: 'heroLedeAlpha', required: 4.5, move: 'bg', applies: (_p, pal) => pal.heroPainted },
+  { id: 'fact-labels-in-hero', pair: 'Small labels under the facts in the first screen', fg: 'heroText', bg: 'heroBg', alpha: 'softLabelAlpha', required: 4.5, move: 'fg', applies: (p) => !factsInBand(p) },
+  { id: 'band-figures', pair: 'Large figures on the facts band', fg: 'bandText', bg: 'bandBg', required: 3, move: 'bg', applies: (p, pal) => factsInBand(p) && !solidBand(p, pal) },
+  { id: 'band-labels', pair: 'Small labels on the facts band', fg: 'bandText', bg: 'bandBg', alpha: 'softLabelAlpha', required: 4.5, move: 'bg', applies: (p, pal) => factsInBand(p) && !solidBand(p, pal) },
+  { id: 'solid-band-figures', pair: 'Large figures on the solid accent band', fg: 'bandSolidText', bg: 'bandSolidBg', required: 3, move: 'bg', applies: (p, pal) => factsInBand(p) && solidBand(p, pal) },
+  { id: 'solid-band-labels', pair: 'Small labels on the solid accent band', fg: 'bandSolidText', bg: 'bandSolidBg', alpha: 'softLabelAlpha', required: 4.5, move: 'bg', applies: (p, pal) => factsInBand(p) && solidBand(p, pal) },
+  { id: 'button-label', pair: 'Main button label on its fill', fg: 'btnLabel', bg: 'btnFill', required: 4.5, move: 'bg', applies: (p) => filledButton(p) },
+  { id: 'soft-button-label', pair: 'Main button label on its tint', fg: 'btnLabel', bg: 'btnFill', required: 4.5, move: 'fg', applies: (p) => p.buttonFinish === 'soft' },
+  { id: 'outline-button-on-page', pair: 'Outline button label on the page background', fg: 'btnLabel', bg: 'bg', required: 4.5, move: 'fg', applies: outlineButton },
+  { id: 'outline-button-on-card', pair: 'Outline button label on boxes', fg: 'btnLabel', bg: 'cardBg', required: 4.5, move: 'fg', applies: outlineButton },
+  { id: 'outline-button-on-rail', pair: 'Outline button label on the side rail', fg: 'btnLabel', bg: 'surface2', required: 4.5, move: 'fg', applies: (p) => outlineButton(p) && sideRail(p) },
+  { id: 'field-border-on-card', pair: 'Form field borders against the box around them', fg: 'borderStrong', bg: 'cardBg', required: 3, move: 'fg' },
+  { id: 'field-border-on-field', pair: 'Form field borders against the field itself', fg: 'borderStrong', bg: 'surface', required: 3, move: 'fg' },
+  { id: 'focus-on-page', pair: 'Focus ring against the page background', fg: 'focus', bg: 'bg', required: 3, move: 'fg' },
+  { id: 'focus-on-card', pair: 'Focus ring against boxes', fg: 'focus', bg: 'cardBg', required: 3, move: 'fg' },
+  { id: 'focus-on-rail', pair: 'Focus ring against the side rail', fg: 'focus', bg: 'surface2', required: 3, move: 'fg', applies: sideRail },
+  { id: 'focus-on-hero', pair: 'Focus ring against the first screen', fg: 'focusHero', bg: 'heroBg', required: 3, move: 'fg' },
+  { id: 'tag-label', pair: 'The tilted tag’s label on its color', fg: 'onAccent2', bg: 'accent2', required: 4.5, move: 'fg', applies: (p) => p.signature === 'corner-tag' },
 ];
 
+/** What the contrast checks do not cover. The Studio shows this list beside the contrast notes. */
+export const NOT_CHECKED: readonly string[] = [
+  'Text over a background glow, an aurora, or a glass panel, where the color behind the text varies from point to point.',
+  'Text over your photographs.',
+  'Hover and pressed states.',
+  'Anything a person must judge: whether the page reads well in sunlight, with a screen reader, or to a person with low vision.',
+];
+
+const measure = (pal: Palette, spec: PairSpec): number => contrastOver(pal[spec.fg], spec.alpha ? pal[spec.alpha] : 1, pal[spec.bg]);
+const markerApplies = (p: DesignParams): boolean => p.signature === 'marker';
+const MARKER_PAIR = { id: 'marked-phrase', pair: 'The headline phrase over its highlighter stroke', required: 3 };
+const measureMarker = (pal: Palette): number => contrastOnWash(pal.heroText, pal.marker, pal.markerAlpha, pal.heroBg);
+
+/**
+ * Apply the contrast profile.
+ * Off: nothing is reported. Advise: each pair below its requirement is reported and left as picked.
+ * Enforce: each such pair is repaired, measured again, and reported as repaired only if it now meets the requirement.
+ */
 function applyProfile(p: DesignParams, pal: Palette, profile: A11yProfile): TokenIssue[] {
-  const issues: TokenIssue[] = [];
-  if (profile === 'off') return issues;
-  const repair = profile === 'enforce';
-  const note = (id: string, pair: string, ratio: number, required: number): void => {
-    issues.push({ id, pair, ratio: round(ratio, 2), required, outcome: repair ? 'repaired' : 'warning' });
-  };
-  for (const check of CHECKS) {
-    const fg = pal[check.fg] as Oklch;
-    const bg = pal[check.bg] as Oklch;
-    const ratio = contrast(fg, bg);
-    if (ratio >= check.required) continue;
-    note(check.id, check.pair, ratio, check.required);
-    if (!repair) continue;
-    const moveBackdrop = check.move === 'bg' && !(check.id === 'button-label' && !filledButton(p));
-    if (moveBackdrop) (pal[check.bg] as Oklch) = ensureContrast(bg, fg, check.required);
-    else (pal[check.fg] as Oklch) = ensureContrast(fg, bg, check.required);
-  }
-  if (pal.heroBg) {
-    const ratio = contrast(pal.heroText, pal.heroBg);
-    if (ratio < 4.5) {
-      note('hero-text', 'Headline on the colored first screen', ratio, 4.5);
-      if (repair) pal.heroBg = ensureContrast(pal.heroBg, pal.heroText, 4.5);
+  if (profile === 'off') return [];
+  const specs = PAIRS.filter((s) => !s.applies || s.applies(p, pal));
+  const before = new Map<string, number>();
+  const failing = (): PairSpec[] => specs.filter((s) => measure(pal, s) < s.required);
+  for (const s of failing()) before.set(s.id, measure(pal, s));
+  const markerBefore = markerApplies(p) && measureMarker(pal) < MARKER_PAIR.required ? measureMarker(pal) : null;
+
+  if (profile === 'enforce') {
+    // A repair of one pair can move a color that another pair shares, so repeat until every pair holds (four rounds at most).
+    for (let pass = 0; pass < 4; pass++) {
+      const todo = failing();
+      if (todo.length === 0) break;
+      for (const s of todo) {
+        if (!before.has(s.id)) before.set(s.id, measure(pal, s));
+        if (measure(pal, s) >= s.required) continue;
+        if (s.alpha && pal[s.alpha] < 1) {
+          pal[s.alpha] = 1;
+          if (measure(pal, s) >= s.required) continue;
+        }
+        if (s.move === 'fg') pal[s.fg] = ensureContrast(pal[s.fg], pal[s.bg], s.required * MARGIN);
+        else pal[s.bg] = ensureContrast(pal[s.bg], pal[s.fg], s.required * MARGIN);
+      }
+      // A filled button draws with the action color, so the two stay one color.
+      if (filledButton(p)) {
+        pal.action = pal.btnFill;
+        pal.onAction = pal.btnLabel;
+      }
+    }
+    if (markerBefore !== null) {
+      // Thin the highlighter stroke until the phrase over it reads at 3:1, down to a faint minimum.
+      while (pal.markerAlpha > 0.1 && measureMarker(pal) < MARKER_PAIR.required) pal.markerAlpha = round(pal.markerAlpha - 0.02, 2);
     }
   }
-  if (repair && filledButton(p)) {
-    pal.action = pal.btnBackdrop;
-    pal.onAction = pal.btnLabel;
+
+  const issues: TokenIssue[] = [];
+  for (const s of specs) {
+    const was = before.get(s.id);
+    if (was === undefined) continue;
+    const now = measure(pal, s);
+    const repaired = profile === 'enforce' && now >= s.required;
+    issues.push({ id: s.id, pair: s.pair, ratio: round(was, 2), required: s.required, outcome: repaired ? 'repaired' : 'warning', ...(repaired ? { after: round(now, 2) } : {}) });
+  }
+  if (markerBefore !== null) {
+    const now = measureMarker(pal);
+    const repaired = profile === 'enforce' && now >= MARKER_PAIR.required;
+    issues.push({ ...MARKER_PAIR, ratio: round(markerBefore, 2), outcome: repaired ? 'repaired' : 'warning', ...(repaired ? { after: round(now, 2) } : {}) });
   }
   return issues;
+}
+
+/** Measure every applicable pair from the final palette. */
+function measurePairs(p: DesignParams, pal: Palette): MeasuredPair[] {
+  const out: MeasuredPair[] = PAIRS.filter((s) => !s.applies || s.applies(p, pal)).map((s) => {
+    const ratio = measure(pal, s);
+    return { id: s.id, pair: s.pair, fgToken: TOKEN_OF[s.fg], bgToken: TOKEN_OF[s.bg], alpha: s.alpha ? pal[s.alpha] : 1, kind: 'text' as const, ratio: round(ratio, 2), required: s.required, passes: ratio >= s.required };
+  });
+  if (markerApplies(p)) {
+    const ratio = measureMarker(pal);
+    out.push({ ...MARKER_PAIR, fgToken: TOKEN_OF.heroText, bgToken: TOKEN_OF.marker, alpha: pal.markerAlpha, kind: 'wash', ratio: round(ratio, 2), passes: ratio >= MARKER_PAIR.required });
+  }
+  return out;
 }
 
 /** A shadow color: near-black, faintly tinted toward the neutral hue, like a real shadow. */
@@ -197,7 +317,7 @@ function elevationTokens(p: DesignParams, pal: Palette): Record<string, string> 
     case 'borders':
       return { ...base, '--card-bg': toCss(pal.surface), '--card-border': hairline, '--card-border-w': `${Math.max(p.borderWeight, 1)}px`, '--card-shadow': 'none', '--control-shadow': 'none' };
     case 'ring':
-      // A one-pixel ring plus a whisper of shadow: the crisp edge used by Vercel and Linear.
+      // A one-pixel ring plus a whisper of shadow: a crisp edge. Record 08 documents the ring as the first shadow layer in several open design systems.
       return {
         ...base, '--card-bg': toCss(pal.surface), '--card-border': 'transparent', '--card-border-w': '0px',
         '--card-shadow': `0 0 0 1px ${hairline}, 0 1px 2px ${shade(p, dark ? 0.4 : 0.05)}, 0 2px 6px -1px ${shade(p, dark ? 0.3 : 0.04)}`,
@@ -210,7 +330,7 @@ function elevationTokens(p: DesignParams, pal: Palette): Record<string, string> 
         '--control-shadow': `0 1px 2px ${shade(p, dark ? 0.5 : 0.1)}`,
       };
     case 'float':
-      // Wide, soft, layered: panels that hover well above the page, as on Apple's sites.
+      // Wide, soft, layered: panels that hover well above the page.
       return {
         ...base, '--card-bg': toCss(pal.surface), '--card-border': 'transparent', '--card-border-w': '0px',
         '--card-shadow': `0 0 0 0.5px ${toCssAlpha(pal.text, dark ? 0.14 : 0.08)}, 0 2px 4px ${shade(p, dark ? 0.4 : 0.04)}, 0 12px 24px -6px ${shade(p, dark ? 0.5 : 0.08)}, 0 36px 72px -24px ${shade(p, dark ? 0.6 : 0.16)}`,
@@ -266,7 +386,7 @@ function buttonTokens(p: DesignParams, pal: Palette): Record<string, string> {
       out = { '--btn-bg': 'transparent', '--btn-bg-hover': toCssAlpha(pal.btnLabel, 0.09), '--btn-color': toCss(pal.btnLabel), '--btn-border': toCss(pal.btnLabel), '--btn-shadow': 'none', '--btn-shadow-hover': 'none' };
       break;
     case 'soft':
-      out = { '--btn-bg': toCss(pal.btnBackdrop), '--btn-bg-hover': toCss(shiftL(pal.btnBackdrop, dark ? 0.04 : -0.035)), '--btn-color': toCss(pal.btnLabel), '--btn-border': 'transparent', '--btn-shadow': 'none', '--btn-shadow-hover': 'none' };
+      out = { '--btn-bg': toCss(pal.btnFill), '--btn-bg-hover': toCss(shiftL(pal.btnFill, dark ? 0.04 : -0.035)), '--btn-color': toCss(pal.btnLabel), '--btn-border': 'transparent', '--btn-shadow': 'none', '--btn-shadow-hover': 'none' };
       break;
     default:
       out = { '--btn-bg': toCss(a), '--btn-bg-hover': toCss(shiftL(a, hoverBy)), '--btn-color': toCss(pal.btnLabel), '--btn-border': toCss(a), '--btn-shadow': 'var(--control-shadow)', '--btn-shadow-hover': 'var(--control-shadow)' };
@@ -283,9 +403,9 @@ function buttonTokens(p: DesignParams, pal: Palette): Record<string, string> {
 function atmosphereTokens(p: DesignParams, pal: Palette): Record<string, string> {
   const dark = p.theme === 'dark';
   const ink = pal.heroText;
-  const glow = pal.heroBg ? pal.heroText : pal.accent;
-  const glow2 = pal.heroBg ? pal.heroText : p.colorStrategy === 'duo' ? pal.accent2 : shiftH(pal.accent, 48);
-  const glow3 = pal.heroBg ? pal.heroText : shiftH(pal.accent, -42);
+  const glow = pal.heroPainted ? pal.heroText : pal.accent;
+  const glow2 = pal.heroPainted ? pal.heroText : p.colorStrategy === 'duo' ? pal.accent2 : shiftH(pal.accent, 48);
+  const glow3 = pal.heroPainted ? pal.heroText : shiftH(pal.accent, -42);
   const fade = 'radial-gradient(ellipse 85% 95% at 50% 0%, #000 22%, transparent 80%)';
   const out: Record<string, string> = { '--atmo-image': 'none', '--atmo-size': 'auto', '--atmo-mask': 'none', '--grain-opacity': '0' };
   switch (p.atmosphere) {
@@ -324,18 +444,18 @@ function atmosphereTokens(p: DesignParams, pal: Palette): Record<string, string>
 }
 
 function displayTokens(p: DesignParams, pal: Palette, profile: A11yProfile): Record<string, string> {
-  const ground = pal.heroBg ?? pal.bg;
+  const ground = pal.heroBg;
   if (p.displayTreatment === 'ink-gradient') {
     // A quiet sheen: full ink at the top, fading slightly toward the bottom.
     return { '--display-fill': `linear-gradient(to bottom, ${toCss(pal.heroText)} 28%, ${toCssAlpha(pal.heroText, 0.56)} 112%)` };
   }
   if (p.displayTreatment === 'accent-gradient') {
-    let from = pal.heroBg ? pal.heroText : pal.accentText;
-    let to = pal.heroBg ? shiftL(pal.heroText, pal.heroText.l > 0.5 ? -0.16 : 0.2) : p.colorStrategy === 'duo' ? pal.accent2 : shiftH(pal.accentText, 52);
+    let from = pal.heroPainted ? pal.heroText : pal.accentText;
+    let to = pal.heroPainted ? shiftL(pal.heroText, pal.heroText.l > 0.5 ? -0.16 : 0.2) : p.colorStrategy === 'duo' ? pal.accent2 : shiftH(pal.accentText, 52);
     if (profile === 'enforce') {
       // Large text needs 3:1.
-      from = ensureContrast(from, ground, 3);
-      to = ensureContrast(to, ground, 3);
+      from = ensureContrast(from, ground, 3 * MARGIN);
+      to = ensureContrast(to, ground, 3 * MARGIN);
     }
     return { '--display-fill': `linear-gradient(96deg, ${toCss(from)} 4%, ${toCss(to)} 96%)` };
   }
@@ -412,43 +532,22 @@ function shapeTokens(p: DesignParams): Record<string, string> {
   };
 }
 
-/** Derive every token from the design parameters, under the chosen accessibility profile. */
+/** Derive every token from the design parameters, under the chosen contrast profile. */
 export function deriveTokens(p: DesignParams, profile: A11yProfile): DerivedTokens {
   const pal = basePalette(p);
   const issues = applyProfile(p, pal, profile);
-  const colors: Record<string, Oklch> = {
-    '--bg': pal.bg,
-    '--surface': pal.surface,
-    '--surface-2': pal.surface2,
-    '--border-strong': pal.borderStrong,
-    '--text': pal.text,
-    '--text-muted': pal.textMuted,
-    '--accent': pal.accent,
-    '--on-accent': pal.onAccent,
-    '--accent-text': pal.accentText,
-    '--accent-soft': pal.accentSoft,
-    '--accent-2': pal.accent2,
-    '--on-accent-2': pal.onAccent2,
-    '--action': pal.action,
-    '--on-action': pal.onAction,
-    '--band-bg': pal.bandBg,
-    '--band-text': pal.bandText,
-    '--hero-text': pal.heroText,
-    '--focus': pal.focus,
-    // Always a real color (the page background when the first screen is not painted), so that effects can paint with it.
-    '--hero-bg': pal.heroBg ?? pal.bg,
-  };
   const css: Record<string, string> = {};
   const hex: Record<string, string> = {};
-  for (const [key, value] of Object.entries(colors)) {
-    css[key] = toCss(value);
-    hex[key] = toHex(value);
+  for (const key of Object.keys(TOKEN_OF) as ColorKey[]) {
+    css[TOKEN_OF[key]] = toCss(pal[key]);
+    hex[TOKEN_OF[key]] = toHex(pal[key]);
   }
   css['--border'] = toCssAlpha(pal.text, pal.hairlineAlpha);
   hex['--border'] = hexOver(pal.text, pal.hairlineAlpha, pal.bg);
   css['--selection'] = toCssAlpha(pal.accent, p.theme === 'dark' ? 0.4 : 0.22);
-  // The highlighter stroke: the accent (or the second color) at part strength, whatever the color strategy.
-  css['--marker'] = toCssAlpha(pal.heroBg ? pal.heroText : p.colorStrategy === 'duo' ? pal.accent2 : pal.accent, p.theme === 'dark' ? 0.5 : 0.3);
+  css['--marker'] = toCssAlpha(pal.marker, pal.markerAlpha);
+  css['--soft-label-alpha'] = String(pal.softLabelAlpha);
+  css['--hero-lede-alpha'] = String(pal.heroLedeAlpha);
   // Capitals are wider than lowercase, so an all-capitals headline is set smaller.
   css['--display-scale'] = p.headingCase === 'upper' ? '0.7' : '1';
   css['--media-a'] = toCss(pal.accentSoft);
@@ -456,11 +555,18 @@ export function deriveTokens(p: DesignParams, profile: A11yProfile): DerivedToke
   css['--inset-highlight'] = p.theme === 'dark' ? toCssAlpha(WHITE, 0.07) : toCssAlpha(WHITE, 0.8);
   css['--recess'] = p.theme === 'dark' ? toCssAlpha(BLACK, 0.35) : toCssAlpha(BLACK, 0.045);
   Object.assign(css, elevationTokens(p, pal), buttonTokens(p, pal), atmosphereTokens(p, pal), displayTokens(p, pal, profile), motionTokens(p), typeTokens(p), spaceTokens(p), shapeTokens(p));
-  return { css, hex, issues };
+  return { css, hex, issues, pairs: measurePairs(p, pal) };
 }
 
-/** Serialize tokens as a CSS `:root` block. */
+/** A token value is written into a stylesheet, so it must not be able to close the rule or the style block. */
+const UNSAFE_IN_CSS = /[<>{};]/;
+
+/** Serialize tokens as a CSS `:root` block. Throws on a name or a value that could break out of the block. */
 export function tokensToCss(tokens: Record<string, string>, selector = ':root'): string {
-  const lines = Object.entries(tokens).map(([k, v]) => `  ${k}: ${v};`);
+  const lines = Object.entries(tokens).map(([k, v]) => {
+    if (!/^--[a-z0-9-]+$/.test(k)) throw new Error('A token name contains a character that is not allowed.');
+    if (UNSAFE_IN_CSS.test(v)) throw new Error(`The value of token ${k} contains a character that is not allowed in a stylesheet.`);
+    return `  ${k}: ${v};`;
+  });
   return `${selector} {\n${lines.join('\n')}\n}`;
 }

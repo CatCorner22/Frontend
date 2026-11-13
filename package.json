@@ -11,7 +11,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "typecheck": "tsc -p packages/core && tsc -p apps/studio && tsc -p tsconfig.e2e.json",
+    "typecheck": "tsc -p packages/core && tsc -p packages/core/tsconfig.test.json && tsc -p apps/studio && tsc -p tsconfig.e2e.json",
     "lint": "eslint . --max-warnings 0",
     "boundaries": "depcruise packages apps --config .dependency-cruiser.cjs",
     "test": "vitest run",

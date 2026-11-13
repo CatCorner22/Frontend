@@ -1,7 +1,7 @@
 // Template 1: small-business website (home page with services, facts, about, and a contact form).
 // The Mockup is plain semantic HTML and CSS. It contains no script. Every visual value comes from a token.
 
-import type { DesignParams } from '../params.js';
+import { assertKnownParams, type DesignParams } from '../params.js';
 import { tokensToCss } from '../tokens.js';
 
 export interface ServiceItem {
@@ -12,6 +12,11 @@ export interface ServiceItem {
 export interface FactItem {
   value: string;
   label: string;
+}
+
+export interface FeeItem {
+  item: string;
+  price: string;
 }
 
 export interface SiteContent {
@@ -30,6 +35,9 @@ export interface SiteContent {
   servicesIntro: string;
   services: ServiceItem[];
   facts: FactItem[];
+  /** A short price list. It gives the Mockup a column of numbers, where number styles show. */
+  feesTitle: string;
+  fees: FeeItem[];
   aboutTitle: string;
   aboutBody: string;
   promise: string;
@@ -63,6 +71,13 @@ export const SAMPLE_CONTENT: SiteContent = {
     { value: '45 min', label: 'for a first visit' },
     { value: '3', label: 'treatment rooms' },
   ],
+  feesTitle: 'Typical fees',
+  fees: [
+    { item: 'Checkup and cleaning', price: '$118' },
+    { item: 'Filling', price: '$181' },
+    { item: 'Crown', price: '$1,110' },
+    { item: 'Urgent visit', price: '$88' },
+  ],
   aboutTitle: 'A small practice, on purpose',
   aboutBody: 'Two dentists and one hygienist. You see the same people each time, and they remember what you told them last time.',
   promise: 'No work starts until you have seen the price and said yes.',
@@ -73,22 +88,26 @@ export const SAMPLE_CONTENT: SiteContent = {
   footerNote: 'Sample content for design preview.',
 };
 
-export type MockupStage = 'structure' | 'feel';
-
 /** The region of the page that a preview opens at. A sandboxed preview cannot be scrolled from outside, so the page itself starts there. */
-export type MockupFocus = 'top' | 'facts' | 'services' | 'about' | 'contact';
+export const MOCKUP_FOCUSES = ['top', 'facts', 'services', 'fees', 'about', 'contact'] as const;
+export type MockupFocus = (typeof MOCKUP_FOCUSES)[number];
 
 export interface MockupInput {
   params: DesignParams;
   /** Derived CSS custom properties. */
   tokens: Record<string, string>;
   content: SiteContent;
-  stage: MockupStage;
   focus?: MockupFocus;
   /** A still preview skips entrance animation (used for small thumbnails). */
   still?: boolean;
   /** `@font-face` rules for the fonts in use. The Studio supplies these; exports reference font files instead. */
   fontFaceCss?: string;
+  /**
+   * `inert` (for previews): links look and take focus like links but lead nowhere. A preview is a picture of a page;
+   * a real link inside it would load the Studio's own address into the preview and blank it.
+   * `live` (for an exported page): links carry real addresses inside the page.
+   */
+  links?: 'live' | 'inert';
 }
 
 /** Escape text for safe insertion into HTML. Content is always data, never markup. */
@@ -124,11 +143,14 @@ h1, h2, h3 {
   text-transform: var(--heading-transform); line-height: var(--leading-heading); margin: 0; text-wrap: balance;
 }
 p { margin: 0; text-wrap: pretty; }
+:where(a[role="link"]) { text-decoration: underline; cursor: pointer; }
 a { color: var(--accent-text); text-underline-offset: 0.2em; text-decoration-thickness: 0.07em; }
 .wrap { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--space-6); }
 .skip { position: absolute; left: var(--space-4); top: -100px; background: var(--surface); color: var(--text); padding: var(--space-2) var(--space-4); border-radius: var(--radius-small); z-index: 60; }
 .skip:focus { top: var(--space-4); }
 :focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: 2px; }
+/* On the first screen the ring takes a color that stands out from that screen, which may be painted in the accent. */
+.hero :focus-visible { outline-color: var(--focus-hero); }
 mark { background: none; color: inherit; }
 
 /* Page-wide layers: a faint glow behind glass surfaces, and optional film grain on top. */
@@ -149,10 +171,8 @@ body[data-atmosphere="grain"][data-theme="dark"]::after { mix-blend-mode: overla
   font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap;
 }
 .btn-primary { background: var(--btn-bg); color: var(--btn-color); border-color: var(--btn-border); box-shadow: var(--btn-shadow); }
-.btn-secondary { background: transparent; color: var(--text); border-color: var(--border-strong); }
 @media (hover: hover) {
   .btn-primary:hover { background: var(--btn-bg-hover); box-shadow: var(--btn-shadow-hover); }
-  .btn-secondary:hover { border-color: var(--text); }
 }
 .btn:active { transform: scale(var(--press-scale)); }
 body[data-elevation="hard-shadow"] .btn:active { transform: translate(2px, 2px); box-shadow: none; }
@@ -196,9 +216,11 @@ body[data-nav="split-cta"] .nav nav { margin-inline: auto; }
 .tag { font-size: var(--text-sm); font-weight: 600; color: var(--accent-text); margin-bottom: var(--space-4); }
 body[data-strategy="color-block"] .tag { color: inherit; }
 .lede { font-size: var(--text-lg); line-height: 1.5; max-width: 52ch; margin-top: var(--space-5); color: var(--text-muted); }
-body[data-strategy="color-block"] .lede { color: inherit; opacity: 0.88; }
+body[data-strategy="color-block"] .lede { color: inherit; opacity: var(--hero-lede-alpha); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); margin-top: var(--space-8); }
 .actions .link { color: inherit; font-weight: 600; }
+/* A link that stands alone is at least 24 pixels tall, the floor for a pointer target. */
+.actions .link, .service .more, address .phone { display: inline-flex; align-items: center; min-height: 1.5rem; }
 .actions .phone-big { display: none; font-size: var(--text-lg); color: inherit; }
 body[data-strategy="color-block"] .hero .btn-primary { background: var(--hero-text); color: var(--hero-bg); border-color: var(--hero-text); box-shadow: none; }
 .hero-media { display: none; }
@@ -232,7 +254,7 @@ body[data-emphasis="proof"] .hero h1 { font-size: calc(var(--text-3xl) * var(--d
 .fact-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--space-6) var(--space-8); margin: 0; }
 .fact-list div { display: grid; gap: var(--space-1); }
 .fact-list dt { font-family: var(--font-heading); font-weight: var(--heading-weight); font-size: var(--text-2xl); line-height: 1.05; letter-spacing: var(--heading-tracking); font-variant-numeric: var(--numeric); }
-.fact-list dd { margin: 0; font-size: var(--text-sm); opacity: 0.78; }
+.fact-list dd { margin: 0; font-size: var(--text-sm); opacity: var(--soft-label-alpha); }
 body[data-numerals="mono"] .fact-list dt, body[data-numerals="mono"] .phone, body[data-numerals="mono"] .num { font-family: var(--font-numeric); letter-spacing: -0.02em; }
 .facts { background: var(--band-bg); color: var(--band-text); padding-block: var(--space-10); }
 @media (min-width: 720px) { .facts .fact-list div + div { border-left: 1px solid color-mix(in oklch, currentColor 16%, transparent); padding-left: var(--space-8); } }
@@ -287,6 +309,15 @@ body[data-sections="bento"] .service:first-child h3 { font-size: var(--text-2xl)
 body[data-sections="ledger"] .service { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-6); padding-block: var(--space-6); border-top: var(--control-border-w) solid var(--border-strong); }
 body[data-sections="ledger"] .service .num { display: block; font-size: var(--text-sm); padding-top: 0.35em; }
 
+/* Fees: a short price list. A column of numbers is where number styles show. */
+.fees { margin-top: var(--space-12); max-width: 34rem; }
+.fees h3 { font-size: var(--text-lg); margin-bottom: var(--space-3); }
+.fees table { width: 100%; border-collapse: collapse; }
+.fees th, .fees td { padding-block: var(--space-3); border-top: var(--control-border-w) solid var(--border); font-weight: 400; text-align: left; }
+.fees tr:last-child th, .fees tr:last-child td { border-bottom: var(--control-border-w) solid var(--border); }
+.fees td { text-align: right; font-variant-numeric: var(--numeric); font-weight: 600; white-space: nowrap; }
+body[data-numerals="mono"] .fees td { font-family: var(--font-numeric); letter-spacing: -0.02em; }
+
 /* About */
 .about { background: var(--surface-2); }
 body[data-elevation="glass"] .about { background: transparent; }
@@ -333,7 +364,7 @@ body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about
 body[data-signature="marker"] .hero mark { background: linear-gradient(transparent 56%, var(--marker) 56% 92%, transparent 92%); padding-inline: 0.08em; -webkit-text-fill-color: var(--hero-text); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 body[data-signature="big-numerals"] .service .num { display: block; font-size: var(--text-3xl); line-height: 1; letter-spacing: -0.03em; }
 body[data-signature="big-numerals"][data-sections="ledger"] .service .num { font-size: var(--text-2xl); padding-top: 0; }
-body[data-signature="color-band"] .facts { background: var(--accent); color: var(--on-accent); padding-block: var(--space-16); }
+body[data-signature="color-band"] .facts { background: var(--band-solid-bg); color: var(--band-solid-text); padding-block: var(--space-16); }
 body[data-signature="color-band"] .facts .fact-list dt { font-size: var(--text-3xl); }
 body[data-signature="color-band"][data-strategy="color-block"] .facts { background: var(--band-bg); color: var(--band-text); }
 body[data-signature="outline-type"] .hero mark { color: var(--hero-bg); -webkit-text-fill-color: var(--hero-bg); -webkit-text-stroke: 0.055em var(--hero-text); paint-order: stroke fill; }
@@ -351,9 +382,15 @@ body[data-signature="corner-tag"] .tag { display: inline-block; background: var(
 /* Preview regions: start the page at the section where the current change shows. */
 body[data-focus]:not([data-focus="top"]) { display: block; min-height: 0; }
 body[data-focus]:not([data-focus="top"]) .site-header, body[data-focus]:not([data-focus="top"]) .hero { display: none; }
-body[data-focus="services"] .facts, body[data-focus="about"] .facts, body[data-focus="contact"] .facts { display: none; }
+body[data-focus="services"] .facts, body[data-focus="fees"] .facts, body[data-focus="about"] .facts, body[data-focus="contact"] .facts { display: none; }
 body[data-focus="about"] .services, body[data-focus="contact"] .services, body[data-focus="contact"] .about { display: none; }
+body[data-focus="fees"] .services .section-head, body[data-focus="fees"] .services .service-list { display: none; }
+body[data-focus="fees"] .fees { margin-top: 0; }
 
+/* In a narrow preview of one region, the part that carries the change comes first. */
+@media (max-width: 859px) {
+  body[data-focus="contact"] .contact-grid > :first-child, body[data-focus="about"] .about-grid > :first-child { order: 2; }
+}
 @media (max-width: 599px) {
   .wrap { padding-inline: var(--space-5); }
   .actions .btn { width: 100%; }
@@ -361,28 +398,34 @@ body[data-focus="about"] .services, body[data-focus="contact"] .services, body[d
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 `;
 
-/** Render the Mockup as one complete HTML document. */
+/** Render the Mockup as one complete HTML document. Throws if a parameter, a token, or the font CSS could break out of its place in the document. */
 export function renderSmallBusiness(input: MockupInput): string {
-  const { params: p, tokens, content: c, stage, fontFaceCss = '' } = input;
+  const { params: p, tokens, content: c, fontFaceCss = '' } = input;
+  // Every parameter is checked against its list before any of them is written into markup.
+  assertKnownParams(p);
+  if (input.focus !== undefined && !MOCKUP_FOCUSES.includes(input.focus)) throw new Error('The preview region is not in its list.');
+  if (fontFaceCss.includes('<')) throw new Error('The font rules contain a character that is not allowed in a stylesheet.');
   const e = escapeHtml;
+  const inert = input.links === 'inert';
+  /** The attributes of a link. An inert link keeps the look and the keyboard focus of a link and leads nowhere. */
+  const link = (target: string): string => (inert ? 'role="link" tabindex="0"' : `href="${e(target)}"`);
   // The facts band moves into the first screen when facts are the emphasis, so that region opens at the top instead.
   const focus: MockupFocus = input.focus === 'facts' && p.emphasis === 'proof' ? 'top' : (input.focus ?? 'top');
   const attrs = [
-    `data-nav="${p.nav}"`,
-    `data-hero="${p.hero}"`,
-    `data-sections="${p.sections}"`,
-    `data-emphasis="${p.emphasis}"`,
-    `data-elevation="${p.elevation}"`,
-    `data-signature="${p.signature}"`,
-    `data-strategy="${p.colorStrategy}"`,
-    `data-numerals="${p.numerals}"`,
-    `data-theme="${p.theme}"`,
-    `data-atmosphere="${p.atmosphere}"`,
-    `data-button="${p.buttonFinish}"`,
-    `data-display="${p.displayTreatment}"`,
-    `data-motion="${p.motion}"`,
-    `data-stage="${stage}"`,
-    `data-focus="${focus}"`,
+    `data-nav="${e(p.nav)}"`,
+    `data-hero="${e(p.hero)}"`,
+    `data-sections="${e(p.sections)}"`,
+    `data-emphasis="${e(p.emphasis)}"`,
+    `data-elevation="${e(p.elevation)}"`,
+    `data-signature="${e(p.signature)}"`,
+    `data-strategy="${e(p.colorStrategy)}"`,
+    `data-numerals="${e(p.numerals)}"`,
+    `data-theme="${e(p.theme)}"`,
+    `data-atmosphere="${e(p.atmosphere)}"`,
+    `data-button="${e(p.buttonFinish)}"`,
+    `data-display="${e(p.displayTreatment)}"`,
+    `data-motion="${e(p.motion)}"`,
+    `data-focus="${e(focus)}"`,
     ...(input.still ? ['data-still'] : []),
   ].join(' ');
 
@@ -392,18 +435,19 @@ export function renderSmallBusiness(input: MockupInput): string {
       (s, i) => `<li class="service">
         <div class="service-media media" role="img" aria-label="Photo placeholder"><span>Your photo</span></div>
         <span class="num" aria-hidden="true">${pad2(i + 1)}</span>
-        <div class="service-body"><h3>${e(s.title)}</h3><p>${e(s.body)}</p><a class="more" href="#">About ${e(s.title.toLowerCase())}</a></div>
+        <div class="service-body"><h3>${e(s.title)}</h3><p>${e(s.body)}</p><a class="more" ${link('#contact')}>About ${e(s.title.toLowerCase())}</a></div>
       </li>`,
     )
     .join('');
-  const nav = c.nav.map((n, i) => `<li><a href="#"${i === 0 ? ' aria-current="page"' : ''}>${e(n)}</a></li>`).join('');
+  const fees = c.fees.map((f) => `<tr><th scope="row">${e(f.item)}</th><td>${e(f.price)}</td></tr>`).join('');
+  const nav = c.nav.map((n, i) => `<li><a ${link('#main')}${i === 0 ? ' aria-current="page"' : ''}>${e(n)}</a></li>`).join('');
 
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="${p.theme}">
+<meta name="color-scheme" content="${e(p.theme)}">
 <title>${e(c.business)}</title>
 <style>
 ${fontFaceCss}
@@ -412,12 +456,12 @@ ${SMALL_BUSINESS_CSS}
 </style>
 </head>
 <body ${attrs}>
-<a class="skip" href="#main">Skip to content</a>
+<a class="skip" ${link('#main')}>Skip to content</a>
 <header class="site-header">
   <div class="wrap nav">
-    <a class="brand" href="#">${e(c.business)}</a>
+    <a class="brand" ${link('#main')}>${e(c.business)}</a>
     <nav aria-label="Main"><ul>${nav}</ul></nav>
-    <div class="nav-actions"><a class="phone" href="#">${e(c.phone)}</a><a class="btn btn-primary" href="#contact">${e(c.primaryAction)}</a></div>
+    <div class="nav-actions"><a class="phone" ${link('#contact')}>${e(c.phone)}</a><a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a></div>
   </div>
 </header>
 <main id="main">
@@ -429,9 +473,9 @@ ${SMALL_BUSINESS_CSS}
         <div class="hero-sub">
           <p class="lede">${e(c.lede)}</p>
           <div class="actions">
-            <a class="btn btn-primary" href="#contact">${e(c.primaryAction)}</a>
-            <a class="phone phone-big" href="#">Call ${e(c.phone)}</a>
-            <a class="link" href="#">${e(c.secondaryAction)}</a>
+            <a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a>
+            <a class="phone phone-big" ${link('#contact')}>Call ${e(c.phone)}</a>
+            <a class="link" ${link('#services')}>${e(c.secondaryAction)}</a>
           </div>
         </div>
         <dl class="fact-list hero-facts">${facts}</dl>
@@ -440,10 +484,11 @@ ${SMALL_BUSINESS_CSS}
     </div>
   </section>
   <section class="facts" aria-label="At a glance"><div class="wrap"><dl class="fact-list">${facts}</dl></div></section>
-  <section class="block services">
+  <section class="block services" id="services">
     <div class="wrap">
       <div class="section-head"><h2>${e(c.servicesTitle)}</h2><p>${e(c.servicesIntro)}</p></div>
       <ol class="service-list">${services}</ol>
+      ${c.fees.length > 0 ? `<div class="fees"><h3>${e(c.feesTitle)}</h3><table><tbody>${fees}</tbody></table></div>` : ''}
     </div>
   </section>
   <section class="block about">
@@ -457,13 +502,13 @@ ${SMALL_BUSINESS_CSS}
       <div>
         <h2>${e(c.contactTitle)}</h2>
         <p>${e(c.contactBody)}</p>
-        <address><strong>${e(c.business)}</strong><span>${e(c.address)}</span><span>${e(c.hours)}</span><a class="phone" href="#">${e(c.phone)}</a></address>
+        <address><strong>${e(c.business)}</strong><span>${e(c.address)}</span><span>${e(c.hours)}</span><a class="phone" ${link('#contact')}>${e(c.phone)}</a></address>
       </div>
-      <form class="form card" action="#" method="post">
+      <form class="form card"${inert ? '' : ' action="#contact" method="post"'}>
         <div class="field"><label for="m-name">Your name</label><input id="m-name" name="name" type="text" autocomplete="name"></div>
         <div class="field"><label for="m-phone">Phone number</label><input id="m-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="m-phone-hint"><span class="hint" id="m-phone-hint">We call on working days between 8 and 5.</span></div>
         <div class="field"><label for="m-note">What do you need?</label><textarea id="m-note" name="note"></textarea></div>
-        <button class="btn btn-primary" type="submit">Send my request</button>
+        <button class="btn btn-primary" type="${inert ? 'button' : 'submit'}">Send my request</button>
       </form>
     </div>
   </section>

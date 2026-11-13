@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "name": "Harbor Street Dental",
+  "template": "small-business",
+  "a11y": "enforce",
+  "direction": "Midnight Aurora",
+  "params": {
+    "nav": "top-inline",
+    "hero": "text-left",
+    "sections": "bento",
+    "contentWidth": "standard",
+    "emphasis": "headline",
+    "density": 1.03,
+    "fontHeading": "manrope",
+    "fontBody": "manrope",
+    "headingWeight": 700,
+    "headingTracking": -0.034,
+    "headingCase": "sentence",
+    "baseSize": 16,
+    "scaleRatio": 1.36,
+    "numerals": "tabular",
+    "neutralHue": 265,
+    "neutralChroma": 0.014,
+    "accentHue": 200,
+    "accentChroma": 0.19,
+    "accentLightness": 0.56,
+    "accent2Hue": 20,
+    "colorStrategy": "duo",
+    "theme": "dark",
+    "contrast": 0.4,
+    "radius": 8,
+    "elevation": "glass",
+    "borderWeight": 1,
+    "signature": "none",
+    "atmosphere": "aurora",
+    "buttonFinish": "glow",
+    "displayTreatment": "ink-gradient",
+    "motion": "expressive"
+  },
+  "decisions": {
+    "nav": {
+      "stepId": "nav",
+      "optionId": "top-inline",
+      "kind": "picked",
+      "rejected": [
+        "top-centered",
+        "split-cta",
+        "side-rail"
+      ],
+      "values": {
+        "nav": "top-inline"
+      },
+      "at": "2026-11-13T12:00:00.000Z"
+    },
+    "theme": {
+      "stepId": "theme",
+      "optionId": "dark-soft",
+      "kind": "picked",
+      "rejected": [
+        "light-soft",
+        "light-crisp",
+        "dark-deep"
+      ],
+      "values": {
+        "theme": "dark",
+        "contrast": 0.4
+      },
+      "at": "2026-11-13T12:00:00.000Z"
+    },
+    "radius": {
+      "stepId": "radius",
+      "optionId": "subtle",
+      "kind": "defaulted",
+      "rejected": [
+        "square",
+        "crisp",
+        "soft",
+        "pill"
+      ],
+      "values": {
+        "radius": 8
+      },
+      "at": "2026-11-13T12:00:00.000Z"
+    },
+    "accent": {
+      "stepId": "accent",
+      "optionId": "ink-blue",
+      "kind": "tuned",
+      "rejected": [],
+      "values": {
+        "accentHue": 200
+      },
+      "at": "2026-11-13T12:00:00.000Z"
+    },
+    "color-strategy": {
+      "stepId": "color-strategy",
+      "optionId": "duo-complement",
+      "kind": "picked",
+      "rejected": [
+        "quiet",
+        "single-accent",
+        "duo-triad",
+        "duo-neighbor",
+        "tinted-surface",
+        "color-block"
+      ],
+      "values": {
+        "colorStrategy": "duo",
+        "accent2Hue": 20
+      },
+      "at": "2026-11-13T12:00:00.000Z"
+    },
+    "density": {
+      "stepId": "density",
+      "optionId": "default",
+      "kind": "tuned",
+      "rejected": [
+        "compact",
+        "comfortable",
+        "spacious"
+      ],
+      "values": {
+        "density": 1.03
+      },
+      "at": "2026-11-13T12:00:00.000Z"
+    }
+  },
+  "content": {
+    "business": "Harbor Street Dental",
+    "tag": "Family dentistry on Harbor Street",
+    "headline": "Dental care that explains itself before it begins.",
+    "headlineEmphasis": "explains itself",
+    "lede": "Checkups, cleanings, and repairs for adults and children. We show you what we see, tell you what it costs, and let you decide.",
+    "primaryAction": "Book a visit",
+    "secondaryAction": "See what a first visit includes",
+    "phone": "555-0117",
+    "nav": [
+      "Services",
+      "First visit",
+      "Fees",
+      "About",
+      "Contact"
+    ],
+    "servicesTitle": "What we do",
+    "servicesIntro": "Three kinds of visit cover most of what people need.",
+    "services": [
+      {
+        "title": "Checkups and cleanings",
+        "body": "A full look, a careful clean, and photographs of anything worth watching, explained in plain words."
+      },
+      {
+        "title": "Repairs",
+        "body": "Fillings, crowns, and chipped teeth. You see the price and the options before any work starts."
+      },
+      {
+        "title": "Urgent visits",
+        "body": "Pain, swelling, or a broken tooth. Call before ten and we will see you the same day when a chair is free."
+      }
+    ],
+    "facts": [
+      {
+        "value": "6 days",
+        "label": "open each week"
+      },
+      {
+        "value": "45 min",
+        "label": "for a first visit"
+      },
+      {
+        "value": "3",
+        "label": "treatment rooms"
+      }
+    ],
+    "aboutTitle": "A small practice, on purpose",
+    "aboutBody": "Two dentists and one hygienist. You see the same people each time, and they remember what you told them last time.",
+    "promise": "No work starts until you have seen the price and said yes.",
+    "contactTitle": "Ask for an appointment",
+    "contactBody": "Tell us how to reach you and what you need. We reply on the next working day.",
+    "address": "41 Harbor Street, Suite 2",
+    "hours": "Monday to Saturday, 8 to 5",
+    "footerNote": "Sample content for design preview."
+  }
+}

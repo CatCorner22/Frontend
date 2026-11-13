@@ -23,13 +23,20 @@ export const STUDIO_PARAMS: DesignParams = {
   motion: 'subtle',
 };
 
-// Only colors, fonts, shape, depth, and motion pass to the Studio. Sizes and spacing stay fixed so that the tool stays usable.
-const PASS = /^--(bg|surface|surface-2|border|border-strong|text|text-muted|accent|on-accent|accent-text|accent-soft|accent-2|on-accent-2|action|on-action|focus|selection|card-|control-shadow|btn-|radius-|border-w|control-border-w|font-|heading-weight|heading-tracking|dur|ease|press-scale|inset-highlight|recess)/;
+// Only colors, fonts, shape, depth, and motion pass to the Studio. Sizes and spacing stay fixed, so that the tool stays usable.
+// Names are matched exactly, or by a stated prefix; a size token such as `--text-xs` never passes.
+const PASS_EXACT = new Set([
+  '--bg', '--surface', '--surface-2', '--border', '--border-strong', '--text', '--text-muted', '--accent', '--on-accent', '--accent-text', '--accent-soft',
+  '--accent-2', '--on-accent-2', '--action', '--on-action', '--focus', '--selection', '--control-shadow', '--border-w', '--control-border-w',
+  '--heading-weight', '--heading-tracking', '--dur-fast', '--dur', '--dur-slow', '--ease-out', '--ease-in-out', '--press-scale', '--inset-highlight', '--recess',
+]);
+const PASS_PREFIX = ['--card-', '--btn-', '--radius-', '--font-'];
+const passes = (key: string): boolean => PASS_EXACT.has(key) || PASS_PREFIX.some((prefix) => key.startsWith(prefix));
 
 function block(params: DesignParams): string {
   const tokens = deriveTokens(params, 'enforce').css;
   return Object.entries(tokens)
-    .filter(([key]) => PASS.test(key))
+    .filter(([key]) => passes(key))
     .map(([key, value]) => `${key}:${value};`)
     .join('');
 }
@@ -56,8 +63,10 @@ export function applyStudioTheme(params: DesignParams, followViewerTheme: boolea
   if (!style) {
     style = document.createElement('style');
     style.id = 'studio-tokens';
-    document.head.append(style);
   }
+  // The token rule must come after the app's own stylesheet, whose first-paint fallbacks use the same selector.
+  // On the private page that stylesheet sits in the body, so the token rule goes to the very end of the body (findings SEC-11, FTU-28).
+  if (style !== document.body.lastElementChild) document.body.append(style);
   style.textContent = studioTokenCss(params, followViewerTheme);
 }
 

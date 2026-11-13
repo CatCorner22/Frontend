@@ -1,7 +1,11 @@
-// Directions: complete, coherent starting points. A Direction sets every design parameter at once;
+// Directions: complete, coherent starting looks. A Direction sets every design parameter at once;
 // the Steps then refine it one variable at a time. ("Explore genuinely different directions before code.")
+//
+// Every curated Direction is the builder's own composition, judged by eye on rendered Mockups.
+// No Direction copies a brand, and none names one: no research record supports a resemblance claim.
 
 import { DEFAULT_PARAMS, type DesignParams } from '../params.js';
+import type { Evidence, SourceRef } from './types.js';
 
 export interface Direction {
   id: string;
@@ -10,10 +14,16 @@ export interface Direction {
   mood: string;
   bestFor: string;
   risk: string;
-  /** Well-known work in the same spirit. A Direction is never a copy of a brand. */
-  inTheSpiritOf?: string;
   params: DesignParams;
+  sources: SourceRef[];
+  evidence: Evidence;
+  /** The date of the last review, as YYYY-MM-DD; `null` for a generated Direction, which nobody has reviewed. */
+  reviewed: string | null;
 }
+
+const REVIEWED = '2026-11-13';
+const COMPOSED: SourceRef[] = [{ text: 'Composed by the builder from the Catalog’s Options and judged by eye on rendered Mockups. No outside source was consulted, and no person other than the builder has reviewed it.', basis: 'builder' }];
+const record = { sources: COMPOSED, evidence: 'expert-opinion' as const, reviewed: REVIEWED };
 
 const d = (overrides: Partial<DesignParams>): DesignParams => ({ ...DEFAULT_PARAMS, ...overrides });
 
@@ -21,10 +31,10 @@ export const DIRECTIONS: Direction[] = [
   {
     id: 'graphite-precision',
     name: 'Graphite Precision',
-    mood: 'Exact, quiet, engineered. Black, white, and one fine grid.',
+    mood: 'Exact, quiet, engineered. Black, white, and a faint grid of lines.',
     bestFor: 'Software, professional services, anything that should feel rigorous.',
-    risk: 'Austere. It needs strong headlines, because nothing decorative will carry weak ones.',
-    inTheSpiritOf: 'Vercel, Linear',
+    risk: 'Severe. It needs strong headlines, because nothing decorative will carry weak ones.',
+    ...record,
     params: d({
       nav: 'split-cta', hero: 'centered', sections: 'bento', contentWidth: 'standard', emphasis: 'headline', density: 1.1,
       fontHeading: 'instrument-sans', fontBody: 'instrument-sans', headingWeight: 700, headingTracking: -0.038, headingCase: 'sentence', baseSize: 16, scaleRatio: 1.36, numerals: 'tabular',
@@ -35,10 +45,10 @@ export const DIRECTIONS: Direction[] = [
   {
     id: 'midnight-aurora',
     name: 'Midnight Aurora',
-    mood: 'Deep night sky with light behind glass. Luminous and calm.',
+    mood: 'A deep night sky with soft colored light behind frosted, see-through boxes. Luminous and calm.',
     bestFor: 'Products and studios that want atmosphere and a sense of technology.',
-    risk: 'Dark glass with glow is fashionable; it dates faster than plainer looks.',
-    inTheSpiritOf: 'Raycast, Linear',
+    risk: 'Dark frosted boxes with a glow are a current fashion; they will look dated sooner than a plainer look.',
+    ...record,
     params: d({
       nav: 'split-cta', hero: 'text-left', sections: 'bento', contentWidth: 'standard', emphasis: 'headline', density: 1.1,
       fontHeading: 'manrope', fontBody: 'manrope', headingWeight: 700, headingTracking: -0.034, headingCase: 'sentence', baseSize: 16, scaleRatio: 1.36, numerals: 'tabular',
@@ -52,6 +62,7 @@ export const DIRECTIONS: Direction[] = [
     mood: 'Charcoal and firelight. Warm, confident, a little theatrical.',
     bestFor: 'Restaurants, bars, studios, craftspeople, evening businesses.',
     risk: 'Dark pages make daytime photographs look out of place.',
+    ...record,
     params: d({
       nav: 'top-inline', hero: 'statement', sections: 'ledger', contentWidth: 'standard', emphasis: 'headline', density: 1.05,
       fontHeading: 'bricolage-grotesque', fontBody: 'instrument-sans', headingWeight: 700, headingTracking: -0.03, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.36, numerals: 'tabular',
@@ -64,7 +75,8 @@ export const DIRECTIONS: Direction[] = [
     name: 'Paper and Ink',
     mood: 'A well-edited magazine: paper grain, ink, and one red pencil.',
     bestFor: 'Writers, advisers, law, education: places where words matter.',
-    risk: 'Paper, serif, and hairlines together are a recognizable editorial formula; the red accent and the ledger keep it specific.',
+    risk: 'Paper texture, letters with small feet, and thin lines together are a familiar magazine look; the one red color and the numbered list keep this one specific.',
+    ...record,
     params: d({
       nav: 'top-centered', hero: 'statement', sections: 'ledger', contentWidth: 'standard', emphasis: 'headline', density: 1.15,
       fontHeading: 'newsreader', fontBody: 'instrument-sans', headingWeight: 500, headingTracking: -0.022, headingCase: 'sentence', baseSize: 18, scaleRatio: 1.34, numerals: 'tabular',
@@ -75,10 +87,10 @@ export const DIRECTIONS: Direction[] = [
   {
     id: 'soft-daylight',
     name: 'Soft Daylight',
-    mood: 'Bright, airy, unhurried. Panels float in clear light.',
+    mood: 'Bright, airy, unhurried. Boxes float on soft shadows in clear light.',
     bestFor: 'Consumer products, health, hospitality: anything that should feel effortless.',
     risk: 'Needs generous space and good photographs; cramped content breaks the calm.',
-    inTheSpiritOf: 'Apple',
+    ...record,
     params: d({
       nav: 'top-inline', hero: 'centered', sections: 'alternating', contentWidth: 'standard', emphasis: 'headline', density: 1.3,
       fontHeading: 'manrope', fontBody: 'manrope', headingWeight: 600, headingTracking: -0.03, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.36, numerals: 'tabular',
@@ -89,9 +101,10 @@ export const DIRECTIONS: Direction[] = [
   {
     id: 'poster-block',
     name: 'Poster Block',
-    mood: 'A printed poster: one loud color, heavy type, hard edges.',
+    mood: 'A printed poster: one loud color, heavy letters, square corners.',
     bestFor: 'Bold local brands, events, food, anything that should be remembered at a glance.',
     risk: 'Tiring over many pages; hard to pair with photographs.',
+    ...record,
     params: d({
       nav: 'top-inline', hero: 'statement', sections: 'ledger', contentWidth: 'standard', emphasis: 'headline', density: 1,
       fontHeading: 'bricolage-grotesque', fontBody: 'instrument-sans', headingWeight: 800, headingTracking: -0.04, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.42, numerals: 'tabular',
@@ -102,10 +115,10 @@ export const DIRECTIONS: Direction[] = [
   {
     id: 'sticker-pop',
     name: 'Sticker Pop',
-    mood: 'Cheerful and tactile: thick outlines, sticker shadows, two bright colors.',
+    mood: 'Cheerful and tactile: thick outlines, solid sticker-like shadows, two bright colors.',
     bestFor: 'Children, pets, creative shops, friendly neighborhood businesses.',
-    risk: 'A strong fashion (neo-brutalism); too casual for serious subjects.',
-    inTheSpiritOf: 'Gumroad',
+    risk: 'A strong current fashion (designers call it neo-brutalism); too casual for serious subjects.',
+    ...record,
     params: d({
       nav: 'split-cta', hero: 'split-media', sections: 'grid', contentWidth: 'standard', emphasis: 'headline', density: 1.12,
       fontHeading: 'outfit', fontBody: 'dm-sans', headingWeight: 700, headingTracking: -0.02, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.3, numerals: 'tabular',
@@ -118,7 +131,8 @@ export const DIRECTIONS: Direction[] = [
     name: 'Clinical Calm',
     mood: 'Clean, reassuring, plainly spoken. Nothing to worry about here.',
     bestFor: 'Clinics, dental and medical practices, care services.',
-    risk: 'Teal in health care is common; the crisp ring edges and the type keep it from looking stock.',
+    risk: 'Teal is a familiar color in health care; the fine edges around the boxes and the sturdy letters keep this one from looking like a template.',
+    ...record,
     params: d({
       nav: 'split-cta', hero: 'split-media', sections: 'stacked', contentWidth: 'standard', emphasis: 'action', density: 1.15,
       fontHeading: 'public-sans', fontBody: 'public-sans', headingWeight: 600, headingTracking: -0.02, headingCase: 'sentence', baseSize: 18, scaleRatio: 1.28, numerals: 'tabular',
@@ -131,7 +145,8 @@ export const DIRECTIONS: Direction[] = [
     name: 'Evening Formal',
     mood: 'Candlelight and engraved invitations. Dark, slow, elegant.',
     bestFor: 'Fine dining, events, jewelry, hotels.',
-    risk: 'Thin elegant type needs size; small text must stay in the sans.',
+    risk: 'Thin, elegant letters need to be large to stay readable, so small text stays in the plainer typeface.',
+    ...record,
     params: d({
       nav: 'top-centered', hero: 'centered', sections: 'alternating', contentWidth: 'standard', emphasis: 'headline', density: 1.3,
       fontHeading: 'playfair-display', fontBody: 'dm-sans', headingWeight: 500, headingTracking: -0.012, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.42, numerals: 'proportional',
@@ -144,8 +159,8 @@ export const DIRECTIONS: Direction[] = [
     name: 'Control Room',
     mood: 'An instrument panel: dense, exact, numbers first.',
     bestFor: 'Dashboards, operations tools, technical services.',
-    risk: 'Too dense for a public brochure site; made for people who work in it.',
-    inTheSpiritOf: 'Linear, trading terminals',
+    risk: 'Too tightly packed for a public information site; made for people who work in it all day.',
+    ...record,
     params: d({
       nav: 'side-rail', hero: 'text-left', sections: 'stacked', contentWidth: 'wide', emphasis: 'proof', density: 0.86,
       fontHeading: 'space-grotesk', fontBody: 'manrope', headingWeight: 600, headingTracking: -0.02, headingCase: 'sentence', baseSize: 15, scaleRatio: 1.2, numerals: 'mono',
@@ -156,9 +171,10 @@ export const DIRECTIONS: Direction[] = [
   {
     id: 'quiet-luxury',
     name: 'Quiet Luxury',
-    mood: 'Nearly nothing, perfectly placed. Light serif, wide margins, no lines.',
+    mood: 'Nearly nothing, perfectly placed. Thin letters with small feet, wide margins, no lines.',
     bestFor: 'High-end services, galleries, architects, private practices.',
     risk: 'Restraint this strict exposes every weak photograph and every loose sentence.',
+    ...record,
     params: d({
       nav: 'top-centered', hero: 'centered', sections: 'alternating', contentWidth: 'standard', emphasis: 'headline', density: 1.34,
       fontHeading: 'fraunces', fontBody: 'instrument-sans', headingWeight: 400, headingTracking: -0.024, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.42, numerals: 'proportional',
@@ -171,7 +187,8 @@ export const DIRECTIONS: Direction[] = [
     name: 'Cobalt Wash',
     mood: 'The whole page breathes one color. Fresh, modern, unmistakable.',
     bestFor: 'Young brands and products that want to be recognized by color alone.',
-    risk: 'Photographs take on the tint; test them against it.',
+    risk: 'Photographs take on the tint of the page; look at your own photographs on this page before you commit.',
+    ...record,
     params: d({
       nav: 'split-cta', hero: 'text-left', sections: 'bento', contentWidth: 'standard', emphasis: 'headline', density: 1.1,
       fontHeading: 'manrope', fontBody: 'manrope', headingWeight: 800, headingTracking: -0.036, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.34, numerals: 'tabular',
@@ -184,7 +201,8 @@ export const DIRECTIONS: Direction[] = [
     name: 'Sunlit Studio',
     mood: 'Morning light in a workshop: golden, open, optimistic.',
     bestFor: 'Makers, cafes, wellness, family businesses.',
-    risk: 'Yellow buttons need dark labels; the tool sets them, and links darken when accessibility is on.',
+    risk: 'Yellow buttons need dark labels, and the Studio sets them. It also darkens yellow links until they stand out from the page.',
+    ...record,
     params: d({
       nav: 'top-inline', hero: 'split-media', sections: 'grid', contentWidth: 'standard', emphasis: 'headline', density: 1.18,
       fontHeading: 'outfit', fontBody: 'dm-sans', headingWeight: 600, headingTracking: -0.025, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.32, numerals: 'tabular',
@@ -195,9 +213,10 @@ export const DIRECTIONS: Direction[] = [
   {
     id: 'garden-ledger',
     name: 'Garden Ledger',
-    mood: 'A seed catalog: deep green, sturdy serif, orderly lists.',
+    mood: 'A seed catalog: deep green, sturdy letters with small feet, orderly lists.',
     bestFor: 'Garden, food, sustainability, outdoor and craft businesses.',
-    risk: 'Dark green can look black in small text; the sizes here stay generous.',
+    risk: 'Dark green can look black in small text, so the text sizes here stay large.',
+    ...record,
     params: d({
       nav: 'top-inline', hero: 'text-left', sections: 'ledger', contentWidth: 'standard', emphasis: 'headline', density: 1.12,
       fontHeading: 'source-serif-4', fontBody: 'instrument-sans', headingWeight: 600, headingTracking: -0.02, headingCase: 'sentence', baseSize: 18, scaleRatio: 1.3, numerals: 'tabular',
@@ -207,4 +226,9 @@ export const DIRECTIONS: Direction[] = [
   },
 ];
 
-export const DIRECTION_BY_ID: Record<string, Direction> = Object.fromEntries(DIRECTIONS.map((x) => [x.id, x]));
+const DIRECTION_TABLE = new Map<string, Direction>(DIRECTIONS.map((x) => [x.id, x]));
+
+/** Find a curated Direction by its identifier. Returns `undefined` for anything else, including names of built-in object members. */
+export function findDirection(id: string): Direction | undefined {
+  return DIRECTION_TABLE.get(id);
+}

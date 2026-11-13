@@ -1,5 +1,6 @@
 // Color math. OKLCH is a perceptual color space: equal steps in its numbers look like equal steps to the eye.
-// Conversion constants: Björn Ottosson, "A perceptual color space for image processing" (public domain reference implementation).
+// Conversion constants: the OKLab matrices published by Björn Ottosson ("A perceptual color space for image processing").
+// The builder wrote them from memory of that reference and did not re-read it for this project; the unit tests check them against known sRGB values.
 // Contrast: WCAG 2.x relative luminance and contrast ratio.
 
 export interface Oklch {
@@ -37,6 +38,11 @@ function oklchToLinearRgb({ l, c, h }: Oklch): Rgb {
 }
 
 const inGamut = (c: Rgb): boolean => [c.r, c.g, c.b].every((v) => v >= -0.0005 && v <= 1.0005);
+
+/** True when ordinary (sRGB) screens can show the color without clipping. */
+export function isInGamut(color: Oklch): boolean {
+  return inGamut(oklchToLinearRgb(color));
+}
 
 const encode = (v: number): number => {
   const x = clamp01(v);
@@ -118,11 +124,22 @@ export function ensureContrast(fg: Oklch, bg: Oklch, target: number): Oklch {
   return contrast(second, bg) > contrast(first, bg) ? second : first;
 }
 
-/** Pick near-white or near-black text for a filled background, whichever contrasts more. */
+/**
+ * Pick near-white or near-black text for a filled background, whichever contrasts more.
+ * The better of pure white and pure black always reaches at least 4.58:1, so the result is pushed to 4.5:1 when the near tones fall short.
+ */
 export function readableOn(bg: Oklch, hue = bg.h): Oklch {
   const light: Oklch = { l: 0.99, c: 0.005, h: hue };
   const dark: Oklch = { l: 0.17, c: 0.02, h: hue };
-  return contrast(light, bg) >= contrast(dark, bg) ? light : dark;
+  const best = contrast(light, bg) >= contrast(dark, bg) ? light : dark;
+  return ensureContrast(best, bg, 4.56);
+}
+
+/** Move `fg` until it reaches `target` contrast against every background in the list. */
+export function ensureContrastAll(fg: Oklch, backgrounds: Oklch[], target: number): Oklch {
+  let out = fg;
+  for (let pass = 0; pass < 2; pass++) for (const bg of backgrounds) out = ensureContrast(out, bg, target);
+  return out;
 }
 
 /** A color with transparency, as CSS. Used for hairlines, glows, and glass, which must sit naturally on any surface. */
@@ -132,15 +149,42 @@ export function toCssAlpha(color: Oklch, alpha: number): string {
   return `oklch(${n(g.l * 100, 2)}% ${n(g.c, 4)} ${n(g.h, 2)} / ${n(alpha, 3)})`;
 }
 
-/** The opaque hex that results when `fg` at `alpha` is painted over `bg` (composited in sRGB, as browsers do). */
-export function hexOver(fg: Oklch, alpha: number, bg: Oklch): string {
+/** The sRGB color that results when `fg` at `alpha` is painted over `bg` (composited in sRGB, as browsers do). */
+export function rgbOver(fg: Oklch, alpha: number, bg: Oklch): Rgb {
   const f = toRgb(fg);
   const b = toRgb(bg);
-  const mix = (x: number, y: number): string =>
-    Math.round(clamp01(x * alpha + y * (1 - alpha)) * 255)
+  const mix = (x: number, y: number): number => clamp01(x * alpha + y * (1 - alpha));
+  return { r: mix(f.r, b.r), g: mix(f.g, b.g), b: mix(f.b, b.b) };
+}
+
+const decode = (v: number): number => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+
+/** WCAG 2.x relative luminance of sRGB channels in 0..1. */
+export function luminanceRgb(c: Rgb): number {
+  return 0.2126 * decode(clamp01(c.r)) + 0.7152 * decode(clamp01(c.g)) + 0.0722 * decode(clamp01(c.b));
+}
+
+const ratio = (la: number, lb: number): number => (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+
+/** Contrast of `fg`, drawn at `alpha` over `bg`, against that same `bg`. This is what the eye gets from translucent text. */
+export function contrastOver(fg: Oklch, alpha: number, bg: Oklch): number {
+  if (alpha >= 1) return contrast(fg, bg);
+  return ratio(luminanceRgb(rgbOver(fg, alpha, bg)), luminance(bg));
+}
+
+/** Contrast of opaque `fg` against a backdrop made of `wash` at `alpha` over `bg` (for example text over a highlighter stroke). */
+export function contrastOnWash(fg: Oklch, wash: Oklch, alpha: number, bg: Oklch): number {
+  return ratio(luminance(fg), luminanceRgb(rgbOver(wash, alpha, bg)));
+}
+
+/** The opaque hex that results when `fg` at `alpha` is painted over `bg`. */
+export function hexOver(fg: Oklch, alpha: number, bg: Oklch): string {
+  const c = rgbOver(fg, alpha, bg);
+  const h = (v: number): string =>
+    Math.round(clamp01(v) * 255)
       .toString(16)
       .padStart(2, '0');
-  return `#${mix(f.r, b.r)}${mix(f.g, b.g)}${mix(f.b, b.b)}`;
+  return `#${h(c.r)}${h(c.g)}${h(c.b)}`;
 }
 
 /** Shift lightness, keeping the result in range. */

@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "name": "Plain start",
+  "template": "small-business",
+  "a11y": "advise",
+  "direction": null,
+  "params": {
+    "nav": "top-inline",
+    "hero": "statement",
+    "sections": "stacked",
+    "contentWidth": "standard",
+    "emphasis": "headline",
+    "density": 1,
+    "fontHeading": "system-sans",
+    "fontBody": "system-sans",
+    "headingWeight": 700,
+    "headingTracking": -0.01,
+    "headingCase": "sentence",
+    "baseSize": 17,
+    "scaleRatio": 1.25,
+    "numerals": "proportional",
+    "neutralHue": 250,
+    "neutralChroma": 0.006,
+    "accentHue": 18,
+    "accentChroma": 0.19,
+    "accentLightness": 0.47,
+    "accent2Hue": 60,
+    "colorStrategy": "single-accent",
+    "theme": "light",
+    "contrast": 0.85,
+    "radius": 8,
+    "elevation": "borders",
+    "borderWeight": 1,
+    "signature": "none",
+    "atmosphere": "plain",
+    "buttonFinish": "flat",
+    "displayTreatment": "solid",
+    "motion": "subtle"
+  },
+  "decisions": {
+    "hero": {
+      "stepId": "hero",
+      "optionId": "statement",
+      "kind": "picked",
+      "rejected": [
+        "text-left",
+        "centered",
+        "split-media"
+      ],
+      "values": {
+        "hero": "statement"
+      },
+      "at": "2026-11-13T12:00:00.000Z"
+    },
+    "theme": {
+      "stepId": "theme",
+      "optionId": "light-crisp",
+      "kind": "picked",
+      "rejected": [
+        "light-soft",
+        "dark-soft",
+        "dark-deep"
+      ],
+      "values": {
+        "theme": "light",
+        "contrast": 0.85
+      },
+      "at": "2026-11-13T12:00:00.000Z"
+    },
+    "accent": {
+      "stepId": "accent",
+      "optionId": "crimson",
+      "kind": "picked",
+      "rejected": [
+        "ink-blue",
+        "cobalt",
+        "teal",
+        "forest",
+        "leaf",
+        "mustard",
+        "tangerine",
+        "vermilion",
+        "magenta",
+        "plum",
+        "violet",
+        "graphite"
+      ],
+      "values": {
+        "accentHue": 18,
+        "accentChroma": 0.19,
+        "accentLightness": 0.47
+      },
+      "at": "2026-11-13T12:00:00.000Z"
+    }
+  },
+  "content": {
+    "business": "Harbor Street Dental",
+    "tag": "Family dentistry on Harbor Street",
+    "headline": "Dental care that explains itself before it begins.",
+    "headlineEmphasis": "explains itself",
+    "lede": "Checkups, cleanings, and repairs for adults and children. We show you what we see, tell you what it costs, and let you decide.",
+    "primaryAction": "Book a visit",
+    "secondaryAction": "See what a first visit includes",
+    "phone": "555-0117",
+    "nav": [
+      "Services",
+      "First visit",
+      "Fees",
+      "About",
+      "Contact"
+    ],
+    "servicesTitle": "What we do",
+    "servicesIntro": "Three kinds of visit cover most of what people need.",
+    "services": [
+      {
+        "title": "Checkups and cleanings",
+        "body": "A full look, a careful clean, and photographs of anything worth watching, explained in plain words."
+      },
+      {
+        "title": "Repairs",
+        "body": "Fillings, crowns, and chipped teeth. You see the price and the options before any work starts."
+      },
+      {
+        "title": "Urgent visits",
+        "body": "Pain, swelling, or a broken tooth. Call before ten and we will see you the same day when a chair is free."
+      }
+    ],
+    "facts": [
+      {
+        "value": "6 days",
+        "label": "open each week"
+      },
+      {
+        "value": "45 min",
+        "label": "for a first visit"
+      },
+      {
+        "value": "3",
+        "label": "treatment rooms"
+      }
+    ],
+    "aboutTitle": "A small practice, on purpose",
+    "aboutBody": "Two dentists and one hygienist. You see the same people each time, and they remember what you told them last time.",
+    "promise": "No work starts until you have seen the price and said yes.",
+    "contactTitle": "Ask for an appointment",
+    "contactBody": "Tell us how to reach you and what you need. We reply on the next working day.",
+    "address": "41 Harbor Street, Suite 2",
+    "hours": "Monday to Saturday, 8 to 5",
+    "footerNote": "Sample content for design preview."
+  }
+}

@@ -20,6 +20,13 @@ export default tseslint.config(
       'no-implied-eval': 'error',
       'no-new-func': 'error',
       eqeqeq: 'error',
+      // A name that starts with an underscore marks a value that is taken out on purpose and not used.
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', ignoreRestSiblings: true }],
     },
+  },
+  {
+    // The tests damage project files on purpose (a string where a number belongs), which needs loosely typed data.
+    files: ['**/test/**/*.ts'],
+    rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
 );
