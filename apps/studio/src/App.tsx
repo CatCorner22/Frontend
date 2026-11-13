@@ -182,6 +182,8 @@ function TopBar(): React.JSX.Element {
       </div>
       <button type="button" className="btn small" disabled={s.history.length === 0} onClick={s.undo}>Undo</button>
       <span className="save-state" role="status">{SAVE_LABEL[s.saved]}</span>
+      {/* After a failed save the Studio tries again at the next change. This button lets the owner try at once, for example after making room. */}
+      {s.saved === 'failed' && <button type="button" className="btn small" onClick={s.saveAgain}>Try to save again</button>}
     </header>
   );
 }
@@ -760,7 +762,7 @@ function SummaryView(): React.JSX.Element {
                       <button type="button" className="btn quiet" onClick={() => { const file = keptCopyFile(copy, index); void saveFile(file.name, file.text); }}>Download this kept copy</button>
                       {removing === copy ? (
                         <>
-                          <button type="button" className="btn quiet" onClick={() => { setMessage(removeBackup(copy) ? 'The kept copy was removed.' : 'This browser did not let the Studio remove the kept copy.'); setRemoving(null); setKeptTick((n) => n + 1); }}>Yes, remove it for good</button>
+                          <button type="button" className="btn quiet" onClick={() => { setMessage(removeBackup(copy) ? 'The kept copy was removed.' : 'This browser did not let the Studio remove the kept copy.'); setRemoving(null); setKeptTick((n) => n + 1); s.saveAgain(); }}>Yes, remove it for good</button>
                           <button type="button" className="btn quiet" onClick={() => setRemoving(null)}>No, keep it</button>
                         </>
                       ) : (

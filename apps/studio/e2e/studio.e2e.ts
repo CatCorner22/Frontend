@@ -120,7 +120,39 @@ const stored = (page: Page): Promise<Project | null> =>
   page.evaluate((key) => (JSON.parse(window.localStorage.getItem(key) ?? 'null') as { project: Project } | null)?.project ?? null, LOCAL_KEY);
 const rawStored = (page: Page, key: string): Promise<string | null> => page.evaluate((k) => window.localStorage.getItem(k), key);
 /** Every copy the Studio kept, newest first. */
-const keptCopies = async (page: Page): Promise<{ why: string; text: string }[]> => JSON.parse((await rawStored(page, BACKUP_KEY)) ?? '[]') as { why: string; text: string }[];
+const keptCopies = (page: Page): Promise<{ why: string; text: string; key?: string }[]> =>
+  page.evaluate((base) => {
+    // Each kept copy has a storage entry of its own (a first line with time and reason, then the text). An earlier form held one list.
+    const own: { why: string; text: string; key: string }[] = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key = window.localStorage.key(i)!;
+      if (!key.startsWith(`${base}.`)) continue;
+      const raw = window.localStorage.getItem(key)!;
+      const end = raw.indexOf('\n');
+      own.push({ key, why: (JSON.parse(raw.slice(0, end)) as { why: string }).why, text: raw.slice(end + 1) });
+    }
+    own.sort((a, b) => b.key.localeCompare(a.key));
+    // The earlier list is read the way the Studio reads it: a member, or a whole content, that is not a kept copy counts as one copy.
+    let listed: { why: string; text: string }[] = [];
+    const rawList = window.localStorage.getItem(base);
+    if (rawList) {
+      try {
+        const parsed = JSON.parse(rawList) as unknown;
+        listed = (Array.isArray(parsed) ? parsed : [parsed]).map((member: unknown) => {
+          const record = member as { why?: unknown; text?: unknown } | null;
+          return record && typeof record === 'object' && typeof record.text === 'string' ? { why: String(record.why ?? ''), text: record.text } : { why: '', text: typeof member === 'string' ? member : JSON.stringify(member) };
+        });
+      } catch {
+        listed = [{ why: '', text: rawList }];
+      }
+    }
+    return [...own, ...listed];
+  }, BACKUP_KEY);
+/** Take every kept copy away, in both forms. */
+const clearKeptCopies = (page: Page): Promise<void> =>
+  page.evaluate((base) => {
+    for (const key of Object.keys(window.localStorage)) if (key === base || key.startsWith(`${base}.`)) window.localStorage.removeItem(key);
+  }, BACKUP_KEY);
 /**
  * Make this browser's storage full, with `spare` characters free: from now on, and after a reload, a write beyond that is refused.
  * Returns true when a write that is larger than the spare room is indeed refused.
@@ -520,7 +552,7 @@ describe('Studio: saved work is never replaced without a word', () => {
     await settle(page);
     // Nothing was replaced, and nothing claims that a copy exists.
     expect((await stored(page))!.name).toBe('Weeks of work');
-    expect(await rawStored(page, BACKUP_KEY)).toBeNull();
+    expect(await keptCopies(page)).toEqual([]);
     // The same holds for a start from another Direction.
     await page.evaluate(() => { window.location.hash = '#directions'; });
     await page.getByRole('button', { name: 'Start from Ember Noir' }).click();
@@ -547,7 +579,7 @@ describe('Studio: saved work is never replaced without a word', () => {
     const session = await open({ storage: { [LOCAL_KEY]: envelope(older, '2026-11-06T10:00:00.000Z') }, pageDb: { doc: { project: JSON.stringify(newer), savedAt: '2026-11-13T10:00:00.000Z' } } });
     await session.page.waitForSelector('.cards');
     // The first opening had room and kept the older copy. Take that copy away, fill the storage, and open again.
-    await session.page.evaluate((key) => window.localStorage.removeItem(key), BACKUP_KEY);
+    await clearKeptCopies(session.page);
     await session.page.evaluate(([key, text]) => window.localStorage.setItem(key!, text!), [LOCAL_KEY, envelope(older, '2026-11-06T10:00:00.000Z')]);
     await fillStorage(session.page, 200);
     await session.page.reload();
@@ -562,6 +594,8 @@ describe('Studio: saved work is never replaced without a word', () => {
     await settle(session.page);
     expect((await stored(session.page))!.name).toBe('Old copy from last week');
     // An Undo and a look at the Summary do not remove the notice or its buttons (campaign 4, finding F-1).
+    // A pause ends a run of typing, so the next typing is an Undo step of its own, and Undo takes back only that step.
+    await session.page.waitForTimeout(1600);
     await session.page.locator('#project-name').fill('Weeks of work, renamed twice');
     await session.page.locator('.top').getByRole('button', { name: 'Undo', exact: true }).click();
     await session.page.locator('.top-nav a', { hasText: 'Summary' }).click();
@@ -582,7 +616,7 @@ describe('Studio: saved work is never replaced without a word', () => {
     const { context, page } = await open({ storage: { [LOCAL_KEY]: garbage } });
     await page.locator('.banner').waitFor();
     // The first opening had room and kept the unreadable text. Take that copy away, fill the storage, and open again.
-    await page.evaluate((key) => window.localStorage.removeItem(key), BACKUP_KEY);
+    await clearKeptCopies(page);
     await fillStorage(page, 100);
     await page.reload();
     const banner = page.locator('.banner');
@@ -765,7 +799,7 @@ describe('Studio: saved work is never replaced without a word', () => {
     const plain = await open({ storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(base))) } });
     await plain.page.waitForSelector('.cards');
     expect(await plain.page.locator('.banner').count()).toBe(0);
-    expect(await rawStored(plain.page, BACKUP_KEY)).toBeNull();
+    expect(await keptCopies(plain.page)).toEqual([]);
     await plain.context.close();
   });
 
@@ -931,6 +965,11 @@ describe('Studio: a stopped save stays answerable, and no tab loses its work to 
     expect((await stored(page))?.name).toBe('Changed in the other tab');
     const kept = await keptCopies(page);
     expect(kept.some((copy) => copy.text.includes('Typed in the stopped tab') && copy.why.includes('was not yet saved when you left or reloaded the page'))).toBe(true);
+    // Nobody could read a notice while the page reloaded, so the next opening says what happened and where the copy is.
+    const notice = page.locator('.banner:not(.hold)');
+    expect(await notice.innerText()).toContain('kept that page’s unsaved work as a copy');
+    await notice.getByRole('button', { name: 'Go to the Summary' }).click();
+    await page.waitForSelector('.kept-copies');
     await context.close();
   });
 
@@ -953,6 +992,156 @@ describe('Studio: a stopped save stays answerable, and no tab loses its work to 
     await settle(page);
     expect(await state(page)).toContain('Cannot save here');
     expect((await stored(page))?.name).toBe('A');
+    await context.close();
+  });
+
+  it('gives each kept copy a storage entry of its own, written once, and never rewrites a shared list (finding F-10)', async () => {
+    const { context, page } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
+    await page.waitForSelector('.summary');
+    await page.evaluate(() => {
+      const writes: string[] = [];
+      (window as unknown as { writes: string[] }).writes = writes;
+      const original = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (this: Storage, key: string, value: string): void {
+        writes.push(key);
+        original.call(this, key, value);
+      };
+    });
+    // Two replace actions, so two kept copies.
+    await page.getByRole('button', { name: 'Start a new project…' }).click();
+    await page.locator('dialog[open]').getByRole('button', { name: 'Yes, clear this project' }).click();
+    await page.getByRole('button', { name: 'Start from Ember Noir' }).click();
+    await page.waitForSelector('.cards');
+    await page.locator('.top-nav a', { hasText: 'Directions' }).click();
+    // A project with a Direction and no Decision is replaced without a question, and is kept all the same.
+    await page.getByRole('button', { name: 'Start from Soft Daylight' }).click();
+    await page.waitForSelector('.cards');
+    await settle(page);
+    const writes = await page.evaluate(() => (window as unknown as { writes: string[] }).writes);
+    const copyWrites = writes.filter((key) => key.startsWith(`${'refraction.project.backup'}.`));
+    expect(copyWrites.length).toBe(2);
+    expect(new Set(copyWrites).size).toBe(2);
+    expect(writes).not.toContain(BACKUP_KEY);
+    expect((await keptCopies(page)).length).toBe(2);
+    await context.close();
+  });
+
+  it('keeps both copies when two tabs that are not saving close in the same moment (finding F-10)', async () => {
+    for (let round = 0; round < 4; round++) {
+      const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Shared project')) } });
+      await page.waitForSelector('.cards');
+      const second = await context.newPage();
+      const third = await context.newPage();
+      for (const tab of [second, third]) {
+        await tab.goto(pageUrl);
+        await tab.waitForSelector('.cards');
+      }
+      await page.locator('#project-name').fill(`First tab ${round}`);
+      for (const tab of [second, third]) await tab.locator('.banner.hold').waitFor();
+      await second.locator('#project-name').fill(`Second tab work ${round}`);
+      await third.locator('#project-name').fill(`Third tab work ${round}`);
+      await Promise.all([second.close({ runBeforeUnload: true }), third.close({ runBeforeUnload: true })]);
+      const names = async (): Promise<string[]> => (await keptCopies(page)).map((copy) => (JSON.parse(copy.text) as Project).name).sort();
+      await expect.poll(names, { timeout: 5000, message: `round ${round}` }).toEqual([`Second tab work ${round}`, `Third tab work ${round}`]);
+      expect((await stored(page))?.name).toBe(`First tab ${round}`);
+      await context.close();
+    }
+  });
+
+  it('counts a run of typing or of slider presses as one Undo step, and states how far Undo reaches (finding F-11)', async () => {
+    const { context, page } = await open({ hash: '#density', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
+    await waitForStep(page, 'Spacing');
+    const name = page.locator('#project-name');
+    // 45 typed letters are one step: one Undo brings the old name back.
+    await name.click();
+    await page.keyboard.press('End');
+    await page.keyboard.type(', and then forty-five more letters typed fast');
+    expect(await name.inputValue()).toBe('Weeks of work, and then forty-five more letters typed fast');
+    await topUndo(page).click();
+    expect(await name.inputValue()).toBe('Weeks of work');
+    // A pause ends the run: the typing after it is a step of its own.
+    await name.click();
+    await page.keyboard.press('End');
+    await page.keyboard.type(' one');
+    await page.waitForTimeout(1700);
+    await page.keyboard.type(' two');
+    await topUndo(page).click();
+    expect(await name.inputValue()).toBe('Weeks of work one');
+    await topUndo(page).click();
+    expect(await name.inputValue()).toBe('Weeks of work');
+    // Six presses on one slider are one step as well.
+    await page.locator('summary', { hasText: 'Adjust with sliders' }).click();
+    const slider = page.locator('#tune-density');
+    const before = await slider.inputValue();
+    await slider.focus();
+    for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowRight');
+    expect(await slider.inputValue()).not.toBe(before);
+    await topUndo(page).click();
+    await expect.poll(() => page.locator('#tune-density').inputValue()).toBe(before);
+    // The dialog says how far Undo reaches, instead of promising it without a limit.
+    await page.locator('.top-nav a', { hasText: 'Summary' }).click();
+    await page.getByRole('button', { name: 'Start a new project…' }).click();
+    expect(await page.locator('dialog[open]').innerText()).toContain('as long as it is among your last 100 Undo steps');
+    await context.close();
+  });
+
+  it('saves at once after "Go on: let the Studio save over it", also when nothing changed on screen (finding F-15)', async () => {
+    // A saved copy with a Decision for a Step that this Catalog does not have: opening changes it.
+    const withUnknown = JSON.parse(JSON.stringify(worked('Weeks of work'))) as { decisions: Record<string, unknown> };
+    withUnknown.decisions['a-step-from-another-version'] = { stepId: 'a-step-from-another-version', optionId: 'x', kind: 'picked', rejected: [], values: {}, at: '2026-11-13T09:00:00.000Z' };
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(withUnknown) } });
+    await page.waitForSelector('.cards');
+    // The first opening had room and kept the copy. Take it away, leave no room, and open again.
+    await clearKeptCopies(page);
+    expect(await fillStorage(page, 20)).toBe(true);
+    await page.reload();
+    const hold = page.locator('.banner.hold');
+    await hold.waitFor();
+    expect(await rawStored(page, LOCAL_KEY)).toContain('a-step-from-another-version');
+    await hold.getByRole('button', { name: 'Go on: let the Studio save over it' }).click();
+    await settle(page);
+    expect(await rawStored(page, LOCAL_KEY)).not.toContain('a-step-from-another-version');
+    expect((await stored(page))?.name).toBe('Weeks of work');
+    expect(await page.locator('.save-state').innerText()).toBe('Saved in this browser, on this computer');
+    await context.close();
+  });
+
+  it('keeps a tab’s copy before a reload even when the project has only a name (retest of finding F-2)', async () => {
+    const { context, page } = await open();
+    await page.locator('#project-name').fill('Only a name so far');
+    await settle(page);
+    const other = await context.newPage();
+    await other.goto(pageUrl);
+    await other.waitForSelector('.top');
+    await other.locator('#project-name').fill('Named in the other tab');
+    const hold = page.locator('.banner.hold');
+    await hold.waitFor();
+    await page.locator('#project-name').fill('Typed here, and it matters');
+    await hold.getByRole('button', { name: 'Reload to see the other copy' }).click();
+    await expect.poll(() => page.locator('#project-name').inputValue()).toBe('Named in the other tab');
+    expect((await keptCopies(page)).map((copy) => (JSON.parse(copy.text) as Project).name)).toContain('Typed here, and it matters');
+    await context.close();
+  });
+
+  it('offers to try the save again after it failed, and saves once storage has room', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('A')) } });
+    await page.waitForSelector('.cards');
+    expect(await fillStorage(page, 0)).toBe(true);
+    await page.locator('#project-name').fill('A, with a longer name that does not fit');
+    await settle(page);
+    expect(await page.locator('.save-state').innerText()).toContain('Cannot save here');
+    const again = page.getByRole('button', { name: 'Try to save again' });
+    await again.click();
+    await settle(page);
+    // Still no room: the statement stays, and so does the button.
+    expect(await page.locator('.save-state').innerText()).toContain('Cannot save here');
+    // Room again (the test lifts its capacity): one press saves, and the button goes.
+    await page.evaluate(() => window.localStorage.removeItem('test.capacity'));
+    await again.click();
+    await settle(page);
+    expect(await page.locator('.save-state').innerText()).toBe('Saved in this browser, on this computer');
+    expect((await stored(page))?.name).toBe('A, with a longer name that does not fit');
+    expect(await again.count()).toBe(0);
     await context.close();
   });
 
