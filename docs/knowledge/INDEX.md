@@ -11,6 +11,10 @@ How to read an entry: a source filed as a "search summary" means that only the s
 - **[Search summary: the futuristic screen look (film and game interfaces)](sources/futuristic-screen-look.md)** — Dark screens with one neon color, grids and technical read-outs, typewriter-style lettering, and glow; one source warns that the look must stay usable. Tags: look, futuristic, dark-page, palette. Ingested: 2026-11-13.
 - **[Search summary: the gothic look on the web](sources/gothic-web-look.md)** — Near-black pages with deep red and purple, ornate or blackletter headings, and a warning that dark pages fail when the text blurs into the background. Tags: look, gothic, dark-page, palette. Ingested: 2026-11-13.
 
+## Browser behavior and test methods
+
+- **[Measurements: browser storage across a reload, with and without a script that reads storage at the start of the load](sources/browser-storage-across-reload-measurements.md)** — A plain write and a full storage both survive a reload (0 losses in 410 trials); a test script that reads storage at the first instant of a load sometimes sees an empty storage and then destroys earlier writes (11 losses in 52 trials). Tags: browser-storage, test-method, measurement. Ingested: 2026-11-13.
+
 ## Earlier chapters (written before this index; not in the source format)
 
 Two chapters, each with a data file, came first. Research helpers (AI assistants given one research task each) wrote them on 2026-11-13; nobody has reviewed them. They summarize many sources at once, so they have no entry in the format above.
