@@ -68,7 +68,7 @@
    "mechanism": "Attention follows learned expectations about where useful content lives. Years of web use teach people that wide strips at the top, boxes in the right rail, and bright or animated blocks are advertising. They stop looking there, so content placed there is not read.",
    "effects": {
     "cognitiveLoad": "lowers — when essential content sits in the main flow, people find it without scanning promotional zones",
-    "satisfaction": "raises — the cited workload study found that advertisements raised perceived workload",
+    "satisfaction": "unknown — satisfaction was not measured; the cited study found higher perceived workload when banner advertisements were present",
     "perceivedIntuitiveness": "raises — content appears where people already look"
    },
    "designMoves": [
@@ -390,7 +390,7 @@
    "mechanism": "Re-entering information forces the person to recall or look up what they typed earlier. The W3C explanation notes that mental fatigue builds through a multi-step process, that recall adds to it, and that people then abandon the task or re-enter the data wrongly.",
    "effects": {
     "cognitiveLoad": "lowers — no recall of earlier answers and less typing",
-    "satisfaction": "raises — plausible, but not measured in the standard",
+    "satisfaction": "unknown — plausible, but the standard reports no measurement",
     "perceivedIntuitiveness": "raises — the product appears to remember the user"
    },
    "designMoves": [
@@ -656,7 +656,7 @@
    "mechanism": "The visual system organises a scene into groups early and automatically, before the person reads anything. Nearness is one grouping cue. A shared boundary or background (common region) is another, and experiments indicate that it is a separate cue that nearness does not explain.",
    "effects": {
     "cognitiveLoad": "lowers — the layout shows the structure, so the reader does not have to work it out",
-    "satisfaction": "unknown — an early display study linked well-formed groups to better subjective ratings; modern evidence is thin",
+    "satisfaction": "unknown — not measured in the cited perceptual studies",
     "perceivedIntuitiveness": "raises — related things look related"
    },
    "designMoves": [
@@ -936,7 +936,7 @@
    "id": "hick-hyman-limits",
    "topic": "motor-and-choice",
    "principle": "Hick-Hyman law and its limits",
-   "claim": "The time to choose among well-learned alternatives grows with the logarithm of their number: each doubling adds a constant amount. The law describes decisions among options the person already knows. It does not describe scanning an unfamiliar list, and it does not justify removing options.",
+   "claim": "The time to choose among well-learned alternatives grows with the logarithm of their number, so each doubling adds a constant amount. The law describes decisions among options the person already knows; it does not describe scanning an unfamiliar list, and it does not justify removing options.",
    "mechanism": "With practised alternatives, people narrow the choice in steps, so time grows slowly. With an unfamiliar list, people read item by item, so time grows roughly in a straight line with length. Because the growth for learned choices is logarithmic, one organised list of sixteen is faster than two successive choices among smaller lists that each add their own fixed cost.",
    "effects": {
     "cognitiveLoad": "mixed — predictable order lowers search effort; the number of options alone is a weak guide",
@@ -1096,7 +1096,7 @@
      "verified": "search-snippet"
     },
     {
-     "citation": "Google (web.dev). Defining the Core Web Vitals metrics thresholds.",
+     "citation": "Google Chrome team (2020, updated 2022). Defining the Core Web Vitals metrics thresholds. web.dev. (Author listed as bmcquade.)",
      "url": "https://raw.githubusercontent.com/GoogleChrome/web.dev/main/src/site/content/en/blog/defining-core-web-vitals-thresholds/index.md",
      "verified": "read-page"
     },
@@ -1123,7 +1123,7 @@
    "mechanism": "The browser cannot paint while long script tasks occupy its main thread, so a slow handler leaves the screen frozen after an input. INP observes the interactions during a visit and reports one of the slowest. Judging at the 75th percentile means three of four visits meet the target.",
    "effects": {
     "cognitiveLoad": "lowers — no frozen moments in which the user must wonder whether to repeat the input",
-    "satisfaction": "raises — by design of the metric; the thresholds were chosen partly from research on perceived delay",
+    "satisfaction": "raises — the thresholds draw on research in which shorter feedback delays were rated as higher quality",
     "perceivedIntuitiveness": "raises — the page reacts when touched"
    },
    "designMoves": [
@@ -1149,7 +1149,7 @@
    },
    "sources": [
     {
-     "citation": "Google (web.dev) (2023). Advancing Interaction to Next Paint (announcement that INP becomes a Core Web Vital in March 2024).",
+     "citation": "Google Chrome team (2023). Advancing Interaction to Next Paint. web.dev. (Authors listed as rviscomi and anniesullie; announces that INP becomes a Core Web Vital in March 2024.)",
      "url": "https://raw.githubusercontent.com/GoogleChrome/web.dev/main/src/site/content/en/blog/inp-cwv/index.md",
      "verified": "read-page"
     },
@@ -1159,7 +1159,7 @@
      "verified": "read-page"
     },
     {
-     "citation": "Google (web.dev). Defining the Core Web Vitals metrics thresholds.",
+     "citation": "Google Chrome team (2020, updated 2022). Defining the Core Web Vitals metrics thresholds. web.dev. (Author listed as bmcquade.)",
      "url": "https://raw.githubusercontent.com/GoogleChrome/web.dev/main/src/site/content/en/blog/defining-core-web-vitals-thresholds/index.md",
      "verified": "read-page"
     }
@@ -1244,7 +1244,7 @@
    "mechanism": "People adapt to the usual speed of a system and notice departures from it. Each added delay raises the chance that a person gives up or does less, so the cost accumulates smoothly and has no single cliff.",
    "effects": {
     "cognitiveLoad": "lowers — shorter waits mean fewer interruptions to the task",
-    "satisfaction": "raises — faster result pages drew more clicks in the cited log study; satisfaction itself was not measured there",
+    "satisfaction": "unknown — satisfaction was not measured; faster result pages drew more clicks in the cited log study",
     "perceivedIntuitiveness": "unknown — not measured"
    },
    "designMoves": [
@@ -1285,6 +1285,2700 @@
     "performance",
     "hero",
     "states"
+   ]
+  },
+  {
+   "id": "type-size-and-x-height",
+   "topic": "typography",
+   "principle": "Text size: stay above the critical print size, and measure by x-height",
+   "claim": "Reading speed stays at its maximum across a wide range of text sizes and falls sharply below a critical size. What counts is the visual size of the lowercase letters (the x-height) at the reader's viewing distance, not the nominal font size.",
+   "mechanism": "A letter must cover enough of the retina to be recognised fluently; below that critical print size each letter takes longer and errors rise. Visual size depends on physical size and viewing distance. Two typefaces set at the same pixel size can differ widely in x-height (the height of a lowercase x), so they differ in effective size.",
+   "effects": {
+    "cognitiveLoad": "lowers — letters are recognised without strain",
+    "satisfaction": "raises — readers rated larger text as more readable in the cited eye-tracking study, up to a point",
+    "perceivedIntuitiveness": "unknown — not measured"
+   },
+   "designMoves": [
+    "Set body text no smaller than the browser default of 16 CSS pixels (a convention, not a research threshold), and larger for long reading.",
+    "Compare typefaces by x-height and not by pixel size; when the typeface changes, adjust the size (the CSS property font-size-adjust can hold x-height constant).",
+    "Use relative units (rem) so that the reader's browser text-size setting takes effect.",
+    "Keep everything that must be read (hints, captions, legal text, error messages) above the body-text floor.",
+    "Make sure text can be enlarged to 200% without loss of content or function."
+   ],
+   "antiPatterns": [
+    "Small grey body text or form hints.",
+    "Pixel-locked font sizes that ignore the reader's browser setting.",
+    "Replacing a typeface with one of smaller x-height at the same pixel size."
+   ],
+   "howToCheck": {
+    "machine": "Read the computed font size of paragraphs, labels and hints and flag values below the Catalog floor. Render a lowercase x in each typeface and measure its height to report body x-height in CSS pixels. Zoom to 200% and assert no clipped or lost content.",
+    "human": "Read the page on a phone at arm's length and on a laptop at normal distance. Ask an older reader to do the same."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Legge and Bigelow (2011, Journal of Vision) review vision-science and typographic evidence; a secondary summary gives a critical print size near 0.2 degrees of visual angle for normal vision and a fluent range from about 0.2 to 2 degrees, measured as x-height. Rello, Pielot and Marcos (CHI 2016) found that objective and subjective readability and comprehension improved up to 18 points in a desktop eye-tracking study of article text, with ratings falling at 22 points (secondary summary; the sample size was not confirmed). WCAG 1.4.4 (Level AA) requires resizing to 200%."
+   },
+   "sources": [
+    {
+     "citation": "Legge, G. E., & Bigelow, C. A. (2011). Does print size matter for reading? A review of findings from vision science and typography. Journal of Vision, 11(5):8.",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3428264",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Rello, L., Pielot, M., & Marcos, M.-C. (2016). Make it big! The effect of font size and line spacing on online readability. Proceedings of CHI 2016, 3637-3648.",
+     "url": "https://dblp.org/rec/conf/chi/RelloPM16",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.4.4 Resize Text, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/resize-text.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "The 16-pixel floor is a convention. The Rello study used encyclopedia articles on a desktop screen; interface labels and dense tools may differ. Larger text shows less per screen, so size trades against density. Readers with low vision have a much larger critical size, which is why user-controlled scaling matters more than any fixed number.",
+   "appliesTo": [
+    "size-scale",
+    "typeface",
+    "mobile",
+    "density"
+   ]
+  },
+  {
+   "id": "line-length",
+   "topic": "typography",
+   "principle": "Line length: moderate lines, capped near 80 characters",
+   "claim": "For reading on screens, moderate line lengths of roughly 50 to 80 characters are a safe default. Longer lines can be read slightly faster, but comprehension and preference favour moderate lengths, and very short lines slow reading.",
+   "mechanism": "At the end of each line the eye sweeps back to the start of the next. Long lines make that sweep less accurate, so readers land on the wrong line. Very short lines break phrases apart and multiply the sweeps.",
+   "effects": {
+    "cognitiveLoad": "lowers — fewer lost places and re-readings",
+    "satisfaction": "mixed — adults preferred medium lengths in one study and showed no reliable preference in another",
+    "perceivedIntuitiveness": "unknown — not measured"
+   },
+   "designMoves": [
+    "Cap text blocks at 80 characters per line, the limit in WCAG 1.4.8 (Level AAA); for long reading aim for about 55 to 75.",
+    "Set the cap on the text column (for example with a max-width in ch units), not on the page, so that wide screens do not stretch paragraphs.",
+    "Avoid very short lines for running text; about 35 characters or fewer were the slowest in the cited studies.",
+    "On phones, accept shorter lines and do not shrink the type to fit more characters.",
+    "Apply the cap to paragraphs, not to tables, code or data views."
+   ],
+   "antiPatterns": [
+    "Paragraphs that span a full desktop monitor.",
+    "Narrow multi-column layouts for long text.",
+    "Reducing font size to reach a character count."
+   ],
+   "howToCheck": {
+    "machine": "For each paragraph at each breakpoint, count the rendered line boxes and divide the character count by the number of lines. Flag a median above 80 or below the Catalog floor. Check that text containers set a max-width.",
+    "human": "Read a long paragraph on the widest supported screen and note any return to the wrong line."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "The studies are small and partly conflict. Dyson and Haselgrove (2001): 55 characters per line gave the best comprehension and was read faster than short lines. Shaikh (2005, 20 participants): 95 characters per line was read fastest, with no difference in comprehension. A related study found 100-character lines faster than 25-character lines with constant comprehension. Bernard and colleagues (2003): adults preferred about 76 characters and children about 45 over 132. The WCAG limit of 80 is a formal AAA criterion. The typographers' range of 45 to 75 (Bringhurst) is craft tradition, recalled from memory."
+   },
+   "sources": [
+    {
+     "citation": "Dyson, M. C., & Haselgrove, M. (2001). The influence of reading speed and line length on the effectiveness of reading from screen. International Journal of Human-Computer Studies, 54(4), 585-612.",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Shaikh, A. D. (2005). The effects of line length on reading online news. Usability News, 7(2).",
+     "url": "https://portfolio.erau.edu/en/publications/the-effects-of-line-length-on-reading-performance-of-online-news-/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.4.8 Visual Presentation, Level AAA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/visual-presentation.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Speed and preference point in different directions, so 'optimal line length' depends on the goal. Most studies date from the early 2000s and used desktop monitors. For Chinese, Japanese and Korean text the WCAG limit is 40 characters.",
+   "appliesTo": [
+    "content-width",
+    "size-scale",
+    "sections",
+    "mobile"
+   ]
+  },
+  {
+   "id": "spacing-and-justification",
+   "topic": "typography",
+   "principle": "Line, letter and word spacing; avoid full justification",
+   "claim": "Body text needs open line spacing, must stay usable when readers increase line, letter and word spacing, and should not be fully justified on the web. Wider letter spacing helps some readers with dyslexia or low vision; for most readers default letter spacing is adequate.",
+   "mechanism": "Letters and lines that sit too close interfere with one another's recognition (crowding), most strongly outside the centre of gaze and for some readers with dyslexia or low vision. Space between lines helps the eye find the next line. Browser justification stretches word gaps unevenly, which opens 'rivers' of white through a paragraph and weakens each line as a unit.",
+   "effects": {
+    "cognitiveLoad": "lowers — easier line tracking and letter recognition for the readers who need it",
+    "satisfaction": "mixed — participants preferred the look of justified text although they performed better with left-aligned text",
+    "perceivedIntuitiveness": "unknown — not measured"
+   },
+   "designMoves": [
+    "Set body line height near 1.5 times the font size; use tighter line height only for large headings.",
+    "Build containers that grow with their text, so that the WCAG override values (line height 1.5, paragraph spacing 2, letter spacing 0.12 and word spacing 0.16 times the font size) cause no clipping or overlap.",
+    "Do not apply negative letter spacing to body text.",
+    "Left-align running text in left-to-right languages; do not use justified alignment.",
+    "Make the space between paragraphs larger than the space between lines."
+   ],
+   "antiPatterns": [
+    "Fixed-height cards and buttons that clip enlarged or respaced text.",
+    "Justified paragraphs with uneven word gaps.",
+    "Body text with a line height near 1.2.",
+    "Tight tracking on small text."
+   ],
+   "howToCheck": {
+    "machine": "Compute line height divided by font size for paragraphs and flag values below the Catalog setting. Inject the four WCAG 1.4.12 override values and detect clipped or overlapping text. Flag text-align: justify and negative letter-spacing on body text.",
+    "human": "Apply a text-spacing bookmarklet and read each page; nothing should be cut off or overlap."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 1.4.12 Text Spacing (Level AA) requires that content survive the four overrides; WCAG 1.4.8 (Level AAA) asks for at least space-and-a-half line spacing and no justification. Research is narrower: Ling and van Schaik (2007) found better accuracy and speed in visual search with wider line spacing and with left-aligned text; Rello and colleagues (2016) found little effect of line spacing except at the extremes; Zorzi and colleagues (2012, 74 children with dyslexia) found that extra-large letter spacing improved reading at once; the W3C explanation cites McLeish (2007) for readers with low vision. A study of normally sighted adults (Chung 2002, listed by W3C; its result is recalled from memory) found no gain beyond standard spacing."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.4.12 Text Spacing, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/21/text-spacing.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). Understanding Success Criterion 1.4.12: Text Spacing (lists McLeish 2007, Chung 2002 and 2012, Zorzi et al. 2012).",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/21/text-spacing.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). Understanding Success Criterion 1.4.8: Visual Presentation.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/20/visual-presentation.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Ling, J., & van Schaik, P. (2007). The influence of line spacing and text alignment on visual search of web pages. Displays, 28(2), 60-67.",
+     "url": "https://research.tees.ac.uk/en/publications/the-influence-of-line-spacing-and-text-alignment-on-visual-search/",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Zorzi, M., et al. (2012). Extra-large letter spacing improves reading in dyslexia. Proceedings of the National Academy of Sciences, 109(28), 11455-11459.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/22665803/",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "WCAG 1.4.12 does not require authors to use the override values; it requires that nothing breaks when a reader applies them. Print typesetters justify successfully with hyphenation and fine control that browsers apply unevenly. The spacing benefit for dyslexia was shown in children with spacing well above the default.",
+   "appliesTo": [
+    "size-scale",
+    "typeface",
+    "content-width",
+    "density",
+    "heading-treatment"
+   ]
+  },
+  {
+   "id": "all-caps",
+   "topic": "typography",
+   "principle": "All capitals: fine for short labels, slower for running text",
+   "claim": "Continuous text in capitals reads somewhat more slowly than mixed-case text and takes more space, while short capitalised labels are not a problem and capitals can even be more legible at very small sizes. The popular explanation that people read by 'word shape' is not supported.",
+   "mechanism": "Readers recognise words through their letters, processed in parallel, not through the outline of the word. Capitals are bigger, which helps when size is the limit, but people have far less practice with all-capital text, and capitals put fewer words within one glance.",
+   "effects": {
+    "cognitiveLoad": "lowers — sentence case keeps long text at normal reading speed",
+    "satisfaction": "unknown — not measured in the cited sources",
+    "perceivedIntuitiveness": "unknown — not measured"
+   },
+   "designMoves": [
+    "Use sentence case for anything longer than a few words.",
+    "Keep capitals for short labels such as tags, overlines and small buttons, and add a little letter spacing (typographic convention).",
+    "Never set paragraphs, error messages or legal text in capitals.",
+    "Produce capitals with CSS text-transform and keep the source text in normal case (practitioner convention)."
+   ],
+   "antiPatterns": [
+    "Paragraphs or long headings in capitals.",
+    "Warnings in capitals, which read as shouting.",
+    "Capitals justified by the claim that they are 'more readable', or banned by the claim that 'word shape' is lost."
+   ],
+   "howToCheck": {
+    "machine": "Find text with text-transform: uppercase or text typed in capitals. Flag instances longer than a Catalog-set number of words and report their letter spacing.",
+    "human": "Read each capitalised string aloud; if it is a sentence, change it to sentence case."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "The evidence is mixed and partly old. Larson (2004), a reading psychologist at Microsoft, reviews word-recognition research and concludes that the word-shape model is no longer viable; he puts the lower-case speed advantage at 5 to 10%. Secondary sources cite Tinker (1955) for about 13% slower reading of capitals in print. Arditi and Cho (2007, Vision Research) found capitals more legible than other case styles when size is the limit, especially for readers with low vision. No modern large-sample screen study was found."
+   },
+   "sources": [
+    {
+     "citation": "Larson, K. (2004). The science of word recognition. Microsoft Typography.",
+     "url": "https://docs.microsoft.com/en-us/typography/develop/word-recognition",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Arditi, A., & Cho, J. (2007). Letter case and text legibility in normal and low vision. Vision Research, 47(19), 2499-2505.",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2016788",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "The slowdown estimates come from mid-twentieth-century print studies with long reading sessions. Practice matters: people who often read capitals read them well.",
+   "appliesTo": [
+    "heading-treatment",
+    "typeface",
+    "copy",
+    "states"
+   ]
+  },
+  {
+   "id": "light-vs-dark-polarity",
+   "topic": "typography",
+   "principle": "Light versus dark backgrounds",
+   "claim": "For reading and proofreading, dark text on a light background gives better performance than light text on a dark background for people with normal vision, young and old. The claim that dark mode reduces eye strain has little empirical support.",
+   "mechanism": "A bright background makes the pupil smaller. A smaller pupil produces a sharper image on the retina, which helps with fine detail such as small text. The advantage is attributed to the higher luminance of the light display.",
+   "effects": {
+    "cognitiveLoad": "lowers — a light background makes small text slightly easier to resolve",
+    "satisfaction": "mixed — many people prefer dark themes, and preference is a valid reason to offer one",
+    "perceivedIntuitiveness": "unknown — not measured; polarity should not change how an interface is understood"
+   },
+   "designMoves": [
+    "Use a light theme as the default for reading-heavy products and for small text.",
+    "Offer a dark theme as a user choice and follow the operating-system setting (the prefers-color-scheme media query).",
+    "Check contrast separately in each theme.",
+    "Do not claim in product copy that the dark theme protects the eyes."
+   ],
+   "antiPatterns": [
+    "A dark-only product for long-form reading.",
+    "A dark theme produced by inverting colours without rechecking contrast.",
+    "Small, thin, light text on a dark background."
+   ],
+   "howToCheck": {
+    "machine": "Detect polarity from background and text luminance. If the Prescription asks for two themes, emulate prefers-color-scheme light and dark and run the contrast checks in both.",
+    "human": "Read a long passage in each theme in a bright room and in a dim room."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Piepenbrock, Mayr, Mund and Buchner (2013, Ergonomics) measured visual acuity and proofreading in younger and older adults, found an advantage for dark-on-light in both groups, and recommend it for all ages. Piepenbrock's 2014 dissertation ties the effect to pupil size and reports that it is strongest for fine detail. Earlier work from the same laboratory (Buchner and Baumgartner 2007, recalled from memory) agrees. On eye strain, the search found only statements that empirical research is limited. Dark themes do save energy on OLED screens, but mostly at high brightness (secondary source, not verified)."
+   },
+   "sources": [
+    {
+     "citation": "Piepenbrock, C., Mayr, S., Mund, I., & Buchner, A. (2013). Positive display polarity is advantageous for both younger and older adults. Ergonomics, 56(7), 1116-1124.",
+     "url": null,
+     "verified": "abstract"
+    },
+    {
+     "citation": "Piepenbrock, C. (2014). Doctoral dissertation on display polarity, pupil size and legibility, Heinrich Heine University Dusseldorf.",
+     "url": "https://docserv.uni-duesseldorf.de/servlets/DerivateServlet/Derivate-31413",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Buchner, A., & Baumgartner, N. (2007). Text-background polarity affects performance irrespective of ambient illumination and colour contrast. Ergonomics, 50(7), 1036-1063.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "Some readers with low vision or light sensitivity read better on dark backgrounds, so a choice serves accessibility. The measured advantage is modest and comes from laboratory tasks with small text. In dark surroundings a bright screen causes glare, which is a comfort reason for a dark theme and is separate from legibility.",
+   "appliesTo": [
+    "theme",
+    "neutral",
+    "color-strategy",
+    "typeface"
+   ]
+  },
+  {
+   "id": "no-single-best-font",
+   "topic": "typography",
+   "principle": "No typeface is the most readable for everyone",
+   "claim": "Serifs make no meaningful difference to legibility, and in a large study each reader's fastest typeface was different and was not reliably the one they preferred.",
+   "mechanism": "Legibility depends on letter size, spacing, stroke weight and how distinct similar letters are, and readers differ in eyesight and familiarity. Serifs add a little space between letters, which can explain the small differences that some studies report.",
+   "effects": {
+    "cognitiveLoad": "mixed — a well-spaced typeface with distinct letters lowers effort; the serif question does not matter",
+    "satisfaction": "mixed — preference and speed did not coincide",
+    "perceivedIntuitiveness": "unknown — not measured; typeface choice should not change how an interface is understood"
+   },
+   "designMoves": [
+    "Choose body typefaces for generous x-height, open letter shapes, even spacing and letters that cannot be confused (capital I, lowercase l and the digit 1; capital O and zero).",
+    "Do not decide between serif and sans-serif on legibility grounds.",
+    "Use regular or heavier weights for body text.",
+    "Use relative units and avoid forcing font declarations, so that readers' own font settings work.",
+    "Where reading is the product, let the reader choose among several typefaces."
+   ],
+   "antiPatterns": [
+    "Marketing a typeface as 'scientifically the most readable'.",
+    "Light or hairline weights for body text.",
+    "Display or condensed faces for paragraphs."
+   ],
+   "howToCheck": {
+    "machine": "Report body font family, weight (flag below 400) and x-height ratio. Render the easily confused characters in the interface typeface and compare the bitmaps to flag near-identical glyphs. Check that sizes use relative units.",
+    "human": "Have several people of different ages read a real page of content in the candidate typefaces."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Arditi and Cho (2005, Vision Research) compared typefaces that differed only in serifs and found no meaningful legibility difference; a small serif effect was attributed to added letter spacing. Wallace and colleagues (2022, ACM Transactions on Computer-Human Interaction) tested several hundred crowdsourced readers: reading speed was 35% higher in each person's fastest font than in their slowest, with no loss of comprehension, and preference did not reliably predict speed."
+   },
+   "sources": [
+    {
+     "citation": "Arditi, A., & Cho, J. (2005). Serifs and font legibility. Vision Research, 45(23), 2926-2933.",
+     "url": null,
+     "verified": "abstract"
+    },
+    {
+     "citation": "Wallace, S., Bylinskii, Z., Dobres, J., Kerr, B., Berlow, S., Treitman, R., Kumawat, N., Arpin, K., Miller, D. B., Huang, J., & Sawyer, B. D. (2022). Towards individuated reading experiences: Different fonts increase reading speed for different individuals. ACM Transactions on Computer-Human Interaction, 29(4), Article 38.",
+     "url": "https://research.adobe.com/publication/towards-individuated-reading-experiences-different-fonts-increase-reading-speed-for-different-individuals",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "The 35% figure is the spread between each person's best and worst font among those tested, not the gain from leaving a default. All tested fonts were common, well-made text faces; a poorly made font can still be worse for everyone.",
+   "appliesTo": [
+    "typeface",
+    "size-scale",
+    "theme"
+   ]
+  },
+  {
+   "id": "dyslexia-fonts",
+   "topic": "typography",
+   "principle": "Dyslexia fonts do not help; spacing sometimes does",
+   "claim": "Typefaces designed for dyslexia have not improved reading speed or accuracy in controlled studies. What helps some readers with dyslexia is wider spacing between letters, which works in ordinary typefaces.",
+   "mechanism": "The special typefaces change letter shapes. Many readers with dyslexia are unusually affected by crowding, the interference between neighbouring letters, and crowding depends on spacing and not on shape.",
+   "effects": {
+    "cognitiveLoad": "none — the fonts themselves show no measured benefit; spacing options lower effort for some readers",
+    "satisfaction": "mixed — some readers like these fonts even without a measured gain",
+    "perceivedIntuitiveness": "unknown — not measured"
+   },
+   "designMoves": [
+    "Do not present a dyslexia font as an accessibility feature.",
+    "Use a clear, familiar typeface with adequate default spacing.",
+    "Make layouts survive user changes to spacing and typeface (see spacing-and-justification).",
+    "Where reading is the product, offer spacing and typeface controls and let readers choose."
+   ],
+   "antiPatterns": [
+    "A 'dyslexia-friendly' toggle that only swaps the font.",
+    "Layouts that break when a reader increases letter spacing.",
+    "Claims that a font 'treats' or 'solves' dyslexia."
+   ],
+   "howToCheck": {
+    "machine": "Run the WCAG 1.4.12 text-spacing override test. Check that a user stylesheet can replace the font family (no forced inline font declarations).",
+    "human": "If a font toggle exists, ask what evidence supports it."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Kuster, van Weerdenburg, Gompel and Bosman (2018, Annals of Dyslexia) ran two experiments; the second included 102 children with dyslexia and 45 without, and the Dyslexie font neither helped nor hindered. Two further studies are recalled from memory and were not re-verified: Wery and Diliberto (2017) found no gain from OpenDyslexic, and Marinus and colleagues (2016) found that an apparent Dyslexie benefit vanished when spacing was matched. Zorzi and colleagues (2012) found that extra-large letter spacing improved reading in 74 children with dyslexia. The font developer's own site reports benefits; the independent studies do not."
+   },
+   "sources": [
+    {
+     "citation": "Kuster, S. M., van Weerdenburg, M., Gompel, M., & Bosman, A. M. T. (2018). Dyslexie font does not benefit reading in children with or without dyslexia. Annals of Dyslexia, 68(1), 25-42.",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5934461",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Zorzi, M., et al. (2012). Extra-large letter spacing improves reading in dyslexia. Proceedings of the National Academy of Sciences, 109(28), 11455-11459.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/22665803/",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Wery, J. J., & Diliberto, J. A. (2017). The effect of a specialized dyslexia font, OpenDyslexic, on reading rate and accuracy. Annals of Dyslexia, 67(2), 114-127.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Marinus, E., Mostard, M., Segers, E., Schubert, T. M., Madelaine, A., & Wheldall, K. (2016). A special font for people with dyslexia: Does it work and, if so, why? Dyslexia, 22(3), 233-244.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "Most studies tested children. A reader who likes a font may read more willingly, which has value even without a speed gain. The spacing benefit used spacing far above the default and has not been found in every later study (recalled from memory).",
+   "appliesTo": [
+    "typeface",
+    "size-scale",
+    "theme"
+   ]
+  },
+  {
+   "id": "personality-vs-legibility",
+   "topic": "typography",
+   "principle": "Typeface personality is real; hard-to-read type does not aid memory",
+   "claim": "People assign consistent personalities to typefaces, so type choice sets tone. Making text harder to read does not improve memory or learning, so body text should never trade legibility for tone.",
+   "mechanism": "Through exposure, people link letterform features with traits such as formal, friendly or technical. The 'disfluency' idea held that hard-to-read type forces deeper processing; pooled evidence shows no learning benefit.",
+   "effects": {
+    "cognitiveLoad": "lowers — keeping body text plain avoids decoding effort",
+    "satisfaction": "raises — tone that matches the content is judged as more appropriate (survey evidence)",
+    "perceivedIntuitiveness": "unknown — not measured"
+   },
+   "designMoves": [
+    "Choose display type for tone and body type for legibility.",
+    "Confine expressive typefaces to short, large text such as headings and hero lines.",
+    "Set interface text, forms, tables and long reading in a plain, legible face.",
+    "Check the tone with a few people from the audience: ask them to describe the brand from a specimen.",
+    "Do not use hard-to-read styling to make people 'read carefully'."
+   ],
+   "antiPatterns": [
+    "A script or display face for paragraphs or form fields.",
+    "Thin, low-contrast text chosen for elegance.",
+    "A 'memory-boosting' font."
+   ],
+   "howToCheck": {
+    "machine": "Report every font family and where it is used. Flag families that the Catalog classes as display or script when they are applied to paragraphs, inputs or table cells.",
+    "human": "Show the type specimen to five people and collect three adjectives from each; compare with the intended tone."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "meta-analysis",
+    "strengthNote": "Disfluency: Xie, Zhou and Liu (2018) meta-analysed 39 experiments from 25 articles (3,135 participants) and found a null effect of hard-to-read text on learning; Taylor and colleagues (2020, four experiments) and Geller and colleagues (2020, three preregistered experiments) found equal or worse memory with the Sans Forgetica font. Personality: Shaikh, Chaparro and Fox (2006) surveyed 561 people who rated 20 fonts on 15 adjective pairs and found that ratings followed the design family; this was a laboratory newsletter survey, not a journal article. Brumberger (2003) is the standard academic reference; only its existence was confirmed."
+   },
+   "sources": [
+    {
+     "citation": "Xie, H., Zhou, Z., & Liu, Q. (2018). Null effects of perceptual disfluency on learning outcomes in a text-based educational context: A meta-analysis. Educational Psychology Review, 30, 745-771.",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Taylor, A., Sanson, M., Burnell, R., Wade, K. A., & Garry, M. (2020). Disfluent difficulties are not desirable difficulties: The (lack of) effect of Sans Forgetica on memory. Memory, 28(7), 850-857.",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Shaikh, A. D., Chaparro, B. S., & Fox, D. (2006). Perception of fonts: Perceived personality traits and uses. Usability News, 8(1).",
+     "url": "https://portfolio.erau.edu/en/publications/perception-of-fonts-perceived-personality-traits-and-uses/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Brumberger, E. R. (2003). The rhetoric of typography: The persona of typeface and text. Technical Communication, 50(2), 206-223.",
+     "url": null,
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "The personality ratings come from one country and one set of fonts; associations vary with culture and fashion. The first report of a disfluency benefit (2011) did not hold up in later work.",
+   "appliesTo": [
+    "typeface",
+    "heading-treatment",
+    "signature",
+    "hero"
+   ]
+  },
+  {
+   "id": "tabular-numerals",
+   "topic": "typography",
+   "principle": "Align numbers and use equal-width digits in tables",
+   "claim": "Numbers that people compare down a column are easier to compare when every digit has the same width and the numbers line up on the right or on the decimal point. This is long-standing typographic and table-design practice; no controlled study was found.",
+   "mechanism": "With equal-width (tabular) digits, digits of the same place value stack in a vertical line, so size can be read from the length and position of the number. Proportional digits and centred numbers break that line (see alignment-continuity).",
+   "effects": {
+    "cognitiveLoad": "lowers — magnitude can be compared by position, without reading each number (argument from practice, not measured)",
+    "satisfaction": "unknown — not measured",
+    "perceivedIntuitiveness": "raises — columns look ordered (argument from practice)"
+   },
+   "designMoves": [
+    "Apply font-variant-numeric: tabular-nums to tables, price lists, timers and counters that update.",
+    "Right-align columns of quantities and give each column a consistent number of decimal places.",
+    "Left-align columns of text and align each header with its data.",
+    "Keep proportional digits for numbers inside running text.",
+    "Left-align identifiers such as phone numbers and reference codes, because they are not quantities."
+   ],
+   "antiPatterns": [
+    "Centred numeric columns.",
+    "Mixed decimal places in one column.",
+    "A counter or timer that jitters because digit widths differ."
+   ],
+   "howToCheck": {
+    "machine": "For table cells whose content parses as a number, assert that font-variant-numeric includes tabular-nums or that the font has fixed-width digits, that alignment is right or end, and that decimal places are consistent within the column.",
+    "human": "Scan a numeric column and check that the largest values can be picked out by length alone."
+   },
+   "evidence": {
+    "grade": "C",
+    "kind": "expert-opinion",
+    "strengthNote": "Craft guidance from typography and table-design authors (Bringhurst; Few), cited from memory and not verified in this search. No experiment that isolates tabular digits or right alignment was found. The supporting argument borrows from the alignment principle."
+   },
+   "sources": [
+    {
+     "citation": "Bringhurst, R. (2012). The Elements of Typographic Style (4th ed.). Hartley & Marks.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Few, S. (2012). Show Me the Numbers: Designing Tables and Graphs to Enlighten (2nd ed.). Analytics Press.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "Some typefaces have tabular digits by default and some have none. Right alignment and decimal alignment are equivalent only when decimal places are consistent.",
+   "appliesTo": [
+    "numerals",
+    "tables",
+    "typeface",
+    "density"
+   ]
+  },
+  {
+   "id": "text-contrast",
+   "topic": "color",
+   "principle": "Text contrast: at least 4.5 to 1",
+   "claim": "Text needs a contrast ratio of at least 4.5 to 1 against its background, or 3 to 1 for large text (WCAG 2.2, Level AA). Low-contrast text is the most common detectable accessibility failure on the web.",
+   "mechanism": "Reading depends on the light-dark difference between letters and background. Sensitivity to that difference falls with age and with many eye conditions. The W3C derived 4.5 from a baseline of 3 to 1 for normal vision, multiplied by 1.5 to cover the contrast-sensitivity loss associated with 20/40 acuity, which it describes as typical at about age 80.",
+   "effects": {
+    "cognitiveLoad": "lowers — letters are resolved without strain, most of all for older readers and in glare",
+    "satisfaction": "unknown — the standard reports no satisfaction data",
+    "perceivedIntuitiveness": "unknown — not measured; contrast decides whether text can be read, not how the interface is understood"
+   },
+   "designMoves": [
+    "Give body text at least 4.5 to 1 contrast, and large text (18 point, or 14 point bold; about 24 and 18.5 CSS pixels) at least 3 to 1.",
+    "Apply the same floor to secondary text, placeholder text, links and text inside buttons.",
+    "For text on images or gradients, test the worst point under the text, or put a solid surface behind it.",
+    "Aim for 7 to 1 (Level AAA) for long reading.",
+    "Check every theme separately."
+   ],
+   "antiPatterns": [
+    "Light grey text on white for hints, captions or timestamps.",
+    "White text on a light brand colour.",
+    "Text placed directly on a photograph.",
+    "Judging contrast by eye on a bright designer monitor."
+   ],
+   "howToCheck": {
+    "machine": "Compute the WCAG 2.x contrast ratio for every text node against its effective background (axe-core does this for solid backgrounds). For text over images or gradients, sample the pixels under the text and use the worst value. Include placeholder and link text. Repeat in each theme.",
+    "human": "Read the page outdoors on a phone, and confirm the pairs that a script cannot resolve (text over images)."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 Success Criterion 1.4.3 and its explanation were read from the W3C source repository. The 3 to 1 baseline comes from older display standards (ISO 9241-3 and ANSI/HFES 100-1988); 7 to 1 at Level AAA is tied to about 20/80 acuity. Prevalence: the WebAIM Million 2026 analysis of one million home pages found low-contrast text on 83.9% of them, up from 79.1% in 2025 (figures from secondary reports of the study)."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.4.3 Contrast (Minimum), Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/contrast-minimum.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). Understanding Success Criterion 1.4.3: Contrast (Minimum).",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/20/contrast-minimum.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "WebAIM (2026). The WebAIM Million: The 2026 report on the accessibility of the top 1,000,000 home pages.",
+     "url": "https://webaim.org/projects/million/",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "The criterion exempts logos, decorative text and inactive controls. The WCAG 2 formula is a simple model: it ignores font weight and size beyond the large-text rule and is known to misjudge some dark colour pairs, so a passing pair can still be hard to read in a thin typeface. Passing an automated check covers only what the script could resolve.",
+   "appliesTo": [
+    "neutral",
+    "accent",
+    "color-strategy",
+    "theme",
+    "typeface",
+    "states",
+    "hero"
+   ]
+  },
+  {
+   "id": "non-text-contrast-and-focus",
+   "topic": "color",
+   "principle": "Control boundaries, state indicators and focus must be visible",
+   "claim": "The visual parts needed to identify a control and its state, and the parts of a graphic needed to understand it, need at least 3 to 1 contrast against adjacent colours (WCAG 1.4.11, Level AA). Keyboard focus must be visible (2.4.7, AA) and must not be completely hidden by other content (2.4.11, AA).",
+   "mechanism": "A control that cannot be seen cannot be found. Faint boundaries vanish for people with low vision and for everyone in glare. People who use a keyboard track their position by the focus indicator, as mouse users track the pointer.",
+   "effects": {
+    "cognitiveLoad": "lowers — controls and the current position are found without searching",
+    "satisfaction": "unknown — the standard reports no satisfaction data",
+    "perceivedIntuitiveness": "raises — fields look like fields and the current position is clear"
+   },
+   "designMoves": [
+    "Give input borders, icon-only buttons and state marks (checked, selected, on or off) at least 3 to 1 contrast against what surrounds them.",
+    "Show a clear focus indicator on every interactive element; a ring 2 CSS pixels thick with a 3 to 1 change is the Level AAA benchmark (2.4.13).",
+    "Never remove the focus outline without providing a replacement.",
+    "Keep sticky headers, footers and banners from covering the focused element.",
+    "Give chart lines, bars and segments at least 3 to 1 contrast against the background."
+   ],
+   "antiPatterns": [
+    "Pale grey input borders on a white page.",
+    "The declaration outline: none with no replacement focus style.",
+    "A toggle whose on and off states differ only by a slight tint.",
+    "A cookie banner or sticky footer that covers the focused field."
+   ],
+   "howToCheck": {
+    "machine": "Compute the contrast of control boundaries, icons and state indicators against adjacent colours and flag values under 3 to 1. Tab through every focusable element; compare screenshots of the focused and unfocused states, assert a visible difference, and report its thickness and contrast change. Assert that the focused element is not completely covered by another element.",
+    "human": "Complete the main task with the keyboard alone and note any moment at which the current position is lost."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 Success Criteria 1.4.11, 2.4.7, 2.4.11 and 2.4.13 were read from the W3C source repository. The first three are Level AA; 2.4.13 Focus Appearance is Level AAA. The standard states requirements and reports no effect sizes."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.4.11 Non-text Contrast, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/21/non-text-contrast.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.4.7 Focus Visible, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/focus-visible.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.4.11 Focus Not Obscured (Minimum), Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/22/focus-not-obscured-minimum.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.4.13 Focus Appearance, Level AAA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/22/focus-appearance.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Criterion 1.4.11 exempts inactive controls and controls whose appearance the browser sets without author changes. It covers only the parts needed to identify the control; decorative edges are outside it.",
+   "appliesTo": [
+    "states",
+    "border-weight",
+    "forms",
+    "neutral",
+    "accent",
+    "nav",
+    "theme"
+   ]
+  },
+  {
+   "id": "color-not-alone",
+   "topic": "color",
+   "principle": "Never use colour as the only signal",
+   "claim": "Colour must not be the only way to convey information, indicate an action or distinguish an element (WCAG 1.4.1, Level A). About 8% of men and about 0.4% of women of European descent have red-green colour-vision deficiency.",
+   "mechanism": "In the common forms of colour-vision deficiency one of the three cone types is missing or altered, so reds and greens look alike in hue while lightness differences stay visible. Older people and people with partial sight often see colour less well, and glare or a monochrome display removes it for everyone.",
+   "effects": {
+    "cognitiveLoad": "lowers — a second cue removes guessing for people who cannot use the colour",
+    "satisfaction": "unknown — the standard reports no satisfaction data",
+    "perceivedIntuitiveness": "raises — status and meaning are readable without relying on colour memory"
+   },
+   "designMoves": [
+    "Pair colour with text, an icon, a pattern or a position for status, errors, required fields and chart series.",
+    "Mark links inside text with an underline or another non-colour cue.",
+    "Show an error with an icon and a text message, not only a red border.",
+    "Label chart series directly, and vary line style or marker shape.",
+    "Choose category colours that also differ in lightness."
+   ],
+   "antiPatterns": [
+    "Red and green status dots with no label.",
+    "Required fields marked only by a coloured label.",
+    "Links that differ from the surrounding text only in hue.",
+    "A chart whose series can be told apart only through a colour legend."
+   ],
+   "howToCheck": {
+    "machine": "Render the page in greyscale and under simulated protanopia, deuteranopia and tritanopia. For each pair of states or categories, check for a non-colour difference (text, icon, shape, underline) or a lightness contrast of at least 3 to 1 between them. Flag links in body text without an underline or other cue, and error states shown by colour alone.",
+    "human": "View the page in greyscale and try to read every status and chart."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 Success Criterion 1.4.1 and its explanation were read from the W3C source repository; the explanation gives no prevalence figures. Prevalence comes from Birch (2012), a review in the Journal of the Optical Society of America A, as reported by secondary sources: about 8% of men and 0.4% of women of European descent, and about 4 to 6.5% of men of Chinese and Japanese ethnicity. Another review gives 0.5% for women."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.4.1 Use of Color, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/use-of-color.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). Understanding Success Criterion 1.4.1: Use of Color.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/20/use-of-color.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Birch, J. (2012). Worldwide prevalence of red-green color deficiency. Journal of the Optical Society of America A, 29(3), 313-320.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/22472762/",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "The criterion does not discourage colour; it requires a second cue. A lightness difference of at least 3 to 1 between two colours counts as a second cue under the W3C explanation, but that is hard to combine with 4.5 to 1 text contrast, so a non-colour cue is safer. Colour-only distinction between visited and unvisited links is not a failure.",
+   "appliesTo": [
+    "accent",
+    "color-strategy",
+    "states",
+    "forms",
+    "tables",
+    "emphasis"
+   ]
+  },
+  {
+   "id": "lightness-does-the-work",
+   "topic": "color",
+   "principle": "Lightness carries legibility; hue and chroma carry meaning and emphasis",
+   "claim": "Legibility comes from lightness difference; hue difference alone is unreliable. The 'lightness' number in HSL colour notation is not perceived lightness, so colour ramps should be built on a perceptual lightness scale and then verified with the contrast formula.",
+   "mechanism": "Fine detail such as letter shapes is resolved mainly through the light-dark channel of vision. In experiments, adding colour contrast to luminance contrast gave no extra reading speed, and readers with low vision read better with luminance contrast. HSL lightness is a calculation on screen values: a pure yellow and a pure blue with the same HSL lightness look very different in brightness.",
+   "effects": {
+    "cognitiveLoad": "lowers — text and symbols stay legible for every viewer and on every screen",
+    "satisfaction": "unknown — not measured in the cited sources",
+    "perceivedIntuitiveness": "raises — evenly stepped ramps make hierarchy consistent across hues"
+   },
+   "designMoves": [
+    "Make text differ from its background in lightness, whatever the two hues are.",
+    "Check each screen in greyscale; everything that must be read should survive.",
+    "Build tints and shades on a perceptual lightness axis (OKLCH or CIELAB) so that the same step looks equally light in every hue.",
+    "Use hue to name categories and states, and chroma (colourfulness) in small amounts for emphasis.",
+    "Verify every final text pair with the WCAG contrast ratio."
+   ],
+   "antiPatterns": [
+    "Red text on a green background of similar lightness.",
+    "A palette built from fixed HSL lightness steps, in which the yellow step and the blue step differ greatly in brightness.",
+    "Saturated blue text on black."
+   ],
+   "howToCheck": {
+    "machine": "Convert every colour token to OKLCH. Check that each ramp is monotonic and roughly even in lightness and that the same step has similar lightness across hues. Render the page in greyscale and repeat the text-contrast check. Flag text and background pairs that differ mainly in hue.",
+    "human": "Print or view the palette in greyscale and confirm that the step order is still visible."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Legge, Parish, Luebker and Wurm (1990, Journal of the Optical Society of America A) tested 8 normally sighted and 10 low-vision readers: high colour contrast alone can support fast reading in normal vision, combining it with luminance contrast adds nothing, and all low-vision readers read large text better with luminance contrast. The W3C explanation of the contrast criterion states that hue and saturation have minimal or no effect on legibility as assessed by reading performance. The statement that OKLCH lightness is perceptual while HSL lightness is not was read in MDN documentation. Building ramps in OKLCH is practitioner guidance (grade C); no study of its effect on users was found."
+   },
+   "sources": [
+    {
+     "citation": "Legge, G. E., Parish, D. H., Luebker, A., & Wurm, L. H. (1990). Psychophysics of reading. XI. Comparing color contrast and luminance contrast. Journal of the Optical Society of America A, 7(10), 2002-2010.",
+     "url": "https://experts.umn.edu/en/publications/psychophysics-of-reading-xi-comparing-color-contra-and-luminance-/",
+     "verified": "abstract"
+    },
+    {
+     "citation": "W3C (2023). Understanding Success Criterion 1.4.3: Contrast (Minimum).",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/20/contrast-minimum.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "MDN Web Docs. oklch() CSS color function reference.",
+     "url": "https://raw.githubusercontent.com/mdn/content/main/files/en-us/web/css/reference/values/color_value/oklch/index.md",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Perceptual colour spaces are approximations; very saturated colours look brighter than their measured lightness. Equal OKLCH lightness does not guarantee an equal WCAG ratio, which is why the final check uses the WCAG formula. Normal readers can read text defined by strong hue contrast alone, so the rule protects robustness and low-vision readers; it does not describe a strict impossibility.",
+   "appliesTo": [
+    "color-strategy",
+    "neutral",
+    "accent",
+    "theme",
+    "emphasis"
+   ]
+  },
+  {
+   "id": "simultaneous-contrast",
+   "topic": "color",
+   "principle": "The same colour looks different on different backgrounds",
+   "claim": "A colour's appearance shifts away from its surroundings: a mid-grey looks lighter on black and darker on white. People therefore misjudge colour-coded values and fail to match the same colour across different backgrounds.",
+   "mechanism": "The visual system codes colour and lightness relative to the surrounding area and not as absolute values. This sharpens edges, and it biases the judgement of any patch by its neighbours.",
+   "effects": {
+    "cognitiveLoad": "lowers — direct labels remove the need to match and judge colours",
+    "satisfaction": "unknown — not measured",
+    "perceivedIntuitiveness": "raises — a colour that keeps one appearance keeps one meaning"
+   },
+   "designMoves": [
+    "Do not ask people to match a swatch against a legend across different backgrounds; label the item directly.",
+    "Place colour-coded items on one uniform, neutral surface.",
+    "Check each brand and status colour on every surface on which it appears, and define a variant per surface or theme where needed.",
+    "Show the number as well wherever colour encodes a quantity."
+   ],
+   "antiPatterns": [
+    "Status colours on rows with different tinted backgrounds.",
+    "One colour token assumed to look identical on light and dark surfaces.",
+    "A heat map with no value labels and no tooltip."
+   ],
+   "howToCheck": {
+    "machine": "List every background on which each semantic colour token is drawn. Flag tokens that appear on backgrounds of very different lightness without a per-surface variant. Flag charts that encode a quantity by colour with no labels or tooltips.",
+    "human": "Place the same status chip on each surface side by side and judge whether it still reads as the same colour."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Simultaneous contrast is a textbook perceptual effect. Applied evidence is small and old: Ware (1988) tested 10 observers with five colour sequences on maps and found reading errors in the direction predicted by simultaneous contrast; Cleveland and McGill (1983) demonstrated a colour-caused illusion on a statistical map. No study of the effect's size in ordinary interfaces was found."
+   },
+   "sources": [
+    {
+     "citation": "Ware, C. (1988). Color sequences for univariate maps: Theory, experiments and principles. IEEE Computer Graphics and Applications, 8(5), 41-49.",
+     "url": "https://scholars.unh.edu/ccom/905",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Cleveland, W. S., & McGill, R. (1983). A color-caused optical illusion on a statistical graph. The American Statistician, 37(2), 101-105.",
+     "url": "https://scilit.com/publications/4a28deb3d3abd0e2957224dfafdc72a6",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "In ordinary interface work the shift is usually small; it matters most for data graphics, for brand-colour matching and for subtle status tints. In Ware's study a multi-hue spectrum scale gave the most accurate value reading, but such scales have other drawbacks (no natural order, colour-vision deficiency), so labels are the safer remedy.",
+   "appliesTo": [
+    "color-strategy",
+    "accent",
+    "neutral",
+    "theme",
+    "tables"
+   ]
+  },
+  {
+   "id": "categorical-color-limit",
+   "topic": "color",
+   "principle": "Only a handful of colours work as category codes",
+   "claim": "People can tell apart at a glance only a small number of colours used as codes; older guidance says five to seven, and no firm universal limit exists. Small or thin marks need bigger colour differences than large areas.",
+   "mechanism": "Fast identification requires that each colour is clearly distinct from every other colour and easy to name. As the count rises, neighbours in colour space move closer together. Perceived colour difference also shrinks as a mark gets smaller or thinner.",
+   "effects": {
+    "cognitiveLoad": "lowers — fewer codes to learn and fewer trips to the legend",
+    "satisfaction": "unknown — not measured",
+    "perceivedIntuitiveness": "raises — each colour keeps one clear meaning"
+   },
+   "designMoves": [
+    "Keep a categorical palette to a handful of colours; beyond that, group categories, label them directly or use another channel such as position or shape.",
+    "Choose colours that have different names (blue, orange, green) and that also differ in lightness.",
+    "Use larger colour differences for thin lines, small dots and text than for filled areas.",
+    "Reserve a neutral colour for 'other' or inactive items."
+   ],
+   "antiPatterns": [
+    "A legend with twelve colours.",
+    "Two shades of blue for two unrelated categories.",
+    "Tiny status dots that differ only by a subtle hue."
+   ],
+   "howToCheck": {
+    "machine": "Count the distinct categorical colours per chart, legend or status set and flag counts above the Catalog limit. Compute pairwise colour differences within the set, with and without simulated colour-vision deficiency, and flag pairs below the Catalog threshold; raise the threshold for small marks.",
+    "human": "Cover the legend and ask a viewer to name the category of several marks."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Healey (1996, IEEE Visualization) ran target-identification experiments with 38 observers and proposed a method for choosing colours that stay rapidly identifiable; he quotes 'no more than five to seven colours' as an existing, partly anecdotal guideline, and his own numeric result was not confirmed here. Szafir (2018, IEEE Transactions on Visualization and Computer Graphics) used crowdsourced studies to show that perceived colour difference falls as marks get smaller and that elongated marks are easier to tell apart. The exact limit depends on the colours, the mark size, the background and the display."
+   },
+   "sources": [
+    {
+     "citation": "Healey, C. G. (1996). Choosing effective colours for data visualization. Proceedings of IEEE Visualization 1996, 263-270.",
+     "url": "https://www.csc2.ncsu.edu/faculty/healey/download/viz.96.pdf",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Szafir, D. A. (2018). Modeling color difference for visualization design. IEEE Transactions on Visualization and Computer Graphics, 24(1), 392-401.",
+     "url": "https://cmci.colorado.edu/visualab/VisColors/",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "With labels and practice people handle more codes, as on a transit map. The limit concerns colours that must be identified without a label; it does not restrict decorative palettes.",
+   "appliesTo": [
+    "color-strategy",
+    "accent",
+    "tables",
+    "states"
+   ]
+  },
+  {
+   "id": "semantic-color-conventions",
+   "topic": "color",
+   "principle": "Colour meanings are shared conventions, not universal laws",
+   "claim": "Colour-meaning associations are broadly similar across cultures but not identical, and colours that match the meaning of what they label make displays faster to read. Interface conventions such as red for errors work because they are learned and applied consistently.",
+   "mechanism": "People learn colour associations from the physical world and from language. When a colour agrees with the meaning of its label, recognition is faster; when it conflicts, the two compete.",
+   "effects": {
+    "cognitiveLoad": "lowers — a learned colour meaning is recognised without reading",
+    "satisfaction": "unknown — not measured",
+    "perceivedIntuitiveness": "raises — states look the way people expect"
+   },
+   "designMoves": [
+    "Reserve red for errors and destructive actions, green for success and amber for warnings, and keep each colour to one meaning across the product.",
+    "Do not use the error colour for emphasis or decoration.",
+    "If the brand colour is red, separate errors by icon, wording and placement.",
+    "Pair every semantic colour with an icon or text (see color-not-alone).",
+    "Check conventions for the target market before fixing a status palette."
+   ],
+   "antiPatterns": [
+    "A red primary button for a harmless action beside red error text.",
+    "Green used for both 'selected' and 'success'.",
+    "Arbitrary colours for categories that have natural associations."
+   ],
+   "howToCheck": {
+    "machine": "Map colour tokens to roles. Flag the error-role colour on non-error elements, semantic colours with no accompanying icon or text, and two roles that share one hue.",
+    "human": "Ask people from the target market what each status colour means to them, without showing labels."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Jonauskaite and colleagues (2020, Psychological Science) surveyed 4,598 people in 30 nations: colour-emotion association patterns were highly similar across nations (average similarity r = .88), yet nation still predicted associations, and nations closer in language or geography were more alike. Lin, Fortuna, Kulkarni, Stone and Heer (2013) found that colours matched to category meaning sped up chart reading compared with a default palette. Neither study tested interface status colours; the red, amber and green convention rests on practice."
+   },
+   "sources": [
+    {
+     "citation": "Jonauskaite, D., et al. (2020). Universal patterns in color-emotion associations are further shaped by linguistic and geographic proximity. Psychological Science, 31(10), 1245-1260.",
+     "url": "https://serval.unil.ch/fr/notice/serval:BIB_DF45797C8FB8",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Lin, S., Fortuna, J., Kulkarni, C., Stone, M., & Heer, J. (2013). Selecting semantically-resonant colors for data visualization. Computer Graphics Forum (Proceedings of EuroVis), 32(3), 401-410.",
+     "url": "https://idl.uw.edu/papers/semantically-resonant-colors",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "Some conventions reverse by market; for example, red marks rising prices in several East Asian stock markets (recalled from memory, not verified). The Jonauskaite study measured associations between colour words and emotions, so applying it to status colours is an inference.",
+   "appliesTo": [
+    "color-strategy",
+    "accent",
+    "states",
+    "forms"
+   ]
+  },
+  {
+   "id": "clutter-and-crowding",
+   "topic": "density",
+   "principle": "Clutter and crowding slow search",
+   "claim": "As a display gains more varied colours, orientations and contrasts, it becomes harder for any one item to stand out, and search slows. Items closely surrounded by others also become hard to recognise outside the centre of gaze.",
+   "mechanism": "Clutter is a state in which the features of a display vary so much that an added item can no longer draw attention. Crowding is a limit of peripheral vision: objects closer together than a critical spacing cannot be recognised without looking straight at them. Both force more eye movements.",
+   "effects": {
+    "cognitiveLoad": "lowers — reducing feature variety and protecting key items with space cuts the number of places a person must inspect",
+    "satisfaction": "unknown — not measured in the cited papers",
+    "perceivedIntuitiveness": "raises — important items are visible at a glance"
+   },
+   "designMoves": [
+    "Limit the variety of colours, type sizes, weights and border styles within one view.",
+    "Remove lines, boxes and icons that neither group nor inform.",
+    "Leave clear space around the items that must be found first.",
+    "Use one consistent icon style and one consistent card style.",
+    "Move secondary detail behind a disclosure control (see progressive-disclosure-and-onboarding)."
+   ],
+   "antiPatterns": [
+    "Each card with its own colour, icon style and border.",
+    "Borders, shadows and background tints all used at once to separate items.",
+    "A key button hemmed in by badges, links and icons."
+   ],
+   "howToCheck": {
+    "machine": "Compute clutter proxies per viewport from a screenshot: compressed image bytes per pixel and edge density, plus counts of distinct colours, font sizes, font weights and border styles. Compare against the Template baseline; no absolute threshold exists.",
+    "human": "Time a first-time user who looks for one named item, and compare two versions of the page."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Rosenholtz, Li and Nakano (2007, Journal of Vision) defined three clutter measures (Feature Congestion, Subband Entropy, Edge Density) and showed that they correlate with search performance in complex images; they note that colour variability matters and that image file size tracked their main measure. Whitney and Levi (2011) review crowding as a fundamental limit on object recognition across most of the visual field. The measures were validated on maps and search displays, not on web pages."
+   },
+   "sources": [
+    {
+     "citation": "Rosenholtz, R., Li, Y., & Nakano, L. (2007). Measuring visual clutter. Journal of Vision, 7(2):17.",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/18217832",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Whitney, D., & Levi, D. M. (2011). Visual crowding: A fundamental limit on conscious perception and object recognition. Trends in Cognitive Sciences, 15(4), 160-168.",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3070834",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "Clutter is not the same as density: a dense, uniform, well-grouped table can score low on clutter and be fast to use (see density-organised). The proxies describe an image and know nothing about the user's task.",
+   "appliesTo": [
+    "density",
+    "sections",
+    "border-weight",
+    "elevation",
+    "emphasis",
+    "color-strategy"
+   ]
+  },
+  {
+   "id": "density-organised",
+   "topic": "density",
+   "principle": "Organisation matters more than amount",
+   "claim": "How a display is organised predicts search time better than how much it shows. Sparse, well-grouped regions are searched first and faster, yet practised users can work faster on dense screens with no loss of accuracy.",
+   "mechanism": "People search a display group by group. The crowding around each item (local density), the clarity of groups and the predictability of positions set how fast each group is scanned. Practised users know where things are, so more information in view saves them navigation.",
+   "effects": {
+    "cognitiveLoad": "mixed — good grouping lowers search effort at any density; raising density without structure raises it",
+    "satisfaction": "mixed — nurses rated dense and sparse screens alike; newcomers may prefer sparse layouts",
+    "perceivedIntuitiveness": "raises — predictable positions and clear groups, at any density"
+   },
+   "designMoves": [
+    "Set density by audience and task: lower for browsing and first-time use, higher for tools that practised people use all day.",
+    "Put the most important content in the least crowded region of the view.",
+    "When raising density, keep grouping, alignment and stable positions.",
+    "Remove chrome (padding, decoration, repeated labels) before removing data.",
+    "Offer a density setting in tools used for long sessions."
+   ],
+   "antiPatterns": [
+    "A uniform wall of items with no grouping.",
+    "A sparse layout that makes practised users page or scroll to compare values.",
+    "The assumption that more white space is always better."
+   ],
+   "howToCheck": {
+    "machine": "Compute a local-density map (elements or ink in a sliding window) and report its mean and spread, the number of groups and the group sizes. Check that elements the Prescription marks as key sit in lower-density regions. Compare with the Template's density target.",
+    "human": "Test with the real audience: first-time users on a finding task and practised users on a repeated lookup task."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Tullis (1983, 1984) measured overall density, local density, grouping and layout complexity on 520 character displays and predicted search time (R-squared .51). Halverson and Hornof (2004) found with eye tracking that sparse word groups were searched first and faster; in that study sparse groups also used larger type, so density and size are confounded. A later paper (Tarling and Brumby) reports that people chose sparse regions first even when dense ones were quicker to search. Staggers (1993) tested 110 clinical nurses: high-density screens gave faster target finding than moderate or low density, with the same accuracy and satisfaction (findings confirmed from the abstract of the underlying dissertation). All of this is old and uses text displays."
+   },
+   "sources": [
+    {
+     "citation": "Tullis, T. S. (1983). The formatting of alphanumeric displays: A review and analysis. Human Factors, 25(6), 657-682.",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Halverson, T., & Hornof, A. J. (2004). Local density guides visual search: Sparse groups are first and faster. Proceedings of the Human Factors and Ergonomics Society Annual Meeting, 48. DOI 10.1177/154193120404801615.",
+     "url": "https://www.cs.uoregon.edu/Activities/Poster_Contest/2004/Halverson04visual.pdf",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Staggers, N. (1993). Impact of screen density on clinical nurses' computer task performance and subjective screen satisfaction. International Journal of Man-Machine Studies, 39(5), 775-792.",
+     "url": "https://scilit.com/publications/db7596b50991993970a4bc9c8865ced5",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Tarling and Brumby (first names and year not confirmed). Density guides visual search: Sparse groups are first even when slower. Proceedings of the Human Factors and Ergonomics Society Annual Meeting.",
+     "url": "https://www.bohrium.com/paper-details/density-guides-visual-search-sparse-groups-are-first-even-when-slower/813339454650449923-19959",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "The Staggers result applies to practised users on lookup tasks with well-organised screens; it does not license crowding a marketing page. Density measured in characters on text terminals does not translate directly to modern graphical layouts.",
+   "appliesTo": [
+    "density",
+    "tables",
+    "sections",
+    "content-width",
+    "size-scale"
+   ]
+  },
+  {
+   "id": "whitespace-comprehension",
+   "topic": "density",
+   "principle": "White space and comprehension: thin, mixed evidence",
+   "claim": "Evidence that white space around text improves comprehension is thin and mixed: one small study found slower reading but better comprehension with page margins, and a follow-up found only higher satisfaction. The often-quoted figure that white space raises comprehension by 20% could not be traced to a verified study.",
+   "mechanism": "Margins separate the text block from its surroundings, which may reduce interference from neighbouring content. The proposed mechanism is the same crowding and grouping described in other entries; nobody has measured it directly for margins.",
+   "effects": {
+    "cognitiveLoad": "mixed — one small study suggests a comprehension benefit and one finds none",
+    "satisfaction": "raises — both studies found that readers were more satisfied with margined or better-spaced layouts",
+    "perceivedIntuitiveness": "unknown — not measured"
+   },
+   "designMoves": [
+    "Give text blocks side padding so that text never touches a container or screen edge.",
+    "Use space mainly to group and separate (see proximity-and-common-region), not as a general comprehension aid.",
+    "Expect a comfort and satisfaction benefit from adequate margins; do not promise a measured comprehension gain."
+   ],
+   "antiPatterns": [
+    "Quoting '20% better comprehension from white space' as a research finding.",
+    "Text flush against the edge of a card or viewport.",
+    "Uniform extra padding everywhere, which removes grouping."
+   ],
+   "howToCheck": {
+    "machine": "Measure the padding between text blocks and the edges of their containers and of the viewport; flag zero or near-zero values.",
+    "human": "Ask readers which of two versions is more comfortable to read; that is the outcome the evidence supports."
+   },
+   "evidence": {
+    "grade": "C",
+    "kind": "folklore",
+    "strengthNote": "Chaparro, Baker, Shaikh, Hull and Brady (2004) compared four layouts that varied margins and line spacing: margins affected reading speed and comprehension, readers were more satisfied with margins, and line spacing changed preference only. The direction of the margin effect (slower reading, better comprehension) is recalled from the abstract; the search result confirmed only that both measures were affected. Chaparro, Shaikh and Baker (2005) found no effect of layout quality on speed or comprehension, only on satisfaction and reported fatigue. Both appeared in a university laboratory newsletter, not a peer-reviewed journal, and sample sizes were not confirmed. The '20%' figure circulates in design articles, usually credited to a 2004 study; it could not be verified and has grade D."
+   },
+   "sources": [
+    {
+     "citation": "Chaparro, B., Baker, J. R., Shaikh, A. D., Hull, S., & Brady, L. (2004). Reading online text: A comparison of four white space layouts. Usability News, 6(2).",
+     "url": "https://portfolio.erau.edu/en/publications/reading-online-text-a-comparison-of-four-white-space-layouts/",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Chaparro, B. S., Shaikh, A. D., & Baker, J. R. (2005). Reading online text with a poor layout: Is performance worse? Usability News, 7(1).",
+     "url": "https://portfolio.erau.edu/en/publications/reading-online-text-with-a-poor-layout-is-performance-worse/",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "The absence of strong evidence is not evidence that margins are useless; grouping and line-length effects are better supported and usually call for space anyway.",
+   "appliesTo": [
+    "density",
+    "content-width",
+    "sections"
+   ]
+  },
+  {
+   "id": "whitespace-quality-signal",
+   "topic": "density",
+   "principle": "Generous white space signals quality by convention",
+   "claim": "Generous empty space around a product or message signals quality and prestige to viewers. The signal is a learned convention from twentieth-century art and advertising, not an inherent property of empty space.",
+   "mechanism": "Minimalist art, modern architecture and upscale corporate advertising linked empty space with restraint and expense. Viewers who have seen that pairing read empty space as a mark of a confident, high-end sender, even without knowing the history.",
+   "effects": {
+    "cognitiveLoad": "none — the effect concerns impression, not effort",
+    "satisfaction": "raises — perceived quality and prestige rise for audiences who share the convention; satisfaction with use was not measured",
+    "perceivedIntuitiveness": "unknown — not measured; the effect concerns impression"
+   },
+   "designMoves": [
+    "Use generous space when the positioning is premium or calm, and pair it with restraint in colour and type.",
+    "Do not spend the space where it costs working efficiency, such as in dense tools.",
+    "Check that the audience shares the convention."
+   ],
+   "antiPatterns": [
+    "A vast, empty first screen on a tool that people open to find data.",
+    "A crowded layout for a brand that claims exclusivity."
+   ],
+   "howToCheck": {
+    "machine": "Report the share of the first viewport that contains no text, image or control, and compare it with the Template's target.",
+    "human": "Ask a few people from the audience to describe the brand after a five-second view."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Pracejus, Olsen and O'Guinn (2006, Journal of Consumer Research) trace the history of the convention and report that creative directors at advertising agencies and ordinary consumers read white space in the same way. Later citing work credits the paper with the finding that surrounding a product with empty space raises its perceived prestige. The context is North American print advertising. This entry overlaps with the aesthetics and trust part of the knowledge base."
+   },
+   "sources": [
+    {
+     "citation": "Pracejus, J. W., Olsen, G. D., & O'Guinn, T. C. (2006). How nothing became something: White space, rhetoric, history, and meaning. Journal of Consumer Research, 33(1), 82-90.",
+     "url": "https://eurekalert.org/news-releases/802605",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "A convention can change and can differ between cultures and sectors. Space that signals quality on a brand page can read as waste in a working tool.",
+   "appliesTo": [
+    "density",
+    "hero",
+    "signature",
+    "sections"
+   ]
+  },
+  {
+   "id": "motion-captures-attention",
+   "topic": "motion",
+   "principle": "Motion captures attention, and costs it",
+   "claim": "Movement at the edge of vision is detected more reliably than a change of colour or shape, and it distracts from the task at hand. Motion is therefore a strong and costly signal that should be reserved for things that need attention now.",
+   "mechanism": "Peripheral vision resolves little detail but is sensitive to movement and sudden appearance. Both pull attention without a decision by the viewer, who must then find their place in the task again.",
+   "effects": {
+    "cognitiveLoad": "lowers — removing needless motion removes involuntary interruptions",
+    "satisfaction": "raises — the cited study treats irritation as a side effect of motion to be minimised",
+    "perceivedIntuitiveness": "raises — when only important events move, movement means something"
+   },
+   "designMoves": [
+    "Reserve motion for events that need attention now, such as a new message, an error or a finished job.",
+    "Keep attention-getting motion brief and make it stop by itself.",
+    "Keep looping animation, autoplaying video and animated images away from text that people read and forms that people fill in.",
+    "Give anything that moves for more than five seconds beside other content a control to pause, stop or hide it (WCAG 2.2.2, Level A).",
+    "Use a quiet, static cue for status that does not need immediate attention."
+   ],
+   "antiPatterns": [
+    "A looping background video behind hero text.",
+    "A badge that pulses until clicked.",
+    "An animated illustration beside a form.",
+    "Blinking text."
+   ],
+   "howToCheck": {
+    "machine": "List CSS animations with infinite iteration, autoplaying video and animated images. Flag any that run longer than five seconds without a pause control, and any inside or next to form and reading regions.",
+    "human": "Read a paragraph on the page while each animation runs and note every time the eyes are pulled away."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Bartram, Ware and Calvert (2003, International Journal of Human-Computer Studies) found that moving icons were often better detected and identified than colour and shape codes, especially in the periphery, and that types of motion differ in how much they distract; the paper ends with guidelines for limiting distraction and irritation. The W3C explanation of criterion 2.2.2 states that moving content can be a severe distraction for some people, notably people with attention deficits, and that five seconds is long enough to get attention. The criterion text and the explanation were read."
+   },
+   "sources": [
+    {
+     "citation": "Bartram, L., Ware, C., & Calvert, T. (2003). Moticons: Detection, distraction and task. International Journal of Human-Computer Studies, 58(5), 515-545.",
+     "url": "https://ccom.unh.edu/publications/moticons-detection-distraction-and-task",
+     "verified": "abstract"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.2.2 Pause, Stop, Hide, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/pause-stop-hide.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). Understanding Success Criterion 2.2.2: Pause, Stop, Hide.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/20/pause-stop-hide.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "The strength that makes motion distracting also makes it the right tool for a rare, urgent alert. Which kinds of motion distract least was studied with small icons on desktop screens, and the detailed ranking was not confirmed here.",
+   "appliesTo": [
+    "motion",
+    "hero",
+    "states",
+    "signature",
+    "sections"
+   ]
+  },
+  {
+   "id": "change-blindness",
+   "topic": "motion",
+   "principle": "Change blindness: unattended changes go unseen",
+   "claim": "People often fail to notice a visible change on screen when it happens during an interruption, such as a page reload or a flash, or away from where they are looking. Even large changes can go unseen.",
+   "mechanism": "Seeing a change needs attention on the changing object at the moment of change. Normally the brief motion signal of a change attracts attention. A reload, blank frame or eye movement masks that signal, so the person can compare only against memory, which holds very little.",
+   "effects": {
+    "cognitiveLoad": "lowers — feedback at the point of attention removes the need to hunt for what changed",
+    "satisfaction": "unknown — not measured in the cited study",
+    "perceivedIntuitiveness": "raises — each action has a visible consequence"
+   },
+   "designMoves": [
+    "Show the result of an action at the place of the action, where the person is already looking.",
+    "When something elsewhere changes (a total, a cart count, a saved status), animate or briefly highlight that element.",
+    "Update the page in place; avoid a full reload for a small change.",
+    "Keep new or changed content marked for a few seconds.",
+    "Announce important updates to assistive technology with a live region."
+   ],
+   "antiPatterns": [
+    "An error list at the top of a long form while the user looks at the submit button at the bottom.",
+    "A total that changes silently after an option is selected.",
+    "A brief notification in a far corner of a large screen."
+   ],
+   "howToCheck": {
+    "machine": "For each scripted action, measure the distance between the trigger and the region that changes. Flag changes that are off-screen or far from the trigger and have neither a transition or highlight nor a live-region announcement. Flag full document reloads after in-page actions. Report how long transient messages stay visible.",
+    "human": "After each action, ask a test user what changed on the screen."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Rensink, O'Regan and Clark (1997, Psychological Science) introduced the flicker method: changes that were large, repeated and expected were extremely hard to notice when a brief blank separated two versions of a picture, and the authors conclude that attention is required to perceive change. The effect has been replicated many times with pictures and real-world scenes. Varakin, Levin and Fidler (2004) review the implications for interface design; that paper is cited from memory."
+   },
+   "sources": [
+    {
+     "citation": "Rensink, R. A., O'Regan, J. K., & Clark, J. J. (1997). To see or not to see: The need for attention to perceive changes in scenes. Psychological Science, 8(5), 368-373.",
+     "url": "https://www2.psych.ubc.ca/~rensink/publications/abs.96.2.html",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Varakin, D. A., Levin, D. T., & Fidler, R. (2004). Unseen and unaware: Implications of recent research on failures of visual awareness for human-computer interface design. Human-Computer Interaction, 19(4), 389-422.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "Laboratory demonstrations use photographs and an artificial flicker; the interface equivalents are reloads, closing dialogs and scroll jumps. People also overestimate how well they notice changes, so teams tend to trust small notifications too much.",
+   "appliesTo": [
+    "states",
+    "motion",
+    "forms",
+    "performance",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "transitions-easing-duration",
+   "topic": "motion",
+   "principle": "Transitions: short, purposeful, slow-in and slow-out",
+   "claim": "A short animated transition helps people keep track of what moved or changed between two states, and movement that starts slowly, speeds up and ends slowly is the easiest to follow. Animation used as an explanation rarely beats a good static picture.",
+   "mechanism": "A transition lets the viewer follow an object from the old state to the new one, so they do not have to find and identify it again after a jump. A slow start gives time to pick up the movement and a slow end makes the destination predictable. Long or complex animation exceeds what a person can track and delays the next action.",
+   "effects": {
+    "cognitiveLoad": "lowers — objects are followed, not re-identified",
+    "satisfaction": "unknown — the cited experiments measured tracking and estimation accuracy",
+    "perceivedIntuitiveness": "raises — the relation between the two states is visible"
+   },
+   "designMoves": [
+    "Animate changes that would otherwise be a jump: reordering, expanding, moving between levels.",
+    "Use an ease-in-out timing curve for objects that move between two on-screen positions.",
+    "Keep interface transitions short; practitioner guidance puts most of them between about 100 and 500 ms.",
+    "Move one thing at a time, or move related things together in the same direction.",
+    "Never block input until an animation ends."
+   ],
+   "antiPatterns": [
+    "Linear, constant-speed movement for objects.",
+    "Page transitions that last a second or more.",
+    "Many elements moving in different directions at once.",
+    "Entrance animations on every scroll for decoration."
+   ],
+   "howToCheck": {
+    "machine": "List CSS transitions and animations with their duration and timing function per property. Flag durations above the Catalog maximum, linear timing on position or size changes, and animations during which the page ignores input.",
+    "human": "After a transition, ask the viewer where an item went. A wrong or slow answer means the transition did not do its job."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Heer and Robertson (2007) ran two controlled experiments in which animated transitions between chart types improved object tracking and value estimation. Dragicevic, Bezerianos, Javed, Elmqvist and Fekete (CHI 2011) compared constant speed, slow-in/slow-out, fast-in/fast-out and an adaptive scheme for tracking moving points; slow-in/slow-out was best overall, though constant speed did better for some transition types (result confirmed through a later paper by the first author and through the authors' slides, not the paper text). Tversky, Morrison and Betrancourt (2002) reviewed animation for teaching and found that benefits often vanished when the static version carried the same information (secondary summaries). The duration range is practitioner guidance from Nielsen Norman Group, recalled from memory, with grade C."
+   },
+   "sources": [
+    {
+     "citation": "Heer, J., & Robertson, G. (2007). Animated transitions in statistical data graphics. IEEE Transactions on Visualization and Computer Graphics, 13(6), 1240-1247.",
+     "url": "https://idl.uw.edu/papers/animated-transitions",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Dragicevic, P., Bezerianos, A., Javed, W., Elmqvist, N., & Fekete, J.-D. (2011). Temporal distortion for animated transitions. Proceedings of CHI 2011, 2009-2018.",
+     "url": "https://cs.au.dk/~elm/pdf/timedistort.pdf",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Tversky, B., Morrison, J. B., & Betrancourt, M. (2002). Animation: Can it facilitate? International Journal of Human-Computer Studies, 57(4), 247-262.",
+     "url": null,
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "The tracking studies used moving points in data graphics; ordinary interface transitions are simpler. Frequent, repeated actions by practised users are often better with no animation. All motion must respect the reduced-motion setting (see reduced-motion).",
+   "appliesTo": [
+    "motion",
+    "states",
+    "nav",
+    "signature"
+   ]
+  },
+  {
+   "id": "reduced-motion",
+   "topic": "motion",
+   "principle": "Motion can make people ill: respect reduced motion, never flash",
+   "claim": "Some people become dizzy or nauseous from on-screen motion such as parallax, zooming and large moving areas, and flashing content can trigger seizures. Standards forbid more than three flashes per second, require a pause control for long-running motion and, at the strictest level, require that motion triggered by interaction can be switched off.",
+   "mechanism": "The balance system of the inner ear (the vestibular system) reports that the body is still while the eyes report movement; in sensitive people the conflict causes dizziness, nausea and headache. In photosensitive epilepsy, flashes that are large, bright and faster than about three per second can start a seizure.",
+   "effects": {
+    "cognitiveLoad": "lowers — for affected users, who can keep working without symptoms",
+    "satisfaction": "raises — for affected users; unmeasured for others",
+    "perceivedIntuitiveness": "unknown — not measured; a correctly reduced interface keeps the same behaviour without the movement"
+   },
+   "designMoves": [
+    "Honour the prefers-reduced-motion setting: replace movement with a fade or an instant change.",
+    "Keep state changes and feedback when motion is reduced; remove the movement, not the information.",
+    "Do not make parallax, scroll-linked movement or large zooming and panning the default for essential content.",
+    "Never show content that flashes more than three times in one second.",
+    "Provide pause, stop or hide for anything that moves for more than five seconds."
+   ],
+   "antiPatterns": [
+    "Scroll-driven effects with no off switch.",
+    "Ignoring the operating-system reduce-motion setting.",
+    "Removing all feedback, not only the movement, when reduced motion is on.",
+    "Flashing banners or strobe-like video."
+   ],
+   "howToCheck": {
+    "machine": "Emulate prefers-reduced-motion: reduce and assert that no transform-based or scroll-linked animation runs while state changes still appear. Analyse animations and video frames for more than three luminance flashes in any second. Detect motion longer than five seconds with no pause control.",
+    "human": "Turn on the operating-system reduce-motion setting and use the whole product."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 criteria 2.3.1 Three Flashes or Below Threshold (Level A), 2.2.2 Pause, Stop, Hide (Level A) and 2.3.3 Animation from Interactions (Level AAA) were read from the W3C source repository, with their explanations; the explanation for 2.3.3 describes dizziness, nausea and headaches and names parallax, but cites no research. The MDN reference for prefers-reduced-motion was read. Prevalence context: Agrawal and colleagues (2009) found vestibular dysfunction, measured by a balance test, in 35.4% of 5,086 US adults aged 40 and over."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.3.1 Three Flashes or Below Threshold, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/three-flashes-or-below-threshold.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.3.3 Animation from Interactions, Level AAA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/21/animation-from-interactions.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). Understanding Success Criterion 2.3.3: Animation from Interactions.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/21/animation-from-interactions.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "MDN Web Docs. prefers-reduced-motion media feature reference.",
+     "url": "https://raw.githubusercontent.com/mdn/content/main/files/en-us/web/css/reference/at-rules/@media/prefers-reduced-motion/index.md",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Agrawal, Y., Carey, J. P., Della Santina, C. C., Schubert, M. C., & Minor, L. B. (2009). Disorders of balance and vestibular function in US adults: Data from the National Health and Nutrition Examination Survey, 2001-2004. Archives of Internal Medicine, 169(10), 938-944.",
+     "url": "https://www.qxmd.com/r/19468085",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "The 35.4% figure counts people who failed a balance test, not people who are sickened by screen motion; nobody has measured the second number. Evidence about which web effects trigger symptoms is clinical experience and self-report. Criterion 2.3.3 is Level AAA, so most legal regimes do not require it, but honouring the setting costs little.",
+   "appliesTo": [
+    "motion",
+    "hero",
+    "signature",
+    "states"
+   ]
+  },
+  {
+   "id": "auto-rotating-carousels",
+   "topic": "motion",
+   "principle": "Auto-rotating carousels hide content and distract",
+   "claim": "An auto-rotating carousel hides most of its content most of the time, is often taken for advertising, and moves while people try to read. In usability testing, users failed to find prominent content that sat in a rotating carousel.",
+   "mechanism": "Three effects combine: the movement pulls attention and takes control of reading time away from the reader, the banner-like look triggers the habit of skipping advertising, and only one panel is visible at any moment.",
+   "effects": {
+    "cognitiveLoad": "lowers — a static presentation removes movement and the need to wait for or chase a panel",
+    "satisfaction": "raises — the practitioner article reports that auto-forwarding annoys users",
+    "perceivedIntuitiveness": "raises — all key content is visible and stays where it is"
+   },
+   "designMoves": [
+    "Put the single most important message in a static hero.",
+    "If several messages matter, show them together, for example in a grid, or choose one.",
+    "If a carousel is required, do not advance it automatically; otherwise provide a pause control and stop on hover, on focus and after any interaction.",
+    "Give the carousel visible, labelled controls and make every slide reachable by keyboard."
+   ],
+   "antiPatterns": [
+    "A home-page slider that changes every few seconds.",
+    "A carousel used to avoid deciding which message has priority.",
+    "Tiny dots as the only controls."
+   ],
+   "howToCheck": {
+    "machine": "Detect elements whose visible child changes on a timer. Assert that a pause control exists, that rotation stops on hover, on focus and after interaction, and that every slide can be reached by keyboard.",
+    "human": "Ask a test user to find information that sits on the third slide."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "large-practitioner-study",
+    "strengthNote": "Nielsen Norman Group (2013) reports a usability study in which users could not find content shown prominently in an auto-rotating carousel; the article was seen only through secondary summaries. Analytics from one university site, published by Runyon in 2013 and recalled from memory, showed that about 1% of visitors clicked a carousel item, mostly on the first slide. WCAG 2.2.2 (Level A) requires a pause mechanism for such motion. The evidence is practitioner-level and partly from single sites."
+   },
+   "sources": [
+    {
+     "citation": "Nielsen, J. (2013). Auto-Forwarding Carousels and Accordions Annoy Users and Reduce Visibility. Nielsen Norman Group.",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Runyon, E. (2013). Carousel interaction stats (analytics from the University of Notre Dame website). Author's blog.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.2.2 Pause, Stop, Hide, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/pause-stop-hide.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "User-controlled carousels, such as a product image gallery that the user swipes, are a different pattern and are widely accepted. The click data come from one site and say nothing about whether people saw the first slide.",
+   "appliesTo": [
+    "hero",
+    "motion",
+    "sections",
+    "mobile"
+   ]
+  },
+  {
+   "id": "visible-labels",
+   "topic": "forms",
+   "principle": "Every field needs a visible, persistent label",
+   "claim": "Every input needs a visible label that stays visible while the person types and afterwards. Placeholder text inside the field is not a label: it disappears on input, strains memory, is often too faint, and can be mistaken for a value that is already filled in.",
+   "mechanism": "The label is the cue that says what to enter. When it vanishes, the person must recall it, and a completed form can no longer be checked without emptying fields. Faint placeholder text also fails contrast requirements.",
+   "effects": {
+    "cognitiveLoad": "lowers — the cue stays on screen, so nothing has to be recalled",
+    "satisfaction": "raises — forms rebuilt to follow such guidelines were rated higher in a controlled study",
+    "perceivedIntuitiveness": "raises — each field says what it wants"
+   },
+   "designMoves": [
+    "Give every field a visible text label outside the field, connected to it in code.",
+    "Place the label above the field as the default; this also works on narrow screens.",
+    "Put hints and format examples as text between the label and the field, not in the placeholder.",
+    "State in text which fields are optional or required.",
+    "Size each field to the length of the expected answer."
+   ],
+   "antiPatterns": [
+    "A field whose only description is its placeholder.",
+    "Grey placeholder text that carries instructions.",
+    "An icon as the only label of a field."
+   ],
+   "howToCheck": {
+    "machine": "For each input, assert a programmatically associated label and a visible text label outside the input that remains visible when the field holds a value. Flag inputs described only by a placeholder attribute, and compute placeholder contrast.",
+    "human": "Fill in the form, then try to review every answer without clicking into any field."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 criterion 3.3.2 Labels or Instructions (Level A) was read; its explanation says labels must be persistently available. The GOV.UK Design System guidance (read) forbids placeholders in place of labels or hints. Nielsen Norman Group (Sherwin 2014) lists the usability problems of placeholders. Label position has only small, conflicting studies: Penzo (2006, informal eye tracking on a four-field form) favoured labels above fields, while Das and McEwan (2008) found right-aligned labels fastest, then top, then left. Seckler and colleagues (CHI 2014, 65 participants) showed that forms improved with 20 guidelines together were completed faster, with fewer submission attempts and higher satisfaction."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.3.2 Labels or Instructions, Level A, with its Understanding document.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/20/labels-or-instructions.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "GOV.UK Design System. Text input component guidance.",
+     "url": "https://raw.githubusercontent.com/alphagov/govuk-design-system/main/src/components/text-input/index.md",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Sherwin, K. (2014). Placeholders in Form Fields Are Harmful. Nielsen Norman Group.",
+     "url": "https://www.nngroup.com/articles/form-design-placeholders/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Seckler, M., Heinz, S., Bargas-Avila, J. A., Opwis, K., & Tuch, A. N. (2014). Designing usable web forms: Empirical evaluation of web form improvement guidelines. Proceedings of CHI 2014.",
+     "url": "https://research.google/pubs/pub42513/",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Das, S., & McEwan, T. (2008). Using eye-tracking to evaluate label alignment in online forms.",
+     "url": "https://napier-repository.worktribe.com/OutputFile/232504",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "The W3C explanation accepts that a visible label is not always necessary, for example for a search field with a clear icon and button. The above-the-field position is a sound convention, not a strong research finding. The Seckler study tested 20 guidelines together, so it cannot credit any single one.",
+   "appliesTo": [
+    "forms",
+    "copy",
+    "mobile",
+    "states"
+   ]
+  },
+  {
+   "id": "validation-timing",
+   "topic": "forms",
+   "principle": "Validate after the user finishes, not while they type",
+   "claim": "Show a validation error only after the person has finished with a field or has submitted the form, never during a first attempt at typing. Remove the error as soon as the input becomes valid.",
+   "mechanism": "An error that appears mid-entry interrupts the person and reports a mistake they have not yet made, which forces a switch from entering to correcting. Feedback after completion arrives when the person is ready to review.",
+   "effects": {
+    "cognitiveLoad": "lowers — no interruptions during entry and a clear moment for correction",
+    "satisfaction": "raises — participants rated forms with after-field validation about 31% higher in a small practitioner test",
+    "perceivedIntuitiveness": "raises — the form reacts when the person expects it to"
+   },
+   "designMoves": [
+    "Validate a field when the person leaves it, or validate the form on submit.",
+    "Never show an error on the first keystrokes of a first attempt.",
+    "Once an error is showing, re-check on each keystroke so that it clears the moment the input is valid.",
+    "Place the message next to its field; after a failed submit, add a summary at the top that links to each field.",
+    "Keep everything the person typed."
+   ],
+   "antiPatterns": [
+    "'Invalid email address' after the first character.",
+    "Errors shown only in an alert box.",
+    "An error that stays after the input has been corrected."
+   ],
+   "howToCheck": {
+    "machine": "Script each field: type the first character of a valid value and assert that no error appears; leave the field with an invalid value and assert that an error appears next to it and is linked in code; correct the value and assert that the error disappears without resubmitting; submit with errors and assert that focus moves to the summary or the first error.",
+    "human": "Watch a first-time user complete the form and note every moment at which a message interrupts typing."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Bargas-Avila, Oberholzer, Schmutz, de Vito and Opwis (2007, Interacting with Computers) ran two studies with 77 and 90 participants and concluded that errors are best shown after the user completes the form, and that immediate feedback performed worst (from a catalogue abstract and a truncated excerpt). Wroblewski (2009), with the usability firm Etre, tested 22 users on six versions of a registration form: validation after each field cut completion time by about 42% and errors by about 22% compared with validation on submit only, and validation before or during typing was the worst variant. The two studies disagree on whether after-field beats after-submit; both find during-typing worst. Both used short registration forms."
+   },
+   "sources": [
+    {
+     "citation": "Bargas-Avila, J. A., Oberholzer, G., Schmutz, P., de Vito, M., & Opwis, K. (2007). Usable error message presentation in the World Wide Web: Do not show errors right away. Interacting with Computers, 19(3), 330-341.",
+     "url": "https://edoc-vmtest.ub.unibas.ch/8009/1/iwc19-0330.pdf",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Wroblewski, L. (2009). Inline Validation in Web Forms. A List Apart.",
+     "url": "https://alistapart.com/article/inline-validation-in-web-forms/",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "Immediate feedback is useful for a few fields where the person wants guidance while typing, such as a password-strength hint or a check that a username is free. The percentages come from one small practitioner test and should not be quoted as general effect sizes.",
+   "appliesTo": [
+    "forms",
+    "states",
+    "copy"
+   ]
+  },
+  {
+   "id": "error-messages-and-recovery",
+   "topic": "forms",
+   "principle": "Errors: identify, explain, and allow recovery",
+   "claim": "When input is wrong, the interface must say in text which item has the problem and how to fix it. For submissions that create legal or financial commitments or change the user's data, it must let the user check, confirm or undo.",
+   "mechanism": "A person can correct only what they can locate and understand. Generic or colour-only errors leave them searching and guessing. Review and undo steps catch slips, which are errors of execution that the person would recognise if shown.",
+   "effects": {
+    "cognitiveLoad": "lowers — the message removes the search for what went wrong and how to fix it",
+    "satisfaction": "raises — government service testing found that users recovered from errors with messages written this way",
+    "perceivedIntuitiveness": "raises — the form explains itself when something goes wrong"
+   },
+   "designMoves": [
+    "Write each error as a specific instruction that names the field and the fix, such as 'Enter a date after today'.",
+    "Show the message next to the field and in a summary; never signal an error by colour alone.",
+    "Use plain words and avoid blame, jargon and codes.",
+    "Keep all entered data when showing errors.",
+    "For legal, financial and data-changing submissions, provide a review step, a confirmation or an undo.",
+    "Warn before a session expires and let the person extend it."
+   ],
+   "antiPatterns": [
+    "'An error occurred' or 'Invalid input'.",
+    "A red border as the only error signal.",
+    "A form that empties itself on error.",
+    "An irreversible action with neither confirmation nor undo."
+   ],
+   "howToCheck": {
+    "machine": "Submit each form empty and with bad data. Assert that every invalid field has a text error, an invalid state in code and a link from the summary, and that values are preserved. Flag generic message strings from a list. For flows that the Prescription marks as legal, financial or destructive, assert a review, confirmation or undo step.",
+    "human": "Read each error message alone and ask whether it tells a first-time user what to do next."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 criteria 3.3.1 Error Identification (Level A), 3.3.3 Error Suggestion (Level AA), 3.3.4 Error Prevention for legal, financial and data submissions (Level AA) and 2.2.1 Timing Adjustable (Level A) were read from the W3C source repository. The GOV.UK Design System guidance on error messages (read) reports that messages written to its rules were tested with all types of users in live services and that users understood what went wrong and how to fix it; it gives no numbers."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.3.1 Error Identification, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/error-identification.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.3.3 Error Suggestion, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/error-suggestion.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.3.4 Error Prevention (Legal, Financial, Data), Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/error-prevention-legal-financial-data.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.2.1 Timing Adjustable, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/timing-adjustable.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "GOV.UK Design System. Error message component guidance.",
+     "url": "https://raw.githubusercontent.com/alphagov/govuk-design-system/main/src/components/error-message/index.md",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Criterion 3.3.3 exempts suggestions that would weaken security, for example revealing whether the user name or the password was wrong. Confirmation dialogs lose force when they appear routinely, so undo is the better tool for frequent, reversible actions (a practitioner observation, not verified here).",
+   "appliesTo": [
+    "forms",
+    "copy",
+    "states",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "form-length-and-layout",
+   "topic": "forms",
+   "principle": "Ask only for what is needed; keep the layout simple",
+   "claim": "Asking only for necessary information reduces abandonment: checkout research reports that a notable share of shoppers give up because the process is too long or complicated, and that typical checkouts show more fields than they need. Evidence for layout rules such as one column or one question per page is weaker and mixed.",
+   "mechanism": "Each field costs reading, recall, typing and a chance of error, and a long form signals high effort before the person starts. A single column gives one unambiguous reading order.",
+   "effects": {
+    "cognitiveLoad": "lowers — fewer decisions and one clear path through the form",
+    "satisfaction": "raises — complexity is among the reasons shoppers give for abandoning checkout",
+    "perceivedIntuitiveness": "raises — the person can see what is asked and why"
+   },
+   "designMoves": [
+    "Remove every field that has no stated use; keep a written reason for each question.",
+    "Hide rarely used fields, such as a second address line or a company name, behind a link.",
+    "Lay out ordinary forms in one column.",
+    "For complex or unfamiliar transactions, ask about one topic per page; group several questions on a page for trained staff who repeat the task.",
+    "Explain why any sensitive or unexpected question is asked."
+   ],
+   "antiPatterns": [
+    "A phone number requested 'just in case'.",
+    "Fields in several columns with an unclear reading order.",
+    "One very long page for a complex application.",
+    "A three-field form spread over three pages."
+   ],
+   "howToCheck": {
+    "machine": "Count visible fields per form and per step. List fields that are marked neither required nor optional. Detect inputs that share a row without being parts of one value such as a date. Count the steps.",
+    "human": "For each field, ask the product owner what is done with the answer. Fields without an answer are candidates for removal."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "large-practitioner-study",
+    "strengthNote": "Baymard Institute checkout research, as reported in search summaries of its 2024 article: the average checkout had 11.3 form fields, most sites need about 8, and about 17% of surveyed shoppers had abandoned an order because checkout was too long or complicated. Other Baymard benchmark years give different numbers. Layout has grade C: a CXL Institute test (2016, 702 participants) found a single-column form about 15 seconds faster than a multi-column one, while a HubSpot A/B test found a two-column form converting better. The GOV.UK Design System (read) recommends one question per page and asking only for needed information, without publishing data."
+   },
+   "sources": [
+    {
+     "citation": "Baymard Institute (2024). Article on the average number of form fields in checkout flows. Baymard blog.",
+     "url": "https://baymard.com/blog/Checkout-flow-average-form-fields",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "GOV.UK Design System. Question pages pattern guidance.",
+     "url": "https://raw.githubusercontent.com/alphagov/govuk-design-system/main/src/patterns/question-pages/index.md",
+     "verified": "read-page"
+    },
+    {
+     "citation": "CXL Institute (2016). Form field usability study: single-column versus multi-column forms.",
+     "url": "https://conversionxl.com/research-study/form-field-usability/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "HubSpot. Disproving best practices: The one- vs. two-column form test.",
+     "url": "https://blog.hubspot.com/marketing/one-vs-two-column-form-conversion-test",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "Field count stands in for effort; one hard question can cost more than three easy ones, and removing a field that users expect can hurt. The claim that every added field lowers conversion by a fixed percentage has no general basis. The shopper figures are survey self-reports from US e-commerce.",
+   "appliesTo": [
+    "forms",
+    "onboarding",
+    "mobile",
+    "copy"
+   ]
+  },
+  {
+   "id": "defaults",
+   "topic": "forms",
+   "principle": "Defaults are powerful: choose them for the user",
+   "claim": "A pre-selected option is chosen far more often than the same option offered without pre-selection. Across 58 studies the average effect was large, but it varied widely and was sometimes negative.",
+   "mechanism": "The authors of the meta-analysis group the causes into three: people read a default as a recommendation, they treat it as the starting point from which change feels like a loss, and changing it takes effort.",
+   "effects": {
+    "cognitiveLoad": "lowers — a good default removes a decision",
+    "satisfaction": "mixed — a default that serves the user helps; a default that serves the business against the user damages trust",
+    "perceivedIntuitiveness": "raises — the form arrives sensibly filled in"
+   },
+   "designMoves": [
+    "Set each default to the safest and most common choice for the user.",
+    "Prefill what is already known and keep it editable.",
+    "Never pre-select options that benefit the business at the user's cost, such as paid add-ons or marketing consent.",
+    "Make defaults visible and easy to change.",
+    "Use no default where a deliberate choice matters, and require an active choice."
+   ],
+   "antiPatterns": [
+    "A pre-ticked box for marketing email or an insurance add-on.",
+    "A privacy-relevant default buried in advanced settings.",
+    "The most expensive plan pre-selected."
+   ],
+   "howToCheck": {
+    "machine": "List every input that has a pre-selected value. Flag pre-checked boxes whose labels match patterns for consent, marketing, newsletters, add-ons, donations or upgrades.",
+    "human": "For each default, ask whose interest it serves."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "meta-analysis",
+    "strengthNote": "Jachimowicz, Duncan, Weber and Johnson (2019, Behavioural Public Policy) analysed 58 default studies with 73,675 participants in total: d = 0.68 (95% confidence interval 0.53 to 0.83), with substantial variation; two studies showed negative effects; defaults were more effective in consumer domains and less effective in environmental ones. Abstract confirmed."
+   },
+   "sources": [
+    {
+     "citation": "Jachimowicz, J. M., Duncan, S., Weber, E. U., & Johnson, E. J. (2019). When and why defaults influence decisions: A meta-analysis of default effects. Behavioural Public Policy, 3(2), 159-186.",
+     "url": "https://collaborate.princeton.edu/en/publications/when-and-why-defaults-influence-decisions-a-meta-analysis-of-defa/",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "Because defaults work, they carry an ethical and legal load. In the European Union a pre-ticked box is not valid consent (Court of Justice ruling in Planet49, 2019; recalled from memory, not verified). People who distrust the party that set a default may reject it.",
+   "appliesTo": [
+    "forms",
+    "onboarding",
+    "states",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "autofill-and-password-managers",
+   "topic": "forms",
+   "principle": "Support autofill, paste and password managers",
+   "claim": "Inputs that collect information about the user must declare their purpose in code so that browsers and password managers can fill them (WCAG 1.3.5, Level AA). US federal guidance requires sites to allow password managers and autofill, and recommends allowing paste and offering an option to show the password.",
+   "mechanism": "Autofill replaces recall and typing with a quick confirmation, which removes typing errors and helps most on phones. A password manager lets a person use long, unique passwords without remembering them.",
+   "effects": {
+    "cognitiveLoad": "lowers — nothing to recall and little to type",
+    "satisfaction": "unknown — plausible but unmeasured; the only speed figure is an unpublished vendor claim",
+    "perceivedIntuitiveness": "raises — the form fills itself correctly"
+   },
+   "designMoves": [
+    "Set a valid autocomplete value on every field for personal data: name, email, tel, street-address, postal-code, cc-number, one-time-code, username, new-password, current-password.",
+    "Choose the input type and inputmode that bring up the right keyboard; use inputmode numeric for whole numbers.",
+    "Never block paste, in particular on password and one-time-code fields.",
+    "Offer a control that shows the password.",
+    "Impose no composition rules and no periodic change; accept passwords of at least 64 characters."
+   ],
+   "antiPatterns": [
+    "autocomplete set to off on name, address or payment fields.",
+    "Paste disabled on a password field or a 'confirm email' field.",
+    "'Must contain an uppercase letter, a number and a symbol.'",
+    "A one-time code split across six boxes that reject paste."
+   ],
+   "howToCheck": {
+    "machine": "For each input that collects personal data, assert a valid autocomplete token and a suitable type and inputmode. Paste a value into password and one-time-code fields and assert that it is accepted. Assert a show-password control. Assert that a password maxlength is absent or at least 64. Flag text that states composition rules.",
+    "human": "Complete sign-up and sign-in with a password manager on a phone."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 criteria 1.3.5 Identify Input Purpose and 3.3.8 Accessible Authentication (both Level AA) were read. NIST Special Publication 800-63B-4 (final, 2025), section 3.1.1, was read from the NIST source repository: verifiers SHALL allow password managers and autofill, SHOULD permit paste, SHOULD offer an option to display the password, SHALL NOT impose composition rules, SHALL NOT require periodic change, SHALL require at least 15 characters for a password used alone and at least 8 when it is one factor of several, and SHOULD permit at least 64 characters. Only the first 100,000 characters of that page were read. The claim that correct autocomplete attributes make form completion 'up to 30% faster' is a 2015 statement by the Chrome team with no published method (grade C)."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.3.5 Identify Input Purpose, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/21/identify-input-purpose.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.3.8 Accessible Authentication (Minimum), Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/22/accessible-authentication-minimum.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "National Institute of Standards and Technology (2025). Special Publication 800-63B-4, Digital Identity Guidelines: Authentication and Authenticator Management, section 3.1.1 Passwords.",
+     "url": "https://raw.githubusercontent.com/usnistgov/800-63-4/main/sp800-63b/authenticators/index.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "MDN Web Docs. HTML autocomplete attribute reference.",
+     "url": "https://raw.githubusercontent.com/mdn/content/main/files/en-us/web/html/reference/attributes/autocomplete/index.md",
+     "verified": "read-page"
+    },
+    {
+     "citation": "GOV.UK Design System. Text input component guidance.",
+     "url": "https://raw.githubusercontent.com/alphagov/govuk-design-system/main/src/components/text-input/index.md",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "The NIST publication binds US federal systems and serves as a reference elsewhere. Criterion 1.3.5 covers fields about the user, not fields about other people. The GOV.UK guidance advises against input type number unless research shows a need.",
+   "appliesTo": [
+    "forms",
+    "mobile",
+    "onboarding",
+    "states"
+   ]
+  },
+  {
+   "id": "visible-options-over-dropdowns",
+   "topic": "forms",
+   "principle": "Show a few options; do not hide them in a drop-down",
+   "claim": "When there are few options, show them all as radio buttons or checkboxes. Visible options are chosen more often than hidden ones, and government usability research found that many users struggle to operate drop-down lists.",
+   "mechanism": "A closed drop-down hides the choices until the person acts, so they cannot recognise the answer at a glance. Options that are visible at once get picked more. Drop-downs also demand fine control: opening, scrolling and telling the highlighted item from the selected one.",
+   "effects": {
+    "cognitiveLoad": "lowers — the choices can be read without an extra action",
+    "satisfaction": "unknown — not measured in the cited sources",
+    "perceivedIntuitiveness": "raises — the question and its possible answers are visible together"
+   },
+   "designMoves": [
+    "Use radio buttons for a small set of exclusive options and checkboxes for multiple choice.",
+    "Rephrase the question so that fewer options are needed.",
+    "For a long, familiar list such as countries, use a drop-down or a text field with suggestions.",
+    "Use text fields for dates of birth.",
+    "Do not use a multiple-selection list box."
+   ],
+   "antiPatterns": [
+    "A drop-down for 'Yes' and 'No'.",
+    "A long drop-down with no way to type ahead.",
+    "A scrolling box that shows only part of a short list."
+   ],
+   "howToCheck": {
+    "machine": "Count select elements and their options. Flag selects with fewer options than the Catalog threshold (candidates for radio buttons), long selects with no type-ahead or search, and selects that allow multiple choices.",
+    "human": "Watch first-time users on a phone operate each drop-down."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Couper, Tourangeau, Conrad and Crawford (2004) randomly assigned web-survey respondents to radio buttons, a closed drop box or a scrolling box that showed some options: options visible without action were endorsed more often, an effect the authors describe as stronger than order effects. The GOV.UK Design System guidance (read) reports research in which users could not close a select, tried to type into it, confused the focused option with the selected one, tried to pinch-zoom the options and did not realise they could scroll; it calls the select a last resort for public-facing services."
+   },
+   "sources": [
+    {
+     "citation": "Couper, M. P., Tourangeau, R., Conrad, F. G., & Crawford, S. D. (2004). What they see is what we get: Response options for web surveys. Social Science Computer Review, 22(1), 111-127.",
+     "url": "https://www.scilit.net/publications/70380b88b54a4b9a4af3775bf60f4d63",
+     "verified": "abstract"
+    },
+    {
+     "citation": "GOV.UK Design System. Select component guidance.",
+     "url": "https://raw.githubusercontent.com/alphagov/govuk-design-system/main/src/components/select/index.md",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "The survey experiment shows that the control changes which answers people give, which matters for data quality as well as ease. Native drop-downs on phones open the system picker, which many people handle well. Radio buttons take more space.",
+   "appliesTo": [
+    "forms",
+    "mobile",
+    "density"
+   ]
+  },
+  {
+   "id": "information-scent-and-labels",
+   "topic": "navigation",
+   "principle": "Information scent: labels decide where people go",
+   "claim": "People choose a link by judging, from its label and surroundings, how likely it is to lead to what they want. Clear, specific labels keep people browsing; where labels are vague or menus are narrow, people fall back on site search, which does not make them faster or more accurate.",
+   "mechanism": "Information scent is a person's imperfect estimate of the value and cost of following a path, formed from nearby cues such as link text, icons and surrounding words. People follow the strongest scent and leave when it fades.",
+   "effects": {
+    "cognitiveLoad": "lowers — a specific label answers the question 'is it here?' before the click",
+    "satisfaction": "unknown — the cited experiments measured behaviour, speed and accuracy",
+    "perceivedIntuitiveness": "raises — the site appears to be organised the way the user thinks"
+   },
+   "designMoves": [
+    "Label navigation and links with the users' own words and with specific nouns or verbs, such as 'Pricing' or 'Track an order'.",
+    "Write link text that describes its destination when read alone.",
+    "Put the distinguishing words first.",
+    "Add a short description under any category name that could be misread.",
+    "Pair icons with text labels.",
+    "Provide search as a complement to navigation, not as a repair for it."
+   ],
+   "antiPatterns": [
+    "'Click here', 'Learn more', 'Solutions', 'Resources'.",
+    "Invented brand names for sections.",
+    "Icon-only navigation.",
+    "Relying on search to make up for unclear menus."
+   ],
+   "howToCheck": {
+    "machine": "Extract all link and button texts. Flag generic strings (click here, read more, learn more, here, more) that have no programmatic context, identical texts that point to different destinations, and icon-only navigation items.",
+    "human": "Run a tree test: give users tasks and a text-only version of the menu, and record where they go first."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Pirolli and Card (1999, Psychological Review) set out information foraging theory with a rational analysis and a process model. Katz and Byrne (2003, ACM Transactions on Computer-Human Interaction) found in e-commerce experiments that menu breadth and scent both influenced browsing, that site search did not yield faster or more accurate product finding, and that search should not be used to compensate for poor menus; secondary summaries report search on fewer than 10% of trials with broad, well-labelled menus and on almost 40% with narrow, vague ones. WCAG 2.4.4 Link Purpose (Level A) and 2.4.6 Headings and Labels (Level AA) were read."
+   },
+   "sources": [
+    {
+     "citation": "Pirolli, P., & Card, S. (1999). Information foraging. Psychological Review, 106(4), 643-675.",
+     "url": null,
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Katz, M. A., & Byrne, M. D. (2003). Effects of scent and breadth on use of site-specific search on e-commerce Web sites. ACM Transactions on Computer-Human Interaction, 10(3), 198-220.",
+     "url": "https://scilit.com/publications/73130fc62f7eeee1f913281bd5fcc037",
+     "verified": "abstract"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.4.4 Link Purpose (In Context), Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/link-purpose-in-context.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.4.6 Headings and Labels, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/headings-and-labels.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Scent depends on the audience: a label that is clear to staff can mean nothing to customers, so labels must be tested with real users. People who know the exact name of an item often prefer search, especially in very large catalogues.",
+   "appliesTo": [
+    "nav",
+    "copy",
+    "sections",
+    "hero"
+   ]
+  },
+  {
+   "id": "breadth-vs-depth",
+   "topic": "navigation",
+   "principle": "Prefer broad, shallow navigation to deep, narrow navigation",
+   "claim": "For the same content, a structure with more options per level and fewer levels is usually faster and causes fewer wrong turns than a deep, narrow one, provided that the options on each level are grouped and clearly labelled. Extremely broad single levels lose the advantage.",
+   "mechanism": "Each level is a decision made under uncertainty about what a category contains, and upper-level categories are the vaguest. Every extra level adds a chance of a wrong turn. Scanning a longer, grouped, visible list costs little by comparison, because nothing has to be remembered.",
+   "effects": {
+    "cognitiveLoad": "lowers — fewer uncertain decisions on the way to a destination",
+    "satisfaction": "unknown — not confirmed from the cited abstract",
+    "perceivedIntuitiveness": "raises — destinations are visible early"
+   },
+   "designMoves": [
+    "Prefer two levels of well-labelled options to four levels of few options.",
+    "Group the items of a broad level under headings.",
+    "Use concrete names for top-level categories.",
+    "Link popular deep pages directly from the top level.",
+    "Do not cap the number of items per level at seven (see miller-seven-misreading)."
+   ],
+   "antiPatterns": [
+    "A deep tree with three or four vague choices at each level.",
+    "Hub pages that only link onward.",
+    "Removing menu items to meet a quota."
+   ],
+   "howToCheck": {
+    "machine": "Build the navigation tree from the menus and the sitemap. Report maximum and mean depth, items per level and clicks to each destination. Flag destinations deeper than the Catalog limit and levels with very few options that only lead onward.",
+    "human": "Run a tree test on the proposed structure and compare first-click success between a broad and a deep version."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Larson and Czerwinski (CHI 1998) arranged 512 items in three structures (8 by 8 by 8, 16 by 32 and 32 by 16): the three-level structure performed worst and a two-level structure of medium breadth did best. Earlier menu experiments from the 1980s point the same way (recalled from memory, not checked). These are small laboratory studies with text links; no recent large replication on modern sites was found."
+   },
+   "sources": [
+    {
+     "citation": "Larson, K., & Czerwinski, M. (1998). Web page design: Implications of memory, structure and scent for information retrieval. Proceedings of CHI 1998, 25-32.",
+     "url": "https://www.microsoft.com/en-us/research/publication/web-page-design-implications-memory-structure-scent-information-retrieval/",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "The advantage of breadth depends on the quality of grouping and labels. Small screens limit breadth, so phones often need one more level. A broad level without grouping turns into a long unordered list.",
+   "appliesTo": [
+    "nav",
+    "sections",
+    "mobile"
+   ]
+  },
+  {
+   "id": "visible-navigation",
+   "topic": "navigation",
+   "principle": "Keep the main navigation visible when there is room",
+   "claim": "Hiding the main navigation behind a menu button roughly halves how often people use it and makes tasks slower and harder, on desktop screens most of all.",
+   "mechanism": "Options that are out of sight are not considered, because recognition needs something to recognise. A hidden menu also gives no scent about what the site contains and adds a step.",
+   "effects": {
+    "cognitiveLoad": "lowers — the available destinations are visible without an extra action",
+    "satisfaction": "raises — participants rated tasks as easier with visible navigation",
+    "perceivedIntuitiveness": "raises — the structure of the site is visible on arrival"
+   },
+   "designMoves": [
+    "On wide screens, show the main navigation as visible, labelled links.",
+    "On phones, show the few most important destinations directly and put the rest behind a button.",
+    "Label the menu button with a word such as 'Menu', not only an icon.",
+    "Do not hide navigation on large screens for the sake of a clean look."
+   ],
+   "antiPatterns": [
+    "A menu icon as the only navigation on a desktop layout.",
+    "An unlabelled icon button for the menu.",
+    "Search hidden inside the menu."
+   ],
+   "howToCheck": {
+    "machine": "At each breakpoint, assert that the primary navigation links are visible without interaction when the viewport is wider than the Catalog breakpoint. Where a menu button is used, assert a visible text label and an accessible name.",
+    "human": "Ask first-time users to find a section that is reachable only through the menu, and record whether they open it."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "large-practitioner-study",
+    "strengthNote": "Nielsen Norman Group (Pernice and Budiu 2016) ran a quantitative usability study on desktop and phone. On desktop, people used hidden navigation in 27% of cases against 48 to 50% for visible or combined navigation; the firm summarises the result as discoverability cut almost in half, with longer task times and higher perceived difficulty. A secondary source gives 179 participants. One practitioner study; familiarity with the menu icon has probably grown since 2015."
+   },
+   "sources": [
+    {
+     "citation": "Pernice, K., & Budiu, R. (2016). Hamburger Menus and Hidden Navigation Hurt UX Metrics. Nielsen Norman Group.",
+     "url": "https://www.nngroup.com/articles/hamburger-menus/",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "On phones some hiding is unavoidable; the study supports showing the top destinations, not showing everything. Tools with a single dominant task may not need persistent navigation.",
+   "appliesTo": [
+    "nav",
+    "mobile",
+    "hero"
+   ]
+  },
+  {
+   "id": "conventions-and-consistency",
+   "topic": "navigation",
+   "principle": "Follow conventions and stay consistent",
+   "claim": "People arrive with expectations about where common page elements are and how they behave, learned from the other sites they use. Matching those expectations, and keeping navigation and naming the same from page to page, lets them find things without first learning this site.",
+   "mechanism": "Expectations direct attention: people look first where an element usually is. An element in an unexpected place is searched for in the wrong spot first. Consistency inside a site lets one learned location serve every page.",
+   "effects": {
+    "cognitiveLoad": "lowers — learned locations and names are reused",
+    "satisfaction": "unknown — not confirmed from the cited abstract",
+    "perceivedIntuitiveness": "raises — 'intuitive' largely means 'works like what I already know'"
+   },
+   "designMoves": [
+    "Place the standard elements where people expect them: logo at the top start linking to the home page, main navigation across the top or down the start side, search near the top, account and cart at the top end, contact and legal links in the footer.",
+    "Keep navigation in the same order and place on every page.",
+    "Give the same function the same name and icon everywhere.",
+    "Depart from a convention only for a tested reason."
+   ],
+   "antiPatterns": [
+    "Navigation that changes order or position between pages.",
+    "New icons or playful names for standard functions.",
+    "A logo that does not link to the home page."
+   ],
+   "howToCheck": {
+    "machine": "Across a crawl, assert that navigation items appear in the same relative order on every page, that the logo sits at the start of the header and links to the home page, that search (if present) is in the header, and that components with the same function have the same accessible name on every page.",
+    "human": "Ask first-time users where they would expect to find search, contact details and the account page before they see the design."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Roth, Schmutz, Pauwels, Bargas-Avila and Opwis (2010, Interacting with Computers) asked users where they expect common objects on online shops, news portals and company pages: users largely agreed on the location of many objects, across demographic groups (sample size not confirmed). WCAG 2.2 criteria 3.2.3 Consistent Navigation and 3.2.4 Consistent Identification (both Level AA) were read and make consistency within a site a formal requirement. The maxim that users spend most of their time on other sites ('Jakob's law') is a practitioner summary of this idea."
+   },
+   "sources": [
+    {
+     "citation": "Roth, S. P., Schmutz, P., Pauwels, S. L., Bargas-Avila, J. A., & Opwis, K. (2010). Mental models for web objects: Where do users expect to find the most frequent objects in online shops, news portals, and company web pages? Interacting with Computers, 22(2), 140-152.",
+     "url": "https://core.ac.uk/download/85213994.pdf",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.2.3 Consistent Navigation, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/consistent-navigation.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.2.4 Consistent Identification, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/consistent-identification.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Expectations belong to a time, a culture and a type of site; the study is from 2010 and did not find agreement for every object. 'Start' and 'end' mean left and right in left-to-right languages and the reverse in right-to-left languages.",
+   "appliesTo": [
+    "nav",
+    "hero",
+    "sections",
+    "states",
+    "signature"
+   ]
+  },
+  {
+   "id": "scanning-not-reading",
+   "topic": "content",
+   "principle": "People scan first and read selectively",
+   "claim": "Most people scan a web page for words that match their goal and read only parts of the text. Text written for scanning (short, structured, plainly worded) measured far higher on usability than the same content as promotional prose.",
+   "mechanism": "Reading everything costs time, so people sample headings, first words and highlighted terms to decide where reading will pay off.",
+   "effects": {
+    "cognitiveLoad": "lowers — structure lets readers skip what they do not need",
+    "satisfaction": "raises — the rewritten versions also scored higher on subjective measures in the original study (recalled from memory)",
+    "perceivedIntuitiveness": "raises — the page shows its contents at a glance"
+   },
+   "designMoves": [
+    "Write short paragraphs with one idea each.",
+    "Use subheadings that state the content of the section.",
+    "Turn parallel items into bulleted lists.",
+    "Highlight a few key terms.",
+    "Cut promotional filler and start with the conclusion."
+   ],
+   "antiPatterns": [
+    "A wall of text.",
+    "Clever or teasing headings.",
+    "A long introduction before the point.",
+    "Quoting 'users read only 20% of a page' as an exact statistic."
+   ],
+   "howToCheck": {
+    "machine": "Per page, compute words per paragraph, sentences per paragraph, the share of text in lists and the number of headings per few hundred words. Flag paragraphs above the Catalog word limit and long text with no subheadings.",
+    "human": "Give a reader ten seconds with the page, then ask what it is about and what they can do there."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "large-practitioner-study",
+    "strengthNote": "All figures in this note are recalled from memory, because the search budget ran out before they could be re-checked. Nielsen (1997) reported that 79% of test users scanned any new page and 16% read word by word; Morkes and Nielsen (1997) measured 124% higher usability for a concise, scannable, objective rewrite. Famous but weak: 'users read at most 28% of the words, 20% is more likely' (Nielsen 2008) is a calculation from browsing logs of one small study of mostly academic users (Weinreich and colleagues 2008), using time on page and an assumed reading speed. It is a rough upper bound per page visit, not a measured law, and has grade D as a precise number. A Nielsen Norman Group eye-tracking article (seen in search results) states that reading on the web depends heavily on the task."
+   },
+   "sources": [
+    {
+     "citation": "Nielsen, J. (1997). How Users Read on the Web. Nielsen Norman Group (Alertbox).",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Morkes, J., & Nielsen, J. (1997). Concise, SCANNABLE, and Objective: How to Write for the Web.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Nielsen, J. (2008). How Little Do Users Read? Nielsen Norman Group (Alertbox).",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Nielsen Norman Group. Text Scanning Patterns: Eyetracking Evidence.",
+     "url": "https://nngroup.com/articles/text-scanning-patterns-eyetracking/",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "People read closely when the content matches a strong need, and long articles do get read. The advice fits informational and task pages. The 1997 studies are old and small by current standards, although later eye-tracking work by the same firm points the same way.",
+   "appliesTo": [
+    "copy",
+    "sections",
+    "heading-treatment",
+    "content-width"
+   ]
+  },
+  {
+   "id": "f-pattern-is-a-symptom",
+   "topic": "content",
+   "principle": "The F-pattern is a symptom of unstructured text, not a layout rule",
+   "claim": "The F-shaped scanning pattern, in which attention goes to the first lines and then down the starting edge, appears when text has no headings or other structure and the reader is not committed. It is one of several patterns, and good formatting replaces it with more effective scanning.",
+   "mechanism": "A reader starts at the top, reads across, loses interest, moves down, reads less of each line and finally skims the starting edge. When clear headings exist, readers jump from heading to heading and read beneath the ones that matter, which eye-tracking researchers call the layer-cake pattern.",
+   "effects": {
+    "cognitiveLoad": "lowers — headings let readers reach the relevant part directly",
+    "satisfaction": "unknown — not measured in the sources seen",
+    "perceivedIntuitiveness": "raises — the structure of the content is visible"
+   },
+   "designMoves": [
+    "Break text with informative headings so that readers scan from heading to heading.",
+    "Put the key words first in headings, paragraphs and list items.",
+    "Put the most important information in the first two paragraphs.",
+    "Do not arrange a layout in the shape of an F."
+   ],
+   "antiPatterns": [
+    "Placing calls to action along an 'F' because 'users read in an F'.",
+    "Long text with no subheadings.",
+    "Important information at the end of long lines deep in a text block."
+   ],
+   "howToCheck": {
+    "machine": "Flag text blocks longer than the Catalog limit that contain no subheading or list. Flag headings that begin with generic words such as 'Introduction' or 'More about'.",
+    "human": "Read only the first three words of each line of a page. If the result means nothing, the page invites F-pattern skimming."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "large-practitioner-study",
+    "strengthNote": "Nielsen Norman Group eye tracking: the pattern was described in 2006 (232 users, recalled from memory) and revisited by Pernice in 2017 in an article whose title calls it misunderstood. The firm's pages, seen in search results, say that the shape is rough and variable, that it is one of several scanning patterns, that reading depends on the task, and that the layer-cake pattern is the most effective way to scan. The full 2017 article was not read. Heat maps average over many people; individuals differ."
+   },
+   "sources": [
+    {
+     "citation": "Pernice, K. (2017). F-Shaped Pattern of Reading on the Web: Misunderstood, But Still Relevant (Even on Mobile). Nielsen Norman Group.",
+     "url": "https://nngroup.com/articles/f-shaped-pattern-reading-web-content/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Nielsen, J. (2006). F-Shaped Pattern for Reading Web Content (original eye-tracking research). Nielsen Norman Group.",
+     "url": "https://nngroup.com/articles/f-shaped-pattern-reading-web-content-discovered/",
+     "verified": "search-snippet"
+    },
+    {
+     "citation": "Nielsen Norman Group. Text Scanning Patterns: Eyetracking Evidence.",
+     "url": "https://nngroup.com/articles/text-scanning-patterns-eyetracking/",
+     "verified": "search-snippet"
+    }
+   ],
+   "caveats": "In right-to-left languages the pattern is mirrored. The original observations came from text-heavy pages and search results of the 2000s; image-led and card-based pages produce other patterns.",
+   "appliesTo": [
+    "copy",
+    "heading-treatment",
+    "sections",
+    "content-width"
+   ]
+  },
+  {
+   "id": "front-load-headings-fold",
+   "topic": "content",
+   "principle": "Front-load: the top of the page and the first words do most of the work",
+   "claim": "Attention falls steeply from the top of a page downward: in one large eye-tracking analysis, people spent more than half of their viewing time above the fold and about three quarters within the first two screenfuls. The top of the page and the first words of each heading and paragraph must carry the main point.",
+   "mechanism": "Everyone sees the top. Each further scroll is a decision based on what has been seen so far. Scanning eyes catch the first words of a line, so those words decide whether the rest is read.",
+   "effects": {
+    "cognitiveLoad": "lowers — the main point is available without scrolling or searching",
+    "satisfaction": "unknown — not measured in the sources seen",
+    "perceivedIntuitiveness": "raises — the page says at once what it is and what can be done there"
+   },
+   "designMoves": [
+    "State in the first screen what the page is and what the person can do.",
+    "Write in inverted-pyramid order: conclusion first, detail after.",
+    "Write headings that state the point and begin with the informative words.",
+    "Use real heading elements in a correct hierarchy, so that the structure also exists in code.",
+    "Show that the page continues below the first screen (see figure-ground-closure)."
+   ],
+   "antiPatterns": [
+    "A first screen with a slogan and no statement of the offer.",
+    "Key information after a long introduction.",
+    "Bold paragraphs used in place of heading elements."
+   ],
+   "howToCheck": {
+    "machine": "Assert one top-level heading and no skipped heading levels (axe-core has rules for both). Assert that the top-level heading and either the primary action or the key statement fall inside the first viewport at common sizes. Flag bold paragraphs that act as headings.",
+    "human": "Read only the first screen and the headings. They should give the full outline of the page."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "large-practitioner-study",
+    "strengthNote": "The attention figures (57% of viewing time above the fold, 74% in the first two screenfuls) come from a Nielsen Norman Group eye-tracking analysis by Fessenden (2018) and are recalled from memory; they could not be re-checked. They are averages over many sites and tasks from one firm's data. WCAG 2.2 criteria 2.4.6 Headings and Labels (Level AA) and 1.3.1 Info and Relationships (Level A) were read; they require descriptive headings and structure that is available in code."
+   },
+   "sources": [
+    {
+     "citation": "Fessenden, T. (2018). Scrolling and Attention. Nielsen Norman Group.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.4.6 Headings and Labels, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/headings-and-labels.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.3.1 Info and Relationships, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/info-and-relationships.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "People do scroll, especially on phones, when the top gives them a reason; long pages work when each screen promises more. The fold is not a fixed line: it differs with every device.",
+   "appliesTo": [
+    "hero",
+    "copy",
+    "heading-treatment",
+    "sections"
+   ]
+  },
+  {
+   "id": "plain-language",
+   "topic": "content",
+   "principle": "Plain language helps everyone, experts included",
+   "claim": "Plain wording, short sentences and common words help every reader, including experts, to understand faster. The accessibility standard asks for text that a person with lower-secondary education can read, or for a simpler version beside the original.",
+   "mechanism": "Familiar words are recognised faster than rare ones. A short sentence holds fewer items in working memory before its meaning resolves. Jargon makes the reader recall or look up a definition.",
+   "effects": {
+    "cognitiveLoad": "lowers — less decoding per sentence",
+    "satisfaction": "raises — practitioner studies report that experts also prefer plain text (recalled from memory)",
+    "perceivedIntuitiveness": "raises — instructions can be followed at first reading"
+   },
+   "designMoves": [
+    "Use the reader's words, and define each technical term at first use.",
+    "Write short sentences with one idea each, in the active voice.",
+    "Address the reader as 'you' and state the action first.",
+    "For content aimed at the general public, aim for a lower-secondary reading level, or add a plain summary.",
+    "Test comprehension with real readers; use a readability formula only as a flag."
+   ],
+   "antiPatterns": [
+    "Legal or marketing jargon inside instructions.",
+    "Unexplained abbreviations.",
+    "Simplifying by removing information that the reader needs."
+   ],
+   "howToCheck": {
+    "machine": "Per page, compute a readability index (for example the Flesch-Kincaid grade), mean sentence length and the share of passive sentences. Flag pages above the Catalog target and terms from a jargon list. Treat the scores as flags, not verdicts.",
+    "human": "Ask a member of the audience to read a passage and say in their own words what they must do."
+   },
+   "evidence": {
+    "grade": "B",
+    "kind": "large-practitioner-study",
+    "strengthNote": "WCAG 2.2 criterion 3.1.5 Reading Level (Level AAA) was read. The other supports are recalled from memory and were not re-checked: the US Plain Writing Act of 2010 obliges federal agencies to write clearly; ISO 24495-1:2023 is an international plain-language standard; Nielsen Norman Group studies (Nielsen 2005 on lower-literacy users; Loranger 2017 on experts) report better task success and a preference for plain text across literacy levels. No meta-analysis was located in this search."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 3.1.5 Reading Level, Level AAA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/reading-level.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Loranger, H. (2017). Plain Language Is for Everyone, Even Experts. Nielsen Norman Group.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "United States Congress (2010). Plain Writing Act of 2010, Public Law 111-274.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "International Organization for Standardization (2023). ISO 24495-1:2023 Plain language, Part 1: Governing principles and guidelines.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "Readability formulas count word and sentence length; they do not measure clarity and can be gamed. A specialist audience needs its own terms, defined once. Where legal precision demands exact wording, add a plain summary and keep the precise text.",
+   "appliesTo": [
+    "copy",
+    "forms",
+    "onboarding",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "touch-target-size",
+   "topic": "mobile",
+   "principle": "Touch targets: 24 CSS pixels minimum, about 44 for comfort",
+   "claim": "Pointer targets must measure at least 24 by 24 CSS pixels or have equivalent spacing (WCAG 2.5.8, Level AA). The stricter level asks for 44 by 44 (2.5.5, Level AAA), which is close to platform guidance for touch.",
+   "mechanism": "A fingertip covers far more area than a mouse pointer and hides the target while touching it. Tremor, one-handed use and movement, such as riding a bus, add error. A small or crowded target leads to the wrong control being activated.",
+   "effects": {
+    "cognitiveLoad": "lowers — fewer slips to notice and correct",
+    "satisfaction": "unknown — the standard reports no satisfaction data",
+    "perceivedIntuitiveness": "raises — controls respond to the first tap"
+   },
+   "designMoves": [
+    "Make every interactive target at least 24 by 24 CSS pixels.",
+    "Make primary and frequent touch targets at least 44 by 44 CSS pixels.",
+    "Where the visible mark is small, such as a 16-pixel icon, enlarge the tappable area with padding.",
+    "Space undersized targets so that a 24-pixel circle centred on each does not overlap another target.",
+    "Use larger targets for actions that are frequent, hard to undo, near a screen edge or part of a sequence."
+   ],
+   "antiPatterns": [
+    "A tiny close icon.",
+    "A dense row of icon buttons.",
+    "A stack of text links with tight line spacing as the main phone navigation.",
+    "A tappable area that covers only the glyph."
+   ],
+   "howToCheck": {
+    "machine": "At a phone viewport (for example 375 CSS pixels wide), read the bounding box of every interactive element. Flag any box under 24 by 24 unless a 24-pixel circle centred on it intersects no other target or its circle. Report the share of primary actions under 44 by 44.",
+    "human": "Operate the page with a thumb on a real phone, one-handed, and count the mis-taps."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 criteria 2.5.8 (Level AA, new in version 2.2) and 2.5.5 (Level AAA) and their explanations were read. The explanation says that the working group reviewed research and guidelines, which mostly concern touch and suggest larger sizes, and chose 24 as a floor for all pointer types after reviewing target sizes on high-traffic sites. It lists, without summarising, a study of one-handed thumb use (Parhi, Karlson and Bederson 2006), which recommended thumb targets of roughly 9 to 10 mm (recalled from memory). Apple's 44-point and Android's 48-dp guidance are also recalled from memory."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.5.8 Target Size (Minimum), Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/22/target-size-minimum.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). Understanding Success Criterion 2.5.8: Target Size (Minimum).",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/22/target-size-minimum.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.5.5 Target Size (Enhanced), Level AAA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/21/target-size-enhanced.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Parhi, P., Karlson, A. K., & Bederson, B. B. (2006). Target size study for one-handed thumb use on small touchscreen devices. Proceedings of MobileHCI 2006, 203-210.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "A CSS pixel is not a physical length, so the same target differs in millimetres between devices. The criterion exempts links inside sentences, controls sized by the browser, and targets whose size is essential. 24 pixels is a legal floor, not a comfortable touch size.",
+   "appliesTo": [
+    "mobile",
+    "states",
+    "forms",
+    "nav",
+    "density"
+   ]
+  },
+  {
+   "id": "thumb-reach",
+   "topic": "mobile",
+   "principle": "Thumb reach: lower and central areas are easier, but grips vary",
+   "claim": "On a phone held in one hand, controls in the lower and central part of the screen are easier to reach than the top corners. People change grip constantly, so 'thumb zone' maps are rough guides, not measurements.",
+   "mechanism": "The area a thumb can cover depends on hand size, grip and phone size. Reaching a far corner needs a change of grip or the other hand, and the hand hides part of the screen while reaching.",
+   "effects": {
+    "cognitiveLoad": "none — the effect is physical effort and slips",
+    "satisfaction": "unknown — not measured in the sources recalled",
+    "perceivedIntuitiveness": "unknown — not measured"
+   },
+   "designMoves": [
+    "Put frequent and primary actions in the lower half of the phone screen or in a bottom bar.",
+    "Do not make a top corner the only place for the primary action on tall phones.",
+    "Place rare or destructive actions further from the resting thumb.",
+    "Do not assume the right hand; avoid layouts that work for one side only."
+   ],
+   "antiPatterns": [
+    "The only 'Save' or 'Next' control in the top corner of a tall screen.",
+    "Justifying a layout with a static thumb-zone picture.",
+    "An edge swipe as the only way to perform a core action."
+   ],
+   "howToCheck": {
+    "machine": "At phone viewport sizes, report the vertical position of each primary action. Flag primary actions that exist only in the top corners of screens taller than the Catalog limit.",
+    "human": "Use the product one-handed with each hand on a large phone, and note each change of grip."
+   },
+   "evidence": {
+    "grade": "C",
+    "kind": "expert-opinion",
+    "strengthNote": "Both sources are recalled from memory and were not re-checked. Hoober (2013) observed 1,333 people using phones in public: about 49% held the phone in one hand, 36% cradled it in one hand and touched with the other, and 15% used two hands. Bergstrom-Lehtovirta and Oulasvirta (CHI 2014) modelled the reachable area of the thumb from hand size and grip. The coloured thumb-zone diagrams in design articles are illustrations and not data. Phones have grown since 2013."
+   },
+   "sources": [
+    {
+     "citation": "Hoober, S. (2013). How Do Users Really Hold Mobile Devices? UXmatters.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Bergstrom-Lehtovirta, J., & Oulasvirta, A. (2014). Modeling the functional area of the thumb on mobile touchscreen surfaces. Proceedings of CHI 2014.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "Platform conventions still place some controls at the top (for example, a back control), and people cope with them through system gestures. Tablets and two-handed use have different reach patterns.",
+   "appliesTo": [
+    "mobile",
+    "nav",
+    "states",
+    "forms"
+   ]
+  },
+  {
+   "id": "reflow-zoom-input-alternatives",
+   "topic": "mobile",
+   "principle": "Reflow, zoom, and no hover-only or gesture-only functions",
+   "claim": "Content must work at a width of 320 CSS pixels without scrolling in two directions, allow text to be enlarged to 200%, and never depend on hover, dragging or multi-finger gestures alone (WCAG 2.2, Levels A and AA).",
+   "mechanism": "People with low vision zoom in; a 1,280-pixel window at 400% zoom is 320 pixels wide. Lines that run off the screen force back-and-forth scrolling, which makes readers lose their place. Touch screens have no hover, and dragging or tracing a path is hard for people with tremor or with alternative pointing devices.",
+   "effects": {
+    "cognitiveLoad": "lowers — the W3C explanation says horizontal scrolling significantly increases physical and cognitive effort",
+    "satisfaction": "unknown — the standard reports no satisfaction data",
+    "perceivedIntuitiveness": "raises — every function is reachable by the simplest input"
+   },
+   "designMoves": [
+    "Build layouts that reflow to one column at 320 CSS pixels; avoid fixed widths.",
+    "Do not disable pinch zoom in the viewport settings.",
+    "Make everything that appears on hover also available on focus and on tap, and make it dismissible, hoverable and persistent.",
+    "Give every drag action, such as reordering or a slider, a single-tap or button alternative.",
+    "Give every swipe, pinch or path gesture a single-tap alternative."
+   ],
+   "antiPatterns": [
+    "Horizontal scrolling of the page at phone width.",
+    "A tooltip as the only source of necessary information.",
+    "Drag-only reordering or swipe-only deletion.",
+    "A viewport setting that blocks zoom."
+   ],
+   "howToCheck": {
+    "machine": "Render at 320 CSS pixels wide and assert that the document does not scroll horizontally, except inside elements marked as tables, maps or code. Parse the viewport meta tag and flag settings that disable or limit zoom. Enlarge text to 200% and detect clipping. For content shown on hover, assert that it also appears on focus or tap. Flag draggable elements with no button alternative.",
+    "human": "Use the product at 400% browser zoom and on a phone with one finger only."
+   },
+   "evidence": {
+    "grade": "A",
+    "kind": "law-or-standard",
+    "strengthNote": "WCAG 2.2 criteria 1.4.10 Reflow (AA), 1.4.4 Resize Text (AA), 1.4.13 Content on Hover or Focus (AA), 2.5.1 Pointer Gestures (A) and 2.5.7 Dragging Movements (AA) were read from the W3C source repository, with the explanation for Reflow. That explanation refers to a 2017 study of the overhead of horizontal scrolling without giving its figures."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.4.10 Reflow, Level AA, with its Understanding document.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/understanding/21/reflow.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.4.13 Content on Hover or Focus, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/21/content-on-hover-or-focus.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.5.1 Pointer Gestures, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/21/pointer-gestures.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.5.7 Dragging Movements, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/22/dragging-movements.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 1.4.4 Resize Text, Level AA.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/20/resize-text.html",
+     "verified": "read-page"
+    }
+   ],
+   "caveats": "Content that needs two dimensions, such as data tables, maps, diagrams and video, may scroll both ways. Gestures and dragging that are essential to a function, such as drawing, are exempt.",
+   "appliesTo": [
+    "mobile",
+    "states",
+    "content-width",
+    "tables",
+    "nav"
+   ]
+  },
+  {
+   "id": "expertise-reversal",
+   "topic": "expertise",
+   "principle": "What helps beginners can slow experts (expertise reversal)",
+   "claim": "Guidance that helps beginners, such as step-by-step instructions and explanations, can slow people who already know the task. An interface for a mixed audience needs help that beginners can see and experts can skip.",
+   "mechanism": "A beginner lacks a mental model of the task, so guidance stands in for it. A practised person already has the model; guidance then repeats what they know, and they must still read it and reconcile it with their own knowledge.",
+   "effects": {
+    "cognitiveLoad": "mixed — guidance lowers load for beginners and raises it for experts",
+    "satisfaction": "unknown — not confirmed in this search",
+    "perceivedIntuitiveness": "mixed — beginners find guided flows clear; experts find them slow"
+   },
+   "designMoves": [
+    "Make help optional and collapsible, and remember that a person dismissed it.",
+    "Offer a fast path, such as bulk actions and remembered settings, beside the guided path.",
+    "In tools that people use every day, favour density, stable positions and shortcuts.",
+    "In products that people use rarely, such as a legal intake or a tax form, treat every visit as a beginner's visit."
+   ],
+   "antiPatterns": [
+    "A tutorial that is forced on every session.",
+    "A wizard as the only route for a daily task.",
+    "Removing all guidance because 'our users are experts'."
+   ],
+   "howToCheck": {
+    "machine": "Assert that onboarding panels and tips can be dismissed and that the dismissal persists across reloads. Assert that guided flows offer a skip or an express route.",
+    "human": "Test with both first-time and practised users, and compare where each group slows down."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "The expertise reversal effect was named by Kalyuga, Ayres, Chandler and Sweller (2003) on the basis of instructional experiments; the paper is cited from memory and was not re-checked, and the evidence concerns learning materials. In interfaces, the verified menu model of Cockburn, Gutwin and Greenberg (2007) has separate components for beginners (visual search) and experts (decision from memory) and for the transition between them, which supports designing for both states."
+   },
+   "sources": [
+    {
+     "citation": "Kalyuga, S., Ayres, P., Chandler, P., & Sweller, J. (2003). The expertise reversal effect. Educational Psychologist, 38(1), 23-31.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Cockburn, A., Gutwin, C., & Greenberg, S. (2007). A predictive model of menu performance. Proceedings of CHI 2007, 627-636.",
+     "url": "https://sciweavers.org/node/43064",
+     "verified": "abstract"
+    }
+   ],
+   "caveats": "Expertise is specific to a task and depends on how often a person does it, not on general technical skill. The benefit of guidance for beginners is better established than the harm to experts.",
+   "appliesTo": [
+    "onboarding",
+    "density",
+    "forms",
+    "ai-ux",
+    "states"
+   ]
+  },
+  {
+   "id": "progressive-disclosure-and-onboarding",
+   "topic": "expertise",
+   "principle": "Progressive disclosure, and learning by doing",
+   "claim": "Showing the common options first and revealing advanced ones on request helps beginners learn faster with fewer errors. People learn an interface mainly by using it, and upfront tutorials help only when the product is complex.",
+   "mechanism": "Fewer visible choices mean fewer wrong paths for a beginner. People want to get their own task done, so they skip instructions and try things; help that appears at the moment of need fits that behaviour.",
+   "effects": {
+    "cognitiveLoad": "lowers — beginners face fewer choices and fewer error states",
+    "satisfaction": "mixed — hiding features that people need frustrates them",
+    "perceivedIntuitiveness": "raises — the first view shows only what the main task needs"
+   },
+   "designMoves": [
+    "Show the few most-used controls and put the rest behind one clearly labelled step, such as 'More options'.",
+    "Never hide what most users need for the main task.",
+    "Let people start the real task at once.",
+    "Teach in context: informative empty states, inline hints and a tip at the first use of a feature.",
+    "Make any tour skippable and available again later."
+   ],
+   "antiPatterns": [
+    "A five-screen introduction before first use.",
+    "An essential setting under 'Advanced'.",
+    "Disclosure inside disclosure.",
+    "A feature tour that lists everything."
+   ],
+   "howToCheck": {
+    "machine": "Per view, count the controls visible by default and those behind disclosure. Assert that disclosure controls have text labels. Assert that any onboarding sequence has a skip control and that the main task is reachable without finishing it.",
+    "human": "Watch a first-time user for five minutes with no instructions, and note what they try first and where they get stuck."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "All sources are recalled from memory and were not re-checked. Carroll and Carrithers (1984) gave beginners a 'training wheels' word processor with advanced functions blocked; they got started faster and spent less time recovering from errors. Andersen and colleagues (CHI 2012) tested tutorials on more than 45,000 players of three games; tutorials raised engagement only in the most complex game. Carroll and Rosson (1987) describe the 'paradox of the active user': people skip instruction because they want to get on with their work. Nielsen Norman Group describes progressive disclosure as a pattern."
+   },
+   "sources": [
+    {
+     "citation": "Carroll, J. M., & Carrithers, C. (1984). Training wheels in a user interface. Communications of the ACM, 27(8), 800-806.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Andersen, E., O'Rourke, E., Liu, Y.-E., Snider, R., Lowdermilk, J., Truong, D., Cooper, S., & Popovic, Z. (2012). The impact of tutorials on games of varying complexity. Proceedings of CHI 2012.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Carroll, J. M., & Rosson, M. B. (1987). Paradox of the active user. In J. M. Carroll (Ed.), Interfacing Thought. MIT Press.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Nielsen, J. (2006). Progressive Disclosure. Nielsen Norman Group.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "A hidden feature is found less often (see visible-navigation), so disclosure trades findability for simplicity; choose what to hide from usage data. Games are not productivity software, so the tutorial result transfers only as a pattern.",
+   "appliesTo": [
+    "onboarding",
+    "density",
+    "forms",
+    "sections",
+    "ai-ux"
+   ]
+  },
+  {
+   "id": "shortcuts-and-accelerators",
+   "topic": "expertise",
+   "principle": "Shortcuts speed up experts, but only if people find them",
+   "claim": "Keyboard shortcuts and other accelerators make frequent actions much faster for practised users, yet most people never switch to them unless the interface keeps showing them. Shortcuts made of single character keys must be possible to turn off or remap.",
+   "mechanism": "A learned shortcut replaces pointing and menu search with one remembered action. Switching methods costs a short dip in speed, and people who are busy with their work stay with a method that already works.",
+   "effects": {
+    "cognitiveLoad": "mixed — lower for those who have learned them; learning them is an extra demand",
+    "satisfaction": "unknown — not confirmed in this search",
+    "perceivedIntuitiveness": "unknown — not measured; shortcuts do not change the visible interface"
+   },
+   "designMoves": [
+    "Offer shortcuts for frequent actions and follow platform conventions.",
+    "Show each shortcut beside its menu item and in its tooltip.",
+    "Offer a command palette (a search box for commands) as a bridge between browsing menus and remembering keys.",
+    "Never make a shortcut the only way to do something.",
+    "Let users turn off or remap single-key shortcuts, or activate them only when the relevant component has focus."
+   ],
+   "antiPatterns": [
+    "Shortcuts that are documented nowhere in the interface.",
+    "Overriding standard browser or system shortcuts.",
+    "Single-letter shortcuts that fire while the user dictates or types elsewhere."
+   ],
+   "howToCheck": {
+    "machine": "Detect key handlers at document level for single printable characters; assert a setting to disable or remap them, or that they act only on focus. Check that menu items and tooltips expose their shortcuts.",
+    "human": "Ask a practised user which shortcuts they use and how they learned them."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "WCAG 2.2 criterion 2.1.4 Character Key Shortcuts (Level A) was read. The behavioural evidence is recalled from memory and was not re-checked: Lane, Napier, Peres and Sandor (2005) found that experienced users of a word processor mostly kept using menus and toolbars although keyboard shortcuts were faster; Cockburn, Gutwin, Scarr and Malacria (2014) review how interfaces can support the move from beginner to expert methods."
+   },
+   "sources": [
+    {
+     "citation": "W3C (2023). WCAG 2.2, Success Criterion 2.1.4 Character Key Shortcuts, Level A.",
+     "url": "https://raw.githubusercontent.com/w3c/wcag/main/guidelines/sc/21/character-key-shortcuts.html",
+     "verified": "read-page"
+    },
+    {
+     "citation": "Lane, D. M., Napier, H. A., Peres, S. C., & Sandor, A. (2005). Hidden costs of graphical user interfaces: Failure to make the transition from menus and icon toolbars to keyboard shortcuts. International Journal of Human-Computer Interaction, 18(2), 133-144.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    },
+    {
+     "citation": "Cockburn, A., Gutwin, C., Scarr, J., & Malacria, S. (2014). Supporting novice to expert transitions in user interfaces. ACM Computing Surveys, 47(2), Article 31.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "Shortcuts pay off only for frequent actions. Web applications share the keyboard with the browser and with assistive technology, so conflicts are likely. Touch devices need other accelerators, such as recent items, with a visible alternative for each.",
+   "appliesTo": [
+    "states",
+    "nav",
+    "onboarding",
+    "density"
+   ]
+  },
+  {
+   "id": "stable-layouts",
+   "topic": "expertise",
+   "principle": "Keep things where they are: spatial memory makes repeat use fast",
+   "claim": "People learn where things are, and that memory makes repeated use fast. Interfaces that reorder or move items automatically, even to promote frequent ones, tend to be slower than layouts that stay put.",
+   "mechanism": "With repetition, visual search gives way to a remembered position: the person moves to the place without reading. An automatic change of order invalidates that memory and forces a new search.",
+   "effects": {
+    "cognitiveLoad": "lowers — position is remembered, so no search is needed",
+    "satisfaction": "raises — in the menu study recalled from memory, most participants preferred menus they controlled over menus that adapted by themselves",
+    "perceivedIntuitiveness": "raises — the interface behaves predictably"
+   },
+   "designMoves": [
+    "Keep the order and position of navigation, toolbars and menu items fixed across pages and sessions.",
+    "To promote recent or frequent items, add a separate 'Recent' area and leave the main order alone.",
+    "Let users arrange things themselves if order matters to them.",
+    "Keep relative positions across screen sizes as far as possible.",
+    "In a redesign, keep the positions of the most-used controls."
+   ],
+   "antiPatterns": [
+    "Menus that reorder by frequency of use.",
+    "A home screen that reshuffles on each visit.",
+    "'Smart' toolbars that hide unused items."
+   ],
+   "howToCheck": {
+    "machine": "Load key pages repeatedly and across simulated sessions; assert identical order and position of navigation and toolbar items. Flag code that sorts menu items by usage or recency.",
+    "human": "Ask a practised user to point to a control from memory before the screen is shown."
+   },
+   "evidence": {
+    "grade": "A-",
+    "kind": "peer-reviewed-experiment",
+    "strengthNote": "Cockburn, Gutwin and Greenberg (CHI 2007, abstract confirmed) model the shift from visual search to remembered location and validated the model on traditional menus, split menus and an adaptive 'morphing' design. Findlater and McGrenere (CHI 2004), recalled from memory and not re-checked, compared static, adaptive and user-adaptable menus and found the static menu faster than the adaptive one. These are small laboratory studies of menus."
+   },
+   "sources": [
+    {
+     "citation": "Cockburn, A., Gutwin, C., & Greenberg, S. (2007). A predictive model of menu performance. Proceedings of CHI 2007, 627-636.",
+     "url": "https://sciweavers.org/node/43064",
+     "verified": "abstract"
+    },
+    {
+     "citation": "Findlater, L., & McGrenere, J. (2004). A comparison of static, adaptive, and adaptable menus. Proceedings of CHI 2004, 89-96.",
+     "url": null,
+     "verified": "from-memory-unverified"
+    }
+   ],
+   "caveats": "Additive help, such as search suggestions or a recent-items list that leaves the main layout untouched, does not carry this cost. Content feeds are expected to change; the rule concerns controls and navigation.",
+   "appliesTo": [
+    "nav",
+    "states",
+    "density",
+    "sections"
    ]
   }
  ]

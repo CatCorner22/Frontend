@@ -11,20 +11,27 @@
     "node": ">=22"
   },
   "scripts": {
-    "typecheck": "tsc -p packages/core && tsc -p apps/studio",
+    "typecheck": "tsc -p packages/core && tsc -p apps/studio && tsc -p tsconfig.e2e.json",
     "lint": "eslint . --max-warnings 0",
     "boundaries": "depcruise packages apps --config .dependency-cruiser.cjs",
     "test": "vitest run",
     "build": "npm run build -w @refraction/studio",
     "dev": "npm run dev -w @refraction/studio",
-    "check": "npm run typecheck && npm run lint && npm run boundaries && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run boundaries && npm run test",
+    "build:page": "npm run build && node apps/studio/scripts/make-artifact.mjs",
+    "size": "node scripts/check-size.mjs",
+    "e2e": "npm run build:page && npm run size && vitest run --config vitest.e2e.config.ts",
+    "notices": "node scripts/make-notices.mjs"
   },
   "devDependencies": {
+    "@types/node": "22.20.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.3.0",
+    "axe-core": "4.14.0",
     "dependency-cruiser": "18.7.2",
     "eslint": "10.14.0",
+    "playwright": "1.63.0",
     "prettier": "3.10.1",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.2",

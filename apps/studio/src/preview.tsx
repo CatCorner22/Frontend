@@ -1,6 +1,6 @@
 // Mockup previews. Each preview is a sandboxed frame: no scripts, no access to the Studio.
 import { deriveTokens, renderSmallBusiness, wireframeParams, type DesignParams, type FontId, type MockupFocus, type Project, type TokenIssue } from '@refraction/core';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { fontFaceCss } from './fonts';
 
 export interface MockupOptions {
@@ -52,13 +52,13 @@ interface FrameProps {
   lazy?: boolean;
 }
 
-/** A small, scaled-down preview with a fixed shape. */
+/** A small, scaled-down preview with a fixed shape. It is inert: keyboard focus and clicks pass over it. */
 export function Thumbnail({ html, width, title, lazy = true, ratio = 0.62 }: FrameProps & { ratio?: number }): React.JSX.Element {
   const [ref, size] = useSize();
   const scale = size.width > 0 ? size.width / width : 0;
   const height = Math.round(width * ratio);
   return (
-    <div ref={ref} className="thumb" style={{ height: size.width > 0 ? Math.round(height * scale) : undefined, aspectRatio: size.width > 0 ? undefined : `1 / ${ratio}` }}>
+    <div ref={ref} className="thumb" inert style={{ height: size.width > 0 ? Math.round(height * scale) : undefined, aspectRatio: size.width > 0 ? undefined : `1 / ${ratio}` }}>
       {scale > 0 && (
         <iframe
           title={title}
@@ -77,12 +77,30 @@ export function Thumbnail({ html, width, title, lazy = true, ratio = 0.62 }: Fra
 /** The large preview. It fills its pane; the page inside scrolls and responds to hover. */
 export function LargePreview({ html, width, title }: FrameProps): React.JSX.Element {
   const [ref, size] = useSize();
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
+  const [inside, setInside] = useState(false);
   const scale = size.width > 0 ? Math.min(1, size.width / width) : 0;
   const frameHeight = scale > 0 ? Math.max(200, Math.round(size.height / scale)) : 0;
+
+  // When keyboard focus moves into the frame, the surrounding page only learns that its window lost focus.
+  // The pane then shows a ring, so that a keyboard user can see that focus is inside the preview.
+  useEffect(() => {
+    const update = (): void => setInside(frameRef.current !== null && document.activeElement === frameRef.current);
+    window.addEventListener('blur', update);
+    window.addEventListener('focus', update);
+    document.addEventListener('focusin', update);
+    return () => {
+      window.removeEventListener('blur', update);
+      window.removeEventListener('focus', update);
+      document.removeEventListener('focusin', update);
+    };
+  }, []);
+
   return (
-    <div ref={ref} className="large-preview">
+    <div ref={ref} className="large-preview" data-focus-inside={inside || undefined}>
       {scale > 0 && (
         <iframe
+          ref={frameRef}
           title={title}
           sandbox=""
           srcDoc={html}

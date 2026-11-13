@@ -100,7 +100,7 @@ function DirectionsView(): React.JSX.Element {
   };
   const started = s.project.direction !== null || Object.keys(s.project.decisions).length > 0;
   return (
-    <main className="directions" id="main">
+    <main className="directions" id="main" tabIndex={-1}>
       <div className="intro">
         <p className="eyebrow">Stage 1 · Direction</p>
         <h1>Pick a starting direction</h1>
@@ -240,7 +240,7 @@ function StepsView(): React.JSX.Element {
   return (
     <div className="work">
       <Rail />
-      <main className="stage" id="main">
+      <main className="stage" id="main" tabIndex={-1}>
         <div className="step-head">
           <p className="eyebrow">{STAGE_LABEL[step.stage]} · Step {index + 1} of {STEPS.length}</p>
           <h1>{step.title}</h1>
@@ -271,6 +271,9 @@ function StepsView(): React.JSX.Element {
           )}
           <span className="showing" aria-live="polite">Showing: <strong>{focused?.label ?? 'current design'}</strong></span>
         </div>
+        <button type="button" className="skip-preview" onClick={() => (document.querySelector('.options input[type="radio"]:checked') as HTMLElement | null)?.focus()}>
+          Skip the preview and go to the Options
+        </button>
         <LargePreview html={large.html} width={width} title={`Large preview: ${focused?.label ?? 'current design'}`} />
         {(focused?.warn || large.issues.length > 0 || found.length > 0) && (
           <div className="notes" role="status">
@@ -414,7 +417,7 @@ function SummaryView(): React.JSX.Element {
   };
 
   return (
-    <main className="summary" id="main">
+    <main className="summary" id="main" tabIndex={-1}>
       <div className="summary-main">
         <p className="eyebrow">Read-back</p>
         <h1>Your decisions so far</h1>
@@ -511,7 +514,7 @@ export function App(): React.JSX.Element {
 
   return (
     <div className="app">
-      <a className="skip" href="#main">Skip to the main content</a>
+      <button type="button" className="skip" onClick={() => document.getElementById('main')?.focus()}>Skip to the main content</button>
       <TopBar />
       {notice && (
         <p className="banner" role="status">
@@ -521,7 +524,7 @@ export function App(): React.JSX.Element {
       {previewsWork === false && (
         <p className="banner" role="alert">This page is not allowed to show embedded previews, so the pictures will be blank. Tell Claude: “the previews are blocked.”</p>
       )}
-      {!ready ? <main className="loading" id="main"><p>Opening your project…</p></main> : view === 'directions' ? <DirectionsView /> : view === 'summary' ? <SummaryView /> : <StepsView />}
+      {!ready ? <main className="loading" id="main" tabIndex={-1}><p>Opening your project…</p></main> : view === 'directions' ? <DirectionsView /> : view === 'summary' ? <SummaryView /> : <StepsView />}
     </div>
   );
 }

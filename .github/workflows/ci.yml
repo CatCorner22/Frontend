@@ -31,5 +31,9 @@ jobs:
         run: npm run boundaries
       - name: Unit tests
         run: npm test
+      - name: Install the test browser
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end tests (builds the page, checks its size, drives it in a browser)
+        run: npm run e2e
       - name: Dependency audit
         run: npm audit --audit-level=high

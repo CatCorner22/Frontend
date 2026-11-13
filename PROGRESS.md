@@ -17,6 +17,8 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - 2026-11-13: M2 core engine with 27 unit tests: color math, token derivation, accessibility profiles, engine, conflicts, validated import, Directions, generator.
 - 2026-11-13: M3 Template 1 Mockup (small-business website) with the finish layer: 8 depth styles, 7 atmospheres, 5 button finishes, 3 headline fills, 3 motion levels.
 - 2026-11-13: M4 Studio built and checked in a browser (no console errors; flows work; no horizontal scroll at phone width; light and dark viewer themes).
+- 2026-11-13: End-to-end tests in CI (`npm run e2e`, six tests): sandboxed previews, keyboard-only walkthrough with visible focus at every stop, hostile saved content inert, invalid file refused, axe scan of the Studio's own interface, phone width. Bundle-size budget. Generated `THIRD_PARTY_NOTICES.md`.
+- 2026-11-13: The owner approved D16, D17, D22, and Drive backups (D26).
 
 ## Next
 
@@ -35,9 +37,7 @@ Check whether these files exist before assuming that the research finished.
 ## Known gaps (stated plainly)
 
 - The red-team reviewers have not yet run on the Studio. Run them before M4 is marked complete.
-- No end-to-end test suite in CI yet (Playwright runs were manual scripts in the scratchpad). Add `npm run e2e` in M5.
 - The dependency audit shows 9 moderate advisories, all from one glob-matching package inside the lint tool (development only; nothing ships to the browser). No fix exists without downgrading the lint tool.
-- Three stack substitutions await the owner's acknowledgment: D16 (TypeScript 6.0), D17 (own color math, no culori), D22 (native controls, no React Aria yet).
 - The private page's host could not be tested from this environment. The page reports plainly if the host blocks embedded previews.
 
 ## Unverified or open
@@ -46,7 +46,6 @@ Check whether these files exist before assuming that the research finished.
 - Whether the claude.ai private page allows a sandboxed iframe: verify at M3.
 - Company design posts (Linear, Stripe, Apple) were seen as search snippets only; `linear.app`, `stripe.com`, `vercel.com`, and `rauno.me` are now allowed hosts. Read them before authoring the Feel and Behavior Catalog (M5).
 - GitLab's security, accessibility, testing, and dependency sub-guides: unread.
-- Google Drive backup snapshots: the owner's permission is pending.
 
 ## Environment notes
 
