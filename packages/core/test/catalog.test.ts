@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
-  CONFLICT_RULES, CONFLICT_TESTS, DEFAULT_PARAMS, DIRECTIONS, EVIDENCE_GRADES, HARMONY_FIXES, HARMONY_RULES, PARAM_KEYS, RULES, SOURCE_BASES, STEPS,
-  assertKnownParams, conflicts, createProject, designDistance, findDirection, findStep, harmonize, resolvePatch,
+  CONFLICT_RULES, CONFLICT_TESTS, DEFAULT_PARAMS, DIRECTIONS, EVIDENCE_GRADES, FONTS, HARMONY_FIXES, HARMONY_RULES, NOT_CHECKED, PAIRS, PARAM_KEYS, RULES, SOURCE_BASES, STEPS,
+  assertKnownParams, closerOptions, conflicts, createProject, describeDesign, designDistance, findDirection, findStep, generateDirections, harmonize, resolvePatch,
+  tradeWordsOutsideBrackets, vaguePhrasesIn,
   type DesignParams, type SourceRef,
 } from '../src/index.js';
 import { allStrings, repoFileExists } from './helpers.js';
@@ -67,7 +68,7 @@ describe('Catalog: Steps and Options (hard rule 5)', () => {
           checkSource(option.warn.source, `${step.id}/${option.id} warning`);
           // A warning never forbids; it names at least one other Option of the same Step as a replacement.
           const others = step.options.filter((o) => o.id !== option.id).map((o) => o.label);
-          const named = others.some((label) => option.warn!.text.includes(`"${label}"`)) || others.some((label) => option.warn!.text.includes(label.split(' ')[0]!));
+          const named = others.some((label) => option.warn!.text.includes(`“${label}”`));
           expect(named, `${step.id}/${option.id}: the warning names no replacement`).toBe(true);
         }
       }
@@ -87,6 +88,73 @@ describe('Catalog: Steps and Options (hard rule 5)', () => {
       if (unread.test(text)) expect(/snippet|not the book|search/i.test(text), `unsupported name in: ${text}`).toBe(true);
     }
     for (const step of STEPS) for (const option of step.options) if (option.exemplar) expect(unread.test(option.exemplar.text), `${step.id}/${option.id}`).toBe(false);
+  });
+});
+
+describe('Catalog: plain words, and one name for one thing (decision D38, finding U2-03)', () => {
+  /** Names are not descriptions: the name of a font or of a Direction may hold a trade word ("Public Sans", "Cobalt Wash"). */
+  const properNames = [...Object.values(FONTS).map((font) => font.label), ...DIRECTIONS.map((d) => d.name)];
+
+  /** Every text that the Studio shows as explanation: Catalog text, and the sentences that the engine writes. Source lines are checked separately. */
+  function shownTexts(): { where: string; text: string }[] {
+    const out: { where: string; text: string }[] = [];
+    const add = (where: string, ...texts: (string | undefined)[]): void => {
+      for (const text of texts) if (text) out.push({ where, text });
+    };
+    for (const step of STEPS) {
+      add(step.id, step.name, step.title, step.teach, step.variable, step.thumb?.note);
+      for (const tunable of step.tunables ?? []) add(`${step.id}, slider`, tunable.label, ...(tunable.directions ?? []));
+      for (const option of step.options) add(`${step.id}/${option.id}`, option.label, option.what, option.chooseWhen, option.risk, option.exemplar?.text, option.warn?.text);
+      for (const variation of closerOptions(createProject(), step.id)) add(`${step.id}, small variation`, variation.label);
+    }
+    for (const d of DIRECTIONS) add(d.id, d.mood, d.bestFor, d.risk, describeDesign(d.params));
+    for (const d of generateDirections(20261113, 6)) add('a generated Direction', d.name, d.mood);
+    for (const rule of RULES) add(rule.id, rule.text);
+    for (const font of Object.values(FONTS)) add(`font ${font.id}`, font.character);
+    add('the plain start', describeDesign(DEFAULT_PARAMS));
+    for (const pair of PAIRS) add(`contrast pair ${pair.id}`, pair.pair);
+    for (const line of NOT_CHECKED) add('what the contrast checks do not cover', line);
+    return out;
+  }
+
+  it('uses a trade word only inside round brackets, as a word to learn', () => {
+    const texts = shownTexts();
+    expect(texts.length).toBeGreaterThan(600);
+    for (const { where, text } of texts) expect(tradeWordsOutsideBrackets(text, properNames), `${where}: ${text}`).toEqual([]);
+  });
+
+  it('never points at something the reader cannot see, and gives no thing a second name, source lines included', () => {
+    const everything = [...allStrings(STEPS), ...allStrings(DIRECTIONS.map(({ params: _params, ...rest }) => rest)), ...allStrings(RULES), ...Object.values(FONTS).map((font) => font.character)];
+    for (const text of everything) expect(vaguePhrasesIn(text), text).toEqual([]);
+  });
+
+  it('quotes only current names in warnings and in messages about Decisions, and uses no retired name', () => {
+    const current = new Set<string>([...STEPS.map((s) => s.name), ...STEPS.flatMap((s) => s.options.map((o) => o.label)), ...STEPS.flatMap((s) => (s.tunables ?? []).map((t) => t.label))]);
+    const quoted = (text: string): string[] => [...text.matchAll(/“([^”]+)”/g)].map((m) => m[1]!);
+    const messages: { where: string; text: string }[] = [
+      ...STEPS.flatMap((s) => s.options.filter((o) => o.warn).map((o) => ({ where: `${s.id}/${o.id}, warning`, text: o.warn!.text }))),
+      ...RULES.map((rule) => ({ where: `rule ${rule.id}`, text: rule.text })),
+    ];
+    let names = 0;
+    for (const { where, text } of messages) {
+      // A name in straight quotation marks would escape the check below, so none may be used here.
+      expect(text.includes('"'), `${where}: straight quotation marks in: ${text}`).toBe(false);
+      for (const name of quoted(text)) {
+        expect(current.has(name), `${where}: “${name}” is not the name of a Step, an Option, or a slider`).toBe(true);
+        names++;
+      }
+    }
+    expect(names).toBeGreaterThan(40);
+    // Names that the literal-names pass retired. Only distinctive ones are listed: a retired name that is also an ordinary word
+    // ("Soft", "Flat") cannot be banned outright, and the quotation-mark check above covers it.
+    const retired = [
+      'Ring and whisper', 'Ink sheen', 'Horizon wash', 'Side rail', 'Centered masthead', 'Cards in a grid', 'Rows with rules', 'Tonal with highlight', 'Neutral modern',
+      'Warm editorial', 'Cool slate', 'Warm sand', 'Rose clay', 'Ink blue', 'Deep teal', 'Friendly geometric', 'Light and elegant', 'Medium and calm', 'Tight and heavy',
+      'Small and even', 'Large and readable', 'Spaced capitals', 'Soft layered shadow', 'Hard offset shadow', 'Marker highlight', 'Tilted tag', 'Two colors, opposite',
+      'Two colors, a third apart', 'One accent', 'All serif', 'statement opening', 'the spotlight', 'color-block strategy', 'tonal surfaces', 'gloss finish',
+    ];
+    const everything = [...allStrings(STEPS), ...allStrings(DIRECTIONS.map(({ params: _params, ...rest }) => rest)), ...allStrings(RULES), ...PAIRS.map((pair) => pair.pair), ...NOT_CHECKED];
+    for (const text of everything) for (const old of [...retired, 'side rail']) expect(text.toLowerCase().includes(old.toLowerCase()), `the retired name "${old}" in: ${text}`).toBe(false);
   });
 });
 

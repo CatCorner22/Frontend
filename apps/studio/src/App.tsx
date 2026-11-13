@@ -18,7 +18,7 @@ const BASIS_LABEL: Record<SourceRef['basis'], string> = {
   abstract: 'only a summary of the study was read',
   snippet: 'seen only as a search snippet',
   'owner-file': 'from your own files; not checked against an original source',
-  builder: 'the builder’s judgment; no source consulted',
+  builder: 'the judgment of the assistant that wrote this Studio; no source consulted',
 };
 const REGIONS: { id: MockupFocus | 'auto'; label: string }[] = [
   { id: 'auto', label: 'Where this Step’s change shows' },
@@ -346,7 +346,7 @@ function ReasonField({ stepId }: { stepId: string }): React.JSX.Element | null {
     <label className="reason">
       <span>Why this choice? (optional)</span>
       <input id="decision-reason" type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => setText(e.target.value)} onBlur={() => { if (text.trim() !== (decision.reason ?? '')) save(text); }} />
-      <small>Your reason goes into the instructions for the builder, so that the builder knows what matters to you.</small>
+      <small>Your reason is saved in the project file. A later version of the Studio will pass it to the AI coding tool that builds your site.</small>
     </label>
   );
 }
@@ -438,7 +438,7 @@ function StepsView(): React.JSX.Element {
       <Rail />
       <main className="stage" id="main" tabIndex={-1}>
         <div className="step-head">
-          <p className="eyebrow">{STAGE_NAME[step.stage]} · Step {index + 1} of {STEPS.length}</p>
+          <p className="eyebrow">{STAGE_NAME[step.stage]} · Step {index + 1} of {STEPS.length} · {step.name}</p>
           <h1 id="step-title">{step.title}</h1>
           <p className="teach">{step.teach}</p>
           <details className="source">
@@ -478,7 +478,7 @@ function StepsView(): React.JSX.Element {
         </div>
         {(shown.warn || large.issues.length > 0 || clashes.length > 0) && (
           <div className="notes" role="status">
-            {shown.warn && <p className="note-warn"><strong>Overused look.</strong> {shown.warn}</p>}
+            {shown.warn && <p className="note-warn"><strong>Overused look.</strong> {shown.warn}{lookingAtApplied && !decision && s.project.direction !== null ? ' Your Direction starts with this Option; you can keep it or pick another one here.' : ''}</p>}
             {clashes.map((c) => (
               <p key={c.id} className="note-conflict">
                 <strong>These Decisions pull against each other.</strong> {c.message}{' '}
@@ -488,7 +488,7 @@ function StepsView(): React.JSX.Element {
             {large.issues.length > 0 && (
               <details>
                 <summary>{large.issues.length === 1 ? '1 contrast note' : `${large.issues.length} contrast notes`} ({s.project.a11y === 'enforce' ? 'adjusted for you' : 'advice; nothing was changed'})</summary>
-                <p>Contrast is how far apart two colors are in lightness, as a ratio. 1 to 1 means no difference; 21 to 1 is black on white. Body text is usually easy to read from 4.5 to 1 upward.</p>
+                <p>Contrast is how far apart two colors are in lightness, as a ratio. 1 to 1 means no difference; 21 to 1 is black on white. Reading text is usually easy to read from 4.5 to 1 upward.</p>
                 <ul>{large.issues.map((i) => <li key={i.id}>{describeIssue(i)}</li>)}</ul>
                 {s.project.a11y === 'advise' && <p>To fix a note, pick a darker or lighter color on the Step that sets it, or set “Contrast checks” to “Fix for me”.</p>}
                 <p>The Studio does not check: {NOT_CHECKED.map((line) => line.replace(/\.$/, '')).join('; ').toLowerCase()}.</p>
@@ -521,7 +521,7 @@ function StepsView(): React.JSX.Element {
             <p>{shown.what}</p>
             {shown.chooseWhen && <p><strong>Pick it when:</strong> {shown.chooseWhen}</p>}
             {shown.risk && shown.risk !== 'None in particular.' && <p><strong>Watch for:</strong> {shown.risk}</p>}
-            {shown.exemplar && <p><strong>Seen in:</strong> {shown.exemplar}</p>}
+            {shown.exemplar && <p><strong>Where you can see it:</strong> {shown.exemplar}</p>}
           </section>
           {step.thumb?.note && <p className="hint">{step.thumb.note}</p>}
           <div className="tiles" data-device={step.thumb?.width ? 'detail' : s.device}>
@@ -564,7 +564,7 @@ function StepsView(): React.JSX.Element {
             <>
               {step.tunables && step.tunables.length > 0 && <button type="button" className="btn" onClick={s.startVariations}>Show small variations of “{shown.label}”</button>}
               {!decision && <button type="button" className="btn quiet" onClick={s.decideLater}>Decide later</button>}
-              <button type="button" className="btn quiet" onClick={s.previousStep}>Previous Step</button>
+              <button type="button" className="btn quiet" onClick={s.previousStep}>{index === 0 ? 'Back to the Directions' : 'Previous Step'}</button>
               {canPutBack && <button type="button" className="btn quiet" onClick={s.putBack}>Put this Step back to how the project started</button>}
             </>
           )}
@@ -646,7 +646,7 @@ function SummaryView(): React.JSX.Element {
   const open = (file: File | undefined): void => {
     if (!file) return;
     if (file.size > 2_000_000) {
-      setMessage('That file was not opened: it is far larger than any project file.');
+      setMessage('That file was not opened: it is far larger than any project file. Your open project is unchanged.');
       return;
     }
     const reader = new FileReader();
@@ -655,11 +655,11 @@ function SummaryView(): React.JSX.Element {
       try {
         data = JSON.parse(String(reader.result));
       } catch {
-        setMessage('That file was not opened. It is not a Refraction project file.');
+        setMessage('That file was not opened. It is not a Refraction project file. Your open project is unchanged.');
         return;
       }
       const error = s.requestImport(data, file.name);
-      setMessage(error ? `That file was not opened. ${error}` : null);
+      setMessage(error ? `That file was not opened. ${error} Your open project is unchanged.` : null);
     };
     reader.readAsText(file);
   };
@@ -736,7 +736,7 @@ function SummaryView(): React.JSX.Element {
             ))}
             {html.issues.length > 0 && (
               <>
-                <p>Contrast notes ({s.project.a11y === 'enforce' ? 'adjusted for you' : 'advice; nothing was changed'}). Contrast is how far apart two colors are in lightness, as a ratio; body text is usually easy to read from 4.5 to 1 upward.</p>
+                <p>Contrast notes ({s.project.a11y === 'enforce' ? 'adjusted for you' : 'advice; nothing was changed'}). Contrast is how far apart two colors are in lightness, as a ratio; reading text is usually easy to read from 4.5 to 1 upward.</p>
                 <ul>{html.issues.map((i) => <li key={i.id}>{describeIssue(i)}</li>)}</ul>
                 <p>The Studio does not check: {NOT_CHECKED.map((line) => line.replace(/\.$/, '')).join('; ').toLowerCase()}.</p>
               </>
@@ -747,7 +747,7 @@ function SummaryView(): React.JSX.Element {
           <h2 id="look-heading">The Studio’s own look</h2>
           <label className="check">
             <input id="studio-look" type="checkbox" checked={s.studioLook === 'project'} onChange={(e) => s.setStudioLook(e.target.checked ? 'project' : 'studio')} />
-            <span>Dress the Studio itself in this design’s colors, typefaces, and corner shapes</span>
+            <span>Dress the Studio itself in this design’s colors, letter styles, and corner shapes</span>
           </label>
         </section>
         <section aria-labelledby="over-heading">

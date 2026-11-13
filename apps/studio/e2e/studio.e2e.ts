@@ -2,7 +2,7 @@
 // Run with `npm run e2e` (which builds the page first).
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { DIRECTIONS, STEPS, applyDirection, createProject, pick, type Project, tune } from '@refraction/core';
+import { DIRECTIONS, FONTS, STEPS, applyDirection, createProject, pick, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, type Project } from '@refraction/core';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -573,14 +573,14 @@ describe('Studio: opening a file', () => {
     const { context, page } = await open({ hash: '#summary' });
     await page.waitForSelector('.summary');
     await choose(page, 'notes.json', '{"hello":"world"}');
-    await expect.poll(() => status(page)).toBe('That file was not opened. This is not a Refraction project file.');
+    await expect.poll(() => status(page)).toBe('That file was not opened. This is not a Refraction project file. Your open project is unchanged.');
     const marker = 'CALL-555-0100-TO-REPAIR-THIS-FILE';
     const bad = { ...createProject('x'), decisions: { [marker]: { stepId: marker, optionId: marker, kind: marker, rejected: [], values: {}, at: marker } } };
     await choose(page, 'bad.json', JSON.stringify(bad));
-    await expect.poll(() => status(page)).toContain('The problem is in its "decisions" part');
+    await expect.poll(() => status(page)).toContain('The problem is in the part that holds the Decisions. Your open project is unchanged.');
     expect(await page.locator('body').innerText()).not.toContain(marker);
     await choose(page, 'broken.json', '{"schemaVersion": 2, "name": ');
-    await expect.poll(() => status(page)).toBe('That file was not opened. It is not a Refraction project file.');
+    await expect.poll(() => status(page)).toBe('That file was not opened. It is not a Refraction project file. Your open project is unchanged.');
     await context.close();
   });
 
@@ -807,4 +807,50 @@ describe('Studio: layout', () => {
     expect(await page.evaluate(() => window.scrollY)).toBeLessThan(40);
     await context.close();
   });
+});
+
+describe('Studio: plain words on every screen (decision D38, finding U2-03)', () => {
+  it('shows no trade word outside round brackets and no vague phrase on the Directions, on every Step, and on the Summary, with no error and no outside request', async () => {
+    const { context, page, errors, requests } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
+    // Names are not descriptions: the name of a font or of a Direction may hold a trade word ("Public Sans", "Cobalt Wash").
+    const properNames = [...Object.values(FONTS).map((font) => font.label), ...DIRECTIONS.map((d) => d.name)];
+    /**
+     * The words on the screen with every fold opened. The sample website is not included (it sits in frames).
+     * The list of sources is returned apart: it names documents by their titles, so only the vague-phrase rule applies to it.
+     */
+    const words = (): Promise<{ shown: string; sources: string }> =>
+      page.evaluate(() => {
+        document.querySelectorAll('details').forEach((fold) => { fold.open = true; });
+        const lists = [...document.querySelectorAll<HTMLElement>('details.source ul')];
+        const sources = lists.map((list) => list.innerText).join('\n');
+        lists.forEach((list) => { list.hidden = true; });
+        const shown = document.body.innerText;
+        lists.forEach((list) => { list.hidden = false; });
+        return { shown, sources };
+      });
+    const check = async (where: string): Promise<void> => {
+      const { shown, sources } = await words();
+      expect(shown.length, where).toBeGreaterThan(300);
+      expect(tradeWordsOutsideBrackets(shown, properNames), where).toEqual([]);
+      expect(vaguePhrasesIn(shown), where).toEqual([]);
+      expect(vaguePhrasesIn(sources), `${where}, list of sources`).toEqual([]);
+    };
+    await page.waitForSelector('.direction');
+    await check('the Directions');
+    let sourceLists = 0;
+    for (const step of STEPS) {
+      await page.evaluate((id) => { window.location.hash = `#${id}`; }, step.id);
+      await waitForStep(page, step.name);
+      await check(`the Step “${step.name}”`);
+      sourceLists += await page.locator('details.source ul li').count();
+    }
+    // The check on source lines looked at real lines: every Step lists at least one source.
+    expect(sourceLists).toBeGreaterThanOrEqual(STEPS.length);
+    await page.evaluate(() => { window.location.hash = '#summary'; });
+    await page.waitForSelector('.summary');
+    await check('the Summary');
+    expect(errors).toEqual([]);
+    expect(requests).toEqual([]);
+    await context.close();
+  }, 120000);
 });

@@ -444,14 +444,14 @@ const labelFor = (stepId: string, params: DesignParams, fallback: string): strin
 
 const STRATEGY_WORDS: Record<DesignParams['colorStrategy'], string> = {
   quiet: 'with color kept to small details',
-  'single-accent': 'with one accent color',
+  'single-accent': 'with one main color',
   duo: 'with two colors',
-  'tinted-surface': 'washed in its accent color',
-  'color-block': 'with a first screen painted in its accent color',
+  'tinted-surface': 'lightly tinted with its main color',
+  'color-block': 'with a first screen painted in its main color',
 };
 const ATMOSPHERE_WORDS: Record<DesignParams['atmosphere'], string> = {
   plain: 'a plain background',
-  horizon: 'a faint wash of color behind the first screen',
+  horizon: 'a faint fade of color behind the first screen',
   'dot-grid': 'a faint grid of dots behind the first screen',
   'line-grid': 'a faint grid of lines behind the first screen',
   spotlight: 'a soft glow behind the first screen',
@@ -514,7 +514,7 @@ export function generateDirections(seed: number, count: number, avoid: DesignPar
   // Names come from the final values (after the harmony rules), and each name in a batch is distinct.
   const names = new Set<string>();
   return chosen.map((params, i) => {
-    const parts = [labelFor('accent', params, 'Custom accent'), labelFor('typeface', params, 'custom typeface'), labelFor('elevation', params, 'custom depth')];
+    const parts = [labelFor('accent', params, 'Custom main color'), labelFor('typeface', params, 'custom letter style'), labelFor('elevation', params, 'custom box edges')];
     let name = parts.join(' · ');
     for (const extra of [labelFor('hero', params, ''), labelFor('sections', params, '')]) {
       if (!names.has(name)) break;
@@ -609,6 +609,17 @@ export type ParseResult =
 const NOT_A_PROJECT = 'This is not a Refraction project file.';
 const NEWER_VERSION = 'A newer version of the Studio made this file, and this version cannot read it.';
 const SECTIONS = ['name', 'template', 'a11y', 'direction', 'base', 'params', 'decisions', 'content'] as const;
+/** What each part of a project file holds, in plain words, for the message that refuses a damaged file (finding U2-21). The words are fixed; nothing from the file is repeated. */
+const SECTION_WORDS: Record<(typeof SECTIONS)[number], string> = {
+  name: 'the project name',
+  template: 'the kind of website',
+  a11y: 'the Contrast checks setting',
+  direction: 'the Direction',
+  base: 'the starting design values',
+  params: 'the design values',
+  decisions: 'the Decisions',
+  content: 'the sample text',
+};
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
@@ -701,12 +712,12 @@ export function parseProject(input: unknown): ParseResult {
   if (!result.success) {
     const head = result.error.issues[0]?.path[0];
     const section = SECTIONS.find((s) => s === head);
-    return { ok: false, error: section ? `The file does not match the project format. The problem is in its "${section}" part.` : NOT_A_PROJECT };
+    return { ok: false, error: section ? `The file does not match the project format. The problem is in the part that holds ${SECTION_WORDS[section]}.` : NOT_A_PROJECT };
   }
   try {
     const { project, notes } = normalize(result.data);
     return { ok: true, project, migratedFrom: version === SCHEMA_VERSION ? null : version, notes };
   } catch {
-    return { ok: false, error: 'The file does not match the project format. The problem is in its design values.' };
+    return { ok: false, error: 'The file does not match the project format. The problem is in the part that holds the design values.' };
   }
 }

@@ -189,14 +189,14 @@ const factsInBand = (p: DesignParams): boolean => p.emphasis !== 'proof';
  * A unit test measures each pair again from the emitted tokens.
  */
 export const PAIRS: readonly PairSpec[] = [
-  { id: 'text-on-page', pair: 'Body text on the page background', fg: 'text', bg: 'bg', required: 4.5, move: 'fg' },
-  { id: 'text-on-card', pair: 'Body text on boxes', fg: 'text', bg: 'cardBg', required: 4.5, move: 'fg' },
-  { id: 'text-on-tone', pair: 'Body text on the tinted section', fg: 'text', bg: 'surface2', required: 4.5, move: 'fg' },
+  { id: 'text-on-page', pair: 'Reading text on the page background', fg: 'text', bg: 'bg', required: 4.5, move: 'fg' },
+  { id: 'text-on-card', pair: 'Reading text on boxes', fg: 'text', bg: 'cardBg', required: 4.5, move: 'fg' },
+  { id: 'text-on-tone', pair: 'Reading text on the tinted section', fg: 'text', bg: 'surface2', required: 4.5, move: 'fg' },
   { id: 'text-on-field', pair: 'Typed text in form fields', fg: 'text', bg: 'surface', required: 4.5, move: 'fg' },
   { id: 'muted-on-page', pair: 'Secondary text on the page background', fg: 'textMuted', bg: 'bg', required: 4.5, move: 'fg' },
   { id: 'muted-on-card', pair: 'Secondary text on boxes', fg: 'textMuted', bg: 'cardBg', required: 4.5, move: 'fg' },
   { id: 'muted-on-tone', pair: 'Secondary text on the tinted section', fg: 'textMuted', bg: 'surface2', required: 4.5, move: 'fg' },
-  { id: 'muted-on-field', pair: 'Small labels on the lightest surface', fg: 'textMuted', bg: 'surface', required: 4.5, move: 'fg' },
+  { id: 'muted-on-field', pair: 'Small labels on the lightest background', fg: 'textMuted', bg: 'surface', required: 4.5, move: 'fg' },
   { id: 'link-on-page', pair: 'Links on the page background', fg: 'accentText', bg: 'bg', required: 4.5, move: 'fg' },
   { id: 'link-on-card', pair: 'Links on boxes', fg: 'accentText', bg: 'cardBg', required: 4.5, move: 'fg' },
   { id: 'text-on-hero', pair: 'Text on the colored first screen', fg: 'heroText', bg: 'heroBg', required: 4.5, move: 'bg', applies: (_p, pal) => pal.heroPainted },
@@ -204,28 +204,28 @@ export const PAIRS: readonly PairSpec[] = [
   { id: 'fact-labels-in-hero', pair: 'Small labels under the facts in the first screen', fg: 'heroText', bg: 'heroBg', alpha: 'softLabelAlpha', required: 4.5, move: 'fg', applies: (p) => !factsInBand(p) },
   { id: 'band-figures', pair: 'Large figures on the facts band', fg: 'bandText', bg: 'bandBg', required: 3, move: 'bg', applies: (p, pal) => factsInBand(p) && !solidBand(p, pal) },
   { id: 'band-labels', pair: 'Small labels on the facts band', fg: 'bandText', bg: 'bandBg', alpha: 'softLabelAlpha', required: 4.5, move: 'bg', applies: (p, pal) => factsInBand(p) && !solidBand(p, pal) },
-  { id: 'solid-band-figures', pair: 'Large figures on the solid accent band', fg: 'bandSolidText', bg: 'bandSolidBg', required: 3, move: 'bg', applies: (p, pal) => factsInBand(p) && solidBand(p, pal) },
-  { id: 'solid-band-labels', pair: 'Small labels on the solid accent band', fg: 'bandSolidText', bg: 'bandSolidBg', alpha: 'softLabelAlpha', required: 4.5, move: 'bg', applies: (p, pal) => factsInBand(p) && solidBand(p, pal) },
+  { id: 'solid-band-figures', pair: 'Large figures on the solid color band', fg: 'bandSolidText', bg: 'bandSolidBg', required: 3, move: 'bg', applies: (p, pal) => factsInBand(p) && solidBand(p, pal) },
+  { id: 'solid-band-labels', pair: 'Small labels on the solid color band', fg: 'bandSolidText', bg: 'bandSolidBg', alpha: 'softLabelAlpha', required: 4.5, move: 'bg', applies: (p, pal) => factsInBand(p) && solidBand(p, pal) },
   { id: 'button-label', pair: 'Main button label on its fill', fg: 'btnLabel', bg: 'btnFill', required: 4.5, move: 'bg', applies: (p) => filledButton(p) },
   { id: 'soft-button-label', pair: 'Main button label on its tint', fg: 'btnLabel', bg: 'btnFill', required: 4.5, move: 'fg', applies: (p) => p.buttonFinish === 'soft' },
   { id: 'outline-button-on-page', pair: 'Outline button label on the page background', fg: 'btnLabel', bg: 'bg', required: 4.5, move: 'fg', applies: outlineButton },
   { id: 'outline-button-on-card', pair: 'Outline button label on boxes', fg: 'btnLabel', bg: 'cardBg', required: 4.5, move: 'fg', applies: outlineButton },
-  { id: 'outline-button-on-rail', pair: 'Outline button label on the side rail', fg: 'btnLabel', bg: 'surface2', required: 4.5, move: 'fg', applies: (p) => outlineButton(p) && sideRail(p) },
+  { id: 'outline-button-on-rail', pair: 'Outline button label on the left column of links', fg: 'btnLabel', bg: 'surface2', required: 4.5, move: 'fg', applies: (p) => outlineButton(p) && sideRail(p) },
   { id: 'field-border-on-card', pair: 'Form field borders against the box around them', fg: 'borderStrong', bg: 'cardBg', required: 3, move: 'fg' },
   { id: 'field-border-on-field', pair: 'Form field borders against the field itself', fg: 'borderStrong', bg: 'surface', required: 3, move: 'fg' },
-  { id: 'focus-on-page', pair: 'Focus ring against the page background', fg: 'focus', bg: 'bg', required: 3, move: 'fg' },
-  { id: 'focus-on-card', pair: 'Focus ring against boxes', fg: 'focus', bg: 'cardBg', required: 3, move: 'fg' },
-  { id: 'focus-on-rail', pair: 'Focus ring against the side rail', fg: 'focus', bg: 'surface2', required: 3, move: 'fg', applies: sideRail },
-  { id: 'focus-on-hero', pair: 'Focus ring against the first screen', fg: 'focusHero', bg: 'heroBg', required: 3, move: 'fg' },
-  { id: 'tag-label', pair: 'The tilted tag’s label on its color', fg: 'onAccent2', bg: 'accent2', required: 4.5, move: 'fg', applies: (p) => p.signature === 'corner-tag' },
+  { id: 'focus-on-page', pair: 'The outline around the control in use, against the page background', fg: 'focus', bg: 'bg', required: 3, move: 'fg' },
+  { id: 'focus-on-card', pair: 'The outline around the control in use, against boxes', fg: 'focus', bg: 'cardBg', required: 3, move: 'fg' },
+  { id: 'focus-on-rail', pair: 'The outline around the control in use, against the left column of links', fg: 'focus', bg: 'surface2', required: 3, move: 'fg', applies: sideRail },
+  { id: 'focus-on-hero', pair: 'The outline around the control in use, against the first screen', fg: 'focusHero', bg: 'heroBg', required: 3, move: 'fg' },
+  { id: 'tag-label', pair: 'The words of the tilted label on its color', fg: 'onAccent2', bg: 'accent2', required: 4.5, move: 'fg', applies: (p) => p.signature === 'corner-tag' },
 ];
 
 /** What the contrast checks do not cover. The Studio shows this list beside the contrast notes. */
 export const NOT_CHECKED: readonly string[] = [
-  'Text over a background glow, an aurora, or a glass panel, where the color behind the text varies from point to point.',
+  'Text over a background glow, soft clouds of color, or a frosted-glass box, where the color behind the text varies from point to point.',
   'A headline filled with a fade or with a two-color gradient. “Fix for me” keeps both ends of the fill at 3 to 1 or better against the first screen; “Warn me” does not measure the fill.',
   'Text over your photographs.',
-  'Hover and pressed states.',
+  'How a button or a link looks while the pointer is over it, or while it is pressed.',
   'Anything a person must judge: whether the page reads well in sunlight, with a screen reader, or to a person with low vision.',
 ];
 

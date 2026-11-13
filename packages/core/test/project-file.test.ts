@@ -68,7 +68,10 @@ describe('saved projects: the current version', () => {
     for (const [part, damage] of cases) {
       const copy = JSON.parse(JSON.stringify(base)) as Record<string, any>;
       damage(copy);
-      expect(refusal(copy)).toBe(`The file does not match the project format. The problem is in its "${part}" part.`);
+      // The message names the damaged part in plain words, from a fixed list (finding U2-21).
+      const words = { name: 'the project name', template: 'the kind of website', a11y: 'the Contrast checks setting', direction: 'the Direction', base: 'the starting design values', params: 'the design values', decisions: 'the Decisions', content: 'the sample text' }[part];
+      expect(words, part).toBeDefined();
+      expect(refusal(copy)).toBe(`The file does not match the project format. The problem is in the part that holds ${words}.`);
     }
   });
 

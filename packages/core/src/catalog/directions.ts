@@ -22,7 +22,7 @@ export interface Direction {
 }
 
 const REVIEWED = '2026-11-13';
-const COMPOSED: SourceRef[] = [{ text: 'Composed by the builder from the Catalog’s Options and judged by eye on rendered Mockups. No outside source was consulted, and no person other than the builder has reviewed it.', basis: 'builder' }];
+const COMPOSED: SourceRef[] = [{ text: 'Composed by the assistant that wrote this Studio from the Catalog’s Options and judged by eye on rendered Mockups. No outside source was consulted, and no person has reviewed it.', basis: 'builder' }];
 const record = { sources: COMPOSED, evidence: 'expert-opinion' as const, reviewed: REVIEWED };
 
 const d = (overrides: Partial<DesignParams>): DesignParams => ({ ...DEFAULT_PARAMS, ...overrides });
@@ -145,7 +145,7 @@ export const DIRECTIONS: Direction[] = [
     name: 'Evening Formal',
     mood: 'Candlelight and engraved invitations. Dark, slow, elegant.',
     bestFor: 'Fine dining, events, jewelry, hotels.',
-    risk: 'Thin, elegant letters need to be large to stay readable, so small text stays in the plainer typeface.',
+    risk: 'Thin, elegant letters need to be large to stay readable, so small text stays in the plainer letter style.',
     ...record,
     params: d({
       nav: 'top-centered', hero: 'centered', sections: 'alternating', contentWidth: 'standard', emphasis: 'headline', density: 1.3,
