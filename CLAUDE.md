@@ -51,7 +51,7 @@ Active voice. One term per concept (see the table). Plain words; explain each te
 
 ## Stack (versions verified 2026-11-13; re-verify before upgrading)
 
-TypeScript 7.0 · React 19.3 · Vite 8.3 · React Aria Components 1.22 · Zustand 5 · Zod 4 · culori 4 · Vitest 5 · Playwright 1.65 · axe-core 4.14. Node 22.
+TypeScript 6.0 (D16) · React 19.3 · Vite 8.3 · native HTML controls (D22) · Zustand 5 · Zod 4 · own color math (D17) · Vitest 5 · Playwright 1.63 (D28, pending the owner) · axe-core 4.14. Node 22. A version is pinned only 7 days or more after its release (D27).
 
 ## Layout
 
@@ -60,7 +60,9 @@ packages/core/   Catalog, engine, exporters (pure TypeScript)
 apps/studio/     The Studio web app
 plugin/          The Fitter (Claude Code plugin)
 docs/research/   Research records
+docs/knowledge/  The knowledge base (research helpers wrote it; not yet reviewed)
+scripts/         Build checks (size budget, licence notices)
 docs/sources/    The owner's source files (text only; added on request)
 phase0/          The M0 proof experiment
-redteam/         Red-team findings
+redteam/         Red-team reports, the findings log, and the defect-planting tool
 ```

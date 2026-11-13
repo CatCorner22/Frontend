@@ -320,20 +320,20 @@ function elevationTokens(p: DesignParams, pal: Palette): Record<string, string> 
       // A one-pixel ring plus a whisper of shadow: a crisp edge. Record 08 documents the ring as the first shadow layer in several open design systems.
       return {
         ...base, '--card-bg': toCss(pal.surface), '--card-border': 'transparent', '--card-border-w': '0px',
-        '--card-shadow': `0 0 0 1px ${hairline}, 0 1px 2px ${shade(p, dark ? 0.4 : 0.05)}, 0 2px 6px -1px ${shade(p, dark ? 0.3 : 0.04)}`,
+        '--card-shadow': `inset 0 1px 0 ${dark ? 'oklch(100% 0 0 / 0.05)' : 'oklch(100% 0 0 / 0.6)'}, 0 0 0 1px ${hairline}, 0 1px 2px ${shade(p, dark ? 0.4 : 0.05)}, 0 2px 6px -1px ${shade(p, dark ? 0.3 : 0.04)}`,
         '--control-shadow': `0 1px 2px ${shade(p, dark ? 0.4 : 0.08)}`,
       };
     case 'soft-shadow':
       return {
         ...base, '--card-bg': toCss(pal.surface), '--card-border': 'transparent', '--card-border-w': '0px',
-        '--card-shadow': `0 0 0 1px ${toCssAlpha(pal.text, dark ? 0.1 : 0.04)}, 0 1px 2px ${shade(p, dark ? 0.5 : 0.06)}, 0 4px 10px ${shade(p, dark ? 0.4 : 0.05)}, 0 14px 32px ${shade(p, dark ? 0.35 : 0.07)}`,
+        '--card-shadow': `inset 0 1px 0 ${dark ? 'oklch(100% 0 0 / 0.06)' : 'oklch(100% 0 0 / 0.7)'}, 0 0 0 1px ${toCssAlpha(pal.text, dark ? 0.1 : 0.04)}, 0 1px 2px ${shade(p, dark ? 0.5 : 0.06)}, 0 4px 10px ${shade(p, dark ? 0.4 : 0.05)}, 0 14px 32px ${shade(p, dark ? 0.35 : 0.07)}`,
         '--control-shadow': `0 1px 2px ${shade(p, dark ? 0.5 : 0.1)}`,
       };
     case 'float':
       // Wide, soft, layered: panels that hover well above the page.
       return {
         ...base, '--card-bg': toCss(pal.surface), '--card-border': 'transparent', '--card-border-w': '0px',
-        '--card-shadow': `0 0 0 0.5px ${toCssAlpha(pal.text, dark ? 0.14 : 0.08)}, 0 2px 4px ${shade(p, dark ? 0.4 : 0.04)}, 0 12px 24px -6px ${shade(p, dark ? 0.5 : 0.08)}, 0 36px 72px -24px ${shade(p, dark ? 0.6 : 0.16)}`,
+        '--card-shadow': `inset 0 1px 0 ${dark ? 'oklch(100% 0 0 / 0.07)' : 'oklch(100% 0 0 / 0.8)'}, 0 0 0 0.5px ${toCssAlpha(pal.text, dark ? 0.14 : 0.08)}, 0 2px 4px ${shade(p, dark ? 0.4 : 0.04)}, 0 12px 24px -6px ${shade(p, dark ? 0.5 : 0.08)}, 0 36px 72px -24px ${shade(p, dark ? 0.6 : 0.16)}`,
         '--control-shadow': `0 1px 2px ${shade(p, dark ? 0.5 : 0.08)}, 0 4px 12px -4px ${shade(p, dark ? 0.5 : 0.1)}`,
       };
     case 'hard-shadow': {
@@ -389,7 +389,8 @@ function buttonTokens(p: DesignParams, pal: Palette): Record<string, string> {
       out = { '--btn-bg': toCss(pal.btnFill), '--btn-bg-hover': toCss(shiftL(pal.btnFill, dark ? 0.04 : -0.035)), '--btn-color': toCss(pal.btnLabel), '--btn-border': 'transparent', '--btn-shadow': 'none', '--btn-shadow-hover': 'none' };
       break;
     default:
-      out = { '--btn-bg': toCss(a), '--btn-bg-hover': toCss(shiftL(a, hoverBy)), '--btn-color': toCss(pal.btnLabel), '--btn-border': toCss(a), '--btn-shadow': 'var(--control-shadow)', '--btn-shadow-hover': 'var(--control-shadow)' };
+      // Flat: one solid color. A hairline of darker edge keeps the shape crisp on any background.
+      out = { '--btn-bg': toCss(a), '--btn-bg-hover': toCss(shiftL(a, hoverBy)), '--btn-color': toCss(pal.btnLabel), '--btn-border': toCss(shiftL(a, a.l > 0.55 ? -0.08 : -0.05)), '--btn-shadow': 'var(--control-shadow)', '--btn-shadow-hover': 'var(--control-shadow)' };
   }
   if (p.elevation === 'hard-shadow') {
     // The sticker look owns the button edge, whatever the finish.

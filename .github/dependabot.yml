@@ -1,0 +1,12 @@
+# Dependabot proposes updates; it merges nothing. A proposed version is adopted only after the 7-day waiting period (decision D27).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

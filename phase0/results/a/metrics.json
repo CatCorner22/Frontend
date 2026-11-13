@@ -1,5 +1,13 @@
 {
   "label": "a",
+  "harness": {
+    "version": 2,
+    "ranAt": "2026-11-13T15:17:18.243Z",
+    "node": "v22.23.4",
+    "playwright": "1.63.0",
+    "axeCore": "4.14.0",
+    "chromium": "153.0.8010.12"
+  },
   "bytes": 60077,
   "externalRequests": [],
   "viewports": {
@@ -16,6 +24,23 @@
         "interactiveCount": 9,
         "targetsUnder24": 1,
         "targetsUnder44": 3,
+        "smallTargets": [
+          {
+            "label": "Other ways to contact the clinic",
+            "width": 274.7,
+            "height": 43.9
+          },
+          {
+            "label": "555-0142",
+            "width": 92,
+            "height": 24
+          },
+          {
+            "label": "Privacy",
+            "width": 52.6,
+            "height": 19
+          }
+        ],
         "horizontalOverflow": false,
         "bodyFontSizePx": 18,
         "inputsWithoutLabel": 0
@@ -87,6 +112,23 @@
         "interactiveCount": 9,
         "targetsUnder24": 1,
         "targetsUnder44": 3,
+        "smallTargets": [
+          {
+            "label": "Other ways to contact the clinic",
+            "width": 274.7,
+            "height": 43.9
+          },
+          {
+            "label": "555-0142",
+            "width": 92,
+            "height": 24
+          },
+          {
+            "label": "Privacy",
+            "width": 52.6,
+            "height": 19
+          }
+        ],
         "horizontalOverflow": false,
         "bodyFontSizePx": 18,
         "inputsWithoutLabel": 0
@@ -158,6 +200,23 @@
         "interactiveCount": 12,
         "targetsUnder24": 1,
         "targetsUnder44": 3,
+        "smallTargets": [
+          {
+            "label": "Other ways to contact the clinic",
+            "width": 274.7,
+            "height": 43.9
+          },
+          {
+            "label": "555-0142",
+            "width": 92,
+            "height": 24
+          },
+          {
+            "label": "Privacy",
+            "width": 52.6,
+            "height": 19
+          }
+        ],
         "horizontalOverflow": false,
         "bodyFontSizePx": 18,
         "inputsWithoutLabel": 0
@@ -221,7 +280,10 @@
           "id": "label-content-name-mismatch",
           "impact": "serious",
           "nodes": 1,
-          "help": "Elements must have their visible text as part of their accessible name"
+          "help": "Elements must have their visible text as part of their accessible name",
+          "where": [
+            ".hdr-call"
+          ]
         }
       ],
       "keyboard": {
@@ -237,291 +299,1092 @@
         "reachedSuccess": true,
         "failureCopy": false,
         "alternativesVisible": true,
-        "steps": 7
+        "addressVisible": true,
+        "steps": 6,
+        "endScreen": "Your preparation summary is ready.",
+        "stoppedBecause": "reached the confirmation screen"
       },
+      "outcomeChosen": true,
+      "sendMs": 909,
       "log": [
         {
           "step": 0,
           "heading": "Bring your notice.\nLeave with a preparation plan.",
-          "clicked": "Start preparing"
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 14
         },
         {
           "step": 1,
           "heading": "There is a problem",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 5
         },
         {
           "step": 2,
           "heading": "Does your paperwork show a hearing, response, or other date?",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 7
         },
         {
           "step": 3,
           "heading": "Your document checklist",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 21
         },
         {
           "step": 4,
           "heading": "How should the clinic contact you?",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 3
         },
         {
           "step": 5,
           "heading": "Check your preparation summary",
-          "clicked": "Send request"
-        },
-        {
-          "step": 6,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
+          "clicked": "Send request",
+          "answer": "confirmation",
+          "ms": 909
         }
       ],
       "probedEmpty": {
         "alert": false,
         "ariaInvalid": 0,
+        "addedText": [
+          "There is a problem",
+          "Choose the topic closest to what you need help with",
+          "Error:",
+          "Choose the topic closest to what you need help with"
+        ],
         "errorText": true,
         "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
         "clicked": "Continue"
-      }
+      },
+      "secondPress": null,
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Send request"
+      ],
+      "screens": [
+        {
+          "step": 0,
+          "screen": "Bring your notice. Leave with a preparation plan.",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 3,
+          "smallTargets": [
+            {
+              "label": "Other ways to contact the clinic",
+              "width": 274.7,
+              "height": 43.9
+            },
+            {
+              "label": "555-0142",
+              "width": 92,
+              "height": 24
+            },
+            {
+              "label": "Privacy",
+              "width": 52.6,
+              "height": 19
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 1,
+          "screen": "What do you need help with?",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 3,
+          "smallTargets": [
+            {
+              "label": "← Back to start",
+              "width": 116.8,
+              "height": 40.8
+            },
+            {
+              "label": "555-0142",
+              "width": 92,
+              "height": 24
+            },
+            {
+              "label": "Privacy",
+              "width": 52.6,
+              "height": 19
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 2,
+          "screen": "Does your paperwork show a hearing, response, or other date?",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 2,
+          "targetsUnder44": 4,
+          "smallTargets": [
+            {
+              "label": "← Back",
+              "width": 57.5,
+              "height": 40.8
+            },
+            {
+              "label": "555-0142",
+              "width": 82.4,
+              "height": 21
+            },
+            {
+              "label": "555-0142",
+              "width": 92,
+              "height": 24
+            },
+            {
+              "label": "Privacy",
+              "width": 52.6,
+              "height": 19
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 3,
+          "screen": "Your document checklist",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 3,
+          "smallTargets": [
+            {
+              "label": "← Back",
+              "width": 57.5,
+              "height": 40.8
+            },
+            {
+              "label": "555-0142",
+              "width": 92,
+              "height": 24
+            },
+            {
+              "label": "Privacy",
+              "width": 52.6,
+              "height": 19
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 4,
+          "screen": "How should the clinic contact you?",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 3,
+          "smallTargets": [
+            {
+              "label": "← Back",
+              "width": 57.5,
+              "height": 40.8
+            },
+            {
+              "label": "555-0142",
+              "width": 92,
+              "height": 24
+            },
+            {
+              "label": "Privacy",
+              "width": 52.6,
+              "height": 19
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 5,
+          "screen": "Check your preparation summary",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 6,
+          "smallTargets": [
+            {
+              "label": "← Back",
+              "width": 57.5,
+              "height": 40.8
+            },
+            {
+              "label": "Change help topic",
+              "width": 60,
+              "height": 24.8
+            },
+            {
+              "label": "Change what to bring",
+              "width": 60,
+              "height": 24.8
+            },
+            {
+              "label": "Change how to reach you",
+              "width": 60,
+              "height": 24.8
+            },
+            {
+              "label": "555-0142",
+              "width": 92,
+              "height": 24
+            },
+            {
+              "label": "Privacy",
+              "width": 52.6,
+              "height": 19
+            }
+          ],
+          "axe": [
+            {
+              "id": "definition-list",
+              "impact": "serious",
+              "nodes": 1,
+              "help": "<dl> elements must only directly contain properly-ordered <dt> and <dd> groups, <script>, <template> or <div> elements",
+              "where": [
+                "#summary-review"
+              ]
+            }
+          ]
+        },
+        {
+          "step": "end",
+          "screen": "Your preparation summary is ready.",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 2,
+          "targetsUnder44": 4,
+          "smallTargets": [
+            {
+              "label": "Clear my answers from this device",
+              "width": 343,
+              "height": 43.9
+            },
+            {
+              "label": "555-0142",
+              "width": 82.4,
+              "height": 21
+            },
+            {
+              "label": "555-0142",
+              "width": 92,
+              "height": 24
+            },
+            {
+              "label": "Privacy",
+              "width": 52.6,
+              "height": 19
+            }
+          ],
+          "axe": []
+        }
+      ],
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
     },
     "server-error": {
       "end": {
         "reachedSuccess": false,
         "failureCopy": true,
         "alternativesVisible": true,
-        "steps": 14
+        "addressVisible": true,
+        "steps": 6,
+        "endScreen": "Check your preparation summary",
+        "stoppedBecause": "reached the failure screen"
       },
+      "outcomeChosen": true,
+      "sendMs": 909,
       "log": [
         {
           "step": 0,
           "heading": "Bring your notice.\nLeave with a preparation plan.",
-          "clicked": "Start preparing"
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 8
         },
         {
           "step": 1,
           "heading": "There is a problem",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 22
         },
         {
           "step": 2,
           "heading": "Does your paperwork show a hearing, response, or other date?",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 4
         },
         {
           "step": 3,
           "heading": "Your document checklist",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 22
         },
         {
           "step": 4,
           "heading": "How should the clinic contact you?",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 22
         },
         {
           "step": 5,
           "heading": "Check your preparation summary",
-          "clicked": "Send request"
-        },
-        {
-          "step": 6,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 7,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 8,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 9,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 10,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 11,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 12,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 13,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
+          "clicked": "Send request",
+          "answer": "failure",
+          "ms": 909
         }
       ],
       "probedEmpty": {
         "alert": false,
         "ariaInvalid": 0,
+        "addedText": [
+          "There is a problem",
+          "Choose the topic closest to what you need help with",
+          "Error:",
+          "Choose the topic closest to what you need help with"
+        ],
         "errorText": true,
         "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
         "clicked": "Continue"
-      }
+      },
+      "secondPress": null,
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Send request",
+        "retry: Try again"
+      ],
+      "endScreenReport": {
+        "step": "end",
+        "screen": "Check your preparation summary",
+        "h1Visible": 1,
+        "inputsWithoutLabel": 0,
+        "targetsUnder24": 2,
+        "targetsUnder44": 7,
+        "smallTargets": [
+          {
+            "label": "← Back",
+            "width": 57.5,
+            "height": 40.8
+          },
+          {
+            "label": "Change help topic",
+            "width": 60,
+            "height": 24.8
+          },
+          {
+            "label": "Change what to bring",
+            "width": 60,
+            "height": 24.8
+          },
+          {
+            "label": "Change how to reach you",
+            "width": 60,
+            "height": 24.8
+          },
+          {
+            "label": "555-0142",
+            "width": 82.4,
+            "height": 21
+          },
+          {
+            "label": "555-0142",
+            "width": 92,
+            "height": 24
+          },
+          {
+            "label": "Privacy",
+            "width": 52.6,
+            "height": 19
+          }
+        ],
+        "axe": [
+          {
+            "id": "definition-list",
+            "impact": "serious",
+            "nodes": 1,
+            "help": "<dl> elements must only directly contain properly-ordered <dt> and <dd> groups, <script>, <template> or <div> elements",
+            "where": [
+              "#summary-review"
+            ]
+          }
+        ]
+      },
+      "recovery": {
+        "entered": {
+          "topic": "Housing or eviction",
+          "name": "Maya",
+          "contact": "555-0199"
+        },
+        "onFailureScreen": {
+          "topic": true,
+          "name": true,
+          "contact": true
+        },
+        "answersKept": true,
+        "retry": {
+          "outcomeChosen": true,
+          "pressed": "Try again",
+          "reachedSuccess": true,
+          "answersOnConfirmation": {
+            "topic": true,
+            "name": true,
+            "contact": true
+          }
+        },
+        "retryReachedSuccessWithSameAnswers": true
+      },
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "retry",
+          "label": "Try again",
+          "state": "failure",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
     },
     "offline": {
       "end": {
         "reachedSuccess": false,
         "failureCopy": true,
         "alternativesVisible": true,
-        "steps": 14
+        "addressVisible": true,
+        "steps": 6,
+        "endScreen": "Check your preparation summary",
+        "stoppedBecause": "reached the failure screen"
       },
+      "outcomeChosen": true,
+      "sendMs": 506,
       "log": [
         {
           "step": 0,
           "heading": "Bring your notice.\nLeave with a preparation plan.",
-          "clicked": "Start preparing"
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 24
         },
         {
           "step": 1,
           "heading": "There is a problem",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 22
         },
         {
           "step": 2,
           "heading": "Does your paperwork show a hearing, response, or other date?",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 3,
           "heading": "Your document checklist",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 23
         },
         {
           "step": 4,
           "heading": "How should the clinic contact you?",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 25
         },
         {
           "step": 5,
           "heading": "Check your preparation summary",
-          "clicked": "Send request"
-        },
-        {
-          "step": 6,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 7,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 8,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 9,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 10,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 11,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 12,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
-        },
-        {
-          "step": 13,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
+          "clicked": "Send request",
+          "answer": "failure",
+          "ms": 506
         }
       ],
       "probedEmpty": {
         "alert": false,
         "ariaInvalid": 0,
+        "addedText": [
+          "There is a problem",
+          "Choose the topic closest to what you need help with",
+          "Error:",
+          "Choose the topic closest to what you need help with"
+        ],
         "errorText": true,
         "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
         "clicked": "Continue"
-      }
+      },
+      "secondPress": null,
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Send request",
+        "retry: Try again"
+      ],
+      "recovery": {
+        "entered": {
+          "topic": "Housing or eviction",
+          "name": "Maya",
+          "contact": "555-0199"
+        },
+        "onFailureScreen": {
+          "topic": true,
+          "name": true,
+          "contact": true
+        },
+        "answersKept": true,
+        "retry": {
+          "outcomeChosen": true,
+          "pressed": "Try again",
+          "reachedSuccess": true,
+          "answersOnConfirmation": {
+            "topic": true,
+            "name": true,
+            "contact": true
+          }
+        },
+        "retryReachedSuccessWithSameAnswers": true
+      },
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "retry",
+          "label": "Try again",
+          "state": "failure",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
     },
     "slow": {
       "end": {
         "reachedSuccess": true,
         "failureCopy": false,
         "alternativesVisible": true,
-        "steps": 7
+        "addressVisible": true,
+        "steps": 6,
+        "endScreen": "Your preparation summary is ready.",
+        "stoppedBecause": "reached the confirmation screen"
       },
+      "outcomeChosen": true,
+      "sendMs": 3007,
       "log": [
         {
           "step": 0,
           "heading": "Bring your notice.\nLeave with a preparation plan.",
-          "clicked": "Start preparing"
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 25
         },
         {
           "step": 1,
           "heading": "There is a problem",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 24
         },
         {
           "step": 2,
           "heading": "Does your paperwork show a hearing, response, or other date?",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 3,
           "heading": "Your document checklist",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 24
         },
         {
           "step": 4,
           "heading": "How should the clinic contact you?",
-          "clicked": "Continue"
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 23
         },
         {
           "step": 5,
           "heading": "Check your preparation summary",
-          "clicked": "Send request"
-        },
-        {
-          "step": 6,
-          "heading": "Check your preparation summary",
-          "clicked": "Sending…"
+          "clicked": "Send request",
+          "answer": "confirmation",
+          "ms": 3007
         }
       ],
       "probedEmpty": {
         "alert": false,
         "ariaInvalid": 0,
+        "addedText": [
+          "There is a problem",
+          "Choose the topic closest to what you need help with",
+          "Error:",
+          "Choose the topic closest to what you need help with"
+        ],
         "errorText": true,
         "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
         "clicked": "Continue"
-      }
+      },
+      "secondPress": null,
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Send request"
+      ],
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
+    },
+    "slow-pressed-twice": {
+      "end": {
+        "reachedSuccess": true,
+        "failureCopy": false,
+        "alternativesVisible": true,
+        "addressVisible": true,
+        "steps": 6,
+        "endScreen": "Your preparation summary is ready.",
+        "stoppedBecause": "reached the confirmation screen"
+      },
+      "outcomeChosen": true,
+      "sendMs": 3006,
+      "log": [
+        {
+          "step": 0,
+          "heading": "Bring your notice.\nLeave with a preparation plan.",
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 26
+        },
+        {
+          "step": 1,
+          "heading": "There is a problem",
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 21
+        },
+        {
+          "step": 2,
+          "heading": "Does your paperwork show a hearing, response, or other date?",
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 25
+        },
+        {
+          "step": 3,
+          "heading": "Your document checklist",
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 24
+        },
+        {
+          "step": 4,
+          "heading": "How should the clinic contact you?",
+          "clicked": "Continue",
+          "answer": "new screen",
+          "ms": 23
+        },
+        {
+          "step": 5,
+          "heading": "Check your preparation summary",
+          "clicked": "Send request",
+          "answer": "confirmation",
+          "ms": 3006
+        }
+      ],
+      "probedEmpty": {
+        "alert": false,
+        "ariaInvalid": 0,
+        "addedText": [
+          "There is a problem",
+          "Choose the topic closest to what you need help with",
+          "Error:",
+          "Choose the topic closest to what you need help with"
+        ],
+        "errorText": true,
+        "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
+        "clicked": "Continue"
+      },
+      "secondPress": {
+        "control": "Send request",
+        "afterMs": 1013,
+        "labelAtSecondPress": "Sending…",
+        "disabled": false,
+        "ariaDisabled": true,
+        "reachedThePage": true,
+        "result": "reached the page"
+      },
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Continue",
+        "forward: Send request",
+        "again"
+      ],
+      "afterConfirmation": {
+        "watchedMs": 4000,
+        "watchStarted": true,
+        "changesToThePage": 0,
+        "stillTheConfirmation": true
+      },
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "again",
+          "label": "Sending…",
+          "state": "in-flow",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
     }
   },
   "reflow320": {
     "overflow": false,
     "scrollWidth": 320
   },
+  "axeEndScreen": "Your preparation summary is ready.",
   "axeEnd": [],
+  "axeFailureScreen": "Check your preparation summary",
+  "axeFailure": [
+    {
+      "id": "definition-list",
+      "impact": "serious",
+      "nodes": 1,
+      "help": "<dl> elements must only directly contain properly-ordered <dt> and <dd> groups, <script>, <template> or <div> elements",
+      "where": [
+        "#summary-review"
+      ]
+    }
+  ],
   "refresh": {
     "before": "housing",
     "after": "housing",
-    "kept": true
+    "kept": true,
+    "screenBefore": "What do you need help with?",
+    "screenAfter": "What do you need help with?"
   },
   "hasPrintStyles": true,
   "usesInnerHTML": 0,
-  "reducedMotionQuery": true
+  "reducedMotionQuery": true,
+  "checks": {
+    "answersKeptAfterFailure": {
+      "server-error": true,
+      "offline": true
+    },
+    "retryAfterFailure": {
+      "server-error": true,
+      "offline": true
+    },
+    "slowCompletesOnce": {
+      "msWithOnePress": 3007,
+      "msWithTwoPresses": 3006,
+      "secondPress": "reached the page",
+      "secondPressRestartedTheWait": false,
+      "pageChangedAfterConfirmation": false,
+      "pass": true
+    },
+    "successFlowScreens": {
+      "measured": 7,
+      "withAxeViolations": [
+        {
+          "screen": "Check your preparation summary",
+          "violations": [
+            "definition-list"
+          ]
+        }
+      ],
+      "mostTargetsUnder24": {
+        "count": 2,
+        "onScreens": [
+          "Does your paperwork show a hearing, response, or other date?",
+          "Your preparation summary is ready."
+        ]
+      },
+      "mostTargetsUnder44": {
+        "count": 6,
+        "onScreens": [
+          "Check your preparation summary"
+        ]
+      }
+    },
+    "harnessSelfCheck": {
+      "ok": true,
+      "problems": []
+    }
+  }
 }

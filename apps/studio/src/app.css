@@ -220,6 +220,8 @@ select, .name, .project-text {
 .direction { display: grid; grid-template-rows: auto auto 1fr; border-radius: var(--radius-surface); background: var(--card-bg); box-shadow: var(--card-shadow); overflow: hidden; }
 .direction .thumb { border-radius: 0; box-shadow: 0 1px 0 var(--border), 0 -1px 0 var(--border); }
 .direction-body { display: grid; gap: 0.5rem; padding: 1rem; align-content: start; }
+/* The name and mood take the same height on every card, so that the pictures in a row line up. */
+.direction > .direction-body:first-child { min-height: 7.25rem; }
 .direction .mood { color: var(--text); }
 .direction dl { display: grid; gap: 0.25rem; font-size: 0.8125rem; color: var(--text-muted); }
 .direction dl div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0.5rem; }

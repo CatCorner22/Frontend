@@ -1,5 +1,13 @@
 {
   "label": "b",
+  "harness": {
+    "version": 2,
+    "ranAt": "2026-11-13T15:18:04.044Z",
+    "node": "v22.23.4",
+    "playwright": "1.63.0",
+    "axeCore": "4.14.0",
+    "chromium": "153.0.8010.12"
+  },
   "bytes": 39513,
   "externalRequests": [],
   "viewports": {
@@ -16,6 +24,18 @@
         "interactiveCount": 9,
         "targetsUnder24": 1,
         "targetsUnder44": 2,
+        "smallTargets": [
+          {
+            "label": "Skip to main content",
+            "width": 32,
+            "height": 44
+          },
+          {
+            "label": "555-0142",
+            "width": 93.4,
+            "height": 21
+          }
+        ],
         "horizontalOverflow": false,
         "bodyFontSizePx": 18,
         "inputsWithoutLabel": 0
@@ -80,6 +100,18 @@
         "interactiveCount": 9,
         "targetsUnder24": 1,
         "targetsUnder44": 2,
+        "smallTargets": [
+          {
+            "label": "Skip to main content",
+            "width": 32,
+            "height": 44
+          },
+          {
+            "label": "555-0142",
+            "width": 93.4,
+            "height": 21
+          }
+        ],
         "horizontalOverflow": false,
         "bodyFontSizePx": 18,
         "inputsWithoutLabel": 0
@@ -144,6 +176,18 @@
         "interactiveCount": 9,
         "targetsUnder24": 1,
         "targetsUnder44": 2,
+        "smallTargets": [
+          {
+            "label": "Skip to main content",
+            "width": 32,
+            "height": 44
+          },
+          {
+            "label": "555-0142",
+            "width": 93.4,
+            "height": 21
+          }
+        ],
         "horizontalOverflow": false,
         "bodyFontSizePx": 18,
         "inputsWithoutLabel": 0
@@ -204,284 +248,1072 @@
   "flows": {
     "success": {
       "end": {
-        "reachedSuccess": false,
+        "reachedSuccess": true,
         "failureCopy": false,
         "alternativesVisible": true,
-        "steps": 14
+        "addressVisible": true,
+        "steps": 7,
+        "endScreen": "Your preparation summary is ready.",
+        "stoppedBecause": "reached the confirmation screen"
       },
+      "outcomeChosen": true,
+      "sendMs": 910,
       "log": [
         {
           "step": 0,
           "heading": "Bring your notice. Leave with a preparation plan.",
-          "clicked": "Start preparing"
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 23
         },
         {
           "step": 1,
           "heading": "There is a problem",
-          "clicked": "Continue to paperwork date"
+          "clicked": "Continue to paperwork date",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 2,
           "heading": "Does your paperwork show a hearing, response, or other date?",
-          "clicked": "Continue to checklist"
+          "clicked": "Continue to checklist",
+          "answer": "new screen",
+          "ms": 27
         },
         {
           "step": 3,
           "heading": "What to bring to your intake",
-          "clicked": "Continue to contact details"
+          "clicked": "Continue to contact details",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 4,
           "heading": "How should the clinic contact you?",
-          "clicked": "Continue to summary"
+          "clicked": "Continue to summary",
+          "answer": "new screen",
+          "ms": 25
         },
         {
           "step": 5,
           "heading": "Check your preparation summary",
-          "clicked": "Continue to request an intake"
+          "clicked": "Continue to request an intake",
+          "answer": "new screen",
+          "ms": 27
         },
         {
           "step": 6,
           "heading": "Request an intake",
-          "clicked": "Send my request"
-        },
-        {
-          "step": 7,
-          "heading": "Request an intake",
-          "clicked": "Send my request"
-        },
-        {
-          "step": 8,
-          "heading": "Your preparation summary is ready.",
-          "clicked": "Prepare for a different issue"
-        },
-        {
-          "step": 9,
-          "heading": "Bring your notice. Leave with a preparation plan.",
-          "clicked": "Start preparing"
-        },
-        {
-          "step": 10,
-          "heading": "What do you need help with?",
-          "clicked": "Continue to paperwork date"
-        },
-        {
-          "step": 11,
-          "heading": "Does your paperwork show a hearing, response, or other date?",
-          "clicked": "Continue to checklist"
-        },
-        {
-          "step": 12,
-          "heading": "What to bring to your intake",
-          "clicked": "Continue to contact details"
-        },
-        {
-          "step": 13,
-          "heading": "How should the clinic contact you?",
-          "clicked": "Continue to summary"
+          "clicked": "Send my request",
+          "answer": "confirmation",
+          "ms": 910
         }
       ],
       "probedEmpty": {
         "alert": true,
         "ariaInvalid": 1,
+        "addedText": [
+          "There is a problem",
+          "Choose a topic to continue",
+          "Error: Choose a topic to continue"
+        ],
         "errorText": true,
         "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
         "clicked": "Continue to paperwork date"
-      }
+      },
+      "secondPress": null,
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue to paperwork date",
+        "forward: Continue to paperwork date",
+        "forward: Continue to checklist",
+        "forward: Continue to contact details",
+        "forward: Continue to summary",
+        "forward: Continue to request an intake",
+        "forward: Send my request"
+      ],
+      "screens": [
+        {
+          "step": 0,
+          "screen": "Bring your notice. Leave with a preparation plan.",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 2,
+          "smallTargets": [
+            {
+              "label": "Skip to main content",
+              "width": 32,
+              "height": 44
+            },
+            {
+              "label": "555-0142",
+              "width": 93.4,
+              "height": 21
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 1,
+          "screen": "What do you need help with?",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 2,
+          "smallTargets": [
+            {
+              "label": "Skip to main content",
+              "width": 32,
+              "height": 44
+            },
+            {
+              "label": "555-0142",
+              "width": 93.4,
+              "height": 21
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 2,
+          "screen": "Does your paperwork show a hearing, response, or other date?",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 2,
+          "smallTargets": [
+            {
+              "label": "Skip to main content",
+              "width": 32,
+              "height": 44
+            },
+            {
+              "label": "555-0142",
+              "width": 93.4,
+              "height": 21
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 3,
+          "screen": "What to bring to your intake",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 2,
+          "smallTargets": [
+            {
+              "label": "Skip to main content",
+              "width": 32,
+              "height": 44
+            },
+            {
+              "label": "555-0142",
+              "width": 93.4,
+              "height": 21
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 4,
+          "screen": "How should the clinic contact you?",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 2,
+          "smallTargets": [
+            {
+              "label": "Skip to main content",
+              "width": 32,
+              "height": 44
+            },
+            {
+              "label": "555-0142",
+              "width": 93.4,
+              "height": 21
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 5,
+          "screen": "Check your preparation summary",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 2,
+          "smallTargets": [
+            {
+              "label": "Skip to main content",
+              "width": 32,
+              "height": 44
+            },
+            {
+              "label": "555-0142",
+              "width": 93.4,
+              "height": 21
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": 6,
+          "screen": "Request an intake",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 2,
+          "smallTargets": [
+            {
+              "label": "Skip to main content",
+              "width": 32,
+              "height": 44
+            },
+            {
+              "label": "555-0142",
+              "width": 93.4,
+              "height": 21
+            }
+          ],
+          "axe": []
+        },
+        {
+          "step": "end",
+          "screen": "Your preparation summary is ready.",
+          "h1Visible": 1,
+          "inputsWithoutLabel": 0,
+          "targetsUnder24": 1,
+          "targetsUnder44": 2,
+          "smallTargets": [
+            {
+              "label": "Skip to main content",
+              "width": 32,
+              "height": 44
+            },
+            {
+              "label": "555-0142",
+              "width": 93.4,
+              "height": 21
+            }
+          ],
+          "axe": []
+        }
+      ],
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to checklist",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to contact details",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to summary",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to request an intake",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send my request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
     },
     "server-error": {
       "end": {
         "reachedSuccess": false,
         "failureCopy": true,
         "alternativesVisible": true,
-        "steps": 9
+        "addressVisible": true,
+        "steps": 7,
+        "endScreen": "Request an intake",
+        "stoppedBecause": "reached the failure screen"
       },
+      "outcomeChosen": true,
+      "sendMs": 907,
       "log": [
         {
           "step": 0,
           "heading": "Bring your notice. Leave with a preparation plan.",
-          "clicked": "Start preparing"
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 22
         },
         {
           "step": 1,
           "heading": "There is a problem",
-          "clicked": "Continue to paperwork date"
+          "clicked": "Continue to paperwork date",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 2,
           "heading": "Does your paperwork show a hearing, response, or other date?",
-          "clicked": "Continue to checklist"
+          "clicked": "Continue to checklist",
+          "answer": "new screen",
+          "ms": 24
         },
         {
           "step": 3,
           "heading": "What to bring to your intake",
-          "clicked": "Continue to contact details"
+          "clicked": "Continue to contact details",
+          "answer": "new screen",
+          "ms": 24
         },
         {
           "step": 4,
           "heading": "How should the clinic contact you?",
-          "clicked": "Continue to summary"
+          "clicked": "Continue to summary",
+          "answer": "new screen",
+          "ms": 25
         },
         {
           "step": 5,
           "heading": "Check your preparation summary",
-          "clicked": "Continue to request an intake"
+          "clicked": "Continue to request an intake",
+          "answer": "new screen",
+          "ms": 25
         },
         {
           "step": 6,
           "heading": "Request an intake",
-          "clicked": "Send my request"
-        },
-        {
-          "step": 7,
-          "heading": "Request an intake",
-          "clicked": "Send my request"
-        },
-        {
-          "step": 8,
-          "heading": "Your request was not sent. Your answers are still on this device.",
-          "clicked": null
+          "clicked": "Send my request",
+          "answer": "failure",
+          "ms": 907
         }
       ],
       "probedEmpty": {
         "alert": true,
         "ariaInvalid": 1,
+        "addedText": [
+          "There is a problem",
+          "Choose a topic to continue",
+          "Error: Choose a topic to continue"
+        ],
         "errorText": true,
         "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
         "clicked": "Continue to paperwork date"
-      }
+      },
+      "secondPress": null,
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue to paperwork date",
+        "forward: Continue to paperwork date",
+        "forward: Continue to checklist",
+        "forward: Continue to contact details",
+        "forward: Continue to summary",
+        "forward: Continue to request an intake",
+        "forward: Send my request",
+        "retry: Try sending again"
+      ],
+      "endScreenReport": {
+        "step": "end",
+        "screen": "Request an intake",
+        "h1Visible": 1,
+        "inputsWithoutLabel": 0,
+        "targetsUnder24": 1,
+        "targetsUnder44": 2,
+        "smallTargets": [
+          {
+            "label": "Skip to main content",
+            "width": 32,
+            "height": 44
+          },
+          {
+            "label": "555-0142",
+            "width": 93.4,
+            "height": 21
+          }
+        ],
+        "axe": []
+      },
+      "recovery": {
+        "entered": {
+          "topic": "Housing or eviction",
+          "name": "Maya",
+          "contact": "555-0199"
+        },
+        "onFailureScreen": {
+          "topic": true,
+          "name": true,
+          "contact": true
+        },
+        "answersKept": true,
+        "retry": {
+          "outcomeChosen": true,
+          "pressed": "Try sending again",
+          "reachedSuccess": true,
+          "answersOnConfirmation": {
+            "topic": true,
+            "name": true,
+            "contact": true
+          }
+        },
+        "retryReachedSuccessWithSameAnswers": true
+      },
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to checklist",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to contact details",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to summary",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to request an intake",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send my request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "retry",
+          "label": "Try sending again",
+          "state": "failure",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
     },
     "offline": {
       "end": {
         "reachedSuccess": false,
         "failureCopy": true,
         "alternativesVisible": true,
-        "steps": 7
+        "addressVisible": true,
+        "steps": 7,
+        "endScreen": "Request an intake",
+        "stoppedBecause": "reached the failure screen"
       },
+      "outcomeChosen": true,
+      "sendMs": 309,
       "log": [
         {
           "step": 0,
           "heading": "Bring your notice. Leave with a preparation plan.",
-          "clicked": "Start preparing"
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 1,
           "heading": "There is a problem",
-          "clicked": "Continue to paperwork date"
+          "clicked": "Continue to paperwork date",
+          "answer": "new screen",
+          "ms": 28
         },
         {
           "step": 2,
           "heading": "Does your paperwork show a hearing, response, or other date?",
-          "clicked": "Continue to checklist"
+          "clicked": "Continue to checklist",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 3,
           "heading": "What to bring to your intake",
-          "clicked": "Continue to contact details"
+          "clicked": "Continue to contact details",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 4,
           "heading": "How should the clinic contact you?",
-          "clicked": "Continue to summary"
+          "clicked": "Continue to summary",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 5,
           "heading": "Check your preparation summary",
-          "clicked": "Continue to request an intake"
+          "clicked": "Continue to request an intake",
+          "answer": "new screen",
+          "ms": 23
         },
         {
           "step": 6,
           "heading": "Request an intake",
-          "clicked": "Send my request"
+          "clicked": "Send my request",
+          "answer": "failure",
+          "ms": 309
         }
       ],
       "probedEmpty": {
         "alert": true,
         "ariaInvalid": 1,
+        "addedText": [
+          "There is a problem",
+          "Choose a topic to continue",
+          "Error: Choose a topic to continue"
+        ],
         "errorText": true,
         "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
         "clicked": "Continue to paperwork date"
-      }
+      },
+      "secondPress": null,
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue to paperwork date",
+        "forward: Continue to paperwork date",
+        "forward: Continue to checklist",
+        "forward: Continue to contact details",
+        "forward: Continue to summary",
+        "forward: Continue to request an intake",
+        "forward: Send my request",
+        "retry: Try sending again"
+      ],
+      "recovery": {
+        "entered": {
+          "topic": "Housing or eviction",
+          "name": "Maya",
+          "contact": "555-0199"
+        },
+        "onFailureScreen": {
+          "topic": true,
+          "name": true,
+          "contact": true
+        },
+        "answersKept": true,
+        "retry": {
+          "outcomeChosen": true,
+          "pressed": "Try sending again",
+          "reachedSuccess": true,
+          "answersOnConfirmation": {
+            "topic": true,
+            "name": true,
+            "contact": true
+          }
+        },
+        "retryReachedSuccessWithSameAnswers": true
+      },
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to checklist",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to contact details",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to summary",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to request an intake",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send my request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "retry",
+          "label": "Try sending again",
+          "state": "failure",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
     },
     "slow": {
       "end": {
         "reachedSuccess": true,
         "failureCopy": false,
         "alternativesVisible": true,
-        "steps": 10
+        "addressVisible": true,
+        "steps": 7,
+        "endScreen": "Your preparation summary is ready.",
+        "stoppedBecause": "reached the confirmation screen"
       },
+      "outcomeChosen": true,
+      "sendMs": 3010,
       "log": [
         {
           "step": 0,
           "heading": "Bring your notice. Leave with a preparation plan.",
-          "clicked": "Start preparing"
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 23
         },
         {
           "step": 1,
           "heading": "There is a problem",
-          "clicked": "Continue to paperwork date"
+          "clicked": "Continue to paperwork date",
+          "answer": "new screen",
+          "ms": 27
         },
         {
           "step": 2,
           "heading": "Does your paperwork show a hearing, response, or other date?",
-          "clicked": "Continue to checklist"
+          "clicked": "Continue to checklist",
+          "answer": "new screen",
+          "ms": 27
         },
         {
           "step": 3,
           "heading": "What to bring to your intake",
-          "clicked": "Continue to contact details"
+          "clicked": "Continue to contact details",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 4,
           "heading": "How should the clinic contact you?",
-          "clicked": "Continue to summary"
+          "clicked": "Continue to summary",
+          "answer": "new screen",
+          "ms": 27
         },
         {
           "step": 5,
           "heading": "Check your preparation summary",
-          "clicked": "Continue to request an intake"
+          "clicked": "Continue to request an intake",
+          "answer": "new screen",
+          "ms": 26
         },
         {
           "step": 6,
           "heading": "Request an intake",
-          "clicked": "Send my request"
-        },
-        {
-          "step": 7,
-          "heading": "Request an intake",
-          "clicked": "Send my request"
-        },
-        {
-          "step": 8,
-          "heading": "Request an intake",
-          "clicked": "Send my request"
-        },
-        {
-          "step": 9,
-          "heading": "Request an intake",
-          "clicked": "Send my request"
+          "clicked": "Send my request",
+          "answer": "confirmation",
+          "ms": 3010
         }
       ],
       "probedEmpty": {
         "alert": true,
         "ariaInvalid": 1,
+        "addedText": [
+          "There is a problem",
+          "Choose a topic to continue",
+          "Error: Choose a topic to continue"
+        ],
         "errorText": true,
         "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
         "clicked": "Continue to paperwork date"
-      }
+      },
+      "secondPress": null,
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue to paperwork date",
+        "forward: Continue to paperwork date",
+        "forward: Continue to checklist",
+        "forward: Continue to contact details",
+        "forward: Continue to summary",
+        "forward: Continue to request an intake",
+        "forward: Send my request"
+      ],
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to checklist",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to contact details",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to summary",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to request an intake",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send my request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
+    },
+    "slow-pressed-twice": {
+      "end": {
+        "reachedSuccess": true,
+        "failureCopy": false,
+        "alternativesVisible": true,
+        "addressVisible": true,
+        "steps": 7,
+        "endScreen": "Your preparation summary is ready.",
+        "stoppedBecause": "reached the confirmation screen"
+      },
+      "outcomeChosen": true,
+      "sendMs": 3009,
+      "log": [
+        {
+          "step": 0,
+          "heading": "Bring your notice. Leave with a preparation plan.",
+          "clicked": "Start preparing",
+          "answer": "new screen",
+          "ms": 20
+        },
+        {
+          "step": 1,
+          "heading": "There is a problem",
+          "clicked": "Continue to paperwork date",
+          "answer": "new screen",
+          "ms": 24
+        },
+        {
+          "step": 2,
+          "heading": "Does your paperwork show a hearing, response, or other date?",
+          "clicked": "Continue to checklist",
+          "answer": "new screen",
+          "ms": 24
+        },
+        {
+          "step": 3,
+          "heading": "What to bring to your intake",
+          "clicked": "Continue to contact details",
+          "answer": "new screen",
+          "ms": 25
+        },
+        {
+          "step": 4,
+          "heading": "How should the clinic contact you?",
+          "clicked": "Continue to summary",
+          "answer": "new screen",
+          "ms": 29
+        },
+        {
+          "step": 5,
+          "heading": "Check your preparation summary",
+          "clicked": "Continue to request an intake",
+          "answer": "new screen",
+          "ms": 26
+        },
+        {
+          "step": 6,
+          "heading": "Request an intake",
+          "clicked": "Send my request",
+          "answer": "confirmation",
+          "ms": 3009
+        }
+      ],
+      "probedEmpty": {
+        "alert": true,
+        "ariaInvalid": 1,
+        "addedText": [
+          "There is a problem",
+          "Choose a topic to continue",
+          "Error: Choose a topic to continue"
+        ],
+        "errorText": true,
+        "focusTag": "div",
+        "stayedOnScreen": true,
+        "reaction": "stayed and changed",
+        "clicked": "Continue to paperwork date"
+      },
+      "secondPress": {
+        "control": "Send my request",
+        "afterMs": 1010,
+        "labelAtSecondPress": "Send my request",
+        "disabled": false,
+        "ariaDisabled": false,
+        "reachedThePage": true,
+        "result": "reached the page"
+      },
+      "answers": {
+        "topic": "Housing or eviction",
+        "name": "Maya",
+        "contact": "555-0199"
+      },
+      "pressesMade": [
+        "forward: Start preparing",
+        "forward: Continue to paperwork date",
+        "forward: Continue to paperwork date",
+        "forward: Continue to checklist",
+        "forward: Continue to contact details",
+        "forward: Continue to summary",
+        "forward: Continue to request an intake",
+        "forward: Send my request",
+        "again"
+      ],
+      "afterConfirmation": {
+        "watchedMs": 4000,
+        "watchStarted": true,
+        "changesToThePage": 0,
+        "stillTheConfirmation": true
+      },
+      "pressesReceived": [
+        {
+          "kind": "forward",
+          "label": "Start preparing",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to paperwork date",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to checklist",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to contact details",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to summary",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Continue to request an intake",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "forward",
+          "label": "Send my request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        },
+        {
+          "kind": "again",
+          "label": "Send my request",
+          "state": "in-flow",
+          "verdict": "delivered"
+        }
+      ],
+      "pressesCancelledByTheGuard": 0
     }
   },
   "reflow320": {
     "overflow": false,
     "scrollWidth": 320
   },
+  "axeEndScreen": "Your preparation summary is ready.",
   "axeEnd": [],
+  "axeFailureScreen": "Request an intake",
+  "axeFailure": [],
   "refresh": {
     "before": "housing",
     "after": "housing",
-    "kept": true
+    "kept": true,
+    "screenBefore": "What do you need help with?",
+    "screenAfter": "What do you need help with?"
   },
   "hasPrintStyles": true,
   "usesInnerHTML": 0,
-  "reducedMotionQuery": true
+  "reducedMotionQuery": true,
+  "checks": {
+    "answersKeptAfterFailure": {
+      "server-error": true,
+      "offline": true
+    },
+    "retryAfterFailure": {
+      "server-error": true,
+      "offline": true
+    },
+    "slowCompletesOnce": {
+      "msWithOnePress": 3010,
+      "msWithTwoPresses": 3009,
+      "secondPress": "reached the page",
+      "secondPressRestartedTheWait": false,
+      "pageChangedAfterConfirmation": false,
+      "pass": true
+    },
+    "successFlowScreens": {
+      "measured": 8,
+      "withAxeViolations": [],
+      "mostTargetsUnder24": {
+        "count": 1,
+        "onScreens": [
+          "Bring your notice. Leave with a preparation plan.",
+          "What do you need help with?",
+          "Does your paperwork show a hearing, response, or other date?",
+          "What to bring to your intake",
+          "How should the clinic contact you?",
+          "Check your preparation summary",
+          "Request an intake",
+          "Your preparation summary is ready."
+        ]
+      },
+      "mostTargetsUnder44": {
+        "count": 2,
+        "onScreens": [
+          "Bring your notice. Leave with a preparation plan.",
+          "What do you need help with?",
+          "Does your paperwork show a hearing, response, or other date?",
+          "What to bring to your intake",
+          "How should the clinic contact you?",
+          "Check your preparation summary",
+          "Request an intake",
+          "Your preparation summary is ready."
+        ]
+      }
+    },
+    "harnessSelfCheck": {
+      "ok": true,
+      "problems": []
+    }
+  }
 }

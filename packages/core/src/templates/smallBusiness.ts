@@ -144,7 +144,9 @@ h1, h2, h3 {
 }
 p { margin: 0; text-wrap: pretty; }
 :where(a[role="link"]) { text-decoration: underline; cursor: pointer; }
-a { color: var(--accent-text); text-underline-offset: 0.2em; text-decoration-thickness: 0.07em; }
+/* Underlines sit a little below the text and start soft; they firm up under the pointer. */
+a { color: var(--accent-text); text-underline-offset: 0.22em; text-decoration-thickness: 0.07em; text-decoration-color: color-mix(in oklch, currentColor 45%, transparent); transition: text-decoration-color var(--dur-fast) var(--ease-out); }
+@media (hover: hover) { a:hover { text-decoration-color: currentColor; } }
 .wrap { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--space-6); }
 .skip { position: absolute; left: var(--space-4); top: -100px; background: var(--surface); color: var(--text); padding: var(--space-2) var(--space-4); border-radius: var(--radius-small); z-index: 60; }
 .skip:focus { top: var(--space-4); }
@@ -168,7 +170,7 @@ body[data-atmosphere="grain"][data-theme="dark"]::after { mix-blend-mode: overla
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
   min-height: var(--target-min); padding: 0 var(--space-5);
   border: var(--control-border-w) solid transparent; border-radius: var(--radius-control);
-  font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap;
+  font: inherit; font-weight: 600; letter-spacing: -0.006em; text-decoration: none; cursor: pointer; white-space: nowrap; user-select: none;
 }
 .btn-primary { background: var(--btn-bg); color: var(--btn-color); border-color: var(--btn-border); box-shadow: var(--btn-shadow); }
 @media (hover: hover) {
@@ -220,7 +222,7 @@ body[data-strategy="color-block"] .lede { color: inherit; opacity: var(--hero-le
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); margin-top: var(--space-8); }
 .actions .link { color: inherit; font-weight: 600; }
 /* A link that stands alone is at least 24 pixels tall, the floor for a pointer target. */
-.actions .link, .service .more, address .phone { display: inline-flex; align-items: center; min-height: 1.5rem; }
+.actions .link, .service .more, address .phone, .nav-actions .phone { display: inline-flex; align-items: center; min-height: 1.5rem; }
 .actions .phone-big { display: none; font-size: var(--text-lg); color: inherit; }
 body[data-strategy="color-block"] .hero .btn-primary { background: var(--hero-text); color: var(--hero-bg); border-color: var(--hero-text); box-shadow: none; }
 .hero-media { display: none; }
@@ -258,7 +260,7 @@ body[data-emphasis="proof"] .hero h1 { font-size: calc(var(--text-3xl) * var(--d
 body[data-numerals="mono"] .fact-list dt, body[data-numerals="mono"] .phone, body[data-numerals="mono"] .num { font-family: var(--font-numeric); letter-spacing: -0.02em; }
 .facts { background: var(--band-bg); color: var(--band-text); padding-block: var(--space-10); }
 @media (min-width: 720px) { .facts .fact-list div + div { border-left: 1px solid color-mix(in oklch, currentColor 16%, transparent); padding-left: var(--space-8); } }
-.fact-list.hero-facts { margin-top: var(--space-10); padding-top: var(--space-6); border-top: var(--control-border-w) solid var(--border); }
+.fact-list.hero-facts { margin-top: var(--space-10); padding-top: var(--space-6); border-top: var(--border-w) solid var(--border); }
 
 /* Sections */
 section.block { padding-block: var(--section-gap); }
@@ -272,10 +274,12 @@ section.block { padding-block: var(--section-gap); }
 .service .num { display: none; font-family: var(--font-heading); font-weight: var(--heading-weight); color: var(--accent-text); font-variant-numeric: tabular-nums; }
 .service-media { display: none; }
 .service-body { display: grid; gap: var(--space-3); align-content: start; }
+/* Light falls from above: a box that casts a shadow also catches a faint highlight along its top edge. */
+.card, body[data-sections="grid"] .service, body[data-sections="bento"] .service { background-clip: padding-box; }
 .card { background: var(--card-bg); border: var(--card-border-w) solid var(--card-border); border-radius: var(--radius-surface); box-shadow: var(--card-shadow); -webkit-backdrop-filter: var(--card-backdrop); backdrop-filter: var(--card-backdrop); }
 
-body[data-sections="stacked"] .service { display: grid; gap: var(--space-4); padding-block: var(--space-8); border-top: var(--control-border-w) solid var(--border); }
-body[data-sections="stacked"] .service:last-child { border-bottom: var(--control-border-w) solid var(--border); }
+body[data-sections="stacked"] .service { display: grid; gap: var(--space-4); padding-block: var(--space-8); border-top: var(--border-w) solid var(--border); }
+body[data-sections="stacked"] .service:last-child { border-bottom: var(--border-w) solid var(--border); }
 @media (min-width: 860px) {
   body[data-sections="stacked"] .service-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 0.8fr); gap: var(--space-8); align-items: baseline; }
   body[data-sections="stacked"] .service .more { justify-self: end; text-align: right; }
@@ -306,15 +310,15 @@ body[data-sections="bento"] .service:first-child h3 { font-size: var(--text-2xl)
   body[data-sections="ledger"] .services .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--space-16); align-items: start; }
   body[data-sections="ledger"] .section-head { position: sticky; top: var(--space-8); margin: 0; }
 }
-body[data-sections="ledger"] .service { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-6); padding-block: var(--space-6); border-top: var(--control-border-w) solid var(--border-strong); }
+body[data-sections="ledger"] .service { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-6); padding-block: var(--space-6); border-top: var(--border-w) solid var(--border-strong); }
 body[data-sections="ledger"] .service .num { display: block; font-size: var(--text-sm); padding-top: 0.35em; }
 
 /* Fees: a short price list. A column of numbers is where number styles show. */
 .fees { margin-top: var(--space-12); max-width: 34rem; }
 .fees h3 { font-size: var(--text-lg); margin-bottom: var(--space-3); }
 .fees table { width: 100%; border-collapse: collapse; }
-.fees th, .fees td { padding-block: var(--space-3); border-top: var(--control-border-w) solid var(--border); font-weight: 400; text-align: left; }
-.fees tr:last-child th, .fees tr:last-child td { border-bottom: var(--control-border-w) solid var(--border); }
+.fees th, .fees td { padding-block: var(--space-3); border-top: var(--border-w) solid var(--border); font-weight: 400; text-align: left; }
+.fees tr:last-child th, .fees tr:last-child td { border-bottom: var(--border-w) solid var(--border); }
 .fees td { text-align: right; font-variant-numeric: var(--numeric); font-weight: 600; white-space: nowrap; }
 body[data-numerals="mono"] .fees td { font-family: var(--font-numeric); letter-spacing: -0.02em; }
 
@@ -344,6 +348,8 @@ body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about
   box-shadow: inset 0 1px 2px var(--recess);
 }
 @media (hover: hover) { .field input:hover, .field textarea:hover { border-color: var(--text-muted); } }
+/* A focused field: the ring, plus a soft halo of the same color. */
+.field input:focus-visible, .field textarea:focus-visible { outline-offset: 0; box-shadow: 0 0 0 4px color-mix(in oklch, var(--focus) 22%, transparent); }
 .field textarea { min-height: 6.5rem; resize: vertical; border-radius: min(var(--radius-control), var(--radius-surface)); }
 .hint { font-size: var(--text-xs); color: var(--text-muted); }
 .form .btn { justify-self: start; }
@@ -352,13 +358,19 @@ body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about
 .site-footer { border-top: var(--border-w) solid var(--border); padding-block: var(--space-8); color: var(--text-muted); font-size: var(--text-sm); }
 .site-footer .wrap { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-8); justify-content: space-between; }
 
-/* Placeholder for a photograph */
+/* Placeholder for a photograph: a quiet composition in the design's own colors (light from the upper left, a faint grid, a soft floor), so that the page reads as finished before real photographs arrive. */
 .media {
   position: relative; place-items: end start; padding: var(--space-4); border-radius: var(--radius-surface); overflow: hidden;
-  background: linear-gradient(140deg, var(--media-a), var(--media-b)); border: var(--card-border-w) solid var(--card-border); box-shadow: var(--card-shadow);
+  background:
+    radial-gradient(120% 90% at 18% 12%, color-mix(in oklch, var(--surface) 70%, transparent), transparent 62%),
+    radial-gradient(70% 60% at 86% 88%, color-mix(in oklch, var(--accent) 26%, transparent), transparent 70%),
+    linear-gradient(to bottom, transparent 62%, color-mix(in oklch, var(--text) 7%, transparent)),
+    linear-gradient(140deg, var(--media-a), var(--media-b));
+  border: var(--card-border-w) solid var(--card-border); box-shadow: var(--card-shadow);
 }
-.media::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--border); pointer-events: none; }
-.media span { position: relative; background: var(--surface); color: var(--text-muted); font-size: var(--text-xs); font-weight: 600; padding: var(--space-1) var(--space-3); border-radius: var(--radius-small); box-shadow: 0 0 0 1px var(--border); }
+.media::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.5; background-image: linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px); background-size: 2.5rem 2.5rem; -webkit-mask-image: radial-gradient(90% 80% at 70% 30%, #000, transparent 75%); mask-image: radial-gradient(90% 80% at 70% 30%, #000, transparent 75%); }
+.media::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--border), inset 0 1px 0 var(--inset-highlight); pointer-events: none; }
+.media span { position: relative; background: var(--surface); color: var(--text-muted); font-size: var(--text-xs); font-weight: 600; padding: var(--space-1) var(--space-3); border-radius: var(--radius-small); box-shadow: 0 0 0 1px var(--border), 0 1px 2px var(--recess); }
 
 /* Signature elements: one memorable move */
 body[data-signature="marker"] .hero mark { background: linear-gradient(transparent 56%, var(--marker) 56% 92%, transparent 92%); padding-inline: 0.08em; -webkit-text-fill-color: var(--hero-text); -webkit-box-decoration-break: clone; box-decoration-break: clone; }

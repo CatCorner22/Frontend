@@ -563,7 +563,8 @@ export const STEPS: Step[] = [
       'Lines divide and outline. A hairline nearly disappears and feels refined. A heavy line is a statement and makes forms very easy to see.',
     variable: 'Thickness of rules and outlines',
     owns: ['borderWeight'],
-    focus: 'services',
+    // The price list has dividing lines in every layout, so the change always shows there.
+    focus: 'fees',
     thumb: { width: 440 },
     defaultOptionId: 'hairline',
     tunables: [{ key: 'borderWeight', label: 'Thickness', min: 0, max: 4, step: 0.5, unit: 'px', nudge: 0.5, directions: ['thinner', 'thicker'] }],

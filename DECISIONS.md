@@ -42,6 +42,7 @@ Each entry records a decision that shapes the project, or a departure from `PLAN
 | D30 | 2026-11-13 | Compute fluid type sizes with one formula in `packages/core/src/tokens.ts`. Do not add `utopia-core`. | One `clamp()` formula does the work; one fewer dependency in the core. | Pending the owner (departs from PLAN.md §6; the code already works this way: finding M-12). |
 | D31 | 2026-11-13 | "Skip" keeps the current value of the Step and records the Decision as "kept." It no longer replaces the value with the Step's default Option. | After the owner picks a Direction, the earlier behavior silently replaced the Direction's values (finding P-04). PLAN.md §4.1 rule 8 defined Skip before Directions existed. | Recorded as a defect fix; flagged for the owner's review because it rewords PLAN.md §4.1 rule 8. |
 | D32 | 2026-11-13 | No session setup script. A new session runs `npm ci --ignore-scripts` (about 5 seconds). | PLAN.md §8 promised a setup script (finding M-04). The install is too short to need one, and a failing setup script would block a session from starting. | Recorded; flagged for the owner's review. |
+| D33 | 2026-11-13 | The second red-team review (after the repairs to the first review's findings) is postponed. M4 stays open until it runs. | The owner asked on 2026-11-13 to limit usage. Hard rule 12 still applies: no milestone closes without the review. | Recorded; the owner asked to limit usage |
 
 ## Package checks (hard rule 7; see D27)
 

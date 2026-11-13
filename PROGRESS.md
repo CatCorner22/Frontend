@@ -2,53 +2,67 @@
 
 A fresh session reads this file to learn where the project stands. Update it after every unit of work.
 
-## Current milestone: M4 — Step screen released to the owner (awaiting the owner's trial)
+## Current milestone: M4 (Step screen). Not complete.
 
-**State.** The Studio runs: 14 Directions plus a Direction generator; 22 Steps in Stages 2 (Structure) and 3 (Feel); a large sandboxed preview that opens at the region where each change shows; option tiles with color chips and type specimens; "Closer to this one"; hand fine-tuning; contrast profile Off / Advise / Enforce; project save, load, and file export; a Summary view.
+**Why M4 is not complete.** Its exit test has three parts: the owner uses the Studio on the private page; a keyboard-only pass; the owner picks the Studio's own look. The keyboard pass now runs as an automated test. The owner's trial has not happened. The second red-team review (after the repairs below) has not run.
 
-**Exit test for M4.** The owner uses the Studio on the private page; keyboard-only pass; the owner picks the Studio's own look.
+**Milestone status, stated plainly.**
 
-## Done
+| Milestone | Status |
+|---|---|
+| M0 | Exit test met after correction on 2026-11-13: the results file now matches the measured data; the scorecard is applied and marked as judged by a model. |
+| M1 | Met late. CI was red when M2 work began (finding M-02). No session setup script (decision D32). |
+| M2 | Met: 122 unit tests; the core imports no React and no browser API. |
+| M3 | Exit test met in CI since 2026-11-13 (pixel-difference tests, stored-picture gate). One part still open: nobody has confirmed that the private page shows the embedded pictures. |
+| M4 | In progress. |
 
-- 2026-11-13: Reviewed all 15 of the owner's Drive files and both zip archives (`docs/research/01`–`03`).
-- 2026-11-13: Researched exemplar frontends, borrowable code and licenses, and the market (`docs/research/04`–`06`); read the owner's links (`07`); extracted verified token values from 37 open design systems (`08`, `data/exemplar-tokens.json`).
-- 2026-11-13: M0 proof experiment (`phase0/RESULTS.md`). Gate confirmed by the owner (D12).
-- 2026-11-13: M1 skeleton: workspace, strict TypeScript, lint rules that forbid HTML injection, boundary rule, CI with pinned actions.
-- 2026-11-13: M2 core engine with 27 unit tests: color math, token derivation, accessibility profiles, engine, conflicts, validated import, Directions, generator.
-- 2026-11-13: M3 Template 1 Mockup (small-business website) with the finish layer: 8 depth styles, 7 atmospheres, 5 button finishes, 3 headline fills, 3 motion levels.
-- 2026-11-13: M4 Studio built and checked in a browser (no console errors; flows work; no horizontal scroll at phone width; light and dark viewer themes).
-- 2026-11-13: End-to-end tests in CI (`npm run e2e`, six tests): sandboxed previews, keyboard-only walkthrough with visible focus at every stop, hostile saved content inert, invalid file refused, axe scan of the Studio's own interface, phone width. Bundle-size budget. Generated `THIRD_PARTY_NOTICES.md`.
-- 2026-11-13: The owner approved D16, D17, D22, and Drive backups (D26).
+## What exists
+
+- **Core** (`packages/core`): 23 Steps (6 Layout, 17 Look and feel), 14 Directions and a Direction generator, 12 conflict rules and 11 harmony rules as Catalog records, token derivation with 29 measured contrast pairs, the Mockup for Template 1 (one page), saved-project format version 2 with a migration from version 1.
+- **Studio** (`apps/studio`): Directions, Steps, Summary, and Licences screens; storage that reads both saved copies and never overwrites what it cannot read; Undo; confirmations before work is replaced.
+- **Checks in CI:** type check, lint, boundary rule, 122 unit tests, licence-notices check, 96 browser tests (32 on the Studio, 64 visual tests of the Mockup), bundle-size budget, dependency audit.
+- **Red team:** first review on 2026-11-13: 137 findings (6 blockers, 55 major, 56 minor, 20 notes). Every finding has a status in `redteam/FINDINGS.md`. `redteam/tools/plant-defects.py` plants 39 defects; the unit suite catches 38.
+- **Private page:** https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc (the version number is in `WAYPOINTS.md`).
 
 ## Next
 
-1. The owner tries the Studio and reports what works and what does not.
-2. M5: import the knowledge base into the Catalog (teaching text, craft layer, floors); Stage 1 (Brief, real content) and Stage 4 (Behavior) Steps; use `data/exemplar-tokens.json` and `data/sleek-recipes.json` for more palettes, shadow recipes, and finishes.
-3. M6: export bundle (Prescription, DESIGN.md, tokens, reference Mockup) as a zip.
-4. M7: the Fitter plugin.
+1. The owner tries the Studio and answers the open questions below.
+2. Run the three red-team reviewers again on the repaired build (hard rule 12). Not yet done, to conserve the owner's usage; M4 cannot close without it.
+3. M5: import the knowledge base into the Catalog (teaching text, craft layer, floors); Stage 1 (Brief, the owner's real content) and Stage 4 (Behavior) Steps; an inner page for Template 1; group the 13 accents; use `data/exemplar-tokens.json` and `data/sleek-recipes.json` for values that a record supports.
+4. M6: export bundle. M7: the Fitter.
 
-## Running in the background when this file was written
+## Waiting on the owner
 
-- Knowledge-base research, part 1 (perception and cognition) → `docs/knowledge/kb-perception-cognition.json`.
-- Knowledge-base research, part 2 (aesthetics, satisfaction, intuitiveness) → `docs/knowledge/kb-aesthetics-satisfaction.json`.
-- Sleek-finish CSS recipes from open codebases → `docs/research/data/sleek-recipes.json`.
-Check whether these files exist before assuming that the research finished.
+1. Do the pictures appear on the private page? (M3's last open part.)
+2. Approve or reject: D24 (links and focus ring stay at 3:1 even when Contrast checks are Off), D28 (Playwright 1.63.0), D29 (browser storage, not IndexedDB), D30 (own type-size formula), D31 ("keep" replaces "skip: take the default"), D32 (no setup script).
+3. Approve changes to the defined-terms table in `CLAUDE.md`: an Option is "one of several choices" (not "3-4"); the accessibility Floor is optional per project (D13); add "Direction"; a Decision's reason is optional.
+4. Two bundled typefaces reserve their names (Playfair Display, Source Serif 4): keep, replace, or ask the copyright holders. See `docs/research/10-font-reserved-names.md`.
+5. The default for Contrast checks is "Advise". The owner's own source assessment says "default to AA". Keep "Advise"?
 
-## Known gaps (stated plainly)
+## Known gaps (every plan item that is absent or partial)
 
-- The red-team reviewers have not yet run on the Studio. Run them before M4 is marked complete.
-- The dependency audit shows 9 moderate advisories, all from one glob-matching package inside the lint tool (development only; nothing ships to the browser). No fix exists without downgrading the lint tool.
-- The private page's host could not be tested from this environment. The page reports plainly if the host blocks embedded previews.
+- No Content Security Policy and no Trusted Types. The private page's own policy is unknown.
+- Prettier is installed and never run.
+- Catalog: no "page type" Step, no "icon set" Step, no "light and dark both" Option; Template 1 has no inner page; 13 accent Options are not grouped; many Options have no exemplar, because no record supports one.
+- "Every derived token is hand-adjustable" (D14) is not built: 14 input values are adjustable on 10 Steps.
+- Contrast checks do not measure text over glows, glass, or photographs. The Studio says so on screen.
+- The Studio's controls are 32 to 40 pixels tall on a mouse-driven screen (44 on touch screens).
+- In the one-column layout (windows under 1,100 pixels wide) the cards and the large preview are not on screen together.
+- The save path on the real private page (its database and its file hand-over) has no automated test; tests use a stand-in.
+- axe runs on the Studio's own screens only, and reports serious and critical findings only. No axe run on the Mockup yet.
+- Tests ran in Chromium only. No screen reader was used.
+- The dependency audit shows 9 moderate advisories, all one advisory in a package inside the lint tools; nothing ships to the browser.
+- Drive backups (D26): the upload has failed on every attempt so far (connector errors).
 
-## Unverified or open
+## Reading status (what the records support)
 
-- The DESIGN.md specification: read it from `google-labs-code/design.md` before M6 (decision D9).
-- Whether the claude.ai private page allows a sandboxed iframe: verify at M3.
-- Company design posts (Linear, Stripe, Apple) were seen as search snippets only; `linear.app`, `stripe.com`, `vercel.com`, and `rauno.me` are now allowed hosts. Read them before authoring the Feel and Behavior Catalog (M5).
-- GitLab's security, accessibility, testing, and dependency sub-guides: unread.
+- The owner's Drive files: 11 loose files and 2 archives are covered by `docs/research/01`-`03`. `map.pdf` was not readable. Most of the archive's source notes were read as a digest.
+- The owner's five links: two read in full, one read at index level, one in part, one not read (decision D10).
+- `docs/research/08`, `09`, and the knowledge base were written by research helpers. Nobody has reviewed them. The knowledge base marks each source as read, abstract only, search snippet, or from memory.
+- Company design pages (Linear, Stripe, Apple) were never read. The Catalog no longer cites them as exemplars.
 
 ## Environment notes
 
-- Cloud environment name: "engine". Allowed hosts added on 2026-11-13: `www.netguru.com`, `dev.to`, `docs.gitlab.com`, `www.sitepoint.com`, `stitch.withgoogle.com`, `linear.app`, `stripe.com`, `vercel.com`, `rauno.me`.
-- `WebFetch` cannot resolve these hosts; `curl` through the session proxy can.
-- The owner's source files live in Google Drive, folder "Claude". The owner's PC does not offer its Downloads folder to cloud sessions.
+- Cloud environment "engine". Allowed hosts added on 2026-11-13: `www.netguru.com`, `dev.to`, `docs.gitlab.com`, `www.sitepoint.com`, `stitch.withgoogle.com`, `linear.app`, `stripe.com`, `vercel.com`, `rauno.me`. `WebFetch` cannot resolve these; `curl` through the session proxy can.
+- A new session runs `npm ci --ignore-scripts` first. The browser for tests is pre-installed and matches Playwright 1.63.0.
+- The owner's source files live in Google Drive, folder "Claude".
