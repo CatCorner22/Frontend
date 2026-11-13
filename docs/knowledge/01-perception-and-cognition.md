@@ -2,7 +2,7 @@
 
 Part 1 of the knowledge base, generated 2026-11-13. The records behind this chapter are in `kb-perception-cognition.json` (70 entries); their ids appear here in `code style`.
 
-This chapter explains how design choices change the mental effort of using a page. Each section gives the mechanism, the most useful design moves, the failure that follows when the mechanism is ignored, and the strength of the evidence. In the JSON file, the `effects` fields describe what happens when a product follows the principle. A number appears only where a source gives one; the Catalog sets every other threshold.
+This chapter explains how design choices change the mental effort of using a page. Each section gives the mechanism, the most useful moves, the failure that follows when it is ignored, and the strength of the evidence. In the JSON file, the `effects` fields describe what happens when a product follows the principle. A number appears only where a source gives one; the Catalog sets every other threshold.
 
 **Evidence grades.** A = a law or formal standard, here mostly WCAG 2.2 (the W3C's Web Content Accessibility Guidelines). A- = peer-reviewed research. B = large practitioner research (Nielsen Norman Group, Baymard, GOV.UK). C = a vendor or a single practitioner. D = folklore. The grade names the kind of evidence; the `verified` field records, per source, whether the source was re-read. Most A- evidence comes from laboratories or classrooms, so applying it to an interface is an inference each time.
 
@@ -54,7 +54,7 @@ This chapter explains how design choices change the mental effort of using a pag
 
 **If ignored.** Mis-clicks, menus that snap shut, and long unsorted lists that must be read item by item.
 
-**Evidence.** A-. Two limits matter. Hick-Hyman does not describe scanning an unfamiliar list and does not justify cutting options. A meta-analysis of 50 experiments found an average "choice overload" effect close to zero (`choice-overload`).
+**Evidence.** A-. Hick-Hyman does not describe scanning an unfamiliar list and does not justify cutting options. A meta-analysis of 50 experiments found an average "choice overload" effect close to zero (`choice-overload`).
 
 ## 6. Response time and waiting
 
@@ -80,7 +80,7 @@ This chapter explains how design choices change the mental effort of using a pag
 
 **Mechanism.** Legibility comes from lightness difference. Hue names categories and states. About 8% of men of European descent cannot reliably separate red from green. A colour's appearance shifts with its background (simultaneous contrast).
 
-**Moves.** Give text a contrast ratio of 4.5 to 1 (3 to 1 for large text), and control boundaries and focus rings 3 to 1. Never signal by colour alone. Build colour ramps on a perceptual lightness scale such as OKLCH, a notation whose lightness value tracks what the eye sees, then verify with the WCAG formula. Limit category colours to a handful. Give each colour one meaning.
+**Moves.** Give text a contrast ratio (the lightness of the lighter colour compared with the darker) of 4.5 to 1, or 3 to 1 for large text, and give control boundaries and keyboard focus outlines 3 to 1. Never signal by colour alone. Build colour ramps on a perceptual lightness scale such as OKLCH, a notation whose lightness value tracks what the eye sees, then verify with the WCAG formula. Limit category colours to a handful. Give each colour one meaning.
 
 **If ignored.** Low-contrast text, the most common detectable accessibility failure (found on 83.9% of the top million home pages in 2026). Red and green status dots that some users cannot tell apart.
 
@@ -154,7 +154,7 @@ This chapter explains how design choices change the mental effort of using a pag
 
 **If ignored.** Forced tours, essentials buried under "Advanced", and experts slowed by a reshuffled layout.
 
-**Evidence.** A- by type of evidence, but most sources in this topic are cited from memory (see the last section).
+**Evidence.** A- by type of evidence, but most sources in this topic are cited from memory.
 
 ## Famous claims that are weaker than they sound
 
