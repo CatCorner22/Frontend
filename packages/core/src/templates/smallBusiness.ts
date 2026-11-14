@@ -201,7 +201,9 @@ body[data-nav="split-cta"] .nav nav { margin-inline: auto; }
 @media (max-width: 719px) {
   body[data-nav="split-cta"] .nav nav { order: 3; width: 100%; margin: 0; }
   body[data-nav="split-cta"] .brand { margin-right: auto; }
-  body[data-nav="split-cta"] .phone { display: none; }
+  /* Only the telephone number in the top bar goes. The rule once named every telephone number, so the number in the contact
+     part vanished on a phone, where it is the most useful (code review of 2026-11-13, finding "tokens 1"). */
+  body[data-nav="split-cta"] .nav-actions .phone { display: none; }
 }
 @media (min-width: 960px) {
   body[data-nav="side-rail"] { display: grid; grid-template-columns: 15rem minmax(0, 1fr); grid-template-rows: 1fr auto; min-height: 100vh; }
@@ -329,7 +331,7 @@ body[data-numerals="mono"] .fees td { font-family: var(--font-numeric); letter-s
 .about { background: var(--surface-2); }
 body[data-elevation="glass"] .about { background: transparent; }
 .about-grid { display: grid; gap: var(--space-10); align-items: center; }
-@media (min-width: 860px) { .about-grid { grid-template-columns: 1.1fr 0.9fr; gap: var(--space-16); } }
+@media (min-width: 860px) { .about-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: var(--space-16); } }
 .about p { color: var(--text-muted); font-size: var(--lede-size); margin-top: var(--space-4); max-width: var(--measure); }
 .promise { margin: 0; padding: var(--space-8); }
 .promise p { font-family: var(--font-heading); font-weight: var(--heading-weight); letter-spacing: var(--heading-tracking); font-size: var(--h3-size); line-height: 1.25; color: var(--text); margin: 0; }
@@ -338,11 +340,12 @@ body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about
 
 /* Contact */
 .contact-grid { display: grid; gap: var(--space-10); align-items: start; }
-@media (min-width: 860px) { .contact-grid { grid-template-columns: 0.9fr 1.1fr; gap: var(--space-16); } }
+@media (min-width: 860px) { .contact-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: var(--space-16); } }
 .contact p { color: var(--text-muted); margin-top: var(--space-4); max-width: 44ch; }
 .contact address { font-style: normal; margin-top: var(--space-6); display: grid; gap: var(--space-1); font-variant-numeric: var(--numeric); }
-.form { display: grid; gap: var(--space-5); padding: var(--space-8); }
-.field { display: grid; gap: var(--space-2); }
+.form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); padding: var(--space-8); min-width: 0; }
+/* A field never asks for more room than its column has: the column may shrink below the field's own width. */
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); min-width: 0; }
 .field label { font-weight: 600; font-size: var(--text-sm); }
 .field input, .field textarea {
   font: inherit; color: var(--text); background: var(--surface); width: 100%;
@@ -355,7 +358,8 @@ body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about
 .field input:focus-visible, .field textarea:focus-visible { outline-offset: 0; box-shadow: 0 0 0 4px color-mix(in oklch, var(--focus) 22%, transparent); }
 .field textarea { min-height: 6.5rem; resize: vertical; border-radius: min(var(--radius-control), var(--radius-surface)); }
 .hint { font-size: var(--text-xs); color: var(--text-muted); }
-.form .btn { justify-self: start; }
+/* On a very narrow screen the button's words may wrap; a button that insists on one line made the whole form wider than the screen. */
+.form .btn { justify-self: start; max-width: 100%; white-space: normal; }
 
 /* Footer */
 .site-footer { border-top: var(--border-w) solid var(--border); padding-block: var(--space-8); color: var(--text-muted); font-size: var(--text-sm); }
