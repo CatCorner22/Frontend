@@ -306,3 +306,198 @@ None.
 - Full storage gave honest "Cannot save" and "Not saving" lines. Dangerous replacements asked first (R-001, R-014, F-7 re-run).
 - Slider ends across 6 Directions, 6 Steps and two device widths produced no overflow or clipping (R-015). The Studio itself fits 375 and 640 px (R-022, R-023, R-008).
 - No run made a network request or showed a page error. The hostile-file re-run injected nothing.
+
+
+# Campaign 4, round 3: the third judge's findings
+
+The text below is the judge's own, unchanged. The judge worked in a context of its own, received the 56 attempts under anonymous numbers (Q-001 to Q-056) without the attackers' identities or their own assessments, and reproduced each claimed result against the pin.
+
+2026-11-14 · pin 6cbd764 (branch claude/harden-studio-review-fixes, built pages in scratchpad/target3) · 56 attempts received (Q-001 to Q-056)
+
+
+## Retest of round 2
+
+| Finding | Result | What the judge ran and saw |
+|---|---|---|
+| F-2 (narrow rest: a project with only a name) | retested-pass | I wrote my own script, node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/f2.cjs. It runs 3 trials with no Direction: tab A names the project 'Base', tab B opens, A renames, and B types 'B work that matters i', so B shows 'Not saving'. The stored project had direction null. I then clicked 'Reload to see the other copy' in B. In all 3 trials B reloaded to 'A changed it', and the kept copies held ['B work that matters i']. No requests left the page. The source now keeps a copy for any project whose name is not one of the Studio's own (worthKeeping, store.ts:180). |
+| F-10 | retested-pass | I wrote my own script, node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/f10.cjs 20. Tab A saves 'A-edit-i'. Tabs B and C stop saving and type 'B-more-i' and 'C-more-i'. Then B and C close in the same instant (Promise.all of page.close with runBeforeUnload). Neither copy went missing in 20 of 20 trials, and each trial set the kept note. No attempt broke this exact path. A related loss through the tab's running copy is new finding F-16, and a race between two tabs that were still saving is F-18. Neither one is the shared-list race of F-10. |
+| F-11 | retested-pass | Every replace dialog now takes its wording from one constant (store.ts:197): 'Undo brings it back as long as it is among your last 100 Undo steps…'. HISTORY_MAX is 100. I re-ran Q-030's script from my own folder (judge/s1/b1u.cjs). Undo turned disabled after exactly 100 presses, the replaced project was out of reach as the dialog says, and it was still kept as a copy. Q-028 shows that the full-storage dialog repeats the same limit. The promise now matches the behavior. |
+| F-12 | retested-pass | I wrote my own script, node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/f12.cjs 20 (log f12.log). Two stopped tabs B and C type their own work, and 'Keep this tab’s copy' is clicked in both in the same instant. I read both status lines, then closed both tabs in the same instant. Over 20 trials: 0 false 'Saved' (both tabs said 'Not saving' and the hold stayed) and 0 lost pieces of work (A, B and C each turned up as the stored project or as a kept copy). Side effect: A's copy was often kept twice (['A-edit-0','A-edit-0','B-more-0']). That is harmless, and Q-026 saw it too. |
+| F-13 | retested-pass | I adapted the round-2 h1h2 script to the new page: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/h1h2.cjs. It covers six Directions, each in the Phone, Tablet and Desktop previews. The headline was larger than every section heading in all 18 cases. Examples: Vector Horizon phone 36.66 against 31.88 and tablet 40.42 against 35.15; Frontier Gazette tablet 42.95 against 37.35; Marquee Deco tablet 41.69 against 36.25; Control Room 31.10 against 25.92. Q-002 and Q-011 agree, at the slider ends as well. |
+| F-14 | retested-pass | I ran the round-2 g2 steps against the new page: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/f14.cjs. I picked Medium contrast, then moved the slider onto Low contrast (soft). The stored Decision was {kind:'tuned', rejected:['crisp'], optionId:'soft'}, so 'soft' was no longer in the rejected list. After a plain reload there was no 'Opening changed some details' notice and no kept copy. Q-029's engine fuzz (1,500 runs) found no Decision that rejects its own Option. |
+| F-15 | retested-pass | I wrote my own script, node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/f15.cjs. From a separate blank page it places a saved project that holds a Decision for an unknown Step, fills storage to its limit, and then opens the Studio. The notice read: '…Opening changed some details of your saved project. This browser’s storage is full or blocked, so the Studio could not keep that copy. It has stopped saving…'. After 'Go on: let the Studio save over it' the status read 'Saved in this browser, on this computer'. The stored copy no longer held the unknown Step, so the statement was true: the smaller new form fitted. |
+
+## New findings
+
+```
+F-16 | 2026-11-14 | S2 | status: confirmed
+Attempts: Q-010, Q-001, Q-052
+Exam-question link: a and b. A tab that has stopped saving keeps a 'running copy' of its unsaved work. Later copies count that running copy as already kept, but the tab removes it at its next tab switch. The work then is in no storage entry, although a dialog and a later notice say a copy was kept.
+Repro: Copied the attacker's scripts into my folder, with the screenshot path changed: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/a2-running-copy-evicts-kept-decisions.cjs ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/a1-running-copy-evicts-kept.cjs ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/set-2/a6-shared-running-copy.cjs (that one writes no files). Steps (Q-010): in tab 1, start from a Direction, name 'Weeks of work A', make 3 Decisions. Tab 2 renames, so tab 1 shows 'Not saving'. Tab 1 renames and then goes to the background. Then 'Start from' another Direction, confirm 'Start again', rename to 'New project B', and go to the background again.
+Observed: The dialog said: 'This replaces your current design and clears your 3 Decisions… The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.' Before Start again, the kept copies held 'Weeks of work A plus edits made while not saving'. After Start again the list was unchanged: no new copy was written. After the second tab switch the list held only 'New project B'. RESULT: '…plus edits…' was in storage anywhere: false. After a reload the banner said 'A page of the Studio closed or reloaded while it was not saving. The Studio kept that page’s unsaved work as a copy…', and the Summary listed only 'New project B'. Q-001 (no Decisions, no dialog) gave the same RESULT: false. Q-052 (two stopped tabs with the same unsaved text; one closes) gave C_WORK_LOST true, and a later reload showed the same 'kept that page’s unsaved work' banner. No outside requests.
+Reproductions: 3/3 (Q-010 1/1, Q-001 1/1, Q-052 1/1).   Why it matters: The Studio promised to keep a copy of the project it was about to replace, and later said it had kept the unsaved work. A few minutes later that copy is gone, and nothing says so.
+Judge note: The source matches the attacker's cause. keepBackup and keepRunningCopy return early when any kept copy has the same text (platform.ts:242, 261). keepRunningCopy then removes this tab's earlier running copy (platform.ts:271), and replacing the project does not call endRunningCopy. The tab switch was simulated: document.visibilityState was overridden and visibilitychange dispatched, because headless Chromium does not hide tabs. A real tab switch fires the same event, but I did not run one. Every case first needs a second tab to change the project, after which the owner works on despite 'Not saving'. In Q-010 the 3 Decisions themselves were still in tab 2's stored project. What was lost for good is the work tab 1 did while it was not saving (here a rename, but in general any amount). I graded it S2 (a guard and its promise fail) rather than S3, because a 'Not saving' line was on screen the whole time. Arguing S3 would also be fair. Q-052 needs two tabs with byte-identical unsaved work, which is rare.
+```
+
+```
+F-17 | 2026-11-14 | S2 | status: confirmed
+Attempts: Q-009, Q-022
+Exam-question link: a. Picking a different Option on a Step deletes the reason the owner typed for that Step. No message appears, and the field is empty on return.
+Repro: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/b1.cjs B2 (the attacker's script with its screenshot path moved to my folder). Steps: start from Sticker Pop. On Spacing, pick 'Tight' and continue. Come back, type 'our visitors compare prices' in the reason field, and wait 1.7 s. Click the 'Roomy' card and press 'Pick “Roomy” and continue'.
+Observed: Stored reason after typing: "our visitors compare prices". After the pick, the stored Decision was {"kind":"picked","rejected":["compact","default","spacious"],"stepId":"density","optionId":"comfortable","values":{"density":1.15}}, with no reason field. The only visible lines were 'Saved in this browser, on this computer' and '2 contrast notes (advice; nothing was changed)'. In the source, pick() (engine.ts, ~line 204) builds the new Decision without previous.reason, while pickValues() and tune() copy the reason over.
+Reproductions: 1/1 (and Q-022 reports the same on the nav Step through another path).   Why it matters: The owner wrote down why they made a choice, then changed their mind about the Option. The written reason disappears without a word, and the taste ledger loses it.
+Judge note: I found no recorded design rule that a new pick clears the reason. The engine is inconsistent: a slider move keeps the reason, while a pick drops it. Top-bar Undo can bring the reason back, but only by also undoing the new pick, and only if the owner notices. By type this is S3 (saved work changed silently) on an ordinary path. I graded it S2 because the loss is one typed sentence and Undo can recover it within the session. I did not run r4.cjs for Q-022; its account and the source agree with my run.
+```
+
+```
+F-18 | 2026-11-14 | S1 | status: confirmed
+Attempts: Q-045
+Exam-question link: a. Three tabs on one project all rename in the same instant, and two are closed together while their delayed saves are due. One closed tab's work is then neither the saved project nor a kept copy, and no note is left.
+Repro: My own variant at a fixed delay: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/q045.cjs 24 280 (it uses set-2/common.cjs read-only; the log is judge/s/q045-280.log). Each trial: seed 'Seed'; open tabs A, B and C; fill 'A-i', 'B-i' and 'C-i' at once; wait 280 ms; close A and B together with runBeforeUnload; read storage from C.
+Observed: 8 of 24 trials lost a piece of work. Example i=22: stored 'B-22', copies [], note null, LOST ['A-22']. C showed 'Not saving: see the notice at the top of the page'. In the other 16 trials, the losing tab's work was kept as a copy and the note was set. No outside requests.
+Reproductions: 8/24 (rate 33% at a 280 ms delay).   Why it matters: When two Studio tabs are closed together right after both were edited, one tab's last edit can vanish without any trace.
+Judge note: By type this is a silent loss (S3). I graded it S1, as with round-2 F-12, because it needs edits in two different tabs within the same 300 ms save delay, which one person with one keyboard cannot produce. A tab edited earlier would already have heard the other tab and stopped saving. Playwright closes the tabs a few milliseconds apart; a real window close may space them differently, and I did not test that. I did not trace the attacker's cause (both tabs pass the 'storage still holds what I saw' check before either write lands) beyond reading saveBrowserNow, which does a read, then a check, then a write, with nothing in between to stop the other tab.
+```
+
+```
+F-19 | 2026-11-14 | S1 | status: confirmed
+Attempts: Q-005
+Exam-question link: b. A hostile file's project name is placed inside the Studio's own sentence in the replace dialog and in the opening notice. The file can make the dialog appear to say 'It is the same as the open project, so nothing will change.'
+Repro: Copied set-6 into my folder (lib.cjs DIR moved): node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s6/a1_name_dialog.cjs. The owner's saved project 'Owner work' has the nav Decision. The script then opens a file 'Owner work (your own backup).json' whose 96-character name is: Owner work”. It is the same as the open project, so nothing will change. The project “Owner work
+Observed: Dialog: 'Replace the open project with this file? The file Owner work (your own backup).json holds the project “Owner work”. It is the same as the open project, so nothing will change. The project “Owner work”. Opening it replaces the project on screen. Undo brings it back…'. After 'Open the file', the decisions were [] and nav was top-inline. The notice read 'Opened the project “Owner work”. It is the same as the open project, so nothing will change. The project “Owner work”.' One kept copy was made (backups 0 to 1). No errors, no requests.
+Reproductions: 1/1.   Why it matters: A file someone sends the owner can put words in the Studio's mouth, so a replace dialog appears to promise that nothing will change.
+Judge note: The text is rendered as text; no code runs. The real sentence 'Opening it replaces the project on screen' still follows, and the Studio keeps a copy, so the work can be recovered from the Summary. That is why I graded it S1 and not S2. The name is within the 120-character limit.
+```
+
+```
+F-20 | 2026-11-14 | S1 | status: confirmed
+Attempts: Q-004, Q-051, Q-014 (notice part), Q-027 (parse-note part)
+Exam-question link: b. When a 'picked' Decision names an Option that does exist, but the file's design values have moved off it, the opening notice says the Option is one 'this version of the Catalog does not have'.
+Repro: Copied set-3's file-A-existing-option.json and open-file-A.cjs into my folder: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s3/open.cjs file-A-existing-option.json. The file's Corners Decision is picked 'pill', and params.radius is 20. Also node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s6/a5_storage_reloads.cjs (saved project with density 1.37 and picked 'comfortable', reloaded 3 times) and judge/s6/a2_silent_changes.cjs.
+Observed: Notice: 'Opened the project “Probe”. One Decision named an Option that this version of the Catalog does not have. Its values were kept and it is now marked as hand-set.' The stored Decision became {optionId:null, kind:'tuned', values:{radius:20}}. 'pill' is a Catalog Option ('Fully round (pill shape)'). With the saved copy, all 3 loads showed the same untrue sentence, together with 'Opening changed some details of your saved project…'. The kept copies stayed at 1, and the stored copy still held kind 'picked'. a2 showed the same sentence for 'comfortable'.
+Reproductions: 3/3 (file open 1/1, storage reloads 3/3 loads, a2 1/1).   Why it matters: The Studio announces the change but gives a false reason. The owner may conclude that an Option they rely on has been removed from the Studio.
+Judge note: The change itself is announced, so nothing changes silently; only the stated reason is wrong. That makes it S1. The attacker's point that 'pill' now appears in the rejected list is partly wrong: file-A itself already listed 'pill' as rejected. Q-043 shows that the 20.04 test does not cover this branch. The repeated notice on every reload happens because the stored copy is rewritten only after an edit. I did not run the attackers' vitest probe.
+```
+
+```
+F-21 | 2026-11-14 | S1 | status: confirmed
+Attempts: Q-013, Q-014, Q-015
+Exam-question link: a. When a hand-edited or hostile file is opened, the Studio rewrites parts of Decisions that the design values do not settle and does not say so: the rejected list, a Decision's Step and values, a 'kept' Decision's values, and its time. It also drops unknown parts of the file.
+Repro: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s3/open.cjs file-B-rejected.json ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s6/a2_silent_changes.cjs
+Observed: file-B: the notice was only 'Opened the project “Probe”.' The rejected list went from ['square'] to ['square','crisp','subtle','pill'], while the reason 'tried square only' was kept. a2: the hero Decision with stepId 'radius' and values {radius:999} became stepId 'hero', values {hero:'text-left'}, rejected [centered, split-media, statement], at 1970-01-01T00:00:00.000Z (the file said 'yesterday'). The kept theme Decision's values {theme:'dark'} became {theme:'light'}. Downloaded keys were only the 9 standard ones (notesForOwner, content.extraSection and params.futureParam were dropped), and -0 became 0. The only notice was the untrue sentence of F-20, which concerns a different Decision.
+Reproductions: 2/2.   Why it matters: Guarantee 20.04 says a silent change to the record of choices would be 'a second, hidden truth'. Here the record of which Options were rejected, and when, changes on opening with no word.
+Judge note: Only a hand-edited or hostile file reaches this; the Studio's own saves never contain these shapes (Q-040 and Q-042 round trips came back unchanged). Nothing in the design changes, and nothing runs. Dropping unknown top-level parts may be a deliberate choice, but I found it stated nowhere on screen. I did not run the core-only probe for Q-015; a2 shows the same date rewrite on the page.
+```
+
+```
+F-22 | 2026-11-14 | S1 | status: confirmed
+Attempts: Q-018, Q-025, Q-034, Q-016, Q-027
+Exam-question link: b. When a stored value lies beyond a slider's range, the slider, its readout and the Summary's words state the slider's end value as the design's value. One of these cases is reached through a Catalog Option.
+Repro: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/b1.cjs B3 (Galactic Goth, pick 'Golden yellow', reopen the sliders) ; node .../judge/s/b1.cjs B5 ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s6/a6_slider_truth.cjs ; node .../judge/s6/a7_keep_clamped.cjs
+Observed: B3: the stored accentLightness was 0.8, but the slider output said '0.68' and its value was 0.68. The Catalog sets this slider's dark-page range to 0.48..0.68 (steps.ts:361), while the Option 'Golden yellow' sets 0.8. One 'darker' key press changed the stored value to 0.68 and the Decision to tuned/null, and the preview's --accent stayed '#efbd24' before and after. a6 (file with baseSize 30, scaleRatio 2, radius 999, density 2): the sliders showed 22 [13..22], 1.62, 28 'fully round' and 1.45. One ArrowLeft press left baseSize at 30. a7: after 'Keep my design', the stored Decision held baseSize 30, scaleRatio 2, but the Summary read 'Kept: close to “Very large headings”: text size clearly larger (22px); heading size jump clearly more dramatic (1.62)', and Spacing read '(1.45)' while 2 was stored. B5: stored radius 40, Step list 'close to “Clearly rounded (14 px)”: corner rounding clearly rounder (28px)'.
+Reproductions: 4/4.   Why it matters: The Studio shows a number the design does not hold. The owner may judge or record a choice on the wrong figure, and one key press can change the record while the preview stays the same.
+Judge note: No work is lost, and the preview draws the real values; only labels and readouts are wrong. That makes it S1. Only the Golden-yellow path (Q-018) is ordinary use. The other cases need a hand-made file or hand-edited storage (B5 writes storage with page.evaluate and then reloads, but the stored 40 survived, so that browser artifact did not apply). I did not confirm Q-025's claim that the 'Your design now' card says 'These values come from the plain start', because my a7 run did not find the card text.
+```
+
+```
+F-23 | 2026-11-14 | S1 | status: confirmed
+Attempts: Q-019
+Exam-question link: b and d. After a failed save, Undo back to the stored state keeps 'Cannot save here…' on screen, and 'Try to save again' cannot clear it even after storage has room.
+Repro: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s1/c2.cjs (the attacker's script with its screenshot path moved). Save 'Work X', fill storage, rename, retry, Undo, free storage, retry twice, reload.
+Observed: Step 4, after Undo (screen 'Work X' = stored 'Work X'): 'Cannot save here: this browser’s storage is full or blocked. Download the project file before you close this page.' with a retry button. Steps 6 and 7, after freeing storage and pressing 'Try to save again' twice: the same text and button. Step 8, after a reload: 'Saved in this browser, on this computer', stored 'Work X'.
+Reproductions: 1/1.   Why it matters: The page tells the owner the work cannot be saved and that they must download a file, when the work is in fact saved, and the offered button does nothing.
+Judge note: The untrue statement errs on the side of caution, and nothing is lost. The next real edit or a reload clears it. It needs full storage first. So S1.
+```
+
+```
+F-24 | 2026-11-14 | S1 | status: needs human review
+Attempts: Q-007
+Exam-question link: a and b (possibly). On Galactic Goth, a Decision recorded as 'kept Two colors: a third of the wheel apart' quietly loses its Option name after the main color changes, and the Summary then calls the value a move 'toward red'.
+Repro: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s/b1.cjs B1
+Observed: After the keep: {kind:'kept', optionId:'duo-triad', values:{colorStrategy:'duo', accent2Hue:18}}. After picking 'Bright blue' (264): accent2Hue 18 and the Decision optionId null, with no notice. Summary: 'Kept: close to “Two colors: a third of the wheel apart”: second color moved toward red (18° on the color wheel)'.
+Reproductions: 1/1.   Why it matters: The record of what the owner chose changes its label without a word when a different Step is edited.
+Judge note: The stored values did not change. 'Kept' records the value the design held, and 18 is still held, so this may be the intended meaning of 'kept' on a Direction whose second color is fixed. The attacker's control case (Sticker Pop, where a kept triad follows) suggests an inconsistency, but I did not run it. Whether 'moved toward red' reads as the owner's action or as a description is a judgment of wording. I left the decision to a person.
+```
+
+```
+F-25 | 2026-11-14 | S0 | status: confirmed
+Attempts: Q-003
+Exam-question link: b (minor). In the older one-list form of kept copies, removing one of two copies with the same text and time removes the first such copy, not the one clicked.
+Repro: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/campaign4/round3/judge/s7/a5_kept.cjs (the attacker's script with its paths moved to my folder)
+Observed: After 'Remove this kept copy…' on 'legacy dup B', the list held 'legacy dup B' and 'legacy dup A' was gone. Raw list: [{"keptAt":"2025-05-01T00:00:00.000Z","why":"legacy dup B","text":"SAME"},{"keptAt":"","why":"An earlier kept copy, in a form this version of the Studio does not know.","text":"a bare string member"},{…"legacy other"…}].
+Reproductions: 1/1.   Why it matters: The owner removed one copy and a different one went. Both held the same project text, so no project content was lost.
+Judge note: This needs hand-made storage in the older form with two members sharing text and time. removeBackup (platform.ts:328) ignores 'why'. The bare string member was rewritten into object form, but its text stayed the same. For information only.
+```
+
+## All attempts
+
+| Attempt | Disposition | Reason |
+|---|---|---|
+| Q-001 | finding F-16 | Reproduced: the running copy that a later tab switch removes was the only copy of the stopped tab's work. |
+| Q-002 | held | The observation describes no overflow and the correct heading order at all sizes. |
+| Q-003 | finding F-25 | Reproduced: the wrong member of the older list is removed; the text is identical; S0. |
+| Q-004 | finding F-20 | Reproduced: the notice claims that the Catalog lacks 'pill', which it has. |
+| Q-005 | finding F-19 | Reproduced: the file's name forges a sentence inside the replace dialog; a copy is kept. |
+| Q-006 | held | No work was lost; in the 2 of 15 double-write trials both tabs stopped saving and offered both choices. |
+| Q-007 | finding F-24 | Reproduced, but whether this breaks the exam question is a judgment of meaning; needs human review. |
+| Q-008 | held | No loss in 42 trials; the losing tab's work was kept. |
+| Q-009 | finding F-17 | Reproduced: a re-pick deletes the typed reason with no message. |
+| Q-010 | finding F-16 | Reproduced: the dialog promised a kept copy; after the next tab switch the replaced work was in no storage entry. |
+| Q-011 | held | No overflow; the headline stayed largest at the slider ends. |
+| Q-012 | not a finding | Download names follow list position, but each file holds and reopens the right project; nothing untrue is stated. |
+| Q-013 | finding F-21 | Reproduced: the rejected list is rewritten silently on opening. |
+| Q-014 | finding F-21 | Reproduced: silent rewrites of Step, values, time and extra parts; its notice is also the false sentence of F-20. |
+| Q-015 | finding F-21 | Same silent time rewrite, seen on the page in Q-014's run; the core probe was not re-run. |
+| Q-016 | finding F-22 | Extreme file values are accepted and shown clamped by the sliders; same defect as F-22. |
+| Q-017 | held | No loss in 40 trials; the observation describes no violation. |
+| Q-018 | finding F-22 | Reproduced: the slider says 0.68 while 0.8 is stored, reached through a Catalog Option. |
+| Q-019 | finding F-23 | Reproduced: 'Cannot save' stays after Undo and after storage frees, and the retry does nothing. |
+| Q-020 | held | Typing behaved normally and was stored. |
+| Q-021 | not a finding | Generic or odd file names are not untrue statements; the name inside the file always matched, and no path escapes. |
+| Q-022 | finding F-17 | Same defect as Q-009 on the nav Step; the source confirms it. |
+| Q-023 | not a finding | The drop is Chromium's limit on repeated downloads; the message says only that the file was handed to the browser. |
+| Q-024 | held | The attacker states the Studio held; 'Kept' with a non-start value is a state the Studio reaches itself. |
+| Q-025 | finding F-22 | Reproduced: the sliders and Summary show the clamped 22/1.62/1.45 while 30/2/2 are stored. |
+| Q-026 | held | No false 'Saved' and no loss in 10 trials; my 20-trial retest of F-12 agrees; the duplicate kept copy is harmless. |
+| Q-027 | finding F-22 | Reproduced: the Step list says 28px while 40 is stored; its parse-note part is the F-20 defect. |
+| Q-028 | held | The replace on full storage was saved truly, and Undo restored the old project. |
+| Q-029 | held | Engine fuzz found 0 failures. |
+| Q-030 | held | The 100-step Undo limit holds as the dialog states; I re-ran it for the F-11 retest. |
+| Q-031 | not a finding | Reproduced the capped notice strip, but it is a scrolling region on purpose and its buttons stay reachable; not a dead end and not untrue. |
+| Q-032 | not a finding | Needs hand-made storage with a lone surrogate; the Studio's own writes never produce one. |
+| Q-033 | held | The test counts in PROGRESS.md match. |
+| Q-034 | finding F-22 | Reproduced: the Summary describes the kept Decision with clamped values it does not hold. |
+| Q-035 | held | No violation in 10 trials. |
+| Q-036 | not a finding | Guarantee 20.03/20.04 states that a version-1 file has every Decision worked out again from its design values, and the notice says it was brought up to date. |
+| Q-037 | held | No violation; the statements were true. |
+| Q-038 | held | 0 mismatches between cards and picks. |
+| Q-039 | held | Held Enter moved exactly one Step; I saw the same in my r5 run. |
+| Q-040 | held | Clean round trip. |
+| Q-041 | held | Every quoted test name exists. |
+| Q-042 | held | Downloads, Undo, Copy and reopen all matched. |
+| Q-043 | not a finding | A planted-defect check of test coverage; it supports F-20's note that the 20.04 test misses that branch. |
+| Q-044 | held | Every damaged file was refused or opened safely, and the owner's project was untouched. |
+| Q-045 | finding F-18 | Reproduced 8/24 at the 280 ms delay: one of two tabs closed together loses its work. |
+| Q-046 | held | The Undo burst rule held. |
+| Q-047 | not a finding | The attacker's own seeding artifact, as stated. |
+| Q-048 | held | The hostile file was refused in fixed words; nothing ran or overflowed. |
+| Q-049 | held | The downloads and status lines were true while storage was full. |
+| Q-050 | held | The 40.03 test checks the repair independently. |
+| Q-051 | finding F-20 | Reproduced: the false Catalog sentence appears on each of 3 reloads; no build-up of kept copies. |
+| Q-052 | finding F-16 | Reproduced: C's work relied on A's running copy, which A then removed; a later notice claims the work was kept. |
+| Q-053 | held | No notice and no outside requests after the reload. |
+| Q-054 | held | Nothing broken; no requests. |
+| Q-055 | held | Path (b) is correct; path (a) is the stated seeding artifact under a running page. |
+| Q-056 | no test | Not reached; the path needs the private-page runtime. |
+
+## What held
+
+- No run made a request outside the page or showed a page error; hostile names and files ran no code and injected nothing.
+- 'Reload to see the other copy' now keeps a project that has only a name (F-2 narrow rest: 3 of 3).
+- Two stopped tabs closed together kept both copies in 20 of 20 trials (F-10). Pressing 'Keep this tab’s copy' in two tabs at once gave no false 'Saved' and lost nothing in 20 of 20 trials (F-12).
+- The Undo promise now names its 100-step limit, and Undo stops at exactly 100 (F-11). 'Go on: let the Studio save over it' now saves and says so truly (F-15).
+- The preview headline is larger than every section heading for six Directions on Phone, Tablet and Desktop (F-13). Moving a slider onto a rejected Option no longer leaves a self-contradicting Decision or a reload notice (F-14).
+- Two tabs typing at the same instant, typing then closing, back-forward navigation, and keep-with-close or keep-with-reload races lost nothing (Q-006, Q-008, Q-017, Q-035, Q-037).
+- Full round trips (23 Decisions, reasons, odd names, Copy as text, reopen in a fresh browser) came back unchanged apart from key order.
+- Damaged, oversized, deeply nested and wrong-version files were refused in fixed words or opened safely, and the owner's project stayed in place.
+- The engine fuzz (1,500 runs) and the card-against-pick comparison found no mismatch.
