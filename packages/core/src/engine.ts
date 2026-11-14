@@ -68,9 +68,13 @@ export function resolvePatch(option: Option, current: DesignParams): Partial<Des
   return d ? { ...option.patch, [d.key]: hueTurn(current[d.from], d.turn) } : { ...option.patch };
 }
 
-/** The parameters to preview an Option with: the current design plus that Option, and nothing else. */
-export function previewParams(project: Project, option: Option): DesignParams {
-  return { ...project.params, ...resolvePatch(option, project.params) };
+/**
+ * The parameters to preview an Option with: exactly the design that picking the Option gives. An earlier version added the
+ * Option's own values to the current design and nothing else; a card for a new main color then showed the old second color,
+ * while the pick moved a second color that follows the main color (code review of 2026-11-13, finding "gaps 1").
+ */
+export function previewParams(project: Project, stepId: string, optionId: string): DesignParams {
+  return pick(project, stepId, optionId, UNKNOWN_TIME).params;
 }
 
 /** The current values of the parameters that a Step owns. */
@@ -160,7 +164,13 @@ function rederive(before: Project, after: Project, actedStepId: string): Project
     if (decisions[step.id]?.kind === 'tuned') continue;
     // For the Step the owner acted on, the Option is the one the action set. For every other Step it is the one the design matched
     // before the change: after the change, a stale second hue can match a different Option by coincidence (a 60-degree move does it).
-    const optionId = step.id === actedStepId ? matchingOptionId(params, step) : matchingOptionId(before.params, step);
+    // The design before the change is asked only when the owner picked on that Step. With no Decision, or a kept one, the Step's
+    // values come from the starting design, so the starting design is asked. Otherwise a fixed second color that happens to
+    // match a following Option for one hue of the main color would start to follow from then on: "Galactic Goth" (second color
+    // fixed at a red) turned pink after two clicks on the main color (code review of 2026-11-13, finding "engine 1").
+    const optionId = step.id === actedStepId
+      ? matchingOptionId(params, step)
+      : matchingOptionId(decisions[step.id]?.kind === 'picked' ? before.params : before.base, step);
     const derive = step.options.find((o) => o.id === optionId)?.derive;
     if (!derive) continue;
     const value = hueTurn(params[derive.from], derive.turn);
@@ -251,6 +261,10 @@ export function nearestSliderValue(tunable: Tunable, value: number): number {
  */
 export function nextSliderValue(tunable: Tunable, current: number, steps: number): number {
   if (steps === 0) return current;
+  // A key that points past the end at which the value already stands changes nothing. That includes a value beyond the slider:
+  // "Fully round" (999) stands beyond the top of "Corner rounding" (28), and the key for "rounder" used to make it 28, which is
+  // less round (code review of 2026-11-13, finding "engine 3").
+  if ((steps > 0 && current >= tunable.max) || (steps < 0 && current <= tunable.min)) return current;
   const tiny = tunable.step / 1000;
   const first = steps > 0 ? Math.ceil((current + tiny) / tunable.step) : Math.floor((current - tiny) / tunable.step);
   const target = (first + (steps > 0 ? steps - 1 : steps + 1)) * tunable.step;
@@ -311,7 +325,9 @@ function hueNeighbor(hue: number, direction: -1 | 1): string {
  */
 /** The sliders of a Step that change the design as it stands. A slider for a second color, for example, does nothing on a page with one color. */
 export function activeTunables(step: Step, params: DesignParams): Tunable[] {
-  return (step.tunables ?? []).filter((t) => !t.onlyWhen || params[t.onlyWhen.key] === t.onlyWhen.is);
+  return (step.tunables ?? [])
+    .filter((t) => !t.onlyWhen || params[t.onlyWhen.key] === t.onlyWhen.is)
+    .map((t) => (t.rangeWhen && params[t.rangeWhen.key] === t.rangeWhen.is ? { ...t, min: t.rangeWhen.min, max: t.rangeWhen.max } : t));
 }
 
 export function closerOptions(project: Project, stepId: string, round = 0): GeneratedOption[] {
@@ -754,7 +770,9 @@ export function parseProject(input: unknown): ParseResult {
   const result = projectSchema.safeParse(candidate);
   if (!result.success) {
     const head = result.error.issues[0]?.path[0];
-    const section = SECTIONS.find((s) => s === head);
+    // A version-1 file has no part for the starting design values; bringing it up to date copies its design values there.
+    // A fault found in that copy is a fault in the file's design values, and the message names that part.
+    const section = SECTIONS.find((s) => s === (version === 1 && head === 'base' && !isRecord(input['base']) ? 'params' : head));
     return { ok: false, error: section ? `The file does not match the project format. The problem is in the part that holds ${SECTION_WORDS[section]}.` : NOT_A_PROJECT };
   }
   try {

@@ -61,6 +61,30 @@ describe('Mockup: text is rendered as text (hard rule 6)', () => {
     }
   });
 
+  it('renders hostile text as inert text in each of the headline’s three parts (code review of 2026-11-13, finding "tokens 7")', () => {
+    // The headline is the one place where content takes its own path into markup: the text before the marked phrase, the
+    // marked phrase itself, and the text after it; or the whole headline when the marked phrase does not occur in it.
+    const bad = (part: string): string => `${part}"><script>alert('${part}')</script><img src=x onerror="alert(1)"></h1></mark>&amp;`;
+    const cases: { name: string; headline: string; headlineEmphasis: string; parts: string[] }[] = [
+      { name: 'hostile text in all three parts', headline: `${bad('before')} ${bad('emphasis')} ${bad('after')}`, headlineEmphasis: bad('emphasis'), parts: [bad('before'), bad('emphasis'), bad('after')] },
+      { name: 'hostile text before a harmless phrase', headline: `${bad('before')} plainly said`, headlineEmphasis: 'plainly', parts: [bad('before')] },
+      { name: 'a marked phrase that does not occur in the headline', headline: bad('whole'), headlineEmphasis: bad('absent'), parts: [bad('whole')] },
+    ];
+    for (const one of cases) {
+      for (const links of ['inert', 'live'] as const) {
+        const html = renderSmallBusiness({ params: DEFAULT_PARAMS, tokens: deriveTokens(DEFAULT_PARAMS, 'advise').css, content: { ...SAMPLE_CONTENT, headline: one.headline, headlineEmphasis: one.headlineEmphasis }, links });
+        const body = withoutStyle(html);
+        expect(body, one.name).not.toMatch(/<script/i);
+        expect(body, one.name).not.toMatch(/<img/i);
+        expect(body, one.name).not.toMatch(/<[a-z][^>]*\son[a-z]+\s*=/i);
+        expect(body.match(/<h1[\s>]/g), one.name).toHaveLength(1);
+        expect(body.match(/<\/h1>/g), one.name).toHaveLength(1);
+        expect((body.match(/<mark[\s>]/g) ?? []).length, one.name).toBeLessThanOrEqual(1);
+        for (const part of one.parts) expect(html.includes(escapeHtml(part)), `${one.name}: "${part.slice(0, 12)}" is missing or unescaped`).toBe(true);
+      }
+    }
+  });
+
   it('escapes the five characters that matter in HTML', () => {
     expect(escapeHtml(`<a href="x" title='y'>&</a>`)).toBe('&lt;a href=&quot;x&quot; title=&#39;y&#39;&gt;&amp;&lt;/a&gt;');
   });

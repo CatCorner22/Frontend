@@ -82,6 +82,12 @@ export interface Tunable {
   directions?: [string, string];
   /** The slider changes the design only while this value holds. While it does not, the Studio does not offer the slider (finding U3-06). */
   onlyWhen?: { key: keyof DesignParams; is: string };
+  /**
+   * While this value holds, only this part of the slider's range changes what the page shows; the Studio then offers that part.
+   * Example: on a dark page the main color is drawn in a narrower band of lightness, so two thirds of the "Lightness" slider did
+   * nothing while the Studio recorded a hand-set value and said "clearly lighter" (code review of 2026-11-13, finding "engine 2").
+   */
+  rangeWhen?: { key: keyof DesignParams; is: string; min: number; max: number };
 }
 
 export interface Step {

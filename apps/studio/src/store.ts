@@ -129,13 +129,20 @@ export function appliedCardId(project: Project, step: Step): string {
 /** The parameters that a card of the current Step shows. */
 export function paramsForCard(state: Pick<StudioState, 'project' | 'stepId' | 'variations'>, cardId: string): DesignParams {
   const { project, variations } = state;
+  // A card shows exactly the design that choosing it gives, including a second color that follows the main color
+  // (code review of 2026-11-13, finding "gaps 1").
   if (variations) {
     const generated = variations.options.find((o) => o.id === cardId);
-    return { ...project.params, ...variations.origin, ...(generated?.values ?? {}) };
+    const values = { ...variations.origin, ...(generated?.values ?? {}) };
+    try {
+      return pickValues(project, state.stepId, values).params;
+    } catch {
+      return { ...project.params, ...values };
+    }
   }
   if (cardId === CURRENT) return project.params;
   const option = stepOf(state.stepId).options.find((o) => o.id === cardId);
-  return option ? previewParams(project, option) : project.params;
+  return option ? previewParams(project, state.stepId, option.id) : project.params;
 }
 
 /** The same data with every object's keys in one fixed order, so that two copies compare by content and not by the order of their fields. */

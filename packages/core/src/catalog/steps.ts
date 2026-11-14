@@ -358,7 +358,7 @@ export const STEPS: Step[] = [
     tunables: [
       { key: 'accentHue', label: 'Color (hue)', min: 0, max: 360, step: 1, unit: '°', nudge: 14 },
       { key: 'accentChroma', label: 'Vividness', min: 0, max: 0.3, step: 0.005, nudge: 0.03, directions: ['duller', 'more vivid'] },
-      { key: 'accentLightness', label: 'Lightness', min: 0.25, max: 0.9, step: 0.01, nudge: 0.05, directions: ['darker', 'lighter'] },
+      { key: 'accentLightness', label: 'Lightness', min: 0.25, max: 0.9, step: 0.01, nudge: 0.05, directions: ['darker', 'lighter'], rangeWhen: { key: 'theme', is: 'dark', min: 0.48, max: 0.68 } },
     ],
     sources: [
       builder('The assistant that wrote this Studio selected the 13 main colors and defined them in the OKLCH color model (hue, vividness, lightness). No source supplied these values, and the notes on where each color suits are that assistant’s opinion.'),
@@ -494,7 +494,7 @@ export const STEPS: Step[] = [
         patch: { atmosphere: 'aurora' },
       },
       { id: 'stars', label: 'Field of stars', what: 'Small dots of three sizes, scattered like stars, over a faint glow of the main color.', chooseWhen: 'Night, space, and wonder; made for a dark page.', risk: 'On a light page the stars turn into dark specks, which can look like dust. The stars are small and few, but some sit behind the headline and behind the first lines of text; they fade out toward the bottom of the first screen. The contrast checks do not measure text over a star.', patch: { atmosphere: 'stars' } },
-      { id: 'grain', label: 'Fine grain texture', what: 'A fine speckle over the whole page, like paper or film.', chooseWhen: 'Warmth, print, craft; softens flat color.', risk: 'Too much grain looks dirty; costs a little rendering speed.', exemplar: { text: 'Open Props, an open-source project whose code was read (its noise textures)', record: R09 }, patch: { atmosphere: 'grain' } },
+      { id: 'grain', label: 'Fine grain texture', what: 'A fine speckle over the whole page, like paper or film.', chooseWhen: 'Warmth, print, craft; softens flat color.', risk: 'Too much grain looks dirty; costs a little rendering speed. On a light page the grain darkens everything a little, text and background alike, and the contrast checks do not measure that.', exemplar: { text: 'Open Props, an open-source project whose code was read (its noise textures)', record: R09 }, patch: { atmosphere: 'grain' } },
     ],
   },
   {

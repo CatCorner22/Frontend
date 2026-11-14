@@ -239,6 +239,13 @@ describe('saved projects: files from version 1 (finding M-07)', () => {
     expect(parseProject(other).ok).toBe(false);
   });
 
+  it('names the design values, not a part the file lacks, when a version-1 file that started plain is damaged (code review, finding "engine 6")', () => {
+    const v1 = JSON.parse(JSON.stringify(fixture('project-v1-plain.json'))) as Record<string, any>;
+    expect(v1.base).toBeUndefined();
+    v1.params.radius = 'x';
+    expect(refusal(v1)).toBe('The file does not match the project format. The problem is in the part that holds the design values.');
+  });
+
   it('covers every Step in a fixture or in the current catalog', () => {
     // A reminder that fails when the saved shape changes without a new version: the current project's keys are fixed here.
     expect(Object.keys(createProject()).sort()).toEqual(['a11y', 'base', 'content', 'decisions', 'direction', 'name', 'params', 'schemaVersion', 'template']);
