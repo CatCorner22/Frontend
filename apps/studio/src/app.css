@@ -255,7 +255,9 @@ select, .name, .project-text {
   /* The main button stays in reach while the cards scroll past. */
   .actions.sticky { bottom: 0; }
   /* A notice stays in view while the page scrolls, so that the answer to a press (Undo, for example) is never off the screen (finding U3-01). */
-  .banners { position: sticky; top: 0; z-index: 6; }
+  /* The notices stay in view, and never take more than 45 percent of the window's height: on a small sideways phone two rows
+     left 38 pixels for the cards (code review of 2026-11-13, finding "screen 10"). */
+  .banners { position: sticky; top: 0; z-index: 6; max-height: 45vh; overflow-y: auto; }
   .summary { grid-template-columns: minmax(0, 1fr); }
   .summary-side { position: static; height: min(26rem, 62vh); order: -1; }
   .top-nav { margin-inline: 0; }

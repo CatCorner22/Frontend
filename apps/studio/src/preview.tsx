@@ -1,5 +1,5 @@
 // Mockup previews. Each preview is a sandboxed frame: no scripts, no forms, no access to the Studio.
-import { deriveTokens, renderSmallBusiness, wireframeParams, type DesignParams, type FontId, type MeasuredPair, type MockupFocus, type Project, type TokenIssue } from '@refraction/core';
+import { deriveTokens, renderSmallBusiness, wireframeParams, type A11yProfile, type DesignParams, type FontId, type MeasuredPair, type MockupFocus, type Project, type TokenIssue } from '@refraction/core';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { fontFaceCss } from './fonts';
 
@@ -17,14 +17,48 @@ export interface MockupResult {
   pairs: MeasuredPair[];
 }
 
+/**
+ * Mockup documents that were built already, by what they were built from. A Step shows up to fourteen cards, and a slider
+ * step changes one of them; without this memory every card was built again on every step, which cost 61 to 92 milliseconds
+ * of work per step and made the preview run behind the hand (code review of 2026-11-13, finding "screen 0").
+ * The memory holds a bounded number of documents; the oldest go first.
+ */
+const built = new Map<string, MockupResult>();
+const BUILT_MAX = 96;
+type Derived = ReturnType<typeof deriveTokens>;
+const derived = new Map<string, Derived>();
+
+/** The colors and sizes of a design, worked out once and remembered. The cards' color chips and the Mockup share them. */
+export function tokensFor(params: DesignParams, profile: A11yProfile): Derived {
+  const key = JSON.stringify([params, profile]);
+  let tokens = derived.get(key);
+  if (!tokens) {
+    tokens = deriveTokens(params, profile);
+    derived.set(key, tokens);
+    if (derived.size > BUILT_MAX * 2) derived.delete(derived.keys().next().value as string);
+  }
+  return tokens;
+}
+
 /** Build the Mockup document for a set of design parameters. Links inside a preview are inert (they lead nowhere). */
 export function mockupHtml(project: Project, params: DesignParams, options: MockupOptions): MockupResult {
   const shown = options.wireframe ? wireframeParams(params) : params;
-  const tokens = deriveTokens(shown, project.a11y);
+  const key = JSON.stringify([shown, project.a11y, project.content, options.focus, options.still]);
+  const known = built.get(key);
+  if (known) {
+    // Used again: move it to the young end.
+    built.delete(key);
+    built.set(key, known);
+    return known;
+  }
+  const tokens = tokensFor(shown, project.a11y);
   const fonts: FontId[] = [shown.fontHeading, shown.fontBody];
   if (shown.numerals === 'mono') fonts.push('jetbrains-mono');
   const html = renderSmallBusiness({ params: shown, tokens: tokens.css, content: project.content, focus: options.focus, still: options.still, fontFaceCss: fontFaceCss(fonts), links: 'inert' });
-  return { html, issues: tokens.issues, pairs: tokens.pairs };
+  const result: MockupResult = { html, issues: tokens.issues, pairs: tokens.pairs };
+  built.set(key, result);
+  if (built.size > BUILT_MAX) built.delete(built.keys().next().value as string);
+  return result;
 }
 
 function useSize(): [React.RefObject<HTMLDivElement | null>, { width: number; height: number }] {

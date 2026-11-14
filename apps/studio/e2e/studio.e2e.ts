@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { CITED_NAMES, DIRECTIONS, FONTS, STEPS, applyDirection, createProject, pick, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, type Project } from '@refraction/core';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 const pageUrl = new URL('../dist/artifact/local-test.html', import.meta.url).href;
 /** An empty page beside the Studio's page. Every local file shares one storage in this browser, so a test can fill storage here first. */
@@ -23,6 +23,18 @@ beforeAll(async () => {
 });
 afterAll(async () => {
   await browser.close();
+});
+
+/**
+ * Every session that a test opens. After each test, none of them may have met an error on the page (a fault that nothing
+ * caught, or a message that the page wrote to the browser's error log). Before, only 12 of 56 sessions kept that list and
+ * 6 assertions read it, so a test could pass while the page broke (code review of 2026-11-13, the last reviewer's notes).
+ */
+const sessions: Session[] = [];
+afterEach(() => {
+  const faults = sessions.flatMap((session) => session.errors);
+  sessions.length = 0;
+  expect(faults, 'the page met an error during this test').toEqual([]);
 });
 
 interface Session {
@@ -132,7 +144,9 @@ async function open(options: OpenOptions = {}): Promise<Session> {
   await page.goto(pageUrl + (options.hash ?? ''));
   await page.waitForSelector('.top');
   if (!options.dontWaitUntilOpen) await page.waitForFunction(() => !document.querySelector('.loading'));
-  return { context, page, errors, requests };
+  const session: Session = { context, page, errors, requests };
+  sessions.push(session);
+  return session;
 }
 
 const envelope = (project: unknown, savedAt = '2026-11-13T10:00:00.000Z'): string => JSON.stringify({ savedAt, project });
@@ -1069,6 +1083,48 @@ describe('Studio: a stopped save stays answerable, and no tab loses its work to 
     }
   });
 
+  it('takes a save with the same save time but another mark for another tab’s save, and stops saving (finding F-12)', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Shared project')) } });
+    await page.waitForSelector('.cards');
+    await page.locator('#project-name').fill('Saved by this tab');
+    await settle(page);
+    // What another tab would write in the same millisecond: the same save time, its own mark, and its own project.
+    const foreign = await page.evaluate((key) => {
+      const mine = JSON.parse(window.localStorage.getItem(key)!) as { savedAt: string; mark: string; project: { name: string } };
+      const theirs = JSON.stringify({ savedAt: mine.savedAt, mark: 'another-tab.0', project: { ...mine.project, name: 'Saved by the other tab' } });
+      const before = window.localStorage.getItem(key);
+      window.localStorage.setItem(key, theirs);
+      window.dispatchEvent(new StorageEvent('storage', { key, oldValue: before, newValue: theirs, storageArea: window.localStorage }));
+      return { sameTime: mine.savedAt, hasMark: typeof mine.mark === 'string' && mine.mark.length > 0 };
+    }, LOCAL_KEY);
+    expect(foreign.hasMark).toBe(true);
+    await page.locator('.banner.hold').waitFor();
+    expect(await page.locator('.save-state').innerText()).toBe('Not saving: see the notice at the top of the page');
+    // This tab does not write over the other tab's save.
+    await page.locator('#project-name').fill('Typed after the other tab saved');
+    await settle(page);
+    expect((await stored(page))?.name).toBe('Saved by the other tab');
+    await context.close();
+  });
+
+  it('notices another tab’s save when the owner comes back to the tab, even if no storage event arrived (finding F-12)', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Shared project')) } });
+    await page.waitForSelector('.cards');
+    await page.locator('#project-name').fill('Saved by this tab');
+    await settle(page);
+    expect(await page.locator('.save-state').innerText()).toBe('Saved in this browser, on this computer');
+    // Another save lands in storage, and this tab hears nothing of it (as a page restored from the browser's back-forward cache would not).
+    await page.evaluate((key) => {
+      const mine = JSON.parse(window.localStorage.getItem(key)!) as { savedAt: string; project: { name: string } };
+      window.localStorage.setItem(key, JSON.stringify({ savedAt: mine.savedAt, mark: 'another-tab.1', project: { ...mine.project, name: 'Saved by the other tab' } }));
+    }, LOCAL_KEY);
+    expect(await page.locator('.banner.hold').count()).toBe(0);
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    await page.locator('.banner.hold').waitFor();
+    expect(await page.locator('.save-state').innerText()).toBe('Not saving: see the notice at the top of the page');
+    await context.close();
+  });
+
   it('counts a run of typing or of slider presses as one Undo step, and states how far Undo reaches (finding F-11)', async () => {
     const { context, page } = await open({ hash: '#density', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) } });
     await waitForStep(page, 'Spacing');
@@ -1318,6 +1374,155 @@ describe('Studio: a slow or faulty page database never costs a saved copy (code 
     expect(kept.length).toBe(1);
     expect(kept[0]!.text).toContain('Stopped tab, third');
     expect(kept[0]!.why).toContain('as it was when you last left the tab, reloaded it, or closed it');
+    await context.close();
+  });
+});
+
+describe('Studio: keys, focus, and the reason field (code review of 2026-11-13)', () => {
+  const topUndo = (page: Page) => page.locator('.top').getByRole('button', { name: 'Undo', exact: true });
+
+  it('lets a slider key that cannot move the value do nothing, and keeps "fully round" fully round (findings "screen 1", "engine 3")', async () => {
+    const { context, page } = await open({ hash: '#radius' });
+    await waitForStep(page, 'Corners');
+    await page.locator('label.option', { hasText: 'Fully round' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await page.locator('.rail a', { hasText: 'Corners' }).first().click();
+    await waitForStep(page, 'Corners');
+    await page.locator('summary', { hasText: 'Adjust with sliders' }).click();
+    const slider = page.locator('#tune-radius');
+    await slider.focus();
+    // The keys for "rounder" cannot make "fully round" rounder: nothing changes, and the Decision stays a pick.
+    for (const key of ['ArrowRight', 'PageUp', 'End']) await page.keyboard.press(key);
+    await settle(page);
+    expect((await stored(page))?.params.radius).toBe(999);
+    expect((await stored(page))?.decisions['radius']?.kind).toBe('picked');
+    // With Alt held, the key is the browser's own and the slider leaves it alone.
+    await page.keyboard.press('Alt+ArrowDown');
+    await settle(page);
+    expect((await stored(page))?.params.radius).toBe(999);
+    // The key for "sharper" leaves "fully round" for the slider's top.
+    await page.keyboard.press('ArrowLeft');
+    await settle(page);
+    expect((await stored(page))?.params.radius).toBe(28);
+    // At the low end, the key for "sharper" does nothing and adds no Undo step: one Undo goes back past the whole run.
+    await page.keyboard.press('Home');
+    for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowLeft');
+    await settle(page);
+    expect((await stored(page))?.params.radius).toBe(0);
+    await topUndo(page).click();
+    await settle(page);
+    expect((await stored(page))?.params.radius).toBe(999);
+    await context.close();
+  });
+
+  it('offers, on a dark page, only the part of the "Lightness" slider that changes the color (finding "engine 2")', async () => {
+    const { context, page } = await open();
+    await page.getByRole('button', { name: 'Start from Ember Noir' }).click();
+    await page.waitForSelector('.cards');
+    await page.locator('.rail a', { hasText: 'Main color' }).first().click();
+    await waitForStep(page, 'Main color');
+    await page.locator('summary', { hasText: 'Adjust with sliders' }).click();
+    const slider = page.locator('#tune-accentLightness');
+    expect([await slider.getAttribute('min'), await slider.getAttribute('max')]).toEqual(['0.48', '0.68']);
+    await context.close();
+  });
+
+  it('moves one Step, not many, when Enter is held down (finding "screen 2")', async () => {
+    const { context, page } = await open();
+    await page.getByRole('button', { name: 'Start from Soft Daylight' }).click();
+    await waitForStep(page, 'Menu (navigation)');
+    await page.locator('.cards input[type="radio"]:checked').focus();
+    // A held key: the first press, then repeats without a release in between.
+    await page.keyboard.down('Enter');
+    for (let i = 0; i < 6; i++) await page.keyboard.down('Enter');
+    await page.keyboard.up('Enter');
+    await settle(page);
+    await waitForStep(page, 'First screen');
+    expect(Object.keys((await stored(page))!.decisions)).toEqual(['nav']);
+    await context.close();
+  });
+
+  it('stores a typed reason at once, on the Step it was typed for (findings "screen 4", "gaps 0")', async () => {
+    const { context, page } = await open();
+    await page.getByRole('button', { name: 'Start from Soft Daylight' }).click();
+    await waitForStep(page, 'Menu (navigation)');
+    await page.locator('.actions.sticky .primary').click();
+    await waitForStep(page, 'First screen');
+    await page.locator('.actions.sticky .primary').click();
+    await waitForStep(page, 'List of services');
+    // A reason on Step 1, typed and followed by Enter and a reload: it is there afterwards.
+    await page.locator('.rail a', { hasText: 'Menu (navigation)' }).first().click();
+    await waitForStep(page, 'Menu (navigation)');
+    await page.locator('#decision-reason').fill('Most visitors come to book an appointment');
+    await page.keyboard.press('Enter');
+    await settle(page);
+    await page.reload();
+    await waitForStep(page, 'Menu (navigation)');
+    expect(await page.locator('#decision-reason').inputValue()).toBe('Most visitors come to book an appointment');
+    // A reason typed on Step 2, then the browser's Back button with the field still in use: each Step keeps its own reason.
+    await page.locator('.rail a', { hasText: 'First screen' }).first().click();
+    await waitForStep(page, 'First screen');
+    await page.locator('#decision-reason').click();
+    await page.keyboard.type('Typed on the second Step');
+    await page.goBack();
+    await waitForStep(page, 'Menu (navigation)');
+    await settle(page);
+    const decisions = (await stored(page))!.decisions;
+    expect(decisions['nav']?.reason).toBe('Most visitors come to book an appointment');
+    expect(decisions['hero']?.reason).toBe('Typed on the second Step');
+    // One Undo takes back the whole reason, not one letter.
+    await topUndo(page).click();
+    await settle(page);
+    expect((await stored(page))!.decisions['hero']?.reason).toBeUndefined();
+    await context.close();
+  });
+
+  it('keeps keyboard focus where the person works: after a question, a dismissed notice, Undo, and the region list (findings "screen 3", "screen 5", "screen 6")', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Weeks of work')))) }, hash: '#directions' });
+    await page.waitForSelector('.direction');
+    const focused = (): Promise<string> => page.evaluate(() => `${document.activeElement?.tagName ?? ''}:${(document.activeElement?.textContent ?? '').trim().slice(0, 40)}:${document.activeElement?.id ?? ''}`);
+    // A question answered with "keep": focus returns to the button that asked.
+    const start = page.getByRole('button', { name: 'Start from Ember Noir' });
+    await start.focus();
+    await page.keyboard.press('Enter');
+    await page.locator('dialog[open]').waitFor();
+    // Ctrl+Z does nothing behind an open question.
+    const before = JSON.stringify(await stored(page));
+    await page.keyboard.press('Control+z');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => page.locator('dialog[open]').count()).toBe(0);
+    expect(await focused()).toContain('Start from Ember Noir');
+    expect(JSON.stringify(await stored(page))).toBe(before);
+    // On a Step: two changes, then Undo twice with the keyboard on the Undo button.
+    await page.goto(pageUrl + '#radius');
+    await waitForStep(page, 'Corners');
+    await page.locator('label.option', { hasText: 'Square corners' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await page.locator('.rail a', { hasText: 'Corners' }).first().click();
+    await waitForStep(page, 'Corners');
+    await page.locator('label.option', { hasText: 'Fully round' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await topUndo(page).focus();
+    await page.keyboard.press('Enter');
+    await settle(page);
+    expect(await focused()).toContain('BUTTON:Undo');
+    expect((await stored(page))?.params.radius).toBe(0);
+    await page.keyboard.press('Enter');
+    await settle(page);
+    expect((await stored(page))?.params.radius).not.toBe(0);
+    // A dismissed notice leaves focus on the main part of the page, not on nothing.
+    await page.locator('.banner:not(.hold)').getByRole('button', { name: 'Dismiss' }).click();
+    await expect.poll(focused).toContain(':main');
+    // The region list keeps focus, so that a second arrow key changes the region again and not the card on show.
+    await page.goto(pageUrl + '#radius');
+    await waitForStep(page, 'Corners');
+    const shownBefore = await page.locator('.cards input[type="radio"]:checked').getAttribute('id');
+    const region = page.locator('select').filter({ hasText: 'Where this Step’s change shows' });
+    await region.focus();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    expect(await focused()).toContain('SELECT');
+    expect(await page.locator('.cards input[type="radio"]:checked').getAttribute('id')).toBe(shownBefore);
     await context.close();
   });
 });

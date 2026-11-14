@@ -92,7 +92,8 @@ export interface StudioState {
   startVariations(): void;
   endVariations(): void;
   tuneValue(key: keyof DesignParams, value: number): void;
-  setReason(reason: string): void;
+  /** Store the owner's reason on the Decision of the named Step (not of whichever Step is on screen at that moment). */
+  setReason(stepId: string, reason: string): void;
   requestDirection(direction: Direction): void;
   requestPlainStart(): void;
   moreDirections(): void;
@@ -761,12 +762,14 @@ export const useStudio = create<StudioState>((set, get) => {
     tuneValue(key, value) {
       // A slider always moves the design as it stands, and only the value that moved (findings FTU-05, FTU-06).
       const { project, stepId } = get();
+      // A move that changes nothing records nothing: no hand-set Decision and no Undo step (code review, "screen 1").
+      if (project.params[key] === value) return;
       commit(tune(project, stepId, key, value), `slider:${stepId}:${String(key)}`);
       set({ variations: null, shownId: appliedCardId(get().project, stepOf(stepId)) });
     },
 
-    setReason(reason) {
-      const { project, stepId } = get();
+    setReason(stepId, reason) {
+      const { project } = get();
       if (!project.decisions[stepId]) return;
       commit(setReason(project, stepId, reason), `reason:${stepId}`);
     },
@@ -824,8 +827,9 @@ export const useStudio = create<StudioState>((set, get) => {
       storePrefs();
     },
     setRegion(region) {
+      // Keyboard focus stays on the list: an arrow key on it changes the region again. It used to jump to the cards, where
+      // the next arrow key changed the card on show (code review of 2026-11-13, finding "screen 3").
       set({ region });
-      refocus();
     },
     setWireframe(on) {
       set({ wireframe: on });
@@ -897,7 +901,12 @@ export const useStudio = create<StudioState>((set, get) => {
         notice: { text, ...(elsewhere ? { actions: [{ label: `Go to “${elsewhere.name}”`, run: () => get().go('steps', elsewhere.id) }] } : {}) },
       });
       persist();
-      refocus();
+      // Keyboard focus stays where it is (on the Undo button, for a second Undo), unless the pressed button is gone or
+      // switched off afterwards; then it goes to the card on show (code review of 2026-11-13, finding "screen 3").
+      window.setTimeout(() => {
+        const at = document.activeElement;
+        if (!at || at === document.body || (at as HTMLButtonElement).disabled) refocus();
+      }, 0);
     },
 
     dismissNotice() {

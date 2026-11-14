@@ -1,11 +1,11 @@
 import {
-  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, activeTunables, conflicts, deriveTokens, findStep, matchingOptionId, nearestSliderValue, nextSliderValue, resolvePatch,
+  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, activeTunables, conflicts, findStep, matchingOptionId, nearestSliderValue, nextSliderValue, resolvePatch,
   type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
-import { Component, useEffect, useMemo, useRef, useState } from 'react';
+import { Component, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
 import { copyText, fileNameFor, probePreviews, readBackups, removeBackup, saveFile, type KeptCopy } from './platform';
-import { LargePreview, Thumbnail, mockupHtml } from './preview';
+import { LargePreview, Thumbnail, mockupHtml, tokensFor } from './preview';
 import { CURRENT, DEVICE_WIDTH, appliedCardId, directionName, paramsForCard, stepOf, useStudio, type Device, type StudioState } from './store';
 import { STUDIO_PARAMS, applyStudioTheme, installSpecimenFonts } from './theme';
 
@@ -189,13 +189,30 @@ function TopBar(): React.JSX.Element {
   );
 }
 
+/** True while a slider key is down together with Alt, Ctrl, or the command key. */
+let modifiedSliderKey = false;
 /** How many grid points each key moves a slider. Home and End go to the ends. */
 const SLIDER_KEYS: Record<string, number> = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1, PageDown: -10, PageUp: 10, Home: -Infinity, End: Infinity };
+
+let noticesShown = 0;
+/**
+ * Run a notice's action. If the pressed button is gone afterwards (most actions take their notice away), keyboard focus would
+ * rest on nothing; it goes to the main part of the page instead (code review of 2026-11-13, finding "screen 5").
+ */
+function pressed(run: () => void): void {
+  run();
+  window.setTimeout(() => {
+    if (!document.activeElement || document.activeElement === document.body) document.getElementById('main')?.focus();
+  }, 0);
+}
 
 function NoticeBar(): React.JSX.Element | null {
   const notice = useStudio((s) => s.notice);
   const hold = useStudio((s) => s.hold);
   const dismiss = useStudio((s) => s.dismissNotice);
+  // Each new notice gets a number, also when its words equal those of the notice before (two Undo steps on one Step say the
+  // same sentence). The paragraph is then put on the page afresh, so that a screen reader announces it again ("screen 8").
+  const number = useMemo(() => ++noticesShown, [notice]);
   if (!notice && !hold) return null;
   return (
     <div className="banners">
@@ -204,16 +221,16 @@ function NoticeBar(): React.JSX.Element | null {
         <div className="banner hold" role={hold.urgent ? 'alert' : 'status'}>
           <p>{hold.text}</p>
           <div className="banner-actions">
-            {hold.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={action.run}>{action.label}</button>)}
+            {hold.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={() => pressed(action.run)}>{action.label}</button>)}
           </div>
         </div>
       )}
       {notice && (
         <div className="banner" role={notice.urgent ? 'alert' : 'status'}>
-          <p>{notice.text}</p>
+          <p key={number}>{notice.text}</p>
           <div className="banner-actions">
-            {notice.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={action.run}>{action.label}</button>)}
-            <button type="button" className="btn small quiet" onClick={dismiss}>Dismiss</button>
+            {notice.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={() => pressed(action.run)}>{action.label}</button>)}
+            <button type="button" className="btn small quiet" onClick={() => pressed(dismiss)}>Dismiss</button>
           </div>
         </div>
       )}
@@ -221,7 +238,6 @@ function NoticeBar(): React.JSX.Element | null {
   );
 }
 
-/** A question the owner must answer before work is replaced. The browser's own dialog element keeps keyboard focus inside it and closes on Escape. */
 function ConfirmDialog(): React.JSX.Element | null {
   const confirmation = useStudio((s) => s.confirmation);
   const answer = useStudio((s) => s.answerConfirmation);
@@ -231,13 +247,19 @@ function ConfirmDialog(): React.JSX.Element | null {
     if (confirmation && dialog && !dialog.open) dialog.showModal();
   }, [confirmation]);
   if (!confirmation) return null;
+  // The dialog is closed before the answer takes it off the page. A browser returns keyboard focus to the button that opened
+  // a dialog only when the dialog is closed; taken off the page while open, it left focus on nothing (code review, "screen 5").
+  const reply = (yes: boolean): void => {
+    ref.current?.close();
+    answer(yes);
+  };
   return (
-    <dialog ref={ref} className="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-body" onCancel={(e) => { e.preventDefault(); answer(false); }}>
+    <dialog ref={ref} className="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-body" onCancel={(e) => { e.preventDefault(); reply(false); }}>
       <h2 id="confirm-title">{confirmation.title}</h2>
       <p id="confirm-body">{confirmation.body}</p>
       <div className="actions">
-        <button type="button" className="btn" autoFocus onClick={() => answer(false)}>{confirmation.cancelLabel}</button>
-        <button type="button" className={confirmation.danger ? 'btn danger' : 'btn primary'} onClick={() => answer(true)}>{confirmation.confirmLabel}</button>
+        <button type="button" className="btn" autoFocus onClick={() => reply(false)}>{confirmation.cancelLabel}</button>
+        <button type="button" className={confirmation.danger ? 'btn danger' : 'btn primary'} onClick={() => reply(true)}>{confirmation.confirmLabel}</button>
       </div>
     </dialog>
   );
@@ -315,7 +337,7 @@ const SWATCH_KEYS = ['--bg', '--surface-2', '--text', '--action', '--accent', '-
 
 /** The colors a card produces, as chips. A small picture is too small to compare colors by eye. */
 function Swatches({ params, profile }: { params: DesignParams; profile: A11yProfile }): React.JSX.Element {
-  const hex = deriveTokens(params, profile).hex;
+  const hex = tokensFor(params, profile).hex;
   const colors = [...new Set(SWATCH_KEYS.map((k) => hex[k]).filter((v): v is string => typeof v === 'string'))];
   return (
     <span className="swatches" aria-hidden="true">
@@ -385,13 +407,23 @@ interface Card {
 function ReasonField({ stepId }: { stepId: string }): React.JSX.Element | null {
   const decision = useStudio((s) => s.project.decisions[stepId]);
   const save = useStudio((s) => s.setReason);
-  const [text, setText] = useState(decision?.reason ?? '');
-  useEffect(() => setText(decision?.reason ?? ''), [stepId, decision?.reason]);
+  const stored = decision?.reason ?? '';
+  const [text, setText] = useState(stored);
+  const typed = useRef(text);
+  typed.current = text;
+  // The stored reason changed from elsewhere (Undo, an opened file): show it. While the owner types, the stored reason is
+  // the typed text without its outer spaces, and the field keeps what was typed.
+  useEffect(() => {
+    if (stored !== typed.current.trim()) setText(stored);
+  }, [stored]);
   if (!decision) return null;
   return (
     <label className="reason">
       <span>Why this choice? (optional)</span>
-      <input id="decision-reason" type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => setText(e.target.value)} onBlur={() => { if (text.trim() !== (decision.reason ?? '')) save(text); }} />
+      {/* Each typed letter is stored at once, on the Step it was typed for. The field used to store its text only when it
+          lost keyboard focus: Enter, a reload, or the browser's Back button then lost the text, and Back could even store it
+          on another Step (code review of 2026-11-13, findings "screen 4" and "gaps 0"). */}
+      <input id="decision-reason" type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => { setText(e.target.value); save(stepId, e.target.value); }} />
       <small>Your reason is saved in the project file. A later version of the Studio will pass it to the AI coding tool that builds your site.</small>
     </label>
   );
@@ -439,6 +471,10 @@ function StepsView(): React.JSX.Element {
   }, [stateKey, cards.length]);
   // Only the Motion Step plays the entrance; on every other Step the page stands still, so that a comparison is not blurred by a fade.
   const large = useMemo(() => mockupHtml(s.project, shownParams, { wireframe: wire, focus, still: step.id !== 'motion' }), [stateKey, shown.id, focus]);
+  // The pictures follow at lower priority. A slider step first moves the knob and its number; the browser then draws the
+  // pictures when it is free, and skips the steps in between while a key is held or the knob is dragged.
+  const shownThumbs = useDeferredValue(thumbs);
+  const shownLarge = useDeferredValue(large.html);
   const readingPair = large.pairs.find((pair) => pair.id === 'text-on-page');
   const clashes = useMemo(() => conflicts({ ...s.project, params: shownParams }).filter((c) => c.stepIds.includes(step.id)), [JSON.stringify(shownParams), step.id]);
 
@@ -447,8 +483,10 @@ function StepsView(): React.JSX.Element {
   cardsRef.current = cards;
   useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
-      if (event.metaKey || event.ctrlKey || event.altKey || isTyping(event.target) || useStudio.getState().confirmation) return;
       const target = event.target as HTMLElement | null;
+      // A list of choices (the "Show this part of the page" list) takes letters, not digits, so the digits keep flipping cards while it has focus.
+      const inList = target?.tagName === 'SELECT' && /^[1-9]$/.test(event.key);
+      if (event.metaKey || event.ctrlKey || event.altKey || (isTyping(event.target) && !inList) || useStudio.getState().confirmation) return;
       const n = Number(event.key);
       if (Number.isInteger(n) && n >= 1 && n <= 9) {
         const card = cardsRef.current[n - 1];
@@ -459,6 +497,9 @@ function StepsView(): React.JSX.Element {
         document.getElementById(`option-${card.id}`)?.focus();
       } else if (event.key === 'Enter' && (!target || target === document.body || target.id === 'main' || target.tagName === 'H1')) {
         event.preventDefault();
+        // A key held down repeats about thirty times a second. Only the first press counts; a held Enter used to run through
+        // the Steps and record a Decision on each (code review of 2026-11-13, finding "screen 2").
+        if (event.repeat) return;
         useStudio.getState().decideAndContinue();
       }
     };
@@ -523,7 +564,7 @@ function StepsView(): React.JSX.Element {
           <button type="button" className="skip-preview" onClick={() => document.querySelector<HTMLElement>('.cards input[type="radio"]:checked')?.focus()}>
             Jump past the preview to the cards
           </button>
-          <LargePreview html={large.html} width={width} replay={replay} title={`Large preview of the sample website: ${shown.label}`} />
+          <LargePreview html={shownLarge} width={width} replay={replay} title={`Large preview of the sample website: ${shown.label}`} />
         </div>
         {step.id === 'contrast' && readingPair && (
           <p className="measure" role="status">Reading text on the page background, on the card you are looking at: {readingPair.ratio} to 1. The guideline asks for at least {readingPair.required} to 1.</p>
@@ -556,6 +597,7 @@ function StepsView(): React.JSX.Element {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') {
               e.preventDefault();
+              if (e.repeat) return;
               s.decideAndContinue();
             }
           }}
@@ -584,7 +626,7 @@ function StepsView(): React.JSX.Element {
               return (
                 <label key={card.id} className="option" data-shown={isShown || undefined} data-in-use={inUse || undefined}>
                   <input id={`option-${card.id}`} type="radio" name="option" value={card.id} checked={isShown} onChange={() => s.show(card.id)} />
-                  <Thumbnail html={thumbs[card.id] ?? ''} width={thumbWidth} ratio={thumbRatio} />
+                  <Thumbnail html={shownThumbs[card.id] ?? thumbs[card.id] ?? ''} width={thumbWidth} ratio={thumbRatio} />
                   <span className="option-title">
                     {i < 9 && <kbd aria-hidden="true">{i + 1}</kbd>}
                     <span>{card.label}</span>
@@ -621,7 +663,7 @@ function StepsView(): React.JSX.Element {
             </>
           )}
         </div>
-        {!s.variations && <ReasonField stepId={step.id} />}
+        {!s.variations && <ReasonField key={step.id} stepId={step.id} />}
         {!s.variations && sliders.length > 0 && (
           <details className="tune">
             <summary>Adjust with sliders</summary>
@@ -634,12 +676,20 @@ function StepsView(): React.JSX.Element {
                 <label key={String(t.key)} className="slider">
                   <span className="slider-name">{t.label}</span>
                   <output htmlFor={`tune-${String(t.key)}`}>{sliderValue(t, value)}</output>
-                  <input id={`tune-${String(t.key)}`} type="range" aria-label={t.label} aria-valuetext={sliderValue(t, value)} min={t.min} max={t.max} step="any" value={Math.min(value, t.max)} onChange={(e) => s.tuneValue(t.key, nearestSliderValue(t, Number(e.target.value)))} onKeyDown={(e) => {
+                  <input id={`tune-${String(t.key)}`} type="range" aria-label={t.label} aria-valuetext={sliderValue(t, value)} min={t.min} max={t.max} step="any" value={Math.min(t.max, Math.max(t.min, value))} onChange={(e) => { if (!modifiedSliderKey) s.tuneValue(t.key, nearestSliderValue(t, Number(e.target.value))); }} onKeyUp={() => { modifiedSliderKey = false; }} onBlur={() => { modifiedSliderKey = false; }} onKeyDown={(e) => {
                     // The slider is drawn without a grid, so that its knob stands exactly on the value; the keys walk the grid here.
                     const steps = SLIDER_KEYS[e.key];
                     if (steps === undefined) return;
+                    // With Alt, Ctrl, or the command key held, the key belongs to the browser (Alt+Left is "back"). The Studio
+                    // leaves the key alone, and it ignores the move that the browser's own slider makes for that key.
+                    if (e.altKey || e.ctrlKey || e.metaKey) {
+                      modifiedSliderKey = true;
+                      return;
+                    }
                     e.preventDefault();
-                    s.tuneValue(t.key, steps === -Infinity ? t.min : steps === Infinity ? t.max : nextSliderValue(t, Math.min(value, t.max), steps));
+                    const next = steps === -Infinity ? t.min : steps === Infinity ? Math.max(value, t.max) : nextSliderValue(t, value, steps);
+                    // A key that cannot move the value does nothing: no hand-set Decision, no Undo step.
+                    if (next !== value) s.tuneValue(t.key, next);
                   }} />
                   {aroundTheWheel ? (
                     <span className="slider-ends" aria-hidden="true"><span>Goes around the color wheel: {WHEEL.join(', ')}, and back to {WHEEL[0]}.</span></span>
@@ -917,7 +967,7 @@ export function App(): React.JSX.Element {
     void useStudio.getState().init();
     void probePreviews().then(setPreviewsWork);
     const onKey = (event: KeyboardEvent): void => {
-      if ((event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === 'z' && !isTyping(event.target)) {
+      if ((event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === 'z' && !isTyping(event.target) && !useStudio.getState().confirmation) {
         event.preventDefault();
         useStudio.getState().undo();
       }
