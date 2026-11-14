@@ -1771,6 +1771,32 @@ describe('Studio: layout', () => {
     expect(await page.evaluate(() => window.scrollY)).toBeLessThan(40);
     await context.close();
   });
+
+  it('carries a change of the preview width to the large preview and to every card’s picture, and leaves a fixed-width Step’s cards alone', async () => {
+    // The cards' pictures follow the large preview at lower priority (measured 2026-11-14: together they held the page for
+    // 70 to 110 milliseconds). They must still arrive, all of them, and the grid of cards with them.
+    const { context, page } = await open({ hash: '#accent', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(worked('Width')))) } });
+    await page.waitForSelector('.tiles iframe');
+    const widths = (): Promise<{ large: string; cards: string[]; grid: string | null }> =>
+      page.evaluate(() => ({
+        large: (document.querySelector('.large-preview iframe') as HTMLElement).style.width,
+        cards: [...new Set([...document.querySelectorAll<HTMLElement>('.tiles iframe')].map((frame) => frame.style.width))],
+        grid: document.querySelector('.tiles')!.getAttribute('data-device'),
+      }));
+    const stage = page.locator('.stage .segmented');
+    for (const [name, px, device] of [['Phone', '375px', 'phone'], ['Tablet', '768px', 'tablet'], ['Desktop', '1280px', 'desktop'], ['Phone', '375px', 'phone']] as const) {
+      await stage.getByRole('button', { name, exact: true }).click();
+      expect(await stage.locator('button[aria-pressed="true"]').innerText(), 'the pressed button answers at once').toBe(name);
+      await expect.poll(widths, { timeout: 4000 }).toEqual({ large: px, cards: [px], grid: device });
+    }
+    // A Step that draws its cards at a width of its own ("Corners": 440 pixels) keeps that width; only the large preview changes.
+    await page.goto(`${pageUrl}#radius`);
+    await waitForStep(page, 'Corners');
+    await page.waitForSelector('.tiles iframe');
+    await stage.getByRole('button', { name: 'Tablet', exact: true }).click();
+    await expect.poll(widths, { timeout: 4000 }).toEqual({ large: '768px', cards: ['440px'], grid: 'detail' });
+    await context.close();
+  });
 });
 
 describe('Studio: plain words on every screen (decision D38, finding U2-03)', () => {

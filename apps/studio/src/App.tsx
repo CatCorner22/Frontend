@@ -458,8 +458,12 @@ function StepsView(): React.JSX.Element {
   const shownParams = paramsForCard(s, shown.id);
   const focus: MockupFocus = s.region === 'auto' ? (shown.focus ?? step.focus) : s.region;
   const width = DEVICE_WIDTH[s.device];
-  const thumbWidth = step.thumb?.width ?? width;
-  const thumbRatio = step.thumb?.width ? (step.thumb.width < 600 ? 0.9 : 0.6) : THUMB_RATIO[s.device];
+  // A change of the preview width makes every picture lay its page out again. The large preview and the pressed button answer
+  // at once; the cards' pictures follow at lower priority. Together, in one go, they held the page for 70 to 110 milliseconds
+  // on a Step with 14 cards, and the person saw nothing change for that time (measured 2026-11-14).
+  const cardsDevice = useDeferredValue(s.device);
+  const thumbWidth = step.thumb?.width ?? DEVICE_WIDTH[cardsDevice];
+  const thumbRatio = step.thumb?.width ? (step.thumb.width < 600 ? 0.9 : 0.6) : THUMB_RATIO[cardsDevice];
   const lookingAtApplied = !s.variations && shown.id === applied;
   const sliders = activeTunables(step, s.project.params);
 
@@ -618,7 +622,7 @@ function StepsView(): React.JSX.Element {
             {shown.exemplar && <p><strong>Where you can see it:</strong> {shown.exemplar}</p>}
           </section>
           {step.thumb?.note && <p className="hint">{step.thumb.note}</p>}
-          <div className="tiles" data-device={step.thumb?.width ? 'detail' : s.device}>
+          <div className="tiles" data-device={step.thumb?.width ? 'detail' : cardsDevice}>
             {cards.map((card, i) => {
               const isShown = shown.id === card.id;
               const params = paramsForCard(s, card.id);
