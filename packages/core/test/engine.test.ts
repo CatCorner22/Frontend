@@ -263,6 +263,23 @@ describe('engine: values that follow other values (finding M-05)', () => {
   });
 });
 
+describe('engine: a slider whose range is narrowed (campaign 4, round 3)', () => {
+  it('steps inward from the end when the value lies beyond a narrowed range, and still goes to the end from "fully round"', () => {
+    // "Golden yellow" on a dark page: lightness 0.8, and the slider offers 0.48 to 0.68, because every value above 0.68 is drawn alike.
+    const dark = pick(pick(fresh(), 'theme', 'dark', AT), 'accent', 'mustard', AT);
+    const lightness = activeTunables(findStep('accent')!, dark.params).find((t) => t.key === 'accentLightness')!;
+    expect([lightness.min, lightness.max]).toEqual([0.48, 0.68]);
+    expect(dark.params.accentLightness).toBeGreaterThan(lightness.max);
+    const darker = nextSliderValue(lightness, dark.params.accentLightness, -1);
+    expect(darker).toBeLessThan(lightness.max);
+    expect(darker).toBe(nextSliderValue(lightness, lightness.max, -1));
+    expect(nextSliderValue(lightness, dark.params.accentLightness, 1)).toBe(dark.params.accentLightness);
+    // "Fully round" is a look of its own beyond the slider's top: one press toward "less round" goes to the top.
+    const corners = findStep('radius')!.tunables!.find((t) => t.key === 'radius')!;
+    expect(nextSliderValue(corners, 999, -1)).toBe(corners.max);
+  });
+});
+
 describe('engine: reasons (finding M-09)', () => {
   it('records the owner’s reason on a Decision, trimmed and limited, and removes an empty one', () => {
     let p = pick(fresh(), 'nav', 'side-rail', AT);
@@ -281,6 +298,12 @@ describe('engine: reasons (finding M-09)', () => {
     expect(p.decisions['radius']!.reason).toBe('Friendly.');
     p = pick(p, 'radius', 'square', AT);
     expect(p.decisions['radius']!.reason).toBeUndefined();
+  });
+
+  it('keeps the reason when the owner picks the same Option again (campaign 4, round 3)', () => {
+    let p = setReason(pick(fresh(), 'radius', 'soft', AT), 'radius', 'Friendly.');
+    p = pick(p, 'radius', 'soft', '2026-11-14T08:00:00.000Z');
+    expect(p.decisions['radius']).toMatchObject({ optionId: 'soft', kind: 'picked', reason: 'Friendly.', at: '2026-11-14T08:00:00.000Z' });
   });
 });
 

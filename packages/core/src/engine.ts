@@ -206,7 +206,12 @@ export function pick(project: Project, stepId: string, optionId: string, now = i
   const option = step.options.find((o) => o.id === optionId);
   if (!option) throw new Error('This Step has no such Option.');
   const params = { ...project.params, ...resolvePatch(option, project.params) };
-  return withDecision(project, step, params, { kind: 'picked', rejected: step.options.filter((o) => o.id !== option.id).map((o) => o.id), at: now });
+  // A written reason belongs to the choice it was written for. It stays when the owner picks the same Option again, and it
+  // goes when the owner picks another Option: "friendly" is no reason for square corners. The Studio says so when it removes
+  // a reason this way, and offers to put it back (campaign 4, round 3: it used to go without a word).
+  const previous = project.decisions[stepId];
+  const reason = previous?.reason && previous.optionId === option.id ? previous.reason : undefined;
+  return withDecision(project, step, params, { kind: 'picked', rejected: step.options.filter((o) => o.id !== option.id).map((o) => o.id), at: now, ...(reason ? { reason } : {}) });
 }
 
 /** Keep the value the design already has for a Step. The design does not change; the Decision records that the owner looked and kept it. */
@@ -265,6 +270,12 @@ export function nextSliderValue(tunable: Tunable, current: number, steps: number
   // "Fully round" (999) stands beyond the top of "Corner rounding" (28), and the key for "rounder" used to make it 28, which is
   // less round (code review of 2026-11-13, finding "engine 3").
   if ((steps > 0 && current >= tunable.max) || (steps < 0 && current <= tunable.min)) return current;
+  // On a slider whose range is narrowed to the part that changes the picture (the main color's lightness on a dark page), a
+  // value beyond an end is drawn as that end. A key that points inward then walks from that end, so that the first press
+  // changes what is drawn. It used to land on the end itself: the record changed and the picture did not (campaign 4,
+  // round 3). On any other slider a value beyond the end is a look of its own ("Fully round"), and the first press goes to the end.
+  const narrowed = tunable.rangeWhen !== undefined && tunable.min === tunable.rangeWhen.min && tunable.max === tunable.rangeWhen.max;
+  if (narrowed && (current > tunable.max || current < tunable.min)) return nextSliderValue(tunable, Math.min(tunable.max, Math.max(tunable.min, current)), steps);
   const tiny = tunable.step / 1000;
   const first = steps > 0 ? Math.ceil((current + tiny) / tunable.step) : Math.floor((current - tiny) / tunable.step);
   const target = (first + (steps > 0 ? steps - 1 : steps + 1)) * tunable.step;
@@ -683,7 +694,9 @@ function migrateV1(raw: Record<string, unknown>): unknown {
   // Version 1 stored a Direction by its display name.
   const named = typeof raw['direction'] === 'string' ? raw['direction'] : null;
   const curated = named === null ? undefined : DIRECTIONS.find((d) => d.name === named);
-  const direction = named === null ? null : (curated?.id ?? 'generated-0-0');
+  // A name that is no curated Direction is passed on as a name that no version has, so that the note about an unknown
+  // Direction appears for an old file as it does for a new one (campaign 4, round 3).
+  const direction = named === null ? null : (curated?.id ?? 'unlisted');
   const decisions: [string, unknown][] = [];
   if (isRecord(raw['decisions'])) {
     for (const [key, value] of Object.entries(raw['decisions'])) {
@@ -710,12 +723,40 @@ function migrateV1(raw: Record<string, unknown>): unknown {
  * Bring a shape-checked project into line with this version's Catalog.
  * References are recomputed from the design values, which are the source of truth; nothing from the file is trusted as a reference.
  */
+/**
+ * The values of a slider that the Studio itself can produce: the slider's range, and the values of the Step's Options that lie
+ * beyond it ("Fully round" is 999, beyond the slider's 28). The project format allows more (a text size of 30, a spacing of 2),
+ * because it only guards the Mockup against nonsense. A file with such a value opened, and the Studio then described it with
+ * the slider's end ("22px" for 30), kept it as a Decision under that wrong description, and its sliders could not move it
+ * (campaign 4, round 3). So opening brings such a value to the nearest one that the Studio can set, and says so.
+ */
+function withinReach(params: DesignParams): { params: DesignParams; moved: number } {
+  let out = params;
+  let moved = 0;
+  for (const step of STEPS) {
+    for (const t of step.tunables ?? []) {
+      const value = out[t.key];
+      if (typeof value !== 'number' || (value >= t.min && value <= t.max)) continue;
+      const beyond = step.options.map((o) => o.patch[t.key]).filter((v): v is number => typeof v === 'number' && (v < t.min || v > t.max));
+      if (beyond.some((v) => same(v, value))) continue;
+      const above = beyond.filter((v) => v > t.max);
+      const below = beyond.filter((v) => v < t.min);
+      const target = value > t.max ? (above.length > 0 ? Math.min(...above) : t.max) : below.length > 0 ? Math.max(...below) : t.min;
+      out = { ...out, [t.key]: target };
+      moved++;
+    }
+  }
+  return { params: out, moved };
+}
+
 function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { project: Project; notes: string[] } {
-  const params = data.params as unknown as DesignParams;
-  const base = data.base as unknown as DesignParams;
-  assertKnownParams(params);
-  assertKnownParams(base);
+  assertKnownParams(data.params as unknown as DesignParams);
+  assertKnownParams(data.base as unknown as DesignParams);
+  const reachable = withinReach(data.params as unknown as DesignParams);
+  const params = reachable.params;
+  const base = withinReach(data.base as unknown as DesignParams).params;
   const notes: string[] = [];
+  if (reachable.moved > 0) notes.push(reachable.moved === 1 ? 'One design value in the file lay outside what the Studio can set. The Studio brought it to the nearest value that it can set, and the design changed with it.' : `${reachable.moved} design values in the file lay outside what the Studio can set. The Studio brought each to the nearest value that it can set, and the design changed with them.`);
   let dropped = 0;
   let relabelled = 0;
   let corrected = 0;
@@ -731,7 +772,9 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
     const optionId = matchingOptionId(params, step);
     let kind: DecisionKind = d.kind;
     if (kind === 'picked' && optionId === null) {
-      // The picked Option no longer exists in the Catalog, or its values changed. The values stay; the label changes.
+      // The file records a pick, and its design values match no Option: the picked Option no longer exists in the Catalog, or
+      // its values changed, or the file was written by hand. The values stay; the label changes. The note says only what is
+      // known in each of those cases (it used to say that the Catalog lacks the Option, also when it has it; round 3).
       kind = 'tuned';
       relabelled++;
     } else if (!migrated && d.optionId !== optionId) {
@@ -741,7 +784,11 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
       // date recomputes every Decision, and its own notice says so.
       corrected++;
     }
-    const rejected = kind === 'picked' ? optionIds.filter((id) => id !== optionId) : d.rejected.filter((id) => optionIds.includes(id) && id !== optionId);
+    // The list of rejected Options is the file's own list, without what cannot stand: an Option that this Catalog does not
+    // have, the Option that the Decision holds, the Option that the file itself records as picked, and repeats. Nothing is
+    // ever added. An earlier version filled the list of a pick with every other Option of the Step; an Option that joined the
+    // Catalog after the owner picked then counted as rejected, though the owner never saw it (round 3).
+    const rejected = [...new Set(d.rejected)].filter((id) => optionIds.includes(id) && id !== optionId && !(d.kind === 'picked' && id === d.optionId));
     const fullReason = d.reason?.trim();
     const reason = fullReason?.slice(0, REASON_MAX);
     if (fullReason !== undefined && fullReason.length > REASON_MAX) shortened++;
@@ -753,7 +800,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
     notes.push('The file named a Direction that this version of the Studio does not have. The design itself is unchanged.');
   }
   if (dropped > 0) notes.push(dropped === 1 ? 'One Decision in the file belongs to a Step that this version of the Studio does not have. It was left out.' : `${dropped} Decisions in the file belong to Steps that this version of the Studio does not have. They were left out.`);
-  if (relabelled > 0) notes.push(relabelled === 1 ? 'One Decision named an Option that this version of the Catalog does not have. Its values were kept and it is now marked as hand-set.' : `${relabelled} Decisions named Options that this version of the Catalog does not have. Their values were kept and they are now marked as hand-set.`);
+  if (relabelled > 0) notes.push(relabelled === 1 ? 'One Decision was recorded as a picked Option, but its design values match no Option of this version of the Catalog. Its values were kept and it is now marked as hand-set.' : `${relabelled} Decisions were recorded as picked Options, but their design values match no Option of this version of the Catalog. Their values were kept and they are now marked as hand-set.`);
   if (corrected > 0) notes.push(corrected === 1 ? 'One Decision in the file named a choice that the file’s own design values do not show. The Studio follows the design values, so it changed that Decision to match them.' : `${corrected} Decisions in the file named choices that the file’s own design values do not show. The Studio follows the design values, so it changed those Decisions to match them.`);
   if (shortened > 0) notes.push(shortened === 1 ? `One written reason was longer than ${REASON_MAX} characters. It was shortened to fit.` : `${shortened} written reasons were longer than ${REASON_MAX} characters. They were shortened to fit.`);
   const project: Project = { schemaVersion: SCHEMA_VERSION, name: data.name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content: data.content };
