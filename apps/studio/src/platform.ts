@@ -163,6 +163,14 @@ export interface KeptCopy {
   text: string;
   /** The storage entry that holds this copy. Absent for a member of the earlier one-list form. */
   key?: string;
+  /**
+   * Absent: a lasting copy. Only the owner removes a lasting copy.
+   * `running`: the copy of a tab that is not saving. That tab puts a newer copy in its place each time it goes to the background.
+   * `leaving`: written by a page that closed, or went to the background, with a change it had not saved yet. The next opening
+   * removes it when the saved project holds the same work, and makes it a lasting copy otherwise.
+   * A running or leaving copy can go away without the owner's doing, so nothing may count on one that another tab wrote.
+   */
+  state?: 'running' | 'leaving';
 }
 const UNKNOWN_FORM = 'An earlier kept copy, in a form this version of the Studio does not know.';
 
@@ -200,8 +208,11 @@ function openCopy(key: string, raw: string): KeptCopy {
   const end = raw.indexOf('\n');
   if (end > 0) {
     try {
-      const head = JSON.parse(raw.slice(0, end)) as { keptAt?: unknown; why?: unknown } | null;
-      if (head && typeof head === 'object') return { key, keptAt: String(head.keptAt ?? ''), why: String(head.why ?? ''), text: raw.slice(end + 1) };
+      const head = JSON.parse(raw.slice(0, end)) as { keptAt?: unknown; why?: unknown; state?: unknown } | null;
+      if (head && typeof head === 'object') {
+        const state = head.state === 'running' || head.state === 'leaving' ? head.state : undefined;
+        return { key, keptAt: String(head.keptAt ?? ''), why: String(head.why ?? ''), text: raw.slice(end + 1), ...(state ? { state } : {}) };
+      }
     } catch {
       // Fall through: not in the form this version writes.
     }
@@ -229,6 +240,25 @@ export function readBackups(): KeptCopy[] {
 }
 
 let keptInThisTab = 0;
+/** A name for a new storage entry of a kept copy. It starts with the time, and no other entry has it. */
+const newCopyKey = (keptAt: string): string => `${COPY_PREFIX}${keptAt}.${(keptInThisTab++).toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+/** A kept copy as it is stored: one line with the time, the reason, and the state (JSON), then the copy's text, untouched. */
+const copyEntry = (keptAt: string, why: string, text: string, state?: KeptCopy['state']): string => `${JSON.stringify(state ? { keptAt, why, state } : { keptAt, why })}\n${text}`;
+/** The storage entry of this tab's running copy, and of this tab's leaving copy (see `KeptCopy.state`). */
+let runningCopy: string | null = null;
+let leavingCopy: string | null = null;
+const isLasting = (copy: KeptCopy): boolean => copy.state === undefined;
+const isMine = (copy: KeptCopy, key: string | null): boolean => key !== null && copy.key === key;
+
+/**
+ * True when this text is kept already, in a copy that stays: a lasting copy, or this tab's own running copy.
+ * Another tab's running copy does not count, and no leaving copy counts: the tab that wrote such a copy replaces or removes
+ * it later. A tab that counted on one and wrote nothing of its own lost its work when that happened (campaign 4, round 3).
+ */
+export function keptAlready(text: string): boolean {
+  return readBackups().some((copy) => copy.text === text && (isLasting(copy) || isMine(copy, runningCopy)));
+}
+
 /**
  * Keep a copy that is about to be replaced, or that could not be read. It joins the copies already kept; it never replaces one.
  * Returns false when the browser refuses (for example, storage is full); the copies already kept stay as they were.
@@ -239,17 +269,35 @@ let keptInThisTab = 0;
  */
 export function keepBackup(text: string, why: string): boolean {
   try {
-    if (readBackups().some((copy) => copy.text === text)) return true;
+    const store = window.localStorage;
+    const copies = readBackups();
+    if (copies.some((copy) => copy.text === text && isLasting(copy))) return true;
+    const mine = copies.find((copy) => copy.text === text && isMine(copy, runningCopy));
+    if (mine?.key !== undefined) {
+      // This tab's own running copy holds exactly this text. It becomes the lasting copy, under the new reason, and this tab
+      // stops treating it as replaceable. Before, the Studio counted the text as kept and wrote nothing; the next time the tab
+      // went to the background, it put a newer running copy in this one's place, and the kept text was gone (round 3).
+      runningCopy = null;
+      try {
+        store.setItem(mine.key, copyEntry(mine.keptAt, why, text));
+      } catch {
+        try {
+          // No room for the new reason: the copy keeps its earlier words.
+          store.setItem(mine.key, copyEntry(mine.keptAt, mine.why, text));
+        } catch {
+          // The entry stays exactly as it is. No tab removes it any more.
+        }
+      }
+      return true;
+    }
     const keptAt = new Date().toISOString();
-    const unique = `${(keptInThisTab++).toString(36)}${Math.random().toString(36).slice(2, 8)}`;
-    window.localStorage.setItem(`${COPY_PREFIX}${keptAt}.${unique}`, `${JSON.stringify({ keptAt, why })}\n${text}`);
+    store.setItem(newCopyKey(keptAt), copyEntry(keptAt, why, text));
     return true;
   } catch {
     return false;
   }
 }
 
-let runningCopy: string | null = null;
 /**
  * Keep a copy of work that grows while it cannot be saved (a tab that is not saving, each time it goes to the background or
  * closes). The new copy takes the place of the one this tab kept the time before, so that one stopped session leaves one
@@ -258,13 +306,13 @@ let runningCopy: string | null = null;
 export function keepRunningCopy(text: string, why: string): boolean {
   const store = window.localStorage;
   try {
-    if (readBackups().some((copy) => copy.text === text)) return true;
+    if (keptAlready(text)) return true;
   } catch {
     return false;
   }
   const keptAt = new Date().toISOString();
-  const key = `${COPY_PREFIX}${keptAt}.${(keptInThisTab++).toString(36)}${Math.random().toString(36).slice(2, 8)}`;
-  const value = `${JSON.stringify({ keptAt, why })}\n${text}`;
+  const key = newCopyKey(keptAt);
+  const value = copyEntry(keptAt, why, text, 'running');
   const earlier = runningCopy;
   try {
     store.setItem(key, value);
@@ -291,9 +339,82 @@ export function keepRunningCopy(text: string, why: string): boolean {
     }
   }
 }
-/** The owner settled the stopped save: the next stopped session keeps a copy of its own. */
+/** The owner settled the stopped save: this tab's running copy stays as a lasting copy, and the next stopped session keeps a copy of its own. */
 export function endRunningCopy(): void {
+  const key = runningCopy;
   runningCopy = null;
+  if (key === null) return;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (raw === null) return;
+    const copy = openCopy(key, raw);
+    if (copy.state === 'running') window.localStorage.setItem(key, copyEntry(copy.keptAt, copy.why, copy.text));
+  } catch {
+    // The copy stays as it is. No tab removes it.
+  }
+}
+
+/**
+ * A page that closes, or goes to the background, with a change it has not saved yet writes the saved project at once. Two
+ * pages that do so in the same instant cannot see each other's write: each finds the saved project as it last saw it, each
+ * writes, and the second write replaces the first without a kept copy (campaign 4, round 3: 2 of 22 trials). So each page
+ * first puts its work into an entry of its own, which no other page writes. A page that lives on removes that entry after
+ * its next save. Otherwise the next opening settles it (see `settleLeavingCopies`).
+ * Returns false when the browser refuses; the page then writes the saved project as before.
+ */
+export function keepLeavingCopy(text: string, why: string): boolean {
+  try {
+    const store = window.localStorage;
+    const earlier = leavingCopy;
+    if (earlier !== null) {
+      const raw = store.getItem(earlier);
+      if (raw !== null && openCopy(earlier, raw).text === text) return true;
+    }
+    const keptAt = new Date().toISOString();
+    const key = newCopyKey(keptAt);
+    store.setItem(key, copyEntry(keptAt, why, text, 'leaving'));
+    leavingCopy = key;
+    if (earlier !== null) store.removeItem(earlier);
+    return true;
+  } catch {
+    return false;
+  }
+}
+/** This page lives on and has saved since: its leaving copy has done its work. */
+export function dropLeavingCopy(): void {
+  const key = leavingCopy;
+  leavingCopy = null;
+  if (key === null) return;
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // It stays; the next opening settles it.
+  }
+}
+/**
+ * At opening: settle the copies that pages left as they closed. One that holds the same work as the saved project, or as a
+ * lasting copy, is removed: that work is safe without it. Any other becomes a lasting copy: it holds work that a later write
+ * replaced. Returns the number of copies that became lasting copies, so that the Studio can say so.
+ */
+export function settleLeavingCopies(storedText: string | null): number {
+  let kept = 0;
+  try {
+    const store = window.localStorage;
+    const copies = readBackups();
+    for (const copy of copies) {
+      if (copy.state !== 'leaving' || copy.key === undefined || isMine(copy, leavingCopy)) continue;
+      if (copy.text === storedText || copies.some((other) => other.text === copy.text && isLasting(other))) {
+        store.removeItem(copy.key);
+        continue;
+      }
+      store.setItem(copy.key, copyEntry(copy.keptAt, copy.why, copy.text));
+      delete copy.state;
+      kept++;
+    }
+  } catch {
+    // A copy that could not be settled stays as it is, and the Summary lists it with the other kept copies.
+  }
+  return kept;
 }
 
 const KEPT_NOTE_KEY = 'refraction.kept.note';
@@ -325,7 +446,10 @@ export function removeBackup(copy: KeptCopy): boolean {
     }
     const rest = readListedCopies();
     // Exactly one copy goes, even when two copies hold the same text and time (finding S3-05).
-    const index = rest.findIndex((other) => other.text === copy.text && other.keptAt === copy.keptAt);
+    // The reason is compared as well: of two copies with the same text and time, the one that the owner chose goes
+    // (campaign 4, finding F-25: the first of the two went).
+    const exact = rest.findIndex((other) => other.text === copy.text && other.keptAt === copy.keptAt && other.why === copy.why);
+    const index = exact !== -1 ? exact : rest.findIndex((other) => other.text === copy.text && other.keptAt === copy.keptAt);
     if (index === -1) return true;
     rest.splice(index, 1);
     if (rest.length === 0) window.localStorage.removeItem(BACKUP_KEY);

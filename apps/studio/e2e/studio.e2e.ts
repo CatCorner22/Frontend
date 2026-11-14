@@ -155,16 +155,17 @@ const stored = (page: Page): Promise<Project | null> =>
   page.evaluate((key) => (JSON.parse(window.localStorage.getItem(key) ?? 'null') as { project: Project } | null)?.project ?? null, LOCAL_KEY);
 const rawStored = (page: Page, key: string): Promise<string | null> => page.evaluate((k) => window.localStorage.getItem(k), key);
 /** Every copy the Studio kept, newest first. */
-const keptCopies = (page: Page): Promise<{ why: string; text: string; key?: string }[]> =>
+const keptCopies = (page: Page): Promise<{ why: string; text: string; key?: string; state?: string }[]> =>
   page.evaluate((base) => {
     // Each kept copy has a storage entry of its own (a first line with time and reason, then the text). An earlier form held one list.
-    const own: { why: string; text: string; key: string }[] = [];
+    const own: { why: string; text: string; key: string; state?: string }[] = [];
     for (let i = 0; i < window.localStorage.length; i++) {
       const key = window.localStorage.key(i)!;
       if (!key.startsWith(`${base}.`)) continue;
       const raw = window.localStorage.getItem(key)!;
       const end = raw.indexOf('\n');
-      own.push({ key, why: (JSON.parse(raw.slice(0, end)) as { why: string }).why, text: raw.slice(end + 1) });
+      const head = JSON.parse(raw.slice(0, end)) as { why: string; state?: string };
+      own.push({ key, why: head.why, text: raw.slice(end + 1), ...(head.state ? { state: head.state } : {}) });
     }
     own.sort((a, b) => b.key.localeCompare(a.key));
     // The earlier list is read the way the Studio reads it: a member, or a whole content, that is not a kept copy counts as one copy.
@@ -1168,7 +1169,10 @@ describe('Studio: a stopped save stays answerable, and no tab loses its work to 
     withUnknown.decisions['a-step-from-another-version'] = { stepId: 'a-step-from-another-version', optionId: 'x', kind: 'picked', rejected: [], values: {}, at: '2026-11-13T09:00:00.000Z' };
     const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(withUnknown) } });
     await page.waitForSelector('.cards');
-    // The first opening had room and kept the copy. Take it away, leave no room, and open again.
+    // The first opening had room: it kept the copy and stored the project as opened (round 3). Put the saved copy back as
+    // it was, take the kept copy away, leave no room, and open again.
+    await settle(page);
+    await page.evaluate(([key, value]) => window.localStorage.setItem(key!, value!), [LOCAL_KEY, envelope(withUnknown)]);
     await clearKeptCopies(page);
     expect(await fillStorage(page, 20)).toBe(true);
     await page.reload();
@@ -1523,6 +1527,318 @@ describe('Studio: keys, focus, and the reason field (code review of 2026-11-13)'
     await page.keyboard.press('ArrowDown');
     expect(await focused()).toContain('SELECT');
     expect(await page.locator('.cards input[type="radio"]:checked').getAttribute('id')).toBe(shownBefore);
+    await context.close();
+  });
+});
+
+describe('Studio: what the third round of campaign 4 found', () => {
+  const state = (page: Page): Promise<string> => page.locator('.save-state').innerText();
+  const names = async (page: Page): Promise<string[]> => (await keptCopies(page)).map((copy) => (JSON.parse(copy.text) as Project).name).sort();
+  const toBackground = (page: Page): Promise<void> =>
+    page.evaluate(() => {
+      Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+      Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+  /** A tab on the saved project, and a second tab that saves a change, so that the first tab stops saving. */
+  const stoppedTab = async (): Promise<{ context: BrowserContext; page: Page; other: Page }> => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Shared project')) } });
+    await page.waitForSelector('.cards');
+    const other = await context.newPage();
+    await other.goto(pageUrl);
+    await other.waitForSelector('.cards');
+    await other.locator('#project-name').fill('Changed in the other tab');
+    await page.locator('.banner.hold').waitFor();
+    return { context, page, other };
+  };
+
+  it('keeps the replaced project for good when a stopped tab starts again, although the tab’s running copy held the same text', async () => {
+    const { context, page } = await stoppedTab();
+    await page.locator('#project-name').fill('Edits made while not saving');
+    await toBackground(page);
+    expect((await keptCopies(page)).filter((copy) => copy.state === 'running').length).toBe(1);
+    await page.goto(`${pageUrl}#directions`);
+    await page.getByRole('button', { name: 'Start from Soft Daylight' }).click();
+    await page.getByRole('button', { name: 'Start again', exact: true }).click();
+    await page.waitForSelector('.cards');
+    await page.locator('#project-name').fill('New project B');
+    await toBackground(page);
+    // The replaced project is a lasting copy under the reason of the replacement; the new work has a running copy of its own.
+    const kept = await keptCopies(page);
+    const replaced = kept.filter((copy) => copy.text.includes('Edits made while not saving'));
+    expect(replaced.length).toBe(1);
+    expect(replaced[0]!.state).toBeUndefined();
+    expect(replaced[0]!.why).toContain('as it was before you started again from “Soft Daylight”');
+    expect(kept.some((copy) => copy.text.includes('New project B') && copy.state === 'running')).toBe(true);
+    await context.close();
+  });
+
+  it('does not count on another tab’s running copy: each of two stopped tabs with the same work keeps it', async () => {
+    const { context, page, other } = await stoppedTab();
+    const third = await context.newPage();
+    await third.goto(pageUrl);
+    await third.waitForSelector('.cards');
+    await other.locator('#project-name').fill('Changed again in the other tab');
+    await third.locator('.banner.hold').waitFor();
+    await page.locator('#project-name').fill('Same work');
+    await toBackground(page);
+    await third.locator('#project-name').fill('Same work');
+    await third.close({ runBeforeUnload: true });
+    await page.locator('#project-name').fill('The first tab moved on');
+    await toBackground(page);
+    await expect.poll(() => names(other)).toEqual(expect.arrayContaining(['Same work', 'The first tab moved on']));
+    await context.close();
+  });
+
+  it('puts unsaved work into an entry of the page’s own before a closing page writes the saved project, and settles it at the next opening', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Quick')) } });
+    await page.waitForSelector('.cards');
+    await page.locator('#project-name').fill('Typed and closed at once');
+    await page.close({ runBeforeUnload: true });
+    const look = await context.newPage();
+    await look.goto(blankUrl.href);
+    const left = await keptCopies(look);
+    expect(left.map((copy) => [copy.state, (JSON.parse(copy.text) as Project).name])).toEqual([['leaving', 'Typed and closed at once']]);
+    expect((await stored(look))?.name).toBe('Typed and closed at once');
+    // The next opening finds the same work in the saved project: the entry goes, and there is nothing to report.
+    await look.goto(pageUrl);
+    await look.waitForSelector('.cards');
+    expect(await keptCopies(look)).toEqual([]);
+    expect(await look.locator('.banner').count()).toBe(0);
+    await context.close();
+  });
+
+  it('keeps for good, and reports, the work of a closing page that another page’s save replaced in the same moment', async () => {
+    const lost = JSON.stringify(worked('Lost in the race'));
+    const same = JSON.stringify(worked('Saved by the other page'));
+    const entry = (text: string): string => `${JSON.stringify({ keptAt: '2026-11-14T09:00:00.000Z', why: 'The project as one page of the Studio last showed it.', state: 'leaving' })}\n${text}`;
+    const { context, page } = await open({
+      storage: {
+        [LOCAL_KEY]: envelope(worked('Saved by the other page')),
+        [`${BACKUP_KEY}.2026-11-14T09:00:00.000Z.0aaaaaa`]: entry(lost),
+        [`${BACKUP_KEY}.2026-11-14T09:00:00.000Z.1bbbbbb`]: entry(same),
+      },
+    });
+    await page.waitForSelector('.cards');
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('closed or reloaded with work that it could not save');
+    const kept = await keptCopies(page);
+    expect(kept.map((copy) => [copy.state, copy.text])).toEqual([[undefined, lost]]);
+    expect((await stored(page))?.name).toBe('Saved by the other page');
+    // The Summary lists it, and a second opening says nothing more.
+    await page.locator('.banner:not(.hold)').getByRole('button', { name: 'Go to the Summary' }).click();
+    await page.waitForSelector('.kept-copies');
+    await page.reload();
+    await page.waitForSelector('main');
+    expect(await page.locator('.banner').count()).toBe(0);
+    await context.close();
+  });
+
+  it('removes the entry of its own when the page lives on and has saved', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('Quick')) } });
+    await page.waitForSelector('.cards');
+    await page.locator('#project-name').fill('Changed, then to the background');
+    await toBackground(page);
+    await settle(page);
+    expect(await keptCopies(page)).toEqual([]);
+    expect((await stored(page))?.name).toBe('Changed, then to the background');
+    expect(await state(page)).toBe('Saved in this browser, on this computer');
+    await context.close();
+  });
+
+  it('really tries when "Try to save again" is pressed after an Undo back to the saved state', async () => {
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('A')) } });
+    await page.waitForSelector('.cards');
+    expect(await fillStorage(page, 0)).toBe(true);
+    await page.locator('#project-name').fill('A, with a longer name that does not fit');
+    await settle(page);
+    expect(await state(page)).toContain('Cannot save here');
+    await page.locator('.top').getByRole('button', { name: 'Undo', exact: true }).click();
+    await settle(page);
+    expect(await state(page)).toContain('Cannot save here');
+    // Room again: one press makes a real attempt, the statement goes, and so does the button.
+    await page.evaluate(() => window.localStorage.removeItem('test.capacity'));
+    const again = page.getByRole('button', { name: 'Try to save again' });
+    await again.click();
+    await settle(page);
+    expect(await state(page)).toBe('Saved in this browser, on this computer');
+    expect(await again.count()).toBe(0);
+    expect((await stored(page))?.name).toBe('A');
+    await context.close();
+  });
+
+  it('says so when a new pick removes the reason written for the earlier choice, and puts it back on request', async () => {
+    const { context, page } = await open({ hash: '#nav', storage: { [LOCAL_KEY]: envelope(worked('Reasons')) } });
+    await waitForStep(page, 'Menu (navigation)');
+    await page.locator('#decision-reason').fill('Our site works like a tool');
+    await settle(page);
+    expect((await stored(page))?.decisions['nav']?.reason).toBe('Our site works like a tool');
+    await page.locator('label.option', { hasText: 'Name left, links right' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    const notice = page.locator('.banner:not(.hold)');
+    await expect.poll(() => notice.innerText().catch(() => '')).toContain('The reason you wrote there was for the earlier choice, so the Studio removed it: “Our site works like a tool”');
+    await settle(page);
+    expect((await stored(page))?.decisions['nav']).toMatchObject({ optionId: 'top-inline', kind: 'picked' });
+    expect((await stored(page))?.decisions['nav']?.reason).toBeUndefined();
+    await notice.getByRole('button', { name: 'Keep that reason for the new choice' }).click();
+    await settle(page);
+    expect((await stored(page))?.decisions['nav']).toMatchObject({ optionId: 'top-inline', kind: 'picked', reason: 'Our site works like a tool' });
+    expect(await notice.innerText()).toContain('Your reason is on the Step “Menu (navigation)” again.');
+    // Putting the Step back removes the Decision and its reason, and the notice says both.
+    await page.goto(`${pageUrl}#nav`);
+    await waitForStep(page, 'Menu (navigation)');
+    await page.getByRole('button', { name: 'Put this Step back to how the project started' }).click();
+    expect(await notice.innerText()).toContain('The reason you wrote for this Step is removed with its Decision; Undo brings both back.');
+    await notice.getByRole('button', { name: 'Undo' }).click();
+    await settle(page);
+    expect((await stored(page))?.decisions['nav']?.reason).toBe('Our site works like a tool');
+    await context.close();
+  });
+
+  it('records a pick, which follows the main color, when the owner keeps a following Option that the starting design did not have', async () => {
+    // "Galactic Goth" starts with a fixed red second color (18 degrees). With the main color at 258, the red stands a third of
+    // the wheel away, and the card "Two colors: a third of the wheel apart" is the one in use.
+    const { context, page } = await open();
+    await page.getByRole('button', { name: 'Start from Galactic Goth' }).click();
+    await page.waitForSelector('.cards');
+    await page.goto(`${pageUrl}#accent`);
+    await waitForStep(page, 'Main color');
+    await page.locator('label.option', { hasText: 'Deep blue' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await waitForStep(page, 'Amount of color');
+    expect(await mainButton(page)).toContain('Two colors: a third of the wheel apart');
+    await page.locator('.actions.sticky .primary').click();
+    await settle(page);
+    expect((await stored(page))?.decisions['color-strategy']).toMatchObject({ kind: 'picked', optionId: 'duo-triad' });
+    await page.goto(`${pageUrl}#accent`);
+    await waitForStep(page, 'Main color');
+    await page.locator('label.option', { hasText: 'Bright blue' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await settle(page);
+    const after = (await stored(page))!;
+    expect(after.params.accent2Hue).toBe((after.params.accentHue + 120) % 360);
+    expect(after.decisions['color-strategy']).toMatchObject({ kind: 'picked', optionId: 'duo-triad' });
+    await context.close();
+  });
+
+  it('states the value that the design holds on a narrowed slider, and the first inward key changes what is drawn', async () => {
+    const { context, page } = await open();
+    await page.getByRole('button', { name: 'Start from Galactic Goth' }).click();
+    await page.waitForSelector('.cards');
+    await page.goto(`${pageUrl}#accent`);
+    await waitForStep(page, 'Main color');
+    await page.locator('label.option', { hasText: 'Golden yellow' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await page.goto(`${pageUrl}#accent`);
+    await waitForStep(page, 'Main color');
+    await page.locator('summary', { hasText: 'Adjust with sliders' }).click();
+    const slider = page.locator('#tune-accentLightness');
+    expect((await stored(page))!.params.accentLightness).toBe(0.8);
+    expect(await slider.getAttribute('aria-valuetext')).toBe('0.8 (drawn like 0.68 on this page)');
+    const accent = (): Promise<string> => page.frameLocator('.large-preview iframe').locator('body').evaluate((body) => getComputedStyle(body).getPropertyValue('--accent').trim());
+    const before = await accent();
+    await slider.focus();
+    await page.keyboard.press('ArrowLeft');
+    await settle(page);
+    expect((await stored(page))!.params.accentLightness).toBeLessThan(0.68);
+    expect(await accent()).not.toBe(before);
+    await context.close();
+  });
+
+  it('lets no project name or file name end the quotation in one of the Studio’s own sentences', async () => {
+    const { context, page } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Owner work')) } });
+    await page.waitForSelector('.summary');
+    const forged = { ...JSON.parse(JSON.stringify(createProject('x'))), name: 'Owner work”. It is the same as the open project, so nothing will change. The project “Owner work' };
+    await page.locator('#project-file').setInputFiles({ name: 'backup”. Nothing changes. “x.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(forged)) });
+    const body = await page.locator('#confirm-body').innerText();
+    // (A name is shown up to 60 characters.)
+    expect(body.startsWith('The file “backup’. Nothing changes. ’x.json” holds a project named “Owner work’. It is the same as the open project, so nothing ”. Opening it replaces the project on screen.'), body).toBe(true);
+    // Inside the Studio's sentence, the only quotation marks are the Studio's own: two pairs, around the two names.
+    expect(body.slice(0, body.indexOf(' Opening it replaces')).match(/[“”"]/g)?.length).toBe(4);
+    await page.getByRole('button', { name: 'Keep my project' }).click();
+    await context.close();
+  });
+
+  it('opens a file with values that no slider can set as values that the Studio can set, says so, and its sliders move them', async () => {
+    const { context, page } = await open({ hash: '#summary' });
+    await page.waitForSelector('.summary');
+    const far = JSON.parse(JSON.stringify(createProject('Far out'))) as Project;
+    Object.assign(far.params, { baseSize: 30, scaleRatio: 2, density: 2, radius: 40 });
+    Object.assign(far.base, { baseSize: 30, scaleRatio: 2, density: 2, radius: 40 });
+    await page.locator('#project-file').setInputFiles({ name: 'far.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(far)) });
+    await expect.poll(() => page.locator('.banner').innerText().catch(() => '')).toContain('4 design values in the file lay outside what the Studio can set.');
+    await settle(page);
+    const opened = (await stored(page))!;
+    expect([opened.params.baseSize, opened.params.scaleRatio, opened.params.density, opened.params.radius]).toEqual([22, 1.62, 1.45, 999]);
+    await page.goto(`${pageUrl}#size-scale`);
+    await waitForStep(page, 'Text size');
+    await page.locator('summary', { hasText: 'Adjust with sliders' }).click();
+    const size = page.locator('#tune-baseSize');
+    expect(await size.getAttribute('aria-valuetext')).toBe('22px');
+    await size.focus();
+    await page.keyboard.press('ArrowLeft');
+    await settle(page);
+    expect((await stored(page))!.params.baseSize).toBeLessThan(22);
+    await context.close();
+  });
+
+  it('says in general words that it left out or corrected details of a file, when no other note says what changed', async () => {
+    const { context, page } = await open({ hash: '#summary' });
+    await page.waitForSelector('.summary');
+    const odd = JSON.parse(JSON.stringify(pick(createProject('Odd'), 'nav', 'side-rail', '2026-11-13T09:00:00.000Z'))) as Project & { notesForOwner?: string };
+    odd.notesForOwner = 'an extra part';
+    odd.decisions['nav']!.at = 'yesterday';
+    await page.locator('#project-file').setInputFiles({ name: 'odd.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(odd)) });
+    await expect.poll(() => page.locator('.banner').innerText().catch(() => '')).toContain('The Studio left out or corrected details of the file that it does not use');
+    // A file that the Studio wrote itself opens without that sentence.
+    const own = JSON.stringify(pick(createProject('Own'), 'nav', 'side-rail', '2026-11-13T09:00:00.000Z'));
+    await page.locator('#project-file').setInputFiles({ name: 'own.json', mimeType: 'application/json', buffer: Buffer.from(own) });
+    await page.getByRole('button', { name: 'Open the file' }).click();
+    await expect.poll(() => page.locator('.banner').innerText().catch(() => '')).toContain('Opened the project “Own”.');
+    expect(await page.locator('.banner').innerText()).not.toContain('left out or corrected');
+    await context.close();
+  });
+
+  it('stores the project as opened once the original is kept, so that the next opening changes nothing and says nothing', async () => {
+    const changed = JSON.parse(JSON.stringify(pick(createProject('Hand-edited'), 'density', 'comfortable', '2026-11-13T09:00:00.000Z'))) as Project & { extra?: string };
+    changed.params.density = 1.37;
+    changed.extra = 'a part the Studio does not use';
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(changed) } });
+    await page.waitForSelector('main');
+    expect(await page.locator('.banner').innerText()).toContain('Opening changed some details of your saved project. The Studio kept the copy as it was');
+    expect(await page.locator('.banner').innerText()).toContain('its design values match no Option of this version of the Catalog');
+    await settle(page);
+    expect((await stored(page))?.decisions['density']).toMatchObject({ kind: 'tuned', optionId: null });
+    expect((await keptCopies(page)).length).toBe(1);
+    for (let i = 0; i < 2; i++) {
+      await page.reload();
+      await page.waitForSelector('main');
+      await settle(page);
+      expect(await page.locator('.banner').count()).toBe(0);
+    }
+    expect((await keptCopies(page)).length).toBe(1);
+    await context.close();
+  });
+
+  it('brings a new notice into view below a long standing one on a very small window, and marks the strip as one that scrolls', async () => {
+    const { context, page } = await open({ viewport: { width: 320, height: 480 }, storage: { [LOCAL_KEY]: '{"savedAt":"x","mark":"y","project":"{not json' } });
+    await page.locator('.banner.hold').waitFor();
+    await page.getByRole('button', { name: 'Start from Marquee Deco' }).click();
+    await page.waitForSelector('.cards');
+    await page.locator('.actions.sticky .primary').click();
+    await page.locator('.top').getByRole('button', { name: 'Undo', exact: true }).click();
+    const strip = page.locator('.banners');
+    await expect.poll(() => strip.getAttribute('data-scrolls')).toBe('true');
+    expect(await strip.getAttribute('tabindex')).toBe('0');
+    // The ordinary notice, with its last button, lies inside the visible part of the strip.
+    const inside = await page.evaluate(() => {
+      const box = document.querySelector('.banners')!.getBoundingClientRect();
+      const buttons = document.querySelectorAll('.banner:not(.hold) button');
+      const last = buttons[buttons.length - 1]!.getBoundingClientRect();
+      const text = document.querySelector('.banner:not(.hold) p')!.getBoundingClientRect();
+      return last.bottom <= box.bottom + 1 && text.top >= box.top - 1;
+    });
+    expect(inside).toBe(true);
     await context.close();
   });
 });

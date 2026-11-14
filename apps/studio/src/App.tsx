@@ -4,7 +4,7 @@ import {
 } from '@refraction/core';
 import { Component, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
-import { copyText, fileNameFor, probePreviews, readBackups, removeBackup, saveFile, type KeptCopy } from './platform';
+import { copyText, fileNameFor, probePreviews, readBackups, removeBackup, saveFile, storedProjectText, type KeptCopy } from './platform';
 import { LargePreview, Thumbnail, mockupHtml, tokensFor } from './preview';
 import { CURRENT, DEVICE_WIDTH, appliedCardId, directionName, paramsForCard, stepOf, useStudio, type Device, type StudioState } from './store';
 import { STUDIO_PARAMS, applyStudioTheme, installSpecimenFonts } from './theme';
@@ -58,7 +58,11 @@ const WHEEL = [0, 60, 120, 180, 240, 300].map(hueName).filter((name, i, all) => 
 function sliderValue(t: Tunable, raw: number): string {
   if (String(t.key).toLowerCase().includes('hue')) return `${Math.round(raw)}° (${hueName(raw)})`;
   if (t.key === 'radius' && raw > t.max) return 'fully round';
-  return `${Number(Math.min(raw, t.max).toFixed(3))}${t.unit ?? ''}`;
+  // The text states the value that the design holds. Where the slider's range is narrowed to the part that changes the
+  // picture, a value beyond its end is drawn like the end, and the text says so (it used to state the end as the value).
+  const stated = `${Number(raw.toFixed(3))}${t.unit ?? ''}`;
+  if (raw > t.max || raw < t.min) return `${stated} (drawn like ${Number((raw > t.max ? t.max : t.min).toFixed(3))}${t.unit ?? ''} on this page)`;
+  return stated;
 }
 
 /** The standard Option whose values lie nearest to the design's values, for a Step with sliders. */
@@ -213,9 +217,22 @@ function NoticeBar(): React.JSX.Element | null {
   // Each new notice gets a number, also when its words equal those of the notice before (two Undo steps on one Step say the
   // same sentence). The paragraph is then put on the page afresh, so that a screen reader announces it again ("screen 8").
   const number = useMemo(() => ++noticesShown, [notice]);
+  // On a small window the notices have a strip of limited height that scrolls by itself. A new notice below a long standing
+  // one was then cut through the middle, with its buttons out of sight (campaign 4, round 3). The strip brings each new
+  // notice into view, and it is a keyboard stop with a name, so that its scrolling can be found and used.
+  const strip = useRef<HTMLDivElement | null>(null);
+  const newest = useRef<HTMLDivElement | null>(null);
+  const [scrolls, setScrolls] = useState(false);
+  useEffect(() => {
+    const el = strip.current;
+    if (!el) return;
+    const overflows = el.scrollHeight > el.clientHeight + 1;
+    setScrolls(overflows);
+    if (overflows && newest.current) el.scrollTop = Math.max(0, newest.current.offsetTop + newest.current.offsetHeight - el.clientHeight);
+  }, [number, hold, notice]);
   if (!notice && !hold) return null;
   return (
-    <div className="banners">
+    <div className="banners" ref={strip} data-scrolls={scrolls || undefined} {...(scrolls ? { tabIndex: 0, role: 'group', 'aria-label': 'Notices (this strip scrolls)' } : {})}>
       {/* A notice that needs a decision has its own row. It has no "Dismiss", and no other notice replaces it. */}
       {hold && (
         <div className="banner hold" role={hold.urgent ? 'alert' : 'status'}>
@@ -226,7 +243,7 @@ function NoticeBar(): React.JSX.Element | null {
         </div>
       )}
       {notice && (
-        <div className="banner" role={notice.urgent ? 'alert' : 'status'}>
+        <div className="banner" ref={newest} role={notice.urgent ? 'alert' : 'status'}>
           <p key={number}>{notice.text}</p>
           <div className="banner-actions">
             {notice.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={() => pressed(action.run)}>{action.label}</button>)}
@@ -424,7 +441,7 @@ function ReasonField({ stepId }: { stepId: string }): React.JSX.Element | null {
           lost keyboard focus: Enter, a reload, or the browser's Back button then lost the text, and Back could even store it
           on another Step (code review of 2026-11-13, findings "screen 4" and "gaps 0"). */}
       <input id="decision-reason" type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => { setText(e.target.value); save(stepId, e.target.value); }} />
-      <small>Your reason is saved in the project file. A later version of the Studio will pass it to the AI coding tool that builds your site.</small>
+      <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved in the project file; a later version of the Studio will pass it to the AI coding tool that builds your site.</small>
     </label>
   );
 }
@@ -753,7 +770,11 @@ function SummaryView(): React.JSX.Element {
   // The list is read again after a notice (every action that keeps a copy posts one), after a removal, and when the owner
   // comes back to this tab (another tab may have kept a copy). It is not read on every change of the save status: that read
   // and redrew the whole list twice for each typed letter (code review, finding "saving 8").
-  const keptCopies = useMemo(() => readBackups(), [s.notice, s.hold, keptTick]);
+  // A copy that a closing page left, and that holds exactly the saved project, is not listed: the next opening removes it.
+  const keptCopies = useMemo(() => {
+    const saved = storedProjectText();
+    return readBackups().filter((copy) => !(copy.state === 'leaving' && copy.text === saved));
+  }, [s.notice, s.hold, keptTick]);
   useEffect(() => {
     const again = (): void => setKeptTick((n) => n + 1);
     window.addEventListener('focus', again);
