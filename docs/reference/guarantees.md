@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.1. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
+Version 1.2. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
 
 Stale-after: 90
 
@@ -21,6 +21,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - When another tab changed the project, the Studio stops saving and says so. §10.06
 - A notice that needs your answer stays on screen until you answer. §10.07
 - A tab that is not saving keeps its unsaved work as a copy when it reloads or closes. §10.08
+- A tab never takes another tab's save for its own. §10.09
+- Nothing is saved before the saved project is open. §10.10
+- A copy that the page's database hands over late is kept before any save can replace it. §10.11
 - A saved project loads back exactly as it was saved. §20.01
 - The Studio refuses a file that is not a project, in fixed words that repeat nothing from the file. §20.02
 - The Mockup contains no script, no event handler, and no outside address. §30.01
@@ -30,8 +33,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - "Fix for me" says "repaired" only for a pair that now passes. §40.03
 - The Studio never calls its output "WCAG compliant", "ADA compliant", or "accessible". §40.04
 - Every Decision stays true to the design. §50.01
+- A card shows exactly the design that picking it gives. §50.04
 - A trade word appears only inside round brackets. §60.01
 - No look changes by accident. §70.02
+- Every browser test fails when the page meets an error. §70.04
 
 ## [02] Contents
 
@@ -43,10 +48,13 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [10.02 The Studio never saves over a copy that it could not keep, until the owner decides](#1002-the-studio-never-saves-over-a-copy-that-it-could-not-keep-until-the-owner-decides)
   - [10.03 The Studio never replaces a kept copy; each new kept copy joins the list](#1003-the-studio-never-replaces-a-kept-copy-each-new-kept-copy-joins-the-list)
   - [10.04 The Studio never overwrites a saved project that it cannot read](#1004-the-studio-never-overwrites-a-saved-project-that-it-cannot-read)
-  - [10.05 The Studio asks before a replace action, and Undo brings the work back](#1005-the-studio-asks-before-a-replace-action-and-undo-brings-the-work-back)
+  - [10.05 The Studio asks before a replace action, and Undo brings the work back within its stated reach](#1005-the-studio-asks-before-a-replace-action-and-undo-brings-the-work-back-within-its-stated-reach)
   - [10.06 When another tab changed the project, the Studio stops saving and says so](#1006-when-another-tab-changed-the-project-the-studio-stops-saving-and-says-so)
   - [10.07 A notice that needs the owner's answer stays on screen until the owner answers](#1007-a-notice-that-needs-the-owners-answer-stays-on-screen-until-the-owner-answers)
   - [10.08 A tab that is not saving keeps its unsaved work as a copy when it reloads or closes](#1008-a-tab-that-is-not-saving-keeps-its-unsaved-work-as-a-copy-when-it-reloads-or-closes)
+  - [10.09 A tab never takes another tab's save for its own](#1009-a-tab-never-takes-another-tabs-save-for-its-own)
+  - [10.10 Nothing is saved before the saved project is open](#1010-nothing-is-saved-before-the-saved-project-is-open)
+  - [10.11 A copy that the page's database hands over late is kept before any save can replace it](#1011-a-copy-that-the-pages-database-hands-over-late-is-kept-before-any-save-can-replace-it)
 - [20 Project files](#20-project-files)
   - [20.01 A saved project loads back exactly as it was saved](#2001-a-saved-project-loads-back-exactly-as-it-was-saved)
   - [20.02 The Studio refuses a file that is not a project, in fixed words](#2002-the-studio-refuses-a-file-that-is-not-a-project-in-fixed-words)
@@ -57,16 +65,19 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [30.02 Text from a project is drawn as text, never as markup](#3002-text-from-a-project-is-drawn-as-text-never-as-markup)
   - [30.03 Each preview sits in a locked frame](#3003-each-preview-sits-in-a-locked-frame)
   - [30.04 The Studio sends no request to any outside address](#3004-the-studio-sends-no-request-to-any-outside-address)
-  - [30.05 The Mockup fits a phone at every setting, and the headline stays the largest text](#3005-the-mockup-fits-a-phone-at-every-setting-and-the-headline-stays-the-largest-text)
+  - [30.05 The Mockup fits the window at every setting, and the headline stays the largest text](#3005-the-mockup-fits-the-window-at-every-setting-and-the-headline-stays-the-largest-text)
 - [40 Colors and contrast](#40-colors-and-contrast)
   - [40.01 The Studio writes every color as exact digits](#4001-the-studio-writes-every-color-as-exact-digits)
   - [40.02 A color pair that the Studio calls passing passes when a browser draws it](#4002-a-color-pair-that-the-studio-calls-passing-passes-when-a-browser-draws-it)
   - [40.03 "Fix for me" says "repaired" only for a pair that now passes](#4003-fix-for-me-says-repaired-only-for-a-pair-that-now-passes)
+  - [40.05 A button is drawn with the colors that the contrast check measures](#4005-a-button-is-drawn-with-the-colors-that-the-contrast-check-measures)
   - [40.04 The Studio never calls its output compliant or accessible](#4004-the-studio-never-calls-its-output-compliant-or-accessible)
 - [50 Decisions and Directions](#50-decisions-and-directions)
   - [50.01 Every Decision stays true to the design](#5001-every-decision-stays-true-to-the-design)
   - [50.02 A Step changes only the values that it owns](#5002-a-step-changes-only-the-values-that-it-owns)
   - [50.03 No Direction starts with choices that pull against each other](#5003-no-direction-starts-with-choices-that-pull-against-each-other)
+  - [50.04 A card shows exactly the design that picking it gives](#5004-a-card-shows-exactly-the-design-that-picking-it-gives)
+  - [50.05 A value follows another value only when the starting design or the owner's pick says so](#5005-a-value-follows-another-value-only-when-the-starting-design-or-the-owners-pick-says-so)
 - [60 The Studio's words](#60-the-studios-words)
   - [60.01 A trade word appears only inside round brackets](#6001-a-trade-word-appears-only-inside-round-brackets)
   - [60.02 Every Step says where its guidance comes from and how well it is known](#6002-every-step-says-where-its-guidance-comes-from-and-how-well-it-is-known)
@@ -74,6 +85,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [70.01 The shared core holds no React import and no browser API](#7001-the-shared-core-holds-no-react-import-and-no-browser-api)
   - [70.02 No look changes by accident](#7002-no-look-changes-by-accident)
   - [70.03 Every dependency is pinned to an exact version that is at least 7 days old](#7003-every-dependency-is-pinned-to-an-exact-version-that-is-at-least-7-days-old)
+  - [70.04 Every browser test fails when the page meets an error](#7004-every-browser-test-fails-when-the-page-meets-an-error)
+  - [70.05 No source file uses a way to turn text into markup](#7005-no-source-file-uses-a-way-to-turn-text-into-markup)
 - [80 Glossary](#80-glossary)
 - [85 Changelog](#85-changelog)
 - [90 Sources](#90-sources)
@@ -119,8 +132,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 <!-- index: kept copy -->
 
-- **Rule.** A kept copy stays until the owner removes it; the list of kept copies has no upper limit. [S1 at D36]
-- **Test.** "never replaces a copy it kept earlier: each new kept copy joins the others (finding S2-01)"; "hands over a kept copy character for character, and removes exactly one copy (findings S3-03, S3-04, S3-05)". [S3]
+- **Rule.** A kept copy stays until the owner removes it; each kept copy has a storage entry of its own, written in one step, and the list of kept copies has no upper limit. [S1 at D46]
+- **Exceptions.** A tab that is not saving keeps one running copy of its growing work: each new copy of that kind takes the place of the tab's own earlier one (§10.08).
+- **Test.** "never replaces a copy it kept earlier: each new kept copy joins the others (finding S2-01)"; "hands over a kept copy character for character, and removes exactly one copy (findings S3-03, S3-04, S3-05)"; "gives each kept copy a storage entry of its own, written once, and never rewrites a shared list (finding F-10)"; "keeps both copies when two tabs that are not saving close in the same moment (finding F-10)". [S3]
+- **Examples.** Before 2026-11-13 all kept copies sat in one list. Two tabs that kept a copy in the same moment each rewrote that list, and one copy replaced the other in 2 of 10 trials (campaign 4, finding F-10).
 - **Policy.** A safety copy that the next safety copy overwrites protects one mistake only.
 - **Open.** Because the list has no limit, kept copies can fill storage; §10.02 then applies. The owner frees room on the Summary.
 - Last verified: 2026-11-13
@@ -134,12 +149,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "never overwrites a saved project that it cannot read, and offers it as a download (findings SEC-03, P-05)"; "really replaces an unreadable copy once the person chooses to discard it, even when storage is full (finding S3-02)".
 - Last verified: 2026-11-13
 
-### [10.05] The Studio asks before a replace action, and Undo brings the work back
+### [10.05] The Studio asks before a replace action, and Undo brings the work back within its stated reach
 
 <!-- index: replace action | start again; new project; undo -->
 
-- **Rule.** Before an opened file, a new Direction, or a new project replaces work, the Studio asks, says everything that is cleared, and keeps a copy; Undo brings the work back. [S3]
-- **Test.** "asks before a file replaces work, and Undo brings the work back (findings FTU-25, SEC-06)"; "asks before a new Direction or a new project clears Decisions, and says everything that is cleared (findings FTU-24, FTU-41)"; "keeps the project that "Start again" replaces, so that it survives a reload (finding U2-01)".
+- **Rule.** Before an opened file, a new Direction, or a new project replaces work, the Studio asks, says everything that is cleared, and keeps a copy; Undo brings the work back as long as it is among the last 100 Undo steps, and only until the page closes or reloads. [S1 at D47]
+- **Elements.** A run of small changes of one kind (typing a name, typing a reason, moving one slider) within 1.5 seconds is one Undo step.
+- **Test.** "asks before a file replaces work, and Undo brings the work back (findings FTU-25, SEC-06)"; "asks before a new Direction or a new project clears Decisions, and says everything that is cleared (findings FTU-24, FTU-41)"; "keeps the project that "Start again" replaces, so that it survives a reload (finding U2-01)"; "counts a run of typing or of slider presses as one Undo step, and states how far Undo reaches (finding F-11)". [S3]
+- **Examples.** Before 2026-11-13 the dialogs promised Undo "until you close or reload this page", Undo remembered 40 steps, and each typed letter was a step: 45 typed letters put a replaced project out of Undo's reach (campaign 4, finding F-11).
+- **Open.** When the 101st step pushes the oldest one out, the Studio does not say so at that moment; the dialogs state the limit beforehand.
 - Last verified: 2026-11-13
 
 ### [10.06] When another tab changed the project, the Studio stops saving and says so
@@ -164,11 +182,39 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ### [10.08] A tab that is not saving keeps its unsaved work as a copy when it reloads or closes
 
-<!-- index: unsaved work | closing a tab; leaving the page; see also: kept copy -->
+<!-- index: unsaved work | closing a tab; leaving the page; running copy; see also: kept copy -->
 
-- **Rule.** When a tab that is not saving reloads or closes, the Studio keeps the tab's unsaved work as a kept copy; when it can neither save nor keep the work, the browser asks its own "leave this page?" question. [S1 at D44]
-- **Test.** "keeps unsaved work as a copy when a tab that is not saving closes or reloads". [S3]
+- **Rule.** When a tab that is not saving reloads, closes, or goes to the background, the Studio keeps the tab's unsaved work as one running copy; when it can neither save nor keep the work, the browser asks its own "leave this page?" question, and the next opening says that a copy was kept. [S1 at D44]
+- **Test.** "keeps unsaved work as a copy when a tab that is not saving closes or reloads"; "keeps one running copy for a tab that is not saving, however often the tab goes to the background (finding "saving 7")"; "keeps a tab’s copy before a reload even when the project has only a name (retest of finding F-2)". [S3]
 - **Open.** No automatic test covers the browser's own "leave this page?" question; the test browser answers it by itself. A browser may also close a tab without running the page's last code (for example when it crashes); the copy is then not kept.
+- Last verified: 2026-11-13
+
+### [10.09] A tab never takes another tab's save for its own
+
+<!-- index: save mark | same millisecond; see also: two tabs -->
+
+- **Rule.** Every save carries a mark that no other save has; a tab that finds another mark in storage stops saving, also when the save time is the same, and it looks at storage whenever the owner comes back to it and before it closes. [S1 at D46]
+- **Test.** "takes a save with the same save time but another mark for another tab’s save, and stops saving (finding F-12)"; "notices another tab’s save when the owner comes back to the tab, even if no storage event arrived (finding F-12)". [S3]
+- **Examples.** Before 2026-11-13 tabs told saves apart by the save time alone. Two tabs that saved within one millisecond wrote the same time; both said "Saved", and one tab's work was lost in about 1 of 3 same-instant trials (campaign 4, finding F-12). After the fix, the attacker's own scripts showed no loss in 64 same-instant trials.
+- **Open.** The 64 trials ran in one browser on one machine. A page restored from the browser's back-forward cache is covered by the look at storage, and no test restores such a page (the test browser never did).
+- Last verified: 2026-11-13
+
+### [10.10] Nothing is saved before the saved project is open
+
+<!-- index: opening | placeholder project; slow page database; see also: saving -->
+
+- **Rule.** Until the saved project is open, the Studio commits no change, saves nothing, and keeps no copy; the name field and the "Contrast checks" list are switched off until then. [S3]
+- **Test.** "saves nothing while the saved project is still opening: leaving, a tab switch, and typing change no copy (finding "saving 0")"; the test fails when the guard is taken out (checked on 2026-11-13).
+- **Examples.** Before 2026-11-13, while the page's database had not answered yet, a tab switch, a reload, or typing wrote an empty placeholder project over the saved one (code review of 2026-11-13, area "saving", finding 0, graded high).
+- Last verified: 2026-11-13
+
+### [10.11] A copy that the page's database hands over late is kept before any save can replace it
+
+<!-- index: late copy | page database; newer copy; see also: kept copy -->
+
+- **Rule.** When the first read of the page's database fails and a later read finds a copy that differs from the open project or cannot be read, the Studio keeps that copy first; if it cannot keep it, it stops saving until the owner decides. [S3]
+- **Test.** "keeps a copy that the page database hands over late, before any save can replace it (findings "saving 2" and "gaps 3")"; "says "Saved in this browser" when a write to the page database never answers, and goes on saving (finding "saving 3")"; "opens the browser copy when the page has a runtime that cannot hand out a database (finding "saving 1")".
+- **Open.** Every test uses a stand-in for the page's database. No automatic test opens the real private page.
 - Last verified: 2026-11-13
 
 ## [20] Project files
@@ -246,14 +292,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Exceptions.** On the private page, the page's own database receives the project (§10.01); that request goes to the page's host, not to a third party.
 - Last verified: 2026-11-13
 
-### [30.05] The Mockup fits a phone at every setting, and the headline stays the largest text
+### [30.05] The Mockup fits the window at every setting, and the headline stays the largest text
 
 <!-- index: phone width | overflow; narrow screen; heading size; see also: Mockup -->
 
-- **Rule.** At a width of 375 pixels, no Direction, no Option of the Steps that change sizes and layout, and no slider end makes the Mockup wider than the screen; and the main headline is never smaller than the opening paragraph. [S4]
-- **Test.** "never makes the page wider than a phone, whatever the Direction, the type Options, or the slider ends"; "never draws the main headline smaller than the reading text, at phone and desktop widths".
-- **Exceptions.** The test changes one Step at a time from each Direction, plus all sliders at their lowest and all at their highest. It does not try every combination of Options.
-- **Open.** Measured in Chromium, at 375 pixels and 1280 pixels only.
+- **Rule.** At widths of 320, 375, 860, 1024, and 1280 pixels, no Direction, no Option of the Steps that change sizes, and no slider end makes the Mockup wider than the window; and the main headline is larger than the opening paragraph and than every section heading at 375, 768, and 1280 pixels. [S4]
+- **Test.** "never makes the page wider than a phone, whatever the Direction, the type Options, or the slider ends"; "fits the window at other widths as well: a small phone, the width at which two columns begin, and wider (code review of 2026-11-13, finding "tokens 4")"; "keeps the main headline the largest text: above the reading text and above every section heading, at phone, tablet, and desktop widths"; "shows the telephone number in the contact part on a phone, whatever the menu (code review of 2026-11-13, finding "tokens 1")".
+- **Exceptions.** The tests change one Step at a time from each Direction, plus all sliders at their lowest and all at their highest. They do not try every combination of Options.
+- **Open.** Measured in Chromium only, at the named widths only.
 - Last verified: 2026-11-13
 
 ## [40] Colors and contrast
@@ -282,6 +328,16 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **Rule.** Under "Fix for me", the Studio reports a pair as repaired only when the pair now meets its requirement, and it gives the ratio before and after. [S5]
 - **Test.** "Enforce says "repaired" only for a pair that now passes, and gives the ratio before and after"; "never lowers the contrast of a pair that Enforce reports on".
+- Last verified: 2026-11-13
+
+### [40.05] A button is drawn with the colors that the contrast check measures
+
+<!-- index: drawn color | gloss button; gradient; see also: contrast check -->
+
+- **Rule.** The button's label, its flat fill, and an outline button's line are drawn with exactly the measured colors, and a gloss button's fill is drawn so that no point of it has less contrast with the label than the measured figure. [S5]
+- **Test.** "draws a gloss button so that no point of its fill has less contrast with the label than the measured figure (finding "tokens 0")"; "draws with the same colors that the contrast pairs measure (finding "tokens 6")".
+- **Exceptions.** The colors of a button while the pointer is over it or while it is pressed are not checked; the Studio lists that limit on screen. The fine grain texture darkens the whole page a little, and the checks do not measure that; the Studio lists that limit too.
+- **Open.** The same tie is not yet tested for boxes, the top bar, and the highlighter stroke (code review of 2026-11-13, area "tokens", finding 6, fixed in part).
 - Last verified: 2026-11-13
 
 ### [40.04] The Studio never calls its output compliant or accessible
@@ -321,6 +377,24 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "has 18 curated Directions, each a complete, valid, conflict-free design with record fields"; "keeps the curated Directions clearly different from each other"; "never offers a generated Direction whose own choices pull against each other, over 60 seeds (decision D23)".
 - Last verified: 2026-11-13
 
+### [50.04] A card shows exactly the design that picking it gives
+
+<!-- index: card | preview of an Option; small variation; see also: Decision -->
+
+- **Rule.** The picture of a card is drawn from the same design that the pick produces, including a second color that follows the main color. [S9]
+- **Test.** "previews exactly the design that the pick gives, for every Direction, Step, and Option (code review, finding "gaps 1")".
+- **Examples.** Before 2026-11-13 a card for a new main color showed the old second color; after the pick, the band had another color than the card had shown (on "Sticker Pop", for 12 of 12 cards).
+- Last verified: 2026-11-13
+
+### [50.05] A value follows another value only when the starting design or the owner's pick says so
+
+<!-- index: following value | second color; opposite colors; see also: Decision -->
+
+- **Rule.** A second color follows the main color when the Direction's starting design matches a following Option, or when the owner picked such an Option; a fixed second color stays fixed, also when it matches a following Option for one moment, and a second color that the owner set by hand never moves. [S1 at D49]
+- **Test.** "never lets a fixed second color start to follow the main color by coincidence (code review, finding "engine 1")"; "keeps "Two colors, opposite" opposite when the accent changes later"; "never moves a hand-set second color, even one that lands exactly on a following Option (finding T3-12)". [S9]
+- **Examples.** "Galactic Goth" has a fixed red second color. Before 2026-11-13, picking the main color "Deep blue" and then another color turned the red into a pink.
+- Last verified: 2026-11-13
+
 ## [60] The Studio's words
 
 ### [60.01] A trade word appears only inside round brackets
@@ -354,10 +428,12 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ### [70.02] No look changes by accident
 
-<!-- index: stored picture | baseline; visual test; screenshot -->
+<!-- index: stored picture | baseline; visual test; screenshot; measured style -->
 
-- **Rule.** Each curated Direction, and the plain start, has two stored pictures; a change that alters a drawn look fails the comparison until someone stores a new picture on purpose. [S1 at D8]
-- **Test.** The group "Mockup: no look changes by accident (decision D8)" in `visual.e2e.ts`: 38 comparisons and 1 check that the comparison would notice a changed look. [S4]
+- **Rule.** Each curated Direction, and the plain start, has three stored pictures (the top, the services, the contact part) and a stored record of the measured style of its main parts; a change that alters a drawn look fails the comparison until someone stores the new state on purpose. [S1 at D8]
+- **Test.** The group "Mockup: no look changes by accident (decision D8)" in `visual.e2e.ts`: 57 picture comparisons; "keeps the measured style of the main parts of every Direction: corners, lines, shadows, colors, sizes, letters"; "would notice a changed look: one Direction against another fails the comparison"; "would notice square corners in place of round ones, which the pictures alone would let pass". [S4]
+- **Exceptions.** A picture is compared in a shrunk form with limits, so that different machines agree; a small local change can stay under the limits (a review found that 46 of 192 one-Option changes did). The measured-style record is compared exactly and catches such changes for the twelve parts and fifteen values that it holds.
+- **Open.** The measured-style record covers the top of the page of each Direction as it starts; it does not cover every Option.
 - Last verified: 2026-11-13
 
 ### [70.03] Every dependency is pinned to an exact version that is at least 7 days old
@@ -367,6 +443,26 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Rule.** The project pins exact dependency versions, records a check of each direct dependency, and adopts a version only 7 days or more after its release. [S1 at D27]
 - **Policy.** Hard rule 7. [S10 at hard rule 7]
 - **Open.** Registry signatures are unverified in this environment (stated in `DECISIONS.md`). No automatic test enforces the 7-day wait.
+- Last verified: 2026-11-13
+
+### [70.04] Every browser test fails when the page meets an error
+
+<!-- index: page error | uncaught error; console error; see also: stored picture -->
+
+- **Rule.** After each browser test of the Studio, no session that the test opened may have met an error on the page. [S3]
+- **Test.** The `afterEach` check at the top of `studio.e2e.ts`.
+- **Examples.** Before 2026-11-13 only 12 of 56 sessions kept the list of page errors and 6 assertions read it.
+- **Open.** The Mockup's own browser tests draw pages without script, so they have no such check.
+- Last verified: 2026-11-13
+
+### [70.05] No source file uses a way to turn text into markup
+
+<!-- index: text as text | innerHTML; lint rule; see also: hostile text -->
+
+- **Rule.** No source file of the core or of the Studio holds one of the names by which text becomes markup, and a frame's document text is set in exactly three known places. [S8]
+- **Test.** "uses none of the ways to turn text into markup, in any source file of the core or of the Studio"; the lint rule in `eslint.config.js`.
+- **Policy.** Hard rule 6. [S10 at hard rule 6]
+- **Open.** A name that is put together from pieces while the page runs escapes the lint rule and the test alike.
 - Last verified: 2026-11-13
 
 ## [80] Glossary
@@ -383,6 +479,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [85] Changelog
 
 - 2026-11-13 v1.0: created with 25 guarantees.
+- 2026-11-13 v1.2: after the retest round and the code review: added §10.09, §10.10, §10.11, §40.05, §50.04, §50.05, §70.04, §70.05; §10.03, §10.05, §10.08, §30.05, and §70.02 now state the changed behavior and tests. 37 guarantees.
 - 2026-11-13 v1.1: after campaign 4, added §10.07, §10.08, §20.04, and §30.05; §10.06 now covers both buttons; §30.03 states the campaign's result. 29 guarantees.
 
 ## [90] Sources
@@ -401,15 +498,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.07, §10.08, §40.01, §60.01, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §40.01, §50.05, §60.01, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04
-- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §20.02, §20.03, §30.02, §30.03, §30.04, §60.01
+- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §20.02, §20.03, §30.02, §30.03, §30.04, §60.01, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §70.02
-- [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.04
+- [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.05, §40.04
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03
-- [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §60.01, §60.02
-- [S9] The builder, *Unit tests of the engine*, file `packages/core/test/engine.test.ts` (2026-11-13) — §20.01, §50.01, §50.02, §50.03
-- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §40.04, §60.02, §70.01, §70.03
+- [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §60.01, §60.02, §70.05
+- [S9] The builder, *Unit tests of the engine*, file `packages/core/test/engine.test.ts` (2026-11-13) — §20.01, §50.01, §50.02, §50.03, §50.04, §50.05
+- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §40.04, §60.02, §70.01, §70.03, §70.05
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13) — §70.01
 <!-- authorities:end -->
 
@@ -431,9 +528,11 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **C**
 
+- **card** — §50.04; *see also* Decision
 - **changed Decision** — §20.04; *see also* project file
 - closing a tab — *see* unsaved work
 - **compliance claim** — §40.04
+- console error — *see* page error
 - content policy — *see* locked frame
 - contrast — *see* contrast check
 - **contrast check** — §40.02; *see also* written color
@@ -449,6 +548,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **dependency** — §70.03
 - **Direction** — §50.03
 - download — *see* project file
+- **drawn color** — §40.05; *see also* contrast check
 
 **E**
 
@@ -460,10 +560,13 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **F**
 
 - **Fix for me** — §40.03; *see also* contrast check
+- **following value** — §50.05; *see also* Decision
 
 **G**
 
 - generated Direction — *see* Direction
+- gloss button — *see* drawn color
+- gradient — *see* drawn color
 
 **H**
 
@@ -477,6 +580,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - iframe — *see* locked frame
 - injection — *see* hostile text
+- innerHTML — *see* text as text
 
 **J**
 
@@ -489,12 +593,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **L**
 
+- **late copy** — §10.11; *see also* kept copy
 - leaving the page — *see* unsaved work
+- lint rule — *see* text as text
 - **locked frame** — §30.03
 
 **M**
 
 - markup — *see* hostile text
+- measured style — *see* stored picture
 - **Mockup** — §30.01; *see also* locked frame
 
 **N**
@@ -502,6 +609,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - narrow screen — *see* phone width
 - network — *see* outside request
 - new project — *see* replace action
+- newer copy — *see* late copy
 - not saving — *see* standing notice
 
 **O**
@@ -509,6 +617,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **old project** — §20.03; *see also* project file
 - one variable — *see* Step
 - open a file — *see* project file
+- **opening** — §10.10; *see also* saving
+- opposite colors — *see* following value
 - Option — *see* Step
 - **outside request** — §30.04
 - overflow — *see* phone width
@@ -517,12 +627,16 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - package — *see* dependency
 - packages/core — *see* core
+- page database — *see* late copy
+- **page error** — §70.04; *see also* stored picture
 - passing pair — *see* contrast check
 - **phone width** — §30.05; *see also* Mockup
 - pick — *see* Decision
 - pinned version — *see* dependency
+- placeholder project — *see* opening
 - **plain words** — §60.01
 - preview — *see* Mockup
+- preview of an Option — *see* card
 - **project file** — §20.01
 
 **R**
@@ -532,15 +646,21 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - remote font — *see* outside request
 - repaired — *see* Fix for me
 - **replace action** — §10.05
+- running copy — *see* unsaved work
 
 **S**
 
+- same millisecond — *see* save mark
 - sandbox — *see* locked frame
+- **save mark** — §10.09; *see also* two tabs
 - saved — *see* saving
 - **saving** — §10.01
 - screenshot — *see* stored picture
 - script — *see* Mockup
+- second color — *see* following value
 - second tab — *see* two tabs
+- slow page database — *see* opening
+- small variation — *see* card
 - **source** — §60.02
 - **standing notice** — §10.07; *see also* saving
 - start again — *see* replace action
@@ -553,12 +673,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **T**
 
+- **text as text** — §70.05; *see also* hostile text
 - tracking — *see* outside request
 - trade word — *see* plain words
 - **two tabs** — §10.06; *see also* saving
 
 **U**
 
+- uncaught error — *see* page error
 - undo — *see* replace action
 - **unreadable project** — §10.04; *see also* kept copy
 - **unsaved work** — §10.08; *see also* kept copy
@@ -580,7 +702,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_46 sections, 10 sources, 28 index terms. Cadence: 90 days. Generated content last changed 2026-11-13._
+_54 sections, 10 sources, 36 index terms. Cadence: 90 days. Generated content last changed 2026-11-13._
 
 - No findings.
 <!-- health:end -->
