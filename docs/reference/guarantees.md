@@ -228,7 +228,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ### [10.12] A promise to keep a copy never rests on a copy that can go away
 
-<!-- index: lasting copy | same text; promise of a kept copy; see also: kept copy; unsaved work -->
+<!-- index: lasting copy | same text; promise of a kept copy; see also: kept copy -->
 
 - **Rule.** A kept copy is lasting, running (a tab that is not saving replaces it with newer work), or leaving (see §10.13); only a lasting copy, or the tab's own running copy, counts as "kept already", and a tab's own running copy becomes lasting when the Studio promises to keep that text. [S1 at D50]
 - **Test.** "keeps the replaced project for good when a stopped tab starts again, although the tab’s running copy held the same text"; "does not count on another tab’s running copy: each of two stopped tabs with the same work keeps it". [S3]
@@ -786,5 +786,5 @@ The lines used most often. Each line ends with the ID of the section that suppor
 <!-- health:start -->
 _59 sections, 10 sources, 41 index terms. Cadence: 90 days. Generated content last changed 2026-11-14._
 
-- Warning: index alias "unsaved work" is also a preferred term; the alias is ignored.
+- No findings.
 <!-- health:end -->

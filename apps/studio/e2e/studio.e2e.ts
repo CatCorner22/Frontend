@@ -1821,25 +1821,28 @@ describe('Studio: what the third round of campaign 4 found', () => {
   });
 
   it('brings a new notice into view below a long standing one on a very small window, and marks the strip as one that scrolls', async () => {
-    const { context, page } = await open({ viewport: { width: 320, height: 480 }, storage: { [LOCAL_KEY]: '{"savedAt":"x","mark":"y","project":"{not json' } });
-    await page.locator('.banner.hold').waitFor();
-    await page.getByRole('button', { name: 'Start from Marquee Deco' }).click();
-    await page.waitForSelector('.cards');
-    await page.locator('.actions.sticky .primary').click();
-    await page.locator('.top').getByRole('button', { name: 'Undo', exact: true }).click();
-    const strip = page.locator('.banners');
-    await expect.poll(() => strip.getAttribute('data-scrolls')).toBe('true');
-    expect(await strip.getAttribute('tabindex')).toBe('0');
-    // The ordinary notice, with its last button, lies inside the visible part of the strip.
-    const inside = await page.evaluate(() => {
-      const box = document.querySelector('.banners')!.getBoundingClientRect();
-      const buttons = document.querySelectorAll('.banner:not(.hold) button');
-      const last = buttons[buttons.length - 1]!.getBoundingClientRect();
-      const text = document.querySelector('.banner:not(.hold) p')!.getBoundingClientRect();
-      return last.bottom <= box.bottom + 1 && text.top >= box.top - 1;
-    });
-    expect(inside).toBe(true);
-    await context.close();
+    for (const viewport of [{ width: 320, height: 480 }, { width: 640, height: 360 }]) {
+      const { context, page } = await open({ viewport, storage: { [LOCAL_KEY]: '{"savedAt":"x","mark":"y","project":"{not json' } });
+      await page.locator('.banner.hold').waitFor();
+      await page.getByRole('button', { name: 'Start from Marquee Deco' }).click();
+      await page.waitForSelector('.cards');
+      await page.locator('.actions.sticky .primary').click();
+      await page.locator('.top').getByRole('button', { name: 'Undo', exact: true }).click();
+      const strip = page.locator('.banners');
+      await expect.poll(() => strip.getAttribute('data-scrolls')).toBe('true');
+      expect(await strip.getAttribute('tabindex')).toBe('0');
+      // The ordinary notice, from its text to its last button, lies inside the visible part of the strip. The strip settles
+      // within a few frames (its look changes once it scrolls), so the position is asked until it holds.
+      const inside = (): Promise<boolean> =>
+        page.evaluate(() => {
+          const box = document.querySelector('.banners')!.getBoundingClientRect();
+          const buttons = document.querySelectorAll('.banner:not(.hold) button');
+          const last = buttons[buttons.length - 1]!.getBoundingClientRect();
+          return last.bottom <= box.bottom + 1 && last.top >= box.top - 1;
+        });
+      await expect.poll(inside, { timeout: 3000, message: `${viewport.width}x${viewport.height}` }).toBe(true);
+      await context.close();
+    }
   });
 });
 

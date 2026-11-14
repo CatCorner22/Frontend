@@ -226,10 +226,20 @@ function NoticeBar(): React.JSX.Element | null {
   useEffect(() => {
     const el = strip.current;
     if (!el) return;
-    const overflows = el.scrollHeight > el.clientHeight + 1;
-    setScrolls(overflows);
-    if (overflows && newest.current) el.scrollTop = Math.max(0, newest.current.offsetTop + newest.current.offsetHeight - el.clientHeight);
-  }, [number, hold, notice]);
+    const bring = (): void => {
+      const overflows = el.scrollHeight > el.clientHeight + 1;
+      setScrolls(overflows);
+      if (overflows && newest.current) el.scrollTop = Math.max(0, newest.current.offsetTop + newest.current.offsetHeight - el.clientHeight);
+    };
+    bring();
+    // The strip's own look changes once it is known to scroll (a scrollbar and a border take room), and the window can
+    // change size: the text then wraps anew, and the newest notice is brought into view again. Without this, its last
+    // button could end a few pixels below the visible part (seen on the CI machine, 2026-11-14).
+    const observer = new ResizeObserver(bring);
+    observer.observe(el);
+    for (const row of Array.from(el.children)) observer.observe(row);
+    return () => observer.disconnect();
+  }, [number, hold, notice, scrolls]);
   if (!notice && !hold) return null;
   return (
     <div className="banners" ref={strip} data-scrolls={scrolls || undefined} {...(scrolls ? { tabIndex: 0, role: 'group', 'aria-label': 'Notices (this strip scrolls)' } : {})}>
