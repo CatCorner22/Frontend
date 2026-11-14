@@ -214,3 +214,78 @@ The lead wrote this section after the second judge's findings and the round-2 re
 ## Charter amendment 1, 2026-11-13
 
 The charter planned at most two rounds. The method's default is three. Round 2 produced six new findings, so one more retest round is needed before the campaign can close. **Round 3**: the lanes whose round-2 findings were fixed attack again with the same instructions and a note of what round 2 found (the full-storage lane, the several-tabs lane, the newcomer lane, and the changes-of-mind lane); the statement-checking lane of round 1 attacks the new records and the guarantees reference; two new lanes take the two cells that no round has tried (cell 2, a hostile file that corrupts work or crashes the Studio; cell 9, a wrong or misleading download); and a third judge reproduces every claimed result. That is seven lanes and one judge. The target is the head of the branch `claude/harden-studio-review-fixes`, which also holds the fixes of the code review; round 3 therefore serves as the review that hard rule 12 asks for after that unit of work (security attacker: the hostile-file lane; confused first-time user: the newcomer lane; drift and truth auditor: the statement-checking lane). Basis for going beyond the charter's two rounds: the owner's message of 2026-11-13 ("Please try to find any code errors and performance bugs and fix, harden, and try to ensure that the application is as error-free as possible"), sent in a mode that sets no cost limit. Expected cost: about 1.2 million tokens (seven lanes at about 145,000 each, as measured in rounds 1 and 2, and one judge at about 165,000).
+
+
+# Round 3: the attackers' report
+
+Written by the lead on 2026-11-14, after the judge's text was filed and before any reply from the Studio's side. The lead also built the Studio (stated in the charter); the lanes and the judge ran as separate agents.
+
+## R3.1 Target pin
+
+Commit `6cbd764` of the branch `claude/harden-studio-review-fixes`; built pages with SHA-256 beginning `bc91e0d61eb1b4ba`.
+
+## R3.2 Run summary
+
+- Seven lanes, one judge. 56 attempts: lane B (full storage) 5, C (several tabs) 8, D (statement checker) 8, F (newcomer) 9, G (changes of mind) 8, H (hostile file) 8, I (wrong or misleading download) 10. The attackers claimed 24 of them.
+- The judge: 27 held, 8 not a finding, 1 no test, 20 attempts in 10 findings.
+- No code ran, no markup was injected, and no request left the page in any attempt.
+- Measured cost of the lanes' and judge's final run: 334,110 tokens for the last lane and the judge; the first six lanes ran before a restart of the machine and their cost was not recorded by the harness (estimate: about 0.4 million).
+- **Departures from the method, stated plainly.** (1) The machine restarted while lane I ran. The six finished lanes' results were read from the harness's record; lane I ran again from the start. (2) The harness handed each lane's log to the judge directly. The logs of lanes B, C, D, F, G, and H were committed before the judge started; lane I's log was committed together with the judge's text. (3) While the round ran, the lead read the first lanes' logs and began repairs in a separate working copy. The pin did not change, and the judge saw none of it.
+
+## R3.3 Retest of round 2
+
+All seven passed: F-2 (narrow rest), F-10, F-11, F-12, F-13, F-14, F-15. The judge wrote scripts of its own; the two races ran 20 same-instant trials each without a loss.
+
+## R3.4 New findings, worst first
+
+| Finding | Severity | Status | In short |
+|---|---|---|---|
+| F-16 | S2 | confirmed | A stopped tab’s promise of a kept copy rested on its replaceable running copy; the copy vanished at the next tab switch |
+| F-17 | S2 | confirmed | A pick of another Option deleted the reason typed for the Step, without a word |
+| F-18 | S1 | confirmed | Two tabs that close in the same instant, each with a change under 0.3 s old, lost one tab’s change (8 of 24 trials) |
+| F-19 | S1 | confirmed | A project name with quotation marks made a dialog appear to say "nothing will change" |
+| F-20 | S1 | confirmed | A note said the Catalog lacks an Option that it has; it came back at every opening |
+| F-21 | S1 | confirmed | Opening a hand-edited file rewrote parts of Decisions and dropped unknown parts without saying so |
+| F-22 | S1 | confirmed | A value beyond a slider’s range was stated as the slider’s end value |
+| F-23 | S1 | confirmed | "Try to save again" could not clear a stale "Cannot save here" after an Undo |
+| F-24 | S1 | needs human review | A kept "third of the wheel" second color stopped following the main color (for human review) |
+| F-25 | S0 | confirmed | In the older list form, removing one of two identical copies removed the other |
+
+## R3.5 What held in round 3
+
+- No run made a request outside the page or showed a page error; hostile names and files ran no code and injected nothing.
+- 'Reload to see the other copy' now keeps a project that has only a name (F-2 narrow rest: 3 of 3).
+- Two stopped tabs closed together kept both copies in 20 of 20 trials (F-10). Pressing 'Keep this tab’s copy' in two tabs at once gave no false 'Saved' and lost nothing in 20 of 20 trials (F-12).
+- The Undo promise now names its 100-step limit, and Undo stops at exactly 100 (F-11). 'Go on: let the Studio save over it' now saves and says so truly (F-15).
+- The preview headline is larger than every section heading for six Directions on Phone, Tablet and Desktop (F-13). Moving a slider onto a rejected Option no longer leaves a self-contradicting Decision or a reload notice (F-14).
+- Two tabs typing at the same instant, typing then closing, back-forward navigation, and keep-with-close or keep-with-reload races lost nothing (Q-006, Q-008, Q-017, Q-035, Q-037).
+- Full round trips (23 Decisions, reasons, odd names, Copy as text, reopen in a fresh browser) came back unchanged apart from key order.
+- Damaged, oversized, deeply nested and wrong-version files were refused in fixed words or opened safely, and the owner's project stayed in place.
+- The engine fuzz (1,500 runs) and the card-against-pick comparison found no mismatch.
+
+## R3.6 Not tried
+
+Only Chromium ran. No lane used the real private page (its database and its file hand-over). A real person closing a real window was simulated by closing tabs through the test tool. Lane I's claims about file names of downloads and about a download that the browser itself drops were ruled "not a finding" or "held"; nobody tested another browser's download limits.
+
+## Blue's response to round 3 (the Studio's side), 2026-11-14
+
+Repairs are in commits `639fb7f` (core) and `8b263b7` (Studio); 163 unit tests and 185 browser tests pass locally. No judge has retested these repairs.
+
+| Finding | Reply |
+|---|---|
+| F-16 | Fixed in `8b263b7`: a kept copy carries a state; only a lasting copy counts as kept; a tab’s own running copy becomes lasting. Two browser tests; the attacker’s scripts no longer lose the copy. |
+| F-17 | Fixed in `8b263b7` and `639fb7f`: the rule stays (a reason belongs to its choice); a notice now says that the reason was removed, quotes it, and puts it back with one button. Browser test and unit test. |
+| F-18 | Fixed in `8b263b7`: a closing page writes its work to an entry of its own before the saved project; the next opening settles it. Three browser tests; the attacker’s race script: 0 losses in 48 trials (before: 8 of 24). Open: no protection when storage has no room for the extra entry. |
+| F-19 | Fixed in `8b263b7`: every double quotation mark in a name becomes a single one inside the Studio’s sentences. Browser test. |
+| F-20 | Fixed in `639fb7f`: the note states only what is known. Unit test with the exact words. The repeat at every opening is fixed in `8b263b7` (browser test). |
+| F-21 | Fixed in `639fb7f` and `8b263b7` (decision D50): the list of rejected Options is never added to; a file whose details were left out or corrected with no specific note gets a general note. Unit test and browser test. Open: the general note does not list each detail. |
+| F-22 | Fixed in `639fb7f` and `8b263b7`: a value that the Studio cannot set is brought into reach on opening, with a note; a slider states the value the design holds; the first inward key changes what is drawn. Unit tests and two browser tests. |
+| F-23 | Fixed in `8b263b7`: the retry makes a real attempt. Browser test. Unchanged by choice: after an Undo, "Cannot save here" stays until the owner retries or changes something. |
+| F-24 | The judge left this for a person. The builder changed it in `8b263b7`: keeping a card that follows the main color, where the starting design held a fixed value, is recorded as a pick and follows. Browser test. Open to the owner’s veto (D50). |
+| F-25 | Fixed in `8b263b7`: the reason is compared too, so the chosen copy goes. No test (the case needs hand-made storage in the older form). |
+
+**Where the Studio's side differs from an attacker's account.** One of the two scripts behind F-16 (`a2-running-copy-evicts-kept-decisions.cjs`) presses the first button of the "Start again?" question, which is "Keep my project"; it therefore never starts again, and what it shows is the designed replacement of a running copy by newer work of the same project. The finding stands on the other script, which meets no question.
+
+**A choice the owner may reverse (decision D50).** F-17: the reason is still removed on a pick of another Option; the alternative is to keep it. F-21: the list of rejected Options is no longer filled in. F-24: a named keep becomes a pick.
+
+**Not changed.** The names of downloaded kept copies (`refraction-kept-copy-1.json`) carry no project name; a project name without Latin letters gives the file name `project.refraction.json`. The judge ruled these no findings; they are listed in `PROGRESS.md` as known gaps.

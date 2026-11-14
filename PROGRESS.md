@@ -12,7 +12,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 |---|---|
 | M0 | Exit test met after correction on 2026-11-13: the results file now matches the measured data; the scorecard is applied and marked as judged by a model. |
 | M1 | Met late. CI was red when M2 work began (finding M-02). No session setup script (decision D32). |
-| M2 | Met: 158 unit tests (2026-11-14); the core imports no React and no browser API. |
+| M2 | Met: 163 unit tests (2026-11-14); the core imports no React and no browser API. |
 | M3 | Exit test met in CI since 2026-11-13 (pixel-difference tests, stored-picture gate). One part still open: nobody has confirmed that the private page shows the embedded pictures. |
 | M4 | In progress. |
 
@@ -20,7 +20,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 - **Core** (`packages/core`): 23 Steps (6 Layout, 17 Look and feel), 18 Directions and a Direction generator, 12 conflict rules and 11 harmony rules as Catalog records, token derivation with 29 measured contrast pairs, the Mockup for Template 1 (one page), saved-project format version 2 with a migration from version 1.
 - **Studio** (`apps/studio`): Directions, Steps, Summary, and Licences screens; storage that reads both saved copies and never overwrites what it cannot read; Undo; confirmations before work is replaced.
-- **Checks in CI:** type check, lint, boundary rule, 158 unit tests, licence-notices check, 170 browser tests (71 on the Studio; 99 on the Mockup: 23 on the Options of each Step, 9 on paint-only Steps, 1 on target sizes, 6 on window widths, headline size, and the telephone number, 57 stored-picture comparisons, 1 comparison of measured styles, 2 checks that a changed look is noticed, and 1 measurement of drawn colors), bundle-size budget, dependency audit. After each Studio browser test, a check fails the test if the page met an error. CI's time limit is 25 minutes; the browser tests take about eight minutes on a developer machine.
+- **Checks in CI:** type check, lint, boundary rule, 163 unit tests, licence-notices check, 185 browser tests (86 on the Studio; 99 on the Mockup: 23 on the Options of each Step, 9 on paint-only Steps, 1 on target sizes, 6 on window widths, headline size, and the telephone number, 57 stored-picture comparisons, 1 comparison of measured styles, 2 checks that a changed look is noticed, and 1 measurement of drawn colors), bundle-size budget, dependency audit. After each Studio browser test, a check fails the test if the page met an error. CI's time limit is 25 minutes; the browser tests take about eight minutes on a developer machine.
 - **Red team:** first review on 2026-11-13: 137 findings (6 blockers, 55 major, 56 minor, 20 notes). Every finding has a status in `redteam/FINDINGS.md`. `redteam/tools/plant-defects.py` plants 39 defects; the unit suite catches 38.
 - **Private page:** https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc (the version number is in `WAYPOINTS.md`).
 - **Literal names (2026-11-13).** Every Step, Option, and slider in the Catalog now carries a name that says what a person sees (for example "Ring and whisper" became "Thin outline with a faint shadow"; "Accent color" became "Main color"). The "Contrast checks" choices read "Off", "Warn me", "Fix for me". Identifiers did not change, so saved projects open as before. No red-team review covered this change (D33).
@@ -40,6 +40,8 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **Stored data changed its form in two places (decision D46).** Each kept copy has a storage entry of its own; the browser copy carries a mark that names the save that wrote it. Older data is still read.
 - **Undo (decision D47).** A run of typing or of slider presses is one Undo step; Undo remembers 100 steps; the dialogs state that limit.
 - **Four rules of the core changed (decision D49).** A fixed second color stays fixed; a card shows what its pick gives; every corner value above 28 means "fully round"; on a dark page the "Lightness" slider offers only the part that changes the color. A gloss button looks slightly different.
+- **Round 3 of campaign 4 (2026-11-14, decision D50).** Seven attackers and a third judge against commit `6cbd764`: 56 attempts. All seven round-2 repairs passed their retest. Ten new findings (2 major, 7 minor, 1 note), F-16 to F-25: a promise of a kept copy that rested on a replaceable copy; a typed reason deleted without a word; two tabs closing in the same instant; a project name that forged a sentence in a dialog; untrue or missing words when a hand-edited file opens. All ten are repaired in `639fb7f` and `8b263b7`, with 5 new unit tests and 14 new browser tests. No judge has retested these repairs. The machine restarted mid-round; `redteam/campaign-4/report.md` states what that changed.
+- **Speed (2026-11-14).** The builder timed every kind of action with the browser's own counters (`docs/knowledge/sources/studio-action-delay-measurements.md`). One action was slow: a change of the preview width (152 ms until drawn). It now answers after 48 ms; the work for the card pictures (80 to 110 ms in one stretch) still follows. Every other action is drawn within 24 to 72 ms. Memory stayed level over six walks through all Steps.
 
 ## Next
 
@@ -64,6 +66,8 @@ A fresh session reads this file to learn where the project stands. Update it aft
 12. Pull request 8 (the hardening branch) waits for you: read it, then merge it or say what to change. The builder does not merge.
 13. Decision D49 holds two choices of the builder that are open to your veto: on a dark page the "Lightness" slider offers only part of its range (the alternative would change the look of every dark Direction, "Midnight Aurora" among them); and a gloss button is drawn a little darker under a light label, so that the contrast figure is true for the whole button.
 14. Costs of this unit of work, measured: the code review used about 1.84 million tokens; the retest round about 0.74 million (the builder's estimate was 0.5 million).
+15. Decision D50 holds four choices of the builder that are open to your veto: a pick of another Option removes the reason you wrote (the Studio says so and offers it back); opening a file never adds to a Decision's rejected Options; opening brings a value that no slider can set into reach; keeping a card that follows the main color counts as a pick.
+16. Cost of round 3: 334,110 tokens measured for the part after the machine restarted; the part before was not recorded (the builder's estimate for the whole round: about 0.75 million).
 
 ## Known gaps (every plan item that is absent or partial)
 
@@ -90,6 +94,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **Second review, still open (major):** some Option cards look alike at card size, for example the three "Text contrast" cards (U2-08).
 - **Second review, still open (minor, selected):** no leave-page warning while saving is paused (S2-03); the local test file shares its browser storage with every other local HTML file, so use it for testing only (S2-05); "Warn me" does not measure a headline filled with a gradient (T2-03). The full list is in `redteam/FINDINGS.md`.
 - **Third review, still open (selected):** two things still have two names on screen (the Step "Background at the top of the page" asks about "the first screen"; the card for the current values has three names) (U3-05); the values that sliders announce to a screen reader are bare numbers (U3-11); two tabs that keep a copy at the same moment could lose one, which the reviewer inferred and did not reproduce (S3-06); the drawn-color measurement runs in Chromium only (T3-01).
+- **After round 3 (2026-11-14).** The repairs for F-16 to F-25 have no retest by a judge. The entry of its own that a closing page writes needs room in storage; with none, two pages that close in the same instant can still lose one change. A downloaded kept copy is named by its place in the list (`refraction-kept-copy-1.json`), not by its project; a project name without Latin letters gives the file name `project.refraction.json`. The message after a download says that the file "was handed to your browser"; the Studio cannot know whether the browser saved it. The first opening of the Studio holds the page for 50 to 120 ms once or twice.
 
 ## Reading status (what the records support)
 

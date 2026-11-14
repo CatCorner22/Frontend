@@ -17,6 +17,8 @@ How to read an entry: a source filed as a "search summary" means that only the s
 
 - **[Measurements: what one slider step costs on the Step "Main color", before and after three changes](sources/slider-step-cost-measurements.md)** — One slider step cost about 70 milliseconds of main-thread work; a memory of built documents, shared colors, and lower-priority pictures brought it to about 56; the rest is the two previews that must be redrawn. Tags: measurement, speed, test-method. Ingested: 2026-11-13.
 
+- **[Measurements: how long each kind of action in the Studio takes until its result is drawn](sources/studio-action-delay-measurements.md)** — Every action is drawn within 24 to 72 milliseconds; a change of the preview width took 152 and now takes 48; memory stays level over a long session. Tags: measurement, speed, test-method. Ingested: 2026-11-14.
+
 ## Earlier chapters (written before this index; not in the source format)
 
 Two chapters, each with a data file, came first. Research helpers (AI assistants given one research task each) wrote them on 2026-11-13; nobody has reviewed them. They summarize many sources at once, so they have no entry in the format above.

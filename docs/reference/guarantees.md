@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.2. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
+Version 1.3. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
 
 Stale-after: 90
 
@@ -20,6 +20,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - The Studio asks before a file, a new Direction, or a new project replaces your work, and Undo brings the work back. §10.05
 - When another tab changed the project, the Studio stops saving and says so. §10.06
 - A notice that needs your answer stays on screen until you answer. §10.07
+- A promise to keep a copy never rests on a copy that can go away. §10.12
+- A page that closes with an unsaved change first writes it to an entry of its own. §10.13
+- Opening a file never adds to a Decision, and brings no value the Studio cannot set. §20.05
+- A written reason leaves a Decision only with a notice that offers it back. §50.06
 - A tab that is not saving keeps its unsaved work as a copy when it reloads or closes. §10.08
 - A tab never takes another tab's save for its own. §10.09
 - Nothing is saved before the saved project is open. §10.10
@@ -55,11 +59,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [10.09 A tab never takes another tab's save for its own](#1009-a-tab-never-takes-another-tabs-save-for-its-own)
   - [10.10 Nothing is saved before the saved project is open](#1010-nothing-is-saved-before-the-saved-project-is-open)
   - [10.11 A copy that the page's database hands over late is kept before any save can replace it](#1011-a-copy-that-the-pages-database-hands-over-late-is-kept-before-any-save-can-replace-it)
+  - [10.12 A promise to keep a copy never rests on a copy that can go away](#1012-a-promise-to-keep-a-copy-never-rests-on-a-copy-that-can-go-away)
+  - [10.13 A page that closes with an unsaved change first writes it to an entry of its own](#1013-a-page-that-closes-with-an-unsaved-change-first-writes-it-to-an-entry-of-its-own)
 - [20 Project files](#20-project-files)
   - [20.01 A saved project loads back exactly as it was saved](#2001-a-saved-project-loads-back-exactly-as-it-was-saved)
   - [20.02 The Studio refuses a file that is not a project, in fixed words](#2002-the-studio-refuses-a-file-that-is-not-a-project-in-fixed-words)
   - [20.03 A project that an earlier version saved loads with the design unchanged](#2003-a-project-that-an-earlier-version-saved-loads-with-the-design-unchanged)
   - [20.04 The Studio says so when it changes a Decision of an opened file](#2004-the-studio-says-so-when-it-changes-a-decision-of-an-opened-file)
+  - [20.05 Opening a file never adds to a Decision, and brings no value the Studio cannot set](#2005-opening-a-file-never-adds-to-a-decision-and-brings-no-value-the-studio-cannot-set)
+  - [20.06 A name from a file cannot end the quotation in one of the Studio's sentences](#2006-a-name-from-a-file-cannot-end-the-quotation-in-one-of-the-studios-sentences)
 - [30 The preview (Mockup)](#30-the-preview-mockup)
   - [30.01 The Mockup contains no script, no event handler, and no outside address](#3001-the-mockup-contains-no-script-no-event-handler-and-no-outside-address)
   - [30.02 Text from a project is drawn as text, never as markup](#3002-text-from-a-project-is-drawn-as-text-never-as-markup)
@@ -78,6 +86,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [50.03 No Direction starts with choices that pull against each other](#5003-no-direction-starts-with-choices-that-pull-against-each-other)
   - [50.04 A card shows exactly the design that picking it gives](#5004-a-card-shows-exactly-the-design-that-picking-it-gives)
   - [50.05 A value follows another value only when the starting design or the owner's pick says so](#5005-a-value-follows-another-value-only-when-the-starting-design-or-the-owners-pick-says-so)
+  - [50.06 A written reason leaves a Decision only with a notice that offers it back](#5006-a-written-reason-leaves-a-decision-only-with-a-notice-that-offers-it-back)
 - [60 The Studio's words](#60-the-studios-words)
   - [60.01 A trade word appears only inside round brackets](#6001-a-trade-word-appears-only-inside-round-brackets)
   - [60.02 Every Step says where its guidance comes from and how well it is known](#6002-every-step-says-where-its-guidance-comes-from-and-how-well-it-is-known)
@@ -187,7 +196,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Rule.** When a tab that is not saving reloads, closes, or goes to the background, the Studio keeps the tab's unsaved work as one running copy; when it can neither save nor keep the work, the browser asks its own "leave this page?" question, and the next opening says that a copy was kept. [S1 at D44]
 - **Test.** "keeps unsaved work as a copy when a tab that is not saving closes or reloads"; "keeps one running copy for a tab that is not saving, however often the tab goes to the background (finding "saving 7")"; "keeps a tab’s copy before a reload even when the project has only a name (retest of finding F-2)". [S3]
 - **Open.** No automatic test covers the browser's own "leave this page?" question; the test browser answers it by itself. A browser may also close a tab without running the page's last code (for example when it crashes); the copy is then not kept.
-- Last verified: 2026-11-13
+- Last verified: 2026-11-14
 
 ### [10.09] A tab never takes another tab's save for its own
 
@@ -216,6 +225,26 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "keeps a copy that the page database hands over late, before any save can replace it (findings "saving 2" and "gaps 3")"; "says "Saved in this browser" when a write to the page database never answers, and goes on saving (finding "saving 3")"; "opens the browser copy when the page has a runtime that cannot hand out a database (finding "saving 1")".
 - **Open.** Every test uses a stand-in for the page's database. No automatic test opens the real private page.
 - Last verified: 2026-11-13
+
+### [10.12] A promise to keep a copy never rests on a copy that can go away
+
+<!-- index: lasting copy | same text; promise of a kept copy; see also: kept copy; unsaved work -->
+
+- **Rule.** A kept copy is lasting, running (a tab that is not saving replaces it with newer work), or leaving (see §10.13); only a lasting copy, or the tab's own running copy, counts as "kept already", and a tab's own running copy becomes lasting when the Studio promises to keep that text. [S1 at D50]
+- **Test.** "keeps the replaced project for good when a stopped tab starts again, although the tab’s running copy held the same text"; "does not count on another tab’s running copy: each of two stopped tabs with the same work keeps it". [S3]
+- **Examples.** Before 2026-11-14 "Start again" in a stopped tab wrote no copy when the tab's running copy held the same text; the next tab switch replaced the running copy, and the replaced project was in no storage entry (campaign 4, finding F-16).
+- **Open.** Two copies with the same text can now both be listed. No judge has retested this repair.
+- Last verified: 2026-11-14
+
+### [10.13] A page that closes with an unsaved change first writes it to an entry of its own
+
+<!-- index: closing in the same instant | leaving copy; race; two windows; see also: two tabs -->
+
+- **Rule.** A page that closes or goes to the background with a change it has not saved writes that work to a storage entry of its own, then to the saved project; the next opening removes the entry when the saved project holds the same work, and otherwise keeps it for good and says so. [S1 at D50]
+- **Test.** "puts unsaved work into an entry of the page’s own before a closing page writes the saved project, and settles it at the next opening"; "keeps for good, and reports, the work of a closing page that another page’s save replaced in the same moment"; "removes the entry of its own when the page lives on and has saved". [S3]
+- **Examples.** Two pages that close in the same instant cannot see each other's write. Before the repair, 8 of 24 such trials lost one page's change (campaign 4, finding F-18); after it, the attacker's script lost none in 48 trials.
+- **Open.** When storage has no room for the extra entry, the page writes the saved project as before, without this protection. The 48 trials ran in one browser on one machine.
+- Last verified: 2026-11-14
 
 ## [20] Project files
 
@@ -253,6 +282,26 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "says so when it changes a Decision to match the file’s own design values (campaign 4, finding F-3)".
 - **Policy.** The Mockup is drawn from the design values, so they are the truth; a silent change to the record of choices would be a second, hidden truth.
 - Last verified: 2026-11-13
+
+### [20.05] Opening a file never adds to a Decision, and brings no value the Studio cannot set
+
+<!-- index: rejected Options | out of range; slider end; value beyond a slider; see also: Decision -->
+
+- **Rule.** On opening, a Decision's list of rejected Options is the file's own list without what cannot stand, and nothing is added; a design value that no slider and no Option can set is brought to the nearest value the Studio can set, and a note says so; a pick whose design values match no Option becomes hand-set under a note that states only that. [S1 at D50]
+- **Test.** "never adds to a Decision’s list of rejected Options, and drops from it only what cannot stand (campaign 4, round 3)"; "brings a design value that no slider and no Option can set into reach, and says so (campaign 4, round 3)"; "marks a pick as hand-set when its design values match no Option, keeps the value, and says only what it knows". [S2]
+- **Test.** "opens a file with values that no slider can set as values that the Studio can set, says so, and its sliders move them"; "says in general words that it left out or corrected details of a file, when no other note says what changed"; "stores the project as opened once the original is kept, so that the next opening changes nothing and says nothing". [S3]
+- **Open.** The general note does not list each detail that was left out or corrected. A file from an earlier version gets its own sentence in place of the general note.
+- Last verified: 2026-11-14
+
+### [20.06] A name from a file cannot end the quotation in one of the Studio's sentences
+
+<!-- index: quotation marks | forged sentence; project name; file name -->
+
+- **Rule.** Inside one of the Studio's own sentences, every double quotation mark of a project name, a file name, or a written reason becomes a single one, and the name is cut to a fixed length. [S1 at D50]
+- **Test.** "lets no project name or file name end the quotation in one of the Studio’s own sentences". [S3]
+- **Examples.** A file whose project name held a closing quotation mark and a sentence made the dialog read: "holds the project “Owner work”. It is the same as the open project, so nothing will change." (campaign 4, finding F-19).
+- **Open.** A name can still hold a misleading sentence inside its quotation marks.
+- Last verified: 2026-11-14
 
 ## [30] The preview (Mockup)
 
@@ -395,6 +444,16 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Examples.** "Galactic Goth" has a fixed red second color. Before 2026-11-13, picking the main color "Deep blue" and then another color turned the red into a pink.
 - Last verified: 2026-11-13
 
+### [50.06] A written reason leaves a Decision only with a notice that offers it back
+
+<!-- index: reason | why this choice; new pick; put back; see also: Decision -->
+
+- **Rule.** A reason belongs to the choice it was written for: a slider move or a pick of the same Option keeps it; a pick of another Option, or putting the Step back, removes it, and the Studio then says so, quotes the reason, and offers one button that puts it back. [S1 at D50]
+- **Test.** "says so when a new pick removes the reason written for the earlier choice, and puts it back on request". [S3]
+- **Test.** "keeps the reason when the Decision is tuned, and drops it when another Option is picked"; "keeps the reason when the owner picks the same Option again (campaign 4, round 3)". [S9]
+- **Open.** The owner may prefer that a reason always stays (decision D50 is open to veto). The notice goes when the owner moves to another screen.
+- Last verified: 2026-11-14
+
 ## [60] The Studio's words
 
 ### [60.01] A trade word appears only inside round brackets
@@ -478,6 +537,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-14 v1.3: after round 3 of campaign 4: added §10.12, §10.13, §20.05, §20.06, §50.06. 42 guarantees.
 - 2026-11-13 v1.0: created with 25 guarantees.
 - 2026-11-13 v1.2: after the retest round and the code review: added §10.09, §10.10, §10.11, §40.05, §50.04, §50.05, §70.04, §70.05; §10.03, §10.05, §10.08, §30.05, and §70.02 now state the changed behavior and tests. 37 guarantees.
 - 2026-11-13 v1.1: after campaign 4, added §10.07, §10.08, §20.04, and §30.05; §10.06 now covers both buttons; §30.03 states the campaign's result. 29 guarantees.
@@ -498,14 +558,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §40.01, §50.05, §60.01, §70.02, §70.03
-- [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04
-- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §20.02, §20.03, §30.02, §30.03, §30.04, §60.01, §70.04
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §40.01, §50.05, §50.06, §60.01, §70.02, §70.03
+- [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05
+- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §20.02, §20.03, §20.05, §20.06, §30.02, §30.03, §30.04, §50.06, §60.01, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §70.02
 - [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.05, §40.04
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03
 - [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §60.01, §60.02, §70.05
-- [S9] The builder, *Unit tests of the engine*, file `packages/core/test/engine.test.ts` (2026-11-13) — §20.01, §50.01, §50.02, §50.03, §50.04, §50.05
+- [S9] The builder, *Unit tests of the engine*, file `packages/core/test/engine.test.ts` (2026-11-13) — §20.01, §50.01, §50.02, §50.03, §50.04, §50.05, §50.06
 - [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §40.04, §60.02, §70.01, §70.03, §70.05
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13) — §70.01
 <!-- authorities:end -->
@@ -531,6 +591,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **card** — §50.04; *see also* Decision
 - **changed Decision** — §20.04; *see also* project file
 - closing a tab — *see* unsaved work
+- **closing in the same instant** — §10.13; *see also* two tabs
 - **compliance claim** — §40.04
 - console error — *see* page error
 - content policy — *see* locked frame
@@ -559,8 +620,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **F**
 
+- file name — *see* quotation marks
 - **Fix for me** — §40.03; *see also* contrast check
 - **following value** — §50.05; *see also* Decision
+- forged sentence — *see* quotation marks
 
 **G**
 
@@ -593,7 +656,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **L**
 
+- **lasting copy** — §10.12; *see also* kept copy
 - **late copy** — §10.11; *see also* kept copy
+- leaving copy — *see* closing in the same instant
 - leaving the page — *see* unsaved work
 - lint rule — *see* text as text
 - **locked frame** — §30.03
@@ -608,6 +673,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - narrow screen — *see* phone width
 - network — *see* outside request
+- new pick — *see* reason
 - new project — *see* replace action
 - newer copy — *see* late copy
 - not saving — *see* standing notice
@@ -620,6 +686,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **opening** — §10.10; *see also* saving
 - opposite colors — *see* following value
 - Option — *see* Step
+- out of range — *see* rejected Options
 - **outside request** — §30.04
 - overflow — *see* phone width
 
@@ -638,11 +705,21 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - preview — *see* Mockup
 - preview of an Option — *see* card
 - **project file** — §20.01
+- project name — *see* quotation marks
+- promise of a kept copy — *see* lasting copy
+- put back — *see* reason
+
+**Q**
+
+- **quotation marks** — §20.06
 
 **R**
 
+- race — *see* closing in the same instant
+- **reason** — §50.06; *see also* Decision
 - record — *see* Decision
 - **refused file** — §20.02; *see also* project file
+- **rejected Options** — §20.05; *see also* Decision
 - remote font — *see* outside request
 - repaired — *see* Fix for me
 - **replace action** — §10.05
@@ -651,6 +728,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **S**
 
 - same millisecond — *see* save mark
+- same text — *see* lasting copy
 - sandbox — *see* locked frame
 - **save mark** — §10.09; *see also* two tabs
 - saved — *see* saving
@@ -659,6 +737,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - script — *see* Mockup
 - second color — *see* following value
 - second tab — *see* two tabs
+- slider end — *see* rejected Options
 - slow page database — *see* opening
 - small variation — *see* card
 - **source** — §60.02
@@ -677,6 +756,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - tracking — *see* outside request
 - trade word — *see* plain words
 - **two tabs** — §10.06; *see also* saving
+- two windows — *see* closing in the same instant
 
 **U**
 
@@ -688,6 +768,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **V**
 
+- value beyond a slider — *see* rejected Options
 - version 1 — *see* old project
 - visual test — *see* stored picture
 
@@ -695,6 +776,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - WCAG — *see* compliance claim
 - where guidance comes from — *see* source
+- why this choice — *see* reason
 - **written color** — §40.01
 - wrong file — *see* refused file
 <!-- index:end -->
@@ -702,7 +784,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_54 sections, 10 sources, 36 index terms. Cadence: 90 days. Generated content last changed 2026-11-13._
+_59 sections, 10 sources, 41 index terms. Cadence: 90 days. Generated content last changed 2026-11-14._
 
-- No findings.
+- Warning: index alias "unsaved work" is also a preferred term; the alias is ignored.
 <!-- health:end -->
