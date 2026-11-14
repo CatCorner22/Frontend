@@ -350,6 +350,31 @@ describe('Catalog: rules about how Decisions fit together', () => {
   });
 });
 
+describe('text is rendered as text (hard rule 6)', () => {
+  it('uses none of the ways to turn text into markup, in any source file of the core or of the Studio', () => {
+    const sourceFiles = (dir: string): string[] =>
+      readdirSync(repoPath(dir), { withFileTypes: true }).flatMap((entry) =>
+        entry.isDirectory() ? sourceFiles(`${dir}/${entry.name}`) : /\.(ts|tsx)$/.test(entry.name) ? [`${dir}/${entry.name}`] : [],
+      );
+    const files = [...sourceFiles('packages/core/src'), ...sourceFiles('apps/studio/src')];
+    expect(files.length).toBeGreaterThanOrEqual(15);
+    // The lint rule stops these names as property names. This test also sees a name that sits whole inside a text or a comment
+    // (code review of 2026-11-13, finding "gaps 4": the rule stopped four spellings of twelve). One limit stays: a name that is
+    // put together from pieces while the page runs escapes the rule and this test alike.
+    const forbidden = /innerHTML|outerHTML|insertAdjacentHTML|setHTMLUnsafe|parseHTMLUnsafe|createContextualFragment|DOMParser|dangerouslySetInnerHTML|document\s*\.\s*write(ln)?\b/;
+    const frameText: string[] = [];
+    for (const file of files) {
+      const text = readFileSync(repoPath(file), 'utf8');
+      expect(text.match(forbidden)?.[0], file).toBeUndefined();
+      for (const hit of text.match(/\bsrcdoc\s*=|\bsrcDoc=/g) ?? []) frameText.push(`${file}: ${hit}`);
+    }
+    // A frame's document text is set in exactly three places: the two locked preview frames, and one fixed test frame.
+    expect(frameText.sort()).toEqual(['apps/studio/src/platform.ts: srcdoc =', 'apps/studio/src/preview.tsx: srcDoc=', 'apps/studio/src/preview.tsx: srcDoc=']);
+    // The checker fails the texts it must fail.
+    for (const bad of ['el.innerHTML = x', "el['outerHTML']", 'document.writeln(x)', 'document . write(x)', 'new DOMParser()', 'range.createContextualFragment(x)', 'el.setHTMLUnsafe(x)']) expect(forbidden.test(bad), bad).toBe(true);
+  });
+});
+
 describe('claims about output (hard rule 8)', () => {
   it('writes "WCAG compliant", "ADA compliant", or "accessible" in no source file of the core or of the Studio', () => {
     const sourceFiles = (dir: string): string[] =>

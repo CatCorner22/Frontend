@@ -199,21 +199,74 @@ describe('Mockup: fits a phone, and keeps the headline the largest text (campaig
     expect(wide).toEqual([]);
   }, 240_000);
 
-  it('never draws the main headline smaller than the reading text, at phone and desktop widths', async () => {
+  it('fits the window at other widths as well: a small phone, the width at which two columns begin, and wider (code review of 2026-11-13, finding "tokens 4")', async () => {
+    const wide: string[] = [];
+    for (const width of [320, 860, 1024, 1280]) {
+      await page.setViewportSize({ width, height: 800 });
+      for (const direction of [{ name: 'plain start', params: DEFAULT_PARAMS }, ...DIRECTIONS]) {
+        // Four designs for each start: as it is, both slider ends, and the Catalog's largest type Option. One region is
+        // enough: the page holds the same parts whichever region is on show.
+        const designs = reachable(direction.params, ['size-scale']).filter((design) => !design.label.startsWith('Option') || design.label.includes('Very large'));
+        for (const design of designs) {
+          for (const focus of ['top'] as const) {
+            await show(mockup(design.params, focus));
+            const over = await page.evaluate(() => {
+              const limit = document.documentElement.clientWidth;
+              const by = document.documentElement.scrollWidth - limit;
+              if (by <= 0) return null;
+              const culprits = [...document.querySelectorAll<HTMLElement>('body *')]
+                .filter((el) => el.getClientRects().length > 0 && el.getBoundingClientRect().right > limit + 0.5 && !el.classList.contains('skip'))
+                .slice(0, 3)
+                .map((el) => `${el.tagName.toLowerCase()}${el.className ? '.' + String(el.className).split(' ')[0] : ''}`);
+              return `${by} px too wide (${culprits.join(', ')})`;
+            });
+            if (over) wide.push(`${direction.name}, ${design.label}, ${width} px, region "${focus}": ${over}`);
+          }
+        }
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
+    expect(wide).toEqual([]);
+  }, 600_000);
+
+  it('shows the telephone number in the contact part on a phone, whatever the menu (code review of 2026-11-13, finding "tokens 1")', async () => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    const nav = STEPS.find((step) => step.id === 'nav')!;
+    for (const base of [DEFAULT_PARAMS, ...['midnight-aurora', 'galactic-goth'].map((id) => DIRECTIONS.find((d) => d.id === id)!.params)]) {
+      for (const option of nav.options) {
+        await show(mockup({ ...base, ...resolvePatch(option, base) }, 'contact'));
+        const shown = await page.evaluate(() => {
+          const phone = document.querySelector<HTMLElement>('address .phone');
+          return phone !== null && phone.getClientRects().length > 0 && (phone.textContent ?? '').trim().length > 0;
+        });
+        expect(shown, `menu “${option.label}”`).toBe(true);
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
+  });
+
+  it('keeps the main headline the largest text: above the reading text and above every section heading, at phone, tablet, and desktop widths', async () => {
     const small: string[] = [];
-    for (const viewport of [{ width: 375, height: 800 }, { width: 1280, height: 800 }]) {
+    for (const viewport of [{ width: 375, height: 800 }, { width: 768, height: 900 }, { width: 1280, height: 800 }]) {
       await page.setViewportSize(viewport);
       for (const direction of [{ name: 'plain start', params: DEFAULT_PARAMS }, ...DIRECTIONS]) {
         for (const design of reachable(direction.params, ['size-scale', 'heading-treatment', 'hero', 'emphasis'])) {
-          await show(mockup(design.params, 'top'));
-          const sizes = await page.evaluate(() => ({ h1: parseFloat(getComputedStyle(document.querySelector('.hero h1')!).fontSize), text: parseFloat(getComputedStyle(document.querySelector('.lede')!).fontSize) }));
-          if (sizes.h1 < sizes.text * 1.1) small.push(`${direction.name}, ${design.label}, ${viewport.width} px: headline ${sizes.h1.toFixed(1)} px, text ${sizes.text.toFixed(1)} px`);
+          // A size does not depend on the font file, so this test draws the page without its fonts, which is several times faster.
+          await page.setContent(renderSmallBusiness({ params: design.params, tokens: deriveTokens(design.params, 'advise').css, content: SAMPLE_CONTENT, focus: 'top', still: true, links: 'inert' }), { waitUntil: 'domcontentloaded' });
+          const sizes = await page.evaluate(() => {
+            const size = (el: Element): number => parseFloat(getComputedStyle(el).fontSize);
+            return { h1: size(document.querySelector('.hero h1')!), text: size(document.querySelector('.lede')!), heading: Math.max(...[...document.querySelectorAll('h2, h3')].map(size)) };
+          });
+          const where = `${direction.name}, ${design.label}, ${viewport.width} px`;
+          if (sizes.h1 < sizes.text * 1.1) small.push(`${where}: headline ${sizes.h1.toFixed(1)} px, reading text ${sizes.text.toFixed(1)} px`);
+          // Campaign 4, finding F-13: on three Directions the headline (26 px) stood below the section headings (32 px) on a phone.
+          if (sizes.h1 < sizes.heading * 1.1) small.push(`${where}: headline ${sizes.h1.toFixed(1)} px, largest section heading ${sizes.heading.toFixed(1)} px`);
         }
       }
     }
     await page.setViewportSize({ width: 1280, height: 800 });
     expect(small).toEqual([]);
-  }, 480_000);
+  }, 600_000);
 });
 
 describe('Mockup: no look changes by accident (decision D8)', () => {
@@ -259,7 +312,9 @@ describe('Mockup: no look changes by accident (decision D8)', () => {
     }, [`data:image/png;base64,${a.toString('base64')}`, `data:image/png;base64,${b.toString('base64')}`]);
 
   for (const direction of [{ id: 'plain-start', params: DEFAULT_PARAMS }, ...DIRECTIONS]) {
-    for (const focus of ['top', 'contact'] as const) {
+    // Three parts of the page: the top, the services, and the contact part. The services part was added after a review found
+    // that no stored picture showed it (code review of 2026-11-13, finding "gaps 2").
+    for (const focus of ['top', 'services', 'contact'] as const) {
       it(`${direction.id}, region "${focus}" matches its stored picture`, async () => {
         const current = await shrink(await shot(mockup(direction.params, focus)));
         const file = `${baselineDir}${direction.id}-${focus}.png`;
@@ -275,6 +330,56 @@ describe('Mockup: no look changes by accident (decision D8)', () => {
       });
     }
   }
+
+  /**
+   * A second measure beside the pictures. A shrunk picture forgives small local changes: the review found that 46 of 192
+   * one-Option changes stayed under the picture test's limits, for example square corners in place of round ones. This test
+   * reads the browser's own computed values (corner rounding, lines, shadows, colors, sizes, letter styles) for the main parts
+   * of the page and compares them with stored values, exactly. A changed value fails until someone stores it on purpose.
+   */
+  const PARTS: Record<string, string> = {
+    page: 'body', topBar: '.site-header', brand: '.brand', headline: '.hero h1', openingText: '.lede', button: '.btn-primary',
+    band: '.facts', sectionHeading: '.section-head h2', box: '.service', boxHeading: '.service h3', field: '.field input', promise: '.promise',
+  };
+  const VALUES: string[] = ['color', 'backgroundColor', 'backgroundImage', 'borderTopLeftRadius', 'borderTopWidth', 'borderTopStyle', 'borderTopColor', 'boxShadow', 'fontFamily', 'fontSize', 'fontWeight', 'letterSpacing', 'textTransform', 'paddingTop', 'paddingLeft'];
+  const stylesFile = `${baselineDir}styles.json`;
+  const measureStyles = async (params: DesignParams): Promise<Record<string, Record<string, string> | null>> => {
+    await show(mockup(params, 'top'));
+    return page.evaluate(([parts, values]) => {
+      const out: Record<string, Record<string, string> | null> = {};
+      for (const [name, selector] of Object.entries(parts as Record<string, string>)) {
+        const el = document.querySelector(selector);
+        if (!el) {
+          out[name] = null;
+          continue;
+        }
+        const style = getComputedStyle(el);
+        out[name] = Object.fromEntries((values as string[]).map((value) => [value, String((style as unknown as Record<string, string>)[value])]));
+      }
+      return out;
+    }, [PARTS, VALUES] as [Record<string, string>, string[]]);
+  };
+
+  it('keeps the measured style of the main parts of every Direction: corners, lines, shadows, colors, sizes, letters', async () => {
+    const current: Record<string, Record<string, Record<string, string> | null>> = {};
+    for (const direction of [{ id: 'plain-start', params: DEFAULT_PARAMS }, ...DIRECTIONS]) current[direction.id] = await measureStyles(direction.params);
+    if (UPDATE || !existsSync(stylesFile)) {
+      expect(UPDATE, 'no stored styles; run "npm run visual:update" and review the new file').toBe(true);
+      writeFileSync(stylesFile, `${JSON.stringify(current, null, 1)}\n`);
+      return;
+    }
+    const stored = JSON.parse(readFileSync(stylesFile, 'utf8')) as typeof current;
+    expect(Object.keys(current).sort()).toEqual(Object.keys(stored).sort());
+    for (const id of Object.keys(current)) expect(current[id], `the measured style of “${id}” changed; if that is intended, run "npm run visual:update" and review the difference`).toEqual(stored[id]);
+  });
+
+  it('would notice square corners in place of round ones, which the pictures alone would let pass', async () => {
+    const round = DIRECTIONS.find((d) => d.params.radius > 6 && d.params.radius < 999)!;
+    const before = await measureStyles(round.params);
+    const after = await measureStyles({ ...round.params, radius: 0 });
+    expect(after['button']!['borderTopLeftRadius']).not.toBe(before['button']!['borderTopLeftRadius']);
+    expect(after).not.toEqual(before);
+  });
 
   it('would notice a changed look: one Direction against another fails the comparison', async () => {
     const a = await shrink(await shot(mockup(DIRECTIONS[0]!.params, 'top')));

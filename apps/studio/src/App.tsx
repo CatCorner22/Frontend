@@ -1,11 +1,11 @@
 import {
-  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, activeTunables, conflicts, deriveTokens, findStep, matchingOptionId, nearestSliderValue, nextSliderValue, resolvePatch,
+  DIRECTIONS, FONTS, NOT_CHECKED, STEPS, activeTunables, conflicts, findStep, matchingOptionId, nearestSliderValue, nextSliderValue, resolvePatch,
   type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
-import { Component, useEffect, useMemo, useRef, useState } from 'react';
+import { Component, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
-import { copyText, fileNameFor, probePreviews, readBackups, removeBackup, saveFile, type KeptCopy } from './platform';
-import { LargePreview, Thumbnail, mockupHtml } from './preview';
+import { copyText, fileNameFor, probePreviews, readBackups, removeBackup, saveFile, storedProjectText, type KeptCopy } from './platform';
+import { LargePreview, Thumbnail, mockupHtml, tokensFor } from './preview';
 import { CURRENT, DEVICE_WIDTH, appliedCardId, directionName, paramsForCard, stepOf, useStudio, type Device, type StudioState } from './store';
 import { STUDIO_PARAMS, applyStudioTheme, installSpecimenFonts } from './theme';
 
@@ -58,7 +58,11 @@ const WHEEL = [0, 60, 120, 180, 240, 300].map(hueName).filter((name, i, all) => 
 function sliderValue(t: Tunable, raw: number): string {
   if (String(t.key).toLowerCase().includes('hue')) return `${Math.round(raw)}° (${hueName(raw)})`;
   if (t.key === 'radius' && raw > t.max) return 'fully round';
-  return `${Number(Math.min(raw, t.max).toFixed(3))}${t.unit ?? ''}`;
+  // The text states the value that the design holds. Where the slider's range is narrowed to the part that changes the
+  // picture, a value beyond its end is drawn like the end, and the text says so (it used to state the end as the value).
+  const stated = `${Number(raw.toFixed(3))}${t.unit ?? ''}`;
+  if (raw > t.max || raw < t.min) return `${stated} (drawn like ${Number((raw > t.max ? t.max : t.min).toFixed(3))}${t.unit ?? ''} on this page)`;
+  return stated;
 }
 
 /** The standard Option whose values lie nearest to the design's values, for a Step with sliders. */
@@ -164,7 +168,8 @@ function TopBar(): React.JSX.Element {
       </a>
       <label className="name-field">
         <span className="visually-hidden">Project name</span>
-        <input id="project-name" className="name" value={s.project.name} placeholder="Name this project" onChange={(e) => s.rename(e.target.value)} spellCheck={false} autoComplete="off" maxLength={120} />
+        {/* Until the saved project is open, the field shows a placeholder project; typing into it then would be typing into nothing. */}
+        <input id="project-name" className="name" value={s.project.name} placeholder="Name this project" disabled={!s.ready} onChange={(e) => s.rename(e.target.value)} spellCheck={false} autoComplete="off" maxLength={120} />
       </label>
       <nav className="top-nav" aria-label="Parts of the Studio">
         <a href="#directions" aria-current={s.view === 'directions' ? 'page' : undefined}>1. Directions</a>
@@ -173,7 +178,7 @@ function TopBar(): React.JSX.Element {
       </nav>
       <div className="profile">
         <label htmlFor="a11y-profile">Contrast checks</label>
-        <select id="a11y-profile" value={s.project.a11y} aria-describedby="a11y-meaning" onChange={(e) => s.setProfile(e.target.value as A11yProfile)}>
+        <select id="a11y-profile" value={s.project.a11y} aria-describedby="a11y-meaning" disabled={!s.ready} onChange={(e) => s.setProfile(e.target.value as A11yProfile)}>
           <option value="off">Off</option>
           <option value="advise">Warn me</option>
           <option value="enforce">Fix for me</option>
@@ -182,35 +187,77 @@ function TopBar(): React.JSX.Element {
       </div>
       <button type="button" className="btn small" disabled={s.history.length === 0} onClick={s.undo}>Undo</button>
       <span className="save-state" role="status">{SAVE_LABEL[s.saved]}</span>
+      {/* After a failed save the Studio tries again at the next change. This button lets the owner try at once, for example after making room. */}
+      {s.saved === 'failed' && <button type="button" className="btn small" onClick={s.saveAgain}>Try to save again</button>}
     </header>
   );
 }
 
+/** True while a slider key is down together with Alt, Ctrl, or the command key. */
+let modifiedSliderKey = false;
 /** How many grid points each key moves a slider. Home and End go to the ends. */
 const SLIDER_KEYS: Record<string, number> = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1, PageDown: -10, PageUp: 10, Home: -Infinity, End: Infinity };
+
+let noticesShown = 0;
+/**
+ * Run a notice's action. If the pressed button is gone afterwards (most actions take their notice away), keyboard focus would
+ * rest on nothing; it goes to the main part of the page instead (code review of 2026-11-13, finding "screen 5").
+ */
+function pressed(run: () => void): void {
+  run();
+  window.setTimeout(() => {
+    if (!document.activeElement || document.activeElement === document.body) document.getElementById('main')?.focus();
+  }, 0);
+}
 
 function NoticeBar(): React.JSX.Element | null {
   const notice = useStudio((s) => s.notice);
   const hold = useStudio((s) => s.hold);
   const dismiss = useStudio((s) => s.dismissNotice);
+  // Each new notice gets a number, also when its words equal those of the notice before (two Undo steps on one Step say the
+  // same sentence). The paragraph is then put on the page afresh, so that a screen reader announces it again ("screen 8").
+  const number = useMemo(() => ++noticesShown, [notice]);
+  // On a small window the notices have a strip of limited height that scrolls by itself. A new notice below a long standing
+  // one was then cut through the middle, with its buttons out of sight (campaign 4, round 3). The strip brings each new
+  // notice into view, and it is a keyboard stop with a name, so that its scrolling can be found and used.
+  const strip = useRef<HTMLDivElement | null>(null);
+  const newest = useRef<HTMLDivElement | null>(null);
+  const [scrolls, setScrolls] = useState(false);
+  useEffect(() => {
+    const el = strip.current;
+    if (!el) return;
+    const bring = (): void => {
+      const overflows = el.scrollHeight > el.clientHeight + 1;
+      setScrolls(overflows);
+      if (overflows && newest.current) el.scrollTop = Math.max(0, newest.current.offsetTop + newest.current.offsetHeight - el.clientHeight);
+    };
+    bring();
+    // The strip's own look changes once it is known to scroll (a scrollbar and a border take room), and the window can
+    // change size: the text then wraps anew, and the newest notice is brought into view again. Without this, its last
+    // button could end a few pixels below the visible part (seen on the CI machine, 2026-11-14).
+    const observer = new ResizeObserver(bring);
+    observer.observe(el);
+    for (const row of Array.from(el.children)) observer.observe(row);
+    return () => observer.disconnect();
+  }, [number, hold, notice, scrolls]);
   if (!notice && !hold) return null;
   return (
-    <div className="banners">
+    <div className="banners" ref={strip} data-scrolls={scrolls || undefined} {...(scrolls ? { tabIndex: 0, role: 'group', 'aria-label': 'Notices (this strip scrolls)' } : {})}>
       {/* A notice that needs a decision has its own row. It has no "Dismiss", and no other notice replaces it. */}
       {hold && (
         <div className="banner hold" role={hold.urgent ? 'alert' : 'status'}>
           <p>{hold.text}</p>
           <div className="banner-actions">
-            {hold.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={action.run}>{action.label}</button>)}
+            {hold.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={() => pressed(action.run)}>{action.label}</button>)}
           </div>
         </div>
       )}
       {notice && (
-        <div className="banner" role={notice.urgent ? 'alert' : 'status'}>
-          <p>{notice.text}</p>
+        <div className="banner" ref={newest} role={notice.urgent ? 'alert' : 'status'}>
+          <p key={number}>{notice.text}</p>
           <div className="banner-actions">
-            {notice.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={action.run}>{action.label}</button>)}
-            <button type="button" className="btn small quiet" onClick={dismiss}>Dismiss</button>
+            {notice.actions?.map((action) => <button key={action.label} type="button" className="btn small" onClick={() => pressed(action.run)}>{action.label}</button>)}
+            <button type="button" className="btn small quiet" onClick={() => pressed(dismiss)}>Dismiss</button>
           </div>
         </div>
       )}
@@ -218,7 +265,6 @@ function NoticeBar(): React.JSX.Element | null {
   );
 }
 
-/** A question the owner must answer before work is replaced. The browser's own dialog element keeps keyboard focus inside it and closes on Escape. */
 function ConfirmDialog(): React.JSX.Element | null {
   const confirmation = useStudio((s) => s.confirmation);
   const answer = useStudio((s) => s.answerConfirmation);
@@ -228,13 +274,19 @@ function ConfirmDialog(): React.JSX.Element | null {
     if (confirmation && dialog && !dialog.open) dialog.showModal();
   }, [confirmation]);
   if (!confirmation) return null;
+  // The dialog is closed before the answer takes it off the page. A browser returns keyboard focus to the button that opened
+  // a dialog only when the dialog is closed; taken off the page while open, it left focus on nothing (code review, "screen 5").
+  const reply = (yes: boolean): void => {
+    ref.current?.close();
+    answer(yes);
+  };
   return (
-    <dialog ref={ref} className="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-body" onCancel={(e) => { e.preventDefault(); answer(false); }}>
+    <dialog ref={ref} className="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-body" onCancel={(e) => { e.preventDefault(); reply(false); }}>
       <h2 id="confirm-title">{confirmation.title}</h2>
       <p id="confirm-body">{confirmation.body}</p>
       <div className="actions">
-        <button type="button" className="btn" autoFocus onClick={() => answer(false)}>{confirmation.cancelLabel}</button>
-        <button type="button" className={confirmation.danger ? 'btn danger' : 'btn primary'} onClick={() => answer(true)}>{confirmation.confirmLabel}</button>
+        <button type="button" className="btn" autoFocus onClick={() => reply(false)}>{confirmation.cancelLabel}</button>
+        <button type="button" className={confirmation.danger ? 'btn danger' : 'btn primary'} onClick={() => reply(true)}>{confirmation.confirmLabel}</button>
       </div>
     </dialog>
   );
@@ -312,7 +364,7 @@ const SWATCH_KEYS = ['--bg', '--surface-2', '--text', '--action', '--accent', '-
 
 /** The colors a card produces, as chips. A small picture is too small to compare colors by eye. */
 function Swatches({ params, profile }: { params: DesignParams; profile: A11yProfile }): React.JSX.Element {
-  const hex = deriveTokens(params, profile).hex;
+  const hex = tokensFor(params, profile).hex;
   const colors = [...new Set(SWATCH_KEYS.map((k) => hex[k]).filter((v): v is string => typeof v === 'string'))];
   return (
     <span className="swatches" aria-hidden="true">
@@ -382,14 +434,24 @@ interface Card {
 function ReasonField({ stepId }: { stepId: string }): React.JSX.Element | null {
   const decision = useStudio((s) => s.project.decisions[stepId]);
   const save = useStudio((s) => s.setReason);
-  const [text, setText] = useState(decision?.reason ?? '');
-  useEffect(() => setText(decision?.reason ?? ''), [stepId, decision?.reason]);
+  const stored = decision?.reason ?? '';
+  const [text, setText] = useState(stored);
+  const typed = useRef(text);
+  typed.current = text;
+  // The stored reason changed from elsewhere (Undo, an opened file): show it. While the owner types, the stored reason is
+  // the typed text without its outer spaces, and the field keeps what was typed.
+  useEffect(() => {
+    if (stored !== typed.current.trim()) setText(stored);
+  }, [stored]);
   if (!decision) return null;
   return (
     <label className="reason">
       <span>Why this choice? (optional)</span>
-      <input id="decision-reason" type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => setText(e.target.value)} onBlur={() => { if (text.trim() !== (decision.reason ?? '')) save(text); }} />
-      <small>Your reason is saved in the project file. A later version of the Studio will pass it to the AI coding tool that builds your site.</small>
+      {/* Each typed letter is stored at once, on the Step it was typed for. The field used to store its text only when it
+          lost keyboard focus: Enter, a reload, or the browser's Back button then lost the text, and Back could even store it
+          on another Step (code review of 2026-11-13, findings "screen 4" and "gaps 0"). */}
+      <input id="decision-reason" type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => { setText(e.target.value); save(stepId, e.target.value); }} />
+      <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved in the project file; a later version of the Studio will pass it to the AI coding tool that builds your site.</small>
     </label>
   );
 }
@@ -423,8 +485,12 @@ function StepsView(): React.JSX.Element {
   const shownParams = paramsForCard(s, shown.id);
   const focus: MockupFocus = s.region === 'auto' ? (shown.focus ?? step.focus) : s.region;
   const width = DEVICE_WIDTH[s.device];
-  const thumbWidth = step.thumb?.width ?? width;
-  const thumbRatio = step.thumb?.width ? (step.thumb.width < 600 ? 0.9 : 0.6) : THUMB_RATIO[s.device];
+  // A change of the preview width makes every picture lay its page out again. The large preview and the pressed button answer
+  // at once; the cards' pictures follow at lower priority. Together, in one go, they held the page for 70 to 110 milliseconds
+  // on a Step with 14 cards, and the person saw nothing change for that time (measured 2026-11-14).
+  const cardsDevice = useDeferredValue(s.device);
+  const thumbWidth = step.thumb?.width ?? DEVICE_WIDTH[cardsDevice];
+  const thumbRatio = step.thumb?.width ? (step.thumb.width < 600 ? 0.9 : 0.6) : THUMB_RATIO[cardsDevice];
   const lookingAtApplied = !s.variations && shown.id === applied;
   const sliders = activeTunables(step, s.project.params);
 
@@ -436,6 +502,10 @@ function StepsView(): React.JSX.Element {
   }, [stateKey, cards.length]);
   // Only the Motion Step plays the entrance; on every other Step the page stands still, so that a comparison is not blurred by a fade.
   const large = useMemo(() => mockupHtml(s.project, shownParams, { wireframe: wire, focus, still: step.id !== 'motion' }), [stateKey, shown.id, focus]);
+  // The pictures follow at lower priority. A slider step first moves the knob and its number; the browser then draws the
+  // pictures when it is free, and skips the steps in between while a key is held or the knob is dragged.
+  const shownThumbs = useDeferredValue(thumbs);
+  const shownLarge = useDeferredValue(large.html);
   const readingPair = large.pairs.find((pair) => pair.id === 'text-on-page');
   const clashes = useMemo(() => conflicts({ ...s.project, params: shownParams }).filter((c) => c.stepIds.includes(step.id)), [JSON.stringify(shownParams), step.id]);
 
@@ -444,8 +514,10 @@ function StepsView(): React.JSX.Element {
   cardsRef.current = cards;
   useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
-      if (event.metaKey || event.ctrlKey || event.altKey || isTyping(event.target) || useStudio.getState().confirmation) return;
       const target = event.target as HTMLElement | null;
+      // A list of choices (the "Show this part of the page" list) takes letters, not digits, so the digits keep flipping cards while it has focus.
+      const inList = target?.tagName === 'SELECT' && /^[1-9]$/.test(event.key);
+      if (event.metaKey || event.ctrlKey || event.altKey || (isTyping(event.target) && !inList) || useStudio.getState().confirmation) return;
       const n = Number(event.key);
       if (Number.isInteger(n) && n >= 1 && n <= 9) {
         const card = cardsRef.current[n - 1];
@@ -456,6 +528,9 @@ function StepsView(): React.JSX.Element {
         document.getElementById(`option-${card.id}`)?.focus();
       } else if (event.key === 'Enter' && (!target || target === document.body || target.id === 'main' || target.tagName === 'H1')) {
         event.preventDefault();
+        // A key held down repeats about thirty times a second. Only the first press counts; a held Enter used to run through
+        // the Steps and record a Decision on each (code review of 2026-11-13, finding "screen 2").
+        if (event.repeat) return;
         useStudio.getState().decideAndContinue();
       }
     };
@@ -520,7 +595,7 @@ function StepsView(): React.JSX.Element {
           <button type="button" className="skip-preview" onClick={() => document.querySelector<HTMLElement>('.cards input[type="radio"]:checked')?.focus()}>
             Jump past the preview to the cards
           </button>
-          <LargePreview html={large.html} width={width} replay={replay} title={`Large preview of the sample website: ${shown.label}`} />
+          <LargePreview html={shownLarge} width={width} replay={replay} title={`Large preview of the sample website: ${shown.label}`} />
         </div>
         {step.id === 'contrast' && readingPair && (
           <p className="measure" role="status">Reading text on the page background, on the card you are looking at: {readingPair.ratio} to 1. The guideline asks for at least {readingPair.required} to 1.</p>
@@ -553,6 +628,7 @@ function StepsView(): React.JSX.Element {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') {
               e.preventDefault();
+              if (e.repeat) return;
               s.decideAndContinue();
             }
           }}
@@ -573,7 +649,7 @@ function StepsView(): React.JSX.Element {
             {shown.exemplar && <p><strong>Where you can see it:</strong> {shown.exemplar}</p>}
           </section>
           {step.thumb?.note && <p className="hint">{step.thumb.note}</p>}
-          <div className="tiles" data-device={step.thumb?.width ? 'detail' : s.device}>
+          <div className="tiles" data-device={step.thumb?.width ? 'detail' : cardsDevice}>
             {cards.map((card, i) => {
               const isShown = shown.id === card.id;
               const params = paramsForCard(s, card.id);
@@ -581,7 +657,7 @@ function StepsView(): React.JSX.Element {
               return (
                 <label key={card.id} className="option" data-shown={isShown || undefined} data-in-use={inUse || undefined}>
                   <input id={`option-${card.id}`} type="radio" name="option" value={card.id} checked={isShown} onChange={() => s.show(card.id)} />
-                  <Thumbnail html={thumbs[card.id] ?? ''} width={thumbWidth} ratio={thumbRatio} />
+                  <Thumbnail html={shownThumbs[card.id] ?? thumbs[card.id] ?? ''} width={thumbWidth} ratio={thumbRatio} />
                   <span className="option-title">
                     {i < 9 && <kbd aria-hidden="true">{i + 1}</kbd>}
                     <span>{card.label}</span>
@@ -618,7 +694,7 @@ function StepsView(): React.JSX.Element {
             </>
           )}
         </div>
-        {!s.variations && <ReasonField stepId={step.id} />}
+        {!s.variations && <ReasonField key={step.id} stepId={step.id} />}
         {!s.variations && sliders.length > 0 && (
           <details className="tune">
             <summary>Adjust with sliders</summary>
@@ -631,12 +707,20 @@ function StepsView(): React.JSX.Element {
                 <label key={String(t.key)} className="slider">
                   <span className="slider-name">{t.label}</span>
                   <output htmlFor={`tune-${String(t.key)}`}>{sliderValue(t, value)}</output>
-                  <input id={`tune-${String(t.key)}`} type="range" aria-label={t.label} aria-valuetext={sliderValue(t, value)} min={t.min} max={t.max} step="any" value={Math.min(value, t.max)} onChange={(e) => s.tuneValue(t.key, nearestSliderValue(t, Number(e.target.value)))} onKeyDown={(e) => {
+                  <input id={`tune-${String(t.key)}`} type="range" aria-label={t.label} aria-valuetext={sliderValue(t, value)} min={t.min} max={t.max} step="any" value={Math.min(t.max, Math.max(t.min, value))} onChange={(e) => { if (!modifiedSliderKey) s.tuneValue(t.key, nearestSliderValue(t, Number(e.target.value))); }} onKeyUp={() => { modifiedSliderKey = false; }} onBlur={() => { modifiedSliderKey = false; }} onKeyDown={(e) => {
                     // The slider is drawn without a grid, so that its knob stands exactly on the value; the keys walk the grid here.
                     const steps = SLIDER_KEYS[e.key];
                     if (steps === undefined) return;
+                    // With Alt, Ctrl, or the command key held, the key belongs to the browser (Alt+Left is "back"). The Studio
+                    // leaves the key alone, and it ignores the move that the browser's own slider makes for that key.
+                    if (e.altKey || e.ctrlKey || e.metaKey) {
+                      modifiedSliderKey = true;
+                      return;
+                    }
                     e.preventDefault();
-                    s.tuneValue(t.key, steps === -Infinity ? t.min : steps === Infinity ? t.max : nextSliderValue(t, Math.min(value, t.max), steps));
+                    const next = steps === -Infinity ? t.min : steps === Infinity ? Math.max(value, t.max) : nextSliderValue(t, value, steps);
+                    // A key that cannot move the value does nothing: no hand-set Decision, no Undo step.
+                    if (next !== value) s.tuneValue(t.key, next);
                   }} />
                   {aroundTheWheel ? (
                     <span className="slider-ends" aria-hidden="true"><span>Goes around the color wheel: {WHEEL.join(', ')}, and back to {WHEEL[0]}.</span></span>
@@ -656,9 +740,10 @@ function StepsView(): React.JSX.Element {
 // ───────── Summary ─────────
 
 /** The time at which a copy was kept, on the reader's own clock, or an empty text when the time is unknown. */
+const KEPT_TIME = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 function keptWhen(keptAt: string): string {
   const time = new Date(keptAt);
-  return keptAt && !Number.isNaN(time.getTime()) ? time.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '';
+  return keptAt && !Number.isNaN(time.getTime()) ? KEPT_TIME.format(time) : '';
 }
 
 /**
@@ -688,9 +773,23 @@ function SummaryView(): React.JSX.Element {
   const clashes = useMemo(() => conflicts(s.project), [s.project]);
   const decided = STEPS.filter((st) => s.project.decisions[st.id]).length;
   const [keptTick, setKeptTick] = useState(0);
-  const [removing, setRemoving] = useState<KeptCopy | null>(null);
-  // The list is read again after a notice, a save, or a removal.
-  const keptCopies = useMemo(() => readBackups(), [s.notice, s.saved, keptTick]);
+  // The kept copy that the owner is about to remove, by a name that stays the same when the list is read again. Holding the
+  // list member itself made the question "Yes, remove it for good / No, keep it" vanish whenever the list was read again
+  // (code review, finding "screen 7").
+  const [removing, setRemoving] = useState<string | null>(null);
+  // The list is read again after a notice (every action that keeps a copy posts one), after a removal, and when the owner
+  // comes back to this tab (another tab may have kept a copy). It is not read on every change of the save status: that read
+  // and redrew the whole list twice for each typed letter (code review, finding "saving 8").
+  // A copy that a closing page left, and that holds exactly the saved project, is not listed: the next opening removes it.
+  const keptCopies = useMemo(() => {
+    const saved = storedProjectText();
+    return readBackups().filter((copy) => !(copy.state === 'leaving' && copy.text === saved));
+  }, [s.notice, s.hold, keptTick]);
+  useEffect(() => {
+    const again = (): void => setKeptTick((n) => n + 1);
+    window.addEventListener('focus', again);
+    return () => window.removeEventListener('focus', again);
+  }, []);
   const fileName = fileNameFor(s.project.name);
 
   const download = async (): Promise<void> => {
@@ -753,22 +852,26 @@ function SummaryView(): React.JSX.Element {
               <h3>Copies the Studio kept for you</h3>
               <p className="note">The Studio keeps a copy whenever it is about to replace saved work, or cannot read it. A kept copy stays here until you remove it.</p>
               <ul>
-                {keptCopies.map((copy, index) => (
-                  <li key={`${copy.keptAt}-${index}`}>
-                    <span>{copy.why}{keptWhen(copy.keptAt) && <> Kept on <span className="nowrap">{keptWhen(copy.keptAt)}</span>.</>}</span>
+                {keptCopies.map((copy, index) => {
+                  const id = copy.key ?? `listed|${copy.keptAt}|${copy.text.length}|${index}`;
+                  const when = keptWhen(copy.keptAt);
+                  return (
+                  <li key={id}>
+                    <span>{copy.why}{when && <> Kept on <span className="nowrap">{when}</span>.</>}</span>
                     <span className="button-row">
                       <button type="button" className="btn quiet" onClick={() => { const file = keptCopyFile(copy, index); void saveFile(file.name, file.text); }}>Download this kept copy</button>
-                      {removing === copy ? (
+                      {removing === id ? (
                         <>
-                          <button type="button" className="btn quiet" onClick={() => { setMessage(removeBackup(copy) ? 'The kept copy was removed.' : 'This browser did not let the Studio remove the kept copy.'); setRemoving(null); setKeptTick((n) => n + 1); }}>Yes, remove it for good</button>
+                          <button type="button" className="btn quiet" onClick={() => { setMessage(removeBackup(copy) ? 'The kept copy was removed.' : 'This browser did not let the Studio remove the kept copy.'); setRemoving(null); setKeptTick((n) => n + 1); s.saveAgain(); }}>Yes, remove it for good</button>
                           <button type="button" className="btn quiet" onClick={() => setRemoving(null)}>No, keep it</button>
                         </>
                       ) : (
-                        <button type="button" className="btn quiet" onClick={() => setRemoving(copy)}>Remove this kept copy…</button>
+                        <button type="button" className="btn quiet" onClick={() => setRemoving(id)}>Remove this kept copy…</button>
                       )}
                     </span>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </div>
           )}
@@ -899,7 +1002,7 @@ export function App(): React.JSX.Element {
     void useStudio.getState().init();
     void probePreviews().then(setPreviewsWork);
     const onKey = (event: KeyboardEvent): void => {
-      if ((event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === 'z' && !isTyping(event.target)) {
+      if ((event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === 'z' && !isTyping(event.target) && !useStudio.getState().confirmation) {
         event.preventDefault();
         useStudio.getState().undo();
       }

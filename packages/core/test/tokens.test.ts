@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PARAMS, DIRECTIONS, NOT_CHECKED, PAIRS, SMALL_BUSINESS_CSS, STEPS, TOKEN_OF, deriveTokens, resolvePatch, tokensToCss, type DesignParams } from '../src/index.js';
+import { DEFAULT_PARAMS, DIRECTIONS, NOT_CHECKED, PAIRS, RADIUS_SLIDER_TOP, SMALL_BUSINESS_CSS, STEPS, TOKEN_OF, activeTunables, deriveTokens, resolvePatch, tokensToCss, type DesignParams } from '../src/index.js';
 import { contrastHex, everyDesign, remeasure } from './helpers.js';
 
 const designs = everyDesign();
@@ -299,5 +299,71 @@ describe('the background "Field of stars" and the band on a dark page (decision 
     expect(contrastHex(dark['--accent-2']!, dark['--band-bg']!)).toBeGreaterThan(2);
     expect(contrastHex(dark['--band-bg']!, dark['--bg']!)).toBeGreaterThan(1.5);
     expect(contrastHex(dark['--band-text']!, dark['--band-bg']!)).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe('code review of 2026-11-13: what is drawn is what is measured', () => {
+  const hexOf = (value: string): string[] => value.match(/#[0-9a-f]{6}/g) ?? [];
+
+  it('gives every corner value above the slider one meaning: fully round (finding "engine 4")', () => {
+    const slider = STEPS.find((s) => s.id === 'radius')!.tunables!.find((t) => t.key === 'radius')!;
+    expect(slider.max).toBe(RADIUS_SLIDER_TOP);
+    const pill = deriveTokens({ ...DEFAULT_PARAMS, radius: 999 }, 'advise').css;
+    for (const radius of [29, 500, 998]) {
+      const css = deriveTokens({ ...DEFAULT_PARAMS, radius }, 'advise').css;
+      for (const name of ['--radius-control', '--radius-surface', '--radius-small']) expect(css[name], `${radius}: ${name}`).toBe(pill[name]);
+    }
+    expect(deriveTokens({ ...DEFAULT_PARAMS, radius: 28 }, 'advise').css['--radius-control']).toBe('28px');
+  });
+
+  it('draws a gloss button so that no point of its fill has less contrast with the label than the measured figure (finding "tokens 0")', () => {
+    let checked = 0;
+    for (const { label: name, params } of designs) {
+      for (const profile of ['advise', 'enforce'] as const) {
+        const gloss: DesignParams = { ...params, buttonFinish: 'gloss' };
+        const tokens = deriveTokens(gloss, profile);
+        const pair = tokens.pairs.find((p) => p.id === 'button-label');
+        if (!pair) continue;
+        const measured = contrastHex(tokens.hex['--btn-label']!, tokens.hex['--btn-fill']!);
+        const stops = hexOf(tokens.css['--btn-bg']!);
+        expect(stops.length, name).toBe(2);
+        // One end of the gradient is the measured fill itself; the other end stands farther from the label.
+        expect(stops, name).toContain(tokens.hex['--btn-fill']);
+        for (const stop of stops) expect(contrastHex(tokens.hex['--btn-label']!, stop), `${name}, ${profile}, ${stop}`).toBeGreaterThanOrEqual(measured - 0.005);
+        checked++;
+      }
+    }
+    expect(checked).toBeGreaterThan(30);
+    // The reviewer's own case: reported 4.87 to 1, drawn 3.73 to 1 at the top of the button.
+    const hard = deriveTokens({ ...DEFAULT_PARAMS, buttonFinish: 'gloss', accentHue: 104, accentChroma: 0.3, accentLightness: 0.54 }, 'advise');
+    const reported = contrastHex(hard.hex['--btn-label']!, hard.hex['--btn-fill']!);
+    for (const stop of hexOf(hard.css['--btn-bg']!)) expect(contrastHex(hard.hex['--btn-label']!, stop)).toBeGreaterThanOrEqual(reported - 0.005);
+  });
+
+  it('draws with the same colors that the contrast pairs measure (finding "tokens 6")', () => {
+    for (const { label: name, params } of designs) {
+      for (const profile of ['advise', 'enforce'] as const) {
+        const { css, hex } = deriveTokens(params, profile);
+        expect(css['--btn-color'], `${name}: the button's label`).toBe(hex['--btn-label']);
+        if (params.buttonFinish === 'flat' || params.buttonFinish === 'glow' || params.buttonFinish === 'soft') expect(css['--btn-bg'], `${name}: the button's fill`).toBe(hex['--btn-fill']);
+        if (params.buttonFinish === 'outline' && params.elevation !== 'hard-shadow') expect(css['--btn-border'], `${name}: the outline button's line`).toBe(hex['--btn-label']);
+      }
+    }
+  });
+
+  it('offers, on a dark page, only the part of the "Lightness" slider that changes the main color (finding "engine 2")', () => {
+    const accent = STEPS.find((s) => s.id === 'accent')!;
+    const dark: DesignParams = { ...DEFAULT_PARAMS, theme: 'dark' };
+    const slider = activeTunables(accent, dark).find((t) => t.key === 'accentLightness')!;
+    const whole = accent.tunables!.find((t) => t.key === 'accentLightness')!;
+    expect(activeTunables(accent, DEFAULT_PARAMS).find((t) => t.key === 'accentLightness')).toEqual(whole);
+    expect([slider.min, slider.max]).toEqual([0.48, 0.68]);
+    const color = (accentLightness: number): string => deriveTokens({ ...dark, accentLightness }, 'off').hex['--accent']!;
+    // Inside the offered part, every tenth of the way gives another color.
+    const inside = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => color(slider.min + ((slider.max - slider.min) * i) / 10));
+    expect(new Set(inside).size).toBe(inside.length);
+    // Outside it, nothing changes: that is why the Studio does not offer those parts on a dark page.
+    expect(color(whole.min)).toBe(color(slider.min));
+    expect(color(whole.max)).toBe(color(slider.max));
   });
 });

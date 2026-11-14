@@ -29,15 +29,23 @@ interface ClaudeRuntime {
 
 const runtime = (): ClaudeRuntime | null => (window as unknown as { claude?: ClaudeRuntime }).claude ?? null;
 
-/** The browser copy: an envelope `{ savedAt, project }` as JSON text. */
+/** The browser copy: an envelope `{ savedAt, mark, project }` as JSON text. `mark` names the one save that wrote it; older copies have none. */
 export const LOCAL_KEY = 'refraction.project.v2';
 /** The key that version 1 of the Studio used; it held the bare project. Read once, never written. */
 export const LEGACY_KEY = 'refraction.project.v1';
-/** A copy that was replaced or could not be read. One slot; the owner can download it. */
+/**
+ * Kept copies: copies that were replaced or could not be read. The owner can download or remove each one.
+ * Each kept copy has a storage entry of its own, named `refraction.project.backup.<time>.<random>`. Earlier versions kept
+ * all copies in one list under `refraction.project.backup`; that list is still read, and it is rewritten only when the owner
+ * removes one of its members.
+ */
 export const BACKUP_KEY = 'refraction.project.backup';
+const COPY_PREFIX = `${BACKUP_KEY}.`;
 export const PREFS_KEY = 'refraction.prefs.v1';
 const DOC_PATH = 'projects/current';
 const READ_TIMEOUT_MS = 10_000;
+/** A write to the page database that has not answered after this time counts as not done; later writes do not wait for it. */
+const WRITE_TIMEOUT_MS = 10_000;
 
 /** One saved copy, as raw text. The caller parses and checks it. */
 export interface RawCopy {
@@ -45,6 +53,8 @@ export interface RawCopy {
   text: string;
   /** When the copy was saved (ISO 8601), or `null` when the copy carries no time (a version-1 copy). */
   savedAt: string | null;
+  /** The mark of the save that wrote the browser copy, when it has one. */
+  mark?: string;
 }
 
 export interface LoadResult {
@@ -62,8 +72,11 @@ let dbPromise: Promise<Db | null> | null = null;
 function database(): Promise<Db | null> {
   if (!dbPromise) {
     const rt = runtime();
+    // The call sits inside a promise chain, so that a runtime whose `use` is missing, throws at once, or returns something
+    // that is not a promise counts as "no page database", instead of stopping the Studio from opening the browser copy
+    // (code review of 2026-11-13, finding "saving 1").
     dbPromise = rt
-      ? withTimeout(rt.use('db').catch(() => null), READ_TIMEOUT_MS).then((db) => (db === TIMED_OUT ? null : db))
+      ? withTimeout(Promise.resolve().then(() => rt.use('db')).catch(() => null), READ_TIMEOUT_MS).then((db) => (db === TIMED_OUT || !db || typeof db.doc !== 'function' ? null : db))
       : Promise.resolve(null);
   }
   return dbPromise;
@@ -72,10 +85,19 @@ function database(): Promise<Db | null> {
 /** True after a read of the page database has succeeded. Until then the Studio does not write there. */
 let pageReadSucceeded = false;
 /** The save time of the browser copy as this tab last saw or wrote it. */
-let browserSavedAtSeen: string | null = null;
+/**
+ * The identity of the browser copy as this tab last saw or wrote it. It tells "my own save" from "another tab's save".
+ * The save time alone cannot do that: two tabs that save within the same millisecond write the same time, and each then took
+ * the other's save for its own (campaign 4, finding F-12). So each save carries a mark that no other save has.
+ */
+let browserCopySeen: string | null = null;
+const identityOf = (copy: RawCopy): string | null => copy.mark ?? copy.savedAt;
+const tabMark = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+let savesFromThisTab = 0;
+const nextMark = (): string => `${tabMark}.${(savesFromThisTab++).toString(36)}`;
 
-function envelope(text: string, savedAt: string): string {
-  return `{"savedAt":${JSON.stringify(savedAt)},"project":${text}}`;
+function envelope(text: string, savedAt: string, mark: string): string {
+  return `{"savedAt":${JSON.stringify(savedAt)},"mark":${JSON.stringify(mark)},"project":${text}}`;
 }
 
 /** Split a browser copy into its save time and its project text. Returns `null` when the text is not an envelope. */
@@ -85,7 +107,7 @@ function openEnvelope(raw: string): RawCopy | null {
     if (typeof parsed !== 'object' || parsed === null) return null;
     const record = parsed as Record<string, unknown>;
     if (typeof record['savedAt'] !== 'string' || typeof record['project'] !== 'object' || record['project'] === null) return null;
-    return { text: JSON.stringify(record['project']), savedAt: record['savedAt'] };
+    return { text: JSON.stringify(record['project']), savedAt: record['savedAt'], ...(typeof record['mark'] === 'string' ? { mark: record['mark'] } : {}) };
   } catch {
     return null;
   }
@@ -112,7 +134,7 @@ function readBrowser(): LoadResult['browser'] {
     if (current !== null && current !== '') {
       // Text that is not an envelope is handed over as it is, so that the caller can keep it as an unreadable copy.
       const opened = openEnvelope(current) ?? { text: current, savedAt: null };
-      browserSavedAtSeen = opened.savedAt;
+      browserCopySeen = identityOf(opened);
       return opened;
     }
     const legacy = window.localStorage.getItem(LEGACY_KEY);
@@ -135,14 +157,25 @@ export async function retryPageRead(): Promise<LoadResult['page']> {
   return readPage();
 }
 
-export interface KeptCopy { keptAt: string; why: string; text: string }
+export interface KeptCopy {
+  keptAt: string;
+  why: string;
+  text: string;
+  /** The storage entry that holds this copy. Absent for a member of the earlier one-list form. */
+  key?: string;
+  /**
+   * Absent: a lasting copy. Only the owner removes a lasting copy.
+   * `running`: the copy of a tab that is not saving. That tab puts a newer copy in its place each time it goes to the background.
+   * `leaving`: written by a page that closed, or went to the background, with a change it had not saved yet. The next opening
+   * removes it when the saved project holds the same work, and makes it a lasting copy otherwise.
+   * A running or leaving copy can go away without the owner's doing, so nothing may count on one that another tab wrote.
+   */
+  state?: 'running' | 'leaving';
+}
 const UNKNOWN_FORM = 'An earlier kept copy, in a form this version of the Studio does not know.';
 
-/**
- * Every kept copy, newest first. The Studio keeps a copy whenever it is about to replace saved work, or cannot read it.
- * An earlier version stored one copy only; that single copy, and any content this version cannot interpret, is carried over (finding S2-01).
- */
-export function readBackups(): KeptCopy[] {
+/** The copies in the earlier form: one list (or one single copy) under one storage entry. Nothing is dropped (findings S2-01, S3-04). */
+function readListedCopies(): KeptCopy[] {
   let raw: string | null;
   try {
     raw = window.localStorage.getItem(BACKUP_KEY);
@@ -157,7 +190,7 @@ export function readBackups(): KeptCopy[] {
   };
   try {
     const parsed: unknown = JSON.parse(raw);
-    // A list member that this version cannot interpret is kept as it is, as a copy of its own; nothing is dropped (finding S3-04).
+    // A list member that this version cannot interpret is kept as it is, as a copy of its own.
     if (Array.isArray(parsed)) return parsed.map((member) => one(member) ?? { keptAt: '', why: UNKNOWN_FORM, text: typeof member === 'string' ? member : JSON.stringify(member) });
     const single = one(parsed);
     if (single) return [single];
@@ -168,14 +201,236 @@ export function readBackups(): KeptCopy[] {
 }
 
 /**
+ * One kept copy as stored in its own entry: a first line with the time and the reason (JSON), then the copy's text, untouched.
+ * The text is not wrapped in JSON, so listing many copies never has to parse megabytes, and the copy comes back character for character.
+ */
+function openCopy(key: string, raw: string): KeptCopy {
+  const end = raw.indexOf('\n');
+  if (end > 0) {
+    try {
+      const head = JSON.parse(raw.slice(0, end)) as { keptAt?: unknown; why?: unknown; state?: unknown } | null;
+      if (head && typeof head === 'object') {
+        const state = head.state === 'running' || head.state === 'leaving' ? head.state : undefined;
+        return { key, keptAt: String(head.keptAt ?? ''), why: String(head.why ?? ''), text: raw.slice(end + 1), ...(state ? { state } : {}) };
+      }
+    } catch {
+      // Fall through: not in the form this version writes.
+    }
+  }
+  return { key, keptAt: '', why: UNKNOWN_FORM, text: raw };
+}
+
+/** Every kept copy, newest first. The Studio keeps a copy whenever it is about to replace saved work, or cannot read it. */
+export function readBackups(): KeptCopy[] {
+  const own: KeptCopy[] = [];
+  try {
+    const store = window.localStorage;
+    for (let i = 0; i < store.length; i++) {
+      const key = store.key(i);
+      if (key === null || !key.startsWith(COPY_PREFIX)) continue;
+      const raw = store.getItem(key);
+      if (raw !== null) own.push(openCopy(key, raw));
+    }
+  } catch {
+    return [];
+  }
+  // Newest first. The entry's name starts with its time, which settles the order of two copies kept in the same millisecond.
+  own.sort((a, b) => (b.key ?? '').localeCompare(a.key ?? ''));
+  return [...own, ...readListedCopies()];
+}
+
+let keptInThisTab = 0;
+/** A name for a new storage entry of a kept copy. It starts with the time, and no other entry has it. */
+const newCopyKey = (keptAt: string): string => `${COPY_PREFIX}${keptAt}.${(keptInThisTab++).toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+/** A kept copy as it is stored: one line with the time, the reason, and the state (JSON), then the copy's text, untouched. */
+const copyEntry = (keptAt: string, why: string, text: string, state?: KeptCopy['state']): string => `${JSON.stringify(state ? { keptAt, why, state } : { keptAt, why })}\n${text}`;
+/** The storage entry of this tab's running copy, and of this tab's leaving copy (see `KeptCopy.state`). */
+let runningCopy: string | null = null;
+let leavingCopy: string | null = null;
+const isLasting = (copy: KeptCopy): boolean => copy.state === undefined;
+const isMine = (copy: KeptCopy, key: string | null): boolean => key !== null && copy.key === key;
+
+/**
+ * True when this text is kept already, in a copy that stays: a lasting copy, or this tab's own running copy.
+ * Another tab's running copy does not count, and no leaving copy counts: the tab that wrote such a copy replaces or removes
+ * it later. A tab that counted on one and wrote nothing of its own lost its work when that happened (campaign 4, round 3).
+ */
+export function keptAlready(text: string): boolean {
+  return readBackups().some((copy) => copy.text === text && (isLasting(copy) || isMine(copy, runningCopy)));
+}
+
+/**
  * Keep a copy that is about to be replaced, or that could not be read. It joins the copies already kept; it never replaces one.
  * Returns false when the browser refuses (for example, storage is full); the copies already kept stay as they were.
+ *
+ * The copy goes into a new storage entry of its own, in one write. An earlier version rewrote one shared list; two tabs that
+ * kept a copy in the same moment could then each rewrite the list from the same starting point, and one copy replaced the
+ * other (campaign 4, finding F-10).
  */
 export function keepBackup(text: string, why: string): boolean {
   try {
-    const kept = readBackups();
-    if (kept.some((copy) => copy.text === text)) return true;
-    window.localStorage.setItem(BACKUP_KEY, JSON.stringify([{ keptAt: new Date().toISOString(), why, text }, ...kept]));
+    const store = window.localStorage;
+    const copies = readBackups();
+    if (copies.some((copy) => copy.text === text && isLasting(copy))) return true;
+    const mine = copies.find((copy) => copy.text === text && isMine(copy, runningCopy));
+    if (mine?.key !== undefined) {
+      // This tab's own running copy holds exactly this text. It becomes the lasting copy, under the new reason, and this tab
+      // stops treating it as replaceable. Before, the Studio counted the text as kept and wrote nothing; the next time the tab
+      // went to the background, it put a newer running copy in this one's place, and the kept text was gone (round 3).
+      runningCopy = null;
+      try {
+        store.setItem(mine.key, copyEntry(mine.keptAt, why, text));
+      } catch {
+        try {
+          // No room for the new reason: the copy keeps its earlier words.
+          store.setItem(mine.key, copyEntry(mine.keptAt, mine.why, text));
+        } catch {
+          // The entry stays exactly as it is. No tab removes it any more.
+        }
+      }
+      return true;
+    }
+    const keptAt = new Date().toISOString();
+    store.setItem(newCopyKey(keptAt), copyEntry(keptAt, why, text));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Keep a copy of work that grows while it cannot be saved (a tab that is not saving, each time it goes to the background or
+ * closes). The new copy takes the place of the one this tab kept the time before, so that one stopped session leaves one
+ * copy, not one per tab switch (code review, finding "saving 7"). The new copy is written before the earlier one is removed.
+ */
+export function keepRunningCopy(text: string, why: string): boolean {
+  const store = window.localStorage;
+  try {
+    if (keptAlready(text)) return true;
+  } catch {
+    return false;
+  }
+  const keptAt = new Date().toISOString();
+  const key = newCopyKey(keptAt);
+  const value = copyEntry(keptAt, why, text, 'running');
+  const earlier = runningCopy;
+  try {
+    store.setItem(key, value);
+    if (earlier !== null) store.removeItem(earlier);
+    runningCopy = key;
+    return true;
+  } catch {
+    // No room for both. Put the new copy in the earlier one's place; if even that fails, put the earlier one back.
+    if (earlier === null) return false;
+    let before: string | null = null;
+    try {
+      before = store.getItem(earlier);
+      store.removeItem(earlier);
+      store.setItem(key, value);
+      runningCopy = key;
+      return true;
+    } catch {
+      try {
+        if (before !== null) store.setItem(earlier, before);
+      } catch {
+        // Storage refuses everything; the earlier copy is gone from this attempt, and the caller reports the failure.
+      }
+      return false;
+    }
+  }
+}
+/** The owner settled the stopped save: this tab's running copy stays as a lasting copy, and the next stopped session keeps a copy of its own. */
+export function endRunningCopy(): void {
+  const key = runningCopy;
+  runningCopy = null;
+  if (key === null) return;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (raw === null) return;
+    const copy = openCopy(key, raw);
+    if (copy.state === 'running') window.localStorage.setItem(key, copyEntry(copy.keptAt, copy.why, copy.text));
+  } catch {
+    // The copy stays as it is. No tab removes it.
+  }
+}
+
+/**
+ * A page that closes, or goes to the background, with a change it has not saved yet writes the saved project at once. Two
+ * pages that do so in the same instant cannot see each other's write: each finds the saved project as it last saw it, each
+ * writes, and the second write replaces the first without a kept copy (campaign 4, round 3: 2 of 22 trials). So each page
+ * first puts its work into an entry of its own, which no other page writes. A page that lives on removes that entry after
+ * its next save. Otherwise the next opening settles it (see `settleLeavingCopies`).
+ * Returns false when the browser refuses; the page then writes the saved project as before.
+ */
+export function keepLeavingCopy(text: string, why: string): boolean {
+  try {
+    const store = window.localStorage;
+    const earlier = leavingCopy;
+    if (earlier !== null) {
+      const raw = store.getItem(earlier);
+      if (raw !== null && openCopy(earlier, raw).text === text) return true;
+    }
+    const keptAt = new Date().toISOString();
+    const key = newCopyKey(keptAt);
+    store.setItem(key, copyEntry(keptAt, why, text, 'leaving'));
+    leavingCopy = key;
+    if (earlier !== null) store.removeItem(earlier);
+    return true;
+  } catch {
+    return false;
+  }
+}
+/** This page lives on and has saved since: its leaving copy has done its work. */
+export function dropLeavingCopy(): void {
+  const key = leavingCopy;
+  leavingCopy = null;
+  if (key === null) return;
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // It stays; the next opening settles it.
+  }
+}
+/**
+ * At opening: settle the copies that pages left as they closed. One that holds the same work as the saved project, or as a
+ * lasting copy, is removed: that work is safe without it. Any other becomes a lasting copy: it holds work that a later write
+ * replaced. Returns the number of copies that became lasting copies, so that the Studio can say so.
+ */
+export function settleLeavingCopies(storedText: string | null): number {
+  let kept = 0;
+  try {
+    const store = window.localStorage;
+    const copies = readBackups();
+    for (const copy of copies) {
+      if (copy.state !== 'leaving' || copy.key === undefined || isMine(copy, leavingCopy)) continue;
+      if (copy.text === storedText || copies.some((other) => other.text === copy.text && isLasting(other))) {
+        store.removeItem(copy.key);
+        continue;
+      }
+      store.setItem(copy.key, copyEntry(copy.keptAt, copy.why, copy.text));
+      delete copy.state;
+      kept++;
+    }
+  } catch {
+    // A copy that could not be settled stays as it is, and the Summary lists it with the other kept copies.
+  }
+  return kept;
+}
+
+const KEPT_NOTE_KEY = 'refraction.kept.note';
+/** Leave word for the next opening: a page kept unsaved work as a copy while it closed or reloaded, when it could tell nobody. */
+export function leaveKeptNote(): void {
+  try {
+    window.localStorage.setItem(KEPT_NOTE_KEY, '1');
+  } catch {
+    // The copy is kept all the same; only the word about it is missing.
+  }
+}
+/** True, once, when a page left such word. */
+export function takeKeptNote(): boolean {
+  try {
+    if (window.localStorage.getItem(KEPT_NOTE_KEY) === null) return false;
+    window.localStorage.removeItem(KEPT_NOTE_KEY);
     return true;
   } catch {
     return false;
@@ -185,9 +440,16 @@ export function keepBackup(text: string, why: string): boolean {
 /** Remove one kept copy, on the owner's explicit request. Returns false when the browser refuses. */
 export function removeBackup(copy: KeptCopy): boolean {
   try {
-    const rest = readBackups();
+    if (copy.key !== undefined) {
+      window.localStorage.removeItem(copy.key);
+      return true;
+    }
+    const rest = readListedCopies();
     // Exactly one copy goes, even when two copies hold the same text and time (finding S3-05).
-    const index = rest.findIndex((other) => other.text === copy.text && other.keptAt === copy.keptAt);
+    // The reason is compared as well: of two copies with the same text and time, the one that the owner chose goes
+    // (campaign 4, finding F-25: the first of the two went).
+    const exact = rest.findIndex((other) => other.text === copy.text && other.keptAt === copy.keptAt && other.why === copy.why);
+    const index = exact !== -1 ? exact : rest.findIndex((other) => other.text === copy.text && other.keptAt === copy.keptAt);
     if (index === -1) return true;
     rest.splice(index, 1);
     if (rest.length === 0) window.localStorage.removeItem(BACKUP_KEY);
@@ -228,13 +490,30 @@ export function saveBrowserNow(projectText: string, savedAt: string): 'saved' | 
       // Text that is not a saved copy at all is kept in the backup slot before anything replaces it.
       if (!stored && existing !== replaceableText && !keepBackup(existing, 'A saved copy that could not be read.')) return 'failed';
       // Another tab or window saved after this tab last looked: do not replace its work silently.
-      if (stored && stored.savedAt !== browserSavedAtSeen && stored.text !== projectText) return 'conflict';
+      if (stored && identityOf(stored) !== browserCopySeen && stored.text !== projectText) return 'conflict';
     }
-    window.localStorage.setItem(LOCAL_KEY, envelope(projectText, savedAt));
-    browserSavedAtSeen = savedAt;
+    const mark = nextMark();
+    window.localStorage.setItem(LOCAL_KEY, envelope(projectText, savedAt, mark));
+    browserCopySeen = mark;
     return 'saved';
   } catch {
     return 'failed';
+  }
+}
+
+/**
+ * True when the browser copy is not the one this tab last saw or wrote: another tab or window saved since. A tab normally
+ * hears of that through a storage event. A page that the browser restores from its back-forward cache hears nothing, so the
+ * Studio also looks when the owner comes back to a tab, and before a tab closes.
+ */
+export function storedCopyChangedElsewhere(): boolean {
+  try {
+    const raw = window.localStorage.getItem(LOCAL_KEY);
+    if (!raw) return false;
+    const stored = openEnvelope(raw);
+    return stored !== null && identityOf(stored) !== browserCopySeen;
+  } catch {
+    return false;
   }
 }
 
@@ -242,7 +521,8 @@ export function saveBrowserNow(projectText: string, savedAt: string): 'saved' | 
 export function adoptStoredCopy(): void {
   try {
     const existing = window.localStorage.getItem(LOCAL_KEY);
-    browserSavedAtSeen = existing ? (openEnvelope(existing)?.savedAt ?? null) : null;
+    const stored = existing ? openEnvelope(existing) : null;
+    browserCopySeen = stored ? identityOf(stored) : null;
     // The owner decided that this exact text may be replaced, whether or not a copy of it could be kept (finding S3-02).
     replaceableText = existing;
   } catch {
@@ -258,11 +538,12 @@ export async function saveProject(projectText: string): Promise<SaveOutcome> {
   let outcome: SaveOutcome = browser === 'saved' ? 'browser' : 'failed';
   const db = await database();
   if (db && pageReadSucceeded) {
-    const next = writing.then(() => db.doc(DOC_PATH).set({ project: projectText, savedAt }));
-    writing = next.catch(() => undefined);
+    // A write has a time limit, as a read has. Without one, a single write that never answered left the status line at
+    // "Saving…" for the rest of the session, and every later write waited behind it (code review, finding "saving 3").
+    const next = writing.then(() => withTimeout(db.doc(DOC_PATH).set({ project: projectText, savedAt }), WRITE_TIMEOUT_MS));
+    writing = next.then(() => undefined, () => undefined);
     try {
-      await next;
-      outcome = 'page';
+      if ((await next) !== TIMED_OUT) outcome = 'page';
     } catch {
       // Keep the browser outcome.
     }
@@ -271,11 +552,11 @@ export async function saveProject(projectText: string): Promise<SaveOutcome> {
 }
 
 /** Call `onChange` when another tab or window saves the project. Returns a function that stops listening. */
-export function watchOtherTabs(onChange: (copy: RawCopy) => void): () => void {
+export function watchOtherTabs(onChange: () => void): () => void {
   const listener = (event: StorageEvent): void => {
     if (event.key !== LOCAL_KEY || event.newValue === null) return;
     const opened = openEnvelope(event.newValue);
-    if (opened && opened.savedAt !== browserSavedAtSeen) onChange(opened);
+    if (opened && identityOf(opened) !== browserCopySeen) onChange();
   };
   window.addEventListener('storage', listener);
   return () => window.removeEventListener('storage', listener);
@@ -384,6 +665,8 @@ export function probePreviews(): Promise<boolean> {
       }
       finish(ok);
     });
+    // A fixed text of the Studio's own; no data flows into it.
+    // eslint-disable-next-line no-restricted-properties
     frame.srcdoc = '<!doctype html><title>probe</title><p>ok</p>';
     document.body.append(frame);
   });

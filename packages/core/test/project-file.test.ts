@@ -121,8 +121,10 @@ describe('saved projects: references to the Catalog are recomputed, never truste
     base.decisions.nav = { stepId: 'hero', optionId: 'option-that-was-renamed', kind: 'picked', rejected: ['ghost', 'top-inline'], values: { nav: 'side-rail' }, at: 'javascript:alert(1)' };
     const result = ok(base);
     const nav = result.project.decisions['nav']!;
-    // The design value is the truth: the file's design says "split-cta", so the Decision says so too.
-    expect(nav).toEqual({ stepId: 'nav', optionId: 'split-cta', kind: 'picked', rejected: ['top-inline', 'top-centered', 'side-rail'], values: { nav: 'split-cta' }, at: '1970-01-01T00:00:00.000Z' });
+    // The design value is the truth: the file's design says "split-cta", so the Decision says so too. The list of rejected
+    // Options keeps what the file lists and the Catalog has ("top-inline"), drops what the Catalog lacks ("ghost"), and gains
+    // nothing: the Studio no longer fills the list with every other Option of the Step (campaign 4, round 3; decision D50).
+    expect(nav).toEqual({ stepId: 'nav', optionId: 'split-cta', kind: 'picked', rejected: ['top-inline'], values: { nav: 'split-cta' }, at: '1970-01-01T00:00:00.000Z' });
     for (const [id, decision] of Object.entries(result.project.decisions)) {
       const s = findStep(id)!;
       expect(decision.stepId).toBe(id);
@@ -142,13 +144,75 @@ describe('saved projects: references to the Catalog are recomputed, never truste
     expect(result.notes).toEqual(['One Decision in the file named a choice that the file’s own design values do not show. The Studio follows the design values, so it changed that Decision to match them.']);
   });
 
-  it('marks a pick as hand-set when its Option is no longer in the Catalog, and keeps the value', () => {
+  it('marks a pick as hand-set when its design values match no Option, keeps the value, and says only what it knows', () => {
     const base = roundTrip(pick(createProject('P'), 'radius', 'soft', AT)) as Record<string, any>;
     base.params.radius = 11;
     const result = ok(base);
     expect(result.project.params.radius).toBe(11);
     expect(result.project.decisions['radius']).toMatchObject({ kind: 'tuned', optionId: null, values: { radius: 11 } });
-    expect(result.notes.join(' ')).toMatch(/marked as hand-set/);
+    // The Catalog has the Option "soft"; only the value differs. The note used to say that the Catalog lacks the Option
+    // (campaign 4, round 3). It now states what is true in every such case.
+    expect(result.notes).toEqual(['One Decision was recorded as a picked Option, but its design values match no Option of this version of the Catalog. Its values were kept and it is now marked as hand-set.']);
+    expect(result.notes.join(' ')).not.toMatch(/does not have/);
+  });
+
+  it('never adds to a Decision’s list of rejected Options, and drops from it only what cannot stand (campaign 4, round 3)', () => {
+    // A pick whose list names one rejected Option keeps exactly that list, and opening says nothing, because nothing changed.
+    const partial = roundTrip(setReason(pick(createProject('P'), 'radius', 'soft', AT), 'radius', 'tried square only')) as Record<string, any>;
+    partial.decisions.radius.rejected = ['square'];
+    const kept = ok(partial);
+    expect(kept.project.decisions['radius']).toMatchObject({ kind: 'picked', optionId: 'soft', rejected: ['square'], reason: 'tried square only' });
+    expect(kept.notes).toEqual([]);
+    // A file that contradicts itself: it records "pill" as picked and as rejected, repeats an entry, names an Option that
+    // does not exist, and its design value (20) matches no Option. The Option that the file records as picked is not listed
+    // as rejected afterwards; the repeat and the unknown name go.
+    const odd = roundTrip(pick(createProject('P'), 'radius', 'pill', AT)) as Record<string, any>;
+    odd.params.radius = 20;
+    odd.decisions.radius.values = { radius: 20 };
+    odd.decisions.radius.rejected = ['square', 'crisp', 'square', 'ghost', 'subtle', 'pill'];
+    const settled = ok(odd);
+    expect(settled.project.decisions['radius']).toMatchObject({ kind: 'tuned', optionId: null, rejected: ['square', 'crisp', 'subtle'], values: { radius: 20 } });
+    // A project that the Studio wrote comes back exactly as it was, list included.
+    const own = pick(pick(createProject('P'), 'radius', 'soft', AT), 'nav', 'side-rail', AT);
+    expect(ok(roundTrip(own)).project).toEqual(own);
+  });
+
+  it('brings a design value that no slider and no Option can set into reach, and says so (campaign 4, round 3)', () => {
+    // The format allows a text size of 30 and a spacing of 2; the sliders end at less. The Studio described such a value with
+    // the slider's end ("22px" for 30) and recorded a Decision under that description.
+    const far = roundTrip(createProject('P')) as Record<string, any>;
+    Object.assign(far.params, { baseSize: 30, scaleRatio: 2, density: 2, radius: 40, borderWeight: 8 });
+    const result = ok(far);
+    for (const step of STEPS) {
+      for (const t of step.tunables ?? []) {
+        const value = result.project.params[t.key] as number;
+        const ofAnOption = step.options.some((o) => o.patch[t.key] === value);
+        expect(ofAnOption || (value >= t.min && value <= t.max), `${String(t.key)} = ${value}`).toBe(true);
+      }
+    }
+    // A corner value above the slider's top means "fully round", so it becomes the value of that Option.
+    expect(result.project.params.radius).toBe(999);
+    expect(result.notes).toEqual(['5 design values in the file lay outside what the Studio can set. The Studio brought each to the nearest value that it can set, and the design changed with them.']);
+    // Every Direction, and a project picked through every Option, is within reach already: opening changes nothing.
+    for (const direction of DIRECTIONS) {
+      let project = applyDirection(createProject('P'), direction);
+      expect(ok(roundTrip(project)).notes, direction.name).toEqual([]);
+      for (const step of STEPS) for (const option of step.options) {
+        project = pick(project, step.id, option.id, AT);
+        const back = ok(roundTrip(project));
+        expect(back.notes, `${direction.name} / ${step.id} / ${option.id}`).toEqual([]);
+        expect(back.project.params).toEqual(project.params);
+      }
+    }
+  });
+
+  it('says that an old file named a Direction it does not know, as it does for a new file (campaign 4, round 3)', () => {
+    const old = JSON.parse(JSON.stringify(fixture('project-v1-direction.json'))) as Record<string, any>;
+    old.direction = 'Quiet Harbor Classic';
+    const result = ok(old);
+    expect(result.migratedFrom).toBe(1);
+    expect(result.project.direction).toBe('generated-0-0');
+    expect(result.notes).toContain('The file named a Direction that this version of the Studio does not have. The design itself is unchanged.');
   });
 
   it('replaces a Direction name it does not know, and says so', () => {
@@ -237,6 +301,13 @@ describe('saved projects: files from version 1 (finding M-07)', () => {
     const other = fixture('project-v1-plain.json') as Record<string, any>;
     other.decisions = 'none';
     expect(parseProject(other).ok).toBe(false);
+  });
+
+  it('names the design values, not a part the file lacks, when a version-1 file that started plain is damaged (code review, finding "engine 6")', () => {
+    const v1 = JSON.parse(JSON.stringify(fixture('project-v1-plain.json'))) as Record<string, any>;
+    expect(v1.base).toBeUndefined();
+    v1.params.radius = 'x';
+    expect(refusal(v1)).toBe('The file does not match the project format. The problem is in the part that holds the design values.');
   });
 
   it('covers every Step in a fixture or in the current catalog', () => {

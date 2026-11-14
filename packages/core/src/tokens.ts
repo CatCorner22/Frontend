@@ -226,6 +226,7 @@ export const PAIRS: readonly PairSpec[] = [
 /** What the contrast checks do not cover. The Studio shows this list beside the contrast notes. */
 export const NOT_CHECKED: readonly string[] = [
   'Text over a background glow, soft clouds of color, a pattern of dots, lines, or stars, or a frosted-glass box, where the color behind the text varies from point to point.',
+  'The fine grain texture. It lies over the whole page and darkens text and background a little; on a light page that lowers every figure by a few percent.',
   'A headline filled with a fade or with a two-color gradient. “Fix for me” keeps both ends of the fill at 3 to 1 or better against the first screen; “Warn me” does not measure the fill.',
   'Text over your photographs.',
   'How a button or a link looks while the pointer is over it, or while it is pressed.',
@@ -370,16 +371,24 @@ function buttonTokens(p: DesignParams, pal: Palette): Record<string, string> {
   const hoverBy = a.l > 0.55 ? -0.05 : 0.06;
   let out: Record<string, string>;
   switch (p.buttonFinish) {
-    case 'gloss':
+    case 'gloss': {
       // Light from above: a lighter top, a bright inner edge, a dark ring, and a tinted drop shadow.
+      // The contrast check measures the label against the flat fill. So the fill is the end of the gradient that stands
+      // nearest the label's own lightness, and the other end moves away from the label: every point of the gradient then has
+      // at least the measured contrast. Before, a light label sat on a top that was lighter than the measured fill, and a
+      // pair reported at 4.87 to 1 was drawn at 3.73 to 1 (code review of 2026-11-13, finding "tokens 0").
+      const lightLabel = pal.btnLabel.l > a.l;
+      const top = lightLabel ? a : shiftL(a, 0.09);
+      const bottom = lightLabel ? shiftL(a, -0.09) : a;
       out = {
-        '--btn-bg': `linear-gradient(to bottom, ${toCss(shiftL(a, 0.07))}, ${toCss(shiftL(a, -0.02))})`,
-        '--btn-bg-hover': `linear-gradient(to bottom, ${toCss(shiftL(a, 0.1))}, ${toCss(shiftL(a, 0.01))})`,
+        '--btn-bg': `linear-gradient(to bottom, ${toCss(top)}, ${toCss(bottom)})`,
+        '--btn-bg-hover': `linear-gradient(to bottom, ${toCss(shiftL(top, 0.03))}, ${toCss(shiftL(bottom, 0.03))})`,
         '--btn-color': toCss(pal.btnLabel), '--btn-border': 'transparent',
         '--btn-shadow': `inset 0 1px 0 oklch(100% 0 0 / ${dark ? 0.2 : 0.3}), inset 0 -1px 0 oklch(0% 0 0 / 0.14), 0 0 0 1px ${toCss(shiftL(a, -0.1))}, 0 1px 2px oklch(0% 0 0 / 0.24), 0 4px 10px -2px ${toCssAlpha(a, 0.4)}`,
         '--btn-shadow-hover': `inset 0 1px 0 oklch(100% 0 0 / ${dark ? 0.24 : 0.36}), inset 0 -1px 0 oklch(0% 0 0 / 0.14), 0 0 0 1px ${toCss(shiftL(a, -0.1))}, 0 2px 4px oklch(0% 0 0 / 0.24), 0 8px 18px -4px ${toCssAlpha(a, 0.5)}`,
       };
       break;
+    }
     case 'glow':
       out = {
         '--btn-bg': toCss(a), '--btn-bg-hover': toCss(shiftL(a, hoverBy)), '--btn-color': toCss(pal.btnLabel), '--btn-border': 'transparent',
@@ -533,6 +542,10 @@ function typeTokens(p: DesignParams): Record<string, string> {
   out['--h3-size'] = 'min(var(--text-xl), 7vw)';
   out['--numeral-size'] = 'min(var(--text-3xl), 11vw)';
   out['--brand-size'] = 'min(var(--text-lg), 6vw)';
+  // The main headline is the largest text on the page: it stays above the opening paragraph and above every section heading.
+  // Without this floor, a headline in capitals (which is set smaller, see --display-scale) fell below the section headings on
+  // phones and tablets (campaign 4, findings F-6 and F-13).
+  out['--h1-floor'] = 'max(calc(var(--lede-size) * 1.25), calc(var(--h2-size) * 1.15))';
   out['--font-heading'] = FONTS[p.fontHeading].stack;
   out['--font-body'] = FONTS[p.fontBody].stack;
   out['--font-mono'] = FONTS['jetbrains-mono'].stack;
@@ -555,8 +568,14 @@ function spaceTokens(p: DesignParams): Record<string, string> {
   return out;
 }
 
+/** The top of the "Corner rounding" slider, in pixels. A test holds it equal to the Catalog's slider. */
+export const RADIUS_SLIDER_TOP = 28;
+
 function shapeTokens(p: DesignParams): Record<string, string> {
-  const pill = p.radius >= 999;
+  // Every value above the top of the "Corner rounding" slider means "fully round". Only 999 comes from the Catalog; a project
+  // file may hold any value up to 999, and a value such as 500 was drawn with corners of 750 pixels on boxes while the Studio
+  // called it "fully round" (code review of 2026-11-13, finding "engine 4").
+  const pill = p.radius > RADIUS_SLIDER_TOP;
   return {
     '--radius-control': pill ? '999px' : `${p.radius}px`,
     // Outer boxes round a little more than the controls inside them, so nested corners look parallel.

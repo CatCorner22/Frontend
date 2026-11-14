@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PARAMS, DIRECTIONS, REASON_MAX, STEPS,
-  applyDirection, closerOptions, conflicts, createProject, deriveTokens, describeDesign, designDistance, findStep, firstOpenStepId, generateDirections, keep,
-  matchingOptionId, nearestSliderValue, nextSliderValue, nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setReason, startPlain, tune, wireframeParams,
+  activeTunables, applyDirection, closerOptions, conflicts, createProject, deriveTokens, describeDesign, designDistance, findStep, firstOpenStepId, generateDirections, keep,
+  matchingOptionId, nearestSliderValue, nextSliderValue, nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, resolvePatch, revert, setReason, startPlain, tune, wireframeParams,
   type DesignParams, type Project,
 } from '../src/index.js';
 
@@ -35,9 +35,48 @@ describe('engine: picking', () => {
 
   it('previews an Option without changing the project', () => {
     const p = fresh();
-    const option = step('radius').options.find((o) => o.id === 'pill')!;
-    expect(previewParams(p, option).radius).toBe(999);
+    expect(previewParams(p, 'radius', 'pill').radius).toBe(999);
     expect(p.params.radius).toBe(8);
+    expect(p.decisions['radius']).toBeUndefined();
+  });
+
+  it('previews exactly the design that the pick gives, for every Direction, Step, and Option (code review, finding "gaps 1")', () => {
+    for (const direction of DIRECTIONS) {
+      const start = applyDirection(fresh(), direction.id);
+      for (const s of STEPS) for (const o of s.options) expect(previewParams(start, s.id, o.id), `${direction.id}, ${s.id}, ${o.id}`).toEqual(pick(start, s.id, o.id, AT).params);
+    }
+    // The case that went wrong: "Sticker Pop" has a second color that follows the main color. The card for a new main color
+    // must show the second color that the pick will give, not the old one.
+    const sticker = applyDirection(fresh(), 'sticker-pop');
+    const shown = previewParams(sticker, 'accent', 'ink-blue');
+    expect(shown.accent2Hue).not.toBe(sticker.params.accent2Hue);
+    expect(shown.accent2Hue).toBe(pick(sticker, 'accent', 'ink-blue', AT).params.accent2Hue);
+  });
+
+  it('never lets a fixed second color start to follow the main color by coincidence (code review, finding "engine 1")', () => {
+    // "Galactic Goth": main hue 302, second hue fixed at 18. The main color "ink-blue" (258) puts the two exactly a third of
+    // the wheel apart for a moment; the second color must stay 18 all the same.
+    const goth = applyDirection(fresh(), 'galactic-goth');
+    expect(goth.params.accent2Hue).toBe(18);
+    const viaBlue = pick(pick(goth, 'accent', 'ink-blue', AT), 'accent', 'teal', AT);
+    expect(viaBlue.params.accent2Hue).toBe(18);
+    expect(viaBlue.params.accent2Hue).toBe(pick(goth, 'accent', 'teal', AT).params.accent2Hue);
+    // A kept Decision on the color Step is not rewritten either.
+    const kept = keep(goth, 'color-strategy', AT);
+    expect(pick(pick(kept, 'accent', 'ink-blue', AT), 'accent', 'teal', AT).decisions['color-strategy']).toEqual(kept.decisions['color-strategy']);
+    // "Frontier Gazette": main hue 38, second hue fixed at 245. A walk of the hue slider, one degree at a time, passes the hue
+    // at which the two are opposite; the second color stays 245 whether the owner walks or jumps.
+    const frontier = applyDirection(fresh(), 'frontier-gazette');
+    let walked = frontier;
+    for (let hue = 39; hue <= 70; hue++) walked = tune(walked, 'accent', 'accentHue', hue, AT);
+    expect(walked.params.accent2Hue).toBe(245);
+    expect(tune(frontier, 'accent', 'accentHue', 70, AT).params.accent2Hue).toBe(245);
+    // And a second color that does follow (from a Direction, with no Decision) still follows.
+    const sticker = applyDirection(fresh(), 'sticker-pop');
+    const strategyBefore = matchingOptionId(sticker.params, step('color-strategy'));
+    const moved = pick(sticker, 'accent', 'crimson', AT);
+    expect(moved.params.accent2Hue).not.toBe(sticker.params.accent2Hue);
+    expect(matchingOptionId(moved.params, step('color-strategy'))).toBe(strategyBefore);
   });
 
   it('finds the Option that matches the design, or none', () => {
@@ -125,6 +164,14 @@ describe('engine: fine-tuning by hand', () => {
     expect(nextSliderValue(spacing, 1.45, 1)).toBe(1.45);
     expect(nextSliderValue(spacing, 0.75, -1)).toBe(0.75);
     expect(nextSliderValue(spacing, 1.12, 0)).toBe(1.12);
+    // A key that points past the end changes nothing, also for a value beyond the slider: "Fully round" is 999, the slider
+    // for "Corner rounding" ends at 28, and the key for "rounder" must not make it 28 (code review, finding "engine 3").
+    const corners = step('radius').tunables!.find((t) => t.key === 'radius')!;
+    expect(nextSliderValue(corners, 999, 1)).toBe(999);
+    expect(nextSliderValue(corners, 999, 10)).toBe(999);
+    // The key for "sharper" leaves "fully round" and lands on the slider's top, the largest rounding with a number.
+    expect(nextSliderValue(corners, 999, -1)).toBe(28);
+    expect(nextSliderValue(corners, 0, -1)).toBe(0);
     // A drag lands on the grid.
     expect(nearestSliderValue(spacing, 1.1234567)).toBe(1.1);
     expect(nearestSliderValue(spacing, 9)).toBe(1.45);
@@ -143,6 +190,22 @@ describe('engine: fine-tuning by hand', () => {
         expect(v, `${s.id} ${String(t.key)}`).toBe(t.max);
       }
     }
+  });
+
+  it('never lists as rejected the Option that a Decision holds, when a slider lands on a rejected Option (campaign 4, finding F-14)', () => {
+    // Pick "crisp": the other Options of the Step are now rejected. Then move the slider onto the exact value of "soft".
+    const picked = pick(fresh(), 'contrast', 'crisp', AT);
+    expect(picked.decisions['contrast']!.rejected).toContain('soft');
+    const soft = step('contrast').options.find((o) => o.id === 'soft')!.patch.contrast as number;
+    const moved = tune(picked, 'contrast', 'contrast', soft, AT);
+    const decision = moved.decisions['contrast']!;
+    expect(decision).toMatchObject({ kind: 'tuned', optionId: 'soft' });
+    expect(decision.rejected).not.toContain('soft');
+    expect(decision.rejected).toEqual(['balanced']);
+    // Saving and opening the project changes nothing, so the Studio has no reason to say that opening changed details.
+    const reopened = parseProject(JSON.parse(JSON.stringify(moved)));
+    expect(reopened.ok && reopened.project.decisions['contrast']).toEqual(decision);
+    expect(reopened.ok && reopened.notes).toEqual([]);
   });
 
   it('clamps to the slider range and refuses values that are not numbers or not adjustable', () => {
@@ -200,6 +263,23 @@ describe('engine: values that follow other values (finding M-05)', () => {
   });
 });
 
+describe('engine: a slider whose range is narrowed (campaign 4, round 3)', () => {
+  it('steps inward from the end when the value lies beyond a narrowed range, and still goes to the end from "fully round"', () => {
+    // "Golden yellow" on a dark page: lightness 0.8, and the slider offers 0.48 to 0.68, because every value above 0.68 is drawn alike.
+    const dark = pick(pick(fresh(), 'theme', 'dark', AT), 'accent', 'mustard', AT);
+    const lightness = activeTunables(findStep('accent')!, dark.params).find((t) => t.key === 'accentLightness')!;
+    expect([lightness.min, lightness.max]).toEqual([0.48, 0.68]);
+    expect(dark.params.accentLightness).toBeGreaterThan(lightness.max);
+    const darker = nextSliderValue(lightness, dark.params.accentLightness, -1);
+    expect(darker).toBeLessThan(lightness.max);
+    expect(darker).toBe(nextSliderValue(lightness, lightness.max, -1));
+    expect(nextSliderValue(lightness, dark.params.accentLightness, 1)).toBe(dark.params.accentLightness);
+    // "Fully round" is a look of its own beyond the slider's top: one press toward "less round" goes to the top.
+    const corners = findStep('radius')!.tunables!.find((t) => t.key === 'radius')!;
+    expect(nextSliderValue(corners, 999, -1)).toBe(corners.max);
+  });
+});
+
 describe('engine: reasons (finding M-09)', () => {
   it('records the owner’s reason on a Decision, trimmed and limited, and removes an empty one', () => {
     let p = pick(fresh(), 'nav', 'side-rail', AT);
@@ -218,6 +298,12 @@ describe('engine: reasons (finding M-09)', () => {
     expect(p.decisions['radius']!.reason).toBe('Friendly.');
     p = pick(p, 'radius', 'square', AT);
     expect(p.decisions['radius']!.reason).toBeUndefined();
+  });
+
+  it('keeps the reason when the owner picks the same Option again (campaign 4, round 3)', () => {
+    let p = setReason(pick(fresh(), 'radius', 'soft', AT), 'radius', 'Friendly.');
+    p = pick(p, 'radius', 'soft', '2026-11-14T08:00:00.000Z');
+    expect(p.decisions['radius']).toMatchObject({ optionId: 'soft', kind: 'picked', reason: 'Friendly.', at: '2026-11-14T08:00:00.000Z' });
   });
 });
 
@@ -282,6 +368,7 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
     for (const [id, d] of Object.entries(p.decisions)) {
       expect(d.optionId, `${id}: the Decision names the Option that the design matches`).toBe(matchingOptionId(p.params, step(id)));
       expect(d.values, `${id}: the Decision holds the design's values`).toEqual(ownedValues(step(id), p.params));
+      if (d.optionId !== null) expect(d.rejected, `${id}: the Decision does not reject the Option it holds`).not.toContain(d.optionId);
     }
   };
 
@@ -375,7 +462,11 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
           ran = 'keep';
         } else if (kind === 2 && s.tunables?.length) {
           const tunable = any(s.tunables);
-          p = tune(p, s.id, tunable.key, tunable.min + rand() * (tunable.max - tunable.min), AT);
+          // Half of the slider moves land exactly on the value of one of the Step's Options, as a key press on the slider's
+          // grid does; the other half land anywhere. An exact landing on a rejected Option once left a Decision that
+          // contradicted itself (campaign 4, finding F-14), and a sweep with only "anywhere" values never met that case.
+          const onOption = rand() < 0.5 ? resolvePatch(any(s.options), p.params)[tunable.key] : undefined;
+          p = tune(p, s.id, tunable.key, typeof onOption === 'number' ? onOption : tunable.min + rand() * (tunable.max - tunable.min), AT);
           ran = 'slider';
         } else if (kind === 3 && s.tunables?.length && closerOptions(p, s.id).length > 0) {
           p = pickValues(p, s.id, any(closerOptions(p, s.id, Math.floor(rand() * 3))).values, AT);
@@ -403,6 +494,61 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
     // Every kind of action really ran, many times.
     for (const name of ['pick', 'keep', 'slider', 'small variation', 'reason', 'new start', 'put back']) expect(actions[name] ?? 0, `the action "${name}" ran ${actions[name] ?? 0} times`).toBeGreaterThan(100);
   }, 60000);
+});
+
+describe('engine: behaviors that no test protected (code review of 2026-11-13, finding "engine 5")', () => {
+  it('chooses an Option with an overused-look warning rarely when it composes Directions', () => {
+    const warned = new Map<string, Set<string>>();
+    for (const s of STEPS) for (const o of s.options) if (o.warn) warned.set(s.id, (warned.get(s.id) ?? new Set()).add(o.id));
+    expect(warned.size).toBeGreaterThan(0);
+    let warnedPicks = 0;
+    let picks = 0;
+    let warnedShare = 0;
+    for (let seed = 1; seed <= 40; seed++) {
+      for (const direction of generateDirections(seed, 6)) {
+        for (const [stepId, ids] of warned) {
+          const s = step(stepId);
+          picks++;
+          if (ids.has(matchingOptionId(direction.params, s) ?? '')) warnedPicks++;
+          warnedShare += ids.size / s.options.length;
+        }
+      }
+    }
+    // By even chance the warned Options would be picked `warnedShare` times; they are picked well under half as often.
+    expect(picks).toBeGreaterThan(200);
+    expect(warnedPicks).toBeLessThan(warnedShare * 0.5);
+  });
+
+  it('gives generated Directions of different batches different names in the record', () => {
+    const ids = new Set<string>();
+    for (const seed of [1, 2, 3, 20261113, 20261114]) for (const direction of generateDirections(seed, 6)) ids.add(direction.id);
+    expect(ids.size).toBe(5 * 6);
+  });
+
+  it('measures the distance between two colors around the wheel, not along a line', () => {
+    const at = (accentHue: number): DesignParams => ({ ...DEFAULT_PARAMS, accentHue });
+    expect(designDistance(at(350), at(10))).toBeCloseTo(designDistance(at(100), at(120)), 10);
+    expect(designDistance(at(350), at(10))).toBeLessThan(designDistance(at(350), at(60)));
+  });
+
+  it('offers the slider for a second color, and variations of it, only while the page has a second color (finding U3-06)', () => {
+    const strategy = step('color-strategy');
+    const oneColor: DesignParams = { ...DEFAULT_PARAMS, colorStrategy: 'single-accent' };
+    const twoColors: DesignParams = { ...DEFAULT_PARAMS, colorStrategy: 'duo' };
+    expect(activeTunables(strategy, oneColor).map((t) => t.key)).not.toContain('accent2Hue');
+    expect(activeTunables(strategy, twoColors).map((t) => t.key)).toContain('accent2Hue');
+    expect(closerOptions({ ...fresh(), params: oneColor }, 'color-strategy').filter((o) => 'accent2Hue' in o.values)).toEqual([]);
+    expect(closerOptions({ ...fresh(), params: twoColors }, 'color-strategy').some((o) => 'accent2Hue' in o.values)).toBe(true);
+  });
+
+  it('never offers more than six small variations', () => {
+    for (const direction of DIRECTIONS) {
+      const start = applyDirection(fresh(), direction.id);
+      for (const s of STEPS) for (const round of [0, 1, 2]) expect(closerOptions(start, s.id, round).length, `${direction.id}, ${s.id}`).toBeLessThanOrEqual(6);
+    }
+    // The Step with the most sliders reaches the limit, so the limit is a real cut and not an accident of small numbers.
+    expect(Math.max(...STEPS.map((s) => closerOptions(fresh(), s.id).length))).toBe(6);
+  });
 });
 
 describe('engine: generated Directions', () => {

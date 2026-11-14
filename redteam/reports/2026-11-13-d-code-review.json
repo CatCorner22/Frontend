@@ -1,0 +1,1012 @@
+{
+ "areas": [
+  {
+   "key": "engine",
+   "findings": [
+    {
+     "index": 0,
+     "title": "A slider that lands on another Option's value leaves that Option in the Decision's \"rejected\" list; every later page load then says \"Opening changed some details of your saved project\" and keeps a needless copy",
+     "kind": "correctness",
+     "severity": "medium",
+     "file": "packages/core/src/engine.ts",
+     "line": 233,
+     "description": "`tune` (line 233) and `pickValues` (line 222) copy the earlier Decision's `rejected` list unchanged, and `rederive` (lines 172-180) rewrites `optionId` without touching `rejected`. So after the owner picks an Option and then moves a slider onto the value of a different Option, the Decision names that Option as current AND as rejected. The format check disagrees with the engine: `normalize` (line 724) removes the current Option from `rejected` on opening. The saved text and the opened project therefore differ, and the Studio's `changedOnOpening` (apps/studio/src/store.ts lines 147-149, used at line 419) reports a change that nobody made. Broken invariants: (1) `rejected` never contains `optionId`; (2) a project the engine produced opens with no change and no note. A second path gives the same state: a hand-set second color, then a main-color change that makes the hand-set value equal a following Option.",
+     "failure_scenario": "Step \"Corner rounding\": pick \"Soft\" (14), open \"Adjust with sliders\", press Left six times (value 8 = the Option \"subtle\"). Saved Decision: kind tuned, optionId \"subtle\", rejected [square, crisp, subtle, pill]. Reload the page: a banner says \"Opening changed some details of your saved project. The Studio kept the copy as it was; you can download it from the Summary.\" and one kept copy appears. The banner returns on every reload until the owner changes the project again. The same happens with border weight (pick \"medium\", two presses \"thinner\"), density, contrast, and others, because many Option values lie on the slider grids.",
+     "evidence": "Property run (600 random sequences, 9,362 actions, sliders moved the way the Studio moves them): \"V2 rejected contains the current Option: 158 times\" and \"V7 reload changes the project: 158 times\"; no other invariant broke. Real Studio in Chromium (browser.cjs, lines S1): after the steps above the stored Decision was {\"kind\":\"tuned\",\"rejected\":[\"square\",\"crisp\",\"subtle\",\"pill\"],...,\"optionId\":\"subtle\",\"values\":{\"radius\":8}}; reload 1, 2 and 3 each printed banners [\"Opening changed some details of your saved project. The Studio kept the copy as it was; you can download it from the Summary.\"] and kept copies [\"Your saved copy as it was, before the Studio changed details on opening it.\"]. Mutation check: removing `&& id !== optionId` from normalize (line 724) leaves all 97 unit tests green, and the existing 400-sequence sweep never hits the case because it tunes to random real numbers that never equal an Option.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/engine/browser.cjs   (read the lines that start with S1). Unit form: const p = tune(pick(createProject(), 'radius', 'soft'), 'radius', 'radius', 8); p.decisions.radius.rejected includes 'subtle' while optionId is 'subtle'; parseProject(JSON.parse(JSON.stringify(p))).project.decisions.radius.rejected does not.",
+     "suggested_fix": "In `rederive` (the loop that brings every Decision up to date) also drop the matching Option from `rejected`: `rejected: decision.rejected.filter((id) => id !== optionId)`, and include that in the changed-check. Extend the random sweep in engine.test.ts so that sliders move on their grid (nearestSliderValue / nextSliderValue, and onto Option values), and assert after every action that `rejected` excludes `optionId` and that a reload returns no notes and an equal project."
+    },
+    {
+     "index": 1,
+     "title": "A second color that was never set to follow the main color starts to follow it after the main color passes one particular hue (path-dependent design; a \"kept\" Decision is rewritten)",
+     "kind": "correctness",
+     "severity": "medium",
+     "file": "packages/core/src/engine.ts",
+     "line": 163,
+     "description": "`rederive` decides whether the second color follows the main color by asking whether the design matched a following Option before the change (line 163). A fixed second color can match such an Option by coincidence for one hue of the main color. From that moment the engine treats the second color as following, although neither the Direction nor the owner chose that. The result depends on the order and even on the input device: a keyboard walk of the hue slider hits every whole number, a quick mouse drag may jump over the hue. Two curated Directions carry a fixed second color (\"Galactic Goth\" 302/18 and \"Frontier Gazette\" 38/245). For Galactic Goth the coincidence hue 258 is the Option \"ink-blue\", so two ordinary clicks reach it. Afterward \"Put this Step back\" on the main-color Step does not restore the Direction's second color, and a Decision of kind \"kept\" on the color Step is silently rewritten to a different Option and value.",
+     "failure_scenario": "Start from \"Galactic Goth\" (main hue 302, second hue 18). On the main-color Step pick \"ink-blue\", then pick \"teal\". The second color is now 315 (a pink), not 18 (the Direction's red). Picking \"teal\" directly leaves it at 18. With \"Frontier Gazette\": press Right on the main-color hue slider from 38 to 70; from 66 on the second color moves (246, 247, ... 250). One drag straight to 70 leaves it at 245. Then \"Put this Step back\" gives main 38 and second 218, not the Direction's 245.",
+     "evidence": "Unit run (file B.txt): \"accent teal directly -> second 18 (null); via ink-blue then teal -> second 315 (duo-triad)\"; \"kept first: {kind:kept, optionId:null, values:{colorStrategy:duo, accent2Hue:18}} -> after ink-blue, teal: {kind:kept, optionId:duo-triad, values:{colorStrategy:duo, accent2Hue:315}}\"; \"Frontier Gazette (accent 38, second 245): key walk to 70 -> 63:245 64:245 65:245 66:246 67:247 68:248 69:249 70:250; one drag to 70 -> second 245\"; \"put the accent Step back after the walk -> accent 38, second 218 (started 245)\". Real Studio in Chromium (browser.cjs, lines S3): \"Galactic Goth, main color teal: main hue 195, second hue 18\" and \"Galactic Goth, main color ink-blue then teal: main hue 195, second hue 315\".",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/engine/browser.cjs   (read the two lines that start with S3). Unit form: const s = applyDirection(createProject(), 'galactic-goth'); pick(pick(s,'accent','ink-blue'),'accent','teal').params.accent2Hue is 315; pick(s,'accent','teal').params.accent2Hue is 18.",
+     "suggested_fix": "Anchor \"follows\" to something that cannot arise by coincidence. A change that needs no new saved field: in `rederive`, for a Step the owner did not act on, read the Option from `before.params` only when that Step's Decision is \"picked\"; when the Step has no Decision or a \"kept\" one, read it from the starting design (`matchingOptionId(before.base, step)`), because those values come from the starting design. Check this against the T2-02 and T3-03 tests, and add the two cases above as tests."
+    },
+    {
+     "index": 2,
+     "title": "On a dark page the \"Lightness\" slider of the main color does nothing over about two thirds of its range, while the Studio records a hand-set Decision and says the color is \"clearly lighter\"",
+     "kind": "correctness",
+     "severity": "medium",
+     "file": "packages/core/src/tokens.ts",
+     "line": 115,
+     "description": "On a dark page the token derivation uses `Math.min(0.82, Math.max(p.accentLightness + 0.14, 0.62))` (tokens.ts line 115). Every slider value from 0.25 to 0.48 gives the same color, and so does every value from 0.68 to 0.90. The slider (packages/core/src/catalog/steps.ts line 361, range 0.25 to 0.9) and `closerOptions` (engine.ts lines 313-354) do not know this. `tune` still records a Decision of kind \"tuned\", and the card text states a change that the page does not show. Five of the seven dark curated Directions start inside a dead zone (Ember Noir 0.74, Evening Formal 0.78, Control Room 0.7, Vector Horizon 0.8, Marquee Deco 0.8), and so does the plain start with \"Dark\" picked (0.44). This is the same kind of defect as finding U3-06 (a slider that changes nothing), in a place that fix did not reach.",
+     "failure_scenario": "Start from \"Ember Noir\", open the main-color Step, open \"Adjust with sliders\", press Right 16 times on \"Lightness\" (0.74 to 0.9). The large preview does not change at all. The Decision becomes \"Set by hand\", and the card reads \"... lightness clearly lighter (0.9). You set these values by hand.\" \"Show small variations\" offers \"Lightness: a little darker\" and \"Lightness: a little lighter\"; both cards are identical to the current design.",
+     "evidence": "Unit runs: \"ember-noir (dark): runs of Lightness slider values with identical tokens: 0.25..0.48 , 0.68..0.9 (21 distinct token sets over 66 positions)\"; \"distinct Mockups over the 66 positions of the Lightness slider: light page 66, dark page 21\"; \"plain start + Dark (lightness 0.44): 5 presses of 'lighter' before the Mockup changes at all; 19 presses of 'darker' to the slider's low end 0.25: Mockup identical to the start: true\"; \"ember-noir 'Closer to this one' on the main color: ... Lightness: a little darker [IDENTICAL] | Lightness: a little lighter [IDENTICAL]\"; first-round variations identical to the current Mockup over the plain start and 18 Directions: \"accent: Lightness: 9 of 38\". Real Studio in Chromium (browser2.cjs, lines N2): \"after 16 presses 'lighter': slider says 0.9 | large preview 130290:-23809763 | identical to before: true | Decision {kind:tuned,...accentLightness:0.9}\" and the card text \"close to “Golden yellow”: ...; lightness clearly lighter (0.9). You set these values by hand.\" A smaller effect of the same kind, not counted here: the upper part of the \"Vividness\" slider changes nothing for several Directions (20 to 24 distinct Mockups over 41 positions), which looks like the limit of what a screen can show.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/engine/browser2.cjs   (read the lines that start with N2). Unit form: const d = applyDirection(createProject(), 'ember-noir'); JSON.stringify(deriveTokens({ ...d.params, accentLightness: 0.9 }, 'advise').css) === JSON.stringify(deriveTokens(d.params, 'advise').css) is true.",
+     "suggested_fix": "Make the whole slider range count on a dark page: map 0.25..0.9 onto the band the dark page can show (for example 0.62 + (L - 0.25) / 0.65 * 0.20) in place of the clamp, and re-check the contrast repairs and the visual baselines. In addition, let `closerOptions` leave out a variation whose derived tokens equal the current ones (the engine already imports `deriveTokens`), and add a unit test that walks every slider on a light and a dark design and requires that most positions change the tokens."
+    },
+    {
+     "index": 3,
+     "title": "A slider key press that cannot move the value still rewrites the Decision; at the top of the \"Corner rounding\" slider it replaces \"Pill\" (999) with 28",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "apps/studio/src/App.tsx",
+     "line": 639,
+     "description": "The key handler calls `s.tuneValue(t.key, nextSliderValue(t, Math.min(value, t.max), steps))` for every slider key, and `tuneValue` (apps/studio/src/store.ts line 616) commits `tune(...)` without checking whether anything changes. `tune` (engine.ts lines 226-234) always writes a Decision of kind \"tuned\" with a new time. Two effects. (1) At an end of a slider a key press changes no value but turns \"Picked\" or \"Kept\" into \"Set by hand\" and adds an Undo entry. (2) With \"Pill\" (radius 999, above the slider's top of 28) the key for \"rounder\" (Right, Up, Page Up, End) sets the radius to 28. That changes the page in the opposite sense for controls: `--radius-control` 999px to 28px, `--radius-small` 999px to 14px, `--radius-surface` 28px to 42px. `nextSliderValue` (engine.ts lines 248-254) has no rule for a value outside the slider's range.",
+     "failure_scenario": "(1) Pick \"Square\" on \"Corner rounding\", open the sliders, press Left: the radius stays 0, the Decision changes from picked to tuned. (2) Pick \"Pill\", open the sliders (the text says \"fully round\", the knob stands at the right end), press Right: the radius becomes 28, the text says \"28px\", the card on show becomes \"Your design now\", and the Decision is hand-set with no Option.",
+     "evidence": "Real Studio in Chromium (browser2.cjs line N1): \"after picking Square: radius 0 Decision picked square 2026-11-13T21:33:20.771Z\" then \"after ArrowLeft on the slider at its left end: radius 0 Decision tuned square 2026-11-13T21:33:23.156Z | Undo button enabled: true\". (browser.cjs lines S2): \"after picking Pill: radius 999 Decision kind picked pill | slider text: fully round | slider knob value: 28\" then \"after ArrowRight ('rounder') on the slider at its right end: radius 28 Decision {kind:tuned, optionId:null, values:{radius:28}} | slider text: 28px | checked card: option-current\". Unit run (D.txt): \"tokens changed: --radius-control: 999px -> 28px, --radius-surface: 28px -> 42px, --radius-small: 999px -> 14px\".",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/engine/browser2.cjs (line N1) and node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/engine/browser.cjs (lines S2).",
+     "suggested_fix": "In `nextSliderValue`, return `current` unchanged when the key points past the end the value already stands at or beyond (`steps > 0 && current >= tunable.max`, `steps < 0 && current <= tunable.min`); pass the real value (not `Math.min(value, t.max)`) from the key handler; and in `tuneValue` do nothing when the new value equals the current one. Add unit cases for 999 with +1 and for a key press at each end."
+    },
+    {
+     "index": 4,
+     "title": "A project file with a corner radius between 29 and 998 is accepted, drawn with corner tokens up to 1,498 px, and described on screen as \"fully round\"",
+     "kind": "robustness",
+     "severity": "low",
+     "file": "packages/core/src/tokens.ts",
+     "line": 559,
+     "description": "The format check accepts any radius from 0 to 999 (packages/core/src/params.ts line 110). The token derivation treats only 999 or more as \"Pill\" (tokens.ts lines 559-564) and multiplies every other value: `--radius-surface` is 1.5 times the radius. The Studio's slider text says \"fully round\" for any radius above 28 (apps/studio/src/App.tsx line 60). So a value that no Option, no Direction and no slider can produce passes the check, is drawn with tokens that differ from the real Pill (which uses 28px for boxes), and is labelled as if it were the Pill. Reaching this needs a hand-edited or foreign file.",
+     "failure_scenario": "Open a project file whose `params.radius` is 500. The Studio accepts it without a note. Tokens: --radius-control 500px, --radius-surface 750px, --radius-small 250px (the Pill gives 999px, 28px, 999px). The slider text reads \"fully round\".",
+     "evidence": "Unit run (F.txt): \"radius 500 (between slider max 28 and pill 999): accepted, notes []; ... radius tokens 500px/750px/250px\" and \"radius 998.9: accepted, notes []; radius tokens 998.9px/1498px/499px\". App.tsx line 60: `if (t.key === 'radius' && raw > t.max) return 'fully round';`.",
+     "repro": "In a vitest file under packages/core/test: const d = JSON.parse(JSON.stringify(createProject())); d.params.radius = 500; const r = parseProject(d); expect(r.ok).toBe(true); deriveTokens(r.project.params, 'advise').css['--radius-surface'] is '750px'.",
+     "suggested_fix": "Give the value one meaning everywhere: in tokens.ts treat every radius above the slider's top (28) as the Pill, or have `normalize` in engine.ts turn such a value into 999 and add a note that says so. Add a unit test for 29, 500 and 998."
+    },
+    {
+     "index": 5,
+     "title": "Test gaps: six changes to the engine leave all 97 unit tests green",
+     "kind": "test-gap",
+     "severity": "low",
+     "file": "packages/core/test/engine.test.ts",
+     "line": 351,
+     "description": "I ran a mutation sweep on a scratch copy of packages/core (engine.test.ts, project-file.test.ts, catalog.test.ts; 97 tests; 19 mutants; 13 killed). These six survived. (1) `normalize` no longer removes the current Option from `rejected` (engine.ts line 724): this is the gap behind the first finding. (2) Options with an overused-look warning are weighted like any other when Directions are generated (line 511, `o.warn ? 0.12 : 1`): the comment's promise \"chosen rarely\" has no test. (3) Generated Direction ids ignore the seed (line 557): two batches from \"more Directions\" would share ids such as generated-0-0, and the Studio finds a generated Direction's name by id; the unit test checks ids only inside one batch. (4) `designDistance` without the wrap at 0/360 (line 461): hues 350 and 10 would count as 340 degrees apart. (5) `activeTunables` returns every slider (line 310, the U3-06 fix): no unit test; `closerOptions` depends on it. A browser test may cover the slider itself; I did not run the browser tests. (6) `closerOptions` returns up to 8 variations in place of 6 (line 353). Also, the existing 400-sequence sweep (line 351) tunes to random real numbers, so it never lands on an Option value or on a slider grid point the way the Studio does.",
+     "failure_scenario": "A later edit that breaks any of these six behaviors passes `npm test` unnoticed. For (3) the visible result would be that two batches of generated Directions share ids, so the Summary can name the wrong generated Direction.",
+     "evidence": "Output of mutate.py: \"baseline: all tests pass :: Tests 97 passed (97)\"; \"M1 normalize keeps the current Option in rejected: SURVIVED\"; \"M3 warned Options weighted like any other in generated Directions: SURVIVED\"; \"M7 designDistance without hue wrap: SURVIVED\"; \"M29 activeTunables returns every slider: SURVIVED\"; \"M42 closerOptions returns up to 8: SURVIVED\"; \"M43 generated Direction ids ignore the seed: SURVIVED\". Killed, for comparison: the clamps in tune and nextSliderValue, the conflict filter in generateDirections, three harmony or conflict rules, the text and list limits of the format check, the time check, the F-3 note, and revert.",
+     "repro": "cd /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/engine/mut && python3 ../mutate.py   (the script changes only the scratch copy and restores it at the end).",
+     "suggested_fix": "Add unit tests: `rejected` never holds `optionId` after any action and after a reload; over many seeds a warned Option appears clearly less often than an unwarned one; ids from two different seeds never collide; designDistance of hues 350 and 10 equals that of 100 and 120; activeTunables hides the second-color slider on a one-color design and closerOptions then offers no second-color variation; closerOptions never returns more than 6."
+    },
+    {
+     "index": 6,
+     "title": "A damaged version-1 file that started plain is refused with a message that names a part the file does not have",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "packages/core/src/engine.ts",
+     "line": 686,
+     "description": "`migrateV1` copies the file's `params` into the new field `base` when the project did not start from a curated Direction (line 686). When `params` holds a bad value, the format check meets `base` first, and `parseProject` (lines 751-754) reports the part \"that holds the starting design values\". A version-1 file has no such part; the bad value is in its design values. The same damaged file with a curated Direction name gets the correct wording. The message is fixed text and repeats nothing from the file, so this is only a wrong pointer for a person who repairs a file by hand.",
+     "failure_scenario": "Take a version-1 project file with `direction: null`, set `params.radius` to the text \"x\", and open it. The Studio says \"The file does not match the project format. The problem is in the part that holds the starting design values.\"",
+     "evidence": "Unit run (F.txt): \"v1 with a bad params value: refused: ... the part that holds the design values.\" and \"v1 plain with a bad params value: refused: ... the part that holds the starting design values.\"",
+     "repro": "In a vitest file under packages/core/test: const d = fixture('project-v1-plain.json') as any; d.params.radius = 'x'; const r = parseProject(d); r.error ends with 'the part that holds the starting design values.'",
+     "suggested_fix": "In `parseProject`, when the file is version 1 and the first problem is in `base`, report `params` (the version-1 file's own part). Add the case to the test \"still refuses a damaged version-1 file\"."
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 0,
+     "title": "Slider landing on another Option's value leaves it in rejected; reload reports a change and keeps a copy",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Temporary vitest file packages/core/test/zz-review-engine-verify-1.test.ts (since deleted): p = tune(pick(createProject(),'radius','soft'),'radius','radius',8). Printed: decision {kind:tuned, optionId:'subtle', rejected:['square','crisp','subtle','pill']}. After parseProject(JSON round trip) rejected was ['square','crisp','pill'], and the reopened project was not equal to the saved one. I also mutated normalize (dropped `&& id !== optionId`) in a scratch copy of packages/core: all 143 core tests still passed.",
+     "reasoning": "engine.ts tune/pickValues copy previous.rejected, and rederive rewrites optionId without filtering rejected. normalize filters it, so saved and opened projects differ. Reproduced. This is the same defect as campaign-4 round-2 finding F-14 (redteam/campaign-4/findings.md, S1, status confirmed). F-14 is recorded but not fixed: it is absent from PROGRESS Known gaps and FINDINGS.md, and no commit after 4fb98f1 touches it. So it does not meet the refutation rule (recorded in Known gaps, or fixed). What is new here is the general tune path and how often it happens. Severity low: nothing is lost, the notice is true, and a copy is kept."
+    },
+    {
+     "index": 1,
+     "title": "Fixed second color starts following the main color after a coincidental hue match (path-dependent; kept Decision rewritten)",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "Same temporary vitest file. s = applyDirection(createProject(),'galactic-goth') gives accent 302, a2 18, duo. pick(s,'accent','teal') gives a2=18. pick(pick(s,'accent','ink-blue'),'accent','teal') gives a2=315. A kept color-strategy Decision went from {optionId:null, values:{duo, accent2Hue:18}} to {optionId:'duo-triad', accent2Hue:315} after ink-blue then teal. revert(...,'accent') gave accent 302 with a2 62, not the Direction's 18. Frontier Gazette (38/245), hue walk with nextSliderValue +1 to 70: '63:245 64:245 65:245 66:246 67:247 68:248 69:249 70:250'. A single tune to 70 gives a2 245. Revert after the walk gives 38/218.",
+     "reasoning": "rederive (engine.ts line 163) asks which Option before.params matched. Galactic Goth's fixed second hue 18 equals ink-blue 258 + 120, so after picking ink-blue the second color is treated as following duo-triad. The result depends on the path: picking teal directly versus via ink-blue gives different designs. 'Put this Step back' no longer restores the Direction's second color, and a 'kept' Decision silently changes its Option and values. It takes two ordinary clicks on a curated Direction. Wrong behavior in ordinary use, but no stored work is lost, so medium."
+    },
+    {
+     "index": 2,
+     "title": "Dark-page accent Lightness slider is dead over about two thirds of its range while a tuned Decision is recorded",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "Same temporary vitest file. e = applyDirection(createProject(),'ember-noir'): theme dark, accentLightness 0.74. JSON.stringify(deriveTokens({...e.params, accentLightness:0.9},'advise').css) === that of e.params: true. Values 0.30 and 0.45: identical too. Distinct token sets over 0.25..0.90 in steps of 0.01: 21 of 66. tune(e,'accent','accentLightness',0.9) records kind 'tuned'. closerOptions(e,'accent') returned 'Lightness: a little darker' and 'Lightness: a little lighter', and both derive tokens identical to the current design. The hue and vividness variations did change the tokens.",
+     "reasoning": "tokens.ts line 115 clamps: accentL = min(0.82, max(L+0.14, 0.62)) on a dark page, so only L in about 0.48..0.68 has an effect. The slider range is 0.25..0.9 (steps.ts line 361), and Ember Noir starts at 0.74, inside a dead zone. Identical tokens mean an identical Mockup. The Studio still records a hand-set Decision, and it offers 'Closer' variation cards identical to the current design. I did not re-run the browser check of the card text 'clearly lighter'; the token identity alone shows the slider does nothing. Not in Known gaps; U3-06 covered a different slider."
+    },
+    {
+     "index": 3,
+     "title": "A slider key press that cannot move still rewrites the Decision; at Pill, 'rounder' sets radius 999 to 28",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Same temporary vitest file. For the radius tunable: nextSliderValue(t, min(999,28), +1) = 28 and nextSliderValue(t, 0, -1) = 0. pill = pick(createProject(),'radius','pill') has radius 999. tune(pill,'radius','radius', nextSliderValue(t, min(999,28), 1)) gives radius 28, kind 'tuned', optionId null. Read App.tsx line 639: the key handler passes Math.min(value, t.max) to nextSliderValue and always calls s.tuneValue. store.ts line 616: tuneValue commits tune() with no no-change check, and tune always writes kind 'tuned'.",
+     "reasoning": "Reproduced in the engine. The UI code path matches what the first reviewer described. Pressing 'rounder' at Pill makes controls sharper (999px to 28px), the opposite of the key's meaning. At either end of the slider, a no-op key press relabels a pick as hand-set and adds an Undo entry. This is wrong behavior, but it is an edge case at the end of a slider, and Undo reverses it."
+    },
+    {
+     "index": 4,
+     "title": "Project file radius 29..998 accepted, drawn with large corner tokens, and labelled 'fully round'",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Same temporary vitest file. d = JSON copy of createProject(), with d.params.radius = 500. parseProject(d) gave ok true, notes [], and deriveTokens(...).css['--radius-surface'] = '750px'. The Pill gives 28px. App.tsx line 60: sliderValue returns 'fully round' for any radius above t.max (28). tokens.ts shapeTokens treats only 999 or more as pill.",
+     "reasoning": "The value is reachable through a project file, which the task counts as reachable. The file check, the token derivation and the on-screen text give the value three different meanings, and the text is untrue for 500. A person must hand-edit or bring a foreign file, so low."
+    },
+    {
+     "index": 5,
+     "title": "Test gaps: six engine mutations survive the core test suite",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "I copied packages/core to /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/engine-verify/m, with docs and apps/studio/src symlinked so the catalog tests pass, and ran /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/engine-verify/mut.py. Baseline: 143 passed (143). M1 (normalize keeps optionId in rejected), M3 (warn weight 0.12 to 1), M7 (designDistance without hue wrap), M29 (activeTunables returns every slider), M42 (closerOptions slice 8) and M43 (generated ids ignore the seed) each gave 'Tests 143 passed (143)', so all six survived.",
+     "reasoning": "I reproduced all six survivors myself, against all 143 core unit tests, not just the 97 the first reviewer used. One caveat: M29 is probably caught by the Studio browser test for U3-06 ('offers the Second color slider only while the page has a second color'), which I did not run. The other five have no test that would catch them. Low, since this is test coverage."
+    },
+    {
+     "index": 6,
+     "title": "Damaged plain version-1 file refused with a message naming the 'starting design values' part",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Same temporary vitest file. Fixture project-v1-plain.json with params.radius = 'x': parseProject gave {ok:false, error:'The file does not match the project format. The problem is in the part that holds the starting design values.'}. Fixture project-v1-direction.json with the same change: '...the part that holds the design values.'",
+     "reasoning": "migrateV1 copies params into base for a plain start (engine.ts line 686), and zod reports base first. A version-1 file has no 'base' part, so the message points to the wrong place. It is fixed text, so there is no injection risk. It only matters to someone repairing a file by hand, so low."
+    }
+   ],
+   "examined": [
+    "packages/core/src/engine.ts: read in full (762 lines). Exercised pick, keep, tune, pickValues, revert, rederive, setReason, applyDirection, startPlain, closerOptions, matchingOptionId, ownedValues, activeTunables, nearestSliderValue, nextSliderValue, conflicts, harmonize, generateDirections, describeDesign, designDistance, parseProject, migrateV1, normalize.",
+    "packages/core/src/params.ts: read in full. packages/core/src/catalog/types.ts, words.ts: read in full. steps.ts, directions.ts, rules.ts: I dumped every Step, Option patch, slider, following value, Direction and rule id as data and read the lookup functions; I did not read the prose of the records.",
+    "Property run 1 (temporary vitest file, deleted): 600 random sequences, 9,362 actions shaped like the Studio's own (decide a card, slider keys via nextSliderValue, slider drags via nearestSliderValue, drags onto Option values, small variations, reasons, put back, new starts from curated and generated Directions). After every action: Decision names the matching Option, Decision values equal the design, params valid, save and reload accepted. Broken: 'rejected contains the current Option' and 'reload changes the project' (158 times each). Not broken: optionId, values, picked-without-Option, invalid params, refused reload.",
+    "Property run 2: 20,000 mutated project files (deleted keys, junk values, numbers at and just outside each range, list values swapped, keys named __proto__, constructor, hasOwnProperty). parseProject never threw; 6,226 accepted, 13,774 refused with fixed text; every accepted project had valid params, true Decisions, opened a second time with no change and no notes, gave tokens and a Mockup without NaN or undefined, and took every engine action without a fault.",
+    "Hue at and across 0/360: accent 360 with 'opposites' gives second hue 180; accent 180 gives 0; closerOptions at 0 and 360 give 346 and 14; tokens for hue 0 and 360 are equal; designDistance(0, 360) is 0. One file-only oddity that I did not report as a finding: accent 180 with a second hue of 360 (the same color as 0) and a picked 'opposites' Decision is opened as hand-set with the note that the Catalog lacks the Option.",
+    "Sliders: every slider walks from top to bottom and bottom to top on its grid inside its range; snapping is stable (snapping a snapped value changes nothing).",
+    "Generated Directions: 300 seeds times 6: always 6, valid, conflict-free, harmony rules settled after one pass, distinct names and designs, ids match the format check, each reloads with no notes. The Studio's own click sequence, 120 clicks: no design offered twice, no duplicate id.",
+    "Timings (vitest loop, this machine): matchingOptionId for all 23 Steps 0.010 ms; activeTunables for all Steps 0.001 ms; conflicts 0.0002 ms; closerOptions 0.010 ms; tune 0.028 ms; pick 0.025 ms; revert 0.032 ms; keep on an existing Decision 0.0001 ms; setReason 0.001 ms; parseProject (with JSON.parse) 0.21 ms; JSON.stringify(project) 0.015 ms; generateDirections(seed, 6, 18 to avoid) 17.7 ms, growing with the session to 33 ms at click 10, 50 ms at click 60, 89 ms at click 120 (732 designs to avoid). For scale: deriveTokens 0.87 ms, one Mockup card (tokens plus HTML) 0.98 ms. No engine function reaches the thresholds for a performance finding; the engine keeps no state that grows with the session (at most 23 Decisions).",
+    "Call sites in apps/studio/src (App.tsx valueLabel, stepStatus, slider handlers, ReasonField; store.ts decideAndContinue, putBack, startVariations, tuneValue, moreDirections, undo, changedOnOpening and its use at opening): read, to know how the Studio calls the engine.",
+    "Real Studio in Chromium (built page local-test.html, fresh browser context per scenario, no page errors): confirmed the false 'Opening changed' banner on three reloads, Pill plus Right key, Square plus Left key, Galactic Goth via ink-blue then teal, and the dead Lightness slider on Ember Noir.",
+    "Mutation sweep on a scratch copy of packages/core: 19 mutants of engine.ts against engine.test.ts, project-file.test.ts and catalog.test.ts (97 tests): 13 killed, 6 survived.",
+    "Existing tests read: engine.test.ts lines 103 to 452, project-file.test.ts lines 180 to 232, catalog.test.ts lines 228 to 243, helpers.ts.",
+    "PROGRESS.md section 'Known gaps': read. redteam/FINDINGS.md and redteam/campaign-4/findings.md: searched by keyword for each candidate finding (lightness, rejected, pill, 999, follow, coincidence, 'does nothing', 'opening changed'); none of the reported findings is recorded there. I did not read those two files in full, and I did not read PLAN.md or DECISIONS.md beyond keyword searches.",
+    "Housekeeping: my four temporary test files packages/core/test/zz-review-engine-1..4.test.ts are deleted; no tracked file changed. The files named zz-review-tokens-*.test.ts in that folder belong to another reviewer. Scratch files (probe outputs A.txt to J.txt, browser.cjs, browser2.cjs, mutate.py, the mut copy) are under /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/engine/."
+   ],
+   "not_examined": [
+    "packages/core/src/tokens.ts, color.ts and templates/smallBusiness.ts beyond the lines cited (accent lightness on dark pages, the three radius tokens). I used them as black boxes to compare Mockups.",
+    "The prose of the Catalog records in steps.ts, directions.ts and rules.ts (plain-words rule, sources, evidence grades, review dates), and whether each conflict message stays true for hand-set values.",
+    "apps/studio/src/store.ts save path, kept copies, two-tab behavior, and platform.ts; App.tsx rendering cost per render (the stateKey JSON.stringify, thumbnails, the Directions view with many generated Directions). I measured only the engine functions.",
+    "The browser test suites (npm run e2e, visual tests): not run, as instructed. I do not know whether a browser test would kill mutants M29 or M43.",
+    "Whether the cap on kept copies lets the needless 'as it was' copy from the first finding push out a real kept copy.",
+    "The upper part of the 'Vividness' slider, which changes nothing for several Directions (20 to 24 distinct Mockups over 41 positions): I assumed this is the limit of displayable color and did not trace it in color.ts.",
+    "Version-1 migration beyond the two fixtures and three damaged variants (for example a version-1 file that has both a 'theme' and a 'contrast' Decision). The choice to use the file's own design as the starting design of a migrated plain project is asserted by an existing test, so I treated it as intended.",
+    "A reason cut at 280 characters in the middle of an emoji leaves half a character (confirmed for setReason and for the format check). In the Studio the input field limits the length to 280, so I saw no reachable harm and did not report it.",
+    "Very large project files (for example 100,000 unknown Decisions): no size limit was found in store.ts by a keyword search; parse time for such a file was not measured.",
+    "Zod internals, the dependency-cruiser rule for packages/core, and the plugin and phase0 folders."
+   ]
+  },
+  {
+   "key": "tokens",
+   "findings": [
+    {
+     "index": 0,
+     "title": "Gloss button: the Studio calls the label contrast a pass, but the drawn gradient fill falls below 4.5 to 1",
+     "kind": "correctness",
+     "severity": "medium",
+     "file": "/home/user/Frontend/packages/core/src/tokens.ts",
+     "line": 376,
+     "description": "The pair \"Main button label on its fill\" (PAIRS, line 212) measures the label against the flat fill color (--btn-fill). With the Option \"Gloss\" the stylesheet does not draw that color: buttonTokens writes --btn-bg as a gradient from the fill made lighter by 0.07 to the fill made darker by 0.02 (lines 376-377). Nothing measures the two ends. A light label loses contrast at the lighter top; a dark label loses it at the darker bottom. The list NOT_CHECKED (lines 227-233) names hover and pressed states, glows and headline fills, but not this resting-state gradient, so the Studio shows no note under \"Warn me\" and \"Fix for me\" changes nothing.",
+     "failure_scenario": "Pick button finish \"Gloss\" with an accent whose flat fill sits just above 4.5 to 1 against its label, for example hue 104, vividness 0.3, lightness 0.54 (all inside the slider ranges). deriveTokens reports button-label 4.87, passes: true, in advise and enforce. The page draws a white label on a fill that is 3.73 to 1 at the top and 4.40 to 1 at the middle, where the label sits. With hue 0, vividness 0.27, lightness 0.6 the report is 4.56 and the bottom of the button is 4.31.",
+     "evidence": "Random sweep in vitest (4,000 designs built from Options and slider values, 3 profiles): 160 of 1,608 gloss designs had button-label passes: true while a stop of --btn-bg measured below 4.5 against --btn-label; worst 3.38. Same sweep over the full ranges a project file may hold: 146 of 1,510, worst 3.45. Pixels in Chromium (node browser2.cjs, PART 4): gloss-b label #fcfcf8, --btn-bg linear-gradient(to bottom, #918600, #746b00), reported 4.87 passes true, drawn top 143,132,0 = 3.73, middle 130,120,0 = 4.40, bottom 5.16. gloss-a label #050404, stops #ff378f #dd0075, reported 4.56, drawn bottom 223,3,119 = 4.31. gloss-c (gray accent) reported 4.57, drawn bottom 4.32. The same sweep found no other false pass in 452,184 measured pairs.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens/browser2.cjs (lines starting PART 4; it reads the Mockups in the html folder beside it). Or in a vitest file under packages/core/test: const t = deriveTokens({ ...DEFAULT_PARAMS, buttonFinish: 'gloss', accentHue: 104, accentChroma: 0.3, accentLightness: 0.54 }, 'enforce'); t.pairs.find(p => p.id === 'button-label').passes is true; the least of contrastHex(t.hex['--btn-label'], stop) over the two hex stops in t.css['--btn-bg'] is below 4.5.",
+     "suggested_fix": "Measure the label against both ends of the gradient and report the lower figure for button-label when the finish is gloss; in enforce, repair against the worse end. A simpler alternative: build the gradient so that the end nearest the label color is the measured fill itself (light label: fill to fill minus 0.09; dark label: fill plus 0.09 to fill). Add a unit test that re-measures every hex stop of --btn-bg against --btn-label in the 3,000-design sweep."
+    },
+    {
+     "index": 1,
+     "title": "With the top bar \"split-cta\", the phone number in the contact section disappears on screens narrower than 720 pixels",
+     "kind": "correctness",
+     "severity": "medium",
+     "file": "/home/user/Frontend/packages/core/src/templates/smallBusiness.ts",
+     "line": 204,
+     "description": "Inside the media query for narrow screens, the rule `body[data-nav=\"split-cta\"] .phone { display: none; }` is meant to hide the phone number in the top bar. The selector matches every element with class `phone` on the page: the top-bar number, the large \"Call ...\" link in the first screen, and the number in the contact address. Its weight (one attribute, one class, one element name on body) beats `address .phone { display: inline-flex }` on line 228, so the contact number is hidden too. The large link survives only when the emphasis is \"action\", because that rule is heavier still.",
+     "failure_scenario": "Design with nav \"split-cta\" (any emphasis), preview at phone width (375 px) or any width up to 719 px, region \"contact\" or the whole page. The contact block shows the business name, address and hours, and no phone number. On a phone the number is the most useful item there. The same stylesheet goes into the exported mockup.html.",
+     "evidence": "node browser1.cjs printed: split-cta phone display: splitcta-headline@320: address=none nav=none big=none ; splitcta-headline@375: address=none ... ; splitcta-headline@768: address=flex nav=flex ; splitcta-action@375: address=none nav=none big=flex ; splitcta-proof@375: address=none. Control: default (top-inline) @320 and @375: address=flex. No unit or browser test looks at this element.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens/browser1.cjs (line \"split-cta phone display\"). By hand: render renderSmallBusiness with { ...DEFAULT_PARAMS, nav: 'split-cta' }, open it 375 px wide, read getComputedStyle(document.querySelector('address .phone')).display: it is \"none\".",
+     "suggested_fix": "Narrow the selector to `body[data-nav=\"split-cta\"] .nav-actions .phone { display: none; }`. Add a browser check that `address .phone` is displayed at 375 px for every nav Option."
+    },
+    {
+     "index": 2,
+     "title": "Every preview card is a whole document with its fonts inside: 2.5 to 3.5 million characters of HTML and about 0.3 seconds of frame loading per change at 18 to 24 cards",
+     "kind": "performance",
+     "severity": "medium",
+     "file": "/home/user/Frontend/packages/core/src/templates/smallBusiness.ts",
+     "line": 469,
+     "description": "renderSmallBusiness writes the @font-face rules (each a base64 font of 30,000 to 78,000 characters) into every document. The Studio (apps/studio/src/preview.tsx line 26, App.tsx lines 432-435) builds one such document per card whenever the design values change, and each changed document becomes a new sandboxed frame. The JavaScript part is small; the browser part is not. Cost grows in a straight line with the number of cards.",
+     "failure_scenario": "The owner moves a slider one step on a Step with many cards. Every card's document changes, so the Studio builds 18 to 24 new documents and the browser parses 18 to 24 pages and decodes the same one to three fonts 18 to 24 times. The previews settle about a quarter to a third of a second after each step; steps that arrive faster than that pile up.",
+     "evidence": "Vitest, this machine: one renderSmallBusiness call 0.049 ms and 34,200 bytes without font rules; 0.050 ms and 70,129 bytes with Public Sans; 205,280 bytes with three fonts (the font text is passed through, so render time does not change). deriveTokens plus render for 18 cards: 11.9 ms (advise), 15.9 ms (enforce), 2,551,133 characters of HTML; for 24 cards: 18.6 ms and 25.2 ms, 3,499,616 characters. Chromium, a bare page that creates N sandboxed srcdoc frames 1280 px wide, scaled to 0.2 (browser2.cjs PART 5, second-fastest of 4 runs): 18 frames loaded in 166 ms without font rules, 255 ms with one font, 264 ms with two; 24 frames: 208 ms, 304 ms, 348 ms. One frame: 10 to 12 ms. Long tasks stayed at 0 ms except one run of 52 ms, so the work is spread over many short tasks. Limit of this evidence: I measured a stand-in page, not a slider step inside the Studio; the Studio marks thumbnails as lazy, so frames off screen wait.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens/browser2.cjs (lines starting PART 5). Sizes: Buffer.byteLength(renderSmallBusiness({ params: DEFAULT_PARAMS, tokens: deriveTokens(DEFAULT_PARAMS,'advise').css, content: SAMPLE_CONTENT })) gives 34200; add fontFaceCss built from node_modules/@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2 as a base64 data address to get 70129.",
+     "suggested_fix": "In the Studio: rebuild the large preview at once and the thumbnails only after the slider rests (for example 150 ms), and skip cards whose document text did not change. In the template: let a thumbnail (still: true) leave out the font rules or carry only the heading font, since text at one fifth size hides the difference; that alone removes about 35 to 40 percent of the frame-loading time measured here. Measure a real slider step in the Studio before and after."
+    },
+    {
+     "index": 3,
+     "title": "\"Film grain\" on a light page darkens what is drawn by about 5 percent, so pairs reported as passing or repaired sit below their requirement on screen",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "/home/user/Frontend/packages/core/src/templates/smallBusiness.ts",
+     "line": 162,
+     "description": "With atmosphere \"grain\" the stylesheet lays a fixed layer over the whole page (z-index 50, black noise, opacity 0.11, blend mode multiply). It covers reading text, boxes and form fields, not only the first screen. The contrast pairs are measured on the token colors without this layer. On a light page the layer darkens the background more, in luminance terms, than it darkens the text, so every dark-on-light pair loses about 3 to 5 percent of its ratio. Repairs under \"Fix for me\" aim only 1.2 percent above the requirement (MARGIN, tokens.ts line 55), so a repaired pair lands below the requirement as drawn. NOT_CHECKED (tokens.ts lines 227-233) lists glows, clouds, dots, lines, stars and glass, but not grain.",
+     "failure_scenario": "Plain start, atmosphere \"grain\", text contrast slider at 0, profile \"Fix for me\". The Studio reports \"Secondary text on the tinted section\" as repaired (token colors 4.56 to 1). The page draws it at 4.41. \"Form field borders against the field itself\" is 3.04 by tokens and 2.99 as drawn.",
+     "evidence": "browser3.cjs, mean colors of 80 by 120 pixel patches painted in the token colors under the grain layer, Chromium, 1280 px: --text-muted on --surface-2: tokens 4.563, drawn 4.406; --border-strong on --surface: tokens 3.040, drawn 2.993; --text-muted on --bg: tokens 4.968, drawn 4.803; --accent-text on --bg: 7.607, drawn 7.222. Control without grain: drawn equals tokens for all five pairs (4.563, 3.040, 4.968 ...). browser2.cjs PART 3: page background token #f7faff (247,250,255) is drawn at mean 233.9,236.9,241.9; darkest background pixel against the mean ink gives 4.38. Only the light theme was measured; the dark theme uses blend mode overlay, which should raise contrast, and I did not measure it.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens/browser3.cjs (the two lines starting GRAIN) and browser2.cjs (PART 3).",
+     "suggested_fix": "Either name film grain in NOT_CHECKED and in the Option's text (smallest change), or fold it into the measure: when atmosphere is grain on a light theme, measure each pair with both colors multiplied by the darkest factor the layer can reach (1 - 0.9 x 0.11) for the background and the lightest for the text, and repair against that. A lower grain opacity on light pages (about 0.05) would also shrink the gap."
+    },
+    {
+     "index": 4,
+     "title": "Two-column sections push the page wider than the window from 860 pixels up when the type sliders are high (the fix for F-5 covers phone width only)",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "/home/user/Frontend/packages/core/src/templates/smallBusiness.ts",
+     "line": 341,
+     "description": "From 860 px the contact and about sections become two columns written as plain shares: `.contact-grid { grid-template-columns: 0.9fr 1.1fr }` (line 341) and `.about-grid { grid-template-columns: 1.1fr 0.9fr }` (line 332). A plain share cannot shrink below the widest unbreakable word in it, and `overflow-wrap: break-word` (line 140) does not lower that floor. The h2 size cap of 8.5vw added for F-5 is sized for one column the width of the screen, so a long word in a half-width column is wider than the column and the other column (the form, or the promise box) is pushed off the page. The first-screen grid already uses minmax(0, ...) and does not have this fault. The comment in tokens.ts lines 528-530 says the caps change nothing on a wide screen; that is true, and it is why wide screens are unprotected. The browser test for F-5 (apps/studio/e2e/visual.e2e.ts line 181) checks 375 px only. A second, smaller case: at 320 px with spacing and text size at their highest, the form box (button with white-space: nowrap plus box padding) is 332 to 340 px wide and the page is 41 to 49 px wider than the screen.",
+     "failure_scenario": "Desktop preview (1280 px) of Marquee Deco, Frontier Gazette or Control Room with the four type sliders at their highest (text size 22, heading jump 1.62, thickness 900, letter spacing 0.12): the form runs 14 to 46 px off the right edge. With every slider at its highest (the browser test's own \"every slider at its highest\" design): 7 of 19 starting designs overflow at 1280 px, by up to 139 px. In an exported page viewed at 860 to 1024 px, two sliders are enough: Control Room, Marquee Deco and Frontier Gazette with text size 22 and heading jump 1.62 overflow by 85 to 139 px.",
+     "evidence": "browser3.cjs, 76 Mockups (19 starting designs x 4 slider settings) at 7 widths, 135 overflow: every slider at its highest: 19 of 19 at 860, 960 and 1024 px (worst +369 px, contact columns 620 px + 341 px in a 960 px window), 7 of 19 at 1280 px (control-room +139, frontier-gazette +129, marquee-deco +116, quiet-luxury +25, garden-ledger +11, poster-block +8, midnight-aurora +2), 2 of 19 at 1440 px. Four type sliders at their highest: 19 of 19 at 860 to 1024 px, 3 of 19 at 1280 px. Two size sliders only: 3 of 19 at 860 to 1024 px, none at 1280. What held: no overflow at 375 or 768 px for any of these; no overflow for the 18 Directions and every size Option without slider changes at 375, 600, 768, 860, 900, 960, 1024, 1100 and 1280 px (0 of 906 page loads). browser1.cjs: 80 of 80 designs with six sliders at their highest overflow at 320 px by 41 to 49 px.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens/browser3.cjs (block \"SLIDER ENDS ON EVERY DIRECTION\"). By hand: render { ...Marquee Deco params, baseSize: 22, scaleRatio: 1.62, headingWeight: 900, headingTracking: 0.12 }, open at 1280 px, compare document.documentElement.scrollWidth with clientWidth.",
+     "suggested_fix": "Write both grids as minmax(0, 0.9fr) minmax(0, 1.1fr) and minmax(0, 1.1fr) minmax(0, 0.9fr), and change overflow-wrap to `anywhere` on headings so that a word wider than its column breaks. For 320 px, let the form button wrap (white-space: normal below 600 px) or give `.form` min-width: 0. Extend the browser test to 320, 860, 1024 and 1280 px."
+    },
+    {
+     "index": 5,
+     "title": "deriveTokens repeats the same gamut search hundreds of times: 1,346 color conversions for a 26-color palette; two small caches cut its time by 54 to 63 percent",
+     "kind": "performance",
+     "severity": "low",
+     "file": "/home/user/Frontend/packages/core/src/color.ts",
+     "line": 53,
+     "description": "toGamut (lines 53-63) runs a 24-step search whenever a color is outside what screens can show, and nothing remembers the result. toRgb, luminance, emittedRgb, writtenContrast and contrastOverEmitted each call it again for the same color object. The commonest colors are outside: the plain start's page background (lightness 0.985, chroma 0.012, hue 255 gives a blue channel of 1.03) and the near-white label that readableOn tries first (lightness 0.99, chroma 0.005). So each use of the page background costs 26 conversions instead of 2. On top of that, basePalette calls readableOn(accent) four to five times with the same input (tokens.ts lines 126, 143, 164, 165), and deriveTokens converts every palette color twice (tokens.ts lines 579-580: toCss and toHex are the same function).",
+     "failure_scenario": "Every change of a design value makes the Studio call deriveTokens once per card and once for the large preview. At 24 cards that is 18.6 ms (advise) to 25.2 ms (enforce) of JavaScript on this machine before any frame loads; a computer four times slower would spend 75 to 100 ms per slider step on this alone.",
+     "evidence": "Vitest, counting Math.cos calls (one per conversion): deriveTokens(DEFAULT_PARAMS): off 1,346, advise 1,636, enforce 1,926 conversions; random designs under enforce: mean 3,146, most 13,918. One readableOn call: 60 conversions; one repair by ensureContrast: 804. Times: plain start 0.39 ms (off), 0.45 (advise), 0.53 (enforce); 600 random designs: mean 0.51 / 0.63 / 0.94 ms, 95th percentile 1.23 / 1.46 / 2.36 ms, most 4.8 ms. renderSmallBusiness is 0.05 ms, so derivation is about 90 percent of the JavaScript cost per card. Experiment on a scratch copy (core-src/color.ts with a WeakMap in front of toGamut and one in front of emittedRgb): 0 of 1,800 outputs differ; time per call falls from 0.511 to 0.237 ms (off), 0.651 to 0.242 (advise), 0.944 to 0.410 (enforce); conversions for the plain start fall from 1,346-1,926 to 282.",
+     "repro": "In a vitest file under packages/core/test: const cos = Math.cos; let n = 0; Math.cos = (x) => { n++; return cos(x); }; deriveTokens(DEFAULT_PARAMS, 'off'); Math.cos = cos; n is 1346. The patched copy is at /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens/core-src/color.ts (diff it against packages/core/src/color.ts).",
+     "suggested_fix": "Remember the result of toGamut and of emittedRgb per color object in a WeakMap (safe here: the palette replaces color objects and never changes one in place; the experiment produced identical output). Compute readableOn(accent) once in basePalette and reuse it. In deriveTokens write hex[token] = css[token] instead of converting twice."
+    },
+    {
+     "index": 6,
+     "title": "Test gap: nothing ties the tokens the stylesheet draws with to the tokens the contrast pairs measure; four planted defects pass all unit tests",
+     "kind": "test-gap",
+     "severity": "low",
+     "file": "/home/user/Frontend/packages/core/test/tokens.test.ts",
+     "line": 104,
+     "description": "The contrast pairs name --btn-label, --btn-fill, --card-surface and an opacity for the highlighter stroke. The stylesheet draws with other tokens that deriveTokens fills separately: --btn-color, --btn-bg, --btn-border, --card-bg, --marker. The sweep in tokens.test.ts (lines 104-108) checks css against hex only for the tokens a pair names. The browser test \"draws every color pair ... measured from pixels\" (apps/studio/e2e/visual.e2e.ts lines 324-355) paints the token texts on a one-pixel canvas; it never looks at an element of the Mockup, although its comment says \"It measures the page\". So a drawn color can drift from the measured color with every test green. The gloss gradient and the film grain findings are live cases of this same gap.",
+     "failure_scenario": "Planted defects that survive (each run alone against a scratch copy of packages/core): M4, --marker written with the starting opacity, so the \"Fix for me\" repair of the highlighter stroke is reported and never drawn; M6, the outline button's --btn-color and --btn-border written from the unrepaired accent; M7, boxes under \"borders\" drawn in --surface-2 while the pairs measure --surface; M5, the focus ring no longer held to 3 to 1 on the side column in the Off profile (decision D24 says every surface).",
+     "evidence": "node mutate.cjs printed: BASELINE: 3 files, 46 tests passed. M4: tokens.test.ts 21 passed. M5: 21 passed. M6: 21 passed. M7: tokens.test.ts and mockup.test.ts 33 passed. grep for btn-color, --btn-bg, card-bg and --marker in packages/core/test and apps/studio/e2e: no match. I did not run the browser suite against these (not allowed in this review); the stored pictures may catch M7 by eye-level difference, and by reading the code nothing there would catch M4, M5 or M6 on the Directions pictured unless the color shift is large.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens/mutate.cjs (it edits only the copy under .../review/tokens/mut and restores each file).",
+     "suggested_fix": "Add to the 3,000-design sweep: css['--btn-color'] equals hex['--btn-label']; for flat, glow and soft css['--btn-bg'] equals hex['--btn-fill']; for outline css['--btn-border'] equals hex['--btn-label']; unless glass, css['--card-bg'] equals hex['--card-surface'] and css['--header-bg'] equals hex['--bg']; the opacity inside css['--marker'] equals the alpha of the marked-phrase pair; focus against --surface-2 is at least 3 when nav is side-rail in every profile. (My sweep checked the first five over 8,000 designs and found them equal today.) In the browser, measure at least one real element per pair with getComputedStyle on the Mockup."
+    },
+    {
+     "index": 7,
+     "title": "Test gap: the headline's three parts are never tested with hostile text; removing their escaping passes all 12 Mockup tests",
+     "kind": "test-gap",
+     "severity": "low",
+     "file": "/home/user/Frontend/packages/core/test/mockup.test.ts",
+     "line": 20,
+     "description": "headlineHtml (smallBusiness.ts lines 118-125) is the one place where content takes its own path into markup: the text before the emphasis, the emphasis inside <mark>, and the text after it, or the whole headline when the emphasis does not occur. The hostile-content test sets headlineEmphasis to the harmless word 'Before' and puts the hostile string after it, so only the \"after\" part ever carries hostile text. The test \"covers every content field with its own hostile string\" compares key names only. A project file may hold any short text in headlineEmphasis (engine.ts line 601).",
+     "failure_scenario": "A later edit drops escapeHtml from the emphasis, from the text before it, or from the no-emphasis path. A project file with headline and headlineEmphasis set to markup then writes that markup into every preview and into the exported page. All tests stay green. Today's code escapes all three parts correctly; the sandbox and the content policy of the Mockup would still block script, so the damage would be injected markup, not running code.",
+     "evidence": "node mutate.cjs printed: M1 headline emphasis written without escaping: mockup.test.ts 12 passed. M2 text before the emphasis written without escaping: 12 passed. M3 headline without emphasis written without escaping: 12 passed. grep headlineEmphasis in packages/core/test and apps/studio/e2e: one match, mockup.test.ts line 20.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens/mutate.cjs (lines M1, M2, M3).",
+     "suggested_fix": "In mockup.test.ts render three more hostile cases and apply the same assertions: headline = `${bad('before')} ${emphasis} tail` with headlineEmphasis = bad('emphasis') taken from inside the headline; a headline with hostile text before a harmless emphasis; and a hostile headline with headlineEmphasis set to a string that does not occur in it."
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 0,
+     "title": "Gloss button: the label is reported as passing, but the drawn gradient fill falls below 4.5 to 1",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "1) Temporary vitest file packages/core/test/zz-review-tokens-verify-1.test.ts (deleted afterwards), with deriveTokens({...DEFAULT_PARAMS, buttonFinish:'gloss', accentHue:104, accentChroma:0.3, accentLightness:0.54}). In both advise and enforce it reports button-label ratio 4.87, passes true, fill #7a7100, label #fcfcf8, --btn-bg linear-gradient(to bottom, #918600, #746b00). The label measures 3.64 against the top stop and 5.31 against the bottom. Hue 0 / vividness 0.27 / lightness 0.6 reports 4.56 passes, but the label measures 4.22 against the bottom stop #dd0075. Random sweep of 1,500 gloss designs under enforce (light and dark): 152 false passes, worst 3.32. 2) Chromium, /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens-verify/b.cjs, pixels sampled from the rendered .hero .btn-primary: top 142,132,0 = 3.75, middle 130,120,0 = 4.40, bottom 5.09.",
+     "reasoning": "buttonTokens (tokens.ts 373-377) draws gloss as a gradient from shiftL(action, +0.07) to shiftL(action, -0.02). The pair button-label measures only the flat --btn-fill. NOT_CHECKED lists only hover and pressed states for buttons. Known gaps and T2-03 cover headline gradients, not this resting button fill. The Studio therefore shows 'passes' for a label that is drawn below 4.5 under the text itself, and 'Fix for me' does not repair it. About 10% of gloss designs are affected. This is a false statement on screen, so medium."
+    },
+    {
+     "index": 1,
+     "title": "split-cta top bar hides the contact section's phone number below 720 px",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "Rendered renderSmallBusiness({...DEFAULT_PARAMS, nav:'split-cta'}) to the scratch html folder and opened it in Chromium (b.cjs, PHONE lines). Results: 375 px and 719 px give address .phone=none, .nav-actions .phone=none; 720 px and 1024 px give address .phone=flex. Control top-inline at 375/719 gives address .phone=flex.",
+     "reasoning": "smallBusiness.ts line 204, body[data-nav=\"split-cta\"] .phone {display:none}, has specificity (0,2,1). That beats address .phone (0,1,1) on line 228, so the contact number disappears at phone and tablet widths. This is reachable through an ordinary Option (nav split-cta) and the phone or tablet preview (375/768 px), and it also goes into the exported mockup.html. It is not in Known gaps or campaign 4."
+    },
+    {
+     "index": 2,
+     "title": "Every preview card is a full document with its fonts; the claimed 0.3 s of frame loading per slider step",
+     "verdict": "refuted",
+     "severity": "low",
+     "reproduction": "Drove the built Studio (apps/studio/dist/artifact/local-test.html#accent, 1440x900) with /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens-verify/perf.cjs. The Accent Step has the most cards of any Step with sliders: 13 Options plus 'Your design now' (14 thumbnails, 15 frames). I pressed ArrowRight on #tune-accentHue and #tune-accentLightness 4 times each, counting iframe load events and long tasks. Each step reloaded 2 frames. The last load arrived 61-104 ms after the key press. No long tasks were recorded. Step option counts from STEPS: no Step with sliders has more than 13 Options.",
+     "reasoning": "The 18-24 card scenario does not occur on any Step with sliders. useFrameKey keeps a frame whenever its document text is unchanged. Option cards override the very values the Step's sliders change, so only the 'current' card and the large preview change. The measured cost (2 frame loads, about 60-100 ms, no main-thread long task) is below the threshold for a felt slowdown on a slider step. The stand-in page measurement does not reflect the Studio."
+    },
+    {
+     "index": 3,
+     "title": "Film grain on a light page lowers drawn contrast by about 3-8% below the measured token contrast",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Rendered {...DEFAULT_PARAMS, atmosphere:'grain', contrast:0} under enforce, and the same design with atmosphere plain. b.cjs placed solid 120x160 patches in the token colors under the grain layer (z-index 10 < 50) and averaged 80x120 screenshot patches in Chromium at 1280 px. With grain: --text-muted/--surface-2 is 4.563 by tokens and 4.406 drawn (the Studio reports muted-on-tone 4.56, passes); --border-strong/--surface is 3.040 by tokens and 2.993 drawn; --text-muted/--bg 4.968 vs 4.803; --text/--bg 11.699 vs 10.802. Without grain, every drawn value equals its token value.",
+     "reasoning": "The grain layer (smallBusiness.ts line 162, a fixed multiply blend over the whole page) is not in NOT_CHECKED. That list names dots, lines, stars, glows and glass, and Known gaps names glows, glass and photos. A pair that is repaired to just above its requirement is therefore drawn below it. The effect is a few percent and only in the light theme, so the severity is low."
+    },
+    {
+     "index": 4,
+     "title": "Two-column about and contact grids overflow the window from 860 px with high type sliders",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "b.cjs (OVER lines): 18 Directions rendered with their own fonts. Unchanged designs: 0/18 overflow at 860, 1024 and 1280. With text size 22 and heading jump 1.62 (two sliders on the one Step 'size-scale', inside their ranges 13-22 and 1.067-1.62): 3/18 overflow at 860 (frontier-gazette +133, marquee-deco +139, vector-horizon +36), 3/18 at 1024 (control-room +87, frontier-gazette +85, marquee-deco +89), and 0/18 at 1280. Adding heading weight 900 and tracking 0.12: 18/18 at 860 and 1024 (up to +221), and 3/18 at 1280 (control-room +14, frontier-gazette +44, marquee-deco +46).",
+     "reasoning": "The grids at smallBusiness.ts lines 332 and 341 use plain fr tracks without minmax(0, ...), so a long heading word sets the column's minimum width. The F-5 fix capped sizes for phone width only. In the Studio the desktop preview (1280 px) overflows only at extreme settings of four sliders; 860-1024 px is reachable only in the exported page, since the Studio's preview widths are 375/768/1280. It is real but needs slider extremes, so low."
+    },
+    {
+     "index": 5,
+     "title": "deriveTokens repeats gamut searches: 1,346-1,926 conversions per call",
+     "verdict": "refuted",
+     "severity": "low",
+     "reproduction": "Temporary vitest file (deleted): counting Math.cos calls gave 1,346 for deriveTokens(DEFAULT_PARAMS,'off') and 1,926 for 'enforce', matching the claim. Timing over 500 calls: 0.49 ms per call in advise and 0.71 ms in enforce; renderSmallBusiness took 0.095 ms. In the Studio, a slider step on the Accent Step (14 cards) rebuilds about 15 documents, about 10 ms of derivation. perf.cjs saw no long task on any slider step.",
+     "reasoning": "The repeated work exists, but the measured cost per interaction is about 10-15 ms, well below the 50 ms threshold for a slider step. It does not grow with stored data or session length. The 24-card scenario does not occur on Steps with sliders, and the slower-machine figure is extrapolation. This is not a felt performance defect."
+    },
+    {
+     "index": 6,
+     "title": "Test gap: drawn tokens (--btn-color, --btn-bg, --card-bg, --marker) are not tied to measured tokens",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Fresh copy of packages/core in /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens-verify/mut (node_modules symlinked). I ran mutate.cjs (tokens.test.ts / mockup.test.ts) and mutate-all.cjs (the whole packages/core suite). The baseline passed 46/46. M4 (--marker at the starting opacity), M5 (focus not held on the side column), M6 (outline button in the unrepaired accent) and M7 (cards drawn in --surface-2) each left tokens.test.ts at 21 passed (M7: 33 passed with mockup.test.ts). In the full-suite run every mutation showed the same 5 catalog failures as the baseline: those come from the copy lacking repo files, and no mutation added another. Grep for btn-color, --marker and card-bg in packages/core/test and apps/studio/e2e finds no assertion.",
+     "reasoning": "Unit tests do not detect drift between the drawn color tokens and the measured pair tokens, and finding 0 is a live instance of that drift. I did not run the browser suite (not allowed), so a screenshot test might catch M7. M4 and M6 would most likely survive."
+    },
+    {
+     "index": 7,
+     "title": "Test gap: headline before-text, emphasis and no-emphasis paths never get hostile text",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Same scratch copy, mutate.cjs: M1 (emphasis without escapeHtml), M2 (before-text without escaping) and M3 (no-emphasis path without escaping) each left mockup.test.ts at 12 of 12 passing, and the full core suite added no new failure. mockup.test.ts line 20 sets headlineEmphasis 'Before' (harmless) at the very start of the headline, so the before part is empty, the emphasis is harmless, and the no-emphasis path never runs.",
+     "reasoning": "Today's code escapes all three parts (smallBusiness.ts 118-125), so this is a regression gap only. A project file can supply any headlineEmphasis. The sandbox would still block script, so a regression would inject markup, not run code. Low."
+    }
+   ],
+   "examined": [
+    "/home/user/Frontend/packages/core/src/color.ts: read in full. OKLab matrices, transfer functions, gamut mapping, luminance, contrast, ensureContrast, ensureContrastAll, readableOn and the written-color measures checked by reading and by sweep.",
+    "/home/user/Frontend/packages/core/src/tokens.ts: read in full (palette, PAIRS, applyProfile, every token group, tokensToCss).",
+    "/home/user/Frontend/packages/core/src/templates/smallBusiness.ts: read in full (stylesheet and markup).",
+    "/home/user/Frontend/packages/core/src/params.ts: read in full (lists, ranges, assertKnownParams).",
+    "/home/user/Frontend/packages/core/test/color.test.ts, tokens.test.ts, mockup.test.ts, helpers.ts: read in full.",
+    "/home/user/Frontend/apps/studio/e2e/visual.e2e.ts: read lines 155-217 (phone fit, headline size) and 286-359 (contrast from pixels); test names of the rest listed. Not run.",
+    "Call sites in /home/user/Frontend/apps/studio/src/preview.tsx (lines 1-120), fonts.ts (full) and App.tsx (lines 396-440): read to learn how often derivation and rendering run.",
+    "PROGRESS.md \"Known gaps\", redteam/campaign-4/findings.md F-1 to F-9, and the T2-01, T2-03, T3-01, T3-02, T3-15 rows of redteam/FINDINGS.md: read, to avoid repeats.",
+    "Random sweep, 8,000 designs x 3 profiles, 452,184 pairs: 4,000 designs from random Options plus slider values (30 percent at a slider end) and 4,000 from the full ranges a project file may hold (40 percent at a range end). What held, with 0 cases each: a pair marked passing that fails when measured again from the hex values; a pair left failing under enforce; an enforce issue with outcome warning; an enforce repair of a pair that passed under off; a pair lowered by enforce; advise issues differing from failing pairs; advise changing any token; the accent changed by enforce; link and focus ring below 3 to 1 on page, boxes and side column in any profile; focus ring below 3 on the first screen; label below 4.5 on accent fills; --card-bg, --header-bg, --btn-color, --btn-bg differing from the measured tokens; NaN, undefined, Infinity, empty or exponent-form token values; negative sizes; tokensToCss or renderSmallBusiness throwing.",
+    "CSS validity in Chromium: 29,445 distinct token values across all 111 tokens passed CSS.supports for the property that reads them (0 refused).",
+    "Stylesheet structure in Chromium (181 rules): no selector that matches nothing in the generated markup, no class used on one side only, no custom property read but never set. Set but never read by the stylesheet: --card-surface, --on-accent, --accent-soft, --action, --on-action, --btn-label, --btn-fill, --marker-ink, --ease-in-out, --text-4xl, --font-mono, --space-20, --space-24, --space-32 (measurement and export names; not a defect), and --display-fill reads as unread only because of how Chromium serializes the rule; computed styles confirm that gradient headlines draw. The attribute data-button is written on body and no rule selects it (harmless).",
+    "Layout in Chromium: 104 Mockups at 320, 375, 768, 1280 px (nav x first screen x sections with six sliders at their highest, and with five at their lowest); 114 catalog-only Mockups at 9 widths; 76 slider-end Mockups at 7 widths. Held: the headline is never smaller than 1.2 times the opening paragraph; no overflow at 375 or 768 px; no element spills out of the side column; no clipped heading or button text.",
+    "Performance in vitest: time and conversion counts for deriveTokens in three profiles, time and bytes for renderSmallBusiness with zero, one and three fonts, cost for 18 and 24 cards, and a cache experiment on a scratch copy. In Chromium: load time of 1, 18 and 24 sandboxed frames with and without font rules.",
+    "Planted defects: 8 run against a scratch copy of packages/core with the three unit test files (all 8 survive; one of them, removal of the phone-size caps, is covered by the browser test at 375 px according to its code, so I did not report it)."
+   ],
+   "not_examined": [
+    "A real slider step inside the built Studio page (local-test.html): the frame-loading numbers come from a stand-in page, and the Studio's lazy loading, card counts per Step, and the unmemoized deriveTokens call at apps/studio/src/App.tsx line 315 were not measured.",
+    "Browsers other than Chromium; no Firefox or Safari rendering of the Mockup or of `linear-gradient(... in oklab ...)`.",
+    "Film grain on a dark page (blend mode overlay): reasoned to raise contrast, not measured. Grain on light pages measured for one design only.",
+    "The smallest slider combination that overflows at 1280 px: narrowed to four type sliders at their highest on 3 of 19 starting designs, not reduced further. The cause in the grid rule was read from the code and from the computed column widths, not confirmed by applying the fix.",
+    "Layout with content other than the sample: long single words, long button labels, empty lists (an empty facts list still draws an empty band, by reading), right-to-left text.",
+    "Hover and pressed states, text over glows, patterns and glass, and headline gradients under \"Warn me\": the Studio already states that it does not check these.",
+    "Whether the browser drops any declaration of the stylesheet as unsupported (for example text-wrap or mask properties) was not audited rule by rule.",
+    "The browser suites (npm run e2e) were not run, so I cannot say which planted defects the stored pictures would catch.",
+    "Exporters, engine.ts, the Catalog texts and the rest of the Studio were outside this area.",
+    "The review test files (packages/core/test/zz-review-tokens-1..4.test.ts) are deleted as required; git status is clean. Their outputs, the browser scripts, the generated Mockups and the scratch copies remain under /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/tokens/."
+   ]
+  },
+  {
+   "key": "saving",
+   "findings": [
+    {
+     "index": 0,
+     "title": "While a project opens, a tab switch, a reload, or typing in the name field replaces the saved browser copy with an empty project",
+     "kind": "correctness",
+     "severity": "high",
+     "file": "apps/studio/src/store.ts",
+     "line": 761,
+     "description": "init() registers the pagehide and visibilitychange listeners (store.ts:518, 526-528) and the top bar's name field is live (App.tsx:167, 931) BEFORE `openSaved(await loadSaved())` (store.ts:534) has finished. Until then the store holds the placeholder project from store.ts:494 (\"My first project\", no Direction), `lastSavedText` is null and `saved` is 'idle'. flush() (761-774), persist() (314-319) and saveNow() (282-312) never check `ready`. readBrowser() has already set `browserSavedAtSeen` (platform.ts:115), so saveBrowserNow() sees no conflict (platform.ts:231) and writes the placeholder over the real saved copy, with a newer save time. The window is as long as the page database takes to answer (the code allows up to 10 s for `use('db')` plus 10 s for `get()`). Without a page database the read finishes inside one task, so this needs the private page (or any host with `window.claude`). No copy is kept, and no notice appears in the session where it happens; the status line then says \"Saved in this browser\" although the stored copy is not the project on screen.",
+     "failure_scenario": "Stand-in page database that answers a read after 2.5 s. Stored browser copy: \"Weeks of work\" (Direction Soft Daylight, 1 Decision). (a) The owner reloads, closes, or switches tabs while \"Opening your project…\" shows: the browser copy becomes \"My first project\" with no Direction. If the page database holds no copy, the next visit opens the empty project and the work is gone (kept copies: none). If the page database holds the work, the next visit opens the EMPTY project and demotes the real work to a kept copy (\"The older of two saved copies that differed\"). This is also what happens on a second computer with no browser copy at all. (b) The owner types in the name field while the project opens: the browser copy becomes an empty project with the typed name; Undo is then enabled, and one Undo replaces the real project with the empty placeholder in the browser AND in the page database, with no kept copy.",
+     "evidence": "c1.cjs printed: `A[real-reload, page copy empty] 0 while opening: stored {name:\"Weeks of work\",direction:\"soft-daylight\",decisions:1}` -> `1 right after, still opening: stored {name:\"My first project\",direction:null,decisions:0}` -> `3 after a later plain reload: nameOnScreen \"My first project\", kept []`. `A[pagehide-event, page copy empty] 2 opened: status \"Saved in this browser, on this computer\", nameOnScreen \"Weeks of work\", stored name \"My first project\"`. `A[type-in-name-field, page copy empty] 3: nameOnScreen \"typed while opening\", direction null, kept []`. c3.cjs printed: `A2 3 next visit: nameOnScreen \"My first project\", notice \"The copy saved on this page and the copy saved in this browser differed…\", kept [\"The older of two saved copies that differed. => Weeks of work\"]`; `A3 2 after one Undo: notice \"Undone: your earlier project is back, the one that started from the plain start.\", stored name \"My first project\", pageDoc name \"My first project\", kept []`.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c1.cjs ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c3.cjs (lines A2 and A3). Both need lib.cjs in the same folder.",
+     "suggested_fix": "Save nothing before the project is open: return early from flush(), leaveSafely() and persist() while `!get().ready` (or a module flag that openSaved sets at its end). Disable the name field and the Contrast checks select until `ready`. Clear `history` when openSaved sets the project. Add a browser test whose stand-in answers `get()` after a delay and that dispatches `pagehide` and types during the delay."
+    },
+    {
+     "index": 1,
+     "title": "A page runtime whose use() is missing or throws makes the Studio ignore the saved browser copy and then overwrite it",
+     "kind": "robustness",
+     "severity": "medium",
+     "file": "apps/studio/src/platform.ts",
+     "line": 66,
+     "description": "database() calls `rt.use('db').catch(...)` with no guard. If `window.claude` exists but `use` is absent, throws at once, or returns something that is not a promise, database() throws. readPage() awaits it outside its try block (platform.ts:95), so loadSaved() rejects AFTER readBrowser() already read the browser copy and set `browserSavedAtSeen`. init()'s catch (store.ts:535-537) then shows \"The Studio could not look for a saved project. It started a new one.\" and leaves saving switched on. The first edit writes the new empty project over the saved browser copy (no conflict, no kept copy). saveProject() then awaits database() again (platform.ts:259), which throws, so saveNow() rejects unhandled and the status line stays at \"Saving…\" for good. The same fail-open applies to any other exception between loadSaved() and the end of openSaved(). I could not check whether the real private page can produce such a runtime; if it can, this is a loss of saved work. I graded it medium because that trigger is unverified.",
+     "failure_scenario": "`window.claude = {}` (or `{ use() { throw new Error('capability not declared') } }`); browser copy \"Weeks of work\" (Soft Daylight, 1 Decision). Open the Studio: the name field shows \"My first project\". Type one change into the name field.",
+     "evidence": "c2.cjs printed: `C[no-use] 1 opened: status \"Nothing to save yet\", nameOnScreen \"My first project\", notice [\"The Studio could not look for a saved project. It started a new one.\"], stored {name:\"Weeks of work\",…}` then `C[no-use] 2 after one edit + 2.5 s: status \"Saving…\", stored {name:\"One edit\",direction:null,decisions:0}, kept [], errors [\"TypeError: e.use is not a function\"]`. The `use-throws` shape gave the same result with `errors [\"Error: capability not declared\"]`.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c2.cjs (lines starting `C[`)",
+     "suggested_fix": "In database(), call the runtime inside a promise chain, for example `Promise.resolve().then(() => rt.use('db')).catch(() => null)`, so that a throw or a non-promise becomes `null` (\"no page database\"). In init()'s catch, do not leave saving on over a copy that was never opened: set `saved: 'held'` with a hold notice, or open the browser copy that readBrowser() already returned."
+    },
+    {
+     "index": 2,
+     "title": "After a first read of the page database fails, the second read lets the next save replace the page copy without keeping it",
+     "kind": "correctness",
+     "severity": "medium",
+     "file": "apps/studio/src/store.ts",
+     "line": 476,
+     "description": "When the first read times out or rejects (readPage's catch returns 'timeout', platform.ts:104-106), openSaved() starts retryPageRead(). A successful second read sets `pageReadSucceeded = true` (platform.ts:100), so the next save writes to the page database. The retry handler (store.ts:478-488) keeps nothing: an unreadable page copy returns silently (`!result.ok`), an older copy that differs returns silently (`!pageIsNewer`), and a newer copy only raises a hold notice that does not stop saving. \"Keep what I have\" drops the newer copy without keeping it, and \"Open the newer copy\" calls replaceProject() directly, so the project on screen is not kept either (Undo only). A normal open keeps the same copies (\"The older of two saved copies that differed\", \"A saved copy that could not be read\"). This breaks rule 2 in the header of platform.ts (\"A copy that cannot be read is never overwritten\") and guarantee 10.05 (keeps a copy before work is replaced). The newer-page-copy case is the owner who worked on another computer.",
+     "failure_scenario": "Stand-in whose first `get()` rejects and whose second answers. (D1) Page copy \"Newer on page\" (2026-11-13), browser copy \"Browser older\" (2026-11-06): the hold \"A newer copy of this project was found saved on this page.\" appears; press \"Keep what I have\", change the name once: the page copy is replaced, kept copies: none. (D1b) Do not answer, change the name once: the page copy is replaced while the notice still offers it. (D2) Unreadable page copy: no notice at all; one edit replaces it; nothing kept. (D3) Older page copy that differs: no notice; replaced; nothing kept.",
+     "evidence": "c2.cjs printed: `D1 … | 2 after one edit: status \"Saved on this page\", kept [], pageDoc {name:\"Edited afterwards\"}`; `D1b … | 2: hold \"A newer copy of this project was found saved on this page.\", kept [], pageDoc {name:\"Edited afterwards\"}`; `D2 unreadable page copy | 1 opened: notice [], hold null, kept []` then `2: pageDoc {name:\"Edited afterwards\"}, kept []`; `D3 … | 2: kept [], pageDoc {name:\"Edited afterwards\"}`. Controls where the first read succeeds: `D3-control … kept [\"The older of two saved copies that differed. => Page older\"]`, `D2-control … kept [\"A saved copy that could not be read. => RAW:{\\\"schemaVer\"]`.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c2.cjs (lines starting `D`)",
+     "suggested_fix": "Treat the late copy as openSaved() treats a second copy: when it differs from the open project (unreadable, older, or newer), call keepBackup() on its raw text before any write to the page database is allowed; if it cannot be kept, stop saving and ask. Make \"Open the newer copy\" go through replaceKeepingCopy(). Add browser tests with a stand-in whose first read fails."
+    },
+    {
+     "index": 3,
+     "title": "A page database that never answers one write leaves the status at \"Saving…\" for the rest of the session and blocks every later page write",
+     "kind": "robustness",
+     "severity": "medium",
+     "file": "apps/studio/src/platform.ts",
+     "line": 261,
+     "description": "Reads have a 10-second limit (withTimeout); writes have none. saveProject() awaits `db.doc(...).set(...)` chained on `writing` (platform.ts:261-264). If one `set()` never settles, saveNow() (store.ts:293) never returns: `lastSavedText` and `lastOutcome` are not updated and `saved` stays 'saving'. Every later save queues behind the stuck promise, so the page database is not even asked again, even if it recovers. The browser copy is written each time, so nothing is lost on this computer, but the status line never says so and the page copy stays old.",
+     "failure_scenario": "Stand-in whose `set()` returns a promise that never settles. Open a saved project (status \"Saved on this page\"), change the name, wait; change it again, wait.",
+     "evidence": "c2.cjs printed: `E 2 five seconds after one edit: status \"Saving…\", stored {name:\"E edit\"}, pageDoc {name:\"Weeks of work\"}, pageDbCalls {gets:1, sets:1}` and `E 3 fifteen seconds after a second edit: status \"Saving…\", stored {name:\"E edit 2\"}, pageDoc {name:\"Weeks of work\"}, pageDbCalls {gets:1, sets:1}` (the second write was never attempted).",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c2.cjs (lines starting `E`)",
+     "suggested_fix": "Give a page write a time limit (withTimeout around `next`); on a timeout report the browser outcome ('browser' or 'failed') and do not chain later writes behind the write that did not answer."
+    },
+    {
+     "index": 4,
+     "title": "\"Start a new project…\" / \"Go on\" in a stopped tab adopts whatever is stored now, so another tab's saved work is replaced without a kept copy",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "apps/studio/src/store.ts",
+     "line": 388,
+     "description": "resumeSaving() calls adoptStoredCopy(), which marks the text stored at that moment as replaceable and takes over its save time (platform.ts:242-251). The question the owner answered was about the copy found at opening. While the tab is stopped, the storage listener ignores later changes (`if (get().saved === 'held') return`, store.ts:530). If another tab has saved real work in the meantime, the answer silently replaces that work: no conflict, no kept copy, no question. keepThisTab() does keep the stored copy first; resumeSaving() does not.",
+     "failure_scenario": "The browser copy is unreadable. Tabs A and B both open it and stop saving. In B: \"Start a new project (the unreadable copy stays in a backup)\", start from Ember Noir, decide one Step, name it \"Work done in tab B\"; it is saved. Close B. In A press the same button: A's empty \"My first project\" replaces B's work. Kept copies hold only the unreadable text.",
+     "evidence": "c2.cjs printed: `G 2 tab B worked and saved: stored {name:\"Work done in tab B\",direction:\"ember-noir\",decisions:1}` then `G 4 tab A, after \"Start a new project…\": status \"Saved in this browser, on this computer\", stored {name:\"My first project\",direction:null,decisions:0}, kept [\"A saved copy that could not be read. => RAW:…\"]`.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c2.cjs (lines starting `G`)",
+     "suggested_fix": "In resumeSaving(), compare the text stored now with the text the question was about; when it differs, keep it first with keepBackup(storedProjectText(), …), and ask once more if it cannot be kept (the pattern of keepThisTab())."
+    },
+    {
+     "index": 5,
+     "title": "A save that finishes after the tab stopped saving overwrites the 'held' state: the line says \"Saved on this page\" beside the notice \"has stopped saving here\"",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "apps/studio/src/store.ts",
+     "line": 311,
+     "description": "saveNow() checks `saved === 'held'` only before the awaited save. After the await it sets `saved: outcome` whenever the project text is unchanged (store.ts:308-311). If a storage event from another tab set 'held' and the hold notice while the page write was running, the state leaves 'held' without the owner's answer. The hold notice stays, so the two statements contradict each other. The next save attempt detects the conflict and stops again, so I saw no loss. It needs a slow page write.",
+     "failure_scenario": "Page writes take 3 s. Tab A changes the name. Tab B, stopped by A's save, presses \"Keep this tab's copy\" before A's page write returns. A receives the storage event and shows the hold notice; 3 s later A's status flips to \"Saved on this page\" while the notice and its two buttons remain.",
+     "evidence": "c3.cjs printed: `F 1 tab A, while its page write is still running: status \"Not saving: see the notice at the top of the page\"` then `F 2 tab A, after its page write finished: status \"Saved on this page\", hold \"This project was just changed in another tab or window. The Studio has stopped saving here…\", nameOnScreen \"Edit in tab A\", stored {name:\"Weeks of work\"}`.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c3.cjs (lines starting `F`)",
+     "suggested_fix": "After the await in saveNow(), still record `lastSavedText` and `lastOutcome`, but skip `set({ saved: outcome })` when `get().saved === 'held'`."
+    },
+    {
+     "index": 6,
+     "title": "After the browser's leave-page question is answered with \"stay\", the status line stays at \"Saving…\" although the save failed and none is running",
+     "kind": "robustness",
+     "severity": "low",
+     "file": "apps/studio/src/store.ts",
+     "line": 278,
+     "description": "leaveSafely() clears the pending save timer (store.ts:278) and tries a browser write and a kept copy. When both fail it returns false and the browser asks its question. If the owner stays, nothing restarts the timer and nothing sets the outcome, so `saved` remains 'saving'. Without the attempt to leave, the same edit ends at \"Cannot save here: this browser's storage is full or blocked…\". The warning that the owner most needs is therefore missing. It needs full or blocked storage and an attempt to leave within 300 ms of the last change.",
+     "failure_scenario": "Storage refuses every write. Type one character into the name field and reload at once; the browser asks \"leave this page?\"; choose to stay. Three seconds later the status line still reads \"Saving…\".",
+     "evidence": "c3.cjs printed: `L 0 control: typed, waited, did not try to leave: status \"Cannot save here: this browser's storage is full or blocked. Download the project file before you close this page.\"` and `L 1 typed, tried to leave within 300 ms, stayed; 3 s later: dialogs [\"beforeunload\"], status \"Saving…\", nameOnScreen \"Weeks of workxy\", stored {name:\"Weeks of work\"}`.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c3.cjs (lines starting `L`)",
+     "suggested_fix": "When leaveSafely() is about to return false, set `lastOutcome = 'failed'` and `saved: 'failed'`; when its browser write succeeds, set `lastSavedText` (and let a later saveNow() write the page copy) instead of only clearing the timer."
+    },
+    {
+     "index": 7,
+     "title": "A tab that is not saving adds one more kept copy at every tab switch, each labelled \"when you left or reloaded the page\"",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "apps/studio/src/store.ts",
+     "line": 766,
+     "description": "The visibilitychange listener (store.ts:526-528) calls flush(); in the 'held' state flush() calls leaveSafely(), which keeps the unsaved project with the reason WHY_LEFT (store.ts:187, 277). A tab switch is neither leaving nor reloading, so the label on the Summary states something that did not happen, and every switch after a further change adds a full copy (about 3,900 characters each for a small project in my run, 7,800 for a project with all 23 Decisions). The list has no limit (guarantee 10.03), so a long stopped session fills the list and, with the performance finding below, slows the Summary.",
+     "failure_scenario": "Two tabs; tab A stops saving after tab B saved. In A: change the name, switch to another tab and back; repeat 4 times. The Summary then lists 4 copies, all saying \"The work in the project “…” that was not yet saved when you left or reloaded the page.\"",
+     "evidence": "c2.cjs printed: `H tab A after 4 edits, each followed by a tab switch: status \"Not saving: see the notice at the top of the page\", keptCount 4, kept [\"The work in the project “Tab A draft 4” that was not yet saved when yo… => Tab A draft 4\", … \"Tab A draft 1\"], backupChars 15849`. (The switch was simulated: `document.visibilityState` overridden to 'hidden', then a `visibilitychange` event.)",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c2.cjs (line starting `H`)",
+     "suggested_fix": "For a tab that only went to the background, use a label that says so (\"…when this tab went to the background\"), and replace this session's earlier copy of that kind instead of adding a new one each time; or keep the copy only on pagehide and beforeunload."
+    },
+    {
+     "index": 8,
+     "title": "On the Summary, every keystroke and every Undo re-reads the whole kept-copies list twice and redraws every row; the cost grows with the number of kept copies",
+     "kind": "performance",
+     "severity": "low",
+     "file": "apps/studio/src/App.tsx",
+     "line": 693,
+     "description": "SummaryView subscribes to the whole store (`useStudio()`, App.tsx:681) and reads the list with `useMemo(() => readBackups(), [s.notice, s.saved, keptTick])` (693). One keystroke moves `saved` to 'saving' and back, so the list is fetched and parsed twice per keystroke, and every state change redraws every row; each row calls keptWhen() twice (758), which calls `toLocaleString` with options (661) and so builds a date formatter each time. The Steps and Directions screens do not read the list and are not affected. A person with a handful of kept copies does not feel this (about 7 ms at 0 copies); it passes 50 ms per keystroke at about 200 copies. Note: 1,000 full copies cannot exist: a project with all 23 Decisions is 6,778 characters (7,821 as a list member), so 1,000 need 7.8 million characters and the browser refused the write (QuotaExceededError); about 660 fit. I therefore measured 200 and 600 full copies, and 1,000 copies of the smallest project the Studio keeps (Direction only, 3,256 characters).",
+     "failure_scenario": "Kept-copies list with 200 / 600 full copies or 1,000 small copies; on the Summary, type one character into the project-name field, or press Undo.",
+     "evidence": "Medians of 5 runs, CDP TaskDuration (main thread), first 200 ms after the key + the following 900 ms that contain the delayed save. Keystroke on the Summary: 0 copies 7.0 + 5.7 ms; 200 full copies 52.0 + 39.5 ms (input event up to 47 ms; list parsed 2 times, 3.1 million characters, 8.6 ms); 600 full copies 111.6 + 130.0 ms (two long tasks of 80-129 ms per keystroke; list parsed 2 times, 9.4 million characters, 20.4 ms; 2,400 toLocaleString calls = 159.6 ms of 223 ms); 1,000 small copies 257.2 + 104.4 ms (4,000 toLocaleString calls = 274 ms of 344 ms). Undo on the Summary: 5.2 + 5.6 ms (0), 33.0 + 33.1 ms (200), 129.9 + 166.6 ms (600), 219.8 + 116.5 ms (1,000 small). Opening the Summary: 42 ms (0), 116 ms (200), 296 ms (600), 356 ms (1,000 small). \"Start a new project\" from the Summary (keeps a copy, goes to Directions): 353 ms (0), 554 ms (200), 1,148 ms (600; of which parse 11.7 + stringify 40.3 + setItem 43.4 ms for the list), 1,294 ms (1,000 small). For comparison, on the Steps screen a keystroke costs 11-16 ms and an Undo 8-10 ms at 0, 200, 600 and 1,000 copies, with 0 list reads. Per keystroke on every screen: the whole project is turned into JSON text 3 times (all in the delayed save: saveNow twice, openEnvelope once; under 0.5 ms together), 4 times on the Summary; 2 JSON.parse calls; 1 getItem and 1 setItem of the project key. The seed survived one reload in every case (200: 1,564,181 characters; 600: 4,692,981; 1,000 small: 3,711,781).",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/perf.cjs (fresh project and 200 copies; shows the refused 1,000) ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/perf2.cjs (600 full and 1,000 small copies, with the breakdown by part)",
+     "suggested_fix": "Do not key the list read on `s.saved`; read it when the Summary opens, after a removal, and after an action that keeps a copy. Move the list into its own memoized component that takes `keptCopies` as its only input, so that a keystroke does not redraw it. Build one `Intl.DateTimeFormat` at module level and call keptWhen() once per row."
+    },
+    {
+     "index": 9,
+     "title": "The Studio's own style block (100,047 characters, with embedded fonts) is rewritten with identical text on every design change",
+     "kind": "performance",
+     "severity": "low",
+     "file": "apps/studio/src/App.tsx",
+     "line": 910,
+     "description": "The effect at App.tsx:910-913 depends on `[look, params]`. With the default Studio look it calls `applyStudioTheme(STUDIO_PARAMS, true)`, which does not use `params`, yet it runs again on every pick and every slider step: theme.ts:63-73 derives the tokens twice (light and dark) and assigns the same 100,047-character text to the style element, so the browser parses the sheet (two fonts as data addresses) and recalculates styles again. A rename does not trigger it. I measured the rewrite itself; I did not measure its share of a whole slider step.",
+     "failure_scenario": "Default Studio look (\"dress the Studio in the project's design\" is off). Pick an Option or move a slider: the style block is assigned again with the same text.",
+     "evidence": "c2.cjs printed: `J style block \"studio-tokens\": optionCards 5, rewritesAfterOnePick 1, rewritesAfterOneRename 0, oneRewrite {chars:100047, medianMs:5.8, maxMs:8.9}, look \"(default studio look)\"` (one rewrite = assign the same text, then force style and layout; 15 runs).",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c2.cjs (line starting `J`)",
+     "suggested_fix": "Depend on `look === 'project' ? params : null`, and in applyStudioTheme() skip the assignment when the new text equals the current text."
+    },
+    {
+     "index": 10,
+     "title": "No test drives a page database that is slow, fails its first read, never answers a write, or lacks use(); the stand-in always answers at once",
+     "kind": "test-gap",
+     "severity": "medium",
+     "file": "apps/studio/e2e/studio.e2e.ts",
+     "line": 88,
+     "description": "The stand-in for the page database (studio.e2e.ts:88-109) resolves `use`, `get` and `set` immediately; its only fault is `failWrites`. So the 52 Studio browser tests never open a project while a read is pending and never reach the late-read path (store.ts:476-489). A search of the test file finds no mention of \"A newer copy\", \"Keep what I have\" or \"could not look for\". Mutations that I expect to survive (judged from the test source; I was not allowed to run the browser suite): delete the whole late-read block at store.ts:476-489; set `pageReadSucceeded = true` before the read in readPage() (breaks rule 3 of platform.ts); remove the `.catch(() => null)` at platform.ts:66. The first four findings above all live in this untested area. PROGRESS.md records that the real private page has no automated test; this gap is about the stand-in itself.",
+     "failure_scenario": "Apply any of the named mutations and run the Studio browser tests: no test opens a project through a delayed or failed read, so none can fail.",
+     "evidence": "`grep -n -E \"A newer copy|Keep what I have|could not look for|getDelay|never answers|firstGet|timeout\" apps/studio/e2e/studio.e2e.ts` printed only lines 785 and 810, both Playwright poll timeouts. The stand-in at lines 88-109 uses `Promise.resolve(...)` for every call.",
+     "repro": "cd /home/user/Frontend && grep -n -E \"A newer copy|Keep what I have|could not look for\" apps/studio/e2e/studio.e2e.ts (prints nothing); then read apps/studio/e2e/studio.e2e.ts lines 88-109.",
+     "suggested_fix": "Give the stand-in the options used in the scratch file lib.cjs (`getDelay`, `firstGetRejects`, `setHangs`, `setDelay`, a runtime without `use`) and add one test per finding: leave or type during a delayed read; a failed first read with a newer, an older and an unreadable page copy; a write that never answers; a runtime without `use`."
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 0,
+     "title": "While a project opens, a tab switch, a reload, or typing in the name field replaces the saved browser copy with an empty project",
+     "verdict": "confirmed",
+     "severity": "high",
+     "reproduction": "Read store.ts:511-538 and 761-774, and App.tsx:167 and 924. The name field in the top bar is rendered before `ready`; flush() and persist() do not check `ready`; readBrowser() sets browserSavedAtSeen before the slow page read finishes. Ran `node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c1.cjs`, whose stand-in page database answers get() after 2.5 s. pagehide case, page copy empty: before the event the stored copy was {name:\"Weeks of work\",direction:\"soft-daylight\",decisions:1}; right after it, still on \"Opening your project…\", the stored copy was {name:\"My first project\",direction:null,decisions:0}. After a later reload the screen showed \"My first project\" and the kept copies were []. Real reload, page copy present: the next open showed the empty project and moved the real work into a kept copy (\"The older of two saved copies that differed. => Weeks of work\"). Typing in the name field: the stored copy became \"typed while opening\" with no Direction, Undo was enabled, and after a reload the empty project opened with kept [] .",
+     "reasoning": "I reproduced it myself in every variant. The owner's whole project in the browser copy is replaced, with no kept copy when the page database holds nothing. The cause is a real ordering gap: the leave and visibility listeners and the live name field come before openSaved(). It needs a page database that answers slowly, which is normal on the private page. It loses the owner's work, so high."
+    },
+    {
+     "index": 1,
+     "title": "A page runtime whose use() is missing or throws makes the Studio ignore the saved browser copy and then overwrite it",
+     "verdict": "uncertain",
+     "severity": "medium",
+     "reproduction": "Ran `node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/c2.cjs`, lines C[...]. With window.claude = {}: on opening, the notice said \"The Studio could not look for a saved project. It started a new one.\" and the stored copy was still \"Weeks of work\". After one edit the stored copy was {name:\"One edit\",direction:null,decisions:0}, kept [], the status was stuck at \"Saving…\", and the console showed \"TypeError: e.use is not a function\". The use-throws shape gave the same result.",
+     "reasoning": "The fail-open path in the code is real: platform.ts:66 calls rt.use() synchronously with no guard, readPage awaits database() outside its try block, and init()'s catch leaves saving switched on. But the only trigger is a runtime shape (window.claude without a working use(), or a use() that throws synchronously) that nobody has shown the real private page produces. No data path reaches init()'s catch, because readCopy and keepBackup are guarded. So I could neither confirm a reachable scenario nor rule one out."
+    },
+    {
+     "index": 2,
+     "title": "After a first read of the page database fails, the second read lets the next save replace the page copy without keeping it",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "Read store.ts:476-489 and platform.ts:94-107. Ran c2.cjs, lines D*, with a stand-in whose first get() rejects. D2, unreadable page copy: on opening, notice [], hold null, kept []; after one edit the page copy was {name:\"Edited afterwards\"} and kept was still []. In the control where the first read succeeds, the unreadable copy was kept. D3, older page copy that differs: replaced with kept []; its control kept \"Page older\". D1, newer page copy: the hold notice appeared; after \"Keep what I have\" and one edit, the page copy was replaced and kept was []. D1b: without an answer, the page copy was replaced while the notice still offered to open it.",
+     "reasoning": "I observed every case. The retry handler keeps no copy, yet pageReadSucceeded=true lets the next save write to the page database. This breaks rule 2 in platform.ts (\"never overwritten\") and the keep-a-copy guarantee. It needs one failed or timed-out read, which the code itself expects can happen. The work lost is the copy saved on another computer. Wrong behavior that loses a copy in a plausible situation: medium."
+    },
+    {
+     "index": 3,
+     "title": "A page database that never answers one write leaves the status at \"Saving…\" for the rest of the session and blocks every later page write",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Ran c2.cjs, lines E, with set() returning a promise that never settles. Five seconds after one edit: status \"Saving…\", the browser copy held \"E edit\", the page copy still held \"Weeks of work\", pageDbCalls {gets:1, sets:1}. Fifteen seconds after a second edit: status \"Saving…\", the browser copy held \"E edit 2\", still sets:1 (the second write was never attempted).",
+     "reasoning": "Observed, and the code agrees: platform.ts:261-264 has no time limit and chains every later write on `writing`. The browser copy is saved each time, so nothing is lost on this computer. The trigger (a write that never settles) is assumed rather than shown for the real page, though the code already guards reads against the same failure. A false status line and a stale page copy: low."
+    },
+    {
+     "index": 4,
+     "title": "\"Start a new project…\" / \"Go on\" in a stopped tab adopts whatever is stored now, so another tab's saved work is replaced without a kept copy",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Ran c2.cjs, lines G. Two tabs opened an unreadable copy. Tab B started from Ember Noir, made one Decision, and saved: stored {name:\"Work done in tab B\",direction:\"ember-noir\",decisions:1}. Tab A, still stopped, then pressed \"Start a new project (the unreadable copy stays in a backup)\": stored became {name:\"My first project\",direction:null,decisions:0}, and kept held only the unreadable text. Tab B's work was gone.",
+     "reasoning": "Reproduced. resumeSaving() (store.ts:388) calls adoptStoredCopy(), which marks whatever is stored at that moment as replaceable. The storage listener ignores changes while 'held'. keepThisTab() keeps the stored copy first; resumeSaving() does not. This is not the same as S3-06 in Known gaps. It needs two tabs that are both stopped: an edge case, low."
+    },
+    {
+     "index": 5,
+     "title": "A save that finishes after the tab stopped saving overwrites the 'held' state",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Ran c3.cjs, lines F, with page writes taking 3 s. While its write ran, tab A showed status \"Not saving: see the notice at the top of the page\" and the hold notice. After the write finished, the status read \"Saved on this page\" while the hold notice \"...The Studio has stopped saving here...\" and its two buttons stayed. The stored copy was B's \"Weeks of work\" and the screen showed \"Edit in tab A\".",
+     "reasoning": "Observed. saveNow() (store.ts:308-311) sets `saved: outcome` after the await without checking for 'held'. The next save runs into the conflict check, so I saw no loss. Two statements on screen contradict each other: low."
+    },
+    {
+     "index": 6,
+     "title": "After the browser's leave-page question is answered with \"stay\", the status line stays at \"Saving…\"",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Ran c3.cjs, lines L, with Storage.prototype.setItem overridden to throw QuotaExceededError. Control (typed, waited): status \"Cannot save here: this browser’s storage is full or blocked...\". Typed, reloaded within 300 ms, dismissed the dialog: dialogs [\"beforeunload\"], and 3 s later the status still read \"Saving…\".",
+     "reasoning": "Observed. leaveSafely() clears the save timer (store.ts:278) and nothing restarts it or sets the outcome when it returns false. This is not the F-7 path. It needs full storage and an attempt to leave within 300 ms: low."
+    },
+    {
+     "index": 7,
+     "title": "A tab that is not saving adds one more kept copy at every tab switch, each labelled \"when you left or reloaded the page\"",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Ran c2.cjs, line H. Tab A was stopped by tab B's save. It made 4 edits, each followed by a simulated visibilitychange to hidden. Result: keptCount 4, every label \"The work in the project “Tab A draft N” that was not yet saved when yo[u left or reloaded the page]\", backup size 15,849 characters.",
+     "reasoning": "Observed. flush() on visibilitychange calls leaveSafely(), which keeps a copy with the WHY_LEFT label (store.ts:187, 277, 526-528, 766). The label says something that did not happen, and the list grows by one copy per tab switch. The notice still protects the work, so nothing is lost: low."
+    },
+    {
+     "index": 8,
+     "title": "On the Summary, every keystroke re-reads the whole kept-copies list twice and redraws every row; the cost grows with the number of kept copies",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "Own script `node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving-verify/p.cjs`. It seeds N kept copies, opens #summary, types 5 characters into the name field, and records CDP TaskDuration per keystroke plus the delayed save (1 s window), and the getItem calls for the kept-copies key. Medians: N=0 19.0 ms; N=20 25.6 ms; N=50 26.7 ms; N=200 74.0 ms (64-85). Kept-copies reads: 10 per 5 keystrokes (2 per keystroke) at every N.",
+     "reasoning": "Confirmed: App.tsx:693 keys readBackups() on s.saved, so the list is read twice per keystroke, and the cost grows with stored data, which meets the criterion. At realistic counts (tens of copies) the cost stays under about 30 ms, split across two tasks, and it applies to the Summary only. It passes 50 ms only at about 200 copies. Low."
+    },
+    {
+     "index": 9,
+     "title": "The Studio's own style block is rewritten with identical text on every design change",
+     "verdict": "refuted",
+     "severity": "low",
+     "reproduction": "Ran c2.cjs, line J: 1 rewrite per pick, 0 per rename, one forced rewrite median 6.7 ms. Own script `node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving-verify/j.cjs`: pick-and-continue on #radius costs 203-206 ms TaskDuration each (4 runs), with 4 style-block mutations over the 4 picks. The instrumented setter measured 4.5 ms in total for the rewrites. A slider key step on #radius caused 0 rewrites (0.5-1.7 ms per step).",
+     "reasoning": "The repeated rewrite happens (App.tsx:910-913 depends on params even with the default look), but its measured share is roughly 1-3% of a pick, which is not a high-frequency hot path. My slider steps did not trigger it, and a rename does not either. The cost is far below the felt thresholds, and it does not grow with data or session length. It does not meet the bar for a performance finding."
+    },
+    {
+     "index": 10,
+     "title": "No test drives a page database that is slow, fails its first read, never answers a write, or lacks use()",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "Ran `grep -n -E \"A newer copy|Keep what I have|could not look for|firstGet|getDelay|setHangs\" apps/studio/e2e/*.ts`: no output. Read apps/studio/e2e/studio.e2e.ts:88-109: the stand-in resolves use() and get() at once with Promise.resolve; its only fault is failWrites on set(). A grep of the unit tests for retryPageRead or the timeout path found nothing. I did not run the browser suite (not allowed), so mutation survival is inferred from the test source.",
+     "reasoning": "With a stand-in that always answers at once, no test can reach the late-read block (store.ts:476-489), the time-limit path, or the window while a project is still opening. Findings 0 and 2 confirm real defects there. Deleting the late-read block, or removing the .catch at platform.ts:66, would leave every existing test green. PROGRESS.md names only the real private page as untested; this gap is in the stand-in itself. Medium."
+    }
+   ],
+   "examined": [
+    "apps/studio/src/store.ts, whole file: the save states (idle, saving, page, browser, failed, held), saveNow, persist, flush, leaveSafely, keepThisTab, seeOtherCopy, resumeSaving, openSaved and its late-read branch, init and its five listeners, undo, replaceKeepingCopy",
+    "apps/studio/src/platform.ts, whole file: database(), readPage, readBrowser, readBackups, keepBackup, removeBackup, saveBrowserNow, adoptStoredCopy, saveProject, watchOtherTabs, prefs, saveFile",
+    "apps/studio/src/theme.ts, fonts.ts, main.tsx (read in full); App.tsx only where it touches saving: TopBar (lines 157-187), NoticeBar, SummaryView kept-copies list (659-774), the App root effects (890-913)",
+    "apps/studio/e2e/studio.e2e.ts lines 10-185 and 796-835 (read only): the open() helper, the page-database stand-in, the storage-capacity shim, the two-tab test",
+    "PROGRESS.md (Known gaps), redteam/campaign-4/findings.md (F-1 to F-15), docs/reference/guarantees.md sections 10.02-10.05 and the unsaved-work rule",
+    "Ran in Chromium against apps/studio/dist/artifact/local-test.html: leave / tab switch / typing during a delayed page read (6 variants plus a second-computer case and an Undo case); a runtime without use() and one whose use() throws; a failed first read with a newer, older and unreadable page copy, each with a control; a page write that never answers; two tabs on an unreadable copy; a stopped tab switched to the background 4 times; a 3-second page write crossed by another tab's save; staying after the leave-page question with storage refusing writes",
+    "Checked and found sound: a download does not fire beforeunload (count 0), so it does not stop the save timer; a stored project with an unknown font id is refused at opening (\"Your saved project could not be read…\", Studio stops saving, no crash) even when the Studio wears the project's look",
+    "Measured, fresh project with no Direction (Directions screen): one keystroke in the name field 14.0 ms main-thread time in the first 200 ms plus 14.5 ms in the save window; one Undo 6.0 + 6.2 ms; input event processing at most 4.9 ms",
+    "Measured, project with all 23 Decisions, 0 kept copies: keystroke 11.3 + 14.7 ms on a Step screen and 7.0 + 5.7 ms on the Summary; Undo 10.4 + 10.1 ms and 5.2 + 5.6 ms; Undo makes about 100 small JSON.stringify calls (its per-Step comparison), under 2 ms of script",
+    "Counted per keystroke (wrappers on JSON.stringify, JSON.parse, Storage getItem/setItem, installed after load): whole project to JSON text 3 times (4 on the Summary), all but one inside the delayed save; 2 JSON.parse; 1 getItem + 1 setItem of refraction.project.v2; the kept-copies list is fetched and parsed 0 times on the Directions and Step screens and 2 times on the Summary",
+    "Measured with the kept-copies key seeded by page.evaluate and one reload (seed intact each time): 200 full copies, 600 full copies, 1,000 Direction-only copies; 1,000 full copies were refused by the browser (7,821,781 characters, QuotaExceededError). Step-screen keystroke and Undo stay at 8-16 ms at every size; numbers for the Summary are in the performance finding",
+    "Working tree: `git status --short` printed nothing after my runs; I created no file in the repository (no core test file either). Scratch files: /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/saving/lib.cjs, c1.cjs, c2.cjs, c3.cjs, perf.cjs, perf2.cjs"
+   ],
+   "not_examined": [
+    "The real private page: every page-database result above comes from my own stand-in for window.claude. Whether the real runtime answers slowly, can throw from use(), or can leave a write unanswered is not verified",
+    "The 10-second timeout path itself: I used a rejected first read and a 2.5-second delay instead of waiting for READ_TIMEOUT_MS; a read that times out and then answers late was not run",
+    "Real tab switching and a real window close: visibilitychange was simulated by overriding document.visibilityState; pagehide was tested both as a dispatched event and as a real reload. Chromium only (no Firefox, no Safari, no bfcache restore)",
+    "Storage that is blocked outright (localStorage access throws): I read those guards, I did not run them",
+    "Campaign 4 findings F-10 to F-15 (two stopped tabs closing together, the 40-step Undo limit, simultaneous \"Keep this tab's copy\", the status after \"Go on\"): not retested; F-2's narrow remainder (a project with no Direction counts as no work in leaveSafely) is already recorded and I did not re-report it",
+    "The development server: init() is not idempotent and React StrictMode runs effects twice there, which would register the five window listeners twice; the built page does not do this and I did not run the dev server",
+    "The total main-thread time of a slider step and of picking an Option (another area); I measured only the rewrite of the Studio's style block (5.8 ms)",
+    "packages/core (parseProject, the engine): only called through the page; whether parseProject can throw on unusual input, which would reach init()'s catch described in the second finding, was not tested",
+    "saveFile on the private page (the downloads capability), copyText, probePreviews: read only",
+    "Heap growth over a long session (the Undo history of 40 projects, promise chains behind a stuck page write): not measured"
+   ]
+  },
+  {
+   "key": "screen",
+   "findings": [
+    {
+     "index": 0,
+     "title": "A slider step costs 61 to 92 ms of main-thread work; a held key or a drag keeps the main thread busy without a break",
+     "kind": "performance",
+     "severity": "medium",
+     "file": "/home/user/Frontend/apps/studio/src/App.tsx",
+     "line": 431,
+     "description": "Every slider step changes project.params, so `stateKey` (line 431) changes and the `thumbs` memo (lines 432-436) builds the Mockup document again for EVERY card of the Step, although only one card (\"Your design now\") shows a different design. Each build runs deriveTokens plus renderSmallBusiness and makes a string of 68,000 to 100,000 characters (two fonts travel inside each document), which useFrameKey then compares with the old string. On a color Step, `Swatches` (lines 314-316, used at line 589) derives the tokens of every card a second time. Two preview documents are then re-created per step (the large preview and the \"Your design now\" card): those two are necessary, because the design changed and a locked frame cannot be updated in place. Nothing drops the intermediate steps while newer input waits, so a held key or a drag makes the Studio build two documents for every single grid point.",
+     "failure_scenario": "Open \"Main color\" (14 cards), open \"Adjust with sliders\", hold ArrowRight on \"Hue\" or drag the knob. Each step takes about 65 to 94 ms of main-thread time, more than the 33 ms between repeated keys, so the preview and the number beside the slider run behind the hand and keep moving after the key is released.",
+     "evidence": "Headless Chromium 153, 1280x720, CDP Performance.getMetrics (calibration: a loop of 3e7 square roots takes 59 ms on this machine). Ten single ArrowRight presses, mean per press: Main color 92.4 ms task (script 32.4, layout 14, style 6.9), slowest keydown event 80 ms; Corner rounding 77.1 ms (script 18.4); Background color 77.0 ms (script 24.1); Spacing 61.1 ms (script 12.5). Preview documents re-created per press: 2 (0 when the color did not change). Held key: 60 keydowns asked for at 33 ms apart needed 3,972 ms to be taken in, with 3,913 ms of main-thread work (script 1,435, layout 572, style 348): the thread was busy 98% of the time. Mouse drag: 50 moves at 16 ms apart needed 5,296 ms, 4,793 ms of main-thread work, 102 preview documents. Core timing (vitest, warmed): deriveTokens 0.56 ms per call, deriveTokens plus render 0.63 ms per call; after one hue step, 13 of 13 standard Main-color cards produce exactly the same HTML as before (sameAfterHueStep=13). So at least 13 x 0.63 + 13 x 0.56 = 15.5 ms of the 32 ms of script per press is repeated work with an identical result. Memory is not affected: after 200 presses the heap stayed at 13.6-13.7 MB with 17 documents.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/perf2.cjs   (single presses and typing) ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/perf3.cjs   (held key and drag)",
+     "suggested_fix": "Smallest change, in two parts. (1) Give mockupHtml in preview.tsx a small cache keyed by JSON.stringify([params, project.a11y, project.content, options]) (clear it above about 64 entries): the 13 unchanged cards then cost one lookup each, and the Summary and the Directions profit too. Let Swatches read the same cached tokens (see the separate finding). (2) Pass the documents through useDeferredValue (large.html for LargePreview, thumbs for the cards), or let tuneValue run at most once per animation frame, so that intermediate documents are skipped while newer slider input is waiting."
+    },
+    {
+     "index": 1,
+     "title": "Slider keys change a \"fully round\" design to 28 px, record steps that change nothing, and swallow Alt+Arrow",
+     "kind": "correctness",
+     "severity": "medium",
+     "file": "/home/user/Frontend/apps/studio/src/App.tsx",
+     "line": 636,
+     "description": "The key handler of a slider (lines 634-640) calls s.tuneValue for every key in SLIDER_KEYS without asking whether the value would change, and without looking at modifier keys. It works from Math.min(value, t.max). Three things go wrong. (a) Corner rounding has a value above the slider's top (\"fully round\"). ArrowRight, PageUp or End, which mean \"rounder\", compute 28 and write it, so the design gets LESS round and the Decision changes from \"Picked: Fully round\" to \"Set by hand\". (b) A key press at the end of any slider (ArrowLeft at the low end, End at the top) changes nothing, yet tune() in the core always returns a new project (engine.ts:226-234), so each press adds an Undo step and, on an undecided Step, would record a Decision. Undo then reports a change that did not happen. (c) Alt+ArrowLeft, the browser's \"Back\" shortcut on Windows and Linux, is cancelled and moves the slider instead.",
+     "failure_scenario": "(a) Pick \"Fully round (pill shape)\" on \"Corner rounding\", open \"Adjust with sliders\", focus the slider (it reads \"fully round\"), press ArrowRight once. (b) On \"Line thickness\" press Home, then ArrowLeft three times, then Undo once. (c) Focus a slider and press Alt+ArrowLeft.",
+     "evidence": "check1.cjs printed: C1 before {\"out\":\"fully round\",\"rail\":\"Picked: Fully round (pill shape)\"}; C1 after ArrowRight {\"out\":\"28px\",\"rail\":\"Set by hand, close to “Clearly rounded (14 px)”: corner rounding clearly rounder (28px)\"}. C2 after 3 x ArrowLeft at the low end {\"out\":\"0px\"}; C2 after one Undo {\"out\":\"0px\",\"rail\":\"Set by hand, No dividing lines\",\"notice\":[\"Undone: the Step “Line thickness” is back to how it was.\"]} (nothing came back; the notice says it did). check2.cjs printed: C11 Alt+ArrowLeft on the slider: default prevented true value 1.1 -> 1.05. The existing browser test (studio.e2e.ts, about line 962-980) presses ArrowRight, ArrowLeft, End and Home on \"Spacing\" only; it never presses a key at an end or on a value above the top, so this mutation survives.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check1.cjs   (lines C1, C2) ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check2.cjs   (line C11)",
+     "suggested_fix": "In the handler: return early when e.altKey, e.ctrlKey or e.metaKey is set; compute `next`; when value > t.max and steps > 0, do nothing; when next === value, call e.preventDefault() and do nothing. As a second guard, let tuneValue in store.ts (line 616) return when the clamped value equals project.params[key]. Add browser tests for both cases."
+    },
+    {
+     "index": 2,
+     "title": "Holding Enter runs through the Steps and records a Decision on each one",
+     "kind": "robustness",
+     "severity": "medium",
+     "file": "/home/user/Frontend/apps/studio/src/App.tsx",
+     "line": 553,
+     "description": "Enter means \"pick the card on show and continue\" in two handlers: the window listener (lines 457-459) and the onKeyDown of the cards group (lines 553-558). Neither looks at event.repeat. After each move the Studio puts keyboard focus on the checked card of the next Step (lines 467-469), so every repeated keydown that the keyboard sends while Enter is held lands on a card and decides the next Step.",
+     "failure_scenario": "Start from a Direction, put focus on the main button (\"Keep … and continue\") or on a card, and hold Enter a little too long (a keyboard starts repeating after about half a second, at roughly 30 keys per second). In 0.4 seconds of repeating, twelve Steps are marked \"Kept\" that the owner never saw, and the Studio stands on Step 13. Each one needs its own Undo.",
+     "evidence": "check1.cjs printed: C3 before {\"hash\":\"#nav\",\"count\":\"0 of 23 Steps decided\"}; C3 after Enter held for 12 repeats (~0.4 s) on the main button {\"hash\":\"#color-strategy\",\"count\":\"12 of 23 Steps decided\"}. No browser test sends a repeated key (grep for keyboard.down and autoRepeat in apps/studio/e2e found nothing).",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check1.cjs   (lines C3)",
+     "suggested_fix": "Add `if (event.repeat) return;` at the top of the Enter branch in the window handler, and `if (e.repeat) { e.preventDefault(); return; }` in the cards group's onKeyDown. Add a browser test that sends Enter twice without a key-up and expects exactly one Step forward."
+    },
+    {
+     "index": 3,
+     "title": "Undo and the \"Show this part of the page\" list throw keyboard focus into the cards, where the next key does something else",
+     "kind": "correctness",
+     "severity": "medium",
+     "file": "/home/user/Frontend/apps/studio/src/store.ts",
+     "line": 675,
+     "description": "setRegion (store.ts:675-678) and undo (store.ts:748) call refocus(), and the Steps screen answers by focusing the checked card (App.tsx:467-469), even when the owner is still using the control that had focus. (1) Region list: on Windows and Linux an arrow key on the closed list changes the value at once. After the first ArrowDown, focus sits on a card; the second ArrowDown changes the card on show, not the region. In the one-column layout the jump also scrolls the page away from the preview the owner just asked to see. (2) Undo button: after Enter on \"Undo\", focus sits on a card; a second Enter does not undo again, it records a Decision and opens the next Step. The refocus in setRegion seems to exist so that number keys work after the list was used (isTyping treats SELECT as typing), so the fix must keep that.",
+     "failure_scenario": "(1) Focus \"Show this part of the page\" and press ArrowDown twice: the region changes once, then the large preview switches to another card (\"not picked yet\"). At 360x640, choose \"Price list\" in the list: the page scrolls 692 px down and the preview is off screen. (2) Tab to \"Undo\" and press Enter twice to undo two changes: the first press undoes one, the second marks the current Step as decided and moves on.",
+     "evidence": "check1.cjs printed: C4 after 1 x ArrowDown on the region select {\"region\":\"top\",\"active\":\"option-text-left\"}; C4 after 2 x ArrowDown {\"region\":\"top\",\"active\":\"option-centered\",\"showing\":\"Large preview shows: Everything centered (not picked yet)\"}. C5 after Enter on Undo {\"hash\":\"#sections\",\"count\":\"1 of 23 Steps decided\",\"active\":\"option-bento\"}; C5 after a second Enter {\"hash\":\"#content-width\",\"count\":\"2 of 23 Steps decided\"}. perf3.cjs printed: region 360x640, focus on the list, before {\"scrollY\":608,\"previewTop\":182,\"previewBottom\":579}; after choosing \"Price list\" {\"scrollY\":1300,\"previewTop\":-510,\"previewBottom\":-113,\"active\":\"option-split-cta\"}.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check1.cjs   (lines C4, C5) ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/perf3.cjs   (last two lines)",
+     "suggested_fix": "Remove refocus() from setRegion, and let the number-key handler in App.tsx accept digits while a SELECT has focus (no entry of either list begins with a digit), so that the existing test \"keeps number keys working after the other controls were used\" still passes. In undo(), move focus only when the element that has focus is gone or disabled afterwards (the Undo button is disabled once the history is empty); otherwise leave focus on the Undo button."
+    },
+    {
+     "index": 4,
+     "title": "A typed reason is stored only when the field loses focus; Enter, a reload, or the Back button loses it while the status line says \"Saved\"",
+     "kind": "correctness",
+     "severity": "medium",
+     "file": "/home/user/Frontend/apps/studio/src/App.tsx",
+     "line": 391,
+     "description": "ReasonField keeps the text in its own state and calls setReason only in onBlur (line 391). Pressing Enter does nothing. A reload or a closed tab ends the page without a blur event, and the page-hide save (flush) writes the project, which does not hold the typed text yet. A move to another Step through the address (the browser's Back and Forward buttons) runs the effect at line 386, which replaces the typed text with the stored one. All the while the status line reads \"Saved in this browser, on this computer\". No browser test types into #decision-reason, so removing the onBlur save would break no test.",
+     "failure_scenario": "Decide the Step \"Menu\", return to it, type \"Most visitors come to book an appointment\" into \"Why this choice?\", press Enter, wait, and reload the page (or press the browser's Back button). The reason is gone.",
+     "evidence": "check4.cjs printed: (a) typed a reason + Enter, waited 0.9 s. Status line: Saved in this browser, on this computer | stored: {\"refraction.project.v2\":\"(no reason stored)\"}; (a) after reload: field value = \"\" | stored: {\"refraction.project.v2\":\"(no reason stored)\"}; (a2) typed, then moved to another Step by the address (as the Back button does), and returned: field value = \"\". grep for decision-reason in apps/studio/e2e found no test.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check4.cjs   (lines (a) and (a2))",
+     "suggested_fix": "Save on Enter as well (onKeyDown: Enter calls save), and save pending text in the clean-up of an effect keyed by stepId (so a Step change or an unmount stores it) and on the page's `pagehide` event before flush runs. Keep the text in a ref so that the clean-up sees the latest value. Add a browser test: type, press Enter, reload, expect the reason."
+    },
+    {
+     "index": 5,
+     "title": "Keyboard focus falls to the page body after \"Keep my project\" or Escape in a question, and after \"Dismiss\"",
+     "kind": "robustness",
+     "severity": "low",
+     "file": "/home/user/Frontend/apps/studio/src/App.tsx",
+     "line": 230,
+     "description": "ConfirmDialog returns null as soon as the question is answered (line 230), so React removes the open dialog element without calling close(). The browser gives focus back to the opening button only on close(), so focus ends on the body. The same happens when \"Dismiss\" (line 213) or a button of the hold row (line 204) removes itself. On the Steps screen the body is a place where Enter means \"pick and continue\" (line 457).",
+     "failure_scenario": "On the Directions screen, tab down to \"Start from Ember Noir\" (the third card), press Enter, then choose \"Keep my project\". Focus is on the body; one Tab press lands on no element, and the keyboard user must walk down from the top of the page again. On a Step, press Enter on \"Dismiss\" and Enter once more: the Studio moves to the next Step.",
+     "evidence": "check1.cjs printed: C7 after Escape {\"hash\":\"#directions\",\"active\":\"BODY.\",\"dialog\":false}; C8 after Enter on Dismiss {\"hash\":\"#accent\",\"active\":\"BODY.\"}; C8 after a second Enter {\"hash\":\"#color-strategy\"}. check2.cjs printed: C7b after \"Keep my project\": focus on BODY; after one Tab: focus on BODY. The existing test checks that focus STARTS on \"Keep my project\"; nothing checks where focus goes afterwards.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check1.cjs   (lines C7, C8) ; node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check2.cjs   (line C7b)",
+     "suggested_fix": "In ConfirmDialog call ref.current?.close() before answer(false) in both the button and the onCancel handler (the browser then returns focus to the opener). In dismissNotice and in the hold actions, move focus to #main (it has tabIndex -1) when the pressed button disappears."
+    },
+    {
+     "index": 6,
+     "title": "Ctrl+Z changes the project behind an open question",
+     "kind": "robustness",
+     "severity": "low",
+     "file": "/home/user/Frontend/apps/studio/src/App.tsx",
+     "line": 902,
+     "description": "The window listener for Ctrl+Z (lines 901-906) does not check whether a confirmation is open. The number-key listener does (line 447). While the modal question is on screen, Ctrl+Z undoes a change in the project underneath, posts a notice behind the dialog, and the dialog's text (\"clears your 1 Decision\") no longer matches the project.",
+     "failure_scenario": "With one Decision made, press \"Start from Ember Noir\"; while the question \"Start again from “Ember Noir”?\" is open, press Ctrl+Z.",
+     "evidence": "check1.cjs printed: C6 dialog open {\"dialog\":true} \"This replaces your current design and clears your 1 Decision. …\"; C6 after Ctrl+Z with the dialog open {\"notice\":[\"Undone: the Step “Menu (navigation)” is back to how it was.\"],\"dialog\":true}.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check1.cjs   (lines C6)",
+     "suggested_fix": "Add `&& !useStudio.getState().confirmation` to the condition at line 902."
+    },
+    {
+     "index": 7,
+     "title": "The question \"Yes, remove it for good / No, keep it\" disappears when the save status changes",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "/home/user/Frontend/apps/studio/src/App.tsx",
+     "line": 761,
+     "description": "`removing` holds the KeptCopy object itself (line 691) and the row compares by identity (`removing === copy`, line 761). `keptCopies` is read again from storage whenever s.notice or s.saved changes (line 693), which makes new objects, so the comparison fails and the row falls back to \"Remove this kept copy…\". A save that finishes 300 ms after any edit is enough. The same memo also reads and parses every kept copy twice per keystroke in the name field on the Summary (once for \"Saving…\", once for the result).",
+     "failure_scenario": "On the Summary, press \"Remove this kept copy…\"; before answering, type one letter into the project name (or have pressed the button within 0.3 s of an edit). The two answer buttons vanish and the first button is back.",
+     "evidence": "check1.cjs printed: C10 after \"Remove this kept copy…\" {\"copies\":1,\"yes\":[\"Download this kept copy\",\"Yes, remove it for good\",\"No, keep it\"]}; C10 after typing one letter in the name {\"copies\":1,\"yes\":[\"Download this kept copy\",\"Remove this kept copy…\"]}.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check1.cjs   (lines C10)",
+     "suggested_fix": "Remember the copy by a stable key (for example `${copy.keptAt}|${copy.text.length}|${index}`) and compare keys; and re-read the list only on keptTick and on s.notice, not on every change of s.saved."
+    },
+    {
+     "index": 8,
+     "title": "A notice with the same words as the one before changes nothing on the page, so assistive technology has nothing to announce",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "/home/user/Frontend/apps/studio/src/App.tsx",
+     "line": 209,
+     "description": "NoticeBar renders the ordinary row as one element with role \"status\" (lines 208-216). A screen reader announces a live region when its content changes. When an action posts a notice whose text equals the text already shown, React changes nothing in the page, so there is no announcement. Undo is the common case: several changes on one Step give the same sentence each time.",
+     "failure_scenario": "On \"Main color\" move a slider three times, then press Ctrl+Z twice. The second Undo works, but the notice area does not change at all.",
+     "evidence": "check1.cjs printed: C9 notice before 2nd Undo [\"Undone: the Step “Main color” is back to how it was.\"] after [\"Undone: the Step “Main color” is back to how it was.\"] DOM changes inside the notice area during the 2nd Undo: 0 (counted with a MutationObserver on .banners: child list, text, attributes). No screen reader was used; the claim rests on the missing change in the page.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check1.cjs   (line C9)",
+     "suggested_fix": "Give each notice a running number in the store and use it as the key of the <p> in the row, so that a repeated notice replaces the paragraph and is announced again."
+    },
+    {
+     "index": 9,
+     "title": "The color chips of every card are worked out again on every render of a color Step, also for each letter typed into the project name",
+     "kind": "performance",
+     "severity": "low",
+     "file": "/home/user/Frontend/apps/studio/src/App.tsx",
+     "line": 315,
+     "description": "StepsView subscribes to the whole store (`useStudio()`, line 398), so it renders again on every change, including rename. For the six color Steps, each card renders `Swatches` (line 589), which calls deriveTokens (line 315) with no memo. The previews themselves are safe: project.name is not part of `stateKey`, and no preview document is re-created while typing.",
+     "failure_scenario": "On \"Main color\" (14 cards) type a project name. Each letter costs about 9 ms of extra script for 14 token derivations whose result is thrown away unchanged.",
+     "evidence": "perf2.cjs, 20 letters typed one by one, mean per letter: Steps screen \"Main color\" 43.8 ms main-thread, 12.9 ms script; Steps screen \"First screen\" (4 cards, no chips) 23.6 ms, 3.8 ms script; Directions 16.7 ms, 2.9 ms script; Summary 35.2 ms, 3.8 ms script. Preview documents re-created: 0 on every screen. Core timing: deriveTokens 0.56 ms per call (warmed, Node); 14 calls = 7.8 ms, which matches the 9 ms difference. All values stay under 50 ms per letter on this machine.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/perf2.cjs   (lines that start with \"(6)\")",
+     "suggested_fix": "Wrap Swatches in React.memo with a comparison on the six color inputs and the profile, or compute the chips inside the `thumbs` memo (mockupHtml already derives the same tokens; let it return `hex`) and pass them down."
+    },
+    {
+     "index": 10,
+     "title": "At 640x360, the two sticky notice rows and the sticky button bar leave 38 pixels for the cards",
+     "kind": "correctness",
+     "severity": "low",
+     "file": "/home/user/Frontend/apps/studio/src/app.css",
+     "line": 258,
+     "description": "Under 1,100 pixels the whole notice area is sticky at the top (`.banners { position: sticky; top: 0 }`, line 258) and the button bar is sticky at the bottom (line 256). The hold row cannot be dismissed; its text is 331 characters plus two buttons. With an ordinary notice below it, both rows together are 206 px high at 640x360, and the button bar is 116 px high.",
+     "failure_scenario": "On a phone held sideways (640x360), another tab changes the project (hold row appears), and the owner presses Undo (ordinary row appears). While the owner scrolls through the cards, a strip of 38 px shows between the notices and the buttons; a card is about 180 px high.",
+     "evidence": "check3.cjs printed: 640x360 both notice rows, cards scrolled into view: {\"vh\":360,\"bannersHeight\":206,\"actionsTop\":244,\"actionsHeight\":116,\"stripForCards\":38}; 640x360 hold row only: {\"bannersHeight\":124,\"stripForCards\":120}. check4.cjs printed for 320x568: {\"bannersHeight\":351,\"actionsHeight\":116,\"stripForCards\":101}. The notice buttons themselves stay reachable at every size tested. No sideways page scroll at 320, 360, 400 or 640 px on any screen.",
+     "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check3.cjs   (lines that start with \"640x360\")",
+     "suggested_fix": "Limit the sticky area: `.banners { max-height: 45vh; overflow-y: auto; }` in the narrow layout, or make only the ordinary row sticky and leave the hold row in the page flow."
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 0,
+     "title": "A slider step costs 61 to 92 ms of main-thread work; a held key or a drag keeps the main thread busy without a break",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen-verify/p1.cjs, p2.cjs and p3.cjs (my own scripts; calibration: 3e7 square roots took 67 ms). p1, 8 ArrowRight presses each, CDP TaskDuration over 500 ms after the press: Main color (14 cards) 72.2 ms task, 25.3 ms script; Line thickness (4 cards) 53 ms task, 9.3 ms script; Corner rounding (6 cards) 62.6 ms, 11.9 ms script. p2: trusted keydowns on Main color had event durations of 40 to 48 ms. 30 held ArrowRight repeats sent 33 ms apart took 1,627 ms to be taken in instead of about 990 ms; on Line thickness the same took 1,039 ms. p3: dragging the Hue knob with 50 mouse moves 16 ms apart took 3,634 ms, with 3,138 ms of main-thread work (772 ms script), so the knob runs behind the hand.",
+     "reasoning": "The code at App.tsx:431-436 rebuilds every card's Mockup whenever params change. Cost goes up with the number of cards: 9 ms of script on 4 cards against 25 ms on 14. My single-press event latency (40-48 ms) is below the threshold. The total main-thread work per step (53-72 ms) is above it, and in a drag or a held key the backlog is clearly visible: 3.6 s to take in an 0.8 s drag. Part of the cost (two preview documents per step) is necessary, but the repeated build of unchanged cards and the lack of any input coalescing are real. Medium, because ordinary slider dragging feels the lag."
+    },
+    {
+     "index": 1,
+     "title": "Slider keys change a \"fully round\" design to 28 px, record steps that change nothing, and swallow Alt+Arrow",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "Ran node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/check1.cjs. C1: before, the slider read 'fully round' and the rail read 'Picked: Fully round (pill shape)'. After ArrowRight the output read '28px' and the rail read 'Set by hand, close to “Clearly rounded (14 px)”'. C2: Home, then 3 x ArrowLeft at 0px, then one Ctrl+Z: the value stayed 0px and the notice said 'Undone: the Step “Line thickness” is back to how it was.' My own /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen-verify/v1.cjs: Alt+ArrowLeft on #tune-borderWeight changed the value 1 -> 0.5, and defaultPrevented was true.",
+     "reasoning": "The handler at App.tsx:634-640 has no modifier check and no no-op check. It works from Math.min(value, t.max), so 'rounder' from a value above max writes max, which is less round. tune() in engine.ts:226-234 always records a new Decision, and its timestamp makes Undo's 'touched' test report a change that did not happen. All three parts were observed. The first part changes the owner's design in the opposite direction from the key's meaning, so medium."
+    },
+    {
+     "index": 2,
+     "title": "Holding Enter runs through the Steps and records a Decision on each one",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "v1.cjs (first block): I logged event.repeat in a capture listener, focused the main button and sent keyboard.down('Enter') 5 times, 40 ms apart. The repeat flags read [false,true,true,true,true]; the Studio moved to #density and the rail read '5 of 23 Steps decided'. check1.cjs C3: 12 repeats moved the Studio from #nav (0 decided) to #color-strategy (12 decided).",
+     "reasoning": "Playwright sets repeat=true on the repeated keydowns, the same as a real held key. Neither the window handler (App.tsx:457) nor the fieldset onKeyDown (App.tsx:553) checks event.repeat, and the refocus onto the next Step's checked card keeps feeding Enter to the cards. Decisions are recorded on Steps the owner never saw. Each one needs its own Undo, so medium."
+    },
+    {
+     "index": 3,
+     "title": "Undo and the \"Show this part of the page\" list throw keyboard focus into the cards, where the next key does something else",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "Ran check1.cjs. C4: ArrowDown on #preview-region set region=top and moved focus to option-text-left; a second ArrowDown left the region at top and changed the card on show ('Everything centered (not picked yet)'). C5: Enter on Undo took the count from 2 to 1 and moved focus to option-bento; a second Enter took the count to 2 decided and the Studio to #content-width.",
+     "reasoning": "store.ts:675-678 and 748 call refocus(), and App.tsx:467-469 then focuses the checked card. The observed effect is that a second Enter on Undo records a Decision and moves on instead of undoing again: the button does the opposite of what the owner asked. I did not re-run the 360x640 scroll measurement. The two cases I observed are enough to confirm. Medium."
+    },
+    {
+     "index": 4,
+     "title": "A typed reason is stored only when the field loses focus; Enter, a reload, or the Back button loses it while the status line says \"Saved\"",
+     "verdict": "confirmed",
+     "severity": "medium",
+     "reproduction": "v1.cjs (reason block): I decided the Step, returned to #nav, filled #decision-reason with 'Most visitors book', pressed Enter and waited 1.2 s. localStorage refraction.project.v2 did not contain the text, and the status read 'Saved in this browser, on this computer'. After a reload the field was empty. I typed 'Second reason', changed the hash, then went back: the field was empty. Control: typing, then Tab (blur), saved the text (true).",
+     "reasoning": "ReasonField (App.tsx:385-391) saves only in onBlur. A reload or a hash navigation fires no blur, and the effect at line 386 overwrites the local text. The owner's typed text is lost while the screen says it was saved. The field is optional, so medium rather than high."
+    },
+    {
+     "index": 5,
+     "title": "Keyboard focus falls to the page body after \"Keep my project\" or Escape in a question, and after \"Dismiss\"",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "check1.cjs C7: after Escape in the confirmation, the active element was BODY and the dialog was closed. C8: Enter on 'Dismiss' left the active element on BODY; a second Enter moved the Studio from #accent to #color-strategy.",
+     "reasoning": "ConfirmDialog returns null (App.tsx:230) without calling close(), and Dismiss removes its own button, so focus is lost to the body. On a Step, the body treats Enter as 'pick and continue'. Observed. It only affects keyboard users and has an undo, so low."
+    },
+    {
+     "index": 6,
+     "title": "Ctrl+Z changes the project behind an open question",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "check1.cjs C6: with 1 Decision and the 'Start from Ember Noir' dialog open, Ctrl+Z posted 'Undone: the Step “Menu (navigation)” is back to how it was.' while the dialog stayed open and its text still said 'clears your 1 Decision'.",
+     "reasoning": "The window handler at App.tsx:901-906 does not check the confirmation state, though the number-key handler does (line 447). Observed. It is reachable, but it is an edge case."
+    },
+    {
+     "index": 7,
+     "title": "The question \"Yes, remove it for good / No, keep it\" disappears when the save status changes",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "check1.cjs C10: after 'Remove this kept copy…' the buttons were ['Download this kept copy','Yes, remove it for good','No, keep it']. After typing one letter into #project-name and waiting 0.7 s, they were ['Download this kept copy','Remove this kept copy…'].",
+     "reasoning": "The `removing === copy` identity comparison (App.tsx:761) fails after the memo at line 693 re-reads storage on a change of s.saved. Observed. No data is lost (the row simply asks again), so low."
+    },
+    {
+     "index": 8,
+     "title": "A notice with the same words as the one before changes nothing on the page, so assistive technology has nothing to announce",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "check1.cjs C9: on Main color, 3 slider presses, then Ctrl+Z, then a second Ctrl+Z with a MutationObserver on .banners. The notice text was identical before and after, and the observer counted 0 DOM changes.",
+     "reasoning": "I observed that the live region does not change. That screen readers stay silent then is the standard behavior of a live region, but no screen reader was used, so the impact is inferred. Low."
+    },
+    {
+     "index": 9,
+     "title": "The color chips of every card are worked out again on every render of a color Step, also for each letter typed into the project name",
+     "verdict": "refuted",
+     "severity": "low",
+     "reproduction": "/tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen-verify/p3.cjs (first version, name block): on Main color (14 cards), 20 letters typed into #project-name 150 ms apart cost 10 ms of main-thread task and 5.6 ms of script per letter on average; event durations were 16-32 ms.",
+     "reasoning": "The unmemoized Swatches does re-derive the tokens, but the measured cost per letter is about 10 ms (the first reviewer's own figure was 43.8 ms, also under 50 ms). The cost does not grow with stored data or session length, and no user would feel it. It is below the bar for a performance finding."
+    },
+    {
+     "index": 10,
+     "title": "At 640x360, the two sticky notice rows and the sticky button bar leave 38 pixels for the cards",
+     "verdict": "confirmed",
+     "severity": "low",
+     "reproduction": "/tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen-verify/c3.cjs (the 640x360 part of the first reviewer's check3.cjs): the other tab renamed the project (hold row appeared), then Ctrl+Z (ordinary row appeared). Measured {vh:360, bannersHeight:206, actionsTop:244, actionsHeight:116, stripForCards:38}; with the hold row only, stripForCards was 120.",
+     "reasoning": "The measurement holds. FTU-46 (the sticky button bar covering cards) is deferred in Known gaps, but the sticky notice stack is a separate cause that is not recorded. The state is rare: a phone held sideways, the hold row and a second notice at once. The owner can still dismiss the ordinary notice or answer the hold row. Low."
+    }
+   ],
+   "examined": [
+    "/home/user/Frontend/apps/studio/src/App.tsx: read in full (all components, hooks, memo and effect dependency lists, key handlers, focus effects, the notice area, the dialog, the Summary)",
+    "/home/user/Frontend/apps/studio/src/preview.tsx: read in full (mockupHtml, useSize, useFrameKey, Thumbnail, LargePreview)",
+    "/home/user/Frontend/apps/studio/src/app.css: read the top bar, banner, dialog and narrow-layout rules (lines 86-128, 243-268) and every rule with sticky, overflow, nowrap or a height limit; the rest was not read line by line",
+    "/home/user/Frontend/apps/studio/src/store.ts: read the parts the screen calls (lines 100-200, 270-375, 505-776: save, commit, enter, every action, undo); /home/user/Frontend/apps/studio/src/fonts.ts read in full",
+    "/home/user/Frontend/packages/core/src/engine.ts: tune, nearestSliderValue, nextSliderValue, previewParams, matchingOptionId, activeTunables",
+    "PROGRESS.md \"Known gaps\", redteam/campaign-4/findings.md F-10 to F-15, and a keyword search of redteam/FINDINGS.md; F-11 (Undo keeps 40 changes; every letter and slider step is one change) is recorded, so it is not reported again",
+    "Performance, measured in headless Chromium 153 at 1280x720 with CDP Performance.getMetrics, on fresh pages with \"Midnight Aurora\" started. (1) Cold load until 18 Direction previews loaded: 680 ms main-thread (script 128, layout 161, style 98), 19 preview documents (18 + 1 probe), all needed, last preview at 675 ms. (2) \"Show me six more Directions\": 206 ms, then 257 ms; 6 new documents, none of the existing ones re-created. (3) Opening a Step: start 242 ms (5 documents); main button to the next Step 96 ms (4); \"Main color\" with 14 cards 312 ms (15); \"First screen\" 82 ms (5): all needed. (4) Another card: 38-70 ms, 1 document (the large preview), needed; no card picture re-created. (5) Slider: see the first finding. (6) Typing the name: 17-44 ms per letter, 0 documents re-created on every screen. (7) Undo after a pick: 176 ms, 5 documents (every picture of the Step shows the changed menu), needed. (8) Summary: 140 ms, 1 document.",
+    "Memory: 200 slider presses (heap 11.0 MB before, 13.6-13.7 MB at 50, 100, 150, 200 presses; 17 documents; 284 listeners) and 50 Step changes (7.2-8.3 MB; 6-8 documents): no growth",
+    "Checked in the browser and found sound: no preview is re-created by a rename; DirectionCard, thumbs and large memo keys give no stale picture in the cases tried; the Step list keys (ArrowUp, ArrowDown, Home, End) move and stop correctly; number keys are ignored in text fields; 42 Directions after four \"six more\" presses have unique ids; no page error in any run; no sideways page scroll at 320x568, 360x640, 400x800, 640x360 on Directions, two Steps, Summary, Licences (with a 48-letter project name and with both notice rows); the notice rows keep their element when the other row appears",
+    "Browser tests in apps/studio/e2e/studio.e2e.ts: read the slider-key test, the dialog tests and the number-key test to see what they cover",
+    "The temporary test file packages/core/test/zz-review-screen-1.test.ts was deleted; `git status --short` was empty afterwards. Scripts remain only under /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/screen/"
+   ],
+   "not_examined": [
+    "No screen reader was run. The notice finding rests on a missing page change. Not checked: whether a row with role \"status\" that enters the page together with its text is announced at all (the .banners container, the \"notes\" block and the contrast \"measure\" line are all inserted with content), and how chatty the \"Saving… / Saved\" status line is",
+    "Where the rest of the main-thread time goes when typing the name (17-44 ms per letter with only 3-13 ms of script): no trace was recorded, so painting and compositing of the frames are a guess",
+    "The share of HTML parsing and font decoding (two fonts as data inside every preview document) in the cost of a new preview; no CPU profile was taken, the split per slider step comes from metrics and a core timing in Node",
+    "Other browsers and real devices: Chromium only, headless, one machine; macOS select behavior and real key-repeat timing were reasoned, not run",
+    "Mouse-only paths of the region list on a real touch device; only selectOption with focus on the list was run",
+    "platform.ts (readBackups, removeBackup, saveFile, probePreviews), theme.ts, notices.generated.ts, main.tsx; store.ts lines 200-270 and 375-505 (opening saved copies, other tabs)",
+    "app.css rules outside the frame, banner and narrow-layout parts (cards, sliders, Summary, Licences details); text overlap was checked by measurement at four sizes, not by eye, and no screenshot was reviewed",
+    "The Licences screen, the fault screen (ScreenBoundary), the \"previews are blocked\" banner, the variations mode (\"Show small variations\"), the Motion Step's replay button, the wireframe toggle, and FileReader failure in \"Open a project file\" (reader.onerror is not set) were read but not exercised",
+    "Whether the focus placed on an off-screen card when a Step opens in the one-column layout (card at y=1493 in a 640 px high window, page at the top) troubles a keyboard user at high zoom; measured, not judged, and not reported as a finding",
+    "Behavior with very large stored data (many kept copies) on the Summary: readBackups runs on every save-status change, but its cost was not measured"
+   ]
+  }
+ ],
+ "gaps": {
+  "findings": [
+   {
+    "title": "A reason typed on one Step is stored on a different Step when the browser's Back or Forward button changes the Step; it replaces that Step's own reason",
+    "kind": "correctness",
+    "severity": "medium",
+    "file": "apps/studio/src/App.tsx",
+    "line": 391,
+    "description": "The field \"Why this choice?\" (ReasonField, App.tsx lines 382-395) is one component for all Steps: line 621 mounts it without a key, so the same input element stays in place when the Step changes. The field stores its text only when it loses keyboard focus (onBlur, line 391), and the store's setReason (apps/studio/src/store.ts line 623) writes to whichever Step is current at that moment, not to the Step the text was typed for. When the Step changes while the field still has focus (browser Back or Forward button, a mouse's back button, Alt+Left, a swipe), the Studio first makes the new Step current and then moves focus to the cards (App.tsx lines 467-469). The field loses focus, and its handler saves the text of the old Step onto the Decision of the new Step. The new Step's own reason is replaced, the Step where the owner typed keeps no reason, no notice appears, and the status line says \"Saved\". Undo brings the replaced reason back, but nothing tells the owner to use it. The screen reviewer reported that the Back button loses a typed reason; this is a different result: the text lands on the wrong Decision. I rank it medium, not high, because it touches one optional line of text and Undo can restore it. No browser test types into this field (0 mentions of the field in apps/studio/e2e/studio.e2e.ts).",
+    "failure_scenario": "Start from the first Direction. Press the main button on Step 1 \"Menu (navigation)\" and on Step 2 \"First screen\" (both now have a Decision). Go back to Step 1, type \"my reason for the first Step\" and click elsewhere (stored). Go forward to Step 2, click into \"Why this choice?\", type \"typed on Step 2\", and press the browser's Back button without leaving the field. Result in storage: the Decision of Step 1 (nav) has reason \"typed on Step 2\" (its own reason is gone); the Decision of Step 2 (hero) has no reason. The Forward button does the same in the other direction.",
+    "evidence": "Output of reason.cjs (Chromium, built page local-test.html). Variant back-button: storedBefore {nav: \"my reason for the first Step\", hero: null}; onScreenAfter \"Menu (navigation)\"; reasonFieldShows \"typed on Step 2\"; storedAfter {nav: \"typed on Step 2\", hero: null}; status \"Saved in this browser, on this computer\"; banners []; errors []. Variant forward-button: storedAfter {nav: \"my reason for the first Step\", hero: \"CHANGED reason, typed on Step 1\"} (text typed on Step 1 landed on Step 2). Control (click outside the field before Back): storedAfter {nav: \"my reason for the first Step\", hero: \"typed on Step 2\"}, which is correct.",
+    "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/gaps/reason.cjs",
+    "suggested_fix": "Mount the field as <ReasonField key={step.id} stepId={step.id} /> so that each Step has its own field, pass the Step id into the store action (setReason(stepId, reason)) instead of reading the current Step, and save pending text before the Step changes (in an unmount cleanup, or in enter()). Add a browser test: type a reason, press Back, and compare the stored reasons of both Steps."
+   },
+   {
+    "title": "On the Step \"Main color\", a card shows a second color that picking the card does not produce, whenever the second color follows the main color",
+    "kind": "correctness",
+    "severity": "medium",
+    "file": "packages/core/src/engine.ts",
+    "line": 72,
+    "description": "The pictures of a card (the small picture and the large preview) are built by paramsForCard (apps/studio/src/store.ts line 128), which calls previewParams (engine.ts line 72): the current design plus the Option's own values \"and nothing else\". The pick itself goes through pick -> withDecision -> rederive (engine.ts lines 155-181), which turns the second color so that it stays opposite, a third of the wheel away, or next to the new main color. So the card the owner compares shows the new main color with the old second color, and the design after the pick has a different second color (band, focus ring, marker). Scope, measured in the core: the curated Direction \"Sticker Pop\" from the start (12 of its 12 other \"Main color\" cards); 123 of 300 generated Directions; and every project after the owner picks one of the three \"Two colors\" Options on the Step about the number of colors: then 226 of 226 \"Main color\" cards over the 18 curated Directions show a second color that the pick does not produce, 197 of them off by 30 degrees of hue or more (largest gap 179 degrees). Variation cards on that Step have the same fault. Sliders are right, because their preview shows the project itself. No test compares a card's parameters with the result of the pick (previewParams appears once in the unit tests, for one corner value).",
+    "failure_scenario": "Start from \"Sticker Pop\", open the Step \"Main color\", click the card \"Deep blue\". The card and the large preview (\"Deep blue (not picked yet)\") show main color #0f4ea3 with a blue band #0050a0. Press \"Pick “Deep blue” and continue\" and return to the Step: the large preview (\"Deep blue (in use)\") now shows the band in dark red #932031. Eight tokens differ between what the card showed and what the pick gave.",
+    "evidence": "Browser (wysiwyg.cjs): route sticker-pop: \"card on show (large preview): --accent / --accent-2\": [\"#0f4ea3\", \"#0050a0\"]; \"card picture (thumbnail): --accent-2\": \"#0050a0\"; \"after the pick\": [\"#0f4ea3\", \"#932031\"]; tokensThatDifferBetweenCardAndResult 8 (--accent-2, --on-accent-2, --band-bg, --band-text, --focus, --focus-hero, --marker-ink, --marker); stored accentHue 258, accent2Hue 18 (the card was drawn with 255). Core (temporary vitest file, deleted): \"Option cards checked: 2106; cards whose picture differs from the design after the pick: 12 (Mockup HTML differs in 12); per Step: [[accent,12]]; variation cards checked: 572; differing: 2\". Scope run: \"after picking 'Two colors: opposites': 226 of 226 'Main color' cards show a second color that the pick does not produce; 197 are off by 30 degrees of hue or more\" (same counts for the other two \"Two colors\" Options); \"generated Directions whose second color follows the main color: 123 of 300\".",
+    "repro": "Browser: node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/gaps/wysiwyg.cjs . Core: copy /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/gaps/repro-preview-vs-pick.test.ts.txt to packages/core/test/zz-review-gaps-1.test.ts, run npx vitest run packages/core/test/zz-review-gaps-1.test.ts (it fails and lists the 12 cards), then delete the copy.",
+    "suggested_fix": "Draw each card from the engine's own result: previewParams should return pick(project, stepId, option.id).params (and the variation cards pickValues(...).params), or the engine should export one function that applies the Option and then the same follow-up step as pick. Add a unit test: for every Direction, Step and Option, previewParams equals pick().params."
+   },
+   {
+    "title": "The stored-picture test (\"no look changes by accident\", decision D8) would not notice 46 of 192 one-Option changes; no stored picture shows the services part of the page",
+    "kind": "test-gap",
+    "severity": "medium",
+    "file": "apps/studio/e2e/visual.e2e.ts",
+    "line": 262,
+    "description": "The test compares each curated Direction with a stored picture. It shrinks a 1280 by 800 screenshot to 320 by 200 and passes when the mean difference per color channel is under 1.5 and under 1.2 percent of the pixels differ clearly (lines 273-274). It takes pictures of two regions only: \"top\" and \"contact\" (line 262). I applied the same shrink, the same measure and the same limits to every one-Option change of two designs (the plain start and \"Midnight Aurora\"), in both regions. 50 of 196 changes stay under both limits in both regions. Four of them are the Motion Options, which cannot differ in a still picture by design; that leaves 46 of 192 real changes of look that this test would pass. All 8 changes of the layout of the services list and \"Large numbers beside the services\" measure exactly 0.00 in both regions, because neither stored picture shows that part of the page. All 9 changes of corner rounding (square to pill: mean 0.01 to 0.14), 6 of 8 button finishes, the contrast levels, two patterns and two main colors also pass. The test's own check \"would notice a changed look\" tries one change (the layout of the first screen). Surviving mutations, by this measure: any change to the style rules of the services list, set every --radius token to 0, remove the gloss or glow of buttons. Limit of this evidence: the review rules forbade running the browser suite, so the numbers come from my copy of the test's functions, not from a run of the test with a planted defect. The other visual tests do not cover this: \"every Option shows\" only checks that sibling Options differ from each other, and \"one variable\" only checks that nothing moves.",
+    "failure_scenario": "A later change breaks the look of the services list, or sets the corner rounding of every Direction to square. All 38 stored pictures still match within the limits, CI stays green, and the changed look ships.",
+    "evidence": "Output of the temporary test (deleted; a copy is kept as text): \"one-Option changes tried: 196; not noticed by the comparison (both regions under mean 1.5 and share 1.2%): 50; not noticed, per Step: nav 2, sections 8, numerals 4, accent 3, color-strategy 1, contrast 3, atmosphere 4, radius 9, button-finish 6, display-treatment 1, signature 4, motion 4, neutral 1\". Sample lines: \"plain-start | sections -> grid | top mean 0.00 share 0.00% | contact mean 0.00 share 0.00%\"; \"plain-start | radius -> pill | top mean 0.06 share 0.06% | contact mean 0.14 share 0.21%\"; \"plain-start | button-finish -> outline | top mean 0.76 share 0.53% | contact mean 1.04 share 0.70%\"; \"midnight-aurora | signature -> big-numerals | top 0.00 / contact 0.00\". Control: the same design twice gives mean 0.000, share 0.000%. Full list: /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/gaps/visual-sensitivity.txt",
+    "repro": "Copy /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/gaps/repro-visual-sensitivity.test.ts.txt to packages/core/test/zz-review-gaps-2.test.ts, run npx vitest run packages/core/test/zz-review-gaps-2.test.ts (about 70 seconds; it fails and lists the changes that are not noticed), then delete the copy.",
+    "suggested_fix": "Store a picture of the region \"services\" (and of the facts and fees parts) for each Direction, and add a second measure that small local changes cannot hide from: compare the unshrunk pictures tile by tile (for example the largest difference in any 64 by 40 tile), or compare the computed corner radius, shadow and background of the main elements as numbers."
+   },
+   {
+    "title": "\"Open the newer copy\" replaces the project but keeps the card on show and the open variations of the replaced project: the main button then throws an error, or writes the old project's value into the newer copy",
+    "kind": "robustness",
+    "severity": "low",
+    "file": "apps/studio/src/store.ts",
+    "line": 487,
+    "description": "After the page database fails its first read and answers later with a newer copy, the Studio offers \"Open the newer copy\". That action calls replaceProject (store.ts line 365) and nothing else. Every other path that replaces the project also resets the card on show (shownId) and the variations (enter, undo, putBack, tuneValue); this one does not. Two results. (1) If the card on show was \"Your design now\" and the newer copy matches a Catalog Option, that card no longer exists. The screen falls back to the first card (App.tsx line 422: cards.find(...) ?? cards[0]) and labels the main button for it, but decideAndContinue still uses the stale id and calls pick(project, stepId, 'current'), which throws \"This Step has no such Option.\" The Step does not advance and nothing is recorded until the owner clicks a card. (2) If small variations were open, their cards still come from the replaced project. \"Use it as it was and continue\" then writes the replaced project's value into the newer copy as a hand-set Decision. The path is rare (private page only, first read of the page database fails, a newer copy exists), so I rank it low. No browser test covers the late read (0 mentions of \"Open the newer copy\" in apps/studio/e2e/studio.e2e.ts).",
+    "failure_scenario": "Browser copy A: a Direction with \"Corner rounding\" set by hand to 9. Page database: copy B, newer, the same Direction untouched (8). The first database read fails; the Studio opens A on the Step \"Corners\" with \"Your design now (in use)\". 2.5 seconds later the notice appears; click \"Open the newer copy\". Case 1: the screen says \"Large preview shows: Square corners (not picked yet)\" and the button \"Pick “Square corners” and continue\"; clicking it throws and the Step stays. Case 2 (variations opened before the click): the button \"Use it as it was and continue\" stores radius 9 with a Decision {kind: tuned, values: {radius: 9}} in the newer copy B, whose value was 8.",
+    "evidence": "Output of stale.cjs (Chromium, built page, my own stand-in for the page database). Scenario card: afterOpenNewer {showing: \"Large preview shows: Square corners (not picked yet)\", button: \"Pick “Square corners” and continue\"}; afterMainButton {legend: \"Corners\", hash: \"#radius\"}; storedRadius 8; storedDecisionRadius null; errors [\"Error: This Step has no such Option.\"]. Scenario variations: afterOpenNewer {showing: \"Large preview shows: As it was (not picked yet)\", button: \"Use it as it was and continue\", legend: \"Corners: small variations\"}; afterMainButton {legend: \"Box edges and shadows\"}; storedRadius 9; storedDecisionRadius {kind: \"tuned\", optionId: null, values: {radius: 9}}; radiusInB 8.",
+    "repro": "node /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/gaps/stale.cjs",
+    "suggested_fix": "In the action of \"Open the newer copy\", enter the current screen again after replaceProject (enter(get().view, get().stepId, false)), which clears the variations and sets the card on show from the new project; or do that reset inside replaceProject. In decideAndContinue, treat a card id that the Step does not have as the card in use, so that a stale id can never reach pick()."
+   },
+   {
+    "title": "The lint rule behind hard rule 6 (\"render text as text\") stops four spellings only; eight other ways to turn text into markup pass",
+    "kind": "test-gap",
+    "severity": "low",
+    "file": "eslint.config.js",
+    "line": 10,
+    "description": "eslint.config.js forbids the properties innerHTML, outerHTML and insertAdjacentHTML, document.write, and the JSX attribute dangerouslySetInnerHTML. I fed one file with nine ways to turn text into markup or code through the project's own lint configuration, under a Studio file name. Only the innerHTML line is reported. These pass: setHTMLUnsafe, document.writeln, Range.createContextualFragment, DOMParser.parseFromString, iframe.srcdoc, setAttribute('onclick', ...), Document.parseHTMLUnsafe, and a property name built from two strings. The source is clean today: a search of apps/studio/src and packages/core/src finds only the three intended srcdoc uses (the two sandboxed preview frames in preview.tsx lines 79 and 134, and a fixed probe document in platform.ts line 387). The gap is in the guard, not in the code: a later change that uses one of these calls would pass lint and CI.",
+    "failure_scenario": "A later change writes element.setHTMLUnsafe(project.name) or document.writeln(text). npm run lint and CI stay green, although hard rule 6 names lint as the door that stays shut.",
+    "evidence": "Command: npx eslint --stdin --stdin-filename apps/studio/src/zz-review-gaps-sinks.ts < sinks.txt . Output: \"2:1 error 'innerHTML' is restricted from being used. Do not write innerHTML. Render text as text no-restricted-properties; 1 problem (1 error, 0 warnings)\". Lines 3 to 10 of the input (the eight other calls) produce no message.",
+    "repro": "cd /home/user/Frontend && npx eslint --stdin --stdin-filename apps/studio/src/zz-review-gaps-sinks.ts < /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/gaps/sinks.txt",
+    "suggested_fix": "Add the missing names to no-restricted-properties (setHTMLUnsafe, parseHTMLUnsafe, writeln, createContextualFragment, srcdoc with an allow comment at the three intended places) and restrict DOMParser with no-restricted-globals. A unit test that scans the source for these names, like the existing test for hard rule 8, covers the computed-name case that a lint rule cannot see."
+   }
+  ],
+  "examined": [
+   "Configuration, read in full: package.json (scripts), apps/studio/package.json, packages/core/package.json, vitest.config.ts, vitest.e2e.config.ts, tsconfig.base.json, tsconfig.e2e.json, apps/studio/tsconfig.json, packages/core/tsconfig.json and tsconfig.test.json, eslint.config.js, .dependency-cruiser.cjs, .github/workflows/ci.yml, .github/dependabot.yml, .npmrc, .gitignore, apps/studio/vite.config.ts, apps/studio/index.html, apps/studio/src/main.tsx. Found sound: packages/core is type-checked with no browser and no Node types, so a browser API in the core fails the type check; exact versions are pinned; CI actions are pinned by commit hash.",
+   "Ran, all read-only: npm run typecheck (clean), npm run lint (clean), npm run boundaries (54 modules, no violation), node scripts/make-notices.mjs --check (both files current), node scripts/check-size.mjs (app.js 1166 KB, budget 1600 KB), npx vitest run (6 files, 143 tests passed).",
+   "CI on GitHub: the last 12 runs of the workflow are green, including run 53 for the current commit 4fb98f1 (unit tests, the browser suites, the notices check and the dependency audit all ran there).",
+   "scripts/check-size.mjs: read in full. scripts/make-notices.mjs: read the header, runtimePackages, codePackageDirs, fontImports and main; the list of shipped code packages matches the dependencies of react, react-dom, scheduler, zustand and zod as installed.",
+   "apps/studio/scripts/make-artifact.mjs: read in full. The built app.js holds no closing script tag, and the shipped page refraction-studio.html holds exactly one (the real one), so the inlined script cannot end early.",
+   "npm audit in CI: .npmrc sets audit=false; I read npm 10.9.9's audit command, which forces auditing on, so the CI step is not silenced. Not run against the network.",
+   "Browser-test helpers: apps/studio/e2e/studio.e2e.ts lines 1-190 and 1134-1157, every test name; apps/studio/e2e/visual.e2e.ts lines 1-134 and 219-287. The 38 stored pictures exist and are tracked; a missing picture fails the test (it is not written silently). No skipped or retried test.",
+   "Source read for the cross-area pass: apps/studio/src/store.ts in full; platform.ts lines 1-310; App.tsx lines 240-280, 372-480, 626-640, 664-731, 886-915; preview.tsx and theme.ts in full; packages/core/src/engine.ts lines 60-72 and 141-268.",
+   "Whole long sessions in the real Studio (Chromium, built page local-test.html): 4 random sessions, 1,240 actions in total, with 280 Undo presses, 48 starts from Directions or the plain start, 141 slider key presses plus slider clicks, variations, put back, reasons, renames, changes of the Contrast checks setting, 5 presses of \"Show me six more Directions\", moves through the Step list, the Summary and \"Start a new project\". At the end of each: the downloaded project file equals the stored copy; after a reload the project, the stored copy, the list of Decisions and (runs 3 and 4) the Summary picture are identical; no notice at opening; 0 page errors; 0 failed actions. Used heap 11.4 MB at the start, 8.4 to 8.7 MB at the end; event listeners 219 at the start, 203 to 206 at the end; kept copies 6 to 11; storage 29 to 54 thousand characters. The median time of each kind of action is the same in the first and the second half of a session.",
+   "The 8 project files downloaded in those sessions: each opens again through parseProject with no notes and no change.",
+   "50 accepted but unusual project files (every number at its lowest and highest allowed value, random mixes on 4 starting designs, every Step picked, every slider moved, odd Decision records, an unknown Direction id, empty content lists, a name of 60 emoji) opened in the real Studio: 1,300 screens visited (Summary, all 23 Steps with sliders open, the main button, the Directions). No page error, no fault screen, no \"NaN\" or \"undefined\" in the Studio's own text, no sideways scroll.",
+   "Unusual project names typed in the real Studio (empty, spaces only, 119 letters plus emoji, markup, a right-to-left mark, 400 letters, control characters, \"__proto__\") with a reason at full length: each saved, downloaded under a safe file name, and identical after a reload; typing never cut an emoji in half.",
+   "The one unexplained test failure in PROGRESS.md (the \"wear the project's look\" checkbox read as unchecked after a reload): I repeated the test's own sequence 90 times in three variants, one of them with no wait before the reload. 0 failures. The cause stays unknown; I could not show a Studio defect.",
+   "Direction cards: for 258 Directions (18 curated, 240 generated) the design after \"Start from\" equals the design the card draws, and the main button on an untouched Step (keep) changes no value on any of 5,934 Steps.",
+   "Housekeeping: my five temporary files packages/core/test/zz-review-gaps-1..5.test.ts are deleted; git status --short prints nothing; no tracked file changed. Scripts, outputs and two reproduction copies of the temporary tests are in /tmp/claude-0/-home-user-Frontend/e12f4ccb-b459-55b6-b00a-a80cc4acdd67/scratchpad/review/gaps/ (reason.cjs, wysiwyg.cjs, stale.cjs, long.cjs, long2.cjs, fuzz.cjs, names.cjs, prefs.cjs, repro-preview-vs-pick.test.ts.txt, repro-visual-sensitivity.test.ts.txt, and their output files)."
+  ],
+  "not_examined": [
+   "The browser suites themselves (npm run e2e) were not run, as the rules of this review require. The stored-picture finding rests on my copy of the test's functions and limits, not on a run of the test with a planted defect.",
+   "Whether an uncaught page error fails the browser tests: only 12 of the 56 test sessions keep the list of page errors, and 6 assertions read it. I counted this in the source and did not plant an error to prove that a test stays green.",
+   "scripts/make-notices.mjs: the font-file reader (lines 197-340) and the two writers (lines 514-760) were not read; I only ran the --check mode.",
+   ".dependency-cruiser.cjs excludes every path that contains \"dist\" or \"phase0\" anywhere in its name, so a future source file such as distance.ts would escape the boundary rules. I read this and did not demonstrate it; no such file exists today.",
+   "The real private page (its database, its file hand-over, its own page skeleton and security policy): every database result comes from my own stand-in. The shipped file refraction-studio.html is never opened by any test; only the locally wrapped copy is.",
+   "The reason finding was shown with the test tool's Back and Forward commands in Chromium. A physical back button, Alt+Left, a phone's swipe or Back key with the on-screen keyboard open, Firefox and Safari were not run.",
+   "Five of the 50 unusual project files produced the notice \"Opening changed some details of your saved project\". I did not trace which details changed; the files were made by hand-editing values, and the engine reviewer covered reopening.",
+   "The long sessions did not include: opening a project file in mid-session, a second tab, full or blocked storage, a phone-wide window, the private-page database, or more than 5 presses of \"Show me six more Directions\". Action times are wall-clock times that include the test tool's own overhead; I took no per-action main-thread profile.",
+   "Kept copies have no upper limit (each start from a Direction with work adds one; identical text is not added twice). I did not measure how long ordinary use takes to fill the browser's storage.",
+   "The development server (npm run dev) and React's double start of effects there.",
+   "apps/studio/src/notices.generated.ts, the Licences screen, app.css, phase0/, docs/, and the redteam tools. The plugin/ folder does not exist yet, and packages/core exports no Prescription exporter yet, so neither could be reviewed.",
+   "Notices that carry an \"Undo\" button stay on screen while the owner makes further changes on the same Step; the button then undoes the latest change, not the one the notice names. I read this in store.ts and did not test or report it, because the Studio states what it undid after the click.",
+   "No screen reader was used, and no accessibility check ran on the Mockup."
+  ]
+ }
+}

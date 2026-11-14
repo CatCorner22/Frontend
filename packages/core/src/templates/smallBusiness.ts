@@ -201,7 +201,9 @@ body[data-nav="split-cta"] .nav nav { margin-inline: auto; }
 @media (max-width: 719px) {
   body[data-nav="split-cta"] .nav nav { order: 3; width: 100%; margin: 0; }
   body[data-nav="split-cta"] .brand { margin-right: auto; }
-  body[data-nav="split-cta"] .phone { display: none; }
+  /* Only the telephone number in the top bar goes. The rule once named every telephone number, so the number in the contact
+     part vanished on a phone, where it is the most useful (code review of 2026-11-13, finding "tokens 1"). */
+  body[data-nav="split-cta"] .nav-actions .phone { display: none; }
 }
 @media (min-width: 960px) {
   body[data-nav="side-rail"] { display: grid; grid-template-columns: 15rem minmax(0, 1fr); grid-template-rows: 1fr auto; min-height: 100vh; }
@@ -216,8 +218,8 @@ body[data-nav="split-cta"] .nav nav { margin-inline: auto; }
 .hero { position: relative; isolation: isolate; overflow: clip; background: var(--hero-bg); color: var(--hero-text); padding-block: calc(var(--section-gap) * 0.85); }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: var(--atmo-image); background-size: var(--atmo-size); -webkit-mask-image: var(--atmo-mask); mask-image: var(--atmo-mask); }
 .hero-grid { display: grid; gap: var(--space-10); align-items: center; }
-/* The headline: never wider than the screen allows, and never smaller than the opening paragraph beneath it. */
-.hero h1 { font-size: clamp(calc(var(--lede-size) * 1.25), calc(var(--text-display) * var(--display-scale)), calc(13vw * var(--display-scale))); max-width: 18ch; padding-block: 0.04em; }
+/* The headline: never wider than the screen allows, and never smaller than its floor (see --h1-floor in the tokens). */
+.hero h1 { font-size: clamp(var(--h1-floor), calc(var(--text-display) * var(--display-scale)), calc(13vw * var(--display-scale))); max-width: 18ch; padding-block: 0.04em; }
 .tag { font-size: var(--text-sm); font-weight: 600; color: var(--accent-text); margin-bottom: var(--space-4); }
 body[data-strategy="color-block"] .tag { color: inherit; }
 .lede { font-size: var(--lede-size); line-height: 1.5; max-width: 52ch; margin-top: var(--space-5); color: var(--text-muted); }
@@ -241,19 +243,19 @@ body[data-hero="centered"] .actions { justify-content: center; }
   body[data-hero="split-media"] .hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); }
   body[data-hero="split-media"] .hero-media { display: grid; aspect-ratio: 4 / 5; max-height: 34rem; width: 100%; }
 }
-body[data-hero="statement"] .hero h1 { font-size: clamp(calc(var(--lede-size) * 1.25), calc(var(--text-display) * var(--display-scale) * 1.22), calc(13vw * var(--display-scale))); max-width: none; line-height: 1; }
+body[data-hero="statement"] .hero h1 { font-size: clamp(var(--h1-floor), calc(var(--text-display) * var(--display-scale) * 1.22), calc(13vw * var(--display-scale))); max-width: none; line-height: 1; }
 body[data-hero="statement"] .hero-sub { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-6) var(--space-10); margin-top: var(--space-10); padding-top: var(--space-6); border-top: var(--control-border-w) solid currentColor; }
 body[data-hero="statement"] .lede { margin-top: 0; flex: 1 1 22rem; }
 body[data-hero="statement"] .actions { margin-top: 0; flex: 0 1 auto; }
 
 /* Emphasis: what the eye finds first */
-body[data-emphasis="action"] .hero h1 { font-size: clamp(calc(var(--lede-size) * 1.25), calc(var(--text-3xl) * var(--display-scale)), calc(13vw * var(--display-scale))); max-width: 24ch; }
+body[data-emphasis="action"] .hero h1 { font-size: clamp(var(--h1-floor), calc(var(--text-3xl) * var(--display-scale)), calc(13vw * var(--display-scale))); max-width: 24ch; }
 body[data-emphasis="action"] .hero .btn-primary { min-height: 3.5rem; padding-inline: var(--space-8); font-size: var(--lede-size); }
 body[data-emphasis="action"] .actions .phone-big { display: inline-flex; }
 body[data-emphasis="action"] .actions .link { display: none; }
 body[data-emphasis="proof"] .fact-list.hero-facts { display: grid; }
 body[data-emphasis="proof"] .facts { display: none; }
-body[data-emphasis="proof"] .hero h1 { font-size: clamp(calc(var(--lede-size) * 1.25), calc(var(--text-3xl) * var(--display-scale)), calc(13vw * var(--display-scale))); }
+body[data-emphasis="proof"] .hero h1 { font-size: clamp(var(--h1-floor), calc(var(--text-3xl) * var(--display-scale)), calc(13vw * var(--display-scale))); }
 
 /* Facts */
 .fact-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--space-6) var(--space-8); margin: 0; }
@@ -318,7 +320,7 @@ body[data-sections="ledger"] .service .num { display: block; font-size: var(--te
 
 /* Fees: a short price list. A column of numbers is where number styles show. */
 .fees { margin-top: var(--space-12); max-width: 34rem; }
-.fees h3 { font-size: var(--text-lg); margin-bottom: var(--space-3); }
+.fees h3 { font-size: var(--lede-size); margin-bottom: var(--space-3); }
 .fees table { width: 100%; border-collapse: collapse; }
 .fees th, .fees td { padding-block: var(--space-3); border-top: var(--border-w) solid var(--border); font-weight: 400; text-align: left; }
 .fees tr:last-child th, .fees tr:last-child td { border-bottom: var(--border-w) solid var(--border); }
@@ -329,7 +331,7 @@ body[data-numerals="mono"] .fees td { font-family: var(--font-numeric); letter-s
 .about { background: var(--surface-2); }
 body[data-elevation="glass"] .about { background: transparent; }
 .about-grid { display: grid; gap: var(--space-10); align-items: center; }
-@media (min-width: 860px) { .about-grid { grid-template-columns: 1.1fr 0.9fr; gap: var(--space-16); } }
+@media (min-width: 860px) { .about-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: var(--space-16); } }
 .about p { color: var(--text-muted); font-size: var(--lede-size); margin-top: var(--space-4); max-width: var(--measure); }
 .promise { margin: 0; padding: var(--space-8); }
 .promise p { font-family: var(--font-heading); font-weight: var(--heading-weight); letter-spacing: var(--heading-tracking); font-size: var(--h3-size); line-height: 1.25; color: var(--text); margin: 0; }
@@ -338,11 +340,12 @@ body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about
 
 /* Contact */
 .contact-grid { display: grid; gap: var(--space-10); align-items: start; }
-@media (min-width: 860px) { .contact-grid { grid-template-columns: 0.9fr 1.1fr; gap: var(--space-16); } }
+@media (min-width: 860px) { .contact-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: var(--space-16); } }
 .contact p { color: var(--text-muted); margin-top: var(--space-4); max-width: 44ch; }
 .contact address { font-style: normal; margin-top: var(--space-6); display: grid; gap: var(--space-1); font-variant-numeric: var(--numeric); }
-.form { display: grid; gap: var(--space-5); padding: var(--space-8); }
-.field { display: grid; gap: var(--space-2); }
+.form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); padding: var(--space-8); min-width: 0; }
+/* A field never asks for more room than its column has: the column may shrink below the field's own width. */
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); min-width: 0; }
 .field label { font-weight: 600; font-size: var(--text-sm); }
 .field input, .field textarea {
   font: inherit; color: var(--text); background: var(--surface); width: 100%;
@@ -355,7 +358,8 @@ body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about
 .field input:focus-visible, .field textarea:focus-visible { outline-offset: 0; box-shadow: 0 0 0 4px color-mix(in oklch, var(--focus) 22%, transparent); }
 .field textarea { min-height: 6.5rem; resize: vertical; border-radius: min(var(--radius-control), var(--radius-surface)); }
 .hint { font-size: var(--text-xs); color: var(--text-muted); }
-.form .btn { justify-self: start; }
+/* On a very narrow screen the button's words may wrap; a button that insists on one line made the whole form wider than the screen. */
+.form .btn { justify-self: start; max-width: 100%; white-space: normal; }
 
 /* Footer */
 .site-footer { border-top: var(--border-w) solid var(--border); padding-block: var(--space-8); color: var(--text-muted); font-size: var(--text-sm); }
