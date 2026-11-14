@@ -5,5 +5,5 @@ module.exports = {
     { name: 'no-circular', severity: 'error', from: {}, to: { circular: true } },
     { name: 'no-orphans-in-core', severity: 'warn', from: { orphan: true, path: '^packages/core/src' }, to: {} },
   ],
-  options: { doNotFollow: { path: 'node_modules' }, tsPreCompilationDeps: true, tsConfig: { fileName: 'tsconfig.base.json' }, exclude: { path: '(dist|phase0)' } },
+  options: { doNotFollow: { path: 'node_modules' }, tsPreCompilationDeps: true, tsConfig: { fileName: 'tsconfig.base.json' }, exclude: { path: '(^|/)(dist|phase0)/' } },
 };

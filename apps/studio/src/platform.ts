@@ -541,6 +541,8 @@ export function probePreviews(): Promise<boolean> {
       }
       finish(ok);
     });
+    // A fixed text of the Studio's own; no data flows into it.
+    // eslint-disable-next-line no-restricted-properties
     frame.srcdoc = '<!doctype html><title>probe</title><p>ok</p>';
     document.body.append(frame);
   });
