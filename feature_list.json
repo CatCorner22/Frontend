@@ -10,7 +10,7 @@
         "Open the Studio again: the entry is gone and no notice appears",
         "Repeat, but replace the saved project with another project before the Studio opens again: the Studio shows a notice, and the Summary lists the changed project as a kept copy"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F002",

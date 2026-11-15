@@ -229,6 +229,13 @@ let lastOutcome: SaveState = 'idle';
 let lastSavedWhere: 'page' | 'browser' | null = null;
 /** True once the owner chose to reload: the leave-page question is then not asked a second time. */
 let leavingOnPurpose = false;
+/**
+ * When this tab last wrote the saved project, on the page's own clock. A browser passes a storage write on to other tabs
+ * with a short delay, so for a moment after its save a tab cannot know whether another tab's write has replaced it
+ * (finding F-18; `docs/reference/saving-table.md`, "Why 2 seconds").
+ */
+let lastSaveAt = Number.NEGATIVE_INFINITY;
+const RECENT_SAVE_MS = 2000;
 /** True between opening and the first screen, when the project as opened differs from the stored copy and that copy is kept. */
 let storeOnceOpen = false;
 /**
@@ -239,6 +246,7 @@ let storeOnceOpen = false;
 let seemsToLeave = false;
 const EITHER_WAY = 'Whichever you choose, the Studio first keeps the other copy; you then find it on the Summary, under “Copies the Studio kept for you”.';
 const WHY_LEFT = (name: string): string => `The work in the project “${plainName(name)}” that this tab had not saved, as it was when you last left the tab, reloaded it, or closed it.`;
+const WHY_SAVED = (name: string): string => `The project “${plainName(name)}” as one page of the Studio saved it a moment before that page closed. Another page replaced the saved project in that moment.`;
 const WHY_LEAVING = (name: string): string => `The project “${plainName(name)}” as one page of the Studio last showed it. That page closed with a change that it could not save: another page saved something else in the same moment, or the browser refused the save.`;
 
 export const useStudio = create<StudioState>((set, get) => {
@@ -334,6 +342,17 @@ export const useStudio = create<StudioState>((set, get) => {
    * While the Studio is not saving, it must not write the saved project, so it keeps the unsaved work as a copy instead;
    * a kept copy joins the list and replaces nothing.
    */
+  /**
+   * The page seems to leave, and the screen shows what this tab saved. If that save is young, another tab's write may have
+   * replaced it unseen: the work also goes into an entry of this page's own, which the next opening settles (finding F-18).
+   * A refusal by the browser changes nothing: the save itself stands as before.
+   */
+  const keepRecentSave = (text: string, name: string): void => {
+    if (performance.now() - lastSaveAt >= RECENT_SAVE_MS) return;
+    seemsToLeave = true;
+    keepLeavingCopy(text, WHY_SAVED(name));
+  };
+
   const leaveSafely = (): boolean => {
     const { project, saved, history, ready } = get();
     // Before the saved project is open, the screen holds a placeholder. It is nobody's work, and it must never be written.
@@ -348,7 +367,10 @@ export const useStudio = create<StudioState>((set, get) => {
     };
     // Another tab replaced the saved project: this tab knows it (it is not saving), or it never heard of it and finds out now.
     if (saved !== 'held' && !storedCopyChangedElsewhere()) {
-      if (text === lastSavedText) return true;
+      if (text === lastSavedText) {
+        keepRecentSave(text, project.name);
+        return true;
+      }
       clearTimeout(saveTimer);
       // The work goes into an entry of this page's own first, then into the saved project (see `keepLeavingCopy`). If the
       // saved project cannot be written, the entry of its own still holds the work, and the next opening lists it.
@@ -406,6 +428,7 @@ export const useStudio = create<StudioState>((set, get) => {
       if (outcome === 'page' || outcome === 'browser') {
         lastSavedText = text;
         lastSavedWhere = outcome;
+        lastSaveAt = performance.now();
       }
       return;
     }
@@ -426,6 +449,7 @@ export const useStudio = create<StudioState>((set, get) => {
     if (outcome !== 'failed') {
       lastSavedText = text;
       lastSavedWhere = outcome;
+      lastSaveAt = performance.now();
       // This page lives and its work is saved: an entry that it wrote while it seemed to be leaving has done its work.
       if (!seemsToLeave) dropLeavingCopy();
     }
@@ -438,7 +462,9 @@ export const useStudio = create<StudioState>((set, get) => {
   const livesOn = (): void => {
     if (!seemsToLeave) return;
     seemsToLeave = false;
-    if (get().ready && JSON.stringify(get().project) === lastSavedText) dropLeavingCopy();
+    // The entry goes only while storage still holds this tab's save. If another tab replaced it, the entry is the one place
+    // besides this screen that holds the work; the tab then stops saving (see `checkStored`).
+    if (get().ready && JSON.stringify(get().project) === lastSavedText && !storedCopyChangedElsewhere()) dropLeavingCopy();
   };
 
   const persist = (): void => {
@@ -765,8 +791,16 @@ export const useStudio = create<StudioState>((set, get) => {
       if (kept) set({ notice: kept });
       // A page that closed or reloaded while it could not save could tell nobody that it kept its unsaved work. Say it now.
       // (Both sources are asked, so that neither is left over for a later opening.)
-      else if ([takeKeptNote(), leftBehind > 0].some(Boolean)) {
-        set({ notice: { text: 'A page of the Studio closed or reloaded with work that it could not save. The Studio kept that page’s unsaved work as a copy; you find it on the Summary, under “Copies the Studio kept for you”.', actions: [{ label: 'Go to the Summary', run: () => get().go('summary') }] } });
+      else {
+        // Two causes, and each gets the words that are true of it. A page that was not saving kept its unsaved work as it
+        // left (it left a note). A page that did write the saved project left an entry of its own, and another page's write
+        // replaced that work in the same moment (finding F-18): "work that it could not save" would be untrue of it.
+        const keptNote = takeKeptNote();
+        const where = 'you find it on the Summary, under “Copies the Studio kept for you”.';
+        const text = leftBehind > 0
+          ? `A page of the Studio closed or reloaded, and its last work is not in the saved project: another page saved something else in the same moment, or the browser refused the save. The Studio kept that work as a copy; ${where}`
+          : keptNote ? `A page of the Studio closed or reloaded with work that it could not save. The Studio kept that page’s unsaved work as a copy; ${where}` : null;
+        if (text) set({ notice: { text, actions: [{ label: 'Go to the Summary', run: () => get().go('summary') }] } });
       }
       set({ focusTick: 0 });
     },
@@ -1062,7 +1096,10 @@ export const useStudio = create<StudioState>((set, get) => {
         return;
       }
       const text = JSON.stringify(get().project);
-      if (text === lastSavedText) return;
+      if (text === lastSavedText) {
+        keepRecentSave(text, get().project.name);
+        return;
+      }
       // The browser copy is written first, in this same instant; the page database follows if the page lives long enough.
       // Before that, the work goes into an entry of this page's own (see `keepLeavingCopy`); the save that follows removes it.
       seemsToLeave = true;

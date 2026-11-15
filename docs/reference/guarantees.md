@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.6. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
+Version 1.7. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
 
 Stale-after: 90
 
@@ -251,11 +251,11 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 <!-- index: closing in the same instant | leaving copy; race; two windows; see also: two tabs -->
 
-- **Rule.** A page that closes or goes to the background with a change it has not saved writes that work to a storage entry of its own, then to the saved project; the next opening removes the entry when the saved project holds the same work, and otherwise keeps it for good and says so. [S1 at D50]
-- **Test.** "puts unsaved work into an entry of the page’s own before a closing page writes the saved project, and settles it at the next opening"; "keeps for good, and reports, the work of a closing page that another page’s save replaced in the same moment"; "removes the entry of its own when the page lives on and has saved". [S3]
-- **Examples.** Two pages that close in the same instant cannot see each other's write. Before the repair, 8 of 24 such trials lost one page's change (campaign 4, finding F-18); after it, the attacker's script lost none in 48 trials.
-- **Open.** When storage has no room for the extra entry, the page writes the saved project as before, without this protection. The 48 trials ran in one browser on one machine.
-- Last verified: 2026-11-14
+- **Rule.** A page that closes or goes to the background with a change it has not saved writes that work to a storage entry of its own, then to the saved project. A page that closes or goes to the background within 2 seconds after its own save writes the entry too, and does not write the saved project again (finding F-18; `docs/reference/saving-table.md`, "Why 2 seconds"). In both cases the next opening removes the entry when the saved project holds the same work, and otherwise keeps it for good and says so. [S1 at D50]
+- **Test.** "puts unsaved work into an entry of the page’s own before a closing page writes the saved project, and settles it at the next opening"; "keeps for good, and reports, the work of a closing page that another page’s save replaced in the same moment"; "removes the entry of its own when the page lives on and has saved"; "saved a moment ago, and the tab goes to the background: the work goes into an entry of the page’s own, and the entry goes when the page lives on"; "saved more than 2 seconds ago, and the tab goes to the background or closes: nothing is written and nothing is kept"; "saved a moment ago, and the tab closes: the next opening removes the entry of its own when the saved project holds the same work"; "keeps for good, and reports, the saved work of a closing page that another page’s closing write replaced in the same moment (finding F-18)"; "saved a moment ago, with no room in storage for the entry of its own: the tab closes as before, and nothing fails". [S3]
+- **Examples.** Two pages that close in the same instant cannot see each other's write. Before the repair, 8 of 24 such trials lost one page's change (campaign 4, finding F-18); after it, the attacker's script lost none in 48 trials. A judge then measured 2 losses in 120 trials: a tab whose save had just landed wrote no entry. After the repair of 2026-11-15 the builder's own trial (two tabs rename in the same instant and close 270 to 310 milliseconds later) lost none in 240 trials; the same trial on the build before the repair lost 1 in 240.
+- **Open.** When storage has no room for the extra entry, the page writes the saved project as before, without this protection. Every trial ran in one browser on one machine; 1 loss in 240 against none in 240 is too few to prove the repair by counting, so the staged tests above carry the proof.
+- Last verified: 2026-11-15
 
 ### [10.14] A tab that finishes opening while another tab saved does not say "Saved" over a project that storage no longer holds
 
@@ -620,6 +620,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-15 v1.7: after the repair of finding F-18 (feature F001): §10.13 covers a page that closes within 2 seconds after its own save, and names five new tests and the trial's counts. 49 guarantees.
 - 2026-11-15 v1.6: after the owner's decisions of 2026-11-15 (decision D55): §10.01 states the status line after an Undo back to the stored project; §50.01 states when a design holds an Option whose second color follows, and names the new test; §60.04 states how a departure on purpose is recorded and shown; §70.03 names Dependabot's cooldown. 49 guarantees.
 - 2026-11-14 v1.5: after the reviews of 2026-11-14 (decision D54): §20.06 covers look-alike marks and invisible direction signs; §20.07 says which original is kept; §50.07 states the rule for offering a Skin; §70.03 states its exception. 49 guarantees.
 - 2026-11-14 v1.4: after the saving table, Skins, Overlays, and research rules (decisions D52, D53): added §10.14, §20.07, §30.06, §50.07, §50.08, §60.03, §60.04; §60.01 names the test under its new name. 49 guarantees.

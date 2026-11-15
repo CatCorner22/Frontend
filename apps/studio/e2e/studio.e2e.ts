@@ -1633,7 +1633,7 @@ describe('Studio: what the third round of campaign 4 found', () => {
       },
     });
     await page.waitForSelector('.cards');
-    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('closed or reloaded with work that it could not save');
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('its last work is not in the saved project');
     const kept = await keptCopies(page);
     expect(kept.map((copy) => [copy.state, copy.text])).toEqual([[undefined, lost]]);
     expect((await stored(page))?.name).toBe('Saved by the other page');
@@ -2692,4 +2692,97 @@ describe('Studio: plain words on every screen (decision D38, finding U2-03)', ()
     expect(requests).toEqual([]);
     await context.close();
   }, 120000);
+});
+
+describe('Studio: a save that another tab replaces in the same moment (finding F-18, SPEC.md section 2.1)', () => {
+  const state = (page: Page): Promise<string> => page.locator('.save-state').innerText();
+  const SAVED = 'Saved in this browser, on this computer';
+  const see = (page: Page, visibility: 'hidden' | 'visible'): Promise<void> =>
+    page.evaluate((value) => {
+      Object.defineProperty(document, 'visibilityState', { value, configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    }, visibility);
+  const leftEntries = async (page: Page): Promise<(string | undefined)[][]> =>
+    (await keptCopies(page)).map((copy) => [copy.state, (JSON.parse(copy.text) as Project).name]);
+  /** A tab that has just saved a change: the status line says so, and the save is younger than 2 seconds. */
+  const justSaved = async (name: string): Promise<{ context: BrowserContext; page: Page }> => {
+    const opened = await open({ storage: { [LOCAL_KEY]: envelope(worked('Before')) } });
+    await opened.page.waitForSelector('.cards');
+    await opened.page.locator('#project-name').fill(name);
+    await expect.poll(() => state(opened.page), { interval: 50 }).toBe(SAVED);
+    return opened;
+  };
+
+  it('saved a moment ago, and the tab goes to the background: the work goes into an entry of the page’s own, and the entry goes when the page lives on', async () => {
+    const { context, page } = await justSaved('Saved, then hidden');
+    const before = await rawStored(page, LOCAL_KEY);
+    await see(page, 'hidden');
+    expect(await leftEntries(page)).toEqual([['leaving', 'Saved, then hidden']]);
+    // The saved project is not written a second time.
+    expect(await rawStored(page, LOCAL_KEY)).toBe(before);
+    await see(page, 'visible');
+    expect(await keptCopies(page)).toEqual([]);
+    expect(await state(page)).toBe(SAVED);
+    await context.close();
+  });
+
+  it('saved more than 2 seconds ago, and the tab goes to the background or closes: nothing is written and nothing is kept', async () => {
+    const { context, page } = await justSaved('Saved long ago');
+    await page.waitForTimeout(2100);
+    const before = await rawStored(page, LOCAL_KEY);
+    await see(page, 'hidden');
+    expect(await keptCopies(page)).toEqual([]);
+    await page.close({ runBeforeUnload: true });
+    const look = await context.newPage();
+    await look.goto(blankUrl.href);
+    expect(await keptCopies(look)).toEqual([]);
+    expect(await rawStored(look, LOCAL_KEY)).toBe(before);
+    await context.close();
+  });
+
+  it('saved a moment ago, and the tab closes: the next opening removes the entry of its own when the saved project holds the same work', async () => {
+    const { context, page } = await justSaved('Saved, then closed');
+    await page.close({ runBeforeUnload: true });
+    const look = await context.newPage();
+    await look.goto(blankUrl.href);
+    expect(await leftEntries(look)).toEqual([['leaving', 'Saved, then closed']]);
+    expect((await stored(look))?.name).toBe('Saved, then closed');
+    await look.goto(pageUrl);
+    await look.waitForSelector('.cards');
+    expect(await keptCopies(look)).toEqual([]);
+    expect(await look.locator('.banner').count()).toBe(0);
+    await context.close();
+  });
+
+  it('keeps for good, and reports, the saved work of a closing page that another page’s closing write replaced in the same moment (finding F-18)', async () => {
+    const { context, page } = await justSaved('Saved by tab B');
+    await page.close({ runBeforeUnload: true });
+    // Tab A's closing write lands a few milliseconds after tab B's save, and tab B could not see it. The test stages that write.
+    const look = await context.newPage();
+    await look.goto(blankUrl.href);
+    await look.evaluate(([key, value]) => window.localStorage.setItem(key!, value!), [LOCAL_KEY, envelope(worked('Written by tab A'), '2026-11-15T10:00:00.000Z')]);
+    await look.goto(pageUrl);
+    await look.waitForSelector('.cards');
+    expect(await look.locator('.banner:not(.hold)').innerText()).toContain('its last work is not in the saved project');
+    expect(await leftEntries(look)).toEqual([[undefined, 'Saved by tab B']]);
+    expect((await stored(look))?.name).toBe('Written by tab A');
+    // The Summary lists the copy with a reason that is true of it, and a second opening says nothing more.
+    await look.locator('.banner:not(.hold)').getByRole('button', { name: 'Go to the Summary' }).click();
+    await look.waitForSelector('.kept-copies');
+    expect(await look.locator('.kept-copies').innerText()).toContain('saved it a moment before that page closed');
+    await look.reload();
+    await look.waitForSelector('main');
+    expect(await look.locator('.banner').count()).toBe(0);
+    await context.close();
+  });
+
+  it('saved a moment ago, with no room in storage for the entry of its own: the tab closes as before, and nothing fails', async () => {
+    const { context, page } = await justSaved('No room');
+    expect(await fillStorage(page, 0)).toBe(true);
+    await see(page, 'hidden');
+    expect(await keptCopies(page)).toEqual([]);
+    expect(await state(page)).toBe(SAVED);
+    expect((await stored(page))?.name).toBe('No room');
+    await context.close();
+  });
 });

@@ -99,7 +99,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
-No feature session has ended yet. Next feature to build: F001.
+- Date: 2026-11-15
+- Feature worked on (ID): F001 (finding C4-F18: a save that another tab replaces in the same moment)
+- Result: passes
+- Commits: the commit "F001: ..." that holds this entry
+- Evidence: `npm run check`: 191 unit tests passed. `npm run e2e`: 271 browser tests passed (2 files, 1,145 seconds). Tests first: of the five new tests, three failed before the repair. One older test failed on the first full run, because a changed notice was untrue of a second cause; each cause now has its own words, and the older test is unchanged. Race trial outside the automatic tests: 1 loss in 240 before, 0 in 240 after.
+- Open problems for the next session: no independent review (the helper reviewer was refused by the session's permission check; the builder reviewed its own changes line by line). Whether the running session obeys the new hooks is unconfirmed.
+- Next feature to build (ID): F002 (the typefaces Playfair and Literata)
 
 ## Next
 
