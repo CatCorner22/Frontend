@@ -6,7 +6,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 **The one-minute picture.** The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, and read the result back on a Summary with five research rules. It saves reliably. It does not yet export anything to build from (milestone M6) and has no Fitter (M7). Milestone M4 is open and waits for one thing that only the owner can do: the trial in `docs/trial-guide.md`.
 
-**Where the work is.** The main line is `claude/brave-mayer-sawqz9`. The session of 2026-11-15 works on `claude/festive-mendel-lfnahh`, with a draft pull request into the main line. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc; its version number is in `WAYPOINTS.md`.
+**Where the work is.** The main line is `claude/brave-mayer-sawqz9`. The session of 2026-11-15 works on `claude/festive-mendel-lfnahh`, with the draft pull request CatCorner22/Frontend#9 into the main line. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc, Version 15 since 2026-11-15 (the build of commit `d7f2156`).
 
 **First commands of a new session.**
 1. `npm ci --ignore-scripts` (about 5 seconds).
