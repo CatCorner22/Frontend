@@ -1,12 +1,19 @@
 # Dependabot proposes updates; it merges nothing. A proposed version is adopted only after the 7-day waiting period (decision D27).
+# "cooldown" makes Dependabot itself wait: it proposes a version update only 7 days after the release (finding S2-06).
+# The wait covers version updates only; a security update is proposed at once, which is the exception that D27 names.
+# Source, read on 2026-11-15: the Dependabot options reference in the repository github/docs (section "cooldown").
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7

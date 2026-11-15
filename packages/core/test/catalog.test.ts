@@ -108,7 +108,7 @@ describe('Catalog: plain words, and one name for one thing (decision D38, findin
       for (const option of step.options) add(`${step.id}/${option.id}`, option.label, option.what, option.chooseWhen, option.risk, option.exemplar?.text, option.warn?.text);
       for (const variation of closerOptions(createProject(), step.id)) add(`${step.id}, small variation`, variation.label);
     }
-    for (const d of DIRECTIONS) add(d.id, d.mood, d.bestFor, d.risk, describeDesign(d.params));
+    for (const d of DIRECTIONS) add(d.id, d.mood, d.bestFor, d.risk, describeDesign(d.params), ...(d.departs ?? []).map((x) => x.why));
     for (const d of generateDirections(20261113, 6)) add('a generated Direction', d.name, d.mood);
     for (const rule of RULES) add(rule.id, rule.text);
     for (const font of Object.values(FONTS)) add(`font ${font.id}`, font.character);
@@ -298,7 +298,7 @@ describe('Catalog: rules about how Decisions fit together', () => {
     'statement-emphasis': { hero: 'statement', emphasis: 'action' },
     'narrow-split': { contentWidth: 'narrow', hero: 'split-media' },
     'caps-dramatic': { headingCase: 'upper', scaleRatio: 1.42 },
-    'outline-delicate': { signature: 'outline-type', fontHeading: 'playfair-display' },
+    'outline-delicate': { signature: 'outline-type', fontHeading: 'playfair' },
     'sticker-finish': { elevation: 'hard-shadow', buttonFinish: 'gloss' },
     'sheen-thin': { displayTreatment: 'ink-gradient', headingWeight: 400 },
     'purple-aurora': { atmosphere: 'aurora', theme: 'dark', accentHue: 292 },
@@ -581,6 +581,8 @@ describe('Research rules: findings turned into numbers that a design can be meas
     const departures = DIRECTIONS.flatMap((d) => report(d.params).filter((r) => !r.holds).map((r) => `${d.id}: ${r.rule.id}`));
     // "Control Room" is a dense working screen; its text-size Option says of itself "Small for older eyes on a public site".
     expect(departures).toEqual(['control-room: reading-size']);
+    // Each departure carries its reason as a record, and no record stands without a departure (finding U5-16).
+    expect(DIRECTIONS.flatMap((d) => (d.departs ?? []).map((x) => `${d.id}: ${x.ruleId}`))).toEqual(departures);
   });
 
   it('says "does not hold", with the number, when a design breaks a rule', () => {

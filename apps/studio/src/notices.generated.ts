@@ -85,6 +85,15 @@ export const NOTICES: readonly Notice[] = [
     repository: 'https://github.com/fontsource/font-files',
   },
   {
+    name: 'Literata (@fontsource-variable/literata)',
+    version: '5.3.0',
+    kind: 'font',
+    license: 'OFL-1.1',
+    copyright: ['Copyright 2017 The Literata Project Authors (https://github.com/googlefonts/literata)'],
+    reservedFontNames: [],
+    repository: 'https://github.com/fontsource/font-files',
+  },
+  {
     name: 'Manrope (@fontsource-variable/manrope)',
     version: '5.3.0',
     kind: 'font',
@@ -112,12 +121,15 @@ export const NOTICES: readonly Notice[] = [
     repository: 'https://github.com/fontsource/font-files',
   },
   {
-    name: 'Playfair Display (@fontsource-variable/playfair-display)',
+    name: 'Playfair (@fontsource-variable/playfair)',
     version: '5.3.0',
     kind: 'font',
     license: 'OFL-1.1',
-    copyright: ['Copyright 2017 The Playfair Display Project Authors (https://github.com/clauseggers/Playfair-Display), with Reserved Font Name "Playfair Display".'],
-    reservedFontNames: ['Playfair Display'],
+    copyright: [
+      'Copyright 2005 The Playfair Project Authors (https://github.com/clauseggers/Playfair)',
+      'Copyright 2005 The Playfair Project Authors (https://github.com/googlefonts/Playfair) (from the licence file of the npm package; the font file itself gives a different notice)',
+    ],
+    reservedFontNames: [],
     repository: 'https://github.com/fontsource/font-files',
   },
   {
@@ -127,18 +139,6 @@ export const NOTICES: readonly Notice[] = [
     license: 'OFL-1.1',
     copyright: ['Copyright 2015 The Public Sans Project Authors (https://github.com/uswds/public-sans)'],
     reservedFontNames: [],
-    repository: 'https://github.com/fontsource/font-files',
-  },
-  {
-    name: 'Source Serif 4 (@fontsource-variable/source-serif-4)',
-    version: '5.3.1',
-    kind: 'font',
-    license: 'OFL-1.1',
-    copyright: [
-      '© 2014 - 2021 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name ‘Source’.',
-      'Google Inc. (from the licence file of the npm package; the font file itself gives a different notice)',
-    ],
-    reservedFontNames: ['Source'],
     repository: 'https://github.com/fontsource/font-files',
   },
   {

@@ -1,0 +1,65 @@
+{
+  "features": [
+    {
+      "id": "F001",
+      "description": "A tab that closes or goes to the background within 2 seconds after its own save keeps its work in an entry of its own, so that another tab's write in the same moment cannot lose it (finding C4-F18).",
+      "spec_section": "SPEC.md section 2.1",
+      "steps": [
+        "Open the Studio with a saved project, change the project's name, wait until the status line says Saved, and close the tab at once",
+        "Look at the browser's storage from a blank page: one entry in the state 'leaving' holds the changed project, and the saved project holds it too",
+        "Open the Studio again: the entry is gone and no notice appears",
+        "Repeat, but replace the saved project with another project before the Studio opens again: the Studio shows a notice, and the Summary lists the changed project as a kept copy"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F002",
+      "description": "The Studio draws headings in Playfair and reading text in Literata in place of the two typefaces that reserve their names, and a saved project that names a replaced typeface opens with the replacement, a notice, and a kept copy.",
+      "spec_section": "SPEC.md section 2.2",
+      "steps": [
+        "Start a project, go to the Step 'Letter style', and pick 'Elegant thick-and-thin headings': the heading in the preview is drawn in Playfair",
+        "Pick 'Letters with small feet throughout': headings and reading text are drawn in Literata",
+        "Open the Licences screen: it lists Playfair and Literata, and lists neither Playfair Display nor Source Serif 4",
+        "Open the Studio on a stored project that names 'playfair-display' and 'source-serif-4': a notice names both swaps, and the Summary lists the project as it was among the kept copies",
+        "Reload: no notice appears"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F003",
+      "description": "The core holds the record of a Direction of the owner's own: it makes one from a project, checks and cleans one that comes from storage or a file, refuses what cannot stand, and reads and writes a set of them as one file.",
+      "spec_section": "SPEC.md section 2.3",
+      "steps": [
+        "Run the unit tests of the core: a record made from a project holds the project's design values, a name, three texts, and a date",
+        "A record with an empty name, a name already in use, a text over its limit, markup, or a value outside what the Studio can set is refused or cleaned as section 2.3 states",
+        "A set written as a file and read back equals the set; a file that is not such a set is refused with a plain sentence"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F004",
+      "description": "The owner keeps the design on screen as a Direction of the owner's own from the Summary, sees it under \"Your own\" on the Directions screen after a reload, and starts a project from it that holds exactly the kept design.",
+      "spec_section": "SPEC.md section 2.3",
+      "steps": [
+        "Open the Summary of a project, press \"Keep this design as a Direction of my own\", type a name and the three texts, and confirm",
+        "Reload and open the Directions screen: a group \"Your own\" shows the Direction with its picture, its texts, and the line \"Your own; no source, not reviewed\"",
+        "Start a project from it: the stored design values equal the kept ones, value by value",
+        "Type markup and script into each field: the screen shows them as text, and nothing runs",
+        "Fill the browser's storage and keep a Direction: the Studio says that it could not keep it"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F005",
+      "description": "The owner renames and removes a Direction of the owner's own, downloads all of them as one file, and opens such a file in a browser that holds none.",
+      "spec_section": "SPEC.md section 2.3",
+      "steps": [
+        "Rename an own Direction: the card and any project that started from it show the new name",
+        "Remove it: the Studio asks first; after \"Yes, remove it for good\" the card is gone, and a project that started from it says that it started from a Direction of your own that you removed",
+        "Download the file of own Directions, clear the browser's storage, and open the file: the Directions are back, and a notice says how many were added",
+        "Open the same file again: none is added twice, and the notice says so"
+      ],
+      "passes": false
+    }
+  ]
+}

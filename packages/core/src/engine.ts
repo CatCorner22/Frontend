@@ -7,7 +7,7 @@ import { skinsOf } from './catalog/skins.js';
 import { CONFLICT_RULES, HARMONY_RULES } from './catalog/rules.js';
 import { STEPS, findStep } from './catalog/steps.js';
 import type { Option, Step, Tunable } from './catalog/types.js';
-import { A11Y_PROFILES, DEFAULT_PARAMS, PARAM_RANGES, PARAM_VALUES, assertKnownParams, type A11yProfile, type DesignParams } from './params.js';
+import { A11Y_PROFILES, DEFAULT_PARAMS, FONTS, PARAM_RANGES, PARAM_VALUES, RETIRED_FONTS, assertKnownParams, type A11yProfile, type DesignParams } from './params.js';
 import { SAMPLE_CONTENT, type SiteContent } from './templates/smallBusiness.js';
 import { deriveTokens, type DerivedTokens } from './tokens.js';
 
@@ -104,6 +104,31 @@ export function matchingOptionId(params: DesignParams, step: Step): string | nul
     if ((Object.keys(patch) as (keyof DesignParams)[]).every((key) => same(patch[key], params[key]))) return option.id;
   }
   return null;
+}
+
+/**
+ * The Option that a Step holds: the Option that the design matches, unless the match is a coincidence.
+ *
+ * An Option such as "Two colors: a third of the wheel apart" is a relation: its second color follows the main color. A design
+ * with a fixed second color can match that relation for one hue of the main color and stop matching at the next change. Such a
+ * design does not hold the Option. A kept Decision used to be recorded and shown under the Option's name for that moment, and
+ * lost the name again at the next change of the main color, both times without a word (campaign 4, finding F-24; the owner's
+ * decision D55: a kept Decision stays as kept until the owner picks an Option).
+ *
+ * The design holds a following Option in two cases only, the same two in which `rederive` makes it follow: the owner picked on
+ * that Step, or there is no hand-set Decision and the starting design matches the same Option.
+ */
+function heldId(params: DesignParams, base: DesignParams, kind: DecisionKind | undefined, step: Step): string | null {
+  const id = matchingOptionId(params, step);
+  if (id === null || !step.options.find((o) => o.id === id)?.derive) return id;
+  if (kind === 'picked') return id;
+  if (kind === 'tuned') return null;
+  return matchingOptionId(base, step) === id ? id : null;
+}
+
+/** The Option that a Step of this project holds (see `heldId`), or null when the Step's values are the owner's own or a fixed value. */
+export function heldOptionId(project: Pick<Project, 'params' | 'base' | 'decisions'>, step: Step): string | null {
+  return heldId(project.params, project.base, project.decisions[step.id]?.kind, step);
 }
 
 const WIREFRAME: Partial<DesignParams> = {
@@ -203,11 +228,11 @@ function rederive(before: Project, after: Project, actedStepId: string): Project
     params = { ...params, [derive.key]: value };
     changed = true;
   }
-  // Every Decision names the Option that the design matches now, and holds the values that the design has now.
+  // Every Decision names the Option that the design holds now, and holds the values that the design has now.
   for (const [stepId, decision] of Object.entries(decisions)) {
     const step = findStep(stepId);
     if (!step) continue;
-    const optionId = matchingOptionId(params, step);
+    const optionId = heldId(params, after.base, decision.kind, step);
     const values = ownedValues(step, params);
     // A Decision never lists as rejected the Option that it holds. A slider moved onto the exact value of an Option that was
     // rejected earlier would otherwise leave a record that contradicts itself; opening the saved project then "corrected" it
@@ -221,7 +246,7 @@ function rederive(before: Project, after: Project, actedStepId: string): Project
 }
 
 function withDecision(project: Project, step: Step, params: DesignParams, decision: Omit<Decision, 'stepId' | 'values' | 'optionId'>): Project {
-  const full: Decision = { ...decision, stepId: step.id, optionId: matchingOptionId(params, step), values: ownedValues(step, params) };
+  const full: Decision = { ...decision, stepId: step.id, optionId: heldId(params, project.base, decision.kind, step), values: ownedValues(step, params) };
   return rederive(project, { ...project, params, decisions: { ...project.decisions, [step.id]: full } }, step.id);
 }
 
@@ -318,6 +343,17 @@ export function revert(project: Project, stepId: string): Project {
   if (follows) params = { ...params, [follows.key]: hueTurn(params[follows.from], follows.turn) };
   const decisions = Object.fromEntries(Object.entries(project.decisions).filter(([id]) => id !== stepId));
   return rederive(project, { ...project, params, decisions }, stepId);
+}
+
+/**
+ * Why this project's start departs from a research rule on purpose, in plain words; null when it does not. It answers only
+ * while the Step's values that the start gave still stand: once the owner changes them, the result is the owner's own.
+ */
+export function startDeparture(project: Pick<Project, 'direction' | 'params' | 'base'>, ruleId: string, ownedBy: Step | undefined): string | null {
+  const why = (project.direction ? findDirection(project.direction) : undefined)?.departs?.find((d) => d.ruleId === ruleId)?.why;
+  if (!why) return null;
+  if (ownedBy && JSON.stringify(ownedValues(ownedBy, project.params)) !== JSON.stringify(ownedValues(ownedBy, project.base))) return null;
+  return why;
 }
 
 /** The Overlays that are switched on, in the Catalog's order. */
@@ -436,7 +472,7 @@ export interface Conflict {
   message: string;
 }
 
-const DELICATE_FACES = new Set<string>(['playfair-display', 'newsreader', 'fraunces', 'source-serif-4', 'system-serif']);
+const DELICATE_FACES = new Set<string>(['playfair', 'newsreader', 'fraunces', 'literata', 'system-serif']);
 
 /** When each conflict rule applies. The rule's text, source, and review date are Catalog records in `catalog/rules.ts`. */
 export const CONFLICT_TESTS = new Map<string, (p: DesignParams) => boolean>([
@@ -779,7 +815,7 @@ function migrateV1(raw: Record<string, unknown>): unknown {
  * the slider's end ("22px" for 30), kept it as a Decision under that wrong description, and its sliders could not move it
  * (campaign 4, round 3). So opening brings such a value to the nearest one that the Studio can set, and says so.
  */
-function withinReach(params: DesignParams): { params: DesignParams; moved: number } {
+export function withinReach(params: DesignParams): { params: DesignParams; moved: number } {
   let out = params;
   let moved = 0;
   for (const step of STEPS) {
@@ -818,7 +854,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
       continue;
     }
     const optionIds = step.options.map((o) => o.id);
-    const optionId = matchingOptionId(params, step);
+    const optionId = heldId(params, base, d.kind, step);
     let kind: DecisionKind = d.kind;
     if (kind === 'picked' && optionId === null) {
       // The file records a pick, and its design values match no Option: the picked Option no longer exists in the Catalog, or
@@ -864,13 +900,55 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   return { project, notes };
 }
 
+const FONT_KEYS = ['fontHeading', 'fontBody'] as const;
+
+/**
+ * One set of design values with the standing typeface in the place of each replaced one (see `RETIRED_FONTS`). The values
+ * themselves are not changed. `found` collects the replaced typefaces that the values named.
+ */
+export function currentFonts(values: Record<string, unknown>, found?: Set<string>): Record<string, unknown> {
+  const next = { ...values };
+  for (const key of FONT_KEYS) {
+    const id = next[key];
+    if (typeof id !== 'string' || !Object.hasOwn(RETIRED_FONTS, id)) continue;
+    found?.add(id);
+    next[key] = RETIRED_FONTS[id]!.now;
+  }
+  return next;
+}
+
+/**
+ * The same swap in every part of a project file that holds design values: the design, the starting design, and each
+ * Decision's values. Returns the replaced typefaces that the file named, so that the Studio can say what it did.
+ */
+function replaceRetiredFonts(file: Record<string, unknown>): { file: Record<string, unknown>; retired: string[] } {
+  const found = new Set<string>();
+  const swap = (values: unknown): unknown => (isRecord(values) ? currentFonts(values, found) : values);
+  const decisions = isRecord(file['decisions'])
+    ? Object.fromEntries(Object.entries(file['decisions']).map(([id, d]) => [id, isRecord(d) ? { ...d, values: swap(d['values']) } : d]))
+    : file['decisions'];
+  const swapped = { ...file, params: swap(file['params']), base: swap(file['base']), decisions };
+  return { file: swapped, retired: Object.keys(RETIRED_FONTS).filter((id) => found.has(id)) };
+}
+
+/** The sentence that says which typefaces opening replaced. */
+function retiredFontsNote(retired: string[]): string {
+  const quote = (names: string[]): string => names.map((name) => `“${name}”`).join(' and ');
+  const was = quote(retired.map((id) => RETIRED_FONTS[id]!.label));
+  const now = quote(retired.map((id) => FONTS[RETIRED_FONTS[id]!.now].label));
+  return retired.length === 1
+    ? `This project used the typeface ${was}, which the Studio no longer carries. It now shows ${now} in its place; nothing else changed.`
+    : `This project used the typefaces ${was}, which the Studio no longer carries. It now shows ${now} in their place; nothing else changed.`;
+}
+
 /** Check a saved or imported project. Anything that does not match the format is refused; references to the Catalog are recomputed. */
 export function parseProject(input: unknown): ParseResult {
   if (!isRecord(input)) return { ok: false, error: NOT_A_PROJECT };
   const version = input['schemaVersion'];
   if (typeof version !== 'number' || !Number.isInteger(version) || version < 1) return { ok: false, error: NOT_A_PROJECT };
   if (version > SCHEMA_VERSION) return { ok: false, error: NEWER_VERSION };
-  const candidate = version === 1 ? migrateV1(input) : input;
+  const current = version === 1 ? migrateV1(input) : input;
+  const { file: candidate, retired } = isRecord(current) ? replaceRetiredFonts(current) : { file: current, retired: [] };
   const result = projectSchema.safeParse(candidate);
   if (!result.success) {
     const head = result.error.issues[0]?.path[0];
@@ -881,7 +959,7 @@ export function parseProject(input: unknown): ParseResult {
   }
   try {
     const { project, notes } = normalize(result.data, version !== SCHEMA_VERSION);
-    return { ok: true, project, migratedFrom: version === SCHEMA_VERSION ? null : version, notes };
+    return { ok: true, project, migratedFrom: version === SCHEMA_VERSION ? null : version, notes: retired.length > 0 ? [retiredFontsNote(retired), ...notes] : notes };
   } catch {
     return { ok: false, error: 'The file does not match the project format. The problem is in the part that holds the design values.' };
   }

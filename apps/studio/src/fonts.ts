@@ -7,12 +7,13 @@ import fraunces from '@fontsource-variable/fraunces/files/fraunces-latin-wght-no
 import instrument from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?inline';
 import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?inline';
 import jetbrains from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?inline';
+import literata from '@fontsource-variable/literata/files/literata-latin-wght-normal.woff2?inline';
 import manrope from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?inline';
 import newsreader from '@fontsource-variable/newsreader/files/newsreader-latin-wght-normal.woff2?inline';
 import outfit from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?inline';
-import playfair from '@fontsource-variable/playfair-display/files/playfair-display-latin-wght-normal.woff2?inline';
+// Playfair ships with its size axis: the browser sharpens the strokes of large text and thickens those of small text by itself.
+import playfair from '@fontsource-variable/playfair/files/playfair-latin-opsz-normal.woff2?inline';
 import publicSans from '@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2?inline';
-import sourceSerif from '@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2?inline';
 import spaceGrotesk from '@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2?inline';
 
 const DATA: Partial<Record<FontId, string>> = {
@@ -22,12 +23,12 @@ const DATA: Partial<Record<FontId, string>> = {
   'instrument-sans': instrument,
   inter,
   'jetbrains-mono': jetbrains,
+  literata,
   manrope,
   newsreader,
   outfit,
-  'playfair-display': playfair,
+  playfair,
   'public-sans': publicSans,
-  'source-serif-4': sourceSerif,
   'space-grotesk': spaceGrotesk,
 };
 

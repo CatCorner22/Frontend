@@ -215,6 +215,7 @@ select, .name, .project-text {
 .research-list > li { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-control, 0.5rem); background: var(--surface); }
 .research-list > li[data-holds="false"] { border-left-width: 4px; border-left-color: var(--text); }
 .research-list .found { color: var(--text-muted); }
+.research-list .on-purpose { margin: 0.375rem 0 0; }
 .tune { font-size: 0.875rem; display: grid; gap: 0.5rem; padding-bottom: 1.5rem; }
 .slider { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 0.125rem 0.5rem; margin-top: 0.75rem; }
 .slider-name { font-weight: 600; }

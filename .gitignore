@@ -3,3 +3,7 @@ dist/
 
 # Private working copies that review helpers use; never part of the repository.
 .claude/worktrees/
+
+# The verified build loop keeps a record per machine (timestamps differ on each).
+.claude/verify-lock.json
+__pycache__/

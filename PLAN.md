@@ -1,6 +1,6 @@
 # Plan: "Refraction" — your personal design studio and fitter for LLM-built frontends
 
-**Version 2, 2026-11-14.** Version 1 (2026-11-13) is in the repository's history. Section 10 lists what changed and why. "Refraction" is a placeholder name (the eye-exam procedure). You can rename it at any time.
+**Version 3, 2026-11-15.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Refraction" is a placeholder name (the eye-exam procedure). You can rename it at any time.
 
 **How to read this plan.** Sections 1 to 3 say why the tool exists. Section 4 is the map of the forest: every part of the tool and its state today. Sections 5 to 7 say what it is built from. Section 8 holds the milestones. Section 9 lists what can go wrong. Each statement about the present says "built", "being built", or "not built".
 
@@ -63,6 +63,7 @@ A rule graded C or D is shown as opinion or folklore, never as science.
 | # | Screen | What you do there | State |
 |---|---|---|---|
 | 1 | Directions | Pick a complete starting look from four groups (light and calm; dark and dramatic; warm and nostalgic; bold and playful), or let the Studio compose six more at random, or start plain | built |
+| 1b | Direction Creator | Make a Direction of your own: start from any Direction or from the design on screen, name it, describe it, and keep it. It then appears among the Directions, in a group "Your own" (section 4.7) | not built (milestone M4D) |
 | 1a | Skin | On a Direction's card, pick one of its pre-built skins: other colors, with or without a color fade in the headline | built; a Skin is chosen when a project starts, and the project records its name |
 | 2 | Steps | 23 Steps in two stages (6 for layout, in gray; 17 for look and feel). On each: compare cards, pick one, fine-tune with sliders, ask for small variations, write a reason, decide later, undo, or put the Step back | built |
 | 3 | Overlays | Switch small helpers on or off; the preview draws each one open, in your design | built |
@@ -108,6 +109,31 @@ Files: `PRESCRIPTION.md`, `DESIGN.md`, `tokens.json`, `tokens.css`, a shadcn the
 
 ### 4.6 Protection against your own sameness (M12)
 A **taste ledger** records the Decisions of every past project. When a new project repeats a past combination, the Studio says so and offers the nearest unused alternatives. The random Directions (built) and the Skins (built) already widen the range.
+
+### 4.7 The Direction Creator (milestone M4D; you asked for it on 2026-11-15)
+
+**What it is.** A way for you to add Directions yourself, without a chat with the builder. Today only the builder can add a Direction, as a record in the Catalog.
+
+**Why it exists.** You want more Directions. Each one that the builder adds costs a session; each one that you make costs minutes, and it is yours.
+
+**Its smallest useful form.**
+1. A button on the Summary and on the Directions screen: "Keep this design as a Direction of my own".
+2. You give it a name and three short texts (the mood, what it is best for, what to watch for). The Studio proposes the mood text from the design's values, as it does for the random Directions.
+3. The Direction appears in a group "Your own" on the Directions screen, with its card picture, and starts a project exactly like a built-in Direction.
+4. You can rename it, remove it (in two steps, as for a kept copy), and download or open all of your own Directions as one file.
+
+**What is left out on purpose.** No sharing with other people. No Direction written by an AI inside the Studio. No Skins for your own Directions in the first version. No new Options: a Direction of your own is composed from the values that the Steps and sliders can already set.
+
+**What can go wrong, and the answer.**
+| Risk | Answer |
+|---|---|
+| A name or text of yours carries markup or script | Text renders as text; the same cleaning as for a project name; the break-it tests cover the new file |
+| A Direction of your own starts with a contrast warning or with Decisions that pull against each other | The Studio says so on the card before you keep it; it does not forbid it ("the brief always wins") |
+| Your own Directions are lost with the browser's storage | They are stored like kept copies, and one file holds them all; the Summary reminds you to download it |
+| A later version of the Studio lacks an Option that your Direction uses | The same rule as for a project file: the value is brought to the nearest one the Studio can set, with a note |
+| It reads as reviewed research | Its card says "Your own; no source, not reviewed", never an evidence grade |
+
+**Exit test.** You make one Direction of your own on the private page; it survives a reload and a download-and-open; a project started from it draws pixel for pixel what you kept; hostile text in every field stays inert.
 
 ## 5. Templates (Mockup families) and their order
 
@@ -156,12 +182,17 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M2 | Core engine | Unit tests pass; the core imports no React | met (163 unit tests) |
 | M3 | Preview and Template 1 Mockup | One change alters one variable (pixel test) | met; one part open: nobody has confirmed that the private page shows the pictures |
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
+| M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | not started; you asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
 | M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52) |
 | M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | not started |
 | M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | not started |
 | M8 | **Your first real project, end to end**; hardening | You judge the result; red-team blockers at zero | not started |
 | M9–M11 | Templates 2, 3, 4 | Same tests as M5–M7 per Template | not started |
 | M12 | Taste ledger; `/fit-suggest` | The repeat-combination warning works across two projects | not started |
+
+**Progress on 2026-11-15.** You settled 24 open decisions (D55). Repaired, checks pending or passed as `PROGRESS.md` states: the status line after an Undo (F-23), a kept Decision stays "kept" (F-24), the "Control Room" sentence (U5-16), Dependabot's 7-day wait (S2-06). Approved and next: the repair for C4-F18, and the typefaces Playfair and Literata in place of Playfair Display and Source Serif 4.
+
+**The verified build loop (your skill, loaded on 2026-11-15, decision D56).** From its set-up on, hooks (small programs that Claude Code runs by itself) stop the builder from ending a turn while `npm run check` fails, and run `npm run e2e` when a feature is marked as passing. `SPEC.md` states the requirements of the work in hand and points to this plan; `feature_list.json` lists the features, each marked as passing or not. This plan stays the one plan.
 
 **Backstops against drift.** `PLAN.md` (this plan), `CLAUDE.md` (standing rules and defined terms), `DECISIONS.md` (every departure, with your approval), `PROGRESS.md` (where the work stands and what is unverified), `WAYPOINTS.md` (commits to return to). CI runs type check, lint, the boundary rule, unit tests, and browser tests on every push. No milestone is marked complete on a red run, and no test is skipped or weakened to get green.
 
@@ -171,7 +202,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 - *Code review swarms* for code quality: reviewers per area, a second set that tries to refute each finding, repairs only for what survives.
 - *What these cost:* rounds 1 and 2 of the campaign used about 1.0 and 0.7 million tokens (measured); round 3 about 0.75 million (0.33 million measured after a restart, the rest estimated); the nine-reviewer code review about 1.8 million (measured). Reviewers and judges are AI agents; their grades are judgments, not measurements.
 
-**Waypoints.** After every unit of work: commit and push to `claude/brave-mayer-sawqz9`. At every milestone: a row in `WAYPOINTS.md`. The Drive backup (D26) has not worked so far: the file is larger than the connector accepts; you decide whether to split it, skip it, or rely on GitHub.
+**Waypoints.** After every unit of work: commit and push to `claude/brave-mayer-sawqz9`. At every milestone: a row in `WAYPOINTS.md`. You retired the Drive backup (D26) on 2026-11-15: GitHub is the only backup (decision D55).
 
 ## 9. What can go wrong, and the response
 
@@ -206,6 +237,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Break-it campaigns and code review swarms joined the three reviewers | You asked to test the Studio to break it | D43, D48 |
 | Skins, Overlays, Japanese minimalism, and research rules enter the plan; Overlays and research rules start before M4's exit test | You asked for them on 2026-11-14 | D52 |
 | Your verification rules | You stated them on 2026-11-14 | D52 |
+| Version 3: the Direction Creator (section 4.7, milestone M4D); the verified build loop; the defined terms "Direction" and "Research rule"; the Drive backup retired | You asked for them on 2026-11-15 | D55, D56 |
 
 ## 11. File and research status
 
@@ -229,7 +261,8 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 ## 13. Next actions
 
-1. **Now (this unit of work):** Skins; Japanese minimalism as Directions and Skins; the first six Overlays; research rules from the knowledge base; then the review swarm, a judge for the round-3 repairs, and the three reviewers.
-2. **You:** the trial (`docs/trial-guide.md`), and your yes or no on the open decisions listed in `PROGRESS.md`.
-3. **Then M5:** your own content in every preview; the craft layer; the floors; an inner page.
-4. **Then M6:** the Prescription. From that point the Studio produces something you can build from.
+1. **Now (this unit of work):** commit the repairs F-23, F-24, and U5-16; set up the verified build loop; then, one feature at a time, the C4-F18 repair and the two typefaces.
+2. **You:** the trial (`docs/trial-guide.md`). You settled the open decisions on 2026-11-15 (decision D55).
+3. **Then M4D:** the Direction Creator.
+4. **Then M5:** your own content in every preview; the craft layer; the floors; an inner page.
+5. **Then M6:** the Prescription. From that point the Studio produces something you can build from.

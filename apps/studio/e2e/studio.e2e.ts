@@ -1014,7 +1014,7 @@ describe('Studio: a stopped save stays answerable, and no tab loses its work to 
     await context.close();
   });
 
-  it('settles the status line when a save has nothing to write, and keeps saying that storage is full while it is (finding F-7)', async () => {
+  it('settles the status line when a save has nothing to write, and after a failed save says “Saved” again once an Undo brings back the saved state (findings F-7 and F-23)', async () => {
     const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('A')) } });
     await page.waitForSelector('.cards');
     // An edit and its Undo, faster than the save delay: nothing to write, and the line must not stay at "Saving…".
@@ -1024,12 +1024,19 @@ describe('Studio: a stopped save stays answerable, and no tab loses its work to 
     expect(await page.locator('.banner:not(.hold)').innerText()).toContain('Undone: the project’s name is “A” again.');
     await settle(page);
     expect(await state(page)).toBe('Saved in this browser, on this computer');
-    // Storage full, in the browser's real storage: the save fails and says so; an Undo back to the saved state keeps that statement.
+    // Storage full, in the browser's real storage: the save fails and says so. An Undo back to the saved state brings back
+    // exactly what is stored, so the line says "Saved" again (the owner's decision D55), and the retry button goes.
     expect(await fillRealStorage(page, 0)).toBeGreaterThan(100_000);
     await page.locator('#project-name').fill('A, with a much longer name than before, so that it cannot fit');
     await settle(page);
     expect(await state(page)).toContain('Cannot save here');
     await topUndo(page).click();
+    await settle(page);
+    expect(await state(page)).toBe('Saved in this browser, on this computer');
+    expect(await page.getByRole('button', { name: 'Try to save again' }).count()).toBe(0);
+    expect((await stored(page))?.name).toBe('A');
+    // Storage is still full: the next change that cannot be saved brings the statement back.
+    await page.locator('#project-name').fill('A, with another long name that cannot fit either');
     await settle(page);
     expect(await state(page)).toContain('Cannot save here');
     expect((await stored(page))?.name).toBe('A');
@@ -1626,7 +1633,7 @@ describe('Studio: what the third round of campaign 4 found', () => {
       },
     });
     await page.waitForSelector('.cards');
-    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('closed or reloaded with work that it could not save');
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('its last work is not in the saved project');
     const kept = await keptCopies(page);
     expect(kept.map((copy) => [copy.state, copy.text])).toEqual([[undefined, lost]]);
     expect((await stored(page))?.name).toBe('Saved by the other page');
@@ -1651,24 +1658,31 @@ describe('Studio: what the third round of campaign 4 found', () => {
     await context.close();
   });
 
-  it('really tries when "Try to save again" is pressed after an Undo back to the saved state', async () => {
+  it('says “Saved” without a press of "Try to save again" after an Undo back to the saved state, and really tries when a later save fails', async () => {
     const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(worked('A')) } });
     await page.waitForSelector('.cards');
     expect(await fillStorage(page, 0)).toBe(true);
     await page.locator('#project-name').fill('A, with a longer name that does not fit');
     await settle(page);
     expect(await state(page)).toContain('Cannot save here');
-    await page.locator('.top').getByRole('button', { name: 'Undo', exact: true }).click();
-    await settle(page);
-    expect(await state(page)).toContain('Cannot save here');
-    // Room again: one press makes a real attempt, the statement goes, and so does the button.
-    await page.evaluate(() => window.localStorage.removeItem('test.capacity'));
     const again = page.getByRole('button', { name: 'Try to save again' });
-    await again.click();
+    expect(await again.count()).toBe(1);
+    // The Undo brings back exactly what is stored: the line says so by itself, and the button goes (finding F-23, decision D55).
+    await page.locator('.top').getByRole('button', { name: 'Undo', exact: true }).click();
     await settle(page);
     expect(await state(page)).toBe('Saved in this browser, on this computer');
     expect(await again.count()).toBe(0);
     expect((await stored(page))?.name).toBe('A');
+    // A new change still does not fit: the statement and the button come back. With room again, one press makes a real attempt.
+    await page.locator('#project-name').fill('A, with a second long name that does not fit');
+    await settle(page);
+    expect(await state(page)).toContain('Cannot save here');
+    await page.evaluate(() => window.localStorage.removeItem('test.capacity'));
+    await again.click();
+    await settle(page);
+    expect(await state(page)).toBe('Saved in this browser, on this computer');
+    expect(await again.count()).toBe(0);
+    expect((await stored(page))?.name).toBe('A, with a second long name that does not fit');
     await context.close();
   });
 
@@ -1723,6 +1737,30 @@ describe('Studio: what the third round of campaign 4 found', () => {
     const after = (await stored(page))!;
     expect(after.params.accent2Hue).toBe((after.params.accentHue + 120) % 360);
     expect(after.decisions['color-strategy']).toMatchObject({ kind: 'picked', optionId: 'duo-triad' });
+    await context.close();
+  });
+
+  it('keeps a kept Step as kept, in the record and in words, when its fixed second color matches a following Option for a moment (finding F-24)', async () => {
+    // "Galactic Goth" starts with a fixed red second color (18 degrees). The owner keeps "Amount of color" as it is, on a first pass.
+    const { context, page } = await open();
+    await page.getByRole('button', { name: 'Start from Galactic Goth' }).click();
+    await page.waitForSelector('.cards');
+    await page.goto(`${pageUrl}#color-strategy`);
+    await waitForStep(page, 'Amount of color');
+    await page.locator('.actions.sticky .primary').click();
+    await settle(page);
+    expect((await stored(page))?.decisions['color-strategy']).toMatchObject({ kind: 'kept', optionId: null });
+    // With the main color at 258 degrees the red stands a third of the wheel away: the design matches the Option and does not hold it.
+    await page.goto(`${pageUrl}#accent`);
+    await waitForStep(page, 'Main color');
+    await page.locator('label.option', { hasText: 'Deep blue' }).click();
+    await page.locator('.actions.sticky .primary').click();
+    await settle(page);
+    const after = (await stored(page))!;
+    expect(after.params.accent2Hue).toBe(18);
+    expect(after.decisions['color-strategy']).toMatchObject({ kind: 'kept', optionId: null });
+    const status = await page.locator('.rail a[href="#color-strategy"] small').innerText();
+    expect(status).toBe('Kept: close to “Two colors: a third of the wheel apart”: second color stays red (18° on the color wheel) and does not follow the main color');
     await context.close();
   });
 
@@ -2225,6 +2263,8 @@ describe('Studio: research rules on the Summary (decision D52)', () => {
     const row = rows(page).filter({ hasText: 'Reading text is at least 16 pixels tall' });
     expect(await row.getAttribute('data-holds')).toBe('false');
     expect(await row.locator('summary').textContent()).toBe('Does not hold: Reading text is at least 16 pixels tall. Reading text is 15 pixels tall.');
+    // The start was made this way, and the row says so without being opened (finding U5-16).
+    expect(await row.locator('.on-purpose').innerText()).toBe('This project’s start, Control Room, is made this way on purpose. It is a working screen for people who use it all day: its reading text is 15 pixels tall, so that more rows are in view at once. For a public website the rule’s advice stands.');
     // The mark of a rule that does not hold is not color alone: the words say it, and the row has a wider edge.
     expect(await row.evaluate((el) => getComputedStyle(el).borderLeftWidth)).toBe('4px');
     await row.locator('summary').click();
@@ -2236,6 +2276,7 @@ describe('Studio: research rules on the Summary (decision D52)', () => {
     await page.evaluate(() => { window.location.hash = '#summary'; });
     await page.waitForSelector('.research-list');
     expect(await row.locator('summary').textContent()).toBe('Holds: Reading text is at least 16 pixels tall. Reading text is 17 pixels tall.');
+    expect(await page.locator('.on-purpose').count()).toBe(0);
     expect(await rows(page).evaluateAll((items) => items.filter((item) => item.getAttribute('data-holds') === 'false').length)).toBe(0);
     await context.close();
   });
@@ -2513,7 +2554,10 @@ describe('Studio: its own interface', () => {
     expect(text).toContain('SIL OPEN FONT LICENSE Version 1.1');
     expect(text).toContain('Permission is hereby granted, free of charge');
     expect(text).toContain('Copyright (c) Meta Platforms, Inc. and affiliates.');
-    expect(text).toContain('Playfair Display');
+    // Playfair and Literata are listed; the two typefaces that reserve their names are not, and no font reserves a name.
+    expect(text).toContain('Playfair (@fontsource-variable/playfair)');
+    expect(text).toContain('Literata (@fontsource-variable/literata)');
+    expect(text).not.toMatch(/Playfair Display|Source Serif|reserves the name/);
     expect(await page.locator('.notice-list > li').count()).toBe(18);
     await context.close();
   });
@@ -2651,4 +2695,135 @@ describe('Studio: plain words on every screen (decision D38, finding U2-03)', ()
     expect(requests).toEqual([]);
     await context.close();
   }, 120000);
+});
+
+describe('Studio: a save that another tab replaces in the same moment (finding F-18, SPEC.md section 2.1)', () => {
+  const state = (page: Page): Promise<string> => page.locator('.save-state').innerText();
+  const SAVED = 'Saved in this browser, on this computer';
+  const see = (page: Page, visibility: 'hidden' | 'visible'): Promise<void> =>
+    page.evaluate((value) => {
+      Object.defineProperty(document, 'visibilityState', { value, configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    }, visibility);
+  const leftEntries = async (page: Page): Promise<(string | undefined)[][]> =>
+    (await keptCopies(page)).map((copy) => [copy.state, (JSON.parse(copy.text) as Project).name]);
+  /** A tab that has just saved a change: the status line says so, and the save is younger than 2 seconds. */
+  const justSaved = async (name: string): Promise<{ context: BrowserContext; page: Page }> => {
+    const opened = await open({ storage: { [LOCAL_KEY]: envelope(worked('Before')) } });
+    await opened.page.waitForSelector('.cards');
+    await opened.page.locator('#project-name').fill(name);
+    await expect.poll(() => state(opened.page), { interval: 50 }).toBe(SAVED);
+    return opened;
+  };
+
+  it('saved a moment ago, and the tab goes to the background: the work goes into an entry of the page’s own, and the entry goes when the page lives on', async () => {
+    const { context, page } = await justSaved('Saved, then hidden');
+    const before = await rawStored(page, LOCAL_KEY);
+    await see(page, 'hidden');
+    expect(await leftEntries(page)).toEqual([['leaving', 'Saved, then hidden']]);
+    // The saved project is not written a second time.
+    expect(await rawStored(page, LOCAL_KEY)).toBe(before);
+    await see(page, 'visible');
+    expect(await keptCopies(page)).toEqual([]);
+    expect(await state(page)).toBe(SAVED);
+    await context.close();
+  });
+
+  it('saved more than 2 seconds ago, and the tab goes to the background or closes: nothing is written and nothing is kept', async () => {
+    const { context, page } = await justSaved('Saved long ago');
+    await page.waitForTimeout(2100);
+    const before = await rawStored(page, LOCAL_KEY);
+    await see(page, 'hidden');
+    expect(await keptCopies(page)).toEqual([]);
+    await page.close({ runBeforeUnload: true });
+    const look = await context.newPage();
+    await look.goto(blankUrl.href);
+    expect(await keptCopies(look)).toEqual([]);
+    expect(await rawStored(look, LOCAL_KEY)).toBe(before);
+    await context.close();
+  });
+
+  it('saved a moment ago, and the tab closes: the next opening removes the entry of its own when the saved project holds the same work', async () => {
+    const { context, page } = await justSaved('Saved, then closed');
+    await page.close({ runBeforeUnload: true });
+    const look = await context.newPage();
+    await look.goto(blankUrl.href);
+    expect(await leftEntries(look)).toEqual([['leaving', 'Saved, then closed']]);
+    expect((await stored(look))?.name).toBe('Saved, then closed');
+    await look.goto(pageUrl);
+    await look.waitForSelector('.cards');
+    expect(await keptCopies(look)).toEqual([]);
+    expect(await look.locator('.banner').count()).toBe(0);
+    await context.close();
+  });
+
+  it('keeps for good, and reports, the saved work of a closing page that another page’s closing write replaced in the same moment (finding F-18)', async () => {
+    const { context, page } = await justSaved('Saved by tab B');
+    await page.close({ runBeforeUnload: true });
+    // Tab A's closing write lands a few milliseconds after tab B's save, and tab B could not see it. The test stages that write.
+    const look = await context.newPage();
+    await look.goto(blankUrl.href);
+    await look.evaluate(([key, value]) => window.localStorage.setItem(key!, value!), [LOCAL_KEY, envelope(worked('Written by tab A'), '2026-11-15T10:00:00.000Z')]);
+    await look.goto(pageUrl);
+    await look.waitForSelector('.cards');
+    expect(await look.locator('.banner:not(.hold)').innerText()).toContain('its last work is not in the saved project');
+    expect(await leftEntries(look)).toEqual([[undefined, 'Saved by tab B']]);
+    expect((await stored(look))?.name).toBe('Written by tab A');
+    // The Summary lists the copy with a reason that is true of it, and a second opening says nothing more.
+    await look.locator('.banner:not(.hold)').getByRole('button', { name: 'Go to the Summary' }).click();
+    await look.waitForSelector('.kept-copies');
+    expect(await look.locator('.kept-copies').innerText()).toContain('saved it a moment before that page closed');
+    await look.reload();
+    await look.waitForSelector('main');
+    expect(await look.locator('.banner').count()).toBe(0);
+    await context.close();
+  });
+
+  it('saved a moment ago, with no room in storage for the entry of its own: the tab closes as before, and nothing fails', async () => {
+    const { context, page } = await justSaved('No room');
+    expect(await fillStorage(page, 0)).toBe(true);
+    await see(page, 'hidden');
+    expect(await keptCopies(page)).toEqual([]);
+    expect(await state(page)).toBe(SAVED);
+    expect((await stored(page))?.name).toBe('No room');
+    await context.close();
+  });
+});
+
+describe('Studio: the typefaces Playfair and Literata (SPEC.md section 2.2)', () => {
+  /** The font family that the preview draws an element in, and whether the browser has that font ready. */
+  const drawn = (page: Page, selector: string): Promise<{ family: string; ready: boolean }> =>
+    page.frameLocator('.stage iframe').locator(selector).first().evaluate((el) => {
+      const family = getComputedStyle(el).fontFamily.split(',')[0]!.replace(/"/g, '').trim();
+      return { family, ready: el.ownerDocument.fonts.check(`16px "${family}"`) };
+    });
+
+  it('draws headings in Playfair and reading text in Literata where an Option names them', async () => {
+    const { context, page } = await open({ hash: '#typeface', storage: { [LOCAL_KEY]: envelope(worked('Letters')) } });
+    await waitForStep(page, 'Letter style (typeface)');
+    await page.locator('label.option', { hasText: 'Elegant thick-and-thin headings' }).click();
+    await expect.poll(() => drawn(page, 'h1')).toEqual({ family: 'Playfair Variable', ready: true });
+    await page.locator('label.option', { hasText: 'Letters with small feet throughout' }).click();
+    await expect.poll(() => drawn(page, 'h1')).toEqual({ family: 'Literata Variable', ready: true });
+    await expect.poll(() => drawn(page, 'p')).toEqual({ family: 'Literata Variable', ready: true });
+    await context.close();
+  });
+
+  it('opens a stored project that names the two replaced typefaces with the replacements, a notice, and a kept copy; a reload says nothing more', async () => {
+    const old = JSON.parse(JSON.stringify(worked('Saved earlier'))) as Project;
+    const fonts = { fontHeading: 'playfair-display', fontBody: 'source-serif-4' };
+    const before = { ...old, params: { ...old.params, ...fonts }, base: { ...old.base, ...fonts } };
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(before) } });
+    await page.waitForSelector('.cards');
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('This project used the typefaces “Playfair Display” and “Source Serif 4”, which the Studio no longer carries. It now shows “Playfair” and “Literata” in their place; nothing else changed.');
+    await settle(page);
+    expect((await stored(page))?.params).toMatchObject({ fontHeading: 'playfair', fontBody: 'literata' });
+    // The project as it was is among the kept copies, word for word.
+    expect((await keptCopies(page)).map((copy) => copy.text)).toEqual([JSON.stringify(before)]);
+    await page.reload();
+    await page.waitForSelector('.cards');
+    expect(await page.locator('.banner').count()).toBe(0);
+    expect((await keptCopies(page)).length).toBe(1);
+    await context.close();
+  });
 });

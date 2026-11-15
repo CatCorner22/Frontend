@@ -35,6 +35,12 @@ export interface Direction {
   reviewed: string | null;
   /** The skins this Direction offers besides its own colors, by identifier (see `skins.ts`). A generated Direction offers none. */
   skins?: string[];
+  /**
+   * The research rules that this Direction departs from on purpose, each with the reason in plain words. The Summary shows
+   * the reason beside "Does not hold", so that a start that was made this way does not look like a fault (finding U5-16,
+   * decisions D53 and D55). A unit test refuses a departure without such a record, and a record without a departure.
+   */
+  departs?: { ruleId: string; why: string }[];
 }
 
 const REVIEWED = '2026-11-13';
@@ -203,7 +209,7 @@ export const DIRECTIONS: Direction[] = [
     ...record,
     params: d({
       nav: 'top-centered', hero: 'centered', sections: 'alternating', contentWidth: 'standard', emphasis: 'headline', density: 1.3,
-      fontHeading: 'playfair-display', fontBody: 'dm-sans', headingWeight: 500, headingTracking: -0.012, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.42, numerals: 'proportional',
+      fontHeading: 'playfair', fontBody: 'dm-sans', headingWeight: 500, headingTracking: -0.012, headingCase: 'sentence', baseSize: 17, scaleRatio: 1.42, numerals: 'proportional',
       neutralHue: 320, neutralChroma: 0.012, accentHue: 85, accentChroma: 0.11, accentLightness: 0.78, colorStrategy: 'single-accent', theme: 'dark', contrast: 0.5,
       radius: 4, elevation: 'tonal', borderWeight: 1, signature: 'none', atmosphere: 'spotlight', buttonFinish: 'outline', displayTreatment: 'solid', motion: 'subtle',
     }),
@@ -216,6 +222,7 @@ export const DIRECTIONS: Direction[] = [
     mood: 'An instrument panel: dense, exact, numbers first.',
     bestFor: 'Dashboards, operations tools, technical services.',
     risk: 'Too tightly packed for a public information site; made for people who work in it all day.',
+    departs: [{ ruleId: 'reading-size', why: 'It is a working screen for people who use it all day: its reading text is 15 pixels tall, so that more rows are in view at once. For a public website the rule’s advice stands.' }],
     ...record,
     params: d({
       nav: 'side-rail', hero: 'text-left', sections: 'stacked', contentWidth: 'wide', emphasis: 'proof', density: 0.86,
@@ -282,7 +289,7 @@ export const DIRECTIONS: Direction[] = [
     ...record,
     params: d({
       nav: 'top-inline', hero: 'text-left', sections: 'ledger', contentWidth: 'standard', emphasis: 'headline', density: 1.12,
-      fontHeading: 'source-serif-4', fontBody: 'instrument-sans', headingWeight: 600, headingTracking: -0.02, headingCase: 'sentence', baseSize: 18, scaleRatio: 1.3, numerals: 'tabular',
+      fontHeading: 'literata', fontBody: 'instrument-sans', headingWeight: 600, headingTracking: -0.02, headingCase: 'sentence', baseSize: 18, scaleRatio: 1.3, numerals: 'tabular',
       neutralHue: 150, neutralChroma: 0.012, accentHue: 152, accentChroma: 0.11, accentLightness: 0.4, colorStrategy: 'single-accent', theme: 'light', contrast: 0.86,
       radius: 6, elevation: 'borders', borderWeight: 1, signature: 'big-numerals', atmosphere: 'grain', buttonFinish: 'flat', displayTreatment: 'solid', motion: 'subtle',
     }),
@@ -314,7 +321,7 @@ export const DIRECTIONS: Direction[] = [
     ...researched('A search summary on the American West look in print: wood-type poster lettering, dense centered layouts, and a palette of rust, tan, cream, black, and faded blue.', 'american-west-graphic-style.md'),
     params: d({
       nav: 'top-centered', hero: 'centered', sections: 'stacked', contentWidth: 'standard', emphasis: 'headline', density: 1.05,
-      fontHeading: 'playfair-display', fontBody: 'source-serif-4', headingWeight: 800, headingTracking: 0.07, headingCase: 'upper', baseSize: 17, scaleRatio: 1.3, numerals: 'proportional',
+      fontHeading: 'playfair', fontBody: 'literata', headingWeight: 800, headingTracking: 0.07, headingCase: 'upper', baseSize: 17, scaleRatio: 1.3, numerals: 'proportional',
       neutralHue: 78, neutralChroma: 0.03, accentHue: 38, accentChroma: 0.15, accentLightness: 0.5, accent2Hue: 245, colorStrategy: 'duo', theme: 'light', contrast: 0.85,
       radius: 0, elevation: 'borders', borderWeight: 2, signature: 'corner-tag', atmosphere: 'grain', buttonFinish: 'flat', displayTreatment: 'solid', motion: 'subtle',
     }),
@@ -330,7 +337,7 @@ export const DIRECTIONS: Direction[] = [
     ...researched('A search summary on the gothic look on the web: near-black pages, deep red and dark purple, ornate headings, and the warning that text must not blur into a dark background.', 'gothic-web-look.md'),
     params: d({
       nav: 'split-cta', hero: 'text-left', sections: 'bento', contentWidth: 'standard', emphasis: 'headline', density: 1.12,
-      fontHeading: 'playfair-display', fontBody: 'manrope', headingWeight: 700, headingTracking: -0.012, headingCase: 'sentence', baseSize: 16.5, scaleRatio: 1.42, numerals: 'proportional',
+      fontHeading: 'playfair', fontBody: 'manrope', headingWeight: 700, headingTracking: -0.012, headingCase: 'sentence', baseSize: 16.5, scaleRatio: 1.42, numerals: 'proportional',
       neutralHue: 305, neutralChroma: 0.022, accentHue: 302, accentChroma: 0.2, accentLightness: 0.58, accent2Hue: 18, colorStrategy: 'duo', theme: 'dark', contrast: 0.9,
       radius: 14, elevation: 'glass', borderWeight: 1, signature: 'none', atmosphere: 'stars', buttonFinish: 'glow', displayTreatment: 'ink-gradient', motion: 'expressive',
     }),
@@ -362,7 +369,7 @@ export const DIRECTIONS: Direction[] = [
     ...composedOn('2026-11-14'),
     params: d({
       nav: 'top-centered', hero: 'text-left', sections: 'alternating', contentWidth: 'standard', emphasis: 'headline', density: 1.2,
-      fontHeading: 'playfair-display', fontBody: 'newsreader', headingWeight: 500, headingTracking: -0.01, headingCase: 'sentence', baseSize: 17.5, scaleRatio: 1.42, numerals: 'proportional',
+      fontHeading: 'playfair', fontBody: 'newsreader', headingWeight: 500, headingTracking: -0.01, headingCase: 'sentence', baseSize: 17.5, scaleRatio: 1.42, numerals: 'proportional',
       neutralHue: 275, neutralChroma: 0.024, accentHue: 12, accentChroma: 0.15, accentLightness: 0.66, accent2Hue: 215, colorStrategy: 'duo', theme: 'dark', contrast: 1,
       radius: 3, elevation: 'ring', borderWeight: 1, signature: 'none', atmosphere: 'grain', buttonFinish: 'glow', displayTreatment: 'ink-gradient', motion: 'subtle',
     }),
@@ -490,7 +497,7 @@ export const DIRECTIONS: Direction[] = [
     ...composedOn('2026-11-14'),
     params: d({
       nav: 'top-inline', hero: 'text-left', sections: 'alternating', contentWidth: 'standard', emphasis: 'headline', density: 1.18,
-      fontHeading: 'newsreader', fontBody: 'source-serif-4', headingWeight: 600, headingTracking: -0.015, headingCase: 'sentence', baseSize: 17.5, scaleRatio: 1.36, numerals: 'proportional',
+      fontHeading: 'newsreader', fontBody: 'literata', headingWeight: 600, headingTracking: -0.015, headingCase: 'sentence', baseSize: 17.5, scaleRatio: 1.36, numerals: 'proportional',
       neutralHue: 70, neutralChroma: 0.02, accentHue: 45, accentChroma: 0.15, accentLightness: 0.44, accent2Hue: 155, colorStrategy: 'duo', theme: 'light', contrast: 0.85,
       radius: 6, elevation: 'tonal', borderWeight: 1, signature: 'marker', atmosphere: 'horizon', buttonFinish: 'flat', displayTreatment: 'solid', motion: 'subtle',
     }),
@@ -554,7 +561,7 @@ export const DIRECTIONS: Direction[] = [
     ...composedOn('2026-11-14'),
     params: d({
       nav: 'top-centered', hero: 'centered', sections: 'grid', contentWidth: 'standard', emphasis: 'headline', density: 1.18,
-      fontHeading: 'playfair-display', fontBody: 'dm-sans', headingWeight: 700, headingTracking: -0.01, headingCase: 'sentence', baseSize: 17.5, scaleRatio: 1.42, numerals: 'proportional',
+      fontHeading: 'playfair', fontBody: 'dm-sans', headingWeight: 700, headingTracking: -0.01, headingCase: 'sentence', baseSize: 17.5, scaleRatio: 1.42, numerals: 'proportional',
       neutralHue: 45, neutralChroma: 0.016, accentHue: 355, accentChroma: 0.19, accentLightness: 0.47, accent2Hue: 95, colorStrategy: 'duo', theme: 'light', contrast: 0.8,
       radius: 999, elevation: 'soft-shadow', borderWeight: 0, signature: 'marker', atmosphere: 'spotlight', buttonFinish: 'gloss', displayTreatment: 'solid', motion: 'subtle',
     }),
@@ -586,7 +593,7 @@ export const DIRECTIONS: Direction[] = [
     ...composedOn('2026-11-14'),
     params: d({
       nav: 'top-centered', hero: 'centered', sections: 'stacked', contentWidth: 'narrow', emphasis: 'headline', density: 1.25,
-      fontHeading: 'playfair-display', fontBody: 'newsreader', headingWeight: 400, headingTracking: -0.005, headingCase: 'sentence', baseSize: 18, scaleRatio: 1.42, numerals: 'proportional',
+      fontHeading: 'playfair', fontBody: 'newsreader', headingWeight: 400, headingTracking: -0.005, headingCase: 'sentence', baseSize: 18, scaleRatio: 1.42, numerals: 'proportional',
       neutralHue: 80, neutralChroma: 0.014, accentHue: 245, accentChroma: 0.07, accentLightness: 0.42, accent2Hue: 20, colorStrategy: 'duo', theme: 'light', contrast: 0.75,
       radius: 2, elevation: 'flat', borderWeight: 1, signature: 'none', atmosphere: 'grain', buttonFinish: 'outline', displayTreatment: 'solid', motion: 'subtle',
     }),
@@ -602,7 +609,7 @@ export const DIRECTIONS: Direction[] = [
     ...composedOn('2026-11-14'),
     params: d({
       nav: 'top-inline', hero: 'text-left', sections: 'stacked', contentWidth: 'narrow', emphasis: 'headline', density: 1.1,
-      fontHeading: 'jetbrains-mono', fontBody: 'source-serif-4', headingWeight: 700, headingTracking: -0.02, headingCase: 'sentence', baseSize: 17.5, scaleRatio: 1.3, numerals: 'mono',
+      fontHeading: 'jetbrains-mono', fontBody: 'literata', headingWeight: 700, headingTracking: -0.02, headingCase: 'sentence', baseSize: 17.5, scaleRatio: 1.3, numerals: 'mono',
       neutralHue: 60, neutralChroma: 0.01, accentHue: 25, accentChroma: 0.18, accentLightness: 0.45, accent2Hue: 60, colorStrategy: 'duo', theme: 'light', contrast: 0.95,
       radius: 2, elevation: 'borders', borderWeight: 1.5, signature: 'marker', atmosphere: 'grain', buttonFinish: 'flat', displayTreatment: 'solid', motion: 'subtle',
     }),

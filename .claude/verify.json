@@ -1,0 +1,12 @@
+{
+  "fast_checks": [
+    { "name": "check", "command": "npm run check", "timeout_seconds": 600 }
+  ],
+  "full_checks": [
+    { "name": "e2e", "command": "PW_CHROMIUM=\"${PW_CHROMIUM:-$([ -e /opt/pw-browsers/chromium ] && echo /opt/pw-browsers/chromium)}\" npm run e2e", "timeout_seconds": 1750 }
+  ],
+  "lint_on_edit": { "command": "npx eslint --max-warnings 0 {file}", "extensions": [".ts", ".tsx"], "timeout_seconds": 120 },
+  "protected": [],
+  "feature_list": "feature_list.json",
+  "fingerprint_exclude": []
+}

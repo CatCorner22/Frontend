@@ -16,13 +16,15 @@ The tool is for the owner alone. Do not add accounts, payments, analytics, or ma
 | Term | Meaning |
 |---|---|
 | Step | One screen of the Studio that asks for one design decision |
-| Option | One of the 3–4 concrete choices that a Step offers |
-| Decision | The recorded result of a Step: picked Option, rejected Options, reason |
-| Mockup | The HTML and CSS page on which every Option renders |
+| Direction | A complete starting look that the owner picks before the Steps (added with the owner's approval, 2026-11-15) |
+| Option | One of the several concrete choices that a Step offers |
+| Decision | The recorded result of a Step: picked Option, rejected Options, and a reason if the owner wrote one |
+| Mockup | The HTML and CSS page on which every Option renders. The Studio's screen calls it "Sample website"; code and records say "Mockup" |
 | Template | A Mockup family (small-business website, guided intake flow, dense operational app, consumer or SaaS app) |
 | Catalog | The typed data that defines every Step, Option, craft rule, and floor |
 | Craft rule | An invisible-detail rule that the exporter writes into every Prescription automatically |
-| Floor | A non-overridable requirement (accessibility, security, search, performance) |
+| Floor | A requirement that the exporter writes into the Prescription (accessibility, security, search, performance). The security, search, and performance Floors are not overridable; the owner chooses per project whether the accessibility Floor applies (decision D13) |
+| Research rule | A check, drawn from a research record, that the Studio measures on the open design and shows as "Holds" or "Does not hold" (added with the owner's approval, 2026-11-15) |
 | Prescription | The export bundle: `PRESCRIPTION.md`, `DESIGN.md`, `tokens.json`, `tokens.css`, shadcn theme, `mockup.html`, `FONTS.md` |
 | Fit check | The Fitter's measurement of a build against a Prescription |
 | Honest receipt | A report that separates "measured," "judged by the model," and "still needs a person" |
@@ -70,9 +72,22 @@ packages/core/   Catalog, engine, exporters (pure TypeScript)
 apps/studio/     The Studio web app
 plugin/          The Fitter (Claude Code plugin)
 docs/research/   Research records
-docs/knowledge/  The knowledge base (research helpers wrote it; not yet reviewed)
+docs/knowledge/  The knowledge base (research helpers wrote it; not yet reviewed); INDEX.md is its index
+docs/reference/  The guarantees reference and the saving table
 scripts/         Build checks (size budget, licence notices)
 docs/sources/    The owner's source files (text only; added on request)
 phase0/          The M0 proof experiment
 redteam/         Red-team reports, the findings log, and the defect-planting tool
 ```
+
+## Verified build loop (the owner's skill, set up on 2026-11-15, decision D56)
+
+Hooks (small programs that Claude Code runs by itself) enforce the checks; these lines say how to work.
+- Start every session: read `PROGRESS.md` ("Build log", newest entry first), run `git log --oneline -5`, run `bash init.sh`.
+- Build one feature at a time: the first feature in `feature_list.json` with `"passes": false`. Its requirement is in `SPEC.md`, which points to `PLAN.md`.
+- Write the feature's tests first, and confirm that they fail because the feature is missing. The protected list in `.claude/verify.json` stays empty until the owner says otherwise (a cloud session gives the owner no terminal for "unlock").
+- After implementing, have the `reviewer` subagent compare the changes with `SPEC.md`; ask the owner first, as before each helper (decision D55). Fix correctness gaps; skip style.
+- Set `"passes": true` only after the full checks pass. The Stop hook runs them again.
+- Finish with a commit, an entry in the "Build log" of `PROGRESS.md`, and an evidence report (the commands run and their output).
+- Never change a hook file, a check in `.claude/verify.json`, or a feature's fields other than `"passes"`. If one is wrong, stop and ask the owner.
+- Check commands: fast `npm run check`; full `npm run e2e` (on this kind of machine the hook finds the installed browser by itself); lint after an edit `npx eslint --max-warnings 0 <file>`.

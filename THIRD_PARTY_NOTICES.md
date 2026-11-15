@@ -24,10 +24,7 @@ Each section quotes what the font file says about itself. The heading of a secti
 
 **Reserved Font Names.** A copyright holder may reserve a font's name. Condition 3 of the licence then limits who may use that name. It reads: `3) No Modified Version of the Font Software may use the Reserved Font Name(s) unless explicit written permission is granted by the corresponding Copyright Holder. This restriction only applies to the primary font name as presented to the users.` The licence defines the term that the condition rests on: `"Modified Version" refers to any derivative made by adding to, deleting, or substituting -- in part or in whole -- any of the components of the Original Version, by changing formats or by porting the Font Software to a new environment.`
 
-Of the 13 fonts below, 2 declare a Reserved Font Name. The declaring notices, word for word:
-
-- Playfair Display: `Copyright 2017 The Playfair Display Project Authors (https://github.com/clauseggers/Playfair-Display), with Reserved Font Name "Playfair Display".`
-- Source Serif 4: `© 2014 - 2021 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name ‘Source’.`
+None of the 13 fonts below declares a Reserved Font Name.
 
 This file records each declaration. It does not judge whether the Studio's use of a font meets condition 3. `docs/research/10-font-reserved-names.md` records what the project has established about that question, and what it has not.
 
@@ -121,6 +118,21 @@ This file records each declaration. It does not judge whether the Studio's use o
 - **Reserved Font Name:** none declared in the font file or in the `LICENSE` file
 - **Source repository:** <https://github.com/fontsource/font-files>, directory `fonts/variable/jetbrains-mono` (from the package's `package.json`). The package's `metadata.json` names <https://github.com/google/fonts> as the source of the font.
 
+### Literata
+
+- **Package:** `@fontsource-variable/literata`, version `5.3.0`
+- **Licence:** SIL Open Font License 1.1 (`OFL-1.1`), as the package's `package.json` and `LICENSE` file state
+- **Font file that ships:** `files/literata-latin-wght-normal.woff2`
+  - Copyright notice (name record 0): `Copyright 2017 The Literata Project Authors (https://github.com/googlefonts/literata)`
+  - Licence description (name record 13): the file has none
+  - Licence address (name record 14): `https://scripts.sil.org/OFL`
+  - Family name (name record 1): `Literata`
+  - Version (name record 5): `Version 3.103;gftools[0.9.29]`
+- **Copyright notice in the package's `LICENSE` file:** `Copyright 2017 The Literata Project Authors (https://github.com/googlefonts/literata) Literata-Italic[opsz,wght].ttf: Copyright 2017 The Literata Project Authors (https://github.com/googlefonts/literata)`
+- **Do the two notices agree?** Yes. The `LICENSE` file repeats the notice after the label `Literata-Italic[opsz,wght].ttf:`.
+- **Reserved Font Name:** none declared in the font file or in the `LICENSE` file
+- **Source repository:** <https://github.com/fontsource/font-files>, directory `fonts/variable/literata` (from the package's `package.json`). The package's `metadata.json` names <https://github.com/google/fonts> as the source of the font.
+
 ### Manrope
 
 - **Package:** `@fontsource-variable/manrope`, version `5.3.0`
@@ -166,20 +178,21 @@ This file records each declaration. It does not judge whether the Studio's use o
 - **Reserved Font Name:** none declared in the font file or in the `LICENSE` file
 - **Source repository:** <https://github.com/fontsource/font-files>, directory `fonts/variable/outfit` (from the package's `package.json`). The package's `metadata.json` names <https://github.com/google/fonts> as the source of the font.
 
-### Playfair Display
+### Playfair
 
-- **Package:** `@fontsource-variable/playfair-display`, version `5.3.0`
+- **Package:** `@fontsource-variable/playfair`, version `5.3.0`
 - **Licence:** SIL Open Font License 1.1 (`OFL-1.1`), as the package's `package.json` and `LICENSE` file state
-- **Font file that ships:** `files/playfair-display-latin-wght-normal.woff2`
-  - Copyright notice (name record 0): `Copyright 2017 The Playfair Display Project Authors (https://github.com/clauseggers/Playfair-Display), with Reserved Font Name "Playfair Display".`
+- **Font file that ships:** `files/playfair-latin-opsz-normal.woff2`
+  - Copyright notice (name record 0): `Copyright 2005 The Playfair Project Authors (https://github.com/clauseggers/Playfair)`
   - Licence description (name record 13): the file has none
-  - Licence address (name record 14): `http://scripts.sil.org/OFL`
-  - Family name (name record 1): `Playfair Display`
-  - Version (name record 5): `Version 1.203`
-- **Copyright notice in the package's `LICENSE` file:** `Copyright 2017 The Playfair Display Project Authors (https://github.com/clauseggers/Playfair-Display), with Reserved Font Name "Playfair Display". PlayfairDisplay-Italic[wght].ttf: Copyright 2017 The Playfair Display Project Authors (https://github.com/clauseggers/Playfair-Display), with Reserved Font Name "Playfair Display".`
-- **Do the two notices agree?** Yes. The `LICENSE` file repeats the notice after the label `PlayfairDisplay-Italic[wght].ttf:`.
-- **Reserved Font Name:** `Playfair Display` (the font file and the `LICENSE` file both declare it)
-- **Source repository:** <https://github.com/fontsource/font-files>, directory `fonts/variable/playfair-display` (from the package's `package.json`). The package's `metadata.json` names <https://github.com/google/fonts> as the source of the font.
+  - Licence address (name record 14): `https://openfontlicense.org`
+  - Family name (name record 1): `Playfair 5pt SemiExpanded Light`
+  - Version (name record 5): `Version 2.203`
+- **Copyright notice in the package's `LICENSE` file:** `Copyright 2005 The Playfair Project Authors (https://github.com/clauseggers/Playfair) Playfair-Italic[opsz,wdth,wght].ttf: Copyright 2005 The Playfair Project Authors (https://github.com/googlefonts/Playfair)`
+- **Do the two notices agree?** No. This file records both.
+  - Only the `LICENSE` file gives: `Copyright 2005 The Playfair Project Authors (https://github.com/googlefonts/Playfair)`
+- **Reserved Font Name:** none declared in the font file or in the `LICENSE` file
+- **Source repository:** <https://github.com/fontsource/font-files>, directory `fonts/variable/playfair` (from the package's `package.json`). The package's `metadata.json` names <https://github.com/google/fonts> as the source of the font.
 
 ### Public Sans
 
@@ -195,23 +208,6 @@ This file records each declaration. It does not judge whether the Studio's use o
 - **Do the two notices agree?** Yes. The `LICENSE` file repeats the notice after the label `PublicSans-Italic[wght].ttf:`.
 - **Reserved Font Name:** none declared in the font file or in the `LICENSE` file
 - **Source repository:** <https://github.com/fontsource/font-files>, directory `fonts/variable/public-sans` (from the package's `package.json`). The package's `metadata.json` names <https://github.com/google/fonts> as the source of the font.
-
-### Source Serif 4
-
-- **Package:** `@fontsource-variable/source-serif-4`, version `5.3.1`
-- **Licence:** SIL Open Font License 1.1 (`OFL-1.1`), as the package's `package.json` and `LICENSE` file state
-- **Font file that ships:** `files/source-serif-4-latin-wght-normal.woff2`
-  - Copyright notice (name record 0): `© 2014 - 2021 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name ‘Source’.`
-  - Licence description (name record 13): the file has none
-  - Licence address (name record 14): `http://scripts.sil.org/OFL`
-  - Family name (name record 1): `Source Serif 4`
-  - Version (name record 5): `Version 4.004;hotconv 1.0.116;makeotfexe 2.5.65601`
-- **Copyright notice in the package's `LICENSE` file:** `Google Inc.`
-- **Do the two notices agree?** No. This file records both.
-  - Only the font file gives: `© 2014 - 2021 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name ‘Source’.`
-  - Only the `LICENSE` file gives: `Google Inc.`
-- **Reserved Font Name:** `Source` (the font file declares it; the `LICENSE` file does not)
-- **Source repository:** <https://github.com/fontsource/font-files>, directory `fonts/variable/source-serif-4` (from the package's `package.json`). The package's `metadata.json` names <https://github.com/google/fonts> as the source of the font.
 
 ### Space Grotesk
 
@@ -271,7 +267,7 @@ The Studio needs 5 code packages in order to run: its own dependencies, and thei
 
 ### SIL Open Font License 1.1 (`OFL-1.1`)
 
-This licence covers Bricolage Grotesque, DM Sans, Fraunces, Instrument Sans, Inter, JetBrains Mono, Manrope, Newsreader, Outfit, Playfair Display, Public Sans, Source Serif 4 and Space Grotesk.
+This licence covers Bricolage Grotesque, DM Sans, Fraunces, Instrument Sans, Inter, JetBrains Mono, Literata, Manrope, Newsreader, Outfit, Playfair, Public Sans and Space Grotesk.
 
 Each font package carries the text below in its licence file, after its own copyright notice. The script compared the 13 copies and found them identical. The copyright notice of each font stands in its section above.
 

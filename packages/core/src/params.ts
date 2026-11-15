@@ -20,7 +20,7 @@ export const SIGNATURES = ['none', 'marker', 'big-numerals', 'color-band', 'outl
 export const A11Y_PROFILES = ['off', 'advise', 'enforce'] as const;
 export const FONT_IDS = [
   'system-sans', 'system-serif', 'inter', 'public-sans', 'dm-sans', 'manrope', 'instrument-sans', 'outfit',
-  'space-grotesk', 'bricolage-grotesque', 'fraunces', 'source-serif-4', 'newsreader', 'playfair-display', 'jetbrains-mono',
+  'space-grotesk', 'bricolage-grotesque', 'fraunces', 'literata', 'newsreader', 'playfair', 'jetbrains-mono',
 ] as const;
 
 export type NavPattern = (typeof NAV_PATTERNS)[number];
@@ -191,8 +191,18 @@ export const FONTS: Record<FontId, FontInfo> = {
   'space-grotesk': { id: 'space-grotesk', label: 'Space Grotesk', stack: `"Space Grotesk Variable", ${SANS_FALLBACK}`, character: 'Quirky and technical, with distinctive letters.', license: 'OFL-1.1' },
   'bricolage-grotesque': { id: 'bricolage-grotesque', label: 'Bricolage Grotesque', stack: `"Bricolage Grotesque Variable", ${SANS_FALLBACK}`, character: 'Expressive, hand-cut feeling; strong personality in headings.', license: 'OFL-1.1' },
   fraunces: { id: 'fraunces', label: 'Fraunces', stack: `"Fraunces Variable", ${SERIF_FALLBACK}`, character: 'Soft, warm, old-style letters with small feet and plenty of character.', license: 'OFL-1.1' },
-  'source-serif-4': { id: 'source-serif-4', label: 'Source Serif 4', stack: `"Source Serif 4 Variable", ${SERIF_FALLBACK}`, character: 'Clear, sturdy letters with small feet, made for reading.', license: 'OFL-1.1' },
+  literata: { id: 'literata', label: 'Literata', stack: `"Literata Variable", ${SERIF_FALLBACK}`, character: 'Clear, sturdy letters with small feet, made for reading.', license: 'OFL-1.1' },
   newsreader: { id: 'newsreader', label: 'Newsreader', stack: `"Newsreader Variable", ${SERIF_FALLBACK}`, character: 'Newspaper-style letters with small feet; literate and calm.', license: 'OFL-1.1' },
-  'playfair-display': { id: 'playfair-display', label: 'Playfair Display', stack: `"Playfair Display Variable", ${SERIF_FALLBACK}`, character: 'Letters with small feet and with thick and thin strokes, made for headings; elegant and formal.', license: 'OFL-1.1' },
+  playfair: { id: 'playfair', label: 'Playfair', stack: `"Playfair Variable", ${SERIF_FALLBACK}`, character: 'Letters with small feet and with thick and thin strokes, made for headings; elegant and formal.', license: 'OFL-1.1' },
   'jetbrains-mono': { id: 'jetbrains-mono', label: 'JetBrains Mono', stack: `"JetBrains Mono Variable", ui-monospace, monospace`, character: 'Typewriter-style letters, every one the same width; technical, good for columns of numbers.', license: 'OFL-1.1' },
+};
+
+/**
+ * Typefaces that the Studio carried once and replaced, each with the typeface that stands in its place. Both declared a
+ * Reserved Font Name, which the font licence does not let a cut-down copy keep (docs/research/10-font-reserved-names.md;
+ * decision D56). A saved project can still name one; opening swaps it and says so (see `parseProject`).
+ */
+export const RETIRED_FONTS: Readonly<Record<string, { label: string; now: FontId }>> = {
+  'playfair-display': { label: 'Playfair Display', now: 'playfair' },
+  'source-serif-4': { label: 'Source Serif 4', now: 'literata' },
 };

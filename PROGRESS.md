@@ -6,7 +6,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 **The one-minute picture.** The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, and read the result back on a Summary with five research rules. It saves reliably. It does not yet export anything to build from (milestone M6) and has no Fitter (M7). Milestone M4 is open and waits for one thing that only the owner can do: the trial in `docs/trial-guide.md`.
 
-**Where the work is.** One branch holds everything: `claude/brave-mayer-sawqz9` (the main line; no pull request is open). The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc; its version number is in `WAYPOINTS.md`.
+**Where the work is.** The main line is `claude/brave-mayer-sawqz9`. The session of 2026-11-15 works on `claude/festive-mendel-lfnahh`, with a draft pull request into the main line. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc; its version number is in `WAYPOINTS.md`.
 
 **First commands of a new session.**
 1. `npm ci --ignore-scripts` (about 5 seconds).
@@ -88,36 +88,59 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **Fifth red-team review and the judge (2026-11-14).** Three reviewers (security attacker, confused first-time user, drift and truth auditor) on the running Studio and the code at commit `5e546e7`, and one judge who retested the ten repairs of campaign 4, round 3; 1,365,177 tokens, measured. Reports: `redteam/reports/2026-11-14-f-*.md`. **44 findings:** 1 graded blocker by the review's rule (a hint said "Each change is saved" while the Studio was not saving; the status line told the truth at the same moment and no work was lost), 10 major, 24 minor, 9 notes. The blocker and all ten major findings are repaired (two of them with a remainder that their rows state); of the rest, each row in `redteam/FINDINGS.md` says "Fixed", "Fixed in part", or "Open" with the reason. **The judge:** 2 of the 10 round-3 repairs passed outright (F-16, F-17). For the other 8 the original attack is repaired in whole or in part, and a variant of the judge's own reproduced a related fault. One of them matters for saved work: when several tabs close in the same instant, one tab's last change can still be lost (2 losses in 120 trials; 8 in 24 before the first repair). It is open (decision D54). No reviewer has looked at the repairs made after this review.
 - **Records brought up to date (2026-11-14).** The stack line in `CLAUDE.md` names Playwright 1.65; decision D28 is replaced by D53; decision D54 records what the reviews changed; `PLAN.md` is version 2 with the states of Skins, Overlays, and research rules set to "built"; the guarantees reference is version 1.5 with 49 guarantees.
 
+## Session of 2026-11-15
+
+- **Set-up.** The branch `claude/festive-mendel-lfnahh` started at the main line's newest commit (`9c5cbe4`); 330 files; `npm run check` passed (190 unit tests).
+- **The owner's decisions (D55).** 24 questions in the chat; the owner chose the recommended answer in each. `CLAUDE.md` now defines "Direction" and "Research rule", says that an Option is one of several, that a reason is optional, that the accessibility Floor is a choice per project, and that the screen calls the Mockup "Sample website". Decision D26 (the Drive backup) is retired.
+- **Repairs of 2026-11-15.** The status line after an Undo back to the stored project (F-23); a kept Decision stays "kept" and names no Option by coincidence (F-24; a new rule in the engine, `heldOptionId`); the Summary says that "Control Room" departs from the text-size rule on purpose (U5-16); Dependabot waits 7 days (S2-06). 196 unit tests and 273 browser tests on 2026-11-15 after F002 (191 and 266 after the first three repairs); the full browser run of 2026-11-15 passed with 265, and the 266th (for F-24) was added afterwards and passed alone.
+- **The verified build loop (decision D56).** The owner's skill is in `.claude/skills/verified-build-loop/`. `SPEC.md` and `feature_list.json` hold the work in hand: F001 (the C4-F18 repair) and F002 (the typefaces Playfair and Literata). The skill's hand-over entries go below, under "Build log".
+- **Plan, version 3.** The Direction Creator is milestone M4D, straight after M4 (`PLAN.md` section 4.7).
+- **A code review that the owner started with `/code-review` was stopped by the owner before it reported.** No review of the repairs of 2026-11-15 exists yet.
+
+## Build log (verified build loop; newest entry first)
+
+- Date: 2026-11-15
+- Feature worked on (ID): F003 (the record of a Direction of the owner's own, in the core; milestone M4D)
+- Result: passes
+- Commits: the commit "F003: ..." that holds this entry
+- Evidence: `npm run check`: 208 unit tests passed (12 new, in `packages/core/test/ownDirections.test.ts`). `npm run e2e`: 273 browser tests passed (1,262 seconds); they ran because the cleaner of names moved from the Studio's code into the core (`packages/core/src/text.ts`), unchanged.
+- Open problems for the next session: nothing on screen uses the record yet (F004). A project file still turns the identifier of an own Direction into "a generated Direction" on opening; F004 must let it stand. No independent review.
+- Next feature to build (ID): F004 (keep a design as an own Direction, show it under "Your own", start from it)
+
+- Date: 2026-11-15
+- Feature worked on (ID): F002 (the typefaces Playfair and Literata in place of the two that reserve their names)
+- Result: passes
+- Commits: the commit "F002: ..." that holds this entry
+- Evidence: `npm run check`: 196 unit tests passed (5 new). `npm run e2e`: 273 browser tests passed (2 new; 1,199 seconds). `node scripts/make-notices.mjs --check`: current; 13 fonts, none declares a Reserved Font Name. Script size 1,333 KB (budget 1,600). Stored pictures: 27 renewed (the nine Directions that use the two typefaces), every other picture unchanged; the style record changed in font names only.
+- Open problems for the next session: the F002 tests were written before the code and were not run against the old code. One new test was too broad and was narrowed to the copyright notices. The test "never makes the page wider than a phone" timed out once in a full run (240 seconds); its limit is now 480 seconds and its assertions are unchanged; the owner was told and may object. No independent review. The owner has not yet seen the nine Directions in the new typefaces on the private page.
+- Next feature to build (ID): F003 (the record of a Direction of the owner's own, in the core)
+
+- Date: 2026-11-15
+- Feature worked on (ID): F001 (finding C4-F18: a save that another tab replaces in the same moment)
+- Result: passes
+- Commits: the commit "F001: ..." that holds this entry
+- Evidence: `npm run check`: 191 unit tests passed. `npm run e2e`: 271 browser tests passed (2 files, 1,145 seconds). Tests first: of the five new tests, three failed before the repair. One older test failed on the first full run, because a changed notice was untrue of a second cause; each cause now has its own words, and the older test is unchanged. Race trial outside the automatic tests: 1 loss in 240 before, 0 in 240 after.
+- Open problems for the next session: no independent review (the helper reviewer was refused by the session's permission check; the builder reviewed its own changes line by line). Whether the running session obeys the new hooks is unconfirmed.
+- Next feature to build (ID): F002 (the typefaces Playfair and Literata)
+
 ## Next
 
 1. **The owner tries the Studio** with `docs/trial-guide.md` and sends the ten answers. M4 closes on the owner's word (hard rule 1).
 2. **Repair what the trial names as serious, and decide the open findings of 2026-11-14** (rows "Open" and "Fixed in part" among S5, DT, U5, and C4-F18 to C4-F25 in `redteam/FINDINGS.md`). The first to weigh: the rare loss when several tabs close in the same instant (C4-F18). Then have a reviewer look at the repairs of this unit, which no reviewer has seen (hard rule 12).
-3. **M5**, in this order: the Brief (the owner's product, audience, and real content, so that every preview shows the owner's words); the craft layer and the floors from the knowledge base; the rest of the behavior Steps; an inner page for Template 1. A Skin's name stored in the project, and a change of Skin inside a project, belong here too.
+3. **M4D:** the Direction Creator (`PLAN.md` section 4.7).
+3a. **M5**, in this order: the Brief (the owner's product, audience, and real content, so that every preview shows the owner's words); the craft layer and the floors from the knowledge base; the rest of the behavior Steps; an inner page for Template 1. A Skin's name stored in the project, and a change of Skin inside a project, belong here too.
 4. **M6**: the export bundle (the Prescription). **M7**: the Fitter.
 
 ## Waiting on the owner
 
-1. Do the pictures appear on the private page? (M3's last open part.)
-2. Approve or reject: D24 (links and focus ring stay at 3:1 even when Contrast checks are Off), D29 (browser storage, not IndexedDB), D30 (own type-size formula), D31 ("keep" replaces "skip: take the default"), D32 (no setup script).
-3. Approve changes to the defined-terms table in `CLAUDE.md`: an Option is "one of several choices" (not "3-4"); the accessibility Floor is optional per project (D13); add "Direction"; a Decision's reason is optional.
-4. Two bundled typefaces reserve their names (Playfair Display, Source Serif 4): keep, replace, or ask the copyright holders. See `docs/research/10-font-reserved-names.md`.
-5. The default for Contrast checks is "Advise" (shown as "Warn me"). The owner's own source assessment says "default to AA". Keep "Advise"?
-6. (Done on 2026-11-14 with your approval of the plan: decision D28 and the stack line in `CLAUDE.md` now match the versions you merged. Still true: decision D27's 7-day wait was not checked for those six versions.)
-7. Dependabot's "cooldown" setting would enforce the 7-day wait by itself (finding S2-06). The builder could not verify its spelling (the network blocks docs.github.com) and did not add it.
-8. The Drive backup of waypoint W4 was not sent: the file is larger than the connector accepts in one call. Split it, skip it, or rely on GitHub?
-9. The third review's reviewers used about 595,000 tokens; the plan's estimate was 300,000 to 450,000.
-10. Decision D42 holds three choices of the builder that are open to your veto: the fourth Direction “Marquee Deco”; the new Option “Field of stars”; and the deep band for “Two colors” on a dark page.
-11. The guarantees reference (`docs/reference/guarantees.md`) and the knowledge index (`docs/knowledge/INDEX.md`) are new files that `CLAUDE.md`'s layout table does not list. Add them to the table?
-12. (Done: you merged pull request 8 on 2026-11-14.)
-13. Decision D49 holds two choices of the builder that are open to your veto: on a dark page the "Lightness" slider offers only part of its range (the alternative would change the look of every dark Direction, "Midnight Aurora" among them); and a gloss button is drawn a little darker under a light label, so that the contrast figure is true for the whole button.
-14. Costs of this unit of work, measured: the code review used about 1.84 million tokens; the retest round about 0.74 million (the builder's estimate was 0.5 million).
-15. Decision D50 holds four choices of the builder that are open to your veto: a pick of another Option removes the reason you wrote (the Studio says so and offers it back); opening a file never adds to a Decision's rejected Options; opening brings a value that no slider can set into reach; keeping a card that follows the main color counts as a pick.
-16. Cost of round 3: 334,110 tokens measured for the part after the machine restarted; the part before was not recorded (the builder's estimate for the whole round: about 0.75 million).
-17. Decisions D53 and D54 hold the builder's choices in building Skins, Overlays, research rules, and the Japanese-design looks, and the changes after the reviews; each is open to your veto. Among them: the Overlays have a screen of their own between the Steps and the Summary; five research rules, none graded "measured"; "Control Room" may keep 15-pixel text; five Directions offer no Skin; the names "Ink and Seal", "Unbleached and Indigo", "Plain Ground" (renamed and recolored after a reviewer found it close to a known shop's look), and "Indigo dye".
-18. Two words are in use on screen and are not in the defined-terms table of `CLAUDE.md`: "Direction" and "research rule". Say whether to add them.
-19. To raise the research from "seen as a search summary" to "read", the session's network settings would have to allow the research sites that were blocked (among them pmc.ncbi.nlm.nih.gov, www.nngroup.com, plato.stanford.edu, www.w3.org, en.wikipedia.org). Say whether you want that.
-20. Cost of this unit of work, measured where a counter exists: the four research assistants about 1.2 million tokens; the code review 666,551; the three red-team reviewers and the judge 1,365,177. Together about 3.2 million tokens in helpers, beside the builder's own work. The plan of 2026-11-14 estimated 0.5 to 0.8 million for the judge and the reviewers; the real figure was about 1.7 times its upper end.
-21. Three questions that the judge's retest leaves to you: (a) after an Undo back to exactly what is stored, the status line still says "Cannot save here" until you press "Try to save again" (finding F-23): keep, or change? (b) "Keep “Your design now” and continue" on the Step "Amount of color" can later be recorded as a named Option without a word (F-24): fault, or wanted? (c) "Sample website" is on screen as a second name for the Mockup: keep it, or use one name?
+The owner settled the earlier list on 2026-11-15 (decision D55 holds every answer). What still waits:
+
+1. **The trial** (`docs/trial-guide.md`), and with it: do the pictures appear on the private page? (M3's last open part; the owner has not opened the page yet.)
+2. (Done on 2026-11-15: you approved the typefaces Playfair and Literata and the repair for finding C4-F18; both are built, features F002 and F001.)
+3. **Research sites for the network:** the builder asks with an exact list of hosts before M5's craft layer.
+4. **Helper agents:** before each use the builder states the purpose and an estimated cost and waits for the owner's yes (D55).
+
+Earlier cost reports, for the record (no decision needed): third review about 595,000 tokens; nine-reviewer code review about 1.84 million; retest round about 0.74 million; round 3 about 0.75 million (0.33 million measured); the unit of 2026-11-14 about 3.2 million in helpers.
 
 ## Known gaps (every plan item that is absent or partial)
 

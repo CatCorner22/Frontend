@@ -1,5 +1,5 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, STEPS, activeTunables, conflicts, findOverlay, findSkin, findStep, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, skinParams, skinsOf, toCss,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, STEPS, activeTunables, conflicts, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
   type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -111,8 +111,17 @@ function movedFrom(t: Tunable, value: number, optionValue: unknown): string | nu
 
 /** The current value of a Step, in words: the matching Option's name, or the hand-set values. */
 function valueLabel(project: Project, step: Step): string {
-  const match = matchingOptionId(project.params, step);
-  if (match) return step.options.find((o) => o.id === match)!.label;
+  const held = heldOptionId(project, step);
+  if (held) return step.options.find((o) => o.id === held)!.label;
+  // The design matches an Option whose second color follows the main color, and does not hold it: its own second color is a
+  // fixed one, and the match ends at the next change of the main color. The words say what stays, and do not name the design
+  // by that Option (campaign 4, finding F-24; the owner's decision D55).
+  const chance = step.options.find((o) => o.id === matchingOptionId(project.params, step));
+  const fixed = chance?.derive ? step.tunables?.find((t) => t.key === chance.derive!.key) : undefined;
+  if (chance && fixed) {
+    const value = project.params[fixed.key] as number;
+    return `close to “${chance.label}”: ${fixed.label.toLowerCase()} stays ${hueName(value)} (${Math.round(value)}° on the color wheel) and does not follow the main color`;
+  }
   if (step.tunables?.length) {
     // Words first, figures second: a hand-set design is named by the standard Option it lies nearest to, and each slider
     // that differs says in which direction and how far (findings U2-04, U3-03, U3-04).
@@ -1061,6 +1070,7 @@ function SummaryView(): React.JSX.Element {
           <ul className="research-list">
             {research.map((result) => {
               const step = RESEARCH_STEP[result.rule.id];
+              const onPurpose = result.holds ? null : startDeparture(s.project, result.rule.id, step);
               return (
                 <li key={result.rule.id} data-holds={result.holds}>
                   <details className="source">
@@ -1074,6 +1084,7 @@ function SummaryView(): React.JSX.Element {
                       {result.rule.sources.map((source) => <li key={source.text}>{source.text} <em>({BASIS_LABEL[source.basis]})</em></li>)}
                     </ul>
                   </details>
+                  {onPurpose && <p className="hint on-purpose">This project’s start, {directionName(s.project, s.generated)}, is made this way on purpose. {onPurpose}</p>}
                 </li>
               );
             })}

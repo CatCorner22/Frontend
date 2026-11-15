@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PARAMS, DIRECTIONS, REASON_MAX, STEPS,
-  activeTunables, applyDirection, closerOptions, conflicts, createProject, deriveTokens, describeDesign, designDistance, findStep, firstOpenStepId, generateDirections, keep,
+  activeTunables, applyDirection, closerOptions, conflicts, createProject, deriveTokens, describeDesign, designDistance, findStep, firstOpenStepId, generateDirections, heldOptionId, keep,
   matchingOptionId, nearestSliderValue, nextSliderValue, nextStepId, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, resolvePatch, revert, setReason, startPlain, tune, wireframeParams,
   type DesignParams, type Project,
 } from '../src/index.js';
@@ -366,7 +366,7 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
   };
   const consistent = (p: Project): void => {
     for (const [id, d] of Object.entries(p.decisions)) {
-      expect(d.optionId, `${id}: the Decision names the Option that the design matches`).toBe(matchingOptionId(p.params, step(id)));
+      expect(d.optionId, `${id}: the Decision names the Option that the design holds`).toBe(heldOptionId(p, step(id)));
       expect(d.values, `${id}: the Decision holds the design's values`).toEqual(ownedValues(step(id), p.params));
       if (d.optionId !== null) expect(d.rejected, `${id}: the Decision does not reject the Option it holds`).not.toContain(d.optionId);
     }
@@ -426,6 +426,39 @@ describe('engine: a second color follows the main color (finding T2-02)', () => 
     const changed = pick(tuned, 'accent', 'crimson', AT);
     expect(changed.params.accentHue).not.toBe(base.params.accentHue);
     expect(changed.params.accent2Hue).toBe(opposite);
+  });
+
+  it('keeps a kept Decision as kept when its fixed second color matches a following Option for a moment (finding F-24, decision D55)', () => {
+    // A starting design with two colors and a fixed second color that matches no Option, as some Directions give it.
+    const duo = pick(fresh(), 'color-strategy', 'duo-neighbor', AT);
+    const fixedHue = (duo.params.accentHue + 77) % 360;
+    const params = { ...duo.params, accent2Hue: fixedHue };
+    const start: Project = { ...duo, params, base: params, decisions: {} };
+    expect(matchingOptionId(start.params, strategy)).toBeNull();
+    const kept = keep(start, 'color-strategy', AT);
+    expect(kept.decisions['color-strategy']).toMatchObject({ kind: 'kept', optionId: null });
+    // The owner moves the main color to the one hue for which the fixed second color lies a third of the wheel away.
+    const chance = tune(kept, 'accent', 'accentHue', (fixedHue + 240) % 360, AT);
+    expect(chance.params.accent2Hue).toBe(fixedHue);
+    expect(matchingOptionId(chance.params, strategy)).toBe('duo-triad');
+    // The design matches the Option and does not hold it: the Decision stays kept and names no Option.
+    expect(heldOptionId(chance, strategy)).toBeNull();
+    expect(chance.decisions['color-strategy']).toMatchObject({ kind: 'kept', optionId: null, rejected: [] });
+    consistent(chance);
+    // Saving and opening change nothing and add no note.
+    const opened = parseProject(JSON.parse(JSON.stringify(chance)));
+    expect(opened.ok && opened.notes).toEqual([]);
+    expect(opened.ok && opened.project.decisions['color-strategy']).toEqual(chance.decisions['color-strategy']);
+    // The next change of the main color: the second color is still the fixed one, and the Decision is still the same.
+    const moved = tune(chance, 'accent', 'accentHue', (fixedHue + 200) % 360, AT);
+    expect(moved.params.accent2Hue).toBe(fixedHue);
+    expect(moved.decisions['color-strategy']).toMatchObject({ kind: 'kept', optionId: null });
+    // Only a pick makes the design hold the Option; from then on the second color follows.
+    const picked = pick(chance, 'color-strategy', 'duo-triad', AT);
+    expect(heldOptionId(picked, strategy)).toBe('duo-triad');
+    const after = tune(picked, 'accent', 'accentHue', (fixedHue + 200) % 360, AT);
+    expect(after.params.accent2Hue).toBe((fixedHue + 200 + 120) % 360);
+    expect(heldOptionId(after, strategy)).toBe('duo-triad');
   });
 
   it('never moves a second color that the owner set by hand', () => {

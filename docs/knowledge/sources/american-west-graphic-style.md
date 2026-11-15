@@ -32,4 +32,4 @@ What the search engine's summary says about the "Old West" look in print and on 
 
 ## Raw notes (optional)
 
-The Studio bundles no wood-type or slab-serif font. "Frontier Gazette" uses Playfair Display, whose thick and thin strokes come nearest to the "fat face" family, in heavy, widely spaced capitals.
+The Studio bundles no wood-type or slab-serif font. "Frontier Gazette" uses Playfair (until 2026-11-15: Playfair Display), whose thick and thin strokes come nearest to the "fat face" family, in heavy, widely spaced capitals.

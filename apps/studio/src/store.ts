@@ -1,6 +1,6 @@
 // The Studio's state. Every change to the design goes through the engine in @refraction/core.
 import {
-  DIRECTIONS, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, keep, matchingOptionId,
+  DIRECTIONS, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, keep, matchingOptionId, plainName,
   nextStepId, overlaysOf, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setOverlay, setReason, startPlain, tune,
   type A11yProfile, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type Project, type Skin, type Step,
 } from '@refraction/core';
@@ -152,20 +152,8 @@ export function paramsForCard(state: Pick<StudioState, 'project' | 'stepId' | 'v
   return option ? previewParams(project, state.stepId, option.id) : project.params;
 }
 
-/**
- * A name from a file or from the owner, made fit to stand inside quotation marks in one of the Studio's own sentences.
- * A name may hold a closing quotation mark and a sentence of its own; a dialog then read as if the Studio had said that
- * sentence ("…holds the project “X”. It is the same as the open project, so nothing will change."; campaign 4, round 3).
- * Every quotation mark in the name, and every sign that looks like one, becomes a single mark, and a run of such marks
- * becomes one mark, so that the name cannot end the quotation (two single marks side by side draw like a double one: campaign
- * 4, retest of finding F-19). Line breaks go. So do the invisible signs that change the direction of writing or hide between
- * letters: one of them turned the Studio's own sentence into mirror writing (review of 2026-11-14, finding S5-02).
- */
-const INVISIBLE_SIGNS = /[\u0000-\u001f\u007f-\u009f\u00ad\u061c\u180e\u200b-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff9-\ufffb]/g;
-const QUOTATION_SIGNS = /["'`´“”„‟‘’‚‛«»‹›＂＇″‴‶′‵ʺʹˮ˝❛❜❝❞〝〞〟]+/g;
-export function plainName(name: string, limit = 60): string {
-  return name.replace(INVISIBLE_SIGNS, ' ').replace(QUOTATION_SIGNS, '’').replace(/\s+/g, ' ').trim().slice(0, limit);
-}
+// The cleaner of names lives in the core, which uses it for the owner's own Directions too.
+export { plainName };
 
 /** The same data with every object's keys in one fixed order, so that two copies compare by content and not by the order of their fields. */
 function canonical(value: unknown): unknown {
@@ -225,8 +213,17 @@ let saveTimer: ReturnType<typeof setTimeout> | undefined;
 let lastSavedText: string | null = null;
 /** The result of the last save attempt, or `idle` before the first one. */
 let lastOutcome: SaveState = 'idle';
+/** Where the save that wrote `lastSavedText` put it. The status line says this when the screen is back at exactly that text. */
+let lastSavedWhere: 'page' | 'browser' | null = null;
 /** True once the owner chose to reload: the leave-page question is then not asked a second time. */
 let leavingOnPurpose = false;
+/**
+ * When this tab last wrote the saved project, on the page's own clock. A browser passes a storage write on to other tabs
+ * with a short delay, so for a moment after its save a tab cannot know whether another tab's write has replaced it
+ * (finding F-18; `docs/reference/saving-table.md`, "Why 2 seconds").
+ */
+let lastSaveAt = Number.NEGATIVE_INFINITY;
+const RECENT_SAVE_MS = 2000;
 /** True between opening and the first screen, when the project as opened differs from the stored copy and that copy is kept. */
 let storeOnceOpen = false;
 /**
@@ -237,6 +234,7 @@ let storeOnceOpen = false;
 let seemsToLeave = false;
 const EITHER_WAY = 'Whichever you choose, the Studio first keeps the other copy; you then find it on the Summary, under “Copies the Studio kept for you”.';
 const WHY_LEFT = (name: string): string => `The work in the project “${plainName(name)}” that this tab had not saved, as it was when you last left the tab, reloaded it, or closed it.`;
+const WHY_SAVED = (name: string): string => `The project “${plainName(name)}” as one page of the Studio saved it a moment before that page closed. Another page replaced the saved project in that moment.`;
 const WHY_LEAVING = (name: string): string => `The project “${plainName(name)}” as one page of the Studio last showed it. That page closed with a change that it could not save: another page saved something else in the same moment, or the browser refused the save.`;
 
 export const useStudio = create<StudioState>((set, get) => {
@@ -332,6 +330,17 @@ export const useStudio = create<StudioState>((set, get) => {
    * While the Studio is not saving, it must not write the saved project, so it keeps the unsaved work as a copy instead;
    * a kept copy joins the list and replaces nothing.
    */
+  /**
+   * The page seems to leave, and the screen shows what this tab saved. If that save is young, another tab's write may have
+   * replaced it unseen: the work also goes into an entry of this page's own, which the next opening settles (finding F-18).
+   * A refusal by the browser changes nothing: the save itself stands as before.
+   */
+  const keepRecentSave = (text: string, name: string): void => {
+    if (performance.now() - lastSaveAt >= RECENT_SAVE_MS) return;
+    seemsToLeave = true;
+    keepLeavingCopy(text, WHY_SAVED(name));
+  };
+
   const leaveSafely = (): boolean => {
     const { project, saved, history, ready } = get();
     // Before the saved project is open, the screen holds a placeholder. It is nobody's work, and it must never be written.
@@ -346,7 +355,10 @@ export const useStudio = create<StudioState>((set, get) => {
     };
     // Another tab replaced the saved project: this tab knows it (it is not saving), or it never heard of it and finds out now.
     if (saved !== 'held' && !storedCopyChangedElsewhere()) {
-      if (text === lastSavedText) return true;
+      if (text === lastSavedText) {
+        keepRecentSave(text, project.name);
+        return true;
+      }
       clearTimeout(saveTimer);
       // The work goes into an entry of this page's own first, then into the saved project (see `keepLeavingCopy`). If the
       // saved project cannot be written, the entry of its own still holds the work, and the next opening lists it.
@@ -391,16 +403,21 @@ export const useStudio = create<StudioState>((set, get) => {
     const text = JSON.stringify(get().project);
     if (text === lastSavedText && !force) {
       // Nothing to write: the project is back at its last saved state, for example after an Undo. The status line must still
-      // settle. It repeats the result of the last attempt, so that a "cannot save" statement stays while it is still true
-      // (campaign 4, finding F-7: the line stayed at "Saving…" for good).
-      if (get().saved === 'saving') set({ saved: lastOutcome });
+      // settle (campaign 4, finding F-7: the line stayed at "Saving…" for good). It says where that state is saved, also
+      // when a later save failed: the work on screen is the saved work again, and "Cannot save here" would be untrue of it
+      // (finding F-23; the owner's decision D55). The next change that cannot be saved brings the statement back.
+      if (get().saved === 'saving') set({ saved: lastSavedWhere ?? lastOutcome });
       return;
     }
     const outcome = await saveProject(text);
     if (get().saved === 'held') {
       // While the save ran, this tab stopped saving (another tab changed the project). The state "not saving" stands; a
       // finished save must not write "Saved" over it.
-      if (outcome === 'page' || outcome === 'browser') lastSavedText = text;
+      if (outcome === 'page' || outcome === 'browser') {
+        lastSavedText = text;
+        lastSavedWhere = outcome;
+        lastSaveAt = performance.now();
+      }
       return;
     }
     if (outcome === 'conflict') {
@@ -419,6 +436,8 @@ export const useStudio = create<StudioState>((set, get) => {
     }
     if (outcome !== 'failed') {
       lastSavedText = text;
+      lastSavedWhere = outcome;
+      lastSaveAt = performance.now();
       // This page lives and its work is saved: an entry that it wrote while it seemed to be leaving has done its work.
       if (!seemsToLeave) dropLeavingCopy();
     }
@@ -431,7 +450,9 @@ export const useStudio = create<StudioState>((set, get) => {
   const livesOn = (): void => {
     if (!seemsToLeave) return;
     seemsToLeave = false;
-    if (get().ready && JSON.stringify(get().project) === lastSavedText) dropLeavingCopy();
+    // The entry goes only while storage still holds this tab's save. If another tab replaced it, the entry is the one place
+    // besides this screen that holds the work; the tab then stops saving (see `checkStored`).
+    if (get().ready && JSON.stringify(get().project) === lastSavedText && !storedCopyChangedElsewhere()) dropLeavingCopy();
   };
 
   const persist = (): void => {
@@ -556,6 +577,7 @@ export const useStudio = create<StudioState>((set, get) => {
       lastSavedText = JSON.stringify(chosen.result.project);
       saved = chosen.where;
       lastOutcome = chosen.where;
+      lastSavedWhere = chosen.where;
       notes.push(...chosen.result.notes);
       // Opening can change a saved copy (an older version, a Step this Catalog lacks, a detail it cannot keep). The next save would then
       // replace the original, so the Studio keeps the original first and says so (finding S2-02).
@@ -757,8 +779,16 @@ export const useStudio = create<StudioState>((set, get) => {
       if (kept) set({ notice: kept });
       // A page that closed or reloaded while it could not save could tell nobody that it kept its unsaved work. Say it now.
       // (Both sources are asked, so that neither is left over for a later opening.)
-      else if ([takeKeptNote(), leftBehind > 0].some(Boolean)) {
-        set({ notice: { text: 'A page of the Studio closed or reloaded with work that it could not save. The Studio kept that page’s unsaved work as a copy; you find it on the Summary, under “Copies the Studio kept for you”.', actions: [{ label: 'Go to the Summary', run: () => get().go('summary') }] } });
+      else {
+        // Two causes, and each gets the words that are true of it. A page that was not saving kept its unsaved work as it
+        // left (it left a note). A page that did write the saved project left an entry of its own, and another page's write
+        // replaced that work in the same moment (finding F-18): "work that it could not save" would be untrue of it.
+        const keptNote = takeKeptNote();
+        const where = 'you find it on the Summary, under “Copies the Studio kept for you”.';
+        const text = leftBehind > 0
+          ? `A page of the Studio closed or reloaded, and its last work is not in the saved project: another page saved something else in the same moment, or the browser refused the save. The Studio kept that work as a copy; ${where}`
+          : keptNote ? `A page of the Studio closed or reloaded with work that it could not save. The Studio kept that page’s unsaved work as a copy; ${where}` : null;
+        if (text) set({ notice: { text, actions: [{ label: 'Go to the Summary', run: () => get().go('summary') }] } });
       }
       set({ focusTick: 0 });
     },
@@ -793,7 +823,9 @@ export const useStudio = create<StudioState>((set, get) => {
         // design holds a fixed value there. The button names the Option, so the owner chooses it, and it follows from now
         // on. As a mere keep it stopped matching at the next change of the main color, without a word (campaign 4, round 3).
         const onShow = step.options.find((o) => o.id === shownId);
-        if (onShow?.derive && !project.decisions[stepId] && matchingOptionId(project.base, step) !== onShow.id) commit(pick(project, stepId, onShow.id));
+        // The same holds when a Decision of another kind stands (the owner kept the Step earlier, or set it by hand) and the
+        // design does not hold the Option on show: only a pick makes it hold (finding F-24, the owner's decision D55).
+        if (onShow?.derive && heldOptionId(project, step) !== onShow.id) commit(pick(project, stepId, onShow.id));
         else commit(keep(project, stepId));
       } else {
         commit(pick(project, stepId, shownId));
@@ -1052,7 +1084,10 @@ export const useStudio = create<StudioState>((set, get) => {
         return;
       }
       const text = JSON.stringify(get().project);
-      if (text === lastSavedText) return;
+      if (text === lastSavedText) {
+        keepRecentSave(text, get().project.name);
+        return;
+      }
       // The browser copy is written first, in this same instant; the page database follows if the page lives long enough.
       // Before that, the work goes into an entry of this page's own (see `keepLeavingCopy`); the save that follows removes it.
       seemsToLeave = true;
