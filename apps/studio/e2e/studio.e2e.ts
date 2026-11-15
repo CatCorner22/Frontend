@@ -3093,4 +3093,103 @@ describe('Studio: a Direction of the owner’s own (SPEC.md section 2.3; docs/re
     expect(errors).toEqual([]);
     await context.close();
   });
+
+  // ───── Feature F006: hardening (SPEC.md section 2.4.1) ─────
+  const entry = (id: string, name: string, over: Record<string, unknown> = {}): Record<string, unknown> => ({ id, name, mood: 'A mood.', bestFor: 'Something.', risk: 'Something else.', params: worked('x').params, madeAt: '2026-11-15T12:00:00.000Z', ...over });
+  const listText = (...entries: unknown[]): string => JSON.stringify({ kind: 'refraction-own-directions', version: 1, directions: entries });
+
+  it('keeps the stored list as it was, before a change writes it without an entry that this version cannot show, and says how many it cannot show', async () => {
+    // One entry carries the name of a built-in Direction, as a later version of the Studio could make happen; one holds an unknown value.
+    const before = listText(entry('own-good1', 'Good one'), entry('own-clash', 'Paper and Ink'), entry('own-value', 'Odd value', { params: { ...worked('x').params, theme: 'sepia' } }));
+    const { context, page } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Partial list')), [OWN_KEY]: before } });
+    await page.waitForSelector('#own-direction');
+    expect(await page.locator('#own-direction .own-note').innerText()).toBe('This browser holds 2 Directions of your own that this version of the Studio cannot show: another Direction has the name now, or a value is unknown. They stay stored. Before your next change to your own Directions, the Studio keeps the stored list as it is among the kept copies.');
+    // Nothing is written by looking.
+    expect(await rawStored(page, OWN_KEY)).toBe(before);
+    expect(await keptCopies(page)).toEqual([]);
+    await keepAs(page, 'New one');
+    await page.locator('.banner:not(.hold)').waitFor();
+    expect((await ownStored(page)).map((d) => d.name)).toEqual(['Good one', 'New one']);
+    expect((await keptCopies(page)).filter((copy) => copy.text === before).map((copy) => copy.why)).toEqual(['The stored list of your own Directions as it was, with entries that this version of the Studio cannot show.']);
+    expect(await page.locator('#own-direction .own-note').count()).toBe(0);
+    await context.close();
+  });
+
+  it('downloads only what it can show and says what is missing; with a list that it cannot read at all, it offers no download and says why', async () => {
+    const partial = listText(entry('own-good1', 'Good one'), entry('own-clash', 'Paper and Ink'));
+    const first = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Partial download')), [OWN_KEY]: partial } });
+    await first.page.waitForSelector('#own-direction');
+    const [download] = await Promise.all([first.page.waitForEvent('download'), first.page.getByRole('button', { name: 'Download my own Directions (1)' }).click()]);
+    expect((JSON.parse(readFileSync(await download.path(), 'utf8')) as { directions: Own[] }).directions.map((d) => d.name)).toEqual(['Good one']);
+    expect(await first.page.locator('#own-direction [role="status"]').innerText()).toContain('The file holds the 1 Direction that this version of the Studio can show; 1 stored Direction is not in it.');
+    await first.context.close();
+    const second = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('No download')), [OWN_KEY]: '{"kind":"refraction-own-directions","version":1,"directions":[{' } });
+    await second.page.waitForSelector('#own-direction');
+    expect(await second.page.getByRole('button', { name: /^Download my own Directions/ }).count()).toBe(0);
+    expect(await second.page.locator('#own-direction .own-note').innerText()).toBe('This browser holds a list of your own Directions that the Studio cannot read, so it shows none and offers no download. The list stays stored. Before your next change to your own Directions, the Studio keeps it as it is among the kept copies.');
+    await second.context.close();
+  });
+
+  it('says so, and shows the stored list, when the owner renames or removes a Direction that another tab removed meanwhile', async () => {
+    const { context, page } = await twoKept('Gone elsewhere');
+    const stale = async (): Promise<Page> => {
+      const tab = await context.newPage();
+      await tab.goto(`${pageUrl}#directions`);
+      await ownCard(tab, 'First of mine').waitFor();
+      return tab;
+    };
+    const renaming = await stale();
+    const removing = await stale();
+    await page.goto(`${pageUrl}#directions`);
+    await ownCard(page, 'First of mine').getByRole('button', { name: 'Remove' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Yes, remove it for good' }).click();
+    await expect.poll(async () => (await ownStored(page)).map((d) => d.name)).toEqual(['Second of mine']);
+    const after = await rawStored(page, OWN_KEY);
+    const GONE = 'That Direction is no longer here: it was removed in another tab or window.';
+    // A tab that has not heard of the removal still shows the card. Renaming there changes nothing and says why.
+    await ownCard(renaming, 'First of mine').getByRole('button', { name: 'Rename' }).click();
+    await renaming.getByLabel('New name for “First of mine”').fill('Too late');
+    await renaming.getByRole('button', { name: 'Save the name' }).click();
+    expect(await renaming.locator('.banner:not(.hold)').innerText()).toContain(GONE);
+    await expect.poll(() => renaming.locator('#group-own .direction h3').allInnerTexts()).toEqual(['Second of mine']);
+    // Removing there does the same.
+    await ownCard(removing, 'First of mine').getByRole('button', { name: 'Remove' }).click();
+    await removing.getByRole('dialog').getByRole('button', { name: 'Yes, remove it for good' }).click();
+    expect(await removing.locator('.banner:not(.hold)').innerText()).toContain(GONE);
+    await expect.poll(() => removing.locator('#group-own .direction h3').allInnerTexts()).toEqual(['Second of mine']);
+    expect(await rawStored(page, OWN_KEY)).toBe(after);
+    await context.close();
+  });
+
+  it('adds only inert text from a file whose entries carry markup, script, extra parts, and signs that change the direction of writing', async () => {
+    const { context, page, errors, requests } = await summary('Hostile file');
+    let dialogs = 0;
+    page.on('dialog', (dialog) => { dialogs++; void dialog.dismiss(); });
+    const attack = '<img src=x onerror=alert(1)><script>alert(2)</script><iframe src="https://example.com"></iframe>\u202e';
+    const file = listText(
+      entry('own-evil1', `N ${attack}`, { mood: `M ${attack}`, bestFor: `B ${attack}`, risk: `R ${attack}`, extra: attack, __proto__: { polluted: true }, onload: 'alert(3)' }),
+      entry('own-evil2"><script>alert(4)</script>', 'Bad identifier'),
+      entry('own-evil3', 'Bad date', { madeAt: '<img src=x onerror=alert(5)>' }),
+    );
+    await page.locator('#own-file').setInputFiles({ name: 'evil.json', mimeType: 'application/json', buffer: Buffer.from(file) });
+    await expect.poll(() => page.locator('#own-direction [role="status"]').innerText()).toBe('Added 1 Direction of your own. 2 were left out: the Studio could not read them.');
+    const [kept] = await ownStored(page);
+    expect(Object.keys(kept!).sort()).toEqual(['bestFor', 'id', 'madeAt', 'mood', 'name', 'params', 'risk']);
+    await page.goto(`${pageUrl}#directions`);
+    const card = page.locator('#group-own .direction');
+    await card.waitFor();
+    // The one frame on the card is the Studio's own locked preview; the file added no element of its own.
+    expect(await page.locator('#group-own img, #group-own script').count()).toBe(0);
+    expect(await page.locator('#group-own iframe').count()).toBe(1);
+    expect(await page.locator('#group-own iframe').getAttribute('sandbox')).toBe('');
+    // The name is drawn as the cleaned text that was stored: the markup as letters, cut at the limit of a name.
+    expect(kept!.name.startsWith('N <img src=x onerror=alert(1)><script>alert(2)</script><ifra')).toBe(true);
+    expect(kept!.name.length).toBe(60);
+    expect(await card.locator('h3').innerText()).toBe(kept!.name);
+    expect(await page.evaluate(() => (({}) as { polluted?: boolean }).polluted)).toBeUndefined();
+    expect(dialogs).toBe(0);
+    expect(errors).toEqual([]);
+    expect(requests).toEqual([]);
+    await context.close();
+  });
 });

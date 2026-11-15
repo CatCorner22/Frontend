@@ -71,7 +71,7 @@
         "Open a file whose entries carry markup, script, and signs that change the direction of writing: the cards show them as text, nothing runs, and no request leaves the page",
         "Press the download button while the stored list cannot be read: the Studio says so and hands over no empty file"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F007",

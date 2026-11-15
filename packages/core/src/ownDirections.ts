@@ -40,6 +40,7 @@ const sameName = (a: string, b: string): boolean => a.toLocaleLowerCase() === b.
  */
 export function makeOwnDirection(draft: OwnDirection, takenNames: readonly string[]): OwnDirectionResult {
   if (!isOwnDirectionId(draft.id)) return { ok: false, error: 'The Direction has no identifier that the Studio can use.' };
+  if (draft.madeAt.length > 40 || Number.isNaN(Date.parse(draft.madeAt))) return { ok: false, error: 'The Direction has no date that the Studio can read.' };
   const name = plainName(draft.name, OWN_NAME_MAX);
   if (name === '') return { ok: false, error: 'Give the Direction a name.' };
   if ([...DIRECTIONS.map((d) => d.name), ...takenNames].some((taken) => sameName(taken, name))) return { ok: false, error: `Another Direction already has the name “${name}”. Choose another name.` };

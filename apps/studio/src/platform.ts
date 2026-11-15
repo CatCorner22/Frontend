@@ -591,18 +591,26 @@ const OWN_KEY = 'refraction.directions.own';
 
 /**
  * The owner's own Directions, as this browser stores them (docs/reference/saving-table.md, "The owner's own Directions").
- * `unreadable` is the stored text when it is there and is no list that the Studio can read; the caller keeps it before
- * anything replaces it.
+ * `unshown` counts the stored entries that this version cannot show (a name now in use, an unknown value); `null` means
+ * that the stored text is no list that the Studio can read at all. `raw` is the stored text. Whenever the list does not
+ * hold everything that `raw` holds, the caller keeps `raw` before anything replaces it.
  */
-export function loadOwnDirections(): { list: OwnDirection[]; unreadable: string | null } {
+export interface StoredOwnDirections {
+  list: OwnDirection[];
+  raw: string | null;
+  unshown: number | null;
+}
+export function loadOwnDirections(): StoredOwnDirections {
   let raw: string | null = null;
   try {
     raw = window.localStorage.getItem(OWN_KEY);
-    if (raw === null) return { list: [], unreadable: null };
-    const read = readOwnDirections(JSON.parse(raw), []);
-    return read.ok ? { list: read.added, unreadable: null } : { list: [], unreadable: raw };
+    if (raw === null) return { list: [], raw, unshown: 0 };
+    const file = JSON.parse(raw) as { directions?: unknown };
+    const read = readOwnDirections(file, []);
+    if (!read.ok || !Array.isArray(file.directions)) return { list: [], raw, unshown: null };
+    return { list: read.added, raw, unshown: file.directions.length - read.added.length };
   } catch {
-    return { list: [], unreadable: raw };
+    return { list: [], raw, unshown: null };
   }
 }
 

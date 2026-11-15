@@ -100,6 +100,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-15
+- Feature worked on (ID): F006 (hardening, part 1: own Directions are never lost without a word)
+- Result: passes
+- Commits: the commit "F006: ..." that holds this entry
+- Evidence: `npm run check`: 209 unit tests passed (1 new). `npm run e2e`: 287 browser tests passed (4 new; 1,299 seconds). Found by the builder's own reading of the new code, and repaired: (1) a stored own Direction that this version cannot show (a name now in use, an unknown value) vanished from the list, and the next change wrote the list without it and kept no copy; the stored list is now kept first, and the Summary says how many are not shown. (2) Removing a Direction that another tab had removed said "Removed"; it now says that the Direction is no longer here, and the stale tab shows the stored list. (3) A date that is no date was stored as it came. (4) The download could hand over a file without saying that stored Directions were missing from it.
+- Open problems for the next session: the four new tests were written before the repairs but were first run after them; one of them needs `.own-note`, which did not exist before, so it could not have passed. No independent review: the builder attacked its own code.
+- Next feature to build (ID): F007 (hardening, part 2: contrast notes of the built-in Directions)
+
+- Date: 2026-11-15
 - Feature worked on (ID): F005 (rename, remove, download, and open own Directions; milestone M4D)
 - Result: passes
 - Commits: the commit "F005: ..." that holds this entry

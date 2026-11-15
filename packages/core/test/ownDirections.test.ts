@@ -52,6 +52,10 @@ describe('a Direction of the owner’s own: the record (SPEC.md section 2.3)', (
     expect(made({ params: { ...design, baseSize: 30 } }).params.baseSize).toBe(22);
   });
 
+  it('refuses a date that is no date', () => {
+    for (const madeAt of ['', 'yesterday', '<img src=x onerror=alert(1)>', `2026-11-15T12:00:00.000Z${'0'.repeat(40)}`]) expect(makeOwnDirection(draft({ madeAt }), []).ok, madeAt).toBe(false);
+  });
+
   it('refuses an identifier that is not one of an own Direction', () => {
     expect(isOwnDirectionId('own-abc123')).toBe(true);
     for (const id of ['paper-and-ink', 'generated-1-1', 'own-', 'own-ABC', 'own-abc123<', '__proto__']) expect(isOwnDirectionId(id), id).toBe(false);

@@ -974,6 +974,7 @@ function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }
   const keepOwn = useStudio((s) => s.keepOwnDirection);
   const openOwn = useStudio((s) => s.openOwnDirections);
   const held = useStudio((s) => s.own.length);
+  const ownNote = useStudio((s) => s.ownNote);
   const [said, setSaid] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [texts, setTexts] = useState(NO_TEXTS);
@@ -990,8 +991,15 @@ function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }
   };
   const download = async (): Promise<void> => {
     // The list as storage holds it now: another tab may have changed it.
-    const outcome = await saveFile(OWN_FILE_NAME, JSON.stringify(ownDirectionsFile(loadOwnDirections().list), null, 2));
-    setSaid(outcome === 'saved' ? `The file “${OWN_FILE_NAME}” was handed to your browser to save, usually into your Downloads folder. To bring your own Directions back later, open it here with “Open a file of own Directions”.`
+    const stored = loadOwnDirections();
+    if (stored.list.length === 0) {
+      setSaid('There is no Direction of your own to download: this browser shows none now.');
+      return;
+    }
+    const shown = stored.list.length;
+    const missing = stored.unshown ? ` The file holds the ${shown === 1 ? '1 Direction' : `${shown} Directions`} that this version of the Studio can show; ${stored.unshown === 1 ? '1 stored Direction is' : `${stored.unshown} stored Directions are`} not in it.` : '';
+    const outcome = await saveFile(OWN_FILE_NAME, JSON.stringify(ownDirectionsFile(stored.list), null, 2));
+    setSaid(outcome === 'saved' ? `The file “${OWN_FILE_NAME}” was handed to your browser to save, usually into your Downloads folder. To bring your own Directions back later, open it here with “Open a file of own Directions”.${missing}`
       : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
         : 'This page cannot hand over files here, so your own Directions could not be downloaded.');
   };
@@ -1040,6 +1048,7 @@ function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }
         <input ref={fileRef} id="own-file" type="file" accept=".json,application/json" hidden onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
       </div>
       {said && <p className="note" role="status">{said}</p>}
+      {ownNote && <p className="note own-note">{ownNote}</p>}
     </section>
   );
 }

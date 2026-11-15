@@ -7,7 +7,7 @@ import {
 import { create } from 'zustand';
 import {
   adoptStoredCopy, dropLeavingCopy, endRunningCopy, keepBackup, keepLeavingCopy, keepRunningCopy, keptAlready, leaveKeptNote, loadOwnDirections, loadPrefs, settleLeavingCopies, storedProjectText, loadSaved, retryPageRead, saveBrowserNow, saveFile, savePrefs, saveProject, storeOwnDirections, storedCopyChangedElsewhere, takeKeptNote, watchOtherTabs,
-  type LoadResult, type RawCopy,
+  type LoadResult, type RawCopy, type StoredOwnDirections,
 } from './platform';
 
 export type Device = 'phone' | 'tablet' | 'desktop';
@@ -73,6 +73,8 @@ export interface StudioState {
   generated: Direction[];
   /** The owner's own Directions, as this browser stores them. */
   own: OwnDirection[];
+  /** A sentence for the owner when storage holds own Directions that the list does not show; otherwise null. */
+  ownNote: string | null;
   saved: SaveState;
   notice: Notice | null;
   /**
@@ -245,6 +247,16 @@ let storeOnceOpen = false;
  * that finishes while the page dies must not remove it: that save is the very write that another page's write can replace.
  */
 let seemsToLeave = false;
+/** What the screen shows of the stored own Directions: the list, and a sentence when storage holds more than the list. */
+function ownOnScreen(stored: StoredOwnDirections = loadOwnDirections()): Pick<StudioState, 'own' | 'ownNote'> {
+  const AHEAD = 'Before your next change to your own Directions, the Studio keeps';
+  const ownNote = stored.unshown === null
+    ? `This browser holds a list of your own Directions that the Studio cannot read, so it shows none and offers no download. The list stays stored. ${AHEAD} it as it is among the kept copies.`
+    : stored.unshown > 0
+      ? `This browser holds ${stored.unshown === 1 ? '1 Direction' : `${stored.unshown} Directions`} of your own that this version of the Studio cannot show: another Direction has the name now, or a value is unknown. They stay stored. ${AHEAD} the stored list as it is among the kept copies.`
+      : null;
+  return { own: stored.list, ownNote };
+}
 const GONE_ELSEWHERE = 'That Direction is no longer here: it was removed in another tab or window.';
 const EITHER_WAY = 'Whichever you choose, the Studio first keeps the other copy; you then find it on the Summary, under “Copies the Studio kept for you”.';
 const WHY_LEFT = (name: string): string => `The work in the project “${plainName(name)}” that this tab had not saved, as it was when you last left the tab, reloaded it, or closed it.`;
@@ -359,16 +371,25 @@ export const useStudio = create<StudioState>((set, get) => {
    * Change the owner's own Directions: read the stored list afresh, apply the change, and write the result. Reading afresh
    * matters: another tab may have added to the list, and this tab must not write an older list over it. `change` returns
    * the new list, or the reason in words why nothing changes. Returns that reason, or null when the list is as wanted.
+   * In both cases the screen then shows what storage holds.
+   *
+   * When the stored text holds more than the list shows (entries that this version cannot show, or no readable list at
+   * all), a write would drop that for good. The stored text is therefore kept among the kept copies first; if it cannot
+   * be kept, nothing is written (SPEC.md section 2.4.1).
    */
   const changeOwn = (change: (list: OwnDirection[]) => OwnDirection[] | string, whenFull = 'This browser’s storage is full or blocked, so the Studio could not write your own Directions. Nothing was changed.'): string | null => {
     const stored = loadOwnDirections();
-    if (stored.unreadable !== null && !keepBackup(stored.unreadable, 'The stored list of your own Directions, which the Studio could not read.')) {
-      return 'This browser holds a list of your own Directions that the Studio cannot read, and the Studio could not keep a copy of it. Nothing was changed.';
-    }
     const next = change(stored.list);
-    if (typeof next === 'string') return next;
-    if (next !== stored.list && !storeOwnDirections(next)) return whenFull;
-    set({ own: next });
+    if (typeof next === 'string' || next === stored.list) {
+      set(ownOnScreen(stored));
+      return typeof next === 'string' ? next : null;
+    }
+    if (stored.raw !== null && stored.unshown !== 0) {
+      const why = stored.unshown === null ? 'The stored list of your own Directions, which the Studio could not read.' : 'The stored list of your own Directions as it was, with entries that this version of the Studio cannot show.';
+      if (!keepBackup(stored.raw, why)) return 'This browser holds own Directions that the Studio cannot show, and the Studio could not keep a copy of that stored list. Nothing was changed.';
+    }
+    if (!storeOwnDirections(next)) return whenFull;
+    set({ own: next, ownNote: null });
     return null;
   };
 
@@ -735,6 +756,7 @@ export const useStudio = create<StudioState>((set, get) => {
     studioLook: 'studio',
     generated: [],
     own: [],
+    ownNote: null,
     saved: 'idle',
     notice: null,
     hold: null,
@@ -742,7 +764,7 @@ export const useStudio = create<StudioState>((set, get) => {
 
     async init() {
       applyPrefs();
-      set({ own: loadOwnDirections().list });
+      set(ownOnScreen());
       // The listeners come first, so that a fault further down cannot leave the Studio's links dead (finding SEC-04).
       window.addEventListener('hashchange', () => {
         const next = readHash();
@@ -769,7 +791,7 @@ export const useStudio = create<StudioState>((set, get) => {
         livesOn();
         checkStored();
         // Another tab may have kept a Direction of the owner's own meanwhile.
-        set({ own: loadOwnDirections().list });
+        set(ownOnScreen());
       });
       window.addEventListener('pageshow', (event) => {
         livesOn();
@@ -990,12 +1012,15 @@ export const useStudio = create<StudioState>((set, get) => {
     },
 
     renameOwnDirection(id, name) {
-      return changeOwn((list) => {
+      const error = changeOwn((list) => {
         const own = list.find((d) => d.id === id);
         if (!own) return GONE_ELSEWHERE;
         const made = makeOwnDirection({ ...own, name }, list.filter((d) => d.id !== id).map((d) => d.name));
         return made.ok ? list.map((d) => (d.id === id ? made.direction : d)) : made.error;
       });
+      // The card with its field is gone from the screen, so the sentence goes where the owner still sees it.
+      if (error === GONE_ELSEWHERE) set({ notice: { text: error } });
+      return error;
     },
 
     requestRemoveOwnDirection(id) {
@@ -1009,7 +1034,7 @@ export const useStudio = create<StudioState>((set, get) => {
           cancelLabel: 'No, keep it',
           danger: true,
           run: () => {
-            const error = changeOwn((list) => list.filter((d) => d.id !== id));
+            const error = changeOwn((list) => (list.some((d) => d.id === id) ? list.filter((d) => d.id !== id) : GONE_ELSEWHERE));
             set({ notice: { text: error ?? `Removed “${own.name}” from your own Directions.` } });
           },
         },
