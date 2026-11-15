@@ -82,7 +82,7 @@
         "Open the Directions screen: the cards of those three say that the Direction starts with contrast notes on its links",
         "Start from Midnight Aurora and open the Summary: it lists no contrast note"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F008",

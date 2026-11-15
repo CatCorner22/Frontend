@@ -3193,3 +3193,23 @@ describe('Studio: a Direction of the owner’s own (SPEC.md section 2.3; docs/re
     await context.close();
   });
 });
+
+describe('Studio: contrast notes of the built-in Directions (SPEC.md section 2.4.2)', () => {
+  it('says on a Direction’s card when the Direction starts with contrast notes, and on no other card', async () => {
+    const { context, page } = await open({ hash: '#directions' });
+    await page.waitForSelector('.direction-group');
+    const noted = await page.locator('.direction', { has: page.locator('.starts-noted') }).locator('h3').allInnerTexts();
+    expect(noted.sort()).toEqual(['Poster Block', 'Sticker Pop', 'Sunlit Studio']);
+    const card = page.locator('.direction', { has: page.locator('h3', { hasText: 'Sticker Pop' }) });
+    expect(await card.locator('.starts-noted').innerText()).toBe('Starts with 2 contrast notes under “Warn me”: Links on the page background; Links on boxes. “Fix for me” adjusts these colors; “Warn me” and “Off” leave the look as it is.');
+    await context.close();
+  });
+
+  it('starts Midnight Aurora without a contrast note on the Summary', async () => {
+    const { context, page } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(applyDirection(createProject('Aurora'), 'midnight-aurora')) } });
+    await page.waitForSelector('#own-direction');
+    expect(await page.locator('#own-direction .starts-with').innerText()).toBe('This design starts with no contrast note and no Decisions that pull against each other.');
+    expect(await page.locator('main').innerText()).not.toMatch(/contrast notes? \(/);
+    await context.close();
+  });
+});

@@ -368,6 +368,8 @@ function DirectionCard({ direction, own = false }: { direction: Direction; own?:
   const params = useMemo(() => (skin ? skinParams(direction, skin) : direction.params), [direction, skin]);
   const html = useMemo(() => mockupHtml(project, params, { wireframe: false, focus: 'top', still: true }).html, [project.content, project.a11y, params]);
   const twoColors = direction.params.colorStrategy === 'duo';
+  // What the contrast checks would note on this start under "Warn me", whatever the open project's own setting.
+  const notes = useMemo(() => tokensFor(params, 'advise').issues, [params]);
   return (
     <article className="direction" aria-labelledby={`direction-${direction.id}`}>
       <div className="direction-body">
@@ -400,6 +402,11 @@ function DirectionCard({ direction, own = false }: { direction: Direction; own?:
           {direction.bestFor && <div><dt>Best for</dt><dd>{direction.bestFor}</dd></div>}
           {direction.risk && <div><dt>Watch for</dt><dd>{direction.risk}</dd></div>}
         </dl>
+        {notes.length > 0 && (
+          <p className="hint starts-noted">
+            Starts with {notes.length === 1 ? '1 contrast note' : `${notes.length} contrast notes`} under “Warn me”: {notes.map((issue) => issue.pair).join('; ')}. “Fix for me” adjusts these colors; “Warn me” and “Off” leave the look as it is.
+          </p>
+        )}
         {own && <p className="hint">Your own; no source, not reviewed.</p>}
         {own && <OwnCardActions id={direction.id} name={direction.name} />}
         <button type="button" className="btn primary" onClick={() => request(skin ? { ...direction, params } : direction, skin)}>Start from {direction.name}</button>

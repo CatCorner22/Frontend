@@ -1,6 +1,6 @@
 # Plan: "Refraction" — your personal design studio and fitter for LLM-built frontends
 
-**Version 3, 2026-11-15.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Refraction" is a placeholder name (the eye-exam procedure). You can rename it at any time.
+**Version 3.1, 2026-11-15.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Refraction" is a placeholder name (the eye-exam procedure). You can rename it at any time.
 
 **How to read this plan.** Sections 1 to 3 say why the tool exists. Section 4 is the map of the forest: every part of the tool and its state today. Sections 5 to 7 say what it is built from. Section 8 holds the milestones. Section 9 lists what can go wrong. Each statement about the present says "built", "being built", or "not built".
 
@@ -63,7 +63,7 @@ A rule graded C or D is shown as opinion or folklore, never as science.
 | # | Screen | What you do there | State |
 |---|---|---|---|
 | 1 | Directions | Pick a complete starting look from four groups (light and calm; dark and dramatic; warm and nostalgic; bold and playful), or let the Studio compose six more at random, or start plain | built |
-| 1b | Direction Creator | Make a Direction of your own: start from any Direction or from the design on screen, name it, describe it, and keep it. It then appears among the Directions, in a group "Your own" (section 4.7) | not built (milestone M4D) |
+| 1b | Direction Creator | Keep the design on screen as a Direction of your own, name it, describe it; it then appears among the Directions, in a group "Your own"; rename, remove, download, and open them as one file (section 4.7) | built on 2026-11-15; not yet tried by you |
 | 1a | Skin | On a Direction's card, pick one of its pre-built skins: other colors, with or without a color fade in the headline | built; a Skin is chosen when a project starts, and the project records its name |
 | 2 | Steps | 23 Steps in two stages (6 for layout, in gray; 17 for look and feel). On each: compare cards, pick one, fine-tune with sliders, ask for small variations, write a reason, decide later, undo, or put the Step back | built |
 | 3 | Overlays | Switch small helpers on or off; the preview draws each one open, in your design | built |
@@ -182,7 +182,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M2 | Core engine | Unit tests pass; the core imports no React | met (163 unit tests) |
 | M3 | Preview and Template 1 Mockup | One change alters one variable (pixel test) | met; one part open: nobody has confirmed that the private page shows the pictures |
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
-| M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | not started; you asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
+| M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | built on 2026-11-15 (features F003 to F006); its exit test waits for you to make one Direction on the private page. You asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
 | M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52) |
 | M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | not started |
 | M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | not started |
@@ -263,6 +263,6 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 1. **Now (this unit of work):** commit the repairs F-23, F-24, and U5-16; set up the verified build loop; then, one feature at a time, the C4-F18 repair and the two typefaces.
 2. **You:** the trial (`docs/trial-guide.md`). You settled the open decisions on 2026-11-15 (decision D55).
-3. **Then M4D:** the Direction Creator.
-4. **Then M5:** your own content in every preview; the craft layer; the floors; an inner page.
+3. **Now, by your decision of 2026-11-15 (D58):** the hardening (features F006 to F008); then the craft layer (the invisible details of M5, drawn in the Mockup); then a first slice of the Prescription (M6). After that slice a design from the Studio can reach Claude Code for the first time.
+4. **Then the rest of M5:** your own content in every preview; the floors; an inner page.
 5. **Then M6:** the Prescription. From that point the Studio produces something you can build from.

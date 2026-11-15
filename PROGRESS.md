@@ -100,6 +100,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-15
+- Feature worked on (ID): F007 (hardening, part 2: contrast notes of the built-in Directions)
+- Result: passes
+- Commits: the commit "F007: ..." that holds this entry
+- Evidence: `npm run check`: 211 unit tests passed (2 new; both failed before the repair). `npm run e2e`: 289 browser tests passed (2 new; 1,301 seconds). A survey found that 9 of 38 Directions started with contrast notes under "Warn me". Now exactly three do (Poster Block, Sticker Pop, Sunlit Studio: links, by the owner's choice), a unit test pins them, and their cards say so. Stored pictures: 12 renewed, all of the six changed Directions; the style record changed only in the border color of form fields on the five dark Directions and in Frontier Gazette's colors. The owner received a before-and-after picture.
+- Open problems for the next session: the rule that a form field's edge stands at 3 to 1 binds every design, also under "Off" (decision D57, open to the owner's veto). The owner has not yet said whether the before-and-after picture is acceptable. No independent review.
+- Next feature to build (ID): F008 (the builder's look at all 38 Directions at phone and desktop width)
+
+- Date: 2026-11-15
 - Feature worked on (ID): F006 (hardening, part 1: own Directions are never lost without a word)
 - Result: passes
 - Commits: the commit "F006: ..." that holds this entry

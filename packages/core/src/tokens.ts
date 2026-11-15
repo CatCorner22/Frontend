@@ -110,7 +110,10 @@ function basePalette(p: DesignParams): Palette {
   const text = dark ? n(lerp(0.87, 0.97, k), 1.2) : n(lerp(0.33, 0.15, k), 2.2);
   const textMuted = dark ? n(lerp(0.67, 0.76, k), 1.5) : n(lerp(0.57, 0.44, k), 2.2);
   const hairlineAlpha = dark ? lerp(0.1, 0.18, k) : lerp(0.08, 0.16, k);
-  const borderStrong = dark ? n(bg.l + lerp(0.2, 0.36, k), 1.8) : n(lerp(0.74, 0.5, k), 2);
+  // The edge of a form field. A field whose edge cannot be seen cannot be found, so the edge stands at least 3 to 1 from
+  // the field and from the box around it, in every contrast setting, as an accent used for text does (decisions D24 and
+  // D57). The rule moves the edge only where it stood below 3 to 1: five dark Directions started that way (2.15 to 2.91).
+  const borderStrong = ensureContrastAll(dark ? n(bg.l + lerp(0.2, 0.36, k), 1.8) : n(lerp(0.74, 0.5, k), 2), [cardBg, surface], 3 * MARGIN);
 
   const accentL = dark ? Math.min(0.82, Math.max(p.accentLightness + 0.14, 0.62)) : p.accentLightness;
   const accent: Oklch = { l: accentL, c: p.accentChroma, h: p.accentHue };

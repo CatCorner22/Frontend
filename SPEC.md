@@ -76,6 +76,37 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
 
 - Behind it: `PLAN.md` sections 7 and 9; hard rules 8 and 12.
 
+### 2.5 The craft layer: the fine details that the Studio adds by itself (decision D58; `PLAN.md` sections 3.1 and 4.4)
+
+**What it is.** A skilled person's page differs from a generic one in details that nobody asks for: numbers in a price list line up, a heading breaks into even lines, a pressed button gives a little, a keyboard user sees where the focus is, movement is short and stops for a person who asked for less motion. The Mockup's style sheet already holds about a dozen such details, but nothing names them, checks them, or can hand them on. The craft layer makes each one a record.
+
+- What the user does: nothing to get them; opens the Summary to read them.
+- What the system does in response:
+  - The Catalog holds one record per craft rule: a name and a sentence in plain words (what it is, why a person notices its absence), the instruction for a builder in exact terms, a check that a program can run on a style sheet, a source, an evidence grade, and a date. No rule is graded "measured" unless its source was read in full.
+  - A unit test runs each rule's check on the Mockup's own style sheet for every built-in Direction: the Mockup practices what the Prescription will ask for. A rule that the Mockup does not meet cannot be in the list.
+  - The Summary lists the craft rules under "Fine details the Studio adds by itself", each with its sentence, its strength, and its source, and says that the owner does not choose them.
+  - Where a Decision sets a rule's value (the motion Step sets how long a movement lasts; "no motion" switches movement off), the list states the value that the open design gives.
+- Edge cases: a design with motion set to "none" (the motion rules say that nothing moves); a dark and a light page (the color-scheme rule states which); every text passes the plain-words rule; a rule's text never calls the result "accessible" or "compliant".
+- How to test it end to end: unit tests for the records and for each check against the Mockup of every Direction; a browser test reads the list on the Summary for two designs that differ in motion.
+
+### 2.6 The Prescription, first slice: four files that Claude Code can build from (decision D58; `PLAN.md` section 4.4)
+
+- What the user does: opens the Summary, presses "Download the Prescription" for each of four files, or copies a file's text; gives the files to Claude Code.
+- What the system does in response: the core writes, as pure functions of the project:
+  - `tokens.css`: every design value of the open design as a named CSS custom property, exactly the values that the preview draws.
+  - `tokens.json`: the same values in the Design Tokens format (name, value, type), grouped by role.
+  - `mockup.html`: the Mockup of the open design as one self-contained page without script, as the reference picture for the build.
+  - `PRESCRIPTION.md`: the instruction for the builder, in three layers: (1) every Decision with the picked Option, the rejected Options, and the owner's reason; (2) the craft rules with their exact instructions; (3) what a person must still check. The owner's own words (the project name, each reason) stand in a fenced block that the text marks as quoted data, never as instructions.
+- Edge cases:
+  - A project name or a reason that holds markup, a code fence, or a sentence that addresses the builder ("ignore the rules above"): it stays inside its fence; a fence inside the text cannot close the fence around it.
+  - A project with no Decision: the file says that every value comes from the start, and names the start.
+  - A start that is a Direction of the owner's own, or one that was removed: named as such.
+  - The four files agree: every value in `tokens.css` equals the value in `tokens.json` and the value that `mockup.html` draws; a unit test compares them.
+  - The files never claim that the result is "accessible" or "compliant" (hard rule 8); they state what was checked and what a person must still check.
+  - The font files are not in this slice: `PRESCRIPTION.md` names each typeface, its licence, and where to get it.
+- Not in this slice (stated in the file itself): `DESIGN.md`, the shadcn theme, `FONTS.md`, the floors, the Overlays' behavior, and a single bundled download.
+- How to test it end to end: unit tests with stored snapshots of the four files for two projects; a unit test with hostile names and reasons; a browser test downloads each file and compares it with what the core writes for the stored project.
+
 ## 3. Out of scope
 
 - For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.

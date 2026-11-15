@@ -271,6 +271,34 @@ describe('Catalog: Directions', () => {
     for (const name of ['constructor', 'toString', '__proto__', 'Midnight Aurora', '']) expect(findDirection(name), name).toBeUndefined();
   });
 
+  it('starts every curated Direction, in every Skin, without a contrast note under "Warn me", except three whose link colors stay on purpose (SPEC.md section 2.4.2)', () => {
+    // The pairs that may start below their requirement, per Direction. A new entry here is a decision, not an accident.
+    const KNOWN: Record<string, string[]> = {
+      'poster-block': ['link-on-page', 'link-on-card', 'lede-on-hero'],
+      'sticker-pop': ['link-on-page', 'link-on-card'],
+      'sunlit-studio': ['link-on-page', 'link-on-card'],
+    };
+    const starting: Record<string, string[]> = {};
+    for (const d of DIRECTIONS) {
+      for (const params of [d.params, ...skinsOf(d).map((skin) => skinParams(d, skin))]) {
+        for (const issue of deriveTokens(params, 'advise').issues) starting[d.id] = [...new Set([...(starting[d.id] ?? []), issue.id])];
+      }
+    }
+    expect(Object.keys(starting).sort()).toEqual(Object.keys(KNOWN).sort());
+    for (const [id, pairs] of Object.entries(starting)) for (const pair of pairs) expect(KNOWN[id], `${id}: ${pair}`).toContain(pair);
+  });
+
+  it('keeps the edge of a form field at 3 to 1 or more against the field and the box around it, in every contrast setting and at both ends of the "Text contrast" slider', () => {
+    for (const d of DIRECTIONS) {
+      for (const contrast of [0, d.params.contrast, 1]) {
+        for (const profile of ['off', 'advise', 'enforce'] as const) {
+          const notes = deriveTokens({ ...d.params, contrast }, profile).issues.filter((issue) => issue.id.startsWith('field-border'));
+          expect(notes, `${d.id}, contrast ${contrast}, ${profile}`).toEqual([]);
+        }
+      }
+    }
+  });
+
   it('keeps the curated Directions clearly different from each other', () => {
     for (const [i, a] of DIRECTIONS.entries()) for (const b of DIRECTIONS.slice(i + 1)) expect(designDistance(a.params, b.params), `${a.id} vs ${b.id}`).toBeGreaterThanOrEqual(2);
   });

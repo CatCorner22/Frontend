@@ -326,7 +326,7 @@ export const DIRECTIONS: Direction[] = [
     params: d({
       nav: 'top-centered', hero: 'centered', sections: 'stacked', contentWidth: 'standard', emphasis: 'headline', density: 1.05,
       fontHeading: 'playfair', fontBody: 'literata', headingWeight: 800, headingTracking: 0.07, headingCase: 'upper', baseSize: 17, scaleRatio: 1.3, numerals: 'proportional',
-      neutralHue: 78, neutralChroma: 0.03, accentHue: 38, accentChroma: 0.15, accentLightness: 0.5, accent2Hue: 245, colorStrategy: 'duo', theme: 'light', contrast: 0.85,
+      neutralHue: 78, neutralChroma: 0.03, accentHue: 38, accentChroma: 0.15, accentLightness: 0.46, accent2Hue: 245, colorStrategy: 'duo', theme: 'light', contrast: 0.85,
       radius: 0, elevation: 'borders', borderWeight: 2, signature: 'corner-tag', atmosphere: 'grain', buttonFinish: 'flat', displayTreatment: 'solid', motion: 'subtle',
     }),
   },
