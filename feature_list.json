@@ -34,7 +34,7 @@
         "A record with an empty name, a name already in use, a text over its limit, markup, or a value outside what the Studio can set is refused or cleaned as section 2.3 states",
         "A set written as a file and read back equals the set; a file that is not such a set is refused with a plain sentence"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F004",

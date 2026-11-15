@@ -2,6 +2,8 @@ export * from './color.js';
 export * from './params.js';
 export * from './tokens.js';
 export * from './engine.js';
+export * from './ownDirections.js';
+export * from './text.js';
 export * from './catalog/types.js';
 export { STEPS, findStep } from './catalog/steps.js';
 export { CONFLICT_RULES, HARMONY_RULES, RULES } from './catalog/rules.js';

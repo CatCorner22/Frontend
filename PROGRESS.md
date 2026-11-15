@@ -100,6 +100,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-15
+- Feature worked on (ID): F003 (the record of a Direction of the owner's own, in the core; milestone M4D)
+- Result: passes
+- Commits: the commit "F003: ..." that holds this entry
+- Evidence: `npm run check`: 208 unit tests passed (12 new, in `packages/core/test/ownDirections.test.ts`). `npm run e2e`: 273 browser tests passed (1,262 seconds); they ran because the cleaner of names moved from the Studio's code into the core (`packages/core/src/text.ts`), unchanged.
+- Open problems for the next session: nothing on screen uses the record yet (F004). A project file still turns the identifier of an own Direction into "a generated Direction" on opening; F004 must let it stand. No independent review.
+- Next feature to build (ID): F004 (keep a design as an own Direction, show it under "Your own", start from it)
+
+- Date: 2026-11-15
 - Feature worked on (ID): F002 (the typefaces Playfair and Literata in place of the two that reserve their names)
 - Result: passes
 - Commits: the commit "F002: ..." that holds this entry

@@ -815,7 +815,7 @@ function migrateV1(raw: Record<string, unknown>): unknown {
  * the slider's end ("22px" for 30), kept it as a Decision under that wrong description, and its sliders could not move it
  * (campaign 4, round 3). So opening brings such a value to the nearest one that the Studio can set, and says so.
  */
-function withinReach(params: DesignParams): { params: DesignParams; moved: number } {
+export function withinReach(params: DesignParams): { params: DesignParams; moved: number } {
   let out = params;
   let moved = 0;
   for (const step of STEPS) {
@@ -903,23 +903,27 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
 const FONT_KEYS = ['fontHeading', 'fontBody'] as const;
 
 /**
- * Put the standing typeface in the place of each replaced one (see `RETIRED_FONTS`), in every part of a file that holds
- * design values: the design, the starting design, and each Decision's values. The file itself is not changed. Returns the
- * replaced typefaces that the file named, so that the Studio can say what it did.
+ * One set of design values with the standing typeface in the place of each replaced one (see `RETIRED_FONTS`). The values
+ * themselves are not changed. `found` collects the replaced typefaces that the values named.
+ */
+export function currentFonts(values: Record<string, unknown>, found?: Set<string>): Record<string, unknown> {
+  const next = { ...values };
+  for (const key of FONT_KEYS) {
+    const id = next[key];
+    if (typeof id !== 'string' || !Object.hasOwn(RETIRED_FONTS, id)) continue;
+    found?.add(id);
+    next[key] = RETIRED_FONTS[id]!.now;
+  }
+  return next;
+}
+
+/**
+ * The same swap in every part of a project file that holds design values: the design, the starting design, and each
+ * Decision's values. Returns the replaced typefaces that the file named, so that the Studio can say what it did.
  */
 function replaceRetiredFonts(file: Record<string, unknown>): { file: Record<string, unknown>; retired: string[] } {
   const found = new Set<string>();
-  const swap = (values: unknown): unknown => {
-    if (!isRecord(values)) return values;
-    const next = { ...values };
-    for (const key of FONT_KEYS) {
-      const id = next[key];
-      if (typeof id !== 'string' || !Object.hasOwn(RETIRED_FONTS, id)) continue;
-      found.add(id);
-      next[key] = RETIRED_FONTS[id]!.now;
-    }
-    return next;
-  };
+  const swap = (values: unknown): unknown => (isRecord(values) ? currentFonts(values, found) : values);
   const decisions = isRecord(file['decisions'])
     ? Object.fromEntries(Object.entries(file['decisions']).map(([id, d]) => [id, isRecord(d) ? { ...d, values: swap(d['values']) } : d]))
     : file['decisions'];
