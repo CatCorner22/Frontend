@@ -2827,3 +2827,152 @@ describe('Studio: the typefaces Playfair and Literata (SPEC.md section 2.2)', ()
     await context.close();
   });
 });
+
+describe('Studio: a Direction of the owner’s own (SPEC.md section 2.3; docs/reference/saving-table.md)', () => {
+  const OWN_KEY = 'refraction.directions.own';
+  const KEEP = 'Keep this design as a Direction of my own';
+  type Own = { id: string; name: string; mood: string; bestFor: string; risk: string; params: Project['params'] };
+  const ownStored = async (page: Page): Promise<Own[]> => (JSON.parse((await rawStored(page, OWN_KEY)) ?? '{"directions":[]}') as { directions: Own[] }).directions;
+  /** Fill the form on the Summary and press the button. */
+  const keepAs = async (page: Page, name: string, texts: { mood?: string; bestFor?: string; risk?: string } = {}): Promise<void> => {
+    await page.locator('#own-name').fill(name);
+    await page.locator('#own-mood').fill(texts.mood ?? '');
+    await page.locator('#own-best').fill(texts.bestFor ?? '');
+    await page.locator('#own-risk').fill(texts.risk ?? '');
+    await page.getByRole('button', { name: KEEP }).click();
+  };
+  const summary = async (name: string): Promise<Session> => {
+    const session = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked(name)) } });
+    await session.page.waitForSelector('#own-direction');
+    return session;
+  };
+
+  it('keeps the design on screen as a Direction of the owner’s own, shows it under “Your own” after a reload, and starts a project that holds exactly the kept design', async () => {
+    const { context, page, errors } = await summary('Harbor project');
+    const design = (await stored(page))!.params;
+    // The Studio says what the design starts with, and proposes the mood.
+    expect(await page.locator('#own-direction .starts-with').innerText()).toMatch(/^This design starts with (no contrast note|\d+ contrast notes?) and (no pair|\d+ pairs?) of Decisions that pull against each other\. You may keep it all the same\.$|^This design starts with no contrast note and no Decisions that pull against each other\.$/);
+    await keepAs(page, 'Harbor evening', { bestFor: 'Small practices.', risk: 'Check it on a phone.' });
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('Kept “Harbor evening” as a Direction of your own. You find it on the Directions screen, under “Your own”.');
+    const [own] = await ownStored(page);
+    expect(own).toMatchObject({ name: 'Harbor evening', bestFor: 'Small practices.', risk: 'Check it on a phone.', params: design });
+    expect(own!.mood).toMatch(/^A (light|dark) page /);
+    // The form is empty again, so that a second press cannot keep the same Direction twice.
+    expect(await page.locator('#own-name').inputValue()).toBe('');
+    await page.reload();
+    await page.goto(`${pageUrl}#directions`);
+    const card = page.locator('#group-own .direction');
+    await card.waitFor();
+    expect(await page.locator('#group-own summary h2').textContent()).toBe('Your own');
+    const text = await card.innerText();
+    for (const part of ['Harbor evening', 'Small practices.', 'Check it on a phone.', 'Your own; no source, not reviewed']) expect(text).toContain(part);
+    expect(await card.locator('.skins').count()).toBe(0);
+    // Change the open project, then start again from the own Direction: the design is the kept one, value by value.
+    await page.goto(`${pageUrl}#theme`);
+    await waitForStep(page, 'Light or dark');
+    await page.locator('label.option').nth(1).click();
+    await page.locator('.actions.sticky .primary').click();
+    await page.goto(`${pageUrl}#directions`);
+    await card.getByRole('button', { name: 'Start from Harbor evening' }).click();
+    await page.getByRole('button', { name: 'Start again', exact: true }).click();
+    await settle(page);
+    const started = (await stored(page))!;
+    expect(started.params).toEqual(design);
+    expect(started.base).toEqual(design);
+    expect(started.direction).toBe(own!.id);
+    expect(started.decisions).toEqual({});
+    // The project still names its start after a reload.
+    await page.reload();
+    await page.goto(`${pageUrl}#summary`);
+    await page.waitForSelector('#own-direction');
+    expect(await page.locator('main').innerText()).toContain('This project started from Harbor evening');
+    expect((await stored(page))!.direction).toBe(own!.id);
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('refuses an empty name and a name in use, in words beside the button, and keeps what the owner typed', async () => {
+    const { context, page } = await summary('Names');
+    await keepAs(page, '   ', { risk: 'Typed before the refusal.' });
+    expect(await page.locator('#own-direction [role="alert"]').innerText()).toBe('Give the Direction a name.');
+    expect(await page.locator('#own-risk').inputValue()).toBe('Typed before the refusal.');
+    await keepAs(page, 'paper and ink');
+    expect(await page.locator('#own-direction [role="alert"]').innerText()).toBe('Another Direction already has the name “paper and ink”. Choose another name.');
+    await keepAs(page, 'Mine');
+    await page.locator('.banner:not(.hold)').waitFor();
+    await keepAs(page, 'MINE');
+    expect(await page.locator('#own-direction [role="alert"]').innerText()).toBe('Another Direction already has the name “MINE”. Choose another name.');
+    expect((await ownStored(page)).map((d) => d.name)).toEqual(['Mine']);
+    // The fields stop at their limits.
+    expect(await page.locator('#own-name').getAttribute('maxlength')).toBe('60');
+    expect(await page.locator('#own-mood').getAttribute('maxlength')).toBe('200');
+    await context.close();
+  });
+
+  it('draws markup and script in every field of an own Direction as text, and runs nothing', async () => {
+    const { context, page, errors, requests } = await summary('Hostile');
+    let dialogs = 0;
+    page.on('dialog', (dialog) => { dialogs++; void dialog.dismiss(); });
+    const attack = '<img src=x onerror=alert(1)><script>alert(2)</script>\u202e';
+    await keepAs(page, `N ${attack}`, { mood: `M ${attack}`, bestFor: `B ${attack}`, risk: `R ${attack}` });
+    await page.locator('.banner:not(.hold)').waitFor();
+    await page.goto(`${pageUrl}#directions`);
+    const card = page.locator('#group-own .direction');
+    await card.waitFor();
+    expect(await card.locator('img, script').count()).toBe(0);
+    expect(await card.locator('h3').innerText()).toBe('N <img src=x onerror=alert(1)><script>alert(2)</script>');
+    expect(await card.innerText()).toContain('M <img src=x onerror=alert(1)><script>alert(2)</script>');
+    await card.getByRole('button', { name: /^Start from N/ }).click();
+    await page.getByRole('button', { name: 'Start again', exact: true }).click();
+    await settle(page);
+    expect(await page.locator('.banner img, .banner script, main img, main script').count()).toBe(0);
+    expect(dialogs).toBe(0);
+    expect(errors).toEqual([]);
+    expect(requests).toEqual([]);
+    await context.close();
+  });
+
+  it('says so when storage has no room for an own Direction, and keeps none', async () => {
+    const { context, page } = await summary('Full');
+    await keepAs(page, 'First');
+    await page.locator('.banner:not(.hold)').waitFor();
+    expect(await fillStorage(page, 0)).toBe(true);
+    await keepAs(page, 'Second, with no room');
+    expect(await page.locator('#own-direction [role="alert"]').innerText()).toBe('The Studio could not keep the Direction: this browser’s storage is full or blocked. Nothing was changed.');
+    expect((await ownStored(page)).map((d) => d.name)).toEqual(['First']);
+    expect(await page.locator('#own-name').inputValue()).toBe('Second, with no room');
+    await context.close();
+  });
+
+  it('adds to the list that another tab stored, and shows the other tab’s Direction when the owner comes back', async () => {
+    const { context, page } = await summary('Two tabs');
+    const other = await context.newPage();
+    await other.goto(`${pageUrl}#summary`);
+    await other.waitForSelector('#own-direction');
+    await keepAs(other, 'Kept in the other tab');
+    await other.locator('.banner:not(.hold)').waitFor();
+    // This tab opened before the other tab kept its Direction. Its own keep must add to that list, not replace it.
+    await keepAs(page, 'Kept in this tab');
+    await page.locator('.banner:not(.hold)').waitFor();
+    expect((await ownStored(page)).map((d) => d.name)).toEqual(['Kept in the other tab', 'Kept in this tab']);
+    // The other tab learns of it when the owner comes back to it.
+    await other.goto(`${pageUrl}#directions`);
+    await other.evaluate(() => window.dispatchEvent(new Event('focus')));
+    await expect.poll(() => other.locator('#group-own .direction h3').allInnerTexts()).toEqual(['Kept in the other tab', 'Kept in this tab']);
+    await context.close();
+  });
+
+  it('keeps a stored list of own Directions that it cannot read, before a new Direction replaces it', async () => {
+    const damaged = '{"kind":"refraction-own-directions","version":1,"directions":[{"id":"own-old1"';
+    const { context, page } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(worked('Damaged list')), [OWN_KEY]: damaged } });
+    await page.waitForSelector('.direction-group');
+    expect(await page.locator('#group-own').count()).toBe(0);
+    await page.goto(`${pageUrl}#summary`);
+    await page.waitForSelector('#own-direction');
+    await keepAs(page, 'After the damage');
+    await page.locator('.banner:not(.hold)').waitFor();
+    expect((await ownStored(page)).map((d) => d.name)).toEqual(['After the damage']);
+    expect((await keptCopies(page)).filter((copy) => copy.text === damaged).map((copy) => copy.why)).toEqual(['The stored list of your own Directions, which the Studio could not read.']);
+    await context.close();
+  });
+});

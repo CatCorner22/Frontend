@@ -47,7 +47,7 @@
         "Type markup and script into each field: the screen shows them as text, and nothing runs",
         "Fill the browser's storage and keep a Direction: the Studio says that it could not keep it"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F005",

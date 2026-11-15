@@ -306,6 +306,8 @@ select, .name, .project-text {
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 
 /* Copies the Studio kept (Summary). */
+.own-form { display: grid; gap: 0.35rem; max-width: 40rem; margin-top: 0.5rem; }
+.own-form label { font-weight: 600; margin-top: 0.35rem; }
 .kept-copies { margin-top: 1rem; }
 .kept-copies h3 { margin: 0 0 0.25rem; font-size: 1rem; }
 .kept-copies ul { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.5rem; }

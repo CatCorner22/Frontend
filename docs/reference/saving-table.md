@@ -78,6 +78,22 @@
 | The owner presses "Go on" or "Start a new project" | What another tab saved meanwhile is kept first; saving resumes at once | "saves at once after "Go on: let the Studio save over it", also when nothing changed on screen (finding F-15)"; "keeps what another tab saved before "Start a new project" in a stopped tab replaces it (finding "saving 4")" |
 | The owner starts again from another Direction | The replaced project is kept for good, also when the tab's running copy held the same text | "keeps the replaced project for good when a stopped tab starts again, although the tab’s running copy held the same text" |
 
+## The owner's own Directions (a list of its own, beside the project)
+
+**What this is.** A Direction of the owner's own must outlive the project it came from, so it is not part of the saved project. The browser holds one entry with the whole list. The list is small and changes only when the owner keeps, renames, or removes a Direction, so it needs no status line: each action says at once whether it worked.
+
+| Event | What must happen | Test |
+|---|---|---|
+| The owner keeps the design as a Direction | The stored list is read afresh, the new Direction is added, and the list is written. A notice says where to find it | "keeps the design on screen as a Direction of the owner’s own, shows it under “Your own” after a reload, and starts a project that holds exactly the kept design" |
+| The page reloads, or the Studio opens | The list is read; the Directions screen shows the group "Your own" | the same test |
+| A project that started from an own Direction is saved and opened again | It still names that Direction | the same test |
+| Storage has no room | Nothing is kept, the stored list stays as it was, and words beside the button say so | "says so when storage has no room for an own Direction, and keeps none" |
+| Another tab kept a Direction meanwhile | This tab's next keep adds to the other tab's list; it never writes its own older list over it. When the owner comes back to this tab, it reads the list again | "adds to the list that another tab stored, and shows the other tab’s Direction when the owner comes back" |
+| The stored list cannot be read (damaged, or not a list at all) | The Studio shows none. Before a new Direction replaces the entry, the entry is kept among the kept copies; if it cannot be kept, nothing is written | "keeps a stored list of own Directions that it cannot read, before a new Direction replaces it" |
+| An entry of the list cannot stand (a name in use, a value the Studio does not know) | That entry is not shown; the others are | unit test "leaves out, with the reason, an entry that cannot stand or whose name is in use; the rest is added" |
+
+**What no test covers.** The private page's database: own Directions live in the browser's storage only, also on the private page, where that storage is a convenience and can be cleared. The download of the list (feature F005) is the safeguard.
+
 ## Why 2 seconds (finding F-18)
 
 **What goes wrong without it.** A browser passes one tab's storage write on to the other tabs with a short delay (a few milliseconds). In that gap, tab A cannot see that tab B has just saved. If A closes in that gap, A's closing write replaces B's save. B counts its work as saved, so B used to write nothing when it closed, and B's work was then in no entry. A judge measured 2 such losses in 120 trials on 2026-11-14 (11 milliseconds lay between the two writes in the recorded loss).

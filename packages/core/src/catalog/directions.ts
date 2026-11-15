@@ -19,6 +19,10 @@ export const DIRECTION_GROUPS = [
 ] as const;
 export type DirectionGroup = (typeof DIRECTION_GROUPS)[number]['id'];
 
+/** The identifier of a Direction of the owner's own (see `ownDirections.ts`). No built-in or random Direction has this form. */
+const OWN_ID = /^own-[0-9a-z]{4,24}$/;
+export const isOwnDirectionId = (id: string): boolean => OWN_ID.test(id);
+
 export interface Direction {
   id: string;
   /** The group on the first screen; `null` for a generated Direction, which has a list of its own. */

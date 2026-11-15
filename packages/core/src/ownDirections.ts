@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DIRECTIONS, type Direction } from './catalog/directions.js';
+import { DIRECTIONS, isOwnDirectionId, type Direction } from './catalog/directions.js';
 import { currentFonts, describeDesign, withinReach } from './engine.js';
 import { assertKnownParams, type DesignParams } from './params.js';
 import { plainName } from './text.js';
@@ -28,9 +28,6 @@ export const OWN_TEXT_MAX = 200;
 const OWN_FILE_MAX = 500;
 const OWN_FILE_KIND = 'refraction-own-directions';
 const OWN_FILE_VERSION = 1;
-const OWN_ID = /^own-[0-9a-z]{4,24}$/;
-
-export const isOwnDirectionId = (id: string): boolean => OWN_ID.test(id);
 
 export type OwnDirectionResult = { ok: true; direction: OwnDirection } | { ok: false; error: string };
 

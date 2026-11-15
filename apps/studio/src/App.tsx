@@ -1,8 +1,8 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, STEPS, activeTunables, conflicts, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, STEPS, activeTunables, asDirection, conflicts, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
   type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
-import { Component, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { Component, Fragment, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
 import { copyText, fileNameFor, probePreviews, readBackups, removeBackup, saveFile, storedProjectText, type KeptCopy } from './platform';
 import { LargePreview, Thumbnail, mockupHtml, tokensFor } from './preview';
@@ -323,7 +323,7 @@ function chipColors(direction: Direction, skinId: string | null): [string, strin
   return [main, second];
 }
 
-function DirectionCard({ direction }: { direction: Direction }): React.JSX.Element {
+function DirectionCard({ direction, own = false }: { direction: Direction; own?: boolean }): React.JSX.Element {
   const project = useStudio((s) => s.project);
   const request = useStudio((s) => s.requestDirection);
   const skins = skinsOf(direction);
@@ -362,9 +362,10 @@ function DirectionCard({ direction }: { direction: Direction }): React.JSX.Eleme
           </fieldset>
         )}
         <dl>
-          <div><dt>Best for</dt><dd>{direction.bestFor}</dd></div>
-          <div><dt>Watch for</dt><dd>{direction.risk}</dd></div>
+          {direction.bestFor && <div><dt>Best for</dt><dd>{direction.bestFor}</dd></div>}
+          {direction.risk && <div><dt>Watch for</dt><dd>{direction.risk}</dd></div>}
         </dl>
+        {own && <p className="hint">Your own; no source, not reviewed.</p>}
         <button type="button" className="btn primary" onClick={() => request(skin ? { ...direction, params } : direction, skin)}>Start from {direction.name}</button>
       </div>
     </article>
@@ -396,7 +397,7 @@ function DirectionsView(): React.JSX.Element {
           First pick a Direction below. Then {STEPS.length} short Steps let you change one thing at a time, like an eye exam: “which is better, 1 or 2?” You can stop at any point; the line under the top bar says whether your work is saved.
         </p>
         <p className="teach">Every picture shows the same made-up dental practice, so that only the design differs. It is a sample; it is not your content.</p>
-        {started && <p className="note">You already have a project, started from {directionName(s.project, s.generated)}. If you start from another Direction, the Studio asks first, and you can undo it.</p>}
+        {started && <p className="note">You already have a project, started from {directionName(s.project, s)}. If you start from another Direction, the Studio asks first, and you can undo it.</p>}
       </div>
       {/* The Directions stand in groups, each under a plain heading. On a wide window every group is open; on a narrow one
           only the first is, so that the person meets four headings and not thirty-five cards in a row. */}
@@ -411,6 +412,14 @@ function DirectionsView(): React.JSX.Element {
           </div>
         </details>
       ))}
+      {s.own.length > 0 && (
+        <details id="group-own" className="direction-group" open>
+          <summary><h2>Your own</h2><span>{s.own.length === 1 ? '1 Direction' : `${s.own.length} Directions`}</span></summary>
+          <div className="direction-grid">
+            {s.own.map((d) => <DirectionCard key={d.id} direction={asDirection(d)} own />)}
+          </div>
+        </details>
+      )}
       {s.generated.length > 0 && (
         <details id="group-generated" className="direction-group" open>
           <summary><h2>Composed at random</h2><span>{s.generated.length} Directions</span></summary>
@@ -463,7 +472,7 @@ function Rail(): React.JSX.Element {
       {/* One link of the list takes the Tab key: the current Step, the Overlays link on the Overlays screen, or else this one. */}
       <a className="rail-direction" href="#directions" tabIndex={tab(s.view !== 'steps' && s.view !== 'overlays')}>
         <span>Started from</span>
-        <strong>{directionName(s.project, s.generated)}</strong>
+        <strong>{directionName(s.project, s)}</strong>
       </a>
       <p className="rail-count">{decided} of {STEPS.length} Steps decided</p>
       {(['structure', 'feel'] as const).map((stage) => (
@@ -549,7 +558,7 @@ function StepsView(): React.JSX.Element {
     }
     const out: Card[] = step.options.map((o) => ({ id: o.id, label: o.label, what: o.what, chooseWhen: o.chooseWhen, risk: o.risk, exemplar: o.exemplar?.text, warn: o.warn?.text, focus: o.focus }));
     if (applied === CURRENT) {
-      const origin = decision ? 'You set these values by hand.' : `These values come from ${directionName(s.project, s.generated)}.`;
+      const origin = decision ? 'You set these values by hand.' : `These values come from ${directionName(s.project, s)}.`;
       out.unshift({ id: CURRENT, label: 'Your design now', what: `${valueLabel(s.project, step)}. ${origin} They match none of the standard Options, so they have a card of their own.` });
     }
     return out;
@@ -916,6 +925,50 @@ function keptCopyFile(copy: KeptCopy, index: number): { name: string; text: stri
   return { name: `refraction-kept-copy-${index + 1}.${record ? 'json' : 'txt'}`, text: copy.text };
 }
 
+const OWN_FIELDS = [
+  { key: 'mood', id: 'own-mood', label: 'The mood, in a sentence (leave it empty and the Studio writes it from the design)' },
+  { key: 'bestFor', id: 'own-best', label: 'What it is best for' },
+  { key: 'risk', id: 'own-risk', label: 'What to watch for' },
+] as const;
+const NO_TEXTS = { name: '', mood: '', bestFor: '', risk: '' };
+
+/** Keep the design on screen as a Direction of the owner's own (PLAN.md section 4.7). */
+function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }): React.JSX.Element {
+  const keepOwn = useStudio((s) => s.keepOwnDirection);
+  const [texts, setTexts] = useState(NO_TEXTS);
+  const [refusal, setRefusal] = useState<string | null>(null);
+  const startsWith = notes + clashes === 0
+    ? 'This design starts with no contrast note and no Decisions that pull against each other.'
+    : `This design starts with ${notes === 0 ? 'no contrast note' : notes === 1 ? '1 contrast note' : `${notes} contrast notes`} and ${clashes === 0 ? 'no pair' : clashes === 1 ? '1 pair' : `${clashes} pairs`} of Decisions that pull against each other. You may keep it all the same.`;
+  const submit = (event: React.FormEvent): void => {
+    event.preventDefault();
+    const error = keepOwn(texts);
+    setRefusal(error);
+    // What the owner typed stays after a refusal; after a success the form is empty, so that a second press keeps nothing twice.
+    if (error === null) setTexts(NO_TEXTS);
+  };
+  return (
+    <section id="own-direction" aria-labelledby="own-heading">
+      <h2 id="own-heading">Keep this design as a Direction of your own</h2>
+      <p className="hint">A Direction of your own is this design under a name. It then stands on the Directions screen, under “Your own”, and you can start later projects from it. It stays in this browser; it is not part of this project’s file.</p>
+      <p className="hint starts-with">{startsWith}</p>
+      <form className="own-form" onSubmit={submit}>
+        <label htmlFor="own-name">Name</label>
+        <input id="own-name" className="name" maxLength={OWN_NAME_MAX} value={texts.name} onChange={(e) => setTexts({ ...texts, name: e.target.value })} />
+        {OWN_FIELDS.map((field) => (
+          <Fragment key={field.id}>
+            <label htmlFor={field.id}>{field.label}</label>
+            <input id={field.id} className="name" maxLength={OWN_TEXT_MAX} value={texts[field.key]} onChange={(e) => setTexts({ ...texts, [field.key]: e.target.value })} />
+          </Fragment>
+        ))}
+        <p className="hint">A name holds up to {OWN_NAME_MAX} characters, each text up to {OWN_TEXT_MAX}; a field stops at its limit.</p>
+        {refusal && <p className="note" role="alert">{refusal}</p>}
+        <div><button type="submit" className="btn">Keep this design as a Direction of my own</button></div>
+      </form>
+    </section>
+  );
+}
+
 function SummaryView(): React.JSX.Element {
   const s = useStudio();
   const heading = useHeadingFocus();
@@ -989,7 +1042,7 @@ function SummaryView(): React.JSX.Element {
         <p className="eyebrow">Summary</p>
         <h1 ref={heading} tabIndex={-1}>Your Decisions, read back</h1>
         <p className="teach">
-          You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s.generated)}; a Step you have not decided keeps the value it started with.
+          You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s)}; a Step you have not decided keeps the value it started with.
         </p>
         <p className="teach">
           <strong>What works today:</strong> you can download the project file and open it here later. <strong>What does not exist yet:</strong> the instructions for an AI coding tool, the files of exact design values, and the reference page. They arrive in a later version of the Studio.
@@ -1064,6 +1117,7 @@ function SummaryView(): React.JSX.Element {
             </>
           )}
         </section>
+        <OwnDirectionForm notes={html.issues.length} clashes={clashes.length} />
         <section aria-labelledby="research-heading">
           <h2 id="research-heading">Research rules</h2>
           <p className="hint">A research rule turns a finding from research into a number that the Studio measures on your design. “Holds” means that your design meets the rule. Each rule is advice, with its strength stated; none of them changes your design. Open a rule to read why it exists and what you must still check yourself.</p>
@@ -1084,7 +1138,7 @@ function SummaryView(): React.JSX.Element {
                       {result.rule.sources.map((source) => <li key={source.text}>{source.text} <em>({BASIS_LABEL[source.basis]})</em></li>)}
                     </ul>
                   </details>
-                  {onPurpose && <p className="hint on-purpose">This project’s start, {directionName(s.project, s.generated)}, is made this way on purpose. {onPurpose}</p>}
+                  {onPurpose && <p className="hint on-purpose">This project’s start, {directionName(s.project, s)}, is made this way on purpose. {onPurpose}</p>}
                 </li>
               );
             })}

@@ -100,6 +100,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-15
+- Feature worked on (ID): F004 (keep a design as a Direction of the owner's own, show it under "Your own", start from it; milestone M4D)
+- Result: passes
+- Commits: the commit "F004: ..." that holds this entry
+- Evidence: `npm run check`: 208 unit tests passed. `npm run e2e`: 279 browser tests passed (6 new; 1,306 seconds). Script size 1,340 KB (budget 1,600). The storage design stood in `docs/reference/saving-table.md` ("The owner's own Directions") before the code. The builder looked at pictures of the form and of the group "Your own".
+- Open problems for the next session: own Directions live in the browser's storage only, also on the private page; until F005 nothing lets the owner download, rename, or remove one. Two of the six new tests were wrong in details of the test (a button's label; a heading drawn in capitals) and were corrected; the Studio's code was right. No independent review. The owner has not tried the form on the private page.
+- Next feature to build (ID): F005 (rename, remove, download, and open own Directions)
+
+- Date: 2026-11-15
 - Feature worked on (ID): F003 (the record of a Direction of the owner's own, in the core; milestone M4D)
 - Result: passes
 - Commits: the commit "F003: ..." that holds this entry

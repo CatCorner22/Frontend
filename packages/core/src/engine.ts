@@ -1,7 +1,7 @@
 // The engine: pure functions that turn the owner's actions into a project state. No React, no browser APIs.
 
 import { z } from 'zod';
-import { DIRECTIONS, findDirection, type Direction } from './catalog/directions.js';
+import { DIRECTIONS, findDirection, isOwnDirectionId, type Direction } from './catalog/directions.js';
 import { OVERLAYS, findOverlay } from './catalog/overlays.js';
 import { skinsOf } from './catalog/skins.js';
 import { CONFLICT_RULES, HARMONY_RULES } from './catalog/rules.js';
@@ -880,7 +880,8 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
     decisions.push([key, { stepId: key, optionId, kind, rejected, values: ownedValues(step, params), at: ISO_TIME.test(d.at) && !Number.isNaN(Date.parse(d.at)) ? d.at : UNKNOWN_TIME, ...(reason ? { reason } : {}) }]);
   }
   let direction = data.direction;
-  if (direction !== null && !findDirection(direction) && !GENERATED_ID.test(direction)) {
+  // A Direction of the owner's own lives outside the project, in the browser; the project keeps its identifier.
+  if (direction !== null && !findDirection(direction) && !GENERATED_ID.test(direction) && !isOwnDirectionId(direction)) {
     direction = 'generated-0-0';
     notes.push('The file named a Direction that this version of the Studio does not have. The design itself is unchanged.');
   }

@@ -8,6 +8,8 @@
 // 3. After a read of the page database timed out, nothing is written there until a read has succeeded.
 // 4. A save never replaces a copy that another tab wrote after this tab last looked.
 
+import { ownDirectionsFile, readOwnDirections, type OwnDirection } from '@refraction/core';
+
 interface DocSnapshot {
   exists: boolean;
   data(): Record<string, unknown> | undefined;
@@ -582,6 +584,35 @@ export function savePrefs(prefs: Prefs): void {
     window.localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
   } catch {
     // A preference that cannot be stored is not worth a warning.
+  }
+}
+
+const OWN_KEY = 'refraction.directions.own';
+
+/**
+ * The owner's own Directions, as this browser stores them (docs/reference/saving-table.md, "The owner's own Directions").
+ * `unreadable` is the stored text when it is there and is no list that the Studio can read; the caller keeps it before
+ * anything replaces it.
+ */
+export function loadOwnDirections(): { list: OwnDirection[]; unreadable: string | null } {
+  let raw: string | null = null;
+  try {
+    raw = window.localStorage.getItem(OWN_KEY);
+    if (raw === null) return { list: [], unreadable: null };
+    const read = readOwnDirections(JSON.parse(raw), []);
+    return read.ok ? { list: read.added, unreadable: null } : { list: [], unreadable: raw };
+  } catch {
+    return { list: [], unreadable: raw };
+  }
+}
+
+/** Write the whole list. Returns false when the browser refuses (storage full or blocked); the stored list then stays as it was. */
+export function storeOwnDirections(list: readonly OwnDirection[]): boolean {
+  try {
+    window.localStorage.setItem(OWN_KEY, JSON.stringify(ownDirectionsFile(list)));
+    return true;
+  } catch {
+    return false;
   }
 }
 

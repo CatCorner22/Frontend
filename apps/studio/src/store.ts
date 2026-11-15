@@ -1,12 +1,12 @@
 // The Studio's state. Every change to the design goes through the engine in @refraction/core.
 import {
-  DIRECTIONS, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, keep, matchingOptionId, plainName,
+  DIRECTIONS, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName,
   nextStepId, overlaysOf, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setOverlay, setReason, startPlain, tune,
-  type A11yProfile, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type Project, type Skin, type Step,
+  type A11yProfile, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type OwnDirection, type Project, type Skin, type Step,
 } from '@refraction/core';
 import { create } from 'zustand';
 import {
-  adoptStoredCopy, dropLeavingCopy, endRunningCopy, keepBackup, keepLeavingCopy, keepRunningCopy, keptAlready, leaveKeptNote, loadPrefs, settleLeavingCopies, storedProjectText, loadSaved, retryPageRead, saveBrowserNow, saveFile, savePrefs, saveProject, storedCopyChangedElsewhere, takeKeptNote, watchOtherTabs,
+  adoptStoredCopy, dropLeavingCopy, endRunningCopy, keepBackup, keepLeavingCopy, keepRunningCopy, keptAlready, leaveKeptNote, loadOwnDirections, loadPrefs, settleLeavingCopies, storedProjectText, loadSaved, retryPageRead, saveBrowserNow, saveFile, savePrefs, saveProject, storeOwnDirections, storedCopyChangedElsewhere, takeKeptNote, watchOtherTabs,
   type LoadResult, type RawCopy,
 } from './platform';
 
@@ -71,6 +71,8 @@ export interface StudioState {
   wireframe: boolean;
   studioLook: 'studio' | 'project';
   generated: Direction[];
+  /** The owner's own Directions, as this browser stores them. */
+  own: OwnDirection[];
   saved: SaveState;
   notice: Notice | null;
   /**
@@ -98,6 +100,8 @@ export interface StudioState {
   requestDirection(direction: Direction, skin?: Skin): void;
   requestPlainStart(): void;
   moreDirections(): void;
+  /** Keep the design on screen as a Direction of the owner's own. Returns the reason in words when it could not be kept. */
+  keepOwnDirection(texts: { name: string; mood: string; bestFor: string; risk: string }): string | null;
   setProfile(profile: A11yProfile): void;
   /** Switch one Overlay on or off for this project. */
   toggleOverlay(overlayId: string, on: boolean): void;
@@ -120,9 +124,12 @@ export interface StudioState {
 export const stepOf = (id: string): Step => findStep(id) ?? STEPS[0]!;
 
 /** The name to show for where a project started. */
-export function directionName(project: Project, generated: Direction[] = []): string {
-  if (project.direction === null) return 'the plain start';
-  const name = findDirection(project.direction)?.name ?? generated.find((d) => d.id === project.direction)?.name ?? 'a generated Direction';
+export function directionName(project: Project, known: Pick<StudioState, 'generated' | 'own'>): string {
+  const id = project.direction;
+  if (id === null) return 'the plain start';
+  // A Direction of the owner's own lives in the browser, not in the project; the owner may have removed it since.
+  if (isOwnDirectionId(id)) return known.own.find((d) => d.id === id)?.name ?? 'a Direction of your own that you removed';
+  const name = findDirection(id)?.name ?? known.generated.find((d) => d.id === id)?.name ?? 'a generated Direction';
   // A project that started in a Skin says so wherever it names its start (review of 2026-11-14, finding U5-04).
   const skin = project.skin === undefined ? undefined : findSkin(project.skin);
   return skin ? `${name} in the Skin “${skin.name}”` : name;
@@ -703,6 +710,7 @@ export const useStudio = create<StudioState>((set, get) => {
     wireframe: true,
     studioLook: 'studio',
     generated: [],
+    own: [],
     saved: 'idle',
     notice: null,
     hold: null,
@@ -710,6 +718,7 @@ export const useStudio = create<StudioState>((set, get) => {
 
     async init() {
       applyPrefs();
+      set({ own: loadOwnDirections().list });
       // The listeners come first, so that a fault further down cannot leave the Studio's links dead (finding SEC-04).
       window.addEventListener('hashchange', () => {
         const next = readHash();
@@ -735,6 +744,8 @@ export const useStudio = create<StudioState>((set, get) => {
       window.addEventListener('focus', () => {
         livesOn();
         checkStored();
+        // Another tab may have kept a Direction of the owner's own meanwhile.
+        set({ own: loadOwnDirections().list });
       });
       window.addEventListener('pageshow', (event) => {
         livesOn();
@@ -931,7 +942,7 @@ export const useStudio = create<StudioState>((set, get) => {
       };
       const start = (): void => replaceKeepingCopy(replace, 'you started again from the plain start');
       if (!hasWork(project)) start();
-      else set({ confirmation: { title: 'Start again from the plain start?', body: `This replaces your current design (started from ${directionName(project, get().generated)}) and clears your ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}. ${UNDO_PROMISE}. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Start again', cancelLabel: 'Keep my project', run: start } });
+      else set({ confirmation: { title: 'Start again from the plain start?', body: `This replaces your current design (started from ${directionName(project, get())}) and clears your ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}. ${UNDO_PROMISE}. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Start again', cancelLabel: 'Keep my project', run: start } });
     },
 
     moreDirections() {
@@ -939,6 +950,21 @@ export const useStudio = create<StudioState>((set, get) => {
       const avoid = [...DIRECTIONS, ...generated].map((d) => d.params);
       const seed = (generated.length / 6 + 1) * 7919 + 13;
       set({ generated: [...generated, ...generateDirections(seed, 6, avoid)] });
+    },
+
+    keepOwnDirection(texts) {
+      // The stored list is read afresh: another tab may have added to it, and this tab must not write an older list over it.
+      const stored = loadOwnDirections();
+      if (stored.unreadable !== null && !keepBackup(stored.unreadable, 'The stored list of your own Directions, which the Studio could not read.')) {
+        return 'This browser holds a list of your own Directions that the Studio cannot read, and the Studio could not keep a copy of it. Nothing was changed.';
+      }
+      const id = `own-${Date.now().toString(36)}${Math.floor(Math.random() * 36 ** 4).toString(36).padStart(4, '0')}`;
+      const made = makeOwnDirection({ id, ...texts, params: get().project.params, madeAt: new Date().toISOString() }, stored.list.map((d) => d.name));
+      if (!made.ok) return made.error;
+      const own = [...stored.list, made.direction];
+      if (!storeOwnDirections(own)) return 'The Studio could not keep the Direction: this browser’s storage is full or blocked. Nothing was changed.';
+      set({ own, notice: { text: `Kept “${made.direction.name}” as a Direction of your own. You find it on the Directions screen, under “Your own”.`, actions: [{ label: 'Go to the Directions', run: () => get().go('directions') }] } });
+      return null;
     },
 
     setProfile(profile) {
@@ -1040,7 +1066,7 @@ export const useStudio = create<StudioState>((set, get) => {
         : null;
       const text = small
         ?? (wholeProject || !first
-        ? `Undone: your earlier project is back, the one that started from ${directionName(previous, get().generated)}.`
+        ? `Undone: your earlier project is back, the one that started from ${directionName(previous, get())}.`
         : touched.length === 1
           ? `Undone: the Step “${first.name}” is back to how it was.`
           : `Undone: the Steps ${touched.map((st) => `“${st.name}”`).join(' and ')} are back to how they were.`);
