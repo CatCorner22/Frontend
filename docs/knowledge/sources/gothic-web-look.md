@@ -30,4 +30,4 @@ What the search engine's summary says about gothic styling on websites. It matte
 
 ## Raw notes (optional)
 
-The Studio bundles no blackletter font. "Galactic Goth" uses Playfair Display, the most ornate bundled font, for headings only, with plain letters for reading text, as the summary's advice suggests.
+The Studio bundles no blackletter font. "Galactic Goth" uses Playfair (until 2026-11-15: Playfair Display), the most ornate bundled font, for headings only, with plain letters for reading text, as the summary's advice suggests.

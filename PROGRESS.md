@@ -92,12 +92,20 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 - **Set-up.** The branch `claude/festive-mendel-lfnahh` started at the main line's newest commit (`9c5cbe4`); 330 files; `npm run check` passed (190 unit tests).
 - **The owner's decisions (D55).** 24 questions in the chat; the owner chose the recommended answer in each. `CLAUDE.md` now defines "Direction" and "Research rule", says that an Option is one of several, that a reason is optional, that the accessibility Floor is a choice per project, and that the screen calls the Mockup "Sample website". Decision D26 (the Drive backup) is retired.
-- **Repairs of 2026-11-15.** The status line after an Undo back to the stored project (F-23); a kept Decision stays "kept" and names no Option by coincidence (F-24; a new rule in the engine, `heldOptionId`); the Summary says that "Control Room" departs from the text-size rule on purpose (U5-16); Dependabot waits 7 days (S2-06). 191 unit tests and 266 browser tests; the full browser run of 2026-11-15 passed with 265, and the 266th (for F-24) was added afterwards and passed alone.
+- **Repairs of 2026-11-15.** The status line after an Undo back to the stored project (F-23); a kept Decision stays "kept" and names no Option by coincidence (F-24; a new rule in the engine, `heldOptionId`); the Summary says that "Control Room" departs from the text-size rule on purpose (U5-16); Dependabot waits 7 days (S2-06). 196 unit tests and 273 browser tests on 2026-11-15 after F002 (191 and 266 after the first three repairs); the full browser run of 2026-11-15 passed with 265, and the 266th (for F-24) was added afterwards and passed alone.
 - **The verified build loop (decision D56).** The owner's skill is in `.claude/skills/verified-build-loop/`. `SPEC.md` and `feature_list.json` hold the work in hand: F001 (the C4-F18 repair) and F002 (the typefaces Playfair and Literata). The skill's hand-over entries go below, under "Build log".
 - **Plan, version 3.** The Direction Creator is milestone M4D, straight after M4 (`PLAN.md` section 4.7).
 - **A code review that the owner started with `/code-review` was stopped by the owner before it reported.** No review of the repairs of 2026-11-15 exists yet.
 
 ## Build log (verified build loop; newest entry first)
+
+- Date: 2026-11-15
+- Feature worked on (ID): F002 (the typefaces Playfair and Literata in place of the two that reserve their names)
+- Result: passes
+- Commits: the commit "F002: ..." that holds this entry
+- Evidence: `npm run check`: 196 unit tests passed (5 new). `npm run e2e`: 273 browser tests passed (2 new; 1,199 seconds). `node scripts/make-notices.mjs --check`: current; 13 fonts, none declares a Reserved Font Name. Script size 1,333 KB (budget 1,600). Stored pictures: 27 renewed (the nine Directions that use the two typefaces), every other picture unchanged; the style record changed in font names only.
+- Open problems for the next session: the F002 tests were written before the code and were not run against the old code. One new test was too broad and was narrowed to the copyright notices. The test "never makes the page wider than a phone" timed out once in a full run (240 seconds); its limit is now 480 seconds and its assertions are unchanged; the owner was told and may object. No independent review. The owner has not yet seen the nine Directions in the new typefaces on the private page.
+- Next feature to build (ID): F003 (the record of a Direction of the owner's own, in the core)
 
 - Date: 2026-11-15
 - Feature worked on (ID): F001 (finding C4-F18: a save that another tab replaces in the same moment)
@@ -120,7 +128,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 The owner settled the earlier list on 2026-11-15 (decision D55 holds every answer). What still waits:
 
 1. **The trial** (`docs/trial-guide.md`), and with it: do the pictures appear on the private page? (M3's last open part; the owner has not opened the page yet.)
-2. **The builder's proposals of 2026-11-15**, each of which the owner approves before the builder changes anything: two typefaces to replace Playfair Display and Source Serif 4; the repair for finding C4-F18.
+2. (Done on 2026-11-15: you approved the typefaces Playfair and Literata and the repair for finding C4-F18; both are built, features F002 and F001.)
 3. **Research sites for the network:** the builder asks with an exact list of hosts before M5's craft layer.
 4. **Helper agents:** before each use the builder states the purpose and an estimated cost and waits for the owner's yes (D55).
 

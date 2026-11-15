@@ -298,7 +298,7 @@ describe('Catalog: rules about how Decisions fit together', () => {
     'statement-emphasis': { hero: 'statement', emphasis: 'action' },
     'narrow-split': { contentWidth: 'narrow', hero: 'split-media' },
     'caps-dramatic': { headingCase: 'upper', scaleRatio: 1.42 },
-    'outline-delicate': { signature: 'outline-type', fontHeading: 'playfair-display' },
+    'outline-delicate': { signature: 'outline-type', fontHeading: 'playfair' },
     'sticker-finish': { elevation: 'hard-shadow', buttonFinish: 'gloss' },
     'sheen-thin': { displayTreatment: 'ink-gradient', headingWeight: 400 },
     'purple-aurora': { atmosphere: 'aurora', theme: 'dark', accentHue: 292 },

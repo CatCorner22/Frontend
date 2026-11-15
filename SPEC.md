@@ -33,9 +33,32 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
 - How to test it end to end: a unit test reads the copyright notice inside every shipped font file and fails on the words "Reserved Font Name"; a browser test opens a stored project that names both replaced typefaces and reads the notice, the kept copy, and the drawn font family.
 - Behind it: `PLAN.md` section 6; `docs/research/10-font-reserved-names.md`; decision D55.
 
+### 2.3 The Direction Creator: the owner keeps a design as a Direction of the owner's own (milestone M4D)
+
+- What the user does: on the Summary, presses "Keep this design as a Direction of my own", gives it a name and three short texts (the mood, what it is best for, what to watch for), and confirms. Later the user starts a project from it on the Directions screen, renames it, removes it, downloads all own Directions as one file, or opens such a file.
+- What the system does in response:
+  - It stores the Direction (name, texts, the design's values, the date) in the browser, in an entry of its own that is not the saved project.
+  - The Directions screen shows a group "Your own" with one card per own Direction: its picture, its name and texts, and the line "Your own; no source, not reviewed". The group does not appear while the owner has none.
+  - Starting from an own Direction gives exactly the design that was kept, with the same questions and the same kept copy as for a built-in Direction.
+  - The Studio proposes the mood text from the design's values; the owner may change it.
+  - Before the owner confirms, the Studio states how many contrast notes and how many pairs of Decisions that pull against each other the design starts with. It does not forbid either.
+  - Remove asks first ("Yes, remove it for good" / "No, keep it"). A project that started from a removed Direction stays as it is and says that it started from "a Direction of your own that you removed".
+  - Download gives one file with every own Direction; opening such a file adds the Directions that the browser does not hold yet, and says how many it added and how many it left out and why.
+- Edge cases this requirement must handle:
+  - A name or text with markup, script, quotation marks, or signs that change the direction of writing: drawn as inert text; cleaned like a project name.
+  - An empty name, or a name that a built-in or own Direction already has: refused with a sentence that says why.
+  - Texts longer than their limit (name 60 characters, each text 200): the field stops at the limit and says so.
+  - A file that is not a set of own Directions, or one that holds a value the Studio cannot set: refused, or the value is brought to the nearest one the Studio can set, with a note; never an error on screen.
+  - A file with a replaced typeface (requirement 2.2): the same swap.
+  - Storage full or blocked: the Studio says that it could not keep the Direction, and offers the download.
+  - Two tabs: a Direction kept in one tab appears in the other when the owner comes back to it; neither tab's list replaces the other's.
+  - An own Direction offers no Skin (left out on purpose in this version).
+- How to test it end to end: unit tests for the record's format and its checks; browser tests that keep a Direction, reload, start from it and compare the stored design value by value, download and open the file in an empty browser, remove it, and feed hostile text into every field.
+- Behind it: `PLAN.md` section 4.7; decision D56.
+
 ## 3. Out of scope
 
-- The Direction Creator (`PLAN.md` section 4.7, milestone M4D): it gets its requirement here when its place in the milestone order is approved.
+- For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.
 - Milestones M5 and later.
 - Any browser other than Chromium; the real private page with its database.
 

@@ -69,7 +69,7 @@ Each entry records a decision that shapes the project, or a departure from `PLAN
 
 ## Package checks (hard rule 7; see D27)
 
-Facts read from the npm registry on 2026-11-13 with `npm view`. "Published" is the publication date of the pinned version. "Newest" is the newest release on that date; a newer release than the pin is younger than the waiting period, or is excluded by a decision. "Maintainers" is the number of npm accounts that can publish the package. The 13 font packages come from one project (Fontsource); each has its own row.
+Facts read from the npm registry on 2026-11-13 with `npm view`. "Published" is the publication date of the pinned version. "Newest" is the newest release on that date; a newer release than the pin is younger than the waiting period, or is excluded by a decision. "Maintainers" is the number of npm accounts that can publish the package. The 13 font packages come from one project (Fontsource); each has its own row. The rows of `playfair` and `literata` were read from the registry on 2026-11-15; neither package is marked deprecated, and the copyright notice inside each shipped font file declares no Reserved Font Name (`docs/research/10-font-reserved-names.md`).
 
 | Package | Pinned | Use | License | Published | Newest on the check date | Maintainers | Source repository |
 |---|---|---|---|---|---|---|---|
@@ -83,12 +83,12 @@ Facts read from the npm registry on 2026-11-13 with `npm view`. "Published" is t
 | `@fontsource-variable/instrument-sans` | 5.3.0 | font files that ship in the page | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19) | 2 | github.com/fontsource/font-files |
 | `@fontsource-variable/inter` | 5.3.0 | font files that ship in the page | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19) | 2 | github.com/fontsource/font-files |
 | `@fontsource-variable/jetbrains-mono` | 5.3.0 | font files that ship in the page | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19) | 2 | github.com/fontsource/font-files |
+| `@fontsource-variable/literata` | 5.3.0 | font file that ships in the page (replaced `source-serif-4` on 2026-11-15, D56) | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19), checked 2026-11-15 | 2 | github.com/fontsource/font-files |
 | `@fontsource-variable/manrope` | 5.3.0 | font files that ship in the page | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19) | 2 | github.com/fontsource/font-files |
 | `@fontsource-variable/newsreader` | 5.3.0 | font files that ship in the page | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19) | 2 | github.com/fontsource/font-files |
 | `@fontsource-variable/outfit` | 5.3.0 | font files that ship in the page | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19) | 2 | github.com/fontsource/font-files |
-| `@fontsource-variable/playfair-display` | 5.3.0 | font files that ship in the page | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19) | 2 | github.com/fontsource/font-files |
+| `@fontsource-variable/playfair` | 5.3.0 | font file that ships in the page (`playfair-latin-opsz-normal.woff2`; replaced `playfair-display` on 2026-11-15, D56) | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19), checked 2026-11-15 | 2 | github.com/fontsource/font-files |
 | `@fontsource-variable/public-sans` | 5.3.0 | font files that ship in the page | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19) | 2 | github.com/fontsource/font-files |
-| `@fontsource-variable/source-serif-4` | 5.3.1 | font files that ship in the page | OFL-1.1 | 2026-10-11 | 5.3.1 (2026-10-11) | 2 | github.com/fontsource/font-files |
 | `@fontsource-variable/space-grotesk` | 5.3.0 | font files that ship in the page | OFL-1.1 | 2026-07-19 | 5.3.0 (2026-07-19) | 2 | github.com/fontsource/font-files |
 | `@types/node` | 22.20.5 | types only | MIT | 2026-10-01 | 26.6.6 (2026-10-28) | 1 | github.com/DefinitelyTyped/DefinitelyTyped |
 | `@types/react` | 19.3.0 | types only | MIT | 2026-09-09 | 19.3.0 (2026-09-09) | 1 | github.com/DefinitelyTyped/DefinitelyTyped |

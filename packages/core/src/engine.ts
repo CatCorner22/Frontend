@@ -7,7 +7,7 @@ import { skinsOf } from './catalog/skins.js';
 import { CONFLICT_RULES, HARMONY_RULES } from './catalog/rules.js';
 import { STEPS, findStep } from './catalog/steps.js';
 import type { Option, Step, Tunable } from './catalog/types.js';
-import { A11Y_PROFILES, DEFAULT_PARAMS, PARAM_RANGES, PARAM_VALUES, assertKnownParams, type A11yProfile, type DesignParams } from './params.js';
+import { A11Y_PROFILES, DEFAULT_PARAMS, FONTS, PARAM_RANGES, PARAM_VALUES, RETIRED_FONTS, assertKnownParams, type A11yProfile, type DesignParams } from './params.js';
 import { SAMPLE_CONTENT, type SiteContent } from './templates/smallBusiness.js';
 import { deriveTokens, type DerivedTokens } from './tokens.js';
 
@@ -472,7 +472,7 @@ export interface Conflict {
   message: string;
 }
 
-const DELICATE_FACES = new Set<string>(['playfair-display', 'newsreader', 'fraunces', 'source-serif-4', 'system-serif']);
+const DELICATE_FACES = new Set<string>(['playfair', 'newsreader', 'fraunces', 'literata', 'system-serif']);
 
 /** When each conflict rule applies. The rule's text, source, and review date are Catalog records in `catalog/rules.ts`. */
 export const CONFLICT_TESTS = new Map<string, (p: DesignParams) => boolean>([
@@ -900,13 +900,51 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   return { project, notes };
 }
 
+const FONT_KEYS = ['fontHeading', 'fontBody'] as const;
+
+/**
+ * Put the standing typeface in the place of each replaced one (see `RETIRED_FONTS`), in every part of a file that holds
+ * design values: the design, the starting design, and each Decision's values. The file itself is not changed. Returns the
+ * replaced typefaces that the file named, so that the Studio can say what it did.
+ */
+function replaceRetiredFonts(file: Record<string, unknown>): { file: Record<string, unknown>; retired: string[] } {
+  const found = new Set<string>();
+  const swap = (values: unknown): unknown => {
+    if (!isRecord(values)) return values;
+    const next = { ...values };
+    for (const key of FONT_KEYS) {
+      const id = next[key];
+      if (typeof id !== 'string' || !Object.hasOwn(RETIRED_FONTS, id)) continue;
+      found.add(id);
+      next[key] = RETIRED_FONTS[id]!.now;
+    }
+    return next;
+  };
+  const decisions = isRecord(file['decisions'])
+    ? Object.fromEntries(Object.entries(file['decisions']).map(([id, d]) => [id, isRecord(d) ? { ...d, values: swap(d['values']) } : d]))
+    : file['decisions'];
+  const swapped = { ...file, params: swap(file['params']), base: swap(file['base']), decisions };
+  return { file: swapped, retired: Object.keys(RETIRED_FONTS).filter((id) => found.has(id)) };
+}
+
+/** The sentence that says which typefaces opening replaced. */
+function retiredFontsNote(retired: string[]): string {
+  const quote = (names: string[]): string => names.map((name) => `“${name}”`).join(' and ');
+  const was = quote(retired.map((id) => RETIRED_FONTS[id]!.label));
+  const now = quote(retired.map((id) => FONTS[RETIRED_FONTS[id]!.now].label));
+  return retired.length === 1
+    ? `This project used the typeface ${was}, which the Studio no longer carries. It now shows ${now} in its place; nothing else changed.`
+    : `This project used the typefaces ${was}, which the Studio no longer carries. It now shows ${now} in their place; nothing else changed.`;
+}
+
 /** Check a saved or imported project. Anything that does not match the format is refused; references to the Catalog are recomputed. */
 export function parseProject(input: unknown): ParseResult {
   if (!isRecord(input)) return { ok: false, error: NOT_A_PROJECT };
   const version = input['schemaVersion'];
   if (typeof version !== 'number' || !Number.isInteger(version) || version < 1) return { ok: false, error: NOT_A_PROJECT };
   if (version > SCHEMA_VERSION) return { ok: false, error: NEWER_VERSION };
-  const candidate = version === 1 ? migrateV1(input) : input;
+  const current = version === 1 ? migrateV1(input) : input;
+  const { file: candidate, retired } = isRecord(current) ? replaceRetiredFonts(current) : { file: current, retired: [] };
   const result = projectSchema.safeParse(candidate);
   if (!result.success) {
     const head = result.error.issues[0]?.path[0];
@@ -917,7 +955,7 @@ export function parseProject(input: unknown): ParseResult {
   }
   try {
     const { project, notes } = normalize(result.data, version !== SCHEMA_VERSION);
-    return { ok: true, project, migratedFrom: version === SCHEMA_VERSION ? null : version, notes };
+    return { ok: true, project, migratedFrom: version === SCHEMA_VERSION ? null : version, notes: retired.length > 0 ? [retiredFontsNote(retired), ...notes] : notes };
   } catch {
     return { ok: false, error: 'The file does not match the project format. The problem is in the part that holds the design values.' };
   }

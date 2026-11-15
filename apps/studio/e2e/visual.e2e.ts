@@ -17,7 +17,7 @@ const UPDATE = process.env['UPDATE_BASELINES'] === '1';
 // The same font files that the Studio bundles, read from the installed packages.
 const FONT_FILES: Partial<Record<FontId, string>> = {
   'bricolage-grotesque': 'bricolage-grotesque', 'dm-sans': 'dm-sans', fraunces: 'fraunces', 'instrument-sans': 'instrument-sans', inter: 'inter', 'jetbrains-mono': 'jetbrains-mono',
-  manrope: 'manrope', newsreader: 'newsreader', outfit: 'outfit', 'playfair-display': 'playfair-display', 'public-sans': 'public-sans', 'source-serif-4': 'source-serif-4', 'space-grotesk': 'space-grotesk',
+  manrope: 'manrope', newsreader: 'newsreader', outfit: 'outfit', playfair: 'playfair', 'public-sans': 'public-sans', literata: 'literata', 'space-grotesk': 'space-grotesk',
 };
 const fontCache = new Map<FontId, string>();
 function fontFace(id: FontId): string {
@@ -26,7 +26,8 @@ function fontFace(id: FontId): string {
   const name = FONT_FILES[id];
   let css = '';
   if (name) {
-    const file = require.resolve(`@fontsource-variable/${name}/files/${name}-latin-wght-normal.woff2`);
+    // Playfair ships with its size axis, as in the Studio (apps/studio/src/fonts.ts).
+    const file = require.resolve(`@fontsource-variable/${name}/files/${name}-latin-${name === 'playfair' ? 'opsz' : 'wght'}-normal.woff2`);
     const family = FONTS[id].stack.split(',')[0]!.replace(/"/g, '').trim();
     css = `@font-face{font-family:"${family}";src:url("data:font/woff2;base64,${readFileSync(file).toString('base64')}") format("woff2");font-weight:100 900;font-style:normal}`;
   }
@@ -199,7 +200,10 @@ describe('Mockup: fits a phone, and keeps the headline the largest text (campaig
     }
     await page.setViewportSize({ width: 1280, height: 800 });
     expect(wide).toEqual([]);
-  }, 240_000);
+    // The time limit grows with the Catalog: this test draws every start with every width-changing Option (about 1,400 pages
+    // with 38 Directions). Alone it takes about 140 seconds on the builder's machine; inside a full run it once passed the
+    // earlier limit of 240 seconds (2026-11-15). The limit is a budget for the machine, not part of what the test asserts.
+  }, 480_000);
 
   it('fits the window at other widths as well: a small phone, the width at which two columns begin, and wider (code review of 2026-11-13, finding "tokens 4")', async () => {
     const wide: string[] = [];

@@ -2554,7 +2554,10 @@ describe('Studio: its own interface', () => {
     expect(text).toContain('SIL OPEN FONT LICENSE Version 1.1');
     expect(text).toContain('Permission is hereby granted, free of charge');
     expect(text).toContain('Copyright (c) Meta Platforms, Inc. and affiliates.');
-    expect(text).toContain('Playfair Display');
+    // Playfair and Literata are listed; the two typefaces that reserve their names are not, and no font reserves a name.
+    expect(text).toContain('Playfair (@fontsource-variable/playfair)');
+    expect(text).toContain('Literata (@fontsource-variable/literata)');
+    expect(text).not.toMatch(/Playfair Display|Source Serif|reserves the name/);
     expect(await page.locator('.notice-list > li').count()).toBe(18);
     await context.close();
   });
@@ -2783,6 +2786,44 @@ describe('Studio: a save that another tab replaces in the same moment (finding F
     expect(await keptCopies(page)).toEqual([]);
     expect(await state(page)).toBe(SAVED);
     expect((await stored(page))?.name).toBe('No room');
+    await context.close();
+  });
+});
+
+describe('Studio: the typefaces Playfair and Literata (SPEC.md section 2.2)', () => {
+  /** The font family that the preview draws an element in, and whether the browser has that font ready. */
+  const drawn = (page: Page, selector: string): Promise<{ family: string; ready: boolean }> =>
+    page.frameLocator('.stage iframe').locator(selector).first().evaluate((el) => {
+      const family = getComputedStyle(el).fontFamily.split(',')[0]!.replace(/"/g, '').trim();
+      return { family, ready: el.ownerDocument.fonts.check(`16px "${family}"`) };
+    });
+
+  it('draws headings in Playfair and reading text in Literata where an Option names them', async () => {
+    const { context, page } = await open({ hash: '#typeface', storage: { [LOCAL_KEY]: envelope(worked('Letters')) } });
+    await waitForStep(page, 'Letter style (typeface)');
+    await page.locator('label.option', { hasText: 'Elegant thick-and-thin headings' }).click();
+    await expect.poll(() => drawn(page, 'h1')).toEqual({ family: 'Playfair Variable', ready: true });
+    await page.locator('label.option', { hasText: 'Letters with small feet throughout' }).click();
+    await expect.poll(() => drawn(page, 'h1')).toEqual({ family: 'Literata Variable', ready: true });
+    await expect.poll(() => drawn(page, 'p')).toEqual({ family: 'Literata Variable', ready: true });
+    await context.close();
+  });
+
+  it('opens a stored project that names the two replaced typefaces with the replacements, a notice, and a kept copy; a reload says nothing more', async () => {
+    const old = JSON.parse(JSON.stringify(worked('Saved earlier'))) as Project;
+    const fonts = { fontHeading: 'playfair-display', fontBody: 'source-serif-4' };
+    const before = { ...old, params: { ...old.params, ...fonts }, base: { ...old.base, ...fonts } };
+    const { context, page } = await open({ storage: { [LOCAL_KEY]: envelope(before) } });
+    await page.waitForSelector('.cards');
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('This project used the typefaces “Playfair Display” and “Source Serif 4”, which the Studio no longer carries. It now shows “Playfair” and “Literata” in their place; nothing else changed.');
+    await settle(page);
+    expect((await stored(page))?.params).toMatchObject({ fontHeading: 'playfair', fontBody: 'literata' });
+    // The project as it was is among the kept copies, word for word.
+    expect((await keptCopies(page)).map((copy) => copy.text)).toEqual([JSON.stringify(before)]);
+    await page.reload();
+    await page.waitForSelector('.cards');
+    expect(await page.locator('.banner').count()).toBe(0);
+    expect((await keptCopies(page)).length).toBe(1);
     await context.close();
   });
 });
