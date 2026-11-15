@@ -251,6 +251,46 @@ describe('Mockup: fits a phone, and keeps the headline the largest text (campaig
     await page.setViewportSize({ width: 1280, height: 800 });
   });
 
+  it('keeps each figure of the facts band on one line, and gives the quoted promise room to read, on every Direction at phone and desktop widths (the builder’s look of 2026-11-15)', async () => {
+    const faults: string[] = [];
+    for (const viewport of [{ width: 375, height: 800 }, { width: 1280, height: 800 }]) {
+      await page.setViewportSize(viewport);
+      for (const d of DIRECTIONS) {
+        await show(mockup(d.params, 'top'));
+        const found = await page.evaluate(() => {
+          const out: string[] = [];
+          // A figure such as "45 min" that breaks into two lines reads as two facts.
+          for (const figure of document.querySelectorAll<HTMLElement>('.facts .fact-list dt')) {
+            const lineHeight = parseFloat(getComputedStyle(figure).lineHeight) || parseFloat(getComputedStyle(figure).fontSize) * 1.2;
+            if (figure.getBoundingClientRect().height > lineHeight * 1.5) out.push(`the figure “${figure.textContent}” takes more than one line`);
+          }
+          // The promise is one sentence in heading letters. On the three Directions with a narrow page it stood in a box so
+          // narrow that it broke into six to eight short lines; elsewhere it takes three or four.
+          const promise = document.querySelector<HTMLElement>('.promise p');
+          if (promise) {
+            const lines = Math.round(promise.getBoundingClientRect().height / parseFloat(getComputedStyle(promise).lineHeight));
+            if (lines > 5) out.push(`the promise breaks into ${lines} lines`);
+          }
+          return out;
+        });
+        for (const fault of found) faults.push(`${d.id} at ${viewport.width} px: ${fault}`);
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
+    expect(faults).toEqual([]);
+  }, 240_000);
+
+  it('gives the price list the full width of a narrow page in the two-column list of services, so that no item breaks into two lines', async () => {
+    const d = DIRECTIONS.find((x) => x.params.contentWidth === 'narrow' && x.params.sections === 'ledger')!;
+    await show(mockup(d.params, 'top'));
+    const lines = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>('.fees th')].map((th) => Math.round(th.getBoundingClientRect().height / parseFloat(getComputedStyle(th).lineHeight))));
+    expect(lines.length).toBeGreaterThan(0);
+    // Each row is one line of text, plus its padding (under one further line).
+    expect(Math.max(...lines), d.id).toBeLessThan(3);
+    const widths = await page.evaluate(() => ({ fees: document.querySelector<HTMLElement>('.fees')!.getBoundingClientRect().width, list: document.querySelector<HTMLElement>('.service-list')!.getBoundingClientRect().width }));
+    expect(widths.fees, d.id).toBeGreaterThan(widths.list);
+  });
+
   it('keeps the main headline the largest text: above the reading text and above every section heading, at phone, tablet, and desktop widths', async () => {
     const small: string[] = [];
     for (const viewport of [{ width: 375, height: 800 }, { width: 768, height: 900 }, { width: 1280, height: 800 }]) {

@@ -100,6 +100,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-15
+- Feature worked on (ID): F008 (hardening, part 3: the builder's look at all 38 Directions at phone and desktop width)
+- Result: passes
+- Commits: the commit "F008: ..." that holds this entry
+- Evidence: 76 whole-page pictures (38 Directions at 1280 and 375 pixels), looked at on 23 sheets. Findings L8-01 to L8-05 in `redteam/FINDINGS.md`: three repaired (a promise box and a price list too narrow on a narrow page; a figure that broke into two lines; faded headlines that ended below 3 to 1 on four Skins, which closes finding T2-03), one left for the owner's judgment, one "held". `npm run check`: 212 unit tests passed (1 new). `npm run e2e`: 291 browser tests passed (2 new; 1,318 seconds). Each new test failed before its repair. No stored picture failed, so none was renewed.
+- Open problems for the next session: decision D59 (a faded headline's ends stand at 3 to 1 in every setting) is the builder's choice, open to the owner's veto. Two of the new tests were wrong at first and were corrected before they were trusted. The stored picture of Ink and Seal's services part was not renewed, although the price list below it is wider now; the comparison still passed. The private page (Version 15) does not hold the F008 repairs. The look is no second person's review.
+- Next feature to build (ID): none in the list. Requirements 2.5 (the craft layer) and 2.6 (the first slice of the Prescription) are written in `SPEC.md` and wait for the owner's approval; their features join the list after it.
+
+- Date: 2026-11-15
 - Feature worked on (ID): F007 (hardening, part 2: contrast notes of the built-in Directions)
 - Result: passes
 - Commits: the commit "F007: ..." that holds this entry

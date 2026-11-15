@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CONFLICT_RULES, CONFLICT_TESTS, DEFAULT_PARAMS, DIRECTION_GROUPS, DIRECTIONS, EVIDENCE_GRADES, FONTS, HARMONY_FIXES, HARMONY_RULES, NOT_CHECKED, PAIRS, PARAM_KEYS, RULES, SOURCE_BASES, STEPS,
-  MOCKUP_OVERLAYS, OVERLAYS, RESEARCH_RULES, SKINS, SMALL_BUSINESS_CSS, assertKnownParams, skinFits, findOverlay, researchReport, closerOptions, conflicts, createProject, deriveTokens, findSkin, skinParams, skinsOf, describeDesign, designDistance, findDirection, findStep, generateDirections, harmonize, resolvePatch,
+  MOCKUP_OVERLAYS, OVERLAYS, RESEARCH_RULES, SKINS, SMALL_BUSINESS_CSS, assertKnownParams, luminanceRgb, skinFits, findOverlay, researchReport, closerOptions, conflicts, createProject, deriveTokens, findSkin, skinParams, skinsOf, describeDesign, designDistance, findDirection, findStep, generateDirections, harmonize, resolvePatch,
   CITED_NAMES, tradeWordsOutsideBrackets, vaguePhrasesIn,
   type DesignParams, type SourceRef,
 } from '../src/index.js';
@@ -297,6 +297,38 @@ describe('Catalog: Directions', () => {
         }
       }
     }
+  });
+
+  it('draws a faded headline with both ends at 3 to 1 or more in every contrast setting, on every Direction and Skin (the builder’s look of 2026-11-15; closes finding T2-03)', () => {
+    // The fill is written as exact colors: six hexadecimal digits, or red, green, and blue steps with the share that shows.
+    // Each is measured here as a browser draws it, over the color of the first screen.
+    const channels = (hex: string): [number, number, number] => [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16) / 255) as [number, number, number];
+    const ratio = (color: string, ground: string): number => {
+      const bg = channels(ground);
+      const see = /^rgb\((\d+) (\d+) (\d+) \/ ([\d.]+)\)$/.exec(color);
+      const fg = see ? ([1, 2, 3].map((n, k) => (Number(see[n]) / 255) * Number(see[4]) + bg[k]! * (1 - Number(see[4]))) as [number, number, number]) : channels(color);
+      const [a, b] = [fg, bg].map(([r, g, bl]) => luminanceRgb({ r, g, b: bl }));
+      return (Math.max(a!, b!) + 0.05) / (Math.min(a!, b!) + 0.05);
+    };
+    const weak: string[] = [];
+    let measured = 0;
+    for (const d of DIRECTIONS) {
+      for (const [label, params] of [['its own colors', d.params], ...skinsOf(d).map((skin) => [skin.id, skinParams(d, skin)] as const)] as const) {
+        if (params.displayTreatment === 'solid') continue;
+        for (const profile of ['off', 'advise', 'enforce'] as const) {
+          const tokens = deriveTokens(params, profile);
+          const ends = tokens.css['--display-fill']!.match(/#[0-9a-f]{6}|rgb\([^)]*\)/g)!;
+          expect(ends.length, `${d.id}: two ends`).toBe(2);
+          for (const end of ends) {
+            measured++;
+            const found = ratio(end, tokens.hex['--hero-bg']!);
+            if (found < 3) weak.push(`${d.id}, ${label}, ${profile}: ${end} at ${found.toFixed(2)} to 1`);
+          }
+        }
+      }
+    }
+    expect(measured).toBeGreaterThan(100);
+    expect(weak).toEqual([]);
   });
 
   it('keeps the curated Directions clearly different from each other', () => {

@@ -93,7 +93,7 @@
         "Each repaired fault that a program can measure has a test that fails without the repair",
         "The full checks pass"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }
