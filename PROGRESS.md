@@ -6,7 +6,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 **The one-minute picture.** The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, and read the result back on a Summary with five research rules. It saves reliably. Since 2026-11-15 the Summary also lists twelve craft rules (fine details that the Studio adds by itself) and hands over a first slice of the Prescription: four files that an AI coding tool can build from. No AI coding tool has built from them yet; three files of the full Prescription are missing (milestone M6); the Studio has no Fitter (M7). Milestone M4 is open and waits for one thing that only the owner can do: the trial in `docs/trial-guide.md`.
 
-**Where the work is.** The main line is `claude/brave-mayer-sawqz9`. The session of 2026-11-15 works on `claude/festive-mendel-lfnahh`, with the draft pull request CatCorner22/Frontend#9 into the main line. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc, Version 15 since 2026-11-15 (the build of commit `d7f2156`).
+**Where the work is.** The main line is `claude/brave-mayer-sawqz9`. The session of 2026-11-15 works on `claude/festive-mendel-lfnahh`, with the draft pull request CatCorner22/Frontend#9 into the main line. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc, Version 16 since 2026-11-15 (the build of commit `5b133bd`; it holds the craft rules and the first slice of the Prescription).
 
 **First commands of a new session.**
 1. `npm ci --ignore-scripts` (about 5 seconds).
@@ -105,7 +105,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - Result: passes
 - Commits: the commit "F009 to F011: ..." that holds this entry
 - Evidence: `npm run check`: 226 unit tests passed. `npm run e2e`: 294 browser tests passed (1,254 seconds). Two new browser tests: every downloaded file, `mockup.html` included, equals letter for letter what the core writes for the stored project; a new Decision reaches the files; a project that started from a Direction of the owner's own names it. The plain-words browser test caught two faults of the new section before the full run (findings P9-01 and P9-02).
-- Open problems for the next session: the "Copy" buttons have no automatic test. The two file names `tokens.css` and `tokens.json` are set aside from the plain-words rule as names (decision D60, point 6, open to the owner's veto). The private page must be republished to show any of this. No second reader has seen this unit (finding P9-05).
+- Open problems for the next session: the "Copy" buttons have no automatic test. The two file names `tokens.css` and `tokens.json` are set aside from the plain-words rule as names (decision D60, point 6, open to the owner's veto). The private page shows all of this since Version 16 (waypoint W11). No second reader has seen this unit (finding P9-05).
 - Next feature to build (ID): none in the list. `PLAN.md` section 13 names what follows: the rest of M5 (the Brief, the floors, an inner page), then the rest of M6.
 
 - Date: 2026-11-15
