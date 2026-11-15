@@ -1,9 +1,10 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, STEPS, activeTunables, asDirection, conflicts, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
-  type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
+  type A11yProfile, type DesignParams, type Direction, type FontId, type MockupFocus, type PrescriptionFile, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, Fragment, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
+import { fontFaceCss } from './fonts';
 import { copyText, fileNameFor, loadOwnDirections, probePreviews, readBackups, removeBackup, saveFile, storedProjectText, type KeptCopy } from './platform';
 import { LargePreview, Thumbnail, mockupHtml, tokensFor } from './preview';
 import { CURRENT, DEVICE_WIDTH, appliedCardId, directionName, paramsForCard, stepOf, useStudio, type Device, type StudioState } from './store';
@@ -968,6 +969,54 @@ function keptCopyFile(copy: KeptCopy, index: number): { name: string; text: stri
   return { name: `refraction-kept-copy-${index + 1}.${record ? 'json' : 'txt'}`, text: copy.text };
 }
 
+const PRESCRIPTION_WORDS: Record<PrescriptionFile, string> = {
+  'PRESCRIPTION.md': 'The instruction: every Decision with what you rejected and why, the fine details, and what a person must still check.',
+  'tokens.css': 'Every design value under a name, in the form that a web page uses.',
+  'tokens.json': 'The same values in a form that design tools read (the Design Tokens format).',
+  'mockup.html': 'This design as one page without script, with its letter styles inside: the picture to build toward.',
+};
+
+/** The first part of the Prescription: four files, written from the open project (PLAN.md section 4.4; SPEC.md section 2.6). */
+function PrescriptionSection(): React.JSX.Element {
+  const s = useStudio();
+  const [said, setSaid] = useState<string | null>(null);
+  const write = (): Record<PrescriptionFile, string> => {
+    const { project } = s;
+    // The core knows the built-in Directions; only the Studio knows the name of one of the owner's own or of a random one.
+    const startName = project.direction === null || findDirection(project.direction) ? undefined : [...s.own, ...s.generated].find((d) => d.id === project.direction)?.name;
+    const fonts: FontId[] = [project.params.fontHeading, project.params.fontBody, ...(project.params.numerals === 'mono' ? (['jetbrains-mono'] as FontId[]) : [])];
+    return writePrescription(project, { ...(startName ? { startName } : {}), fontFaceCss: fontFaceCss(fonts) });
+  };
+  const download = async (name: PrescriptionFile): Promise<void> => {
+    const outcome = await saveFile(name, write()[name]);
+    setSaid(outcome === 'saved' ? `The file “${name}” was handed to your browser to save, usually into your Downloads folder. Give all four files to the AI coding tool that builds your page.`
+      : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
+        : `This page cannot hand over files here. Use “Copy ${name}” and paste the text into a file of that name.`);
+  };
+  const copy = async (name: PrescriptionFile): Promise<void> => {
+    setSaid((await copyText(write()[name])) ? `The text of “${name}” was copied. Paste it into a file of that name.` : 'Copying is blocked here. Use the download button.');
+  };
+  return (
+    <section id="prescription" aria-labelledby="prescription-heading">
+      <h2 id="prescription-heading">The Prescription: files that an AI coding tool builds from</h2>
+      <p className="hint">These four files carry your design out of the Studio. Each is written afresh from the project as it stands when you press its button, so download them again after you change a Decision.</p>
+      <ul className="prescription-files">
+        {PRESCRIPTION_FILES.map((name) => (
+          <li key={name}>
+            <p><strong>{name}</strong>. {PRESCRIPTION_WORDS[name]}</p>
+            <div className="button-row">
+              <button type="button" className="btn small" onClick={() => void download(name)}>Download {name}</button>
+              <button type="button" className="btn small quiet" onClick={() => void copy(name)}>Copy {name}</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {said && <p className="note" role="status">{said}</p>}
+      <p className="hint">This is the first part of the Prescription. It leaves out: a file about the fonts and the font files themselves, fixed requirements on security, on being found by search, and on speed, how an Overlay opens and closes, your own content (the page shows a sample dental practice), every page but the home page, and one download that holds all four files. PRESCRIPTION.md says the same, and lists what no program checked and a person must still check.</p>
+    </section>
+  );
+}
+
 const OWN_FIELDS = [
   { key: 'mood', id: 'own-mood', label: 'The mood, in a sentence (leave it empty and the Studio writes it from the design)' },
   { key: 'bestFor', id: 'own-best', label: 'What it is best for' },
@@ -1071,6 +1120,7 @@ function SummaryView(): React.JSX.Element {
   const html = useMemo(() => mockupHtml(s.project, s.project.params, { wireframe: false, focus: 'top', still: true, overlays: overlaysOn }), [s.project, overlaysOn]);
   const clashes = useMemo(() => conflicts(s.project), [s.project]);
   const research = useMemo(() => researchReport(s.project.params, tokensFor(s.project.params, s.project.a11y).css), [s.project.params, s.project.a11y]);
+  const craft = useMemo(() => craftReport(s.project.params, tokensFor(s.project.params, s.project.a11y).css), [s.project.params, s.project.a11y]);
   const decided = STEPS.filter((st) => s.project.decisions[st.id]).length;
   const [keptTick, setKeptTick] = useState(0);
   // The kept copy that the owner is about to remove, by a name that stays the same when the list is read again. Holding the
@@ -1208,6 +1258,25 @@ function SummaryView(): React.JSX.Element {
             </>
           )}
         </section>
+        <section id="craft" aria-labelledby="craft-heading">
+          <h2 id="craft-heading">Fine details the Studio adds by itself</h2>
+          <p className="hint">A page made with care differs from an ordinary one in small things that nobody asks for. You do not choose these: every design has them, the preview already draws them, and the Prescription will ask the AI coding tool that builds your page for each one. Open a detail to read what it is and how strong the guidance behind it is.</p>
+          <ul className="craft-list">
+            {craft.map(({ rule, now }) => (
+              <li key={rule.id}>
+                <details className="source">
+                  <summary><strong>{rule.name}</strong>{now && <> <span className="found">{now}</span></>}</summary>
+                  <p>{rule.what}</p>
+                  <p><strong>How strong the guidance is:</strong> {EVIDENCE_LABEL[rule.evidence]}. Written on {rule.reviewed}; no person has reviewed it yet.</p>
+                  <ul>
+                    {rule.sources.map((source) => <li key={source.text}>{source.text} <em>({BASIS_LABEL[source.basis]})</em></li>)}
+                  </ul>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <PrescriptionSection />
         <OwnDirectionForm notes={html.issues.length} clashes={clashes.length} />
         <section aria-labelledby="research-heading">
           <h2 id="research-heading">Research rules</h2>

@@ -25,9 +25,10 @@ export const VAGUE_PHRASES: readonly string[] = ['research helper', 'reference f
 
 /**
  * Names of things that the texts cite and that happen to hold a trade word. A name is not a description, so the check sets
- * these aside, together with the names of the fonts and of the Directions.
+ * these aside, together with the names of the fonts and of the Directions. The names of two files of the Prescription are
+ * here too: a file's name is what the owner must look for on the computer, so it cannot be put into other words.
  */
-export const CITED_NAMES: readonly string[] = ['Radix Themes'];
+export const CITED_NAMES: readonly string[] = ['Radix Themes', 'tokens.css', 'tokens.json'];
 
 const escapeForPattern = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 

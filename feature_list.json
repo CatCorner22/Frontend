@@ -94,6 +94,42 @@
         "The full checks pass"
       ],
       "passes": true
+    },
+    {
+      "id": "F009",
+      "description": "The craft layer: each fine detail that the Studio adds by itself is a Catalog record with plain words, an exact instruction, a check that a program runs on the Mockup of every built-in Direction, a source, and a grade; the Summary lists them.",
+      "spec_section": "SPEC.md section 2.5",
+      "steps": [
+        "Run the unit tests: every craft rule is a complete record in plain words, and its check holds on the Mockup's style sheet for every built-in Direction",
+        "Open the Summary of a project: the section \"Fine details the Studio adds by itself\" lists every craft rule with its sentence, its strength, and its source",
+        "Start from a Direction whose motion is \"none\" and open the Summary: the rules about movement say that nothing moves",
+        "No text of a craft rule calls a result accessible or compliant"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F010",
+      "description": "The core writes the first slice of the Prescription from a project as four files that agree with each other and with the preview: tokens.css, tokens.json, mockup.html, and PRESCRIPTION.md, with the owner's own words fenced as quoted data.",
+      "spec_section": "SPEC.md section 2.6",
+      "steps": [
+        "Run the unit tests: for two projects the four files equal their stored snapshots",
+        "Every value in tokens.css equals the value in tokens.json and the value that mockup.html draws",
+        "A project name and a reason that hold markup, a code fence, and a sentence that addresses the builder stay inside their fence in PRESCRIPTION.md",
+        "PRESCRIPTION.md names the start (also a Direction of the owner's own, or one that was removed), lists every Decision with its rejected Options and reason, lists the craft rules, and says what a person must still check and what this slice leaves out"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F011",
+      "description": "The owner downloads each of the four Prescription files from the Summary, or copies its text, and each file equals what the core writes for the stored project.",
+      "spec_section": "SPEC.md section 2.6",
+      "steps": [
+        "Open the Summary of a project and find the section \"The Prescription\" with one download button for each of the four files",
+        "Download each file: its content equals what the core writes for the stored project",
+        "Change a Decision and download again: the files show the change",
+        "The section says what the files are for, what this slice leaves out, and what a person must still check"
+      ],
+      "passes": true
     }
   ]
 }

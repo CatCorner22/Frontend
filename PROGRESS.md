@@ -4,7 +4,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Start here (written 2026-11-14, checked on 2026-11-15, for the next session)
 
-**The one-minute picture.** The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, and read the result back on a Summary with five research rules. It saves reliably. It does not yet export anything to build from (milestone M6) and has no Fitter (M7). Milestone M4 is open and waits for one thing that only the owner can do: the trial in `docs/trial-guide.md`.
+**The one-minute picture.** The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, and read the result back on a Summary with five research rules. It saves reliably. Since 2026-11-15 the Summary also lists twelve craft rules (fine details that the Studio adds by itself) and hands over a first slice of the Prescription: four files that an AI coding tool can build from. No AI coding tool has built from them yet; three files of the full Prescription are missing (milestone M6); the Studio has no Fitter (M7). Milestone M4 is open and waits for one thing that only the owner can do: the trial in `docs/trial-guide.md`.
 
 **Where the work is.** The main line is `claude/brave-mayer-sawqz9`. The session of 2026-11-15 works on `claude/festive-mendel-lfnahh`, with the draft pull request CatCorner22/Frontend#9 into the main line. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc, Version 15 since 2026-11-15 (the build of commit `d7f2156`).
 
@@ -95,9 +95,34 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **Repairs of 2026-11-15.** The status line after an Undo back to the stored project (F-23); a kept Decision stays "kept" and names no Option by coincidence (F-24; a new rule in the engine, `heldOptionId`); the Summary says that "Control Room" departs from the text-size rule on purpose (U5-16); Dependabot waits 7 days (S2-06). 196 unit tests and 273 browser tests on 2026-11-15 after F002 (191 and 266 after the first three repairs); the full browser run of 2026-11-15 passed with 265, and the 266th (for F-24) was added afterwards and passed alone.
 - **The verified build loop (decision D56).** The owner's skill is in `.claude/skills/verified-build-loop/`. `SPEC.md` and `feature_list.json` hold the work in hand: F001 (the C4-F18 repair) and F002 (the typefaces Playfair and Literata). The skill's hand-over entries go below, under "Build log".
 - **Plan, version 3.** The Direction Creator is milestone M4D, straight after M4 (`PLAN.md` section 4.7).
+- **The craft layer and the first slice of the Prescription (decisions D58 and D60; features F009 to F011).** Twelve craft rules in the Catalog; four files (`PRESCRIPTION.md`, `tokens.css`, `tokens.json`, `mockup.html`) written by the core and handed over on the Summary. See the three newest entries of the build log.
 - **A code review that the owner started with `/code-review` was stopped by the owner before it reported.** No review of the repairs of 2026-11-15 exists yet.
 
 ## Build log (verified build loop; newest entry first)
+
+- Date: 2026-11-15
+- Feature worked on (ID): F011 (the owner downloads each of the four Prescription files from the Summary, or copies its text)
+- Result: passes
+- Commits: the commit "F009 to F011: ..." that holds this entry
+- Evidence: `npm run check`: 226 unit tests passed. `npm run e2e`: 294 browser tests passed (1,254 seconds). Two new browser tests: every downloaded file, `mockup.html` included, equals letter for letter what the core writes for the stored project; a new Decision reaches the files; a project that started from a Direction of the owner's own names it. The plain-words browser test caught two faults of the new section before the full run (findings P9-01 and P9-02).
+- Open problems for the next session: the "Copy" buttons have no automatic test. The two file names `tokens.css` and `tokens.json` are set aside from the plain-words rule as names (decision D60, point 6, open to the owner's veto). The private page must be republished to show any of this. No second reader has seen this unit (finding P9-05).
+- Next feature to build (ID): none in the list. `PLAN.md` section 13 names what follows: the rest of M5 (the Brief, the floors, an inner page), then the rest of M6.
+
+- Date: 2026-11-15
+- Feature worked on (ID): F010 (the core writes the first slice of the Prescription as four files that agree with each other)
+- Result: passes
+- Commits: the commit "F009 to F011: ..." that holds this entry
+- Evidence: 10 unit tests in `packages/core/test/prescription.test.ts`, 6 stored files (snapshots). Tests first: the test file was written before the writer and failed because the writer was missing. A read-through of the written file for a sample project found five wrong or unclear sentences, all repaired (finding P9-07); the largest: the file claimed that a program had checked the bundle's `mockup.html` for every craft rule when the program had checked other pages, so the writer now runs each check on the very page and reports what it found, over every Direction and every Option in a test.
+- Open problems for the next session: no validator program of the Design Tokens format has read `tokens.json`; the test rests on the builder's reading of the format on 2026-11-15 (decision D60, point 4), so M6's exit test stays open. No AI coding tool has built from the files (finding P9-06). The sentence for a craft rule whose check does not hold has no test.
+- Next feature to build (ID): F011
+
+- Date: 2026-11-15
+- Feature worked on (ID): F009 (the craft layer: twelve craft rules, each a Catalog record with a check that a program runs on the Mockup)
+- Result: passes
+- Commits: the commit "F009 to F011: ..." that holds this entry
+- Evidence: 4 unit tests and 1 browser test. Every rule's check holds on the Mockup of each of the 38 built-in Directions, fails on an empty page, and fails when the rule's own detail is taken out of the Mockup. The Summary lists the twelve with what the open design gives. Eight rules are graded "convention" (research record 04, read in full), four "expert opinion" (the builder's own); none "measured".
+- Open problems for the next session: a check reads the Mockup's style sheet and does not look at drawn pixels. No person has reviewed a craft rule. Two of the builder's new tests were wrong at first and were corrected (finding P9-04).
+- Next feature to build (ID): F010
 
 - Date: 2026-11-15
 - Feature worked on (ID): F008 (hardening, part 3: the builder's look at all 38 Directions at phone and desktop width)
@@ -168,8 +193,8 @@ A fresh session reads this file to learn where the project stands. Update it aft
 1. **The owner tries the Studio** with `docs/trial-guide.md` and sends the ten answers. M4 closes on the owner's word (hard rule 1).
 2. **Repair what the trial names as serious, and decide the open findings of 2026-11-14** (rows "Open" and "Fixed in part" among S5, DT, U5, and C4-F18 to C4-F25 in `redteam/FINDINGS.md`). The first to weigh: the rare loss when several tabs close in the same instant (C4-F18). Then have a reviewer look at the repairs of this unit, which no reviewer has seen (hard rule 12).
 3. **M4D:** the Direction Creator (`PLAN.md` section 4.7).
-3a. **M5**, in this order: the Brief (the owner's product, audience, and real content, so that every preview shows the owner's words); the craft layer and the floors from the knowledge base; the rest of the behavior Steps; an inner page for Template 1. A Skin's name stored in the project, and a change of Skin inside a project, belong here too.
-4. **M6**: the export bundle (the Prescription). **M7**: the Fitter.
+3a. **M5**, in this order: the Brief (the owner's product, audience, and real content, so that every preview shows the owner's words); the floors from the knowledge base (the craft layer's first twelve craft rules are built, feature F009); the rest of the behavior Steps; an inner page for Template 1. A Skin's name stored in the project, and a change of Skin inside a project, belong here too.
+4. **M6**: the rest of the export bundle (the Prescription): `DESIGN.md`, the shadcn theme, `FONTS.md`, the floors, and a validator for `tokens.json`. Its first slice of four files is built (features F010 and F011). **M7**: the Fitter.
 
 ## Waiting on the owner
 
@@ -183,6 +208,9 @@ The owner settled the earlier list on 2026-11-15 (decision D55 holds every answe
 Earlier cost reports, for the record (no decision needed): third review about 595,000 tokens; nine-reviewer code review about 1.84 million; retest round about 0.74 million; round 3 about 0.75 million (0.33 million measured); the unit of 2026-11-14 about 3.2 million in helpers.
 
 ## Known gaps (every plan item that is absent or partial)
+
+- **The Prescription.** A first slice only: `DESIGN.md`, the shadcn theme, `FONTS.md`, and the floors are missing. No validator has read `tokens.json`. No AI coding tool has built from the files, so their effect on a build is unmeasured. The "Copy" buttons have no automatic test. The Mockup in the bundle shows the sample dental practice, not the owner's content (the Brief is not built).
+- **Craft rules.** Twelve, a first set. Each check reads the Mockup's style sheet, not drawn pixels. Four rules rest on the builder's opinion alone. No person has reviewed any.
 
 - **Skins.** A Skin can be chosen only when a project starts. Whether a Skin's color is easy to see in a card's small picture was judged from the design's values, not measured in pixels. "Indigo dye" is offered by four Directions.
 - **Open findings of 2026-11-14.** `redteam/FINDINGS.md` lists them: among S5, DT, and U5, 11 rows are "Open", and several rows marked "Fixed" name a remainder that is still open; among C4-F18 to C4-F25, seven are open and one (F-19) has a second repair that no judge has retested.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CONFLICT_RULES, CONFLICT_TESTS, DEFAULT_PARAMS, DIRECTION_GROUPS, DIRECTIONS, EVIDENCE_GRADES, FONTS, HARMONY_FIXES, HARMONY_RULES, NOT_CHECKED, PAIRS, PARAM_KEYS, RULES, SOURCE_BASES, STEPS,
-  MOCKUP_OVERLAYS, OVERLAYS, RESEARCH_RULES, SKINS, SMALL_BUSINESS_CSS, assertKnownParams, luminanceRgb, skinFits, findOverlay, researchReport, closerOptions, conflicts, createProject, deriveTokens, findSkin, skinParams, skinsOf, describeDesign, designDistance, findDirection, findStep, generateDirections, harmonize, resolvePatch,
+  MOCKUP_OVERLAYS, OVERLAYS, CRAFT_RULES, RESEARCH_RULES, SKINS, SMALL_BUSINESS_CSS, assertKnownParams, luminanceRgb, skinFits, findOverlay, researchReport, craftReport, renderSmallBusiness, SAMPLE_CONTENT, closerOptions, conflicts, createProject, deriveTokens, findSkin, skinParams, skinsOf, describeDesign, designDistance, findDirection, findStep, generateDirections, harmonize, resolvePatch,
   CITED_NAMES, tradeWordsOutsideBrackets, vaguePhrasesIn,
   type DesignParams, type SourceRef,
 } from '../src/index.js';
@@ -118,6 +118,7 @@ describe('Catalog: plain words, and one name for one thing (decision D38, findin
     for (const skin of SKINS) add(`skin ${skin.id}`, skin.name, skin.what);
     for (const overlay of OVERLAYS) add(`overlay ${overlay.id}`, overlay.name, overlay.what, overlay.chooseWhen, overlay.risk);
     for (const d of DIRECTIONS) for (const result of researchReport(d.params, deriveTokens(d.params, 'advise').css)) add(`research rule ${result.rule.id}`, result.rule.name, result.rule.why, result.rule.notChecked, result.found);
+    for (const d of DIRECTIONS) for (const line of craftReport(d.params, deriveTokens(d.params, 'advise').css)) add(`craft rule ${line.rule.id}`, line.rule.name, line.rule.what, line.now ?? undefined);
     return out;
   }
 
@@ -682,3 +683,60 @@ describe('Research rules: findings turned into numbers that a design can be meas
     expect(RESEARCH_RULES.find((r) => r.id === 'target-size')!.notChecked).toContain('Text links inside the page (for example “About repairs”) are 24 pixels tall');
   });
 });
+
+describe('Craft rules: the fine details that the Studio adds by itself (SPEC.md section 2.5, hard rule 5)', () => {
+  const page = (params: DesignParams): string => renderSmallBusiness({ params, tokens: deriveTokens(params, 'advise').css, content: SAMPLE_CONTENT, focus: 'top', still: true, links: 'inert', fontFaceCss: '' });
+  const tokens = (params: DesignParams) => deriveTokens(params, 'advise').css;
+
+  it('has craft rules, each a complete record in plain words with an exact instruction, a source, an evidence grade, and a date', () => {
+    expect(CRAFT_RULES.length).toBeGreaterThanOrEqual(10);
+    expect(new Set(CRAFT_RULES.map((r) => r.id)).size).toBe(CRAFT_RULES.length);
+    expect(new Set(CRAFT_RULES.map((r) => r.name)).size).toBe(CRAFT_RULES.length);
+    for (const rule of CRAFT_RULES) {
+      expect(rule.id, rule.id).toMatch(/^[a-z][a-z-]*$/);
+      for (const text of [rule.name, rule.what, rule.instruction]) expect(text.trim().length, rule.id).toBeGreaterThan(20);
+      expect(EVIDENCE_GRADES, rule.id).toContain(rule.evidence);
+      expect(isDate(rule.reviewed), `${rule.id}: date`).toBe(true);
+      expect(rule.sources.length, rule.id).toBeGreaterThan(0);
+      for (const source of rule.sources) checkSource(source, `craft rule ${rule.id}`);
+      // A published practice is no measurement: no craft rule may carry the grade "measured".
+      expect(rule.evidence, rule.id).not.toBe('measured');
+      // The Studio states what was checked; it never calls a result accessible or compliant (hard rule 8).
+      expect(`${rule.name} ${rule.what} ${rule.instruction}`, rule.id).not.toMatch(/\baccessib|\bcomplian|\bADA\b/);
+      expect('This page is accessible and ADA compliant.').toMatch(/\baccessib|\bcomplian|\bADA\b/);
+    }
+  });
+
+  it('holds every craft rule on the Mockup of every built-in Direction: the Mockup practices what the Prescription will ask for', () => {
+    for (const d of DIRECTIONS) {
+      const html = page(d.params);
+      for (const rule of CRAFT_RULES) expect(rule.holds(html, tokens(d.params)), `${d.id}: ${rule.name}`).toBe(true);
+    }
+  });
+
+  it('has checks that can fail: no rule holds on an empty page, and each fails when its own detail is taken out of the Mockup', () => {
+    const html = page(DEFAULT_PARAMS);
+    for (const rule of CRAFT_RULES) {
+      expect(rule.holds('', {}), `${rule.id}: empty page`).toBe(false);
+      expect(rule.holds(html.split(rule.detail).join(''), tokens(DEFAULT_PARAMS)), `${rule.id}: without “${rule.detail}”`).toBe(false);
+      expect(html, `${rule.id}: the Mockup holds “${rule.detail}”`).toContain(rule.detail);
+    }
+  });
+
+  it('says what the open design gives where a Decision sets a rule’s value, and that nothing moves when motion is off', () => {
+    const still = craftReport({ ...DEFAULT_PARAMS, motion: 'none' }, tokens({ ...DEFAULT_PARAMS, motion: 'none' }));
+    const moving = craftReport({ ...DEFAULT_PARAMS, motion: 'subtle' }, tokens({ ...DEFAULT_PARAMS, motion: 'subtle' }));
+    const now = (lines: typeof still, id: string): string | null => lines.find((line) => line.rule.id === id)!.now;
+    expect(now(still, 'press-gives')).toBe('Your design has no movement, so a pressed button keeps its size.');
+    expect(now(moving, 'press-gives')).toBe('A pressed button shrinks to 97 percent of its size.');
+    expect(now(still, 'short-moves')).toBe('Your design has no movement: every change shows at once.');
+    expect(now(moving, 'short-moves')).toBe('A change of color takes 120 milliseconds; a larger change takes 200.');
+    expect(now(craftReport({ ...DEFAULT_PARAMS, numerals: 'proportional' }, tokens(DEFAULT_PARAMS)), 'steady-numerals')).toContain('“Number style”');
+    expect(now(craftReport({ ...DEFAULT_PARAMS, numerals: 'tabular' }, tokens(DEFAULT_PARAMS)), 'steady-numerals')).toBe('Prices stand digit under digit.');
+    expect(now(craftReport({ ...DEFAULT_PARAMS, theme: 'dark' }, tokens({ ...DEFAULT_PARAMS, theme: 'dark' })), 'matching-controls')).toBe('The page tells the browser that it is dark.');
+    expect(now(craftReport({ ...DEFAULT_PARAMS, theme: 'light' }, tokens({ ...DEFAULT_PARAMS, theme: 'light' })), 'matching-controls')).toBe('The page tells the browser that it is light.');
+    // Every line of the report is a sentence or nothing.
+    for (const d of DIRECTIONS) for (const line of craftReport(d.params, tokens(d.params))) if (line.now !== null) expect(line.now, `${d.id}/${line.rule.id}`).toMatch(/^[A-Z].*\.$/);
+  });
+});
+

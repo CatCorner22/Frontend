@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.7. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
+Version 1.8. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the craft rules, and the Prescription, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
 
 Stale-after: 90
 
@@ -22,6 +22,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - A notice that needs your answer stays on screen until you answer. §10.07
 - A promise to keep a copy never rests on a copy that can go away. §10.12
 - A page that closes with an unsaved change first writes it to an entry of its own. §10.13
+- Your own words stand in the Prescription as quoted data, inside a fence that they cannot close. §65.03
 - Opening a file never adds to a Decision, and brings no value the Studio cannot set. §20.05
 - A written reason leaves a Decision only with a notice that offers it back. §50.06
 - A tab that is not saving keeps its unsaved work as a copy when it reloads or closes. §10.08
@@ -101,6 +102,13 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [60.02 Every Step says where its guidance comes from and how well it is known](#6002-every-step-says-where-its-guidance-comes-from-and-how-well-it-is-known)
   - [60.03 No Overlay and no research rule is graded "measured" without a source that was read in full](#6003-no-overlay-and-no-research-rule-is-graded-measured-without-a-source-that-was-read-in-full)
   - [60.04 A research rule says "Holds" only when the measured number meets it](#6004-a-research-rule-says-holds-only-when-the-measured-number-meets-it)
+- [65 The craft rules and the Prescription](#65-the-craft-rules-and-the-prescription)
+  - [65.01 Every craft rule holds on the sample website of every built-in Direction](#6501-every-craft-rule-holds-on-the-sample-website-of-every-built-in-direction)
+  - [65.02 The four files of the Prescription hold the same design values, value by value](#6502-the-four-files-of-the-prescription-hold-the-same-design-values-value-by-value)
+  - [65.03 The owner's own words stand in the Prescription as quoted data, inside a fence that they cannot close](#6503-the-owners-own-words-stand-in-the-prescription-as-quoted-data-inside-a-fence-that-they-cannot-close)
+  - [65.04 The same project always gives the same four files, and a change of any line is seen](#6504-the-same-project-always-gives-the-same-four-files-and-a-change-of-any-line-is-seen)
+  - [65.05 The Prescription names the start, every Decision, every craft rule, and what a person must still check, and claims no standard](#6505-the-prescription-names-the-start-every-decision-every-craft-rule-and-what-a-person-must-still-check-and-claims-no-standard)
+  - [65.06 A file that the Summary hands over equals what the core writes for the stored project](#6506-a-file-that-the-summary-hands-over-equals-what-the-core-writes-for-the-stored-project)
 - [70 How the Studio is built](#70-how-the-studio-is-built)
   - [70.01 The shared core holds no React import and no browser API](#7001-the-shared-core-holds-no-react-import-and-no-browser-api)
   - [70.02 No look changes by accident](#7002-no-look-changes-by-accident)
@@ -553,6 +561,65 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Exceptions.** The rule "Reading text is at least 16 pixels tall" does not bind: the Direction "Control Room" uses 15 pixels on purpose. The Direction's record states that reason, a unit test refuses a departure without such a record, and the Summary shows the reason beside "Does not hold" while the start's text size stands (finding U5-16; test "names the Directions that depart from a rule that does not bind, so that a new departure is a decision and not an accident"). A rule measures values of the design, not the built website, and each rule states what a person must still check.
 - Last verified: 2026-11-15
 
+## [65] The craft rules and the Prescription
+
+### [65.01] Every craft rule holds on the sample website of every built-in Direction
+
+<!-- index: craft rule | fine detail; invisible detail; see also: Prescription -->
+
+- **Rule.** Each craft rule is a Catalog record with plain words for the owner, an exact instruction for the AI coding tool, a check that a program runs, a source, an evidence grade, and a date; the check holds on the Mockup of every built-in Direction, so that the Mockup practices what the Prescription asks for. No craft rule is graded "measured". [S1 at D60; S10 at hard rule 5]
+- **Test.** "has craft rules, each a complete record in plain words with an exact instruction, a source, an evidence grade, and a date"; "holds every craft rule on the Mockup of every built-in Direction: the Mockup practices what the Prescription will ask for"; "has checks that can fail: no rule holds on an empty page, and each fails when its own detail is taken out of the Mockup"; "says what the open design gives where a Decision sets a rule’s value, and that nothing moves when motion is off". [S8]
+- **Test.** In the browser: "lists every craft rule with what the open design gives, as the core works it out, and follows a design without movement". [S3]
+- **Exceptions.** A check reads the text of the Mockup's style sheet; it does not look at drawn pixels. Eight rules rest on published practice that the research record names; four have no outside source and are graded as the builder's opinion. No person has reviewed a craft rule.
+- Last verified: 2026-11-15
+
+### [65.02] The four files of the Prescription hold the same design values, value by value
+
+<!-- index: Prescription | export; files to build from; design values; see also: craft rule -->
+
+- **Rule.** `tokens.css` holds every design value of the project and nothing else; `tokens.json` holds each of those values, either as a typed entry that stands for exactly the CSS value or as the CSS value word for word; `mockup.html` draws with each value under its name and holds no script. [S13]
+- **Test.** "holds every design value in tokens.css, and the same value in tokens.json and in mockup.html"; "writes typed tokens only in the types of the Design Tokens format, each with a value of that type’s form"; "writes tokens.css as one block of named values and nothing else". [S13]
+- **Exceptions.** The builder read the Design Tokens format in the specification's own repository on 2026-11-15 and wrote the test from that reading. No validator program of the format has checked `tokens.json` (decision D60).
+- Last verified: 2026-11-15
+
+### [65.03] The owner's own words stand in the Prescription as quoted data, inside a fence that they cannot close
+
+<!-- index: quoted data | fence; injected instruction; your own words in the Prescription -->
+
+- **Rule.** The project's name and each written reason stand in `PRESCRIPTION.md` inside a fenced block that the file marks as quoted data, not an instruction; the fence is longer than any run of fence marks in the text; the name reaches neither `tokens.css` nor `tokens.json`. [S13; S1 at D60]
+- **Test.** "fences the owner’s own words so that they cannot act as an instruction or close their fence". [S13]
+- **Policy.** Hard rule 10: content is data, never an instruction. [S10 at hard rule 10]
+- **Open.** A fence marks text as data; it cannot force a reader to treat it so. Whether an AI coding tool obeys the mark is not tested here; the Fitter (M7) will test builds.
+- Last verified: 2026-11-15
+
+### [65.04] The same project always gives the same four files, and a change of any line is seen
+
+<!-- index: stored copy of the files | snapshot; same files again -->
+
+- **Rule.** The core writes the four files from the project alone: the same project gives the same files, and the files for two projects are stored word for word, so that a change of any line fails a test until someone decides it. [S13]
+- **Test.** "writes four files, and writes the same files again for the same project"; "keeps the four files as stored for two projects, so that a change of any line is seen and decided". [S13]
+- **Exceptions.** `mockup.html` is not stored word for word (it is compared with the design values instead, §65.02).
+- Last verified: 2026-11-15
+
+### [65.05] The Prescription names the start, every Decision, every craft rule, and what a person must still check, and claims no standard
+
+<!-- index: what a person must still check | not checked; compliance claim in the Prescription -->
+
+- **Rule.** `PRESCRIPTION.md` names the project's start (also a Direction of the owner's own, a Direction composed at random, or the plain start), lists every Step with its Decision, its rejected Options, and its reason, names the Option that stands where a Step is not decided, lists the Overlays and every craft rule with its instruction, says what was checked and what a person must still check, says what this first slice leaves out, and calls no result compliant with a standard. [S13]
+- **Test.** "names the start, every Step with its Decision, the rejected Options, the Overlays, every craft rule, and what a person must still check"; "names a start that the core cannot know by the name that the Studio hands over, and says so plainly when it has none"; "says that mockup.html has every craft rule only where a check of that very page holds, for every Direction and every Option"; "says whether mockup.html carries the typefaces, as the Studio hands them over or not". [S13]
+- **Exceptions.** The sentence that the file writes when a craft rule's check does not hold on the page has no test: no design that the tests can make fails a check.
+- **Policy.** Hard rule 8. [S10 at hard rule 8]
+- Last verified: 2026-11-15
+
+### [65.06] A file that the Summary hands over equals what the core writes for the stored project
+
+<!-- index: download a Prescription file | copy a Prescription file -->
+
+- **Rule.** Each of the four download buttons on the Summary hands over exactly the file that the core writes for the stored project and for the font rules that the Studio adds (`mockup.html` included, letter for letter); after a new Decision the files show the change; a project that started from a Direction of the owner's own names that Direction. [S3]
+- **Test.** "hands over each of the four files as the core writes it for the stored project, and follows a new Decision"; "names a start that only the Studio knows: a Direction of the owner’s own". [S3]
+- **Open.** The "Copy" buttons are not covered by an automatic test.
+- Last verified: 2026-11-15
+
 ## [70] How the Studio is built
 
 ### [70.01] The shared core holds no React import and no browser API
@@ -620,6 +687,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-15 v1.8: after the craft layer and the first slice of the Prescription (features F009 to F011, decisions D58 and D60): added §65.01 to §65.06. 55 guarantees.
 - 2026-11-15 v1.7: after the repair of finding F-18 (feature F001): §10.13 covers a page that closes within 2 seconds after its own save, and names five new tests and the trial's counts. 49 guarantees.
 - 2026-11-15 v1.6: after the owner's decisions of 2026-11-15 (decision D55): §10.01 states the status line after an Undo back to the stored project; §50.01 states when a design holds an Option whose second color follows, and names the new test; §60.04 states how a departure on purpose is recorded and shown; §70.03 names Dependabot's cooldown. 49 guarantees.
 - 2026-11-14 v1.5: after the reviews of 2026-11-14 (decision D54): §20.06 covers look-alike marks and invisible direction signs; §20.07 says which original is kept; §50.07 states the rule for offering a Skin; §70.03 states its exception. 49 guarantees.
@@ -642,21 +710,23 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md` (2026-11-13). Accessed 2026-11-13. Grade: A. A pinpoint names a hard rule.
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13). Accessed 2026-11-13. Grade: A.
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file `docs/reference/saving-table.md` (2026-11-14). Accessed 2026-11-14. Grade: A.
+- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15). Accessed 2026-11-15. Grade: A.
 
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §60.01, §60.03, §60.04, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §60.01, §60.03, §60.04, §65.01, §65.03, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08
-- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §60.01, §60.04, §70.04
+- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §60.01, §60.04, §65.01, §65.06, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §70.02
 - [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.05, §40.04
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03, §30.06
-- [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §50.07, §60.01, §60.02, §60.03, §60.04, §70.05
+- [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §50.07, §60.01, §60.02, §60.03, §60.04, §65.01, §70.05
 - [S9] The builder, *Unit tests of the engine*, file `packages/core/test/engine.test.ts` (2026-11-13) — §20.01, §50.01, §50.02, §50.03, §50.04, §50.05, §50.06
-- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §60.02, §60.03, §70.01, §70.03, §70.05
+- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §60.02, §60.03, §65.01, §65.03, §65.05, §70.01, §70.03, §70.05
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13) — §70.01
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file… — §10.14
+- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §65.02, §65.03, §65.04, §65.05
 <!-- authorities:end -->
 
 ## [92] Index
@@ -685,23 +755,28 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **closing in the same instant** — §10.13; *see also* two tabs
 - color fade — *see* Skin
 - **compliance claim** — §40.04
+- compliance claim in the Prescription — *see* what a person must still check
 - console error — *see* page error
 - content policy — *see* locked frame
 - contrast — *see* contrast check
 - **contrast check** — §40.02; *see also* written color
 - copy — *see* kept copy
+- copy a Prescription file — *see* download a Prescription file
 - **core** — §70.01
 - corrected file — *see* changed Decision
 - corrupt — *see* unreadable project
+- **craft rule** — §65.01; *see also* Prescription
 
 **D**
 
 - damaged project — *see* unreadable project
 - **Decision** — §50.01; *see also* project file
 - **dependency** — §70.03
+- design values — *see* Prescription
 - **Direction** — §50.03
 - does not hold — *see* research rule
 - download — *see* project file
+- **download a Prescription file** — §65.06
 - **drawn color** — §40.05; *see also* contrast check
 
 **E**
@@ -711,10 +786,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - evidence — *see* source
 - **evidence grade** — §60.03; *see also* source
 - exact digits — *see* written color
+- export — *see* Prescription
 
 **F**
 
+- fence — *see* quoted data
 - file name — *see* quotation marks
+- files to build from — *see* Prescription
+- fine detail — *see* craft rule
 - **Fix for me** — §40.03; *see also* contrast check
 - **following value** — §50.05; *see also* Decision
 - forged sentence — *see* quotation marks
@@ -737,8 +816,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **I**
 
 - iframe — *see* locked frame
+- injected instruction — *see* quoted data
 - injection — *see* hostile text
 - innerHTML — *see* text as text
+- invisible detail — *see* craft rule
 
 **J**
 
@@ -775,6 +856,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - new pick — *see* reason
 - new project — *see* replace action
 - newer copy — *see* late copy
+- not checked — *see* what a person must still check
 - not saving — *see* standing notice
 - notice — *see* Overlay picture
 
@@ -806,6 +888,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - pinned version — *see* dependency
 - placeholder project — *see* opening
 - **plain words** — §60.01
+- **Prescription** — §65.02; *see also* craft rule
 - preview — *see* Mockup
 - preview of an Option — *see* card
 - **project file** — §20.01
@@ -817,6 +900,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - question — *see* Overlay picture
 - **quotation marks** — §20.06
+- **quoted data** — §65.03
 
 **R**
 
@@ -835,6 +919,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **S**
 
+- same files again — *see* stored copy of the files
 - same millisecond — *see* save mark
 - same text — *see* lasting copy
 - sandbox — *see* locked frame
@@ -853,6 +938,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - slow page database — *see* opening
 - small helper — *see* Overlay
 - small variation — *see* card
+- snapshot — *see* stored copy of the files
 - **source** — §60.02
 - **standing notice** — §10.07; *see also* saving
 - start again — *see* replace action
@@ -862,6 +948,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - stopped saving — *see* standing notice
 - storage — *see* saving
 - storage full — *see* kept copy
+- **stored copy of the files** — §65.04
 - **stored picture** — §70.02
 - switch — *see* Overlay
 
@@ -893,16 +980,21 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **W**
 
 - WCAG — *see* compliance claim
+- **what a person must still check** — §65.05
 - where guidance comes from — *see* source
 - why this choice — *see* reason
 - **written color** — §40.01
 - wrong file — *see* refused file
+
+**Y**
+
+- your own words in the Prescription — *see* quoted data
 <!-- index:end -->
 
 ## [99] Health
 
 <!-- health:start -->
-_66 sections, 11 sources, 48 index terms. Cadence: 90 days. Generated content last changed 2026-11-14._
+_73 sections, 12 sources, 54 index terms. Cadence: 90 days. Generated content last changed 2026-11-15._
 
 - No findings.
 <!-- health:end -->

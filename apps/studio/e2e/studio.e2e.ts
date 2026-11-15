@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { CITED_NAMES, DIRECTIONS, FONTS, OVERLAYS, RESEARCH_RULES, STEPS, applyDirection, createProject, deriveTokens, findSkin, pick, researchReport, skinParams, skinsOf, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, type Project } from '@refraction/core';
+import { CITED_NAMES, CRAFT_RULES, DIRECTIONS, FONTS, OVERLAYS, RESEARCH_RULES, STEPS, applyDirection, craftReport, createProject, deriveTokens, findSkin, pick, researchReport, setReason, skinParams, skinsOf, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, writePrescription, type Project } from '@refraction/core';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
@@ -3210,6 +3210,109 @@ describe('Studio: contrast notes of the built-in Directions (SPEC.md section 2.4
     await page.waitForSelector('#own-direction');
     expect(await page.locator('#own-direction .starts-with').innerText()).toBe('This design starts with no contrast note and no Decisions that pull against each other.');
     expect(await page.locator('main').innerText()).not.toMatch(/contrast notes? \(/);
+    await context.close();
+  });
+});
+
+describe('Studio: the craft layer on the Summary (SPEC.md section 2.5)', () => {
+  const lines = (page: Page): Promise<string[]> => page.locator('#craft .craft-list > li summary').allInnerTexts();
+  const expected = (project: Project): string[] => craftReport(project.params, deriveTokens(project.params, project.a11y).css).map((line) => (line.now ? `${line.rule.name} ${line.now}` : line.rule.name));
+
+  it('lists every craft rule with what the open design gives, as the core works it out, and follows a design without movement', async () => {
+    const moving = applyDirection(createProject('Moving'), 'paper-and-ink');
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(moving) } });
+    await page.waitForSelector('#craft');
+    expect(await page.locator('#craft h2').textContent()).toBe('Fine details the Studio adds by itself');
+    expect(await lines(page)).toEqual(expected(moving));
+    expect((await lines(page)).length).toBe(CRAFT_RULES.length);
+    // Each rule opens to its plain sentence, its strength, and its source; none claims more than it knows.
+    const first = page.locator('#craft .craft-list > li').first();
+    await first.locator('summary').click();
+    const text = await first.innerText();
+    expect(text).toContain(CRAFT_RULES[0]!.what);
+    expect(text).toContain('How strong the guidance is:');
+    expect(text).toContain('no person has reviewed it yet');
+    expect(await page.locator('#craft').innerText()).not.toMatch(/\baccessib|\bcomplian/);
+    await context.close();
+    expect(errors).toEqual([]);
+
+    const still = applyDirection(createProject('Still'), 'control-room');
+    expect(still.params.motion).toBe('none');
+    const second = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(still) } });
+    await second.page.waitForSelector('#craft');
+    const shown = await lines(second.page);
+    expect(shown).toEqual(expected(still));
+    expect(shown).toContain('A pressed button gives a little. Your design has no movement, so a pressed button keeps its size.');
+    expect(shown).toContain('A change is short, starts fast, and settles gently. Your design has no movement: every change shows at once.');
+    await second.context.close();
+  });
+});
+
+describe('Studio: the Prescription on the Summary (SPEC.md section 2.6)', () => {
+  const fetchFile = async (page: Page, name: string): Promise<string> => {
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: `Download ${name}`, exact: true }).click()]);
+    expect(download.suggestedFilename()).toBe(name);
+    return readFileSync(await download.path(), 'utf8');
+  };
+
+  it('hands over each of the four files as the core writes it for the stored project, and follows a new Decision', async () => {
+    const project = setReason(worked('Harbor Street Dental'), 'nav', 'The menu stays in view.');
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(JSON.parse(JSON.stringify(project))) } });
+    await page.waitForSelector('#prescription');
+    expect(await page.locator('#prescription h2').textContent()).toBe('The Prescription: files that an AI coding tool builds from');
+    // The section says what the files are for, what this first part leaves out, and what a person must still check.
+    const words = await page.locator('#prescription').innerText();
+    for (const part of ['PRESCRIPTION.md', 'tokens.css', 'tokens.json', 'mockup.html', 'leaves out', 'a person must still check']) expect(words, part).toContain(part);
+    expect(words).not.toMatch(/\baccessib|\bcomplian/);
+    // The Mockup is the page with the typefaces inside it, so that it draws alike on any computer; it carries no script.
+    const mockup = await fetchFile(page, 'mockup.html');
+    expect(mockup.startsWith('<!doctype html>')).toBe(true);
+    expect(mockup).not.toMatch(/<script/i);
+    // The Studio hands the core the font rules; the test reads them back out of the Mockup and asks the core for the same four files.
+    const faces = (mockup.match(/@font-face\{[^}]*\}/g) ?? []).join('\n');
+    expect(faces).toContain('@font-face');
+    const first = writePrescription((await stored(page))!, { fontFaceCss: faces });
+    expect(mockup).toBe(first['mockup.html']);
+    expect(await fetchFile(page, 'PRESCRIPTION.md')).toBe(first['PRESCRIPTION.md']);
+    expect(await fetchFile(page, 'tokens.css')).toBe(first['tokens.css']);
+    expect(await fetchFile(page, 'tokens.json')).toBe(first['tokens.json']);
+    expect(first['PRESCRIPTION.md']).toContain('The menu stays in view.');
+    expect(first['PRESCRIPTION.md']).toContain('`mockup.html` carries these typefaces inside itself');
+    const tokens = deriveTokens(project.params, project.a11y).css;
+    for (const [name, value] of Object.entries(tokens)) expect(mockup, name).toContain(`${name}: ${value};`);
+    // The status line names the file that was handed over last.
+    expect(await page.locator('#prescription [role="status"]').innerText()).toContain('“tokens.json” was handed to your browser to save');
+    // A new Decision reaches the files.
+    await page.goto(`${pageUrl}#theme`);
+    await waitForStep(page, 'Light or dark');
+    await page.locator('label.option', { hasText: 'Dark' }).first().click();
+    await page.locator('.actions.sticky .primary').click();
+    await settle(page);
+    await page.goto(`${pageUrl}#summary`);
+    await page.waitForSelector('#prescription');
+    const after = (await stored(page))!;
+    expect(after.params.theme).toBe('dark');
+    const second = await fetchFile(page, 'PRESCRIPTION.md');
+    expect(second).toBe(writePrescription(after, { fontFaceCss: faces })['PRESCRIPTION.md']);
+    expect(second).not.toBe(first['PRESCRIPTION.md']);
+    expect(await fetchFile(page, 'tokens.css')).toBe(writePrescription(after)['tokens.css']);
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('names a start that only the Studio knows: a Direction of the owner’s own', async () => {
+    const { context, page } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Own start')) } });
+    await page.waitForSelector('#own-direction');
+    await page.locator('#own-name').fill('Harbor evening');
+    await page.getByRole('button', { name: 'Keep this design as a Direction of my own' }).click();
+    await page.locator('.banner:not(.hold)').waitFor();
+    await page.goto(`${pageUrl}#directions`);
+    await page.locator('#group-own').getByRole('button', { name: 'Start from Harbor evening' }).click();
+    await page.getByRole('button', { name: 'Start again', exact: true }).click();
+    await settle(page);
+    await page.goto(`${pageUrl}#summary`);
+    await page.waitForSelector('#prescription');
+    expect(await fetchFile(page, 'PRESCRIPTION.md')).toContain('- Start: the Direction “Harbor evening”.');
     await context.close();
   });
 });

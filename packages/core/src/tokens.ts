@@ -230,7 +230,7 @@ export const PAIRS: readonly PairSpec[] = [
 export const NOT_CHECKED: readonly string[] = [
   'Text over a background glow, soft clouds of color, a pattern of dots, lines, or stars, or a frosted-glass box, where the color behind the text varies from point to point.',
   'The fine grain texture. It lies over the whole page and darkens text and background a little; on a light page that lowers every figure by a few percent.',
-  'A headline filled with a fade or with a two-color gradient. “Fix for me” keeps both ends of the fill at 3 to 1 or better against the first screen; “Warn me” does not measure the fill.',
+  'The middle of a headline that is filled with a fade or with a two-color gradient. Both ends of the fill stand at 3 to 1 or better against the first screen in every setting; the colors between the two ends are not measured.',
   'Text over your photographs.',
   'How a button or a link looks while the pointer is over it, or while it is pressed.',
   'Anything a person must judge: whether the page reads well in sunlight, with a screen reader, or to a person with low vision.',
