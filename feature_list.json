@@ -59,6 +59,40 @@
         "Download the file of own Directions, clear the browser's storage, and open the file: the Directions are back, and a notice says how many were added",
         "Open the same file again: none is added twice, and the notice says so"
       ],
+      "passes": true
+    },
+    {
+      "id": "F006",
+      "description": "Hardening, part 1: the owner's own Directions are never lost without a word, a change to a Direction that another tab removed says so, and a file with hostile content adds only inert text.",
+      "spec_section": "SPEC.md section 2.4.1",
+      "steps": [
+        "Put a list into storage in which one entry has the name of a built-in Direction, open the Studio, and keep a new Direction: the stored list as it was is among the kept copies",
+        "Open two tabs, remove a Direction in one, and rename it in the other: the second tab says that the Direction is no longer here, and the stored list is unchanged",
+        "Open a file whose entries carry markup, script, and signs that change the direction of writing: the cards show them as text, nothing runs, and no request leaves the page",
+        "Press the download button while the stored list cannot be read: the Studio says so and hands over no empty file"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F007",
+      "description": "Hardening, part 2: six built-in Directions no longer start with a contrast note on form-field borders or small labels, and a test pins the three Directions whose link colors stay as known departures that their cards state.",
+      "spec_section": "SPEC.md section 2.4.2",
+      "steps": [
+        "Run the unit tests: under Warn me, exactly Sticker Pop, Sunlit Studio, and Poster Block start with a contrast note, each on links only (Poster Block also on its opening paragraph), with every Skin",
+        "Open the Directions screen: the cards of those three say that the Direction starts with contrast notes on its links",
+        "Start from Midnight Aurora and open the Summary: it lists no contrast note"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F008",
+      "description": "Hardening, part 3: the builder has looked at every built-in Direction at phone and desktop width, logged each visible fault, and repaired the faults of the Mockup or of a Direction's values.",
+      "spec_section": "SPEC.md section 2.4.3",
+      "steps": [
+        "Read redteam/FINDINGS.md: it holds one row for each fault that the builder saw, or one row that says that none was seen, with the source \"the builder's look of 2026-11-15\"",
+        "Each repaired fault that a program can measure has a test that fails without the repair",
+        "The full checks pass"
+      ],
       "passes": false
     }
   ]

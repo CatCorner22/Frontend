@@ -1,10 +1,10 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, STEPS, activeTunables, asDirection, conflicts, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, STEPS, activeTunables, asDirection, conflicts, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
   type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, Fragment, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
-import { copyText, fileNameFor, probePreviews, readBackups, removeBackup, saveFile, storedProjectText, type KeptCopy } from './platform';
+import { copyText, fileNameFor, loadOwnDirections, probePreviews, readBackups, removeBackup, saveFile, storedProjectText, type KeptCopy } from './platform';
 import { LargePreview, Thumbnail, mockupHtml, tokensFor } from './preview';
 import { CURRENT, DEVICE_WIDTH, appliedCardId, directionName, paramsForCard, stepOf, useStudio, type Device, type StudioState } from './store';
 import { STUDIO_PARAMS, applyStudioTheme, installSpecimenFonts } from './theme';
@@ -323,6 +323,41 @@ function chipColors(direction: Direction, skinId: string | null): [string, strin
   return [main, second];
 }
 
+/** Rename and remove, on the card of a Direction of the owner's own. */
+function OwnCardActions({ id, name }: { id: string; name: string }): React.JSX.Element {
+  const rename = useStudio((s) => s.renameOwnDirection);
+  const remove = useStudio((s) => s.requestRemoveOwnDirection);
+  // `null`: the name is not being changed.
+  const [draft, setDraft] = useState<string | null>(null);
+  const [refusal, setRefusal] = useState<string | null>(null);
+  const fieldId = `rename-${id}`;
+  if (draft === null) {
+    return (
+      <div className="button-row">
+        <button type="button" className="btn small quiet" onClick={() => { setDraft(name); setRefusal(null); }}>Rename</button>
+        <button type="button" className="btn small quiet" onClick={() => remove(id)}>Remove</button>
+      </div>
+    );
+  }
+  const save = (event: React.FormEvent): void => {
+    event.preventDefault();
+    const error = rename(id, draft);
+    setRefusal(error);
+    if (error === null) setDraft(null);
+  };
+  return (
+    <form className="own-form" onSubmit={save}>
+      <label htmlFor={fieldId}>New name for “{name}”</label>
+      <input id={fieldId} className="name" maxLength={OWN_NAME_MAX} value={draft} autoFocus onChange={(e) => setDraft(e.target.value)} />
+      {refusal && <p className="note" role="alert">{refusal}</p>}
+      <div className="button-row">
+        <button type="submit" className="btn small">Save the name</button>
+        <button type="button" className="btn small quiet" onClick={() => setDraft(null)}>Cancel</button>
+      </div>
+    </form>
+  );
+}
+
 function DirectionCard({ direction, own = false }: { direction: Direction; own?: boolean }): React.JSX.Element {
   const project = useStudio((s) => s.project);
   const request = useStudio((s) => s.requestDirection);
@@ -366,6 +401,7 @@ function DirectionCard({ direction, own = false }: { direction: Direction; own?:
           {direction.risk && <div><dt>Watch for</dt><dd>{direction.risk}</dd></div>}
         </dl>
         {own && <p className="hint">Your own; no source, not reviewed.</p>}
+        {own && <OwnCardActions id={direction.id} name={direction.name} />}
         <button type="button" className="btn primary" onClick={() => request(skin ? { ...direction, params } : direction, skin)}>Start from {direction.name}</button>
       </div>
     </article>
@@ -931,10 +967,15 @@ const OWN_FIELDS = [
   { key: 'risk', id: 'own-risk', label: 'What to watch for' },
 ] as const;
 const NO_TEXTS = { name: '', mood: '', bestFor: '', risk: '' };
+const OWN_FILE_NAME = 'refraction-own-directions.json';
 
 /** Keep the design on screen as a Direction of the owner's own (PLAN.md section 4.7). */
 function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }): React.JSX.Element {
   const keepOwn = useStudio((s) => s.keepOwnDirection);
+  const openOwn = useStudio((s) => s.openOwnDirections);
+  const held = useStudio((s) => s.own.length);
+  const [said, setSaid] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const [texts, setTexts] = useState(NO_TEXTS);
   const [refusal, setRefusal] = useState<string | null>(null);
   const startsWith = notes + clashes === 0
@@ -946,6 +987,32 @@ function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }
     setRefusal(error);
     // What the owner typed stays after a refusal; after a success the form is empty, so that a second press keeps nothing twice.
     if (error === null) setTexts(NO_TEXTS);
+  };
+  const download = async (): Promise<void> => {
+    // The list as storage holds it now: another tab may have changed it.
+    const outcome = await saveFile(OWN_FILE_NAME, JSON.stringify(ownDirectionsFile(loadOwnDirections().list), null, 2));
+    setSaid(outcome === 'saved' ? `The file “${OWN_FILE_NAME}” was handed to your browser to save, usually into your Downloads folder. To bring your own Directions back later, open it here with “Open a file of own Directions”.`
+      : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
+        : 'This page cannot hand over files here, so your own Directions could not be downloaded.');
+  };
+  const open = (file: File | undefined): void => {
+    if (!file) return;
+    if (file.size > 2_000_000) {
+      setSaid('That file was not opened: it is far larger than any file of own Directions. Your own Directions are unchanged.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      let data: unknown = null;
+      try {
+        data = JSON.parse(String(reader.result));
+      } catch {
+        // Not JSON at all: `openOwnDirections` refuses it in the same words as any other file that is not a list.
+      }
+      setSaid(openOwn(data));
+    };
+    reader.onerror = () => setSaid('That file could not be read. Your own Directions are unchanged.');
+    reader.readAsText(file);
   };
   return (
     <section id="own-direction" aria-labelledby="own-heading">
@@ -965,6 +1032,14 @@ function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }
         {refusal && <p className="note" role="alert">{refusal}</p>}
         <div><button type="submit" className="btn">Keep this design as a Direction of my own</button></div>
       </form>
+      <h3>Your own Directions as a file</h3>
+      <p className="hint">Your own Directions stay in this browser only, and a browser can clear what it stores. One file holds them all: download it after you keep, rename, or remove one, and open it in any browser to bring them back.</p>
+      <div className="button-row">
+        {held > 0 && <button type="button" className="btn" onClick={() => void download()}>Download my own Directions ({held})</button>}
+        <button type="button" className="btn" onClick={() => fileRef.current?.click()}>Open a file of own Directions</button>
+        <input ref={fileRef} id="own-file" type="file" accept=".json,application/json" hidden onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
+      </div>
+      {said && <p className="note" role="status">{said}</p>}
     </section>
   );
 }

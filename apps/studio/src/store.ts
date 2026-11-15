@@ -1,6 +1,6 @@
 // The Studio's state. Every change to the design goes through the engine in @refraction/core.
 import {
-  DIRECTIONS, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName,
+  DIRECTIONS, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName, readOwnDirections,
   nextStepId, overlaysOf, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setOverlay, setReason, startPlain, tune,
   type A11yProfile, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type OwnDirection, type Project, type Skin, type Step,
 } from '@refraction/core';
@@ -102,6 +102,12 @@ export interface StudioState {
   moreDirections(): void;
   /** Keep the design on screen as a Direction of the owner's own. Returns the reason in words when it could not be kept. */
   keepOwnDirection(texts: { name: string; mood: string; bestFor: string; risk: string }): string | null;
+  /** Give an own Direction another name. Returns the reason in words when the name cannot stand. */
+  renameOwnDirection(id: string, name: string): string | null;
+  /** Ask, then remove an own Direction for good. */
+  requestRemoveOwnDirection(id: string): void;
+  /** Add the Directions of a file to the owner's own. Returns what happened, in words. */
+  openOwnDirections(data: unknown): string;
   setProfile(profile: A11yProfile): void;
   /** Switch one Overlay on or off for this project. */
   toggleOverlay(overlayId: string, on: boolean): void;
@@ -239,6 +245,7 @@ let storeOnceOpen = false;
  * that finishes while the page dies must not remove it: that save is the very write that another page's write can replace.
  */
 let seemsToLeave = false;
+const GONE_ELSEWHERE = 'That Direction is no longer here: it was removed in another tab or window.';
 const EITHER_WAY = 'Whichever you choose, the Studio first keeps the other copy; you then find it on the Summary, under “Copies the Studio kept for you”.';
 const WHY_LEFT = (name: string): string => `The work in the project “${plainName(name)}” that this tab had not saved, as it was when you last left the tab, reloaded it, or closed it.`;
 const WHY_SAVED = (name: string): string => `The project “${plainName(name)}” as one page of the Studio saved it a moment before that page closed. Another page replaced the saved project in that moment.`;
@@ -346,6 +353,23 @@ export const useStudio = create<StudioState>((set, get) => {
     if (performance.now() - lastSaveAt >= RECENT_SAVE_MS) return;
     seemsToLeave = true;
     keepLeavingCopy(text, WHY_SAVED(name));
+  };
+
+  /**
+   * Change the owner's own Directions: read the stored list afresh, apply the change, and write the result. Reading afresh
+   * matters: another tab may have added to the list, and this tab must not write an older list over it. `change` returns
+   * the new list, or the reason in words why nothing changes. Returns that reason, or null when the list is as wanted.
+   */
+  const changeOwn = (change: (list: OwnDirection[]) => OwnDirection[] | string, whenFull = 'This browser’s storage is full or blocked, so the Studio could not write your own Directions. Nothing was changed.'): string | null => {
+    const stored = loadOwnDirections();
+    if (stored.unreadable !== null && !keepBackup(stored.unreadable, 'The stored list of your own Directions, which the Studio could not read.')) {
+      return 'This browser holds a list of your own Directions that the Studio cannot read, and the Studio could not keep a copy of it. Nothing was changed.';
+    }
+    const next = change(stored.list);
+    if (typeof next === 'string') return next;
+    if (next !== stored.list && !storeOwnDirections(next)) return whenFull;
+    set({ own: next });
+    return null;
   };
 
   const leaveSafely = (): boolean => {
@@ -953,18 +977,55 @@ export const useStudio = create<StudioState>((set, get) => {
     },
 
     keepOwnDirection(texts) {
-      // The stored list is read afresh: another tab may have added to it, and this tab must not write an older list over it.
-      const stored = loadOwnDirections();
-      if (stored.unreadable !== null && !keepBackup(stored.unreadable, 'The stored list of your own Directions, which the Studio could not read.')) {
-        return 'This browser holds a list of your own Directions that the Studio cannot read, and the Studio could not keep a copy of it. Nothing was changed.';
-      }
-      const id = `own-${Date.now().toString(36)}${Math.floor(Math.random() * 36 ** 4).toString(36).padStart(4, '0')}`;
-      const made = makeOwnDirection({ id, ...texts, params: get().project.params, madeAt: new Date().toISOString() }, stored.list.map((d) => d.name));
-      if (!made.ok) return made.error;
-      const own = [...stored.list, made.direction];
-      if (!storeOwnDirections(own)) return 'The Studio could not keep the Direction: this browser’s storage is full or blocked. Nothing was changed.';
-      set({ own, notice: { text: `Kept “${made.direction.name}” as a Direction of your own. You find it on the Directions screen, under “Your own”.`, actions: [{ label: 'Go to the Directions', run: () => get().go('directions') }] } });
-      return null;
+      let name = '';
+      const error = changeOwn((list) => {
+        const id = `own-${Date.now().toString(36)}${Math.floor(Math.random() * 36 ** 4).toString(36).padStart(4, '0')}`;
+        const made = makeOwnDirection({ id, ...texts, params: get().project.params, madeAt: new Date().toISOString() }, list.map((d) => d.name));
+        if (!made.ok) return made.error;
+        name = made.direction.name;
+        return [...list, made.direction];
+      }, 'The Studio could not keep the Direction: this browser’s storage is full or blocked. Nothing was changed.');
+      if (error === null) set({ notice: { text: `Kept “${name}” as a Direction of your own. You find it on the Directions screen, under “Your own”.`, actions: [{ label: 'Go to the Directions', run: () => get().go('directions') }] } });
+      return error;
+    },
+
+    renameOwnDirection(id, name) {
+      return changeOwn((list) => {
+        const own = list.find((d) => d.id === id);
+        if (!own) return GONE_ELSEWHERE;
+        const made = makeOwnDirection({ ...own, name }, list.filter((d) => d.id !== id).map((d) => d.name));
+        return made.ok ? list.map((d) => (d.id === id ? made.direction : d)) : made.error;
+      });
+    },
+
+    requestRemoveOwnDirection(id) {
+      const own = get().own.find((d) => d.id === id);
+      if (!own) return;
+      set({
+        confirmation: {
+          title: `Remove “${own.name}” for good?`,
+          body: `This removes the Direction of your own “${own.name}” from this browser. Undo does not bring it back. A project that started from it keeps its design. If you may want the Direction again, download your own Directions on the Summary first.`,
+          confirmLabel: 'Yes, remove it for good',
+          cancelLabel: 'No, keep it',
+          danger: true,
+          run: () => {
+            const error = changeOwn((list) => list.filter((d) => d.id !== id));
+            set({ notice: { text: error ?? `Removed “${own.name}” from your own Directions.` } });
+          },
+        },
+      });
+    },
+
+    openOwnDirections(data) {
+      let said = '';
+      const error = changeOwn((list) => {
+        const read = readOwnDirections(data, list);
+        if (!read.ok) return read.error;
+        said = read.notes.join(' ');
+        // Nothing to add: hand back the same list, so that nothing is written.
+        return read.added.length > 0 ? [...list, ...read.added] : list;
+      });
+      return error === null ? said : `That file was not opened. ${error} Your own Directions are unchanged.`;
     },
 
     setProfile(profile) {

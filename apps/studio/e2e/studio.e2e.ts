@@ -2975,4 +2975,122 @@ describe('Studio: a Direction of the owner’s own (SPEC.md section 2.3; docs/re
     expect((await keptCopies(page)).filter((copy) => copy.text === damaged).map((copy) => copy.why)).toEqual(['The stored list of your own Directions, which the Studio could not read.']);
     await context.close();
   });
+
+  // ───── Feature F005: rename, remove, download, open ─────
+  const ownCard = (page: Page, name: string) => page.locator('#group-own .direction', { has: page.locator('h3', { hasText: name }) });
+  const twoKept = async (project: string): Promise<Session> => {
+    const session = await summary(project);
+    for (const name of ['First of mine', 'Second of mine']) {
+      await keepAs(session.page, name);
+      await expect.poll(async () => (await ownStored(session.page)).map((d) => d.name)).toContain(name);
+    }
+    return session;
+  };
+  const startFrom = async (page: Page, name: string): Promise<void> => {
+    await page.goto(`${pageUrl}#directions`);
+    await ownCard(page, name).getByRole('button', { name: `Start from ${name}` }).click();
+    await page.getByRole('button', { name: 'Start again', exact: true }).click();
+    await settle(page);
+  };
+
+  it('renames an own Direction on its card; the card and a project that started from it show the new name, and a name in use is refused', async () => {
+    const { context, page } = await twoKept('Renaming');
+    await startFrom(page, 'First of mine');
+    await page.goto(`${pageUrl}#directions`);
+    const card = ownCard(page, 'First of mine');
+    await card.getByRole('button', { name: 'Rename' }).click();
+    const field = page.getByLabel('New name for “First of mine”');
+    expect(await field.inputValue()).toBe('First of mine');
+    expect(await field.getAttribute('maxlength')).toBe('60');
+    await field.fill('second OF mine');
+    await page.getByRole('button', { name: 'Save the name' }).click();
+    expect(await page.locator('#group-own [role="alert"]').innerText()).toBe('Another Direction already has the name “second OF mine”. Choose another name.');
+    await field.fill('Renamed <b>once</b>');
+    await page.getByRole('button', { name: 'Save the name' }).click();
+    await expect.poll(() => page.locator('#group-own .direction h3').allInnerTexts()).toEqual(['Renamed <b>once</b>', 'Second of mine']);
+    expect((await ownStored(page)).map((d) => d.name)).toEqual(['Renamed <b>once</b>', 'Second of mine']);
+    expect(await page.locator('#group-own b').count()).toBe(0);
+    // The project holds the Direction's identifier, so it shows the new name, also after a reload.
+    await page.reload();
+    await page.goto(`${pageUrl}#summary`);
+    await page.waitForSelector('#own-direction');
+    expect(await page.locator('main').innerText()).toContain('This project started from Renamed <b>once</b>');
+    await context.close();
+  });
+
+  it('asks before it removes an own Direction; afterwards the card is gone, and a project that started from it says so and keeps its design', async () => {
+    const { context, page } = await twoKept('Removing');
+    await startFrom(page, 'First of mine');
+    const before = (await stored(page))!;
+    await page.goto(`${pageUrl}#directions`);
+    await ownCard(page, 'First of mine').getByRole('button', { name: 'Remove' }).click();
+    const dialog = page.getByRole('dialog');
+    expect(await dialog.innerText()).toContain('Undo does not bring it back');
+    await dialog.getByRole('button', { name: 'No, keep it' }).click();
+    expect((await ownStored(page)).length).toBe(2);
+    await ownCard(page, 'First of mine').getByRole('button', { name: 'Remove' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Yes, remove it for good' }).click();
+    await expect.poll(() => page.locator('#group-own .direction h3').allInnerTexts()).toEqual(['Second of mine']);
+    expect((await ownStored(page)).map((d) => d.name)).toEqual(['Second of mine']);
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('Removed “First of mine” from your own Directions.');
+    await page.goto(`${pageUrl}#summary`);
+    await page.waitForSelector('#own-direction');
+    expect(await page.locator('main').innerText()).toContain('This project started from a Direction of your own that you removed');
+    await settle(page);
+    const after = (await stored(page))!;
+    expect(after.params).toEqual(before.params);
+    expect(after.direction).toBe(before.direction);
+    await context.close();
+  });
+
+  it('downloads every own Direction as one file, and opens that file in a browser that holds none; a second opening adds none twice', async () => {
+    const { context, page, errors } = await twoKept('Files');
+    const kept = await ownStored(page);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download my own Directions (2)' }).click()]);
+    expect(download.suggestedFilename()).toBe('refraction-own-directions.json');
+    const fileText = readFileSync(await download.path(), 'utf8');
+    expect((JSON.parse(fileText) as { kind: string; directions: Own[] })).toMatchObject({ kind: 'refraction-own-directions', version: 1, directions: kept });
+    expect(await page.locator('#own-direction [role="status"]').innerText()).toContain('was handed to your browser to save');
+    // A browser that holds none: the entry is gone, and the page starts afresh.
+    await page.evaluate((key) => window.localStorage.removeItem(key), OWN_KEY);
+    await page.reload();
+    await page.waitForSelector('#own-direction');
+    expect(await page.getByRole('button', { name: /^Download my own Directions/ }).count()).toBe(0);
+    const openFile = async (): Promise<string> => {
+      await page.locator('#own-file').setInputFiles({ name: 'mine.json', mimeType: 'application/json', buffer: Buffer.from(fileText) });
+      const status = page.locator('#own-direction [role="status"]');
+      await status.waitFor();
+      return status.innerText();
+    };
+    expect(await openFile()).toBe('Added 2 Directions of your own.');
+    expect(await ownStored(page)).toEqual(kept);
+    expect(await openFile()).toBe('Added none: this browser already holds every Direction in the file.');
+    expect(await ownStored(page)).toEqual(kept);
+    await page.goto(`${pageUrl}#directions`);
+    await expect.poll(() => page.locator('#group-own .direction h3').allInnerTexts()).toEqual(['First of mine', 'Second of mine']);
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('refuses a file that is not a set of own Directions, in plain words, and changes nothing', async () => {
+    const { context, page, errors } = await twoKept('Wrong files');
+    const kept = await rawStored(page, OWN_KEY);
+    const status = page.locator('#own-direction [role="status"]');
+    const NOT_A_FILE = 'That file was not opened. This is not a file of your own Directions. Your own Directions are unchanged.';
+    const NEWER = 'That file was not opened. A newer version of the Studio made this file, and this version cannot read it. Your own Directions are unchanged.';
+    // Each file gives another message than the one before it, so that the test sees each answer arrive.
+    const wrong: [string, string][] = [
+      ['not json at all <script>alert(1)</script>', NOT_A_FILE],
+      [JSON.stringify({ kind: 'refraction-own-directions', version: 9, directions: [] }), NEWER],
+      [JSON.stringify(worked('A project, not Directions')), NOT_A_FILE],
+    ];
+    for (const [content, message] of wrong) {
+      await page.locator('#own-file').setInputFiles({ name: 'wrong<img src=x onerror=alert(1)>.json', mimeType: 'application/json', buffer: Buffer.from(content) });
+      await expect.poll(() => status.innerText()).toBe(message);
+    }
+    expect(await rawStored(page, OWN_KEY)).toBe(kept);
+    expect(await page.locator('#own-direction img, #own-direction script').count()).toBe(0);
+    expect(errors).toEqual([]);
+    await context.close();
+  });
 });

@@ -56,10 +56,31 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
 - How to test it end to end: unit tests for the record's format and its checks; browser tests that keep a Direction, reload, start from it and compare the stored design value by value, download and open the file in an empty browser, remove it, and feed hostile text into every field.
 - Behind it: `PLAN.md` section 4.7; decision D56.
 
+### 2.4 Hardening of the current features, the Directions included (the owner's request of 2026-11-15)
+
+**2.4.1 The owner's own Directions are never lost without a word.**
+- What the user does: keeps, renames, removes, or opens own Directions, in one tab or in two, also with a stored list that an earlier or a later version of the Studio wrote.
+- What the system does in response: before the Studio writes a list that lacks an entry which the stored list held and which the owner did not remove, it keeps the stored list among the kept copies. A rename or a removal of a Direction that another tab removed says so and changes nothing. A file with hostile content adds only inert text.
+- Edge cases: a stored entry whose name a built-in Direction now has; a stored entry with a value that this version does not know; the download when the stored list cannot be read; an entry whose date is no date.
+- How to test it end to end: browser tests with hand-made storage and two tabs; unit tests for the record.
+
+**2.4.2 Every built-in Direction starts without a contrast note on its form-field borders and small labels; the three known link departures are pinned.**
+- What the system does: under "Warn me", the Directions Midnight Aurora, Control Room, Galactic Goth, Ember Noir, and Evening Formal, with each of their Skins, start with form-field borders at 3 to 1 or more; Frontier Gazette, with each Skin, starts with small labels at 4.5 to 1 or more. Sticker Pop, Sunlit Studio, and Poster Block keep their link colors; a unit test names exactly these three as the Directions that start with a contrast note, and each of their cards says so in plain words.
+- Edge cases: every Skin of each Direction; the repair changes no value of any other Direction; the Studio's own words never call a Direction "accessible" or "compliant".
+- How to test it end to end: a unit test over every Direction and Skin; the stored pictures of the six changed Directions are renewed and every other picture stays byte for byte.
+
+**2.4.3 The builder has looked at every built-in Direction at phone and desktop width.**
+- What the builder does: draws all 38 Directions (top, services, contact) at 375 and 1280 pixels, looks at each picture, logs every visible fault in `redteam/FINDINGS.md` with the source "the builder's look of 2026-11-15", and repairs the ones that are faults of the Mockup or of a Direction's values.
+- What this is not: a judgment of beauty, which is the owner's; a review by a second person.
+- How to test it end to end: each repaired fault gets a test where a program can measure it; the findings log lists what was seen and what was done.
+
+- Behind it: `PLAN.md` sections 7 and 9; hard rules 8 and 12.
+
 ## 3. Out of scope
 
 - For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.
 - Milestones M5 and later.
+- For the hardening (2.4): the older open findings in `redteam/FINDINGS.md` stay listed and are not part of it; own Directions in the private page's database.
 - Any browser other than Chromium; the real private page with its database.
 
 ## 4. Constraints

@@ -100,6 +100,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-15
+- Feature worked on (ID): F005 (rename, remove, download, and open own Directions; milestone M4D)
+- Result: passes
+- Commits: the commit "F005: ..." that holds this entry
+- Evidence: `npm run check`: 208 unit tests passed. `npm run e2e`: 283 browser tests passed (4 new; 1,324 seconds). Script size 1,344 KB (budget 1,600). The four storage rows stood in the saving table before the code. The builder looked at pictures of the file section and of renaming on a card.
+- Open problems for the next session: milestone M4D's exit test needs the owner to make one Direction on the private page, and the private page has not been republished with today's build. Own Directions are not in the private page's database. One new test was wrong in the test itself and was corrected. No independent review. A survey found that 9 of 38 built-in Directions start with contrast notes; the owner decided what to repair (requirement 2.4, features F006 to F008).
+- Next feature to build (ID): F006 (hardening, part 1: own Directions are never lost without a word)
+
+- Date: 2026-11-15
 - Feature worked on (ID): F004 (keep a design as a Direction of the owner's own, show it under "Your own", start from it; milestone M4D)
 - Result: passes
 - Commits: the commit "F004: ..." that holds this entry
