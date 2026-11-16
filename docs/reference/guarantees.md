@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.11. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
+Version 1.17. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Prescription); it does not cover design advice or the plan.
 
 Stale-after: 90
 
@@ -825,6 +825,32 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Open.** Trial 001's helper received `mockup.html` and `tokens.css`, so a zero there partly reflects copied values. The helpers may have had the repository's `CLAUDE.md` in their context (finding R26-01).
 - Last verified: 2026-11-16
 
+### [66.06] A page's scripts do not run by default, and the window has no network
+
+<!-- index: hostile page | scripts off; offline; dead proxy -->
+
+- **Rule.** By default the browser window runs none of the page's scripts, and the receipt says so. On request (`--run-scripts`) the scripts run, and the receipt says that a page can then change what the program sees. In both cases the window has no network: it is offline, it sends every address, this machine's own included, to a proxy at a port where nothing listens, it blocks service workers, and it stops each request that it sees. No WebSocket, popup, prefetch link, preconnect link, script, image, beacon, form, or move of the page to another address reaches any host. [S18; S1 at D68]
+- **Test.** "gives the same measures for a page that replaces the browser’s own functions as for the same page without that replacement, and says that scripts did not run"; "says, when scripts run on request, that the page’s scripts ran and that a page can change what the program sees"; "lets no connection through: a WebSocket, a popup, a prefetch link, a preconnect link, a script, an image, a beacon, and a form, with scripts off and on" (a local listener counts the connections). [S18]
+- **Exceptions.** With scripts on, a page can still change what the program sees: the receipt says so. Chromium runs without its own sandbox when the program runs as the root user (finding X7-09, open). A page that makes the program wait takes up to about 30 seconds and is then reported as not measured (finding X7-11).
+- Last verified: 2026-11-16
+
+### [66.07] Every line that comes from the page is cleaned, short, and bounded
+
+<!-- index: receipt lines | cleaned; 200 characters; bounded size -->
+
+- **Rule.** Every text from the page that enters the receipt is cleaned first (line breaks become spaces; control characters and invisible format characters, among them the tag characters and the direction signs, are removed) and cut at 200 characters. The reasons that a contrast reading or a window could not be taken are fixed sentences that the program chooses. A page cannot put a heading or a bullet into the receipt. Each measure lists at most 20 deviations and 50 lines of information; at most 5 page errors are listed. What a page that runs scripts returns is checked for type and size before use. [S18; S1 at D68]
+- **Test.** "never lets a page put a heading or a bullet into the receipt, with scripts on or off"; "cleans every line that comes from the page: no invisible sign, at most 200 characters, and a receipt of a bounded size"; "keeps every receipt line short when a page names very many things". [S18]
+- **Exceptions.** A page's words still appear in the receipt, inside fences and cleaned; an AI tool that reads the receipt reads them as data only if it obeys the receipt's own words.
+- Last verified: 2026-11-16
+
+### [66.08] The command line does not write through a link
+
+<!-- index: symbolic link; result folder | refuses; no write -->
+
+- **Rule.** If `receipt.json` or `RECEIPT.md` exists in the result folder as a symbolic link, the program refuses (status 2) and writes nothing; the write itself refuses a link that appears after the check. [S18; S1 at D68]
+- **Test.** "refuses, and leaves the target of the link and the folder as they were". [S18]
+- Last verified: 2026-11-16
+
 ## [70] How the Studio is built
 
 ### [70.01] The shared core holds no React import and no browser API
@@ -892,6 +918,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.17: after the seventh review's repairs of the Fit check (feature F029, decision D68): added §66.06 to §66.08; the header and scope sentence now name the Fit check. 77 guarantees.
 - 2026-11-16 v1.16: after the three repairs of taste (feature F028, decision D63 point 4): added §60.05 to §60.07. 74 guarantees.
 - 2026-11-16 v1.15: after the repair of the requests measure (feature F027, decision D67): §66.01 states that a reference at the page's own address is information; §66.04 states the repaired receipt. 71 guarantees.
 - 2026-11-16 v1.14: after the comparison run (feature F026, decision D66): added §66.05. 71 guarantees.

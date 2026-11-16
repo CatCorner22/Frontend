@@ -8,8 +8,34 @@ export interface Rgba {
   a: number;
 }
 
-/** Reads the colors that a browser reports for computed styles: `rgb(1, 2, 3)` and `rgba(1, 2, 3, 0.5)`, and the space-separated form. */
+const gamma = (x: number): number => (x <= 0.0031308 ? 12.92 * x : 1.055 * Math.abs(x) ** (1 / 2.4) - 0.055);
+const byte = (x: number): number => Math.max(0, Math.min(255, gamma(x) * 255));
+
+/** The CSS notation `oklch(L C h / alpha)` as sRGB: the standard Oklab matrices, then the sRGB transfer curve, clamped to the gamut. */
+function parseOklch(text: string): Rgba | null {
+  const m = /^oklch\(\s*([\d.]+%?)\s+([\d.]+%?)\s+([\d.]+|none)(?:deg)?(?:\s*\/\s*([\d.]+%?))?\s*\)$/i.exec(text.trim());
+  if (!m) return null;
+  const L = m[1]!.endsWith('%') ? Number.parseFloat(m[1]!) / 100 : Number(m[1]);
+  const C = m[2]!.endsWith('%') ? (Number.parseFloat(m[2]!) / 100) * 0.4 : Number(m[2]);
+  const h = (m[3] === 'none' ? 0 : Number(m[3])) * (Math.PI / 180);
+  const alpha = m[4] === undefined ? 1 : m[4].endsWith('%') ? Number.parseFloat(m[4]) / 100 : Number(m[4]);
+  if (![L, C, h, alpha].every(Number.isFinite)) return null;
+  const a = C * Math.cos(h);
+  const b = C * Math.sin(h);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const mm = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  return {
+    r: byte(4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * s),
+    g: byte(-1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * s),
+    b: byte(-0.0041960863 * l - 0.7034186147 * mm + 1.707614701 * s),
+    a: alpha,
+  };
+}
+
+/** Reads the colors that a browser reports for computed styles: `rgb(1, 2, 3)`, `rgba(1, 2, 3, 0.5)`, the space-separated form, and `oklch()`. */
 export function parseRgba(text: string): Rgba | null {
+  if (/^oklch\(/i.test(text.trim())) return parseOklch(text);
   const match = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)$/.exec(text.trim());
   if (!match) return null;
   const alpha = match[4] === undefined ? 1 : match[4].endsWith('%') ? Number.parseFloat(match[4]) / 100 : Number.parseFloat(match[4]);

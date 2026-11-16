@@ -326,6 +326,19 @@
         "Read the line beside Undo: \"Nothing to undo.\" at the start, the Step's name after a reason, and the texts of the page after a change on \"Your content\"; press Undo, and read the message"
       ],
       "passes": true
+    },
+    {
+      "id": "F029",
+      "description": "The owner measures a hostile page with the Fit check and gets an honest receipt: the page's scripts do not run by default, the window has no network, and no text of the page can stand in the receipt as an instruction.",
+      "spec_section": "SPEC.md section 2.15",
+      "steps": [
+        "Measure a page that replaces the browser's own functions to hide a red box and a wrong typeface: the receipt equals the receipt of the same page without the replacement, and it says that the page's scripts did not run",
+        "Measure pages that try a WebSocket, a popup, a prefetch link, and a preconnect link, with scripts off and on: a local listener counts no connection",
+        "Measure a page that tries to put a heading and a bullet into the receipt, and a page with tag characters and a one-million-character class name: the receipt holds the standard headings only, no invisible sign, and lines of at most 200 characters",
+        "Run the command line with a symbolic link as the receipt file: the program refuses and writes nothing",
+        "Measure pages with an oklch color, a DATA: address, a formaction, a poster, a meta refresh, and a text hidden at 375 pixels: each is read as the requirement says"
+      ],
+      "passes": true
     }
   ]
 }

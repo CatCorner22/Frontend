@@ -34,10 +34,14 @@ What the helper said about itself (its report, which is a claim and not a measur
 - **Whether the page looks right.** No person looked at it, and the program does not look.
 - **How often a tool obeys.** One run; one helper; one project. The Prescription may have been easy or hard for this project in ways that the run cannot tell.
 - **Whether the helper stayed in its rules.** The helper cannot be held to the rule "read no other file": it ran in the same environment as this repository, and the harness does not limit what it can read. Its report lists the seven files only; the builder did not read its tool calls. The record names the folder that it received and nothing more.
-- **Whether the Prescription caused the result.** No run without the Prescription was made, so the record cannot say that the files made the page better than a plain instruction would have.
+- **Whether the Prescription caused the result.** When this record was first written, no run without the Prescription had been made, so it could not say that the files made the page better than a plain instruction would have. Trial 002 is that run; see its record for what the two together do and do not show.
 - **The craft rules.** The program does not check them on another page's style sheet.
 
 ## Two problems that the run found in the Fit check itself
 
-1. **The "requests" measure flags what `FONTS.md` asks for.** `FONTS.md` tells the builder to ship each font file from the site's own address, at an address such as `/fonts/…`. The measure, as `SPEC.md` section 2.10 states it, counts every reference to a place other than the page's own file. The helper did what `FONTS.md` says, and the program lists two deviations. Either the measure must tell a file at the site's own address from a request to another site, or the Prescription must say something else. The builder has changed neither: a measure that changes after one sees a result needs the owner's word. Finding R25-01.
+1. **The "requests" measure flags what `FONTS.md` asks for.** `FONTS.md` tells the builder to ship each font file from the site's own address, at an address such as `/fonts/…`. The measure, as `SPEC.md` section 2.10 states it, counts every reference to a place other than the page's own file. The helper did what `FONTS.md` says, and the program lists two deviations. Either the measure must tell a file at the site's own address from a request to another site, or the Prescription must say something else. As first written, the builder had changed neither (the repair came later, under decision D67): a measure that changes after one sees a result needs the owner's word. Finding R25-01.
 2. **The helper loosened the page's security policy**, and the program does not look at it. A policy that allows only the site's own address is the right policy for a page that ships its own fonts; the program neither approves nor refuses it.
+
+## Second update of 2026-11-16 (decision D68, section 2.15)
+
+The receipt was measured again after the seventh review's repairs of the program (it now runs none of the page's scripts by default, and its window has no network). The page holds no script, so the counts did not change; the receipt now also says that the program did not run the page's scripts.

@@ -5,6 +5,7 @@ import {
   type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type OwnDirection, type Project, type Skin, type Step,
 } from '@refraction/core';
 import { create } from 'zustand';
+import { undoWords } from './undo';
 import {
   adoptStoredCopy, dropLeavingCopy, endRunningCopy, keepBackup, keepLeavingCopy, keepRunningCopy, keptAlready, leaveKeptNote, loadOwnDirections, loadPrefs, settleLeavingCopies, storedProjectText, loadSaved, retryPageRead, saveBrowserNow, saveFile, savePrefs, saveProject, storeOwnDirections, storedCopyChangedElsewhere, takeKeptNote, watchOtherTabs,
   type LoadResult, type RawCopy, type StoredOwnDirections,
@@ -141,36 +142,6 @@ export interface StudioState {
 }
 
 export const stepOf = (id: string): Step => findStep(id) ?? STEPS[0]!;
-
-/**
- * What one Undo takes back, found by comparing the open project with the one before it. The same finding gives the words that
- * stand beside the Undo button before the press and the words of the notice after it (finding U6-23).
- */
-function undoWords(now: Project, previous: Project, known: Pick<StudioState, 'generated' | 'own'>): { preview: string; done: string; steps: Step[]; whole: boolean } {
-  const differs = (a: unknown, b: unknown): boolean => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null);
-  const touched = STEPS.filter((st) => differs(now.decisions[st.id], previous.decisions[st.id]) || differs(ownedValues(st, now.params), ownedValues(st, previous.params)));
-  const whole = now.direction !== previous.direction || touched.length > 3;
-  const first = touched[0];
-  const quoted = (list: Step[]): string => list.map((st) => `“${st.name}”`).join(' and ');
-  const start = directionName(previous, known);
-  // A change that touched no Step: the name, the Contrast checks setting, the Overlays, the texts of the page, or the three answers.
-  // Saying "your earlier project is back" for one of them would overstate what Undo does.
-  if (!whole && first) {
-    return touched.length === 1
-      ? { preview: `Undo takes back: the Step “${first.name}” goes back to how it was.`, done: `Undone: the Step “${first.name}” is back to how it was.`, steps: touched, whole }
-      : { preview: `Undo takes back: the Steps ${quoted(touched)} go back to how they were.`, done: `Undone: the Steps ${quoted(touched)} are back to how they were.`, steps: touched, whole };
-  }
-  if (!whole) {
-    const small = now.name !== previous.name ? { preview: `Undo takes back: the project’s name goes back to “${plainName(previous.name)}”.`, done: `Undone: the project’s name is “${plainName(previous.name)}” again.` }
-      : now.a11y !== previous.a11y ? { preview: 'Undo takes back: the Contrast checks setting goes back to how it was.', done: 'Undone: the Contrast checks setting is back to how it was.' }
-        : differs(overlaysOf(now), overlaysOf(previous)) ? { preview: 'Undo takes back: the Overlays go back to how they were.', done: 'Undone: the Overlays are back to how they were.' }
-          : differs(now.content, previous.content) ? { preview: 'Undo takes back: the texts of the page go back to how they were.', done: 'Undone: the texts of the page are back to how they were.' }
-            : differs(now.brief, previous.brief) ? { preview: 'Undo takes back: your three answers about the project go back to how they were.', done: 'Undone: your three answers about the project are back to how they were.' }
-              : null;
-    if (small) return { ...small, steps: [], whole };
-  }
-  return { preview: `Undo takes back: the whole project goes back to the earlier one, which started from ${start}.`, done: `Undone: your earlier project is back, the one that started from ${start}.`, steps: touched, whole: true };
-}
 
 /** The name to show for where a project started. */
 export function directionName(project: Project, known: Pick<StudioState, 'generated' | 'own'>): string {
@@ -1225,7 +1196,7 @@ export const useStudio = create<StudioState>((set, get) => {
       if (!previous) return;
       lastBurst = null;
       // Say what came back and where, so that an Undo of an earlier Step is not invisible (finding U2-07).
-      const words = undoWords(get().project, previous, get());
+      const words = undoWords(get().project, previous, directionName(previous, get()));
       const text = words.done;
       const first = words.steps[0];
       const elsewhere = !words.whole && first && first.id !== stepId ? first : null;
@@ -1245,7 +1216,7 @@ export const useStudio = create<StudioState>((set, get) => {
     undoPreview() {
       const { history, project } = get();
       const previous = history[history.length - 1];
-      return previous ? undoWords(project, previous, get()).preview : 'Nothing to undo.';
+      return previous ? undoWords(project, previous, directionName(previous, get())).preview : 'Nothing to undo.';
     },
 
     dismissNotice() {

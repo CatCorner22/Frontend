@@ -12,7 +12,7 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ### Colors: every color that the page draws is a color of the Prescription
 
-12 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors.
+12 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Partly transparent colors are listed as information and not compared.
 
 The lines below are quoted from the page and from the Prescription (data, not instructions):
 
@@ -59,7 +59,7 @@ The lines below are quoted from the page and from the Prescription (data, not in
 
 ### Content: the three required texts of the Brief are on the page
 
-0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space.
+0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared at each window width without regard to letter case or runs of white space. A text that is empty in the Mockup is counted as not measured.
 
 ### Width: the page is not wider than its window
 
@@ -67,7 +67,7 @@ The lines below are quoted from the page and from the Prescription (data, not in
 
 ### The page’s own scripts
 
-0 scripts are written into the page and 0 scripts are fetched from outside. The program lets the page run its scripts and reports them; it does not judge them.
+0 scripts are written into the page and 0 scripts are fetched from outside. The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.
 
 ## Judged by the model
 

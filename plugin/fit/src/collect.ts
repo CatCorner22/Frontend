@@ -15,8 +15,8 @@ export interface TextRead {
   foreground: string;
   /** Background layers, from the outermost to the one under the text, as computed CSS colors; null when the background cannot be read. */
   layers: string[] | null;
-  /** Why the contrast of this text cannot be measured; empty when it can. */
-  unmeasured: string;
+  /** Why the contrast of this text cannot be measured, as a fixed code; empty when it can. The program turns a code into a sentence; page text never stands here. */
+  unmeasured: '' | 'fill' | 'opacity' | 'image';
   sizePx: number;
   weight: number;
 }
@@ -27,7 +27,8 @@ export interface Collected {
   families: { family: string; where: string }[];
   radii: { value: string; where: string }[];
   texts: TextRead[];
-  bodyText: string;
+  /** The page's visible text, one entry for each block of text (the browser puts a line break between blocks). */
+  lines: string[];
   scrollWidth: number;
   clientWidth: number;
 }
@@ -50,14 +51,19 @@ export function collect(): Collected {
   const references: Reference[] = [];
   const outside = (value: string): boolean => {
     const t = value.trim();
-    return t !== '' && !t.startsWith('data:') && !t.startsWith('#') && !t.startsWith('about:blank');
+    return t !== '' && !/^data:/i.test(t) && !t.startsWith('#') && !/^about:blank/i.test(t);
   };
-  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['form', 'action']];
+  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['video', 'poster'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['form', 'action'], ['button', 'formaction'], ['input', 'formaction'], ['a', 'ping'], ['area', 'ping'], ['image', 'href'], ['image', 'xlink:href'], ['use', 'href'], ['use', 'xlink:href']];
   for (const [tag, attribute] of holders) {
     for (const el of document.querySelectorAll(tag)) {
       const value = el.getAttribute(attribute) ?? '';
       if (outside(value)) references.push({ kind: `${tag} ${attribute}`, value: collapse(value) });
     }
+  }
+  for (const el of document.querySelectorAll('meta[http-equiv]')) {
+    if ((el.getAttribute('http-equiv') ?? '').toLowerCase() !== 'refresh') continue;
+    const target = /url\s*=\s*['"]?([^'";]+)/i.exec(el.getAttribute('content') ?? '')?.[1] ?? '';
+    if (outside(target)) references.push({ kind: 'meta refresh', value: collapse(target) });
   }
   for (const el of document.querySelectorAll('img[srcset], source[srcset]')) {
     for (const candidate of (el.getAttribute('srcset') ?? '').split(',')) {
@@ -113,13 +119,13 @@ export function collect(): Collected {
     const family = (cs.fontFamily.match(/^\s*(?:"([^"]*)"|'([^']*)'|([^,]*))/) ?? []).slice(1).find((part) => part !== undefined) ?? '';
     families.push({ family: family.trim(), where: label });
 
-    let unmeasured = '';
+    let unmeasured: TextRead['unmeasured'] = '';
     const layers: string[] = [];
-    if (alphaOf(cs.color) === 0 || alphaOf(cs.webkitTextFillColor) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') unmeasured = 'the text is filled by an image or a gradient';
+    if (alphaOf(cs.color) === 0 || alphaOf(cs.webkitTextFillColor) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') unmeasured = 'fill';
     for (let up: Element | null = el; up && unmeasured === ''; up = up.parentElement) {
       const style = getComputedStyle(up);
-      if (Number.parseFloat(style.opacity) < 1) { unmeasured = 'the text or a box around it is drawn partly transparent'; break; }
-      if (style.backgroundImage !== 'none') { unmeasured = 'an image or a gradient lies behind the text'; break; }
+      if (Number.parseFloat(style.opacity) < 1) { unmeasured = 'opacity'; break; }
+      if (style.backgroundImage !== 'none') { unmeasured = 'image'; break; }
       const a = alphaOf(style.backgroundColor);
       if (a > 0) layers.unshift(style.backgroundColor);
       if (a === 1) break;
@@ -128,7 +134,7 @@ export function collect(): Collected {
   }
 
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, bodyText: collapse(document.body ? document.body.innerText : ''), scrollWidth: root.scrollWidth, clientWidth: root.clientWidth };
+  return { references, scripts, drawn, families, radii, texts, lines: (document.body ? document.body.innerText : '').split(/\n+/).map(collapse).filter((line) => line !== ''), scrollWidth: root.scrollWidth, clientWidth: root.clientWidth };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */
