@@ -36,9 +36,8 @@ for (const id of ['001', '002', '003']) {
       const today = writePrescription(trialProject(id === '003' ? 'enforce' : undefined));
       // The trials ran before the Floors existed (SPEC.md section 2.18). The six files of design values are the same today, letter for letter.
       for (const name of PRESCRIPTION_FILES) if (name !== 'PRESCRIPTION.md') expect(read('files', name), name).toBe(today[name]);
-      // `PRESCRIPTION.md` is the file that the helper received. Trials 001 and 002 ran before the Floors existed: today's file holds every line of
-      // the stored one, in the same order, except the three lines that the Floors replaced; it adds the Floors. Trial 003 ran with the first
-      // draft of the Floors: the stored file and today's file are the same outside section 7 (the Floors), and the stored one holds 48 requirements.
+      // `PRESCRIPTION.md` is the file that the helper received. Trial 003 ran with the first draft of the Floors: the stored file and today's
+      // file are the same outside section 7 (the Floors), and the stored one holds 48 requirements.
       const stored = read('files', 'PRESCRIPTION.md');
       const current = today['PRESCRIPTION.md'] ?? '';
       if (id === '003') {
@@ -47,15 +46,13 @@ for (const id of ['001', '002', '003']) {
         expect(stored.match(/^- \*\*[ASHQP]\d+\.\*\*/gm)).toHaveLength(48);
         return;
       }
-      const replaced = (line: string): boolean => line.startsWith('This file is an instruction for an AI coding tool.') || line === '## 7. What this first part leaves out' || line.startsWith('- The floors: fixed requirements');
-      const storedLines = stored.split('\n').filter((line) => !replaced(line) && line !== '');
-      const currentLines = current.split('\n');
-      let at = 0;
-      for (const line of storedLines) {
-        const found = currentLines.indexOf(line, at);
-        expect(found, `the stored PRESCRIPTION.md holds a line that today's file lacks, or holds in another place: ${line.slice(0, 100)}`).toBeGreaterThanOrEqual(0);
-        at = found + 1;
-      }
+      // Trials 001 and 002: before the Floors, the file ended with section 7, "What this first part leaves out". Today's file holds the same
+      // text before its section 7 ("Floors"), except the introduction's last words (a line that the Floors changed). Both heads are equal,
+      // line for line; nothing else in sections 1 to 6 may differ.
+      const introduction = (line: string): boolean => line.startsWith('This file is an instruction for an AI coding tool.');
+      const head = (text: string, marker: string): string[] => text.slice(0, text.indexOf(marker)).split('\n').filter((line) => !introduction(line));
+      expect(head(stored, '## 7. What this first part leaves out')).toEqual(head(current, '## 7. Floors'));
+      expect(stored.match(/^## 7\. What this first part leaves out$/gm)).toHaveLength(1);
       expect(stored).not.toContain('## 7. Floors');
     });
 

@@ -68,17 +68,20 @@ export function sampleTextsLeft(content: SiteContent): { names: string[]; total:
  * writing go, line breaks and runs of spaces become one space, and each text is cut at its limit by whole characters. A required
  * text that cleaning would leave empty is replaced by the sample's. `changed` counts the texts that cleaning changed.
  */
-export function cleanLoaded(content: SiteContent, brief: Brief | undefined): { content: SiteContent; brief: Brief | undefined; changed: number } {
+export function cleanLoaded(content: SiteContent, brief: Brief | undefined): { content: SiteContent; brief: Brief | undefined; changed: number; replaced: number } {
   let changed = 0;
+  let replaced = 0;
   const tidy = (value: string, max: number, fallback = ''): string => {
     const text = oneLine(value, max);
     const result = text === '' ? fallback : text;
     if (result !== value) changed++;
+    if (text === '' && fallback !== '' && value !== fallback) replaced++;
     return result;
   };
   const next: SiteContent = { ...content, nav: [...content.nav], services: content.services.map((s) => ({ ...s })), facts: content.facts.map((f) => ({ ...f })), fees: content.fees.map((f) => ({ ...f })) };
   for (const key of Object.keys(TEXT_LIMITS) as ContentTextKey[]) next[key] = tidy(content[key], TEXT_LIMITS[key], REQUIRED_TEXTS.includes(key) ? SAMPLE_CONTENT[key] : '');
-  next.nav = content.nav.map((word, i) => tidy(word, NAV_WORD_MAX, SAMPLE_CONTENT.nav[i] ?? ''));
+  // A link without words is a link that nobody can see (`setNavWord` refuses to make one): an extra link whose words cleaning empties goes.
+  next.nav = content.nav.map((word, i) => tidy(word, NAV_WORD_MAX, SAMPLE_CONTENT.nav[i] ?? '')).filter((word) => word !== '');
   next.services = content.services.map((item) => ({ title: tidy(item.title, ITEM_LIMITS.services.title), body: tidy(item.body, ITEM_LIMITS.services.body) }));
   next.facts = content.facts.map((item) => ({ value: tidy(item.value, ITEM_LIMITS.facts.value), label: tidy(item.label, ITEM_LIMITS.facts.label) }));
   next.fees = content.fees.map((item) => ({ item: tidy(item.item, ITEM_LIMITS.fees.item), price: tidy(item.price, ITEM_LIMITS.fees.price) }));
@@ -93,7 +96,7 @@ export function cleanLoaded(content: SiteContent, brief: Brief | undefined): { c
     }
     answers = Object.keys(out).length > 0 ? out : undefined;
   }
-  return { content: next, brief: answers, changed };
+  return { content: next, brief: answers, changed, replaced };
 }
 
 /** A project, as far as the Brief is concerned. */

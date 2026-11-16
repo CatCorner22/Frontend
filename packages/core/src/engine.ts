@@ -912,6 +912,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   // The texts of the page and the answers are cleaned as typed text is cleaned: a file is not a way around the cleaning (finding X7-05).
   const cleaned = cleanLoaded(data.content, Object.keys(loadedAnswers).length > 0 ? loadedAnswers : undefined);
   if (cleaned.changed > 0) notes.push(cleaned.changed === 1 ? 'One text in the file held hidden signs, a line break, or more characters than the page allows. The Studio cleaned it.' : `${cleaned.changed} texts in the file held hidden signs, line breaks, or more characters than the page allows. The Studio cleaned them.`);
+  if (cleaned.replaced > 0) notes.push(cleaned.replaced === 1 ? 'One text in the file held nothing that a person can see. The sample’s words stand in its place.' : `${cleaned.replaced} texts in the file held nothing that a person can see. The sample’s words stand in their place.`);
   const brief = cleaned.brief;
   // Overlays: those of the file that this Catalog has, each once, in the Catalog's order.
   const listed = data.overlays ?? [];

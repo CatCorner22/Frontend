@@ -427,13 +427,21 @@ describe('text is rendered as text (hard rule 6)', () => {
       readdirSync(repoPath(dir), { withFileTypes: true }).flatMap((entry) =>
         entry.isDirectory() ? sourceFiles(`${dir}/${entry.name}`) : /\.(ts|tsx)$/.test(entry.name) ? [`${dir}/${entry.name}`] : [],
       );
-    // One data file is left out of this scan: `catalog/floors.ts` names these browser calls as things to forbid in the page that an AI coding
-    // tool builds (requirement S4). It holds text for another reader and no code. The test checks that the file exists, so that the
-    // exemption cannot hide a deletion or a move.
+    // The data lines of one file are left out of this scan: `catalog/floors.ts` names these browser calls as things to forbid in the page
+    // that an AI coding tool builds (requirement S4). Each data line is one JSON record that starts with `  {"id"`. The rest of the file,
+    // the code and the comments, is scanned like every other file. The test checks that the file exists, so that the exemption cannot
+    // hide a deletion or a move, and that a data line holds nothing but a record (a line of code cannot pass as data).
     const FLOORS_DATA = 'packages/core/src/catalog/floors.ts';
-    const all = [...sourceFiles('packages/core/src'), ...sourceFiles('apps/studio/src')];
-    expect(all).toContain(FLOORS_DATA);
-    const files = all.filter((file) => file !== FLOORS_DATA);
+    const isDataLine = (line: string): boolean => {
+      if (!line.startsWith('  {"id"')) return false;
+      try {
+        return typeof (JSON.parse(line.trim().replace(/,$/, '')) as { id?: unknown }).id === 'string';
+      } catch {
+        return false;
+      }
+    };
+    const files = [...sourceFiles('packages/core/src'), ...sourceFiles('apps/studio/src')];
+    expect(files).toContain(FLOORS_DATA);
     expect(files.length).toBeGreaterThanOrEqual(15);
     // The lint rule stops these names as property names. This test also sees a name that sits whole inside a text or a comment
     // (code review of 2026-11-13, finding "gaps 4": the rule stopped four spellings of twelve). One limit stays: a name that is
@@ -441,7 +449,8 @@ describe('text is rendered as text (hard rule 6)', () => {
     const forbidden = /innerHTML|outerHTML|insertAdjacentHTML|setHTMLUnsafe|parseHTMLUnsafe|createContextualFragment|DOMParser|dangerouslySetInnerHTML|document\s*\.\s*write(ln)?\b/;
     const frameText: string[] = [];
     for (const file of files) {
-      const text = readFileSync(repoPath(file), 'utf8');
+      const raw = readFileSync(repoPath(file), 'utf8');
+      const text = file === FLOORS_DATA ? raw.split('\n').filter((line) => !isDataLine(line)).join('\n') : raw;
       expect(text.match(forbidden)?.[0], file).toBeUndefined();
       for (const hit of text.match(/\bsrcdoc\s*=|\bsrcDoc=/g) ?? []) frameText.push(`${file}: ${hit}`);
     }

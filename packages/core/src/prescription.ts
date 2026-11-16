@@ -245,7 +245,7 @@ function floorsPart(project: Project): string[] {
     out.push(`### 7.${String(index + 1)} ${floor.name}`, '', floor.what, '');
     if (floor.id === 'host') out.push('Do not try to send these in the page. Write them down for the owner, as a list of settings to make at the host. Then say in your report that you did not and could not set them.', '');
     if (floor.id === 'people' && project.a11y !== 'enforce') {
-      out.push(`Not written for this project: Contrast checks is ${project.a11y === 'off' ? '“Off”' : '“Warn me”'}, and this Floor is written only when it is “Fix for me” (decision D13). The owner can choose “Fix for me” in the Studio and download this file again. Nothing here says that the page meets or fails these requirements: no program looked.`, '');
+      out.push(`Not written for this project: Contrast checks is ${project.a11y === 'off' ? '“Off”' : '“Warn me”'}, and this Floor is written only when it is “Fix for me” (decision D13). The owner can choose “Fix for me” in the Studio and download this file again. Some requirements of the Floor for search (section 7.4) serve the same people, and they are written all the same. Nothing here says that the page meets or fails these requirements: no program looked.`, '');
       return;
     }
     for (const rule of floorRules(floor.id)) out.push(...floorLines(rule));

@@ -101,6 +101,15 @@ describe('loading a project file cleans the texts as typing does', () => {
     if (!result.ok) throw new Error(result.error);
     expect(result.project.content.business).toBe(SAMPLE_CONTENT.business);
     expect(result.project.content.headline).toBe(SAMPLE_CONTENT.headline);
+    // The note says that the sample's words stand in the place of the owner's, not only that the Studio cleaned a text.
+    expect(result.notes.join(' ')).toContain('2 texts in the file held nothing that a person can see. The sample’s words stand in their place.');
+  });
+
+  it('drops an extra menu link whose words cleaning empties, so that no link has no words', () => {
+    const result = parseProject(file((c) => { (c['nav'] as string[]).push(`${tag}‮`); }));
+    if (!result.ok) throw new Error(result.error);
+    expect(result.project.content.nav).toEqual(SAMPLE_CONTENT.nav);
+    expect(result.project.content.nav.every((word) => word !== '')).toBe(true);
   });
 });
 

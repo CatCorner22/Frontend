@@ -565,7 +565,6 @@ interface Card {
   focus?: MockupFocus;
 }
 
-/** The field for one Decision's reason. On the Summary, `fieldId` gives each Step's field its own id and `brief` leaves out the long note. */
 /** What the screens say about the page's texts: all the sample's, all the owner's, or a mix (finding U7-01). */
 function contentStatus(content: Project['content'], page: boolean): string {
   if (isSampleContent(content)) return page ? 'The page still shows the sample dental practice.' : 'The previews still show the sample dental practice.';
@@ -574,6 +573,7 @@ function contentStatus(content: Project['content'], page: boolean): string {
   return `${page ? 'The page shows your texts' : 'The previews show your texts'}, but ${String(names.length)} of ${String(total)} texts are still the sample dental practice’s words${page ? `: ${names.join(', ')}` : ''}.`;
 }
 
+/** The field for one Decision's reason. On the Summary, `fieldId` gives each Step's field its own id and `brief` leaves out the long note. */
 function ReasonField({ stepId, fieldId = 'decision-reason', brief = false }: { stepId: string; fieldId?: string; brief?: boolean }): React.JSX.Element | null {
   const decision = useStudio((s) => s.project.decisions[stepId]);
   const save = useStudio((s) => s.setReason);

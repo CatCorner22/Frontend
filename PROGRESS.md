@@ -104,6 +104,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): the code review of pull request 13 and its repairs (rows CR-01 to CR-10 of `redteam/FINDINGS.md`; no new feature)
+- Result: passes
+- Evidence: `npm run check`: 342 unit tests passed (2 new). `npm run e2e`: 393 browser tests passed (1,375 seconds).
+- Repaired: CR-01 to CR-06. Not repaired, with the reason stated: CR-07 to CR-10 (the review's points were checked against the code; each row says why).
+- Next: join pull request 12 (audit A1 and campaign A2) with this branch.
+
+- Date: 2026-11-16
 - Feature worked on (ID): F032 (the Floors in `PRESCRIPTION.md`: section 7; requirement 2.18; decision D69)
 - Result: passes
 - Commits: the commit "F032: ..." that holds this entry

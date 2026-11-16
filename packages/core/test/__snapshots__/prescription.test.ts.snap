@@ -308,7 +308,7 @@ No program checks any requirement of this section yet. Say, for each one, whethe
 
 Requirements that let a person who cannot see, hear, hold a mouse, or read small text use the page. Written only when Contrast checks is “Fix for me” (decision D13).
 
-Not written for this project: Contrast checks is “Warn me”, and this Floor is written only when it is “Fix for me” (decision D13). The owner can choose “Fix for me” in the Studio and download this file again. Nothing here says that the page meets or fails these requirements: no program looked.
+Not written for this project: Contrast checks is “Warn me”, and this Floor is written only when it is “Fix for me” (decision D13). The owner can choose “Fix for me” in the Studio and download this file again. Some requirements of the Floor for search (section 7.4) serve the same people, and they are written all the same. Nothing here says that the page meets or fails these requirements: no program looked.
 
 ### 7.2 Security of the page
 
@@ -1744,7 +1744,7 @@ No program checks any requirement of this section yet. Say, for each one, whethe
 
 Requirements that let a person who cannot see, hear, hold a mouse, or read small text use the page. Written only when Contrast checks is “Fix for me” (decision D13).
 
-Not written for this project: Contrast checks is “Warn me”, and this Floor is written only when it is “Fix for me” (decision D13). The owner can choose “Fix for me” in the Studio and download this file again. Nothing here says that the page meets or fails these requirements: no program looked.
+Not written for this project: Contrast checks is “Warn me”, and this Floor is written only when it is “Fix for me” (decision D13). The owner can choose “Fix for me” in the Studio and download this file again. Some requirements of the Floor for search (section 7.4) serve the same people, and they are written all the same. Nothing here says that the page meets or fails these requirements: no program looked.
 
 ### 7.2 Security of the page
 
