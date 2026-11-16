@@ -258,7 +258,7 @@ function grouped(rows: { key: string; where: string; width: string }[], describe
 
 /**
  * One line for each finding and width. A finding that holds in every reading of a width says "at 375 pixels"; one that holds in
- * some readings only names them. So the same fault is counted once for each width, as before the readings multiplied (decision D69).
+ * some readings only names them. So the same fault is counted once for each width, as before the readings multiplied (decision D71).
  */
 function atWidths(rows: { key: string; width: number; label: string }[], readingsAt: ReadonlyMap<number, ReadonlySet<string>>): { key: string; text: string }[] {
   const byKey = new Map<string, string[]>();
@@ -413,7 +413,7 @@ export async function fit(input: FitInput): Promise<FitResult> {
       scripts,
       loadFailures,
     };
-    // "Not measured" is never "no deviation": anything not measured in the six measured things gives status 1 (decision D69, A1-07).
+    // "Not measured" is never "no deviation": anything not measured in the six measured things gives status 1 (decision D71, A1-07).
     const six = measured.filter((m) => m.id !== 'contrast');
     const status = six.some((m) => m.deviations > 0 || m.notMeasured > 0) || loadFailures.length > 0 ? 1 : 0;
     return { receipt, markdown: receiptMarkdown(receipt), status };

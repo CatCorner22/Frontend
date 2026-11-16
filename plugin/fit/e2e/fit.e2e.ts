@@ -150,7 +150,7 @@ describe('Fit check: refusals and faults of the build', () => {
   it('records a page that never finishes loading, marks both window widths "not measured", and ends with status 1', async () => {
     const { receipt, status } = await fit(inputOf(files, '<!doctype html><html><body><script>for(;;){}</script></body></html>', { loadTimeoutMs: 1500 }));
     expect(status).toBe(1);
-    // Each width is read with reduced motion and with motion allowed (campaign A2, decision D69): all four readings fail, two per width.
+    // Each width is read with reduced motion and with motion allowed (campaign A2, decision D71): all four readings fail, two per width.
     expect(receipt.loadFailures.map((f) => f.width).sort((a, b) => a - b)).toEqual([375, 375, 1280, 1280]);
     // "Not measured" is never "no deviation": every measure says that both windows were not measured, and the status is 1.
     for (const m of receipt.measured) expect(m.notMeasured, m.id).toBeGreaterThanOrEqual(2);
