@@ -18,7 +18,7 @@ What the program measured on the helper's page (`RECEIPT.md` has the full receip
 
 - **Colors, typefaces, corner radii, content, width: no deviation.** Every color that a visible element draws is a color of the Prescription; every text uses a typeface that the Prescription names; every drawn box uses a radius of the Prescription; the business name, the headline, and the primary action are on the page; the page is not wider than its window at 375 or 1280 pixels.
 - **Requests: three deviations.** Two are the font files at `/fonts/…`, and one is a form that posts to `/appointment-request`. See the first problem below: the first two are not the helper's fault.
-- **Contrast: 6 text readings could not be taken** (a text drawn partly transparent), the same count as on the Mockup. No reading below the usual least was found among the others.
+- **Contrast: 18 text readings could not be taken** (three texts drawn partly transparent, each read at two widths and, since the program joined campaign A2's three readings of each width, three times at each; the program counted 6 readings before the join), the same count as on the Mockup. No reading below the usual least was found among the others.
 - **No script**, written into the page or fetched.
 
 What the helper said about itself (its report, which is a claim and not a measurement), and what the builder checked:
@@ -42,6 +42,20 @@ What the helper said about itself (its report, which is a claim and not a measur
 1. **The "requests" measure flags what `FONTS.md` asks for.** `FONTS.md` tells the builder to ship each font file from the site's own address, at an address such as `/fonts/…`. The measure, as `SPEC.md` section 2.10 states it, counts every reference to a place other than the page's own file. The helper did what `FONTS.md` says, and the program lists two deviations. Either the measure must tell a file at the site's own address from a request to another site, or the Prescription must say something else. As first written, the builder had changed neither (the repair came later, under decision D67): a measure that changes after one sees a result needs the owner's word. Finding R25-01.
 2. **The helper loosened the page's security policy**, and the program does not look at it. A policy that allows only the site's own address is the right policy for a page that ships its own fonts; the program neither approves nor refuses it.
 
+## A later change to the program (2026-11-16, audit finding A1-03)
+
+The first program skipped, without a word, every color that the browser reports in a newer form (`oklch()`, `lab()`, `color-mix()`, and others). The audit repaired it, and the stored receipt was measured again with the repaired program. One thing changed: the page draws one more partly transparent color, written with `color-mix()`, which the first program skipped and the repaired program reads. The note of the colors measure now says "2 partly transparent colors were not compared" where it said 1. No deviation count changed, so the table in `../002/RECORD.md` still holds.
+
+## A later change to the program (2026-11-16, campaign A2, decision D69)
+
+The program now serves the build at a stand-in address of the site and reads each width three times (with reduced motion; with motion allowed, after the animations have ended and two seconds later). The stored receipt was measured again with that program. No deviation count changed. Two things in the receipt changed: the page's two font files at `/fonts/…`, which it names, are now also listed as requests to the site's own address (stopped, information, not deviations), and the contrast measure's "not measured" count is 18 where it was 6, because each text is now read three times at each width.
+
+Later the same day (the retest's variant findings A2-V1 to A2-V14): the receipt was measured again. No count and no line of the measures changed; "Still needs a person" gained two lines (dark mode, touch screens, and other window heights; closed shadow roots).
+
 ## Second update of 2026-11-16 (decision D68, section 2.15)
 
-The receipt was measured again after the seventh review's repairs of the program (it now runs none of the page's scripts by default, and its window has no network). The page holds no script, so the counts did not change; the receipt now also says that the program did not run the page's scripts.
+The receipt was measured again after the seventh review's repairs of the program (its window has no network, and what the page returns is checked). The page holds no script, so the counts did not change; the receipt says how many scripts the page holds.
+
+## After the join of the two branches (2026-11-16, decision D72)
+
+The program that measures this page is now the joined program: campaign A2's reading (three readings of each width, from a world of its own) and feature F029's protections of the window. The stored receipt was measured again. No deviation count changed. Three things in the receipt changed: the page's scripts are run (the page holds none), the count of texts that could not be taken is 18 (it was 6: each text is now read three times at each width), and the sentence about Floors in the contrast note says that no program checks a Floor yet.

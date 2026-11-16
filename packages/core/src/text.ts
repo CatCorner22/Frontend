@@ -14,7 +14,10 @@
  * What this does not catch: a letter of another alphabet that looks like a Latin letter. No list of such letters is
  * complete, so a name can still look like another name; the Studio compares names, it does not judge their looks.
  */
-const INVISIBLE_SIGNS = /[\u0000-\u001f\u007f-\u009f\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180f\u200b-\u200f\u2028-\u202f\u2060-\u206f\u2800\u3164\ufe00-\ufe0f\ufeff\uffa0\ufff0-\ufffb\u{13430}-\u{1343f}\u{1bca0}-\u{1bca3}\u{1d173}-\u{1d17a}\u{e0000}-\u{e0fff}]/gu;
+// After red-team campaign A2 (finding J-12): the signs are matched by Unicode property, not by a list. A list missed 50 signs
+// (among them U+1D173, U+13430, U+1BCA0); every control sign (Cc), every format sign (Cf), and every sign that Unicode says draws
+// nothing (Default_Ignorable_Code_Point) now goes, and so do the line and paragraph separators and the blank braille sign.
+const INVISIBLE_SIGNS = /[\p{Cc}\p{Cf}\p{Default_Ignorable_Code_Point}\u2028\u2029\u2800]/gu;
 /** Half of a two-part character with its other half missing. */
 const HALF_CHARACTERS = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g;
 const QUOTATION_SIGNS = /["'`´“”„‟‘’‚‛«»‹›＂＇″‴‶′‵ʺʹˮ˝❛❜❝❞〝〞〟ʻ-ʽˊˋ˵˶׳״〃Ꞌꞌ]+/g;
@@ -26,7 +29,10 @@ export function cutUnits(text: string, max: number): string {
 }
 
 export function plainName(name: string, limit = 60): string {
-  const clean = name.normalize('NFC').replace(HALF_CHARACTERS, ' ').replace(INVISIBLE_SIGNS, ' ').replace(QUOTATION_SIGNS, '’').replace(/\s+/g, ' ').trim();
+  // Cut first, with a wide margin, then clean: bringing letters to one form (NFC) takes time that grows with the square of a long
+  // run of accents, and a file could hold a name of a million signs (campaign A2, finding J-16). Clean text is never longer than
+  // what goes in, so a name of `limit` visible characters always fits in the margin unless it holds hundreds of invisible signs.
+  const clean = [...name].slice(0, Math.max(limit, 60) * 16).join('').normalize('NFC').replace(HALF_CHARACTERS, ' ').replace(INVISIBLE_SIGNS, ' ').replace(QUOTATION_SIGNS, '’').replace(/\s+/g, ' ').trim();
   // The limit counts whole characters, so the cut never leaves half a character. A cut may still end on a space: the
   // Studio's sentences show a cut name as it is, and a caller that stores a name trims it (see `makeOwnDirection`).
   return [...clean].slice(0, limit).join('');

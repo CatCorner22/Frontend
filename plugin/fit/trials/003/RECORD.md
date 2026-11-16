@@ -16,7 +16,7 @@ What the program measured on the helper's page (`RECEIPT.md` has the full receip
 
 - **Requests, colors, typefaces, corner radii, content, width: no deviation.** The page asks for nothing from another site; every color that a visible element draws is a color of the Prescription; every text uses a typeface that the Prescription names; every drawn box uses a radius of the Prescription; the business name, the headline, and the primary action are on the page; the page is not wider than its window at 375 and 1280 pixels.
 - **Not shipped with the page (information, not deviations):** two font files and the form's address, `/appointment-request`, all at the page's own address.
-- **Contrast: 6 text readings could not be taken** (a text drawn partly transparent), the same count as in trial 001. No reading below the usual least was found among the others.
+- **Contrast: 18 text readings could not be taken** (three texts drawn partly transparent, each read at two widths and in three readings of each width), the same count as in trial 001. No reading below the usual least was found among the others.
 - **No script**, written into the page or fetched.
 
 What the builder read in the page, by searching its text. This is the builder's reading of a few points; it is not a program, and the Fit check measures no Floor:

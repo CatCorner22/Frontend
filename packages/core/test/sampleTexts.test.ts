@@ -48,9 +48,11 @@ describe('PRESCRIPTION.md: the line about the texts', () => {
 
   it('names the placeholders, and does not call every text the owner’s own, when some are the sample’s', () => {
     const md = prescriptionMd(setContentText(createProject('x'), 'business', 'Northside Bakery'));
-    expect(md).toContain('22 of 23 texts are still the sample dental practice’s words, not the owner’s');
+    // The Prescription names the texts that are still the sample's, one by one (campaign A2, finding J-11), and never the text that the owner changed.
+    expect(md).toContain('shows the texts that the project holds. Some are still the sample dental practice’s: ');
     expect(md).toContain('the headline');
-    expect(md).toMatch(/placeholders/);
+    expect(md).not.toMatch(/still the sample dental practice’s: [^\n]*the business name/);
+    expect(md).toContain('Replace those with the owner’s real content; use the others word for word.');
     expect(md).not.toContain('They are the owner’s own: use them word for word.');
   });
 

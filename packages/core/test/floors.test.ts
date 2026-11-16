@@ -1,4 +1,4 @@
-// The Floors (SPEC.md section 2.18; decisions D13 and D69): every record is complete and honest, and the Prescription writes them as the
+// The Floors (SPEC.md section 2.18; decisions D13 and D70): every record is complete and honest, and the Prescription writes them as the
 // requirement says, in each of the three contrast settings.
 import { describe, expect, it } from 'vitest';
 import { FLOORS, FLOOR_RULES, applyDirection, createProject, floorRules, prescriptionMd, writePrescription, type FloorId, type Project } from '../src/index.js';

@@ -1,6 +1,6 @@
 # Plan: "Refraction" — your personal design studio and fitter for LLM-built frontends
 
-**Version 3.4, 2026-11-16.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Refraction" is a placeholder name (the eye-exam procedure). You can rename it at any time.
+**Version 3.6, 2026-11-16 (night).** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Refraction" is a placeholder name (the eye-exam procedure). You can rename it at any time.
 
 **How to read this plan.** Sections 1 to 3 say why the tool exists. Section 4 is the map of the forest: every part of the tool and its state today. Sections 5 to 7 say what it is built from. Section 8 holds the milestones. Section 9 lists what can go wrong. Each statement about the present says "built", "being built", or "not built".
 
@@ -16,7 +16,7 @@
 
 **Who it is for.** You alone. No licensing, accounts, payments, or marketing. The tool earns nothing by itself; it raises the quality of what you sell. Therefore the plan puts a real, sellable project through the tool as early as possible (milestone M8).
 
-**Where it stands today, in one paragraph.** The Studio's choosing half is built: 38 starting looks (each in several Skins), 23 decisions, six Overlays, five research rules, a live preview, reliable saving, and a project file. Since 2026-11-15 the Studio also adds twelve craft rules by itself and, since 2026-11-16, hands you the Prescription: seven files and one archive file that an AI coding tool can build from. One helper agent has built a page from them, and a program (the Fit check, the first part of the Fitter, milestone M7) measured it. The Floors are written into `PRESCRIPTION.md` (milestone M6, built on 2026-11-16; no program checks them yet), and the rest of the Fitter does not exist. Milestone M4 is open and waits for one thing that only you can do: try the Studio (`docs/trial-guide.md`).
+**Where it stands today, in one paragraph.** The Studio's choosing half is built: 38 starting looks (each in several Skins), 23 decisions, six Overlays, five research rules, a live preview, reliable saving, a project file, twelve craft rules, the screen "Your content", and the Prescription (seven files and one archive file) with its Floors (56 requirements in five Floors, written into `PRESCRIPTION.md` section 7; no program checks them yet). The Fit check, the first part of the Fitter, measures a built page against the Prescription; three helper agents built pages from the files (trials 001 to 003), and the Fit check measured them. The two branches of 2026-11-16 are joined (decision D72): the Fit check carries campaign A2's repairs and feature F029's. Still missing: most of the Fitter (M7) and your trial (M4). Section 13 gives the remaining work with time estimates.
 
 **Your standing wish (2026-11-14).** Simple, effective, useful features; no giant heap of slop. Every part of this plan is held to that: each feature in its smallest useful form, and a plain statement of what was left out.
 
@@ -175,7 +175,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 **Milestones.** A milestone is complete only when its exit test passes.
 
-| # | Milestone | Exit test | State on 2026-11-14 |
+| # | Milestone | Exit test | State on 2026-11-16 (evening) |
 |---|---|---|---|
 | M0 | Proof experiment | You judged the result | met |
 | M1 | Repository skeleton, CI, governance files | CI green | met |
@@ -184,8 +184,8 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
 | M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | built on 2026-11-15 (features F003 to F006); its exit test waits for you to make one Direction on the private page. You asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
 | M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52); the craft layer's first twelve craft rules are built (2026-11-15, decisions D58 and D60); the first slice of the Brief is built (2026-11-16, decisions D61 and D62); the floors and an inner page are not started |
-| M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `PRESCRIPTION.md` carries 48 requirements in five Floors, each with its source. Milestone M6 counts as complete only when GitHub's check passes on the commit that holds them (hard rule 3) |
-| M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | started: the Fit check's first slice (features F024 to F029) |
+| M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D70): `PRESCRIPTION.md` carries 56 requirements in five Floors, each with its source. GitHub's check passed on the commit that holds them; the milestone gate review by the three reviewers has not run (hard rule 12) |
+| M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | started: the Fit check's first slice (features F024 to F029), hardened by feature F029 and by campaign A2 (decisions D68, D69, D72); `/fit-build`, `/fit-repair`, the width of 768 pixels, and the plugin's packaging are not built |
 | M8 | **Your first real project, end to end**; hardening | You judge the result; red-team blockers at zero | not started |
 | M9–M11 | Templates 2, 3, 4 | Same tests as M5–M7 per Template | not started |
 | M12 | Taste ledger; `/fit-suggest` | The repeat-combination warning works across two projects | not started |
@@ -241,6 +241,8 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Version 3.2: the craft layer's first twelve craft rules and a first slice of the Prescription (four files) are built before the rest of M5 | You chose this order on 2026-11-15, and approved requirements 2.5 and 2.6 of `SPEC.md` | D58, D60 |
 | Version 3.3: the sixth red-team review and its repairs; the first slice of the Brief (the screen "Your content") | Hard rule 12 and your "Yes regarding the red team"; your four answers on the Brief | D61, D62 |
 | Version 3.4: the Prescription has seven files and one archive file; the Fit check's first slice (milestone M7 started) and two build trials; the seventh red-team round and its repairs; the Floors wait for checked research | Your deferrals of 2026-11-16 ("I defer to you"), your "yes" to the build trial and the comparison run, and your approval of helper agents without a limit and of five research hosts | D63 to D68 |
+| Version 3.5: the audit and red-team campaign A2 and their repairs (on the audit branch); the two branches must be joined first; section 13 gives the remaining work with time estimates | Your request of 2026-11-16 ("Please redo the plan with timeline estimates for remaining work") and your deferral ("I defer to you") | D69 |
+| Version 3.6: the audit branch and the main line are joined (pull requests 12 and 13); the Floors are built; the code review of pull request 13 | Your request of 2026-11-16 ("Please review the code and debug. Please also clean up all pending PRs") | D72 |
 
 ## 11. File and research status
 
@@ -262,10 +264,85 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 **What no check covers today:** any browser but Chromium; a screen reader; the real private page with its database; whether a look is good for your customers.
 
-## 13. Next actions
+## 13. Remaining work, with time estimates
 
-1. **Done on 2026-11-15:** the repairs F-23, F-24, and U5-16; the verified build loop; the C4-F18 repair and the two typefaces. **Done on 2026-11-16:** the repairs after the sixth red-team review (`SPEC.md` section 2.8, features F012 to F014). **Done on 2026-11-16 as well:** the first slice of the Brief (section 2.7, features F015 to F018).
-2. **You:** the trial (`docs/trial-guide.md`). You settled the open decisions on 2026-11-15 (decision D55).
-3. **Now, by your decision of 2026-11-15 (D58):** the hardening (features F006 to F008); then the craft layer (the invisible details of M5, drawn in the Mockup); then a first slice of the Prescription (M6). After that slice a design from the Studio can reach Claude Code for the first time. **All three are built (features F006 to F011).**
-4. **Then the rest of M5:** the floors; an inner page; the rest of the Brief (either/or picks about the brand).
-5. **Then the rest of M5** (an inner page; the rest of the Brief) **and M7** (the Fit check measures the Floors). The Floors are written (feature F032); you deferred the three questions of decision D69 point 5 to the builder, who answered them in decision D70: structured data stays out until M7; "Warn me" does not write the Floor for people with disabilities; no host is chosen until you name one.
+**What the estimates rest on.** They are the builder's estimates, not measurements. They rest on the pace measured in this repository on 2026-11-15 and 2026-11-16: 30 features in about 25 hours of building (about 50 minutes each, tests and records included); a full browser run of about 29 minutes, which every finished feature pays at least once; and one red-team round of 6 lanes and a judge in about 2 hours (about 1.3 million tokens, measured for campaign A2, 8% above its estimate). "Builder hours" are hours of a building session at that pace. "Your time" is time that only you can give. Each range is wide where the work depends on something not yet known (your trial's answers, the research, a new Template).
+
+**The order.** It follows your decisions D63 and D65 (first the Floors, then the Fitter, then the rest of M5), and adds the joining of the two branches in front, because nothing can be built on two disagreeing copies.
+
+### 13.1 Now: close today's work and join the two branches (builder: 4 to 8 hours left; your time: 5 minutes)
+
+| Step | What | Who | Estimate | Depends on |
+|---|---|---|---|---|
+| 1 | Close campaign A2: read the retest judge and the variant lane, repair what fails its retest, record each finding as "retested-pass" or reopened. **Done on 2026-11-16:** all 18 findings retested-pass; the variant lane found 12 more ways around the repairs, all repaired or stated (rows A2-V1 to A2-V14) | builder | done |
+| 2 | **Your decision:** how sessions work from now on: one session at a time, or one area each (for example, the Fitter in one session and the Studio in another). Today two sessions repaired the same faults in different ways; joining their work is step 3 | you | 5 minutes | nothing |
+| 3 | **Done on 2026-11-16 (decision D72):** join the audit branch (`claude/eloquent-curie-hnhykj`, pull request 12) with the main line: 18 files disagree. For each overlap, keep one design (the largest: whether the Fit check runs the page's scripts, as campaign A2's repairs do, or not by default, as feature F029 does); one test suite; every check twice; one retest of the joined Fit check | builder | 4 to 8 hours | steps 1 and 2 |
+
+### 13.2 Your part of milestones M4 and M4D (your time: about 45 minutes; can happen at any time)
+
+| Step | What | Estimate |
+|---|---|---|
+| 4 | The trial of the Studio on the private page (`docs/trial-guide.md`, ten questions) | 25 minutes |
+| 5 | Make one Direction of your own on the private page (the exit test of M4D) | 10 minutes |
+| 6 | Pick the Studio's own look (part of M4's exit test) | 10 minutes |
+| 7 | Builder: repair what your trial names | 2 to 8 hours (depends on your answers) |
+
+### 13.3 Open findings (builder: 8 to 15 hours)
+
+| Step | What | Estimate |
+|---|---|---|
+| 8 | 88 rows of `redteam/FINDINGS.md` are open on the main line, most of them minor. Repair every blocker and major one; repair or state each minor one | 8 to 15 hours |
+
+### 13.4 Milestone M6: the Floors (builder: 11 to 19 hours; your time: 30 to 60 minutes)
+
+| Step | What | Who | Estimate |
+|---|---|---|---|
+| 9 | Check research records 12a to 12d against their own sources (each host needs your approval in the environment's prompt, decision D63) | builder | 3 to 5 hours |
+| 10 | **Your decisions:** what each Floor requires (security, being found by search, speed; and the accessibility Floor, which you choose per project, decision D13) | you | 30 to 60 minutes |
+| 11 | Write the Floors into the Prescription as testable requirements (about six to ten features) | builder | 6 to 10 hours |
+| 12 | The Fit check measures what the Floors require; contrast becomes binding | builder | 2 to 4 hours |
+
+### 13.5 Milestone M7: the rest of the Fitter (builder: 19 to 32 hours)
+
+| Step | What | Estimate |
+|---|---|---|
+| 13 | The third window width (768 pixels) and the exit test: a build with planted defects, every one found and no false blocker | 3 to 5 hours |
+| 13a | **Read what is drawn, not only what the styles say.** Campaign A2 showed that a check that reads computed styles can always be led around by one more route (a shadow root, a clip, a fill color, an import); each round closed the routes it found. The lasting answer: compare the pixels of a screenshot with the Prescription's colors, and find the three required texts in the drawn page, beside the style reading. | 6 to 10 hours |
+| 14 | `/fit-build` and `/fit-repair` as commands of a Claude Code plugin: packaging, at most three rounds of repair, and the receipt's part "Judged by the model" | 8 to 14 hours |
+| 15 | One red-team round on the whole Fitter, and its retest | 2 to 3 hours |
+
+### 13.6 The rest of milestone M5 (builder: 19 to 33 hours)
+
+| Step | What | Estimate |
+|---|---|---|
+| 16 | An inner page for Template 1 | 6 to 10 hours |
+| 17 | The behavior Steps: motion curves, focus style, empty and error states, voice and tone | 8 to 14 hours |
+| 18 | The rest of the Brief: either/or picks about the brand | 3 to 5 hours |
+| 19 | M5's exit test: a test walks every Step, and axe finds no serious problem in any Option | 2 to 4 hours |
+
+### 13.7 Milestone M8: your first real project, end to end (builder: 7 to 14 hours; your time: 1 to 3 hours)
+
+| Step | What | Who | Estimate |
+|---|---|---|---|
+| 20 | **Your choices:** the project, and the Studio's permanent home | you | 15 minutes |
+| 21 | You make the design in the Studio; the Fitter builds and checks it; you judge the result | you and builder | you 1 to 3 hours; builder 4 to 8 hours |
+| 22 | Hardening until no red-team blocker is open | builder | 3 to 6 hours |
+
+### 13.8 After M8 (builder: 83 to 149 hours)
+
+| Step | What | Estimate |
+|---|---|---|
+| 23 | Templates 2, 3, and 4 (M9 to M11): a guided intake flow, a dense operational app, a consumer or SaaS app; each needs its own Mockup, Steps, Prescription, and Fit check | 25 to 45 hours each; 75 to 135 hours in all |
+| 24 | M12: the taste ledger and `/fit-suggest` | 8 to 14 hours |
+
+### 13.9 Totals, and what they mean in days
+
+| Point reached | Builder hours | Your time | At about 10 building hours a day | At about 20 a day (two sessions, one area each) |
+|---|---|---|---|---|
+| Today's work closed and the branches joined (13.1; step 1 done) | 4 to 8 | 5 minutes | 1 day | under 1 day |
+| **M8: the tool does its job on a real project** (13.1 to 13.7) | **70 to 129** | about 3 to 5 hours, in five short sittings | **7 to 13 working days** | **4 to 7 days** |
+| Everything in this plan (to M12) | 153 to 278 | about 3 to 6 hours | 16 to 28 working days | 8 to 14 days |
+
+**What these totals do not hold.** Your steps set the pace as much as the builder's: the trial, the Floors, and the real project each wait for you, and each can stop the line while it waits. Red-team rounds beyond those named cost about 2 hours and 1.3 million tokens each. Any new request of yours adds its own estimate. "Completing the app today" is not within reach: today closes step 1, and possibly steps 2 and 3.
+
+**What you have already, without waiting for any of this.** The Studio does its main job now: you pick a Direction and the Steps, and download the seven files of the Prescription for an AI coding tool. The Fit check can measure a page built from them. What is missing is the Floors, the rest of the Fitter, and the proof on a real project.

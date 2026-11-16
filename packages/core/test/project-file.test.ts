@@ -246,6 +246,12 @@ describe('saved projects: references to the Catalog are recomputed, never truste
     expect(loaded.content.fees).toEqual([{ item: hostile, price: hostile.slice(0, 16) }]);
     expect(loaded.content.nav).toEqual([hostile.slice(0, 24)]);
     expect(loaded.content.facts).toEqual([{ value: hostile.slice(0, 12), label: hostile.slice(0, 40) }]);
+    // The markup stays as plain characters, never escaped and never taken out. A text longer than its own limit is cut there, as a
+    // typed text is (guarantee 55.01; audit finding A1-04): the hostile text has 55 characters, and a figure holds 12, a label 40,
+    // a price 16, and a menu word 24.
+    expect(hostile).toHaveLength(55);
+    const cut = (n: number): string => hostile.slice(0, n);
+    expect(ok(roundTrip(project)).project).toEqual({ ...project, content: { ...project.content, nav: [cut(24)], facts: [{ value: cut(12), label: cut(40) }], fees: [{ item: hostile, price: cut(16) }] } });
   });
 });
 
