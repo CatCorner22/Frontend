@@ -121,6 +121,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [65.08 FONTS.md, DESIGN.md, and theme.css say the design in three more forms, each from the design's own values](#6508-fontsmd-designmd-and-themecss-say-the-design-in-three-more-forms-each-from-the-designs-own-values)
   - [65.09 Two programs that the builder did not write read DESIGN.md and tokens.json, on GitHub only](#6509-two-programs-that-the-builder-did-not-write-read-designmd-and-tokensjson-on-github-only)
   - [65.10 One archive file holds the seven files, each letter for letter](#6510-one-archive-file-holds-the-seven-files-each-letter-for-letter)
+- [66 The Fit check (measuring a build against the Prescription)](#66-the-fit-check-measuring-a-build-against-the-prescription)
+  - [66.01 The program measures six things and one more, and the Mockup passes its own measure](#6601-the-program-measures-six-things-and-one-more-and-the-mockup-passes-its-own-measure)
+  - [66.02 Each deviation that the program claims to find, it finds; each fault of its own inputs, it names](#6602-each-deviation-that-the-program-claims-to-find-it-finds-each-fault-of-its-own-inputs-it-names)
+  - [66.03 The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs](#6603-the-receipt-keeps-measuring-judging-and-asking-apart-and-holds-nothing-that-changes-between-two-runs)
 - [70 How the Studio is built](#70-how-the-studio-is-built)
   - [70.01 The shared core holds no React import and no browser API](#7001-the-shared-core-holds-no-react-import-and-no-browser-api)
   - [70.02 No look changes by accident](#7002-no-look-changes-by-accident)
@@ -741,6 +745,36 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Open.** The second browser test uses a stand-in for the private page; no test opens the real one (finding R23-01).
 - Last verified: 2026-11-16
 
+## [66] The Fit check (measuring a build against the Prescription)
+
+### [66.01] The program measures six things and one more, and the Mockup passes its own measure
+
+<!-- index: fit check | measures a build; receipt; reference build -->
+
+- **Rule.** `npm run fit -- <build.html> <folder> <result folder>` opens the build in a real browser at 375 and 1280 pixels, and measures: every request and every outside reference; every color that a visible element draws; the typeface of every text; the radius of every drawn box; the contrast of every text; the three required texts of the Brief; and the page's width. It reports each deviation with its element. The Mockup of a project is the reference build, and it must show no deviation in requests, colors, typefaces, radii, content, and width. Contrast is reported as a measurement and never changes the status, because the Prescription holds no Floors yet. [S18; S1 at D65]
+- **Test.** "finds no deviation in the Mockup of the plain start or of any of the 38 Directions". [S18]
+- **Elements.** Playwright and a Chromium browser are on the machine. The four files of the Prescription (`PRESCRIPTION.md`, `tokens.css`, `tokens.json`, `mockup.html`) are in one folder.
+- **Exceptions.** Hover, focus, shadows, gradients, images, and every page other than the one given are not measured. A text on an image or a gradient, and a text drawn partly transparent, have no contrast reading; the receipt counts them and names the reason.
+- Last verified: 2026-11-16
+
+### [66.02] Each deviation that the program claims to find, it finds; each fault of its own inputs, it names
+
+<!-- index: self-test | planted damage; refusals; status -->
+
+- **Rule.** The program reports each of eight damages of the reference build: one color changed, one typeface changed, one radius changed, a remote font link, a remote script, the headline removed, the page widened, and the text color made equal to the background. It refuses, with status 2 and no receipt, a missing file, files with different fingerprints, an empty build, and a build that is not an HTML page. A page that never finishes loading is recorded, every measure of that window width is marked "not measured", and the status is 1. A page's error while it loads is recorded, and the measurements still run. [S18]
+- **Test.** The eight tests of "eight damages, each reported", and the tests of "refusals and faults of the build". [S18]
+- **Exceptions.** A damage that the program has no measure for is not found: the self-test names eight, not every possible fault.
+- Last verified: 2026-11-16
+
+### [66.03] The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs
+
+<!-- index: honest receipt | three parts; fenced quotes; same receipt -->
+
+- **Rule.** The receipt has three parts: "Measured", "Judged by the model" (empty in this slice), and "Still needs a person". Text that comes from the page stands only inside a fence of backticks longer than any run in the text, and the receipt marks it as quoted data. The receipt holds no date and no time, so the same page and the same files give the same receipt, byte for byte. It never calls a page accessible or compliant (hard rule 8). [S18; S10 at hard rule 8]
+- **Test.** "shows page text only inside a fence that no backtick of the page can close, and treats it as data"; "gives byte-for-byte the same receipt for the same inputs, and never claims that a page is accessible or compliant". [S18]
+- **Exceptions.** The program reads the page's text only through the browser's own engine; a page that attacks the browser itself is outside what this slice defends against (the program blocks every network request, but the page runs its own scripts).
+- Last verified: 2026-11-16
+
 ## [70] How the Studio is built
 
 ### [70.01] The shared core holds no React import and no browser API
@@ -808,6 +842,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.12: after the first slice of the Fit check (feature F024, decision D65): added §66.01 to §66.03. 69 guarantees.
 - 2026-11-16 v1.11: after the rest of the Prescription's files (features F019 to F023, decisions D63 and D64): added §65.07 to §65.10; §65.04 names its test by its new title. 66 guarantees.
 - 2026-11-16 v1.10: after the first slice of the Brief (features F015 to F018, decisions D61 and D62): added §55.01 to §55.05. 62 guarantees.
 - 2026-11-16 v1.9: after the sixth red-team review (features F012 and F013, decision D61): §65.01, §65.03, §65.04, §65.05, and §65.06 state the repaired behavior and name the new tests; §20.06 names the tests of the look-alike signs and its limit; added §50.09 and §50.10. 57 guarantees.
@@ -839,11 +874,12 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 - [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 - [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §65.07, §65.09, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §65.07, §65.09, §66.01, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08
 - [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §60.01, §60.04, §65.01, §65.03, §65.06, §65.10, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
@@ -851,7 +887,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03, §30.06
 - [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §50.07, §60.01, §60.02, §60.03, §60.04, §65.01, §70.05
 - [S9] The builder, *Unit tests of the engine*, file `packages/core/test/engine.test.ts` (2026-11-13) — §20.01, §50.01, §50.02, §50.03, §50.04, §50.05, §50.06
-- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §55.02, §60.02, §60.03, §65.01, §65.03, §65.05, §70.01, §70.03, §70.05
+- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §55.02, §60.02, §60.03, §65.01, §65.03, §65.05, §66.03, §70.01, §70.03, §70.05
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13) — §70.01
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file… — §10.14
 - [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §55.04, §65.02, §65.03, §65.04, §65.05, §65.07, §65.08
@@ -859,6 +895,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16) — §55.01, §55.02
 - [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16) — §65.10
 - [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs`… — §65.09
+- [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16) — §66.01, §66.02, §66.03
 <!-- authorities:end -->
 
 ## [92] Index
@@ -935,11 +972,13 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **F**
 
 - fence — *see* quoted data
+- fenced quotes — *see* honest receipt
 - fewest and most items — *see* long word
 - file name — *see* quotation marks
 - files to build from — *see* Prescription
 - fine detail — *see* craft rule
 - **fingerprint** — §65.07
+- **fit check** — §66.01
 - **Fix for me** — §40.03; *see also* contrast check
 - **following value** — §50.05; *see also* Decision
 - **FONTS.md** — §65.08
@@ -959,6 +998,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - hex — *see* written color
 - hold — *see* standing notice
 - holds — *see* research rule
+- **honest receipt** — §66.03
 - **hostile text** — §30.02; *see also* Mockup
 - how to ship the letter styles — *see* FONTS.md
 
@@ -1003,6 +1043,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - markup in your content — *see* empty text
 - measured — *see* evidence grade
 - measured style — *see* stored picture
+- measures a build — *see* fit check
 - **Mockup** — §30.01; *see also* locked frame
 
 **N**
@@ -1053,6 +1094,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - pinned version — *see* dependency
 - placeholder project — *see* opening
 - **plain words** — §60.01
+- planted damage — *see* self-test
 - **Prescription** — §65.02; *see also* craft rule
 - preview — *see* Mockup
 - preview of an Option — *see* card
@@ -1075,7 +1117,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - reading size — *see* research rule
 - ready-made parts — *see* FONTS.md
 - **reason** — §50.06; *see also* Decision
+- receipt — *see* fit check
 - record — *see* Decision
+- reference build — *see* fit check
+- refusals — *see* self-test
 - **refused file** — §20.02; *see also* project file
 - **rejected Options** — §20.05; *see also* Decision
 - remote font — *see* outside request
@@ -1090,6 +1135,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - same files again — *see* stored copy of the files
 - same millisecond — *see* save mark
+- same receipt — *see* honest receipt
 - same text — *see* lasting copy
 - sandbox — *see* locked frame
 - **save mark** — §10.09; *see also* two tabs
@@ -1101,6 +1147,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - search summary — *see* evidence grade
 - second color — *see* following value
 - second tab — *see* two tabs
+- **self-test** — §66.02
 - set aside — *see* craft rule
 - **Skin** — §50.07; *see also* Direction
 - slider end — *see* rejected Options
@@ -1113,6 +1160,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **standing notice** — §10.07; *see also* saving
 - start again — *see* replace action
 - starting look — *see* Direction
+- status — *see* self-test
 - **Step** — §50.02
 - still picture — *see* Overlay picture
 - stopped saving — *see* standing notice
@@ -1129,6 +1177,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - texts of the page — *see* your content
 - theme.css — *see* FONTS.md
 - **three answers** — §55.04
+- three parts — *see* honest receipt
 - tooltip — *see* Overlay
 - tracking — *see* outside request
 - trade word — *see* plain words
@@ -1176,7 +1225,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_85 sections, 16 sources, 65 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
+_89 sections, 17 sources, 68 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
 
 - No findings.
 <!-- health:end -->

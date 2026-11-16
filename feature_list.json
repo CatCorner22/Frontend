@@ -270,6 +270,29 @@
         "The section no longer says that the three files are missing"
       ],
       "passes": true
+    },
+    {
+      "id": "F024",
+      "description": "The owner runs one command that measures a page, built from the Prescription, against the Prescription's files, and reads an Honest receipt that names every deviation.",
+      "spec_section": "SPEC.md section 2.10",
+      "steps": [
+        "Write the seven files of a project into a folder, and give the Mockup as the build: the receipt reports zero deviations for requests, colors, typefaces, radii, content, and width, on the plain start and on all 38 Directions",
+        "Damage the Mockup in each of eight ways, one at a time: the receipt reports the matching deviation each time",
+        "Give a missing file, two different fingerprints, an empty build, hostile page text, and a page that never finishes loading: the program refuses or records the fault, and writes no false result",
+        "Run the program twice on the same inputs: the two receipts are byte for byte the same, and neither says that the page is accessible or compliant"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F025",
+      "description": "The owner reads the record of the first build trial: one helper agent built a page from the seven files, and the program measured it.",
+      "spec_section": "SPEC.md section 2.11",
+      "steps": [
+        "Open plugin/fit/trials/001/: it holds the instruction, the helper's page, the receipt, and a record of what the run shows and does not show",
+        "Run the program on the stored page: the receipt equals the stored receipt",
+        "The receipt names the fingerprint of the files that the builder writes today for the fixed project"
+      ],
+      "passes": false
     }
   ]
 }

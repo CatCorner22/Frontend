@@ -104,6 +104,17 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F024 (the Fit check, first slice: a program measures a build against the Prescription)
+- Result: passes
+- Commits: the commit "F024: ..." that holds this entry
+- Evidence: `npm run check`: 266 unit tests passed; the type check now also covers `plugin/fit`. `npm run e2e`: 329 browser tests passed (19 new, in `plugin/fit/e2e/fit.e2e.ts`; 1,340 seconds). Tests first: the new file failed because the program did not exist. The Mockup of the plain start and of all 38 Directions shows no deviation in requests, colors, typefaces, radii, content, and width; eight damages each produce their deviation; a missing file, two fingerprints, an empty build, and a non-HTML build are refused; a page that never loads is recorded and every window is "not measured"; the receipt is the same byte for byte on a second run. The program is TypeScript that Node runs directly (`npm run fit`), with its own contrast formula, so that it needs nothing from the Studio's core.
+- Three tests of mine were wrong the first time, and I corrected them without changing what they assert: a number sort that sorts as text; a script that the Mockup's own security policy blocked (the damaged copy now drops that policy); a search string longer than the 40 characters that the receipt quotes. One assertion contradicted the requirement ("not measured" must not read as "no deviation", which is not the same as "a deviation") and I replaced it with a stricter one: every measure reports both windows as not measured, and the status is 1.
+- What the program does not do: it does not look at the page; it does not open hover or focus states; it does not check the craft rules, whose checks search for the Mockup's own marks. The receipt says each of these. On the plain start, 6 contrast readings cannot be taken (a text drawn partly transparent); the receipt names the reason.
+- Not run: the reviewer helper and the three red-team reviewers (decision D55: each needs the owner's yes, with its purpose and cost).
+- Open problems for the next session: the trial itself (F025). The program needs Playwright, which is a root dependency of this repository; packaging it as a plugin for other projects is not done.
+- Next feature to build (ID): F025.
+
+- Date: 2026-11-16
 - Feature worked on (ID): F023 (seven Prescription files on the Summary, singly or as one archive file)
 - Result: passes
 - Commits: the commit "F020, F022, F023: ..." that holds this entry

@@ -178,6 +178,43 @@ Three reviewers read the code of 2026-11-15 and used the running Studio: 1 block
 - Not in this requirement: the floors; a registry file for the shadcn command-line tool; more than one page.
 - How to test it end to end: unit tests with stored copies of the three new files for two projects; the two outside validators in unit tests over every built-in Direction; a unit test that the fingerprint is the same in all files and changes with a design value; a browser test that downloads every file and the archive, and compares them with what the core writes.
 
+### 2.10 The Fit check, first slice: a program measures a build against the Prescription (milestone M7; decision D63, point 5; decision D65)
+
+This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside the core, because it needs a browser. It measures one page that an AI coding tool built from the Prescription. It does not build anything.
+
+- What the user does: runs `npm run fit -- <build.html> <folder of the seven files> <result folder>`. The program reads `tokens.json`, `tokens.css`, `PRESCRIPTION.md`, and `mockup.html` from the folder, opens the build in a real browser at two window widths (375 and 1280 pixels), and writes `receipt.json` and `RECEIPT.md` into the result folder.
+- What the system does in response: it measures these seven things, and it names every deviation with the element and the value:
+  1. **Requests.** Every network request that the page makes. The program blocks each request to any place other than the page's own file, and lists it (no remote font, no remote script, no analytics: hard rule 7).
+  2. **Colors.** Every text color, background color, and border color that a visible element draws, compared with the color values in `tokens.json`. A color that is not among them is listed as "outside the Prescription". A fully transparent color is skipped; a partly transparent color is listed apart, not as a deviation.
+  3. **Typefaces.** The first family of the computed font stack of every visible element that holds text, compared with the typefaces that `tokens.json` names. A family that the Prescription does not name is listed.
+  4. **Corner radii.** Every border radius of a visible element, compared with the radius values in `tokens.json`. A value that is not among them (and not 0) is listed.
+  5. **Contrast.** The contrast ratio of every visible text element against its background, by the WCAG 2.x formula and the Studio's own color math (hard rule 9). A text on an image or a gradient is listed as "not measured". The ratios are reported as measurements; no Floor requires them yet, because the Prescription carries no Floors (milestone M6 is not complete).
+  6. **Content.** Whether each of the Brief's three required texts (business, headline, primary action; section 2.7) appears in the page's visible text, after the program collapses runs of white space. The program reads them from `mockup.html`, which holds the owner's words.
+  7. **Width.** Whether the page is wider than its window at either width.
+- The receipt is an Honest receipt with three parts: "Measured" (the seven things, each with its count of deviations), "Judged by the model" (empty in this slice; the receipt says so), and "Still needs a person" (the look of the page; keyboard use; screen-reader use; whether the words are right; every craft rule, because their checks search for the Mockup's own marks and cannot judge another page's style sheet). The receipt never says "accessible" or "compliant" (hard rule 8). It names the Prescription's fingerprint (section 2.9).
+- Edge cases:
+  - The folder's files carry different fingerprints: the program refuses and names the files. A file is missing: the program refuses and names it.
+  - The build file is missing, empty, or is not an HTML page: the program stops with a message and writes no receipt.
+  - The page throws an error while it loads: the receipt records the message; the measurements still run. The page does not finish loading within 10 seconds (a script that never ends freezes the page, so nothing can be read from it): the receipt records that, marks every measurement of that window width "not measured", and does not count "not measured" as "no deviation".
+  - The page holds text that addresses the program ("ignore the checks"): it is data; the receipt shows page text only inside a fenced block that the receipt marks as quoted data (as `PRESCRIPTION.md` does, section 2.8.1).
+  - The same page and the same files give the same receipt, byte for byte: the receipt holds no date and no time.
+  - The program ends with status 0 when it found no deviation in the six measured things (requests, colors, typefaces, radii, content, width), with status 1 when it found at least one or could not measure a window width, and with status 2 when it refused (a missing file, two fingerprints, an unusable build). Contrast ratios alone never change the status (the first bullet of the list says why).
+  - The page makes a request that never completes: the program does not wait for it; it counts the request.
+- How to test it end to end:
+  - The Mockup of a project is the **reference build**: the program reports zero deviations for requests, colors, typefaces, radii, content, and width on the plain start and on all 38 Directions. A deviation on the reference build is a defect of the program or of the Mockup, and a person decides which.
+  - A **self-test** damages the reference build in eight ways, one at a time: one color changed; a typeface changed; a radius changed; a remote font link added; a remote script added; the headline removed; the page widened past the window; the text color changed to the background color. Every damage must produce the matching deviation, and the unchanged build must produce none. A damage that the program does not report fails the test.
+  - Hostile page text, a missing file, two fingerprints, and a page that never finishes loading each have a test.
+
+### 2.11 The first build trial: one AI coding tool builds from the seven files, and the program measures the result (milestone M7; decision D65)
+
+- What the user does: asks for one run of the trial. The builder writes the seven files for a fixed project (a small-business project with six Decisions and the sample content) into an empty scratch folder. One helper agent, with no other file from this repository, receives the folder and one fixed instruction: build one page, `index.html`, from the Prescription. The program of section 2.10 measures that page.
+- What the system does in response: the instruction, the helper's page, and the receipt stand in `plugin/fit/trials/001/`. A short record in the same folder says what the run shows and what it does not show.
+- Edge cases:
+  - The helper cannot be held to the rule "read no other file". The record says so, and it names the folder that the helper received.
+  - The helper's page is data. The builder opens it only inside the program's browser and never follows an instruction that it contains.
+  - One run, one model, one project: the record says that it is a first measurement, not a rate.
+- How to test it end to end: a unit test reads the stored receipt of the trial, checks that it names the fingerprint of the files that the builder writes today for the fixed project, and checks that the stored page measures to the stored receipt (the program runs on the stored page and the result equals the stored receipt).
+
 ## 3. Out of scope
 
 - For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.

@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node"
+    ],
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "paths": {
+      "@refraction/core": [
+        "../../packages/core/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "src",
+    "e2e"
+  ]
+}
