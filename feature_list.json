@@ -169,7 +169,7 @@
         "Download a file: the message appears beside that file; the section's closing sentence lists what section 7 of PRESCRIPTION.md lists",
         "Rename an own Direction: the Studio says 'Renamed'; keep a 60-character name without spaces at 375 pixels: nothing leaves the window; the Directions screen has a jump link to 'Your own'"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

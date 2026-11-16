@@ -3395,3 +3395,108 @@ describe('Studio: the list of own Directions has a limit that the Studio itself 
     await context.close();
   }, 120_000);
 });
+
+describe('Studio: the screens say what is true today, where the owner looks (SPEC.md section 2.8.3)', () => {
+  const LATER = /later version (of the Studio )?will|arrive in a later version|does not exist yet:\s*the instructions/i;
+
+  it('says nowhere that the instructions for an AI coding tool come later (findings U6-01, U6-02, U6-05)', async () => {
+    // A project with one decided Step: the field for a reason shows on a decided Step only.
+    const project = worked('True today');
+    expect(project.decisions['nav']).toBeDefined();
+    const { context, page, errors } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(project) } });
+    await page.waitForSelector('.directions');
+    const first = await page.locator('.directions').innerText();
+    expect(first).not.toMatch(LATER);
+    expect(first).toContain('four files that an AI coding tool builds your page from');
+    // The Summary's top says what the owner can take away, and leads to it.
+    await page.goto(`${pageUrl}#summary`);
+    await page.waitForSelector('#prescription');
+    const top = await page.locator('.summary').innerText();
+    expect(top).not.toMatch(LATER);
+    expect(top).toContain('What works today:');
+    await page.getByRole('button', { name: 'Show me the Prescription' }).click();
+    await expect.poll(async () => (await page.locator('#prescription').boundingBox())!.y).toBeLessThan(600);
+    // The field for a reason says where the reason goes.
+    await page.goto(`${pageUrl}#nav`);
+    await waitForStep(page, STEPS.find((step) => step.id === 'nav')!.name);
+    await page.locator('label.reason').waitFor();
+    const reason = await page.locator('label.reason').innerText();
+    expect(reason).not.toMatch(LATER);
+    expect(await page.locator('body').innerText()).not.toMatch(LATER);
+    expect(reason).toContain('goes, word for word, into PRESCRIPTION.md');
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('says in the Prescription section when nothing is picked, shows a file’s message beside that file, and lists what the file’s section 7 lists (findings U6-12, U6-13, U6-21, U6-26, T6-14)', async () => {
+    const fresh = await open({ hash: '#summary' });
+    await fresh.page.waitForSelector('#prescription');
+    expect(await fresh.page.locator('#prescription').innerText()).toContain('You have not picked a Direction or decided a Step yet, so these files describe the plain start.');
+    await fresh.context.close();
+
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Beside the file')) } });
+    await page.waitForSelector('#prescription');
+    const words = await page.locator('#prescription').innerText();
+    expect(words).not.toContain('You have not picked a Direction');
+    for (const part of ['a description of the design in words', 'ready-made parts', 'a file about the letter styles', 'security', 'found by search', 'speed', 'people with disabilities', 'how an Overlay opens and closes', 'every page but the home page', 'one download that holds all four files', 'section 7', 'section 6', 'Put the four files into one folder']) expect(words, part).toContain(part);
+    expect(words).not.toMatch(/the font files themselves|says the same/);
+    // The message for a file stands in that file's own entry, not under the last one.
+    const entry = (name: string) => page.locator('#prescription .prescription-files > li', { has: page.getByRole('button', { name: `Download ${name}`, exact: true }) });
+    for (const name of ['PRESCRIPTION.md', 'tokens.json']) {
+      await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: `Download ${name}`, exact: true }).click()]);
+      await entry(name).locator('[role="status"]').waitFor();
+      expect(await entry(name).locator('[role="status"]').innerText()).toContain(`The file “${name}” was handed to your browser to save`);
+      expect(await page.locator('#prescription [role="status"]').count()).toBe(1);
+    }
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('keeps a long name without spaces inside a phone’s window, leads to “Your own”, and says “Renamed” (findings U6-16, U6-17, U6-20)', async () => {
+    const long = 'Averyveryverylongnamewithoutanyspacesatallinitfromstarttoend';
+    expect(long.length).toBe(60);
+    const { context, page, errors } = await open({ hash: '#summary', viewport: { width: 375, height: 800 }, storage: { [LOCAL_KEY]: envelope(worked('Narrow')) } });
+    await page.waitForSelector('#own-direction');
+    await page.locator('#own-name').fill(long);
+    await page.getByRole('button', { name: 'Keep this design as a Direction of my own' }).click();
+    const banner = page.locator('.banner:not(.hold)');
+    await banner.waitFor();
+    const inside = async (): Promise<boolean> => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+    expect(await inside()).toBe(true);
+    const edge = async (locator: ReturnType<Page['locator']>): Promise<number> => { const box = (await locator.boundingBox())!; return box.x + box.width; };
+    expect(await edge(banner.locator('p').first())).toBeLessThanOrEqual(375);
+    await page.goto(`${pageUrl}#directions`);
+    // A link among the groups leads to the owner's own Directions.
+    const link = page.locator('.group-links a', { hasText: /^Your own \(1\)$/ });
+    await link.click();
+    const card = page.locator('#group-own .direction').first();
+    await card.waitFor();
+    await expect.poll(async () => (await page.locator('#group-own').boundingBox())!.y).toBeLessThan(700);
+    expect(await inside()).toBe(true);
+    expect(await edge(card.getByRole('button', { name: /^Start from/ }))).toBeLessThanOrEqual(await edge(card));
+    // A rename that works is said in words.
+    await card.getByRole('button', { name: 'Rename' }).click();
+    await card.locator('input.name').fill('Short name');
+    await card.getByRole('button', { name: 'Save the name' }).click();
+    await expect.poll(() => page.locator('.banner:not(.hold)').innerText()).toContain(`Renamed “${long}” to “Short name”.`);
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('says so when a field of the form is full, and names the file that was chosen last (findings U6-18, U6-19)', async () => {
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Form words')) } });
+    await page.waitForSelector('#own-direction');
+    expect(await page.locator('#own-direction .field-full').count()).toBe(0);
+    await page.locator('#own-risk').fill('r'.repeat(300));
+    expect(await page.locator('#own-risk').inputValue()).toHaveLength(200);
+    expect(await page.locator('#own-direction .field-full').innerText()).toBe('“What to watch for” is full: it holds 200 characters, and anything beyond that was left out.');
+    await page.locator('#own-risk').fill('short');
+    expect(await page.locator('#own-direction .field-full').count()).toBe(0);
+    // The message about a file stays as it was, word for word; a line above it names the file, as text and cleaned.
+    await page.locator('#own-file').setInputFiles({ name: 'notes”. All fine. “x.txt', mimeType: 'application/json', buffer: Buffer.from('{"no":"list"}') });
+    await expect.poll(() => page.locator('#own-direction [role="status"]').innerText()).toBe('That file was not opened. This is not a file of your own Directions. Your own Directions are unchanged.');
+    expect(await page.locator('#own-direction .own-file-name').innerText()).toBe('The file you chose last: “notes’. All fine. ’x.txt”.');
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+});

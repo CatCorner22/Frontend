@@ -104,6 +104,15 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F014 (repairs after the sixth red-team review, part 3: the screens say what is true today, and say it where the owner looks)
+- Result: passes
+- Commits: the commit "F014: ..." that holds this entry
+- Evidence: `npm run check`: 247 unit tests passed (no new unit test: the changes are screen texts and styles). `npm run e2e`: 301 browser tests passed (4 new; 1,351 seconds). Tests first: all 4 failed on the build from before the repair. What changed: three screens no longer say that the instructions for an AI coding tool come later; the field for a reason says that the reason goes into PRESCRIPTION.md; the Prescription section says when nothing is picked, shows a file's message beside that file, lists what section 7 of the file lists, and says how to hand the files over; a link leads to "Your own"; a rename says "Renamed"; a full field says so; the chosen file is named; a long name without spaces stays inside a phone's window.
+- What went wrong on the way: the plain-words browser test caught the vague phrase "the tool" three times in the new sentences; each is reworded, and the test is unchanged. Two of the builder's new tests were wrong at first: one built its project so that the Step lost its Decision, and it read the reason field in the wrong part of the screen. The first repair of the long name was not enough (the card itself grew with the name); the card's column now has a fixed share.
+- Open problems for the next session: the parts of findings U6-16 to U6-19 that stay open are named in their rows; findings U6-11 and U6-22 to U6-24 wait for the owner's judgment; U6-07, U6-10 (second half), S6-10, S6-12, T6-09, T6-12 (rest), and T6-16 stay open. No second reader has seen the repairs themselves.
+- Next feature to build (ID): none in the list. Requirement 2.7 (the Brief) is approved (decision D61); its features join the list next.
+
+- Date: 2026-11-16
 - Feature worked on (ID): F013 (repairs after the sixth red-team review, part 2: every sentence of the Prescription and of a craft rule is true of the design in hand)
 - Result: passes
 - Commits: the commit "F013: ..." that holds this entry

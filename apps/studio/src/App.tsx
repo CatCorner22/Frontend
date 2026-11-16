@@ -1,5 +1,5 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, isSampleContent, plainName, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
   type A11yProfile, type DesignParams, type Direction, type FontId, type MockupFocus, type PrescriptionFile, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, Fragment, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -435,7 +435,7 @@ function DirectionsView(): React.JSX.Element {
         <p className="eyebrow">Start here</p>
         <h1 ref={heading} tabIndex={-1}>Pick a Direction: a complete starting look</h1>
         <p className="teach">
-          The Studio helps you decide how a website looks and feels, one small decision at a time. Today you leave with a project file that holds your Decisions. A later version will turn them into exact instructions for an AI coding tool.
+          The Studio helps you decide how a website looks and feels, one small decision at a time. Today you leave with a project file that holds your Decisions, and with the first part of the Prescription: four files that an AI coding tool builds your page from. You find both on the Summary.
         </p>
         <p className="teach">
           First pick a Direction below. Then {STEPS.length} short Steps let you change one thing at a time, like an eye exam: “which is better, 1 or 2?” You can stop at any point; the line under the top bar says whether your work is saved.
@@ -447,6 +447,7 @@ function DirectionsView(): React.JSX.Element {
           only the first is, so that the person meets four headings and not thirty-five cards in a row. */}
       <nav className="group-links" aria-label="Groups of Directions">
         {DIRECTION_GROUPS.map((g) => <a key={g.id} href={`#group-${g.id}`} onClick={(e) => { e.preventDefault(); openGroup(g.id); }}>{g.label} ({DIRECTIONS.filter((d) => d.group === g.id).length})</a>)}
+        {s.own.length > 0 && <a href="#group-own" onClick={(e) => { e.preventDefault(); openGroup('own'); }}>Your own ({s.own.length})</a>}
       </nav>
       {DIRECTION_GROUPS.map((g, i) => (
         <details key={g.id} id={`group-${g.id}`} className="direction-group" open={wide || i === 0 || undefined}>
@@ -578,7 +579,7 @@ function ReasonField({ stepId }: { stepId: string }): React.JSX.Element | null {
           lost keyboard focus: Enter, a reload, or the browser's Back button then lost the text, and Back could even store it
           on another Step (code review of 2026-11-13, findings "screen 4" and "gaps 0"). */}
       <input id="decision-reason" type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => { setText(e.target.value); save(stepId, e.target.value); }} />
-      <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved in the project file; a later version of the Studio will pass it to the AI coding tool that builds your site.</small>
+      <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved with the project and goes, word for word, into PRESCRIPTION.md, the file that an AI coding tool reads. Write nothing here that you want to keep to yourself.</small>
     </label>
   );
 }
@@ -973,13 +974,16 @@ const PRESCRIPTION_WORDS: Record<PrescriptionFile, string> = {
   'PRESCRIPTION.md': 'The instruction: every Decision with what you rejected and why, the fine details, and what a person must still check.',
   'tokens.css': 'Every design value under a name, in the form that a web page uses.',
   'tokens.json': 'The same values in a form that design tools read (the Design Tokens format).',
-  'mockup.html': 'This design as one page without script, with its letter styles inside: the picture to build toward.',
+  'mockup.html': 'The reference page: this design as one page without script, with its letter styles inside. The AI coding tool builds toward it.',
 };
 
 /** The first part of the Prescription: four files, written from the open project (PLAN.md section 4.4; SPEC.md section 2.6). */
 function PrescriptionSection(): React.JSX.Element {
   const s = useStudio();
-  const [said, setSaid] = useState<string | null>(null);
+  // The message names the file that it is about, so that it can stand in that file's entry (finding U6-21).
+  const [said, setSaidOf] = useState<{ name: PrescriptionFile; text: string } | null>(null);
+  const untouched = s.project.direction === null && Object.keys(s.project.decisions).length === 0;
+  const sample = isSampleContent(s.project.content);
   const write = (): Record<PrescriptionFile, string> => {
     const { project } = s;
     // The core knows the built-in Directions; only the Studio knows the name of one of the owner's own or of a random one.
@@ -989,17 +993,19 @@ function PrescriptionSection(): React.JSX.Element {
   };
   const download = async (name: PrescriptionFile): Promise<void> => {
     const outcome = await saveFile(name, write()[name]);
+    const setSaid = (text: string): void => setSaidOf({ name, text });
     setSaid(outcome === 'saved' ? `The file “${name}” was handed to your browser to save, usually into your Downloads folder. Give all four files to the AI coding tool that builds your page.`
       : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
         : `This page cannot hand over files here. Use “Copy ${name}” and paste the text into a file of that name.`);
   };
   const copy = async (name: PrescriptionFile): Promise<void> => {
-    setSaid((await copyText(write()[name])) ? `The text of “${name}” was copied. Paste it into a file of that name.` : 'Copying is blocked here. Use the download button.');
+    setSaidOf({ name, text: (await copyText(write()[name])) ? `The text of “${name}” was copied. Paste it into a file of that name.` : 'Copying is blocked here. Use the download button.' });
   };
   return (
     <section id="prescription" aria-labelledby="prescription-heading">
       <h2 id="prescription-heading">The Prescription: files that an AI coding tool builds from</h2>
-      <p className="hint">These four files carry your design out of the Studio. Each is written afresh from the project as it stands when you press its button, so download them again after you change a Decision.</p>
+      <p className="hint">These four files carry your design out of the Studio. Each is written afresh from the project as it stands when you press its button, so download them again after you change a Decision. To use them: Put the four files into one folder, open that folder with your AI coding tool, and ask it to build the home page from PRESCRIPTION.md.</p>
+      {untouched && <p className="note">You have not picked a Direction or decided a Step yet, so these files describe the plain start.</p>}
       <ul className="prescription-files">
         {PRESCRIPTION_FILES.map((name) => (
           <li key={name}>
@@ -1008,19 +1014,19 @@ function PrescriptionSection(): React.JSX.Element {
               <button type="button" className="btn small" onClick={() => void download(name)}>Download {name}</button>
               <button type="button" className="btn small quiet" onClick={() => void copy(name)}>Copy {name}</button>
             </div>
+            {said?.name === name && <p className="note" role="status">{said.text}</p>}
           </li>
         ))}
       </ul>
-      {said && <p className="note" role="status">{said}</p>}
-      <p className="hint">This is the first part of the Prescription. It leaves out: a file about the fonts and the font files themselves, fixed requirements on security, on being found by search, and on speed, how an Overlay opens and closes, your own content (the page shows a sample dental practice), every page but the home page, and one download that holds all four files. PRESCRIPTION.md says the same, and lists what no program checked and a person must still check.</p>
+      <p className="hint">This is the first part of the Prescription. It leaves out: two more files (a description of the design in words, and a file of colors and sizes for ready-made parts), a file about the letter styles, fixed requirements on security, on being found by search, and on speed, the checks for people with disabilities written as tests, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}every page but the home page, and one download that holds all four files. PRESCRIPTION.md lists the same in its section 7, and lists in its section 6 what no program checked and a person must still check.</p>
     </section>
   );
 }
 
 const OWN_FIELDS = [
-  { key: 'mood', id: 'own-mood', label: 'The mood, in a sentence (leave it empty and the Studio writes it from the design)' },
-  { key: 'bestFor', id: 'own-best', label: 'What it is best for' },
-  { key: 'risk', id: 'own-risk', label: 'What to watch for' },
+  { key: 'mood', id: 'own-mood', short: 'The mood', label: 'The mood, in a sentence (leave it empty and the Studio writes it from the design)' },
+  { key: 'bestFor', id: 'own-best', short: 'What it is best for', label: 'What it is best for' },
+  { key: 'risk', id: 'own-risk', short: 'What to watch for', label: 'What to watch for' },
 ] as const;
 const NO_TEXTS = { name: '', mood: '', bestFor: '', risk: '' };
 const OWN_FILE_NAME = 'refraction-own-directions.json';
@@ -1035,6 +1041,9 @@ function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [texts, setTexts] = useState(NO_TEXTS);
   const [refusal, setRefusal] = useState<string | null>(null);
+  const [chosen, setChosen] = useState<string | null>(null);
+  // A field stops at its limit without a sound; the form says which field is full (finding U6-19).
+  const full = [{ label: 'Name', length: texts.name.length, max: OWN_NAME_MAX }, ...OWN_FIELDS.map((field) => ({ label: field.short, length: texts[field.key].length, max: OWN_TEXT_MAX }))].filter((field) => field.length >= field.max);
   const startsWith = notes + clashes === 0
     ? 'This design starts with no contrast note and no Decisions that pull against each other.'
     : `This design starts with ${notes === 0 ? 'no contrast note' : notes === 1 ? '1 contrast note' : `${notes} contrast notes`} and ${clashes === 0 ? 'no pair' : clashes === 1 ? '1 pair' : `${clashes} pairs`} of Decisions that pull against each other. You may keep it all the same.`;
@@ -1061,6 +1070,7 @@ function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }
   };
   const open = (file: File | undefined): void => {
     if (!file) return;
+    setChosen(plainName(file.name));
     if (file.size > 2_000_000) {
       setSaid('That file was not opened: it is far larger than any file of own Directions. Your own Directions are unchanged.');
       return;
@@ -1093,6 +1103,7 @@ function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }
           </Fragment>
         ))}
         <p className="hint">A name holds up to {OWN_NAME_MAX} characters, each text up to {OWN_TEXT_MAX}; a field stops at its limit.</p>
+        {full.map((field) => <p key={field.label} className="note field-full" role="status">“{field.label}” is full: it holds {field.max} characters, and anything beyond that was left out.</p>)}
         {refusal && <p className="note" role="alert">{refusal}</p>}
         <div><button type="submit" className="btn">Keep this design as a Direction of my own</button></div>
       </form>
@@ -1103,6 +1114,7 @@ function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }
         <button type="button" className="btn" onClick={() => fileRef.current?.click()}>Open a file of own Directions</button>
         <input ref={fileRef} id="own-file" type="file" accept=".json,application/json" hidden onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
       </div>
+      {chosen !== null && <p className="hint own-file-name">The file you chose last: “{chosen}”.</p>}
       {said && <p className="note" role="status">{said}</p>}
       {ownNote && <p className="note own-note">{ownNote}</p>}
     </section>
@@ -1186,8 +1198,9 @@ function SummaryView(): React.JSX.Element {
           You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s)}; a Step you have not decided keeps the value it started with.
         </p>
         <p className="teach">
-          <strong>What works today:</strong> you can download the project file and open it here later. <strong>What does not exist yet:</strong> the instructions for an AI coding tool, the files of exact design values, and the reference page. They arrive in a later version of the Studio.
+          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the first part of the Prescription: four files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the rest of the Prescription, which the section “The Prescription” lists, and the part of Refraction that measures a built page against it.
         </p>
+        <p><button type="button" className="btn small" onClick={() => document.getElementById('prescription')?.scrollIntoView({ block: 'start' })}>Show me the Prescription</button></p>
         <section aria-labelledby="file-heading">
           <h2 id="file-heading">Project file</h2>
           <div className="actions">

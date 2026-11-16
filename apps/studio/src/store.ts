@@ -1013,12 +1013,18 @@ export const useStudio = create<StudioState>((set, get) => {
     },
 
     renameOwnDirection(id, name) {
+      let renamed: { from: string; to: string } | null = null;
       const error = changeOwn((list) => {
         const own = list.find((d) => d.id === id);
         if (!own) return GONE_ELSEWHERE;
         const made = makeOwnDirection({ ...own, name }, list.filter((d) => d.id !== id).map((d) => d.name));
-        return made.ok ? list.map((d) => (d.id === id ? made.direction : d)) : made.error;
+        if (!made.ok) return made.error;
+        renamed = { from: own.name, to: made.direction.name };
+        return list.map((d) => (d.id === id ? made.direction : d));
       });
+      // A rename that worked is said in words, as keeping and removing are (finding U6-17).
+      const done = renamed as { from: string; to: string } | null;
+      if (error === null && done && done.from !== done.to) set({ notice: { text: `Renamed “${done.from}” to “${done.to}”.` } });
       // The card with its field is gone from the screen, so the sentence goes where the owner still sees it.
       if (error === GONE_ELSEWHERE) set({ notice: { text: error } });
       return error;
