@@ -1,6 +1,6 @@
 # Plan: "Refraction" — your personal design studio and fitter for LLM-built frontends
 
-**Version 3.2, 2026-11-15.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Refraction" is a placeholder name (the eye-exam procedure). You can rename it at any time.
+**Version 3.3, 2026-11-16.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Refraction" is a placeholder name (the eye-exam procedure). You can rename it at any time.
 
 **How to read this plan.** Sections 1 to 3 say why the tool exists. Section 4 is the map of the forest: every part of the tool and its state today. Sections 5 to 7 say what it is built from. Section 8 holds the milestones. Section 9 lists what can go wrong. Each statement about the present says "built", "being built", or "not built".
 
@@ -85,7 +85,7 @@ A rule graded C or D is shown as opinion or folklore, never as science.
 
 | Stage | Content | State |
 |---|---|---|
-| 1. Brief | your product, audience, primary job, and real content; brand tensions as either/or picks | not built (M5, first item: your own words in every preview) |
+| 1. Brief | your product, audience, primary job, and real content; brand tensions as either/or picks | built in part (2026-11-16, features F015 to F018): the screen "Your content" takes your three answers and every text of the page, with lists that grow and shrink within limits. Not built: either/or picks about the brand, your own pictures, texts taken from an existing site |
 | 2. Structure | menu · first screen · list of services · page width · what stands out first · spacing | built |
 | 3. Feel | letter style · heading style · text size · number style · tint of the grays · main color · amount of color · light or dark · text contrast · background of the first screen · corners · box edges and shadows · line thickness · button style · headline color · one special touch · motion | built |
 | 4. Behavior | **Overlays** (first set of six: tooltip, "Are you sure?" question, notice after an action, error message beside a field, loading placeholder, main button that stays in view on a phone) | built |
@@ -183,7 +183,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M3 | Preview and Template 1 Mockup | One change alters one variable (pixel test) | met; one part open: nobody has confirmed that the private page shows the pictures |
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
 | M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | built on 2026-11-15 (features F003 to F006); its exit test waits for you to make one Direction on the private page. You asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
-| M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52); the craft layer's first twelve craft rules are built (2026-11-15, decisions D58 and D60); the Brief, the floors, and an inner page are not started |
+| M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52); the craft layer's first twelve craft rules are built (2026-11-15, decisions D58 and D60); the first slice of the Brief is built (2026-11-16, decisions D61 and D62); the floors and an inner page are not started |
 | M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | started early by your decision D58: a first slice of four files is built and has snapshot tests (2026-11-15). Not built: `DESIGN.md`, the shadcn theme, `FONTS.md`, the floors in the Prescription. No validator has read `tokens.json` yet |
 | M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | not started |
 | M8 | **Your first real project, end to end**; hardening | You judge the result; red-team blockers at zero | not started |
@@ -239,6 +239,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Your verification rules | You stated them on 2026-11-14 | D52 |
 | Version 3: the Direction Creator (section 4.7, milestone M4D); the verified build loop; the defined terms "Direction" and "Research rule"; the Drive backup retired | You asked for them on 2026-11-15 | D55, D56 |
 | Version 3.2: the craft layer's first twelve craft rules and a first slice of the Prescription (four files) are built before the rest of M5 | You chose this order on 2026-11-15, and approved requirements 2.5 and 2.6 of `SPEC.md` | D58, D60 |
+| Version 3.3: the sixth red-team review and its repairs; the first slice of the Brief (the screen "Your content") | Hard rule 12 and your "Yes regarding the red team"; your four answers on the Brief | D61, D62 |
 
 ## 11. File and research status
 
@@ -262,8 +263,8 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 ## 13. Next actions
 
-1. **Done on 2026-11-15:** the repairs F-23, F-24, and U5-16; the verified build loop; the C4-F18 repair and the two typefaces. **Done on 2026-11-16:** the repairs after the sixth red-team review (`SPEC.md` section 2.8, features F012 to F014). **Now:** the Brief (section 2.7, decision D61).
+1. **Done on 2026-11-15:** the repairs F-23, F-24, and U5-16; the verified build loop; the C4-F18 repair and the two typefaces. **Done on 2026-11-16:** the repairs after the sixth red-team review (`SPEC.md` section 2.8, features F012 to F014). **Done on 2026-11-16 as well:** the first slice of the Brief (section 2.7, features F015 to F018).
 2. **You:** the trial (`docs/trial-guide.md`). You settled the open decisions on 2026-11-15 (decision D55).
 3. **Now, by your decision of 2026-11-15 (D58):** the hardening (features F006 to F008); then the craft layer (the invisible details of M5, drawn in the Mockup); then a first slice of the Prescription (M6). After that slice a design from the Studio can reach Claude Code for the first time. **All three are built (features F006 to F011).**
-4. **Then the rest of M5:** your own content in every preview; the floors; an inner page.
+4. **Then the rest of M5:** the floors; an inner page; the rest of the Brief (either/or picks about the brand).
 5. **Then the rest of M6:** the remaining files of the Prescription and a validator for `tokens.json`.

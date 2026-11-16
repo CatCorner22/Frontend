@@ -98,6 +98,17 @@
 
 **What no test covers.** The private page's database: own Directions live in the browser's storage only, also on the private page, where that storage is a convenience and can be cleared. The download of the list (feature F005) is the safeguard.
 
+## The owner's own texts and answers (the Brief; part of the project)
+
+**What this is.** The page's texts and the three answers about the project are part of the saved project. They are saved, kept, and undone exactly like a Decision; the rows above apply to them. Three things are particular to them.
+
+| Event | What must happen | Test |
+|---|---|---|
+| The owner types into a field of "Your content" | Each letter is stored at once, as with the project's name. A run of typing in one field is one Undo step. The project holds the cleaned text; the field shows what was typed until the owner leaves it | "opens from the top bar, takes the owner’s words into the project and the previews, keeps them over a reload, and hands them over in mockup.html" |
+| The owner empties the page's name, its headline, or the words on its main button | The project keeps the last text, and words under the field say so | "draws markup in a text as text, never leaves the page without a name, and says when the words to mark are not in the headline" |
+| The owner presses "Put the sample text back" | The Studio asks first. After "Yes, put the sample back" the project as it was is kept among the kept copies where the browser allows it, the sample replaces the texts, the three answers stay, and Undo brings the texts back | "puts the sample text back only after asking, keeps the owner’s texts as a copy, and brings them back with Undo" |
+| A new project, a Direction, or a file would replace a project that holds nothing but the owner's texts or answers | Such a project counts as work: the Studio asks first and keeps a copy, as for a project with a Decision | "asks before a new project replaces a project that holds only the owner’s texts, and says that the texts go" |
+
 ## Why 2 seconds (finding F-18)
 
 **What goes wrong without it.** A browser passes one tab's storage write on to the other tabs with a short delay (a few milliseconds). In that gap, tab A cannot see that tab B has just saved. If A closes in that gap, A's closing write replaces B's save. B counts its work as saved, so B used to write nothing when it closed, and B's work was then in no entry. A judge measured 2 such losses in 120 trials on 2026-11-14 (11 milliseconds lay between the two writes in the recorded loss).

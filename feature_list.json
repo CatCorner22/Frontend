@@ -216,7 +216,7 @@
         "A project with the owner's texts: the file says that mockup.html shows the project's own texts and tells the AI coding tool to use them word for word",
         "In the browser: type the answers, download PRESCRIPTION.md, and read them there"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.9. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the craft rules, and the Prescription, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
+Version 1.10. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
 
 Stale-after: 90
 
@@ -99,6 +99,12 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [50.08 An Overlay changes no value of the design, and a project without Overlays is stored as before](#5008-an-overlay-changes-no-value-of-the-design-and-a-project-without-overlays-is-stored-as-before)
   - [50.09 The Studio never writes a list of own Directions that it cannot read again](#5009-the-studio-never-writes-a-list-of-own-directions-that-it-cannot-read-again)
   - [50.10 A Direction of the owner's own holds the known design values and nothing else](#5010-a-direction-of-the-owners-own-holds-the-known-design-values-and-nothing-else)
+- [55 Your content (the Brief)](#55-your-content-the-brief)
+  - [55.01 A text of the owner's is kept as typed, cleaned and cut at its limit, and the page never loses its name, its headline, or its main button](#5501-a-text-of-the-owners-is-kept-as-typed-cleaned-and-cut-at-its-limit-and-the-page-never-loses-its-name-its-headline-or-its-main-button)
+  - [55.02 An empty text or an empty list leaves no empty box on the page, and a text with markup is drawn as text](#5502-an-empty-text-or-an-empty-list-leaves-no-empty-box-on-the-page-and-a-text-with-markup-is-drawn-as-text)
+  - [55.03 Every built-in Direction holds the owner's content at the ends of what the Brief allows without becoming wider than its window](#5503-every-built-in-direction-holds-the-owners-content-at-the-ends-of-what-the-brief-allows-without-becoming-wider-than-its-window)
+  - [55.04 The three answers go into the Prescription as quoted data, and the owner's texts go into the reference page and nowhere else](#5504-the-three-answers-go-into-the-prescription-as-quoted-data-and-the-owners-texts-go-into-the-reference-page-and-nowhere-else)
+  - [55.05 The Studio asks before the sample replaces the owner's texts, keeps a copy, and treats a project that holds only the owner's words as work](#5505-the-studio-asks-before-the-sample-replaces-the-owners-texts-keeps-a-copy-and-treats-a-project-that-holds-only-the-owners-words-as-work)
 - [60 The Studio's words](#60-the-studios-words)
   - [60.01 A trade word appears only inside round brackets](#6001-a-trade-word-appears-only-inside-round-brackets)
   - [60.02 Every Step says where its guidance comes from and how well it is known](#6002-every-step-says-where-its-guidance-comes-from-and-how-well-it-is-known)
@@ -544,6 +550,56 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "holds the known design values and nothing else, whatever a file adds (finding S6-02)"; "compares names in one form of their letters, and stores a name in one form"; "never ends a cut name on a space or on half a character"; "refuses a date that is not written as the Studio writes dates (finding S6-09)"; "says so when a file names a typeface that the Studio replaced (finding S6-11)". [S14]
 - Last verified: 2026-11-16
 
+## [55] Your content (the Brief)
+
+### [55.01] A text of the owner's is kept as typed, cleaned and cut at its limit, and the page never loses its name, its headline, or its main button
+
+<!-- index: your content | Brief; own words; texts of the page; limit of a text -->
+
+- **Rule.** Each text of the page and each of the three answers is stored on one line, without invisible signs and without signs that change the direction of writing, and cut at its own limit by whole characters. Quotation marks and apostrophes stay. The page's name, its headline, and the words on its main button cannot be emptied: an empty one changes nothing, and the screen says so. A service, a fact, and a price are added and removed within 1 to 8, 0 to 4, and 0 to 8; the menu keeps its five links. [S15; S1 at D61; S1 at D62]
+- **Test.** "sets a text of the page, cleaned like any text that the Studio keeps, and cut at that text’s limit"; "never leaves the page without a name or a headline: an empty one changes nothing"; "adds and removes a service, a fact, and a price within the limits, and changes nothing beyond them"; "keeps the menu at its five links and changes their words only"; "lets a project from before this slice keep a list that is longer than the limit, and add nothing to it"; "holds the three answers with the project, cleaned and cut, and holds nothing where the owner wrote nothing"; "writes the texts and the answers into the project file and reads them back unchanged". [S15]
+- **Test.** In the browser: "opens from the top bar, takes the owner’s words into the project and the previews, keeps them over a reload, and hands them over in mockup.html"; "stops each list at its limit and says why"; "draws markup in a text as text, never leaves the page without a name, and says when the words to mark are not in the headline". [S3]
+- **Exceptions.** The limits are the builder's choice (decision D62). The words of the contact form are fixed. A project file from before may hold a longer list; the Studio then adds nothing to it.
+- Last verified: 2026-11-16
+
+### [55.02] An empty text or an empty list leaves no empty box on the page, and a text with markup is drawn as text
+
+<!-- index: empty text | empty list; no empty box; markup in your content -->
+
+- **Rule.** The Mockup draws a text only when it holds words, an item of a list only once it holds words, and a part of the page only when something stands in it. A text that holds markup or script is drawn as that text, and nothing runs. [S15; S10 at hard rule 6]
+- **Test.** "draws the owner’s texts as text, and leaves no empty box where a text or a list is empty"; "draws every list at its most, and marks the headline’s words only where the headline holds them". [S15]
+- **Exceptions.** The test looks for an element without content among the kinds of element that the page uses for text; it does not look at drawn pixels.
+- Last verified: 2026-11-16
+
+### [55.03] Every built-in Direction holds the owner's content at the ends of what the Brief allows without becoming wider than its window
+
+<!-- index: long word | long name; fewest and most items; page wider than the window -->
+
+- **Rule.** With the fewest items and no optional text, with the most items and every text at its limit, and with one 46-letter word in every place that takes one, no page of the 38 Directions and the plain start is wider than its window at 375 or 1280 pixels, and the headline stays larger than the reading text and every section heading. [S4]
+- **Test.** "holds the owner’s content at the ends of what the Brief allows, on every Direction, at phone and desktop width: no page wider than its window, and the headline the largest text". [S4]
+- **Exceptions.** The test measures width and the size of the headline. It does not measure overlap or beauty; the builder looked at 24 pictures of six Directions (finding B17-03). A figure of the facts may be larger than the headline; two Directions draw it so on purpose.
+- **Examples.** Before 2026-11-16 a long word in the name or the headline made 46 of 234 such pages wider than their window (finding B17-01).
+- Last verified: 2026-11-16
+
+### [55.04] The three answers go into the Prescription as quoted data, and the owner's texts go into the reference page and nowhere else
+
+<!-- index: three answers | what you offer; who it is for; quoted answers -->
+
+- **Rule.** `PRESCRIPTION.md` carries each written answer inside a fenced block marked as quoted data, says when none was written, and says whether `mockup.html` shows the sample or the project's own texts. The owner's texts stand in `mockup.html`, as text; they stand in no other file of the four. [S13]
+- **Test.** "carries the owner’s three answers as quoted data, and says when none was written (the Brief; SPEC.md section 2.7)"; "tells the AI coding tool to use the owner’s own texts word for word, and still treats them as content, never as instructions". [S13]
+- **Test.** In the browser: "hands the three answers to the AI coding tool as quoted data in PRESCRIPTION.md, and says whose texts mockup.html shows". [S3]
+- **Open.** As in §65.03: a fence marks text as data; whether an AI coding tool obeys the mark is not tested here.
+- Last verified: 2026-11-16
+
+### [55.05] The Studio asks before the sample replaces the owner's texts, keeps a copy, and treats a project that holds only the owner's words as work
+
+<!-- index: put the sample text back | replace my texts; only my texts -->
+
+- **Rule.** "Put the sample text back" asks first, keeps the project as it was among the kept copies where the browser allows it, and can be undone; the three answers stay. A project that holds nothing but the owner's texts or answers counts as work: the Studio asks before a new project, a Direction, or a file replaces it, and the question names the texts. [S3]
+- **Test.** "puts the sample text back only after asking, keeps the owner’s texts as a copy, and brings them back with Undo"; "asks before a new project replaces a project that holds only the owner’s texts, and says that the texts go". [S3]
+- **Exceptions.** The first test reads the stored project and the Undo; it does not open the list of kept copies.
+- Last verified: 2026-11-16
+
 ## [60] The Studio's words
 
 ### [60.01] A trade word appears only inside round brackets
@@ -711,6 +767,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.10: after the first slice of the Brief (features F015 to F018, decisions D61 and D62): added §55.01 to §55.05. 62 guarantees.
 - 2026-11-16 v1.9: after the sixth red-team review (features F012 and F013, decision D61): §65.01, §65.03, §65.04, §65.05, and §65.06 state the repaired behavior and name the new tests; §20.06 names the tests of the look-alike signs and its limit; added §50.09 and §50.10. 57 guarantees.
 - 2026-11-15 v1.8: after the craft layer and the first slice of the Prescription (features F009 to F011, decisions D58 and D60): added §65.01 to §65.06. 55 guarantees.
 - 2026-11-15 v1.7: after the repair of finding F-18 (feature F001): §10.13 covers a page that closes within 2 seconds after its own save, and names five new tests and the trial's counts. 49 guarantees.
@@ -737,23 +794,25 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file `docs/reference/saving-table.md` (2026-11-14). Accessed 2026-11-14. Grade: A.
 - [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15). Accessed 2026-11-15. Grade: A.
 - [S14] The builder, *Unit tests of a Direction of the owner's own*, file `packages/core/test/ownDirections.test.ts` (2026-11-15). Accessed 2026-11-16. Grade: A.
+- [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §60.01, §60.03, §60.04, §65.01, §65.03, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08
-- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §60.01, §60.04, §65.01, §65.03, §65.06, §70.04
-- [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §70.02
+- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §60.01, §60.04, §65.01, §65.03, §65.06, §70.04
+- [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
 - [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.05, §40.04
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03, §30.06
 - [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §50.07, §60.01, §60.02, §60.03, §60.04, §65.01, §70.05
 - [S9] The builder, *Unit tests of the engine*, file `packages/core/test/engine.test.ts` (2026-11-13) — §20.01, §50.01, §50.02, §50.03, §50.04, §50.05, §50.06
-- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §60.02, §60.03, §65.01, §65.03, §65.05, §70.01, §70.03, §70.05
+- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §55.02, §60.02, §60.03, §65.01, §65.03, §65.05, §70.01, §70.03, §70.05
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13) — §70.01
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file… — §10.14
-- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §65.02, §65.03, §65.04, §65.05
+- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §55.04, §65.02, §65.03, §65.04, §65.05
 - [S14] The builder, *Unit tests of a Direction of the owner's own*, file `packages/core/test/ownDirections.test.ts`… — §20.06, §50.09, §50.10
+- [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16) — §55.01, §55.02
 <!-- authorities:end -->
 
 ## [92] Index
@@ -777,6 +836,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - baseline — *see* stored picture
 - bloated project — *see* unknown values in a file of own Directions
 - boundary — *see* core
+- Brief — *see* your content
 
 **C**
 
@@ -813,6 +873,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **E**
 
+- empty list — *see* empty text
+- **empty text** — §55.02
 - enforce — *see* Fix for me
 - error message — *see* refused file
 - evidence — *see* source
@@ -823,6 +885,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **F**
 
 - fence — *see* quoted data
+- fewest and most items — *see* long word
 - file name — *see* quotation marks
 - files to build from — *see* Prescription
 - fine detail — *see* craft rule
@@ -871,15 +934,19 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - leaving copy — *see* closing in the same instant
 - leaving the page — *see* unsaved work
 - left out — *see* unknown Overlay
+- limit of a text — *see* your content
 - **limit of own Directions** — §50.09
 - line length — *see* research rule
 - lint rule — *see* text as text
 - list too long — *see* limit of own Directions
 - **locked frame** — §30.03
+- long name — *see* long word
+- **long word** — §55.03
 
 **M**
 
 - markup — *see* hostile text
+- markup in your content — *see* empty text
 - measured — *see* evidence grade
 - measured style — *see* stored picture
 - **Mockup** — §30.01; *see also* locked frame
@@ -892,6 +959,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - new pick — *see* reason
 - new project — *see* replace action
 - newer copy — *see* late copy
+- no empty box — *see* empty text
 - not checked — *see* what a person must still check
 - not saving — *see* standing notice
 - notice — *see* Overlay picture
@@ -900,6 +968,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **old project** — §20.03; *see also* project file
 - one variable — *see* Step
+- only my texts — *see* put the sample text back
 - open a file — *see* project file
 - **opening** — §10.10; *see also* saving
 - **opening while another tab saves** — §10.14; *see also* two tabs
@@ -911,6 +980,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - overflow — *see* phone width
 - **Overlay** — §50.08
 - **Overlay picture** — §30.06; *see also* Mockup
+- own words — *see* your content
 
 **P**
 
@@ -918,6 +988,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - packages/core — *see* core
 - page database — *see* late copy
 - **page error** — §70.04; *see also* stored picture
+- page wider than the window — *see* long word
 - passing pair — *see* contrast check
 - **phone width** — §30.05; *see also* Mockup
 - pick — *see* Decision
@@ -931,11 +1002,13 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - project name — *see* quotation marks
 - promise of a kept copy — *see* lasting copy
 - put back — *see* reason
+- **put the sample text back** — §55.05
 
 **Q**
 
 - question — *see* Overlay picture
 - **quotation marks** — §20.06
+- quoted answers — *see* three answers
 - **quoted data** — §65.03
 
 **R**
@@ -949,6 +1022,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - remote font — *see* outside request
 - repaired — *see* Fix for me
 - **replace action** — §10.05
+- replace my texts — *see* put the sample text back
 - research file — *see* evidence grade
 - **research rule** — §60.04
 - running copy — *see* unsaved work
@@ -993,6 +1067,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - target size — *see* research rule
 - **text as text** — §70.05; *see also* hostile text
+- texts of the page — *see* your content
+- **three answers** — §55.04
 - tooltip — *see* Overlay
 - tracking — *see* outside request
 - trade word — *see* plain words
@@ -1019,20 +1095,23 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - WCAG — *see* compliance claim
 - **what a person must still check** — §65.05
+- what you offer — *see* three answers
 - where guidance comes from — *see* source
+- who it is for — *see* three answers
 - why this choice — *see* reason
 - **written color** — §40.01
 - wrong file — *see* refused file
 
 **Y**
 
+- **your content** — §55.01
 - your own words in the Prescription — *see* quoted data
 <!-- index:end -->
 
 ## [99] Health
 
 <!-- health:start -->
-_75 sections, 13 sources, 56 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
+_81 sections, 14 sources, 61 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
 
 - No findings.
 <!-- health:end -->

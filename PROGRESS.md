@@ -4,7 +4,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Start here (written 2026-11-14, checked on 2026-11-15, for the next session)
 
-**The one-minute picture.** The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, and read the result back on a Summary with five research rules. It saves reliably. Since 2026-11-15 the Summary also lists twelve craft rules (fine details that the Studio adds by itself) and hands over a first slice of the Prescription: four files that an AI coding tool can build from. No AI coding tool has built from them yet; three files of the full Prescription are missing (milestone M6); the Studio has no Fitter (M7). Milestone M4 is open and waits for one thing that only the owner can do: the trial in `docs/trial-guide.md`.
+**The one-minute picture.** The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, and read the result back on a Summary with five research rules. It saves reliably. Since 2026-11-15 the Summary also lists twelve craft rules (fine details that the Studio adds by itself) and hands over a first slice of the Prescription: four files that an AI coding tool can build from. Since 2026-11-16 the screen "Your content" (the Brief) takes the owner's three answers about the project and every text of the page, so that the previews and the reference page show the owner's words. A sixth red-team review (67 findings, 1 blocker) ran on 2026-11-15; 41 findings are fixed, 10 fixed in part, 13 open. No AI coding tool has built from the four files yet; three files of the full Prescription are missing (milestone M6); the Studio has no Fitter (M7). Milestone M4 is open and waits for one thing that only the owner can do: the trial in `docs/trial-guide.md`.
 
 **Where the work is.** The main line is `claude/brave-mayer-sawqz9`. The session of 2026-11-15 works on `claude/festive-mendel-lfnahh`, into the main line. The owner merged pull request CatCorner22/Frontend#9 on 2026-11-15 (it ended at feature F003, commit `cb25f08`). The later commits (features F004 to F011) are in the draft pull request CatCorner22/Frontend#10. The branch was not rebased after the merge, so that the commits named in `WAYPOINTS.md` stay reachable. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc, Version 18 since 2026-11-16 (the build of commit `144ab83`; it holds the craft rules, the first part of the Prescription, and the repairs after the sixth red-team review).
 
@@ -49,7 +49,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 | M3 | Exit test met in CI since 2026-11-13 (pixel-difference tests, stored-picture gate). One part still open: nobody has confirmed that the private page shows the embedded pictures. |
 | M4 | In progress: it waits for the owner's trial. |
 | M4D | Built on 2026-11-15 (features F003 to F006); its exit test waits for the owner to make one Direction on the private page. |
-| M5 | Started early by the owner's decisions D52 and D58: Overlays, research rules, and the first twelve craft rules are built. Not built: the Brief (requirement 2.7 is approved, decision D61), the floors, an inner page. |
+| M5 | Started early by the owner's decisions D52 and D58: Overlays, research rules, the first twelve craft rules, and the first slice of the Brief (the screen "Your content", features F015 to F018) are built. Not built: the floors, an inner page, the rest of the behavior Steps, either/or picks about the brand. |
 | M6 | Started early by decision D58: a first slice of four files. Its exit test is not met (three files are missing; no validator has read `tokens.json`). |
 
 ## What exists
@@ -102,6 +102,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **A code review that the owner started with `/code-review` was stopped by the owner before it reported.** No review of the repairs of 2026-11-15 exists yet.
 
 ## Build log (verified build loop; newest entry first)
+
+- Date: 2026-11-16
+- Feature worked on (ID): F018 (the Brief, part 4: the Prescription carries the three answers and says whose texts the reference page shows)
+- Result: passes
+- Commits: the commit "F018: ..." that holds this entry
+- Evidence: `npm run check`: 259 unit tests passed (2 new). `npm run e2e`: 308 browser tests passed (1 new; 1,425 seconds). Tests first: the 2 unit tests failed before the code, and the browser test failed on the build from before it. `PRESCRIPTION.md` carries each written answer inside a fenced block marked as quoted data, says "none was written" where there is none, and tells the AI coding tool to use the owner's own texts word for word; the texts themselves stand in `mockup.html` only. An answer with a code fence and an instruction stays inside its fence, in the core's test and in the file that the page hands over.
+- Open problems for the next session: whether an AI coding tool obeys a fence is not tested (guarantee 65.03). The records of this unit: decision D62 (the builder's choices in the Brief, all open to the owner's veto), guarantees 55.01 to 55.05, the saving table's new rows, plan version 3.3.
+- Next feature to build (ID): none in the list. The plan's next items are the floors and an inner page (M5), then the rest of the Prescription (M6); each needs a requirement in `SPEC.md` that the owner approves.
 
 - Date: 2026-11-16
 - Feature worked on (ID): F017 (the Brief, part 3: every Direction holds the owner's content at the ends of what the Brief allows)
@@ -252,7 +260,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 1. **The owner tries the Studio** with `docs/trial-guide.md` and sends the ten answers. M4 closes on the owner's word (hard rule 1).
 2. **Repair what the trial names as serious, and decide the open findings of 2026-11-14** (rows "Open" and "Fixed in part" among S5, DT, U5, and C4-F18 to C4-F25 in `redteam/FINDINGS.md`). The first to weigh: the rare loss when several tabs close in the same instant (C4-F18). Then have a reviewer look at the repairs of this unit, which no reviewer has seen (hard rule 12).
 3. **M4D:** the Direction Creator (`PLAN.md` section 4.7) is built (features F003 to F006). Its exit test waits for the owner to make one Direction on the private page.
-3a. **M5**, in this order: the Brief (the owner's product, audience, and real content, so that every preview shows the owner's words); the floors from the knowledge base (the craft layer's first twelve craft rules are built, feature F009); the rest of the behavior Steps; an inner page for Template 1. A Skin's name stored in the project, and a change of Skin inside a project, belong here too.
+3a. **M5**, in this order: the Brief's first slice is built (the screen "Your content", features F015 to F018); next the floors from the knowledge base (the craft layer's first twelve craft rules are built, feature F009); the rest of the behavior Steps; an inner page for Template 1. A Skin's name stored in the project, and a change of Skin inside a project, belong here too.
 4. **M6**: the rest of the export bundle (the Prescription): `DESIGN.md`, the shadcn theme, `FONTS.md`, the floors, and a validator for `tokens.json`. Its first slice of four files is built (features F010 and F011). **M7**: the Fitter.
 
 ## Waiting on the owner
@@ -262,11 +270,16 @@ The owner settled the earlier list on 2026-11-15 (decision D55 holds every answe
 1. **The trial** (`docs/trial-guide.md`), and with it: do the pictures appear on the private page? (M3's last open part; the owner has not opened the page yet.)
 2. (Done on 2026-11-15: you approved the typefaces Playfair and Literata and the repair for finding C4-F18; both are built, features F002 and F001.)
 3. **Research sites for the network.** The owner decided on 2026-11-15 to settle this "before M5's craft layer" (D55). The builder built the craft layer's first twelve craft rules on the same day from research record 04 alone and did not ask first (finding T6-08). The question is still open: the builder asks with an exact list of hosts before any further craft rule or floor is written.
-4. **Helper agents:** before each use the builder states the purpose and an estimated cost and waits for the owner's yes (D55).
+4. **Helper agents:** before each use the builder states the purpose and an estimated cost and waits for the owner's yes (D55). The sixth red-team review ran with the owner's yes of 2026-11-15 (D61); its three reviewers used about 0.9 million tokens.
+5. **Choices of the builder that are open to the owner's veto:** the limit of 100 own Directions and the grade "expert opinion" for every craft rule (D61, points 5 and 6); the Brief's limits, its three texts that cannot be emptied, and the other points of D62.
+6. **Open findings that need the owner's judgment:** where the field for a reason sits (U6-11); the look of the quiet buttons (U6-22); what "Undo" covers after a removal (U6-23); a date or a name inside the four files (U6-24); whether `tokens.json` should be grouped by role, as requirement 2.6 says, or by type, as it is (T6-09); the four notes of the Brief's layout look (B17-03).
 
 Earlier cost reports, for the record (no decision needed): third review about 595,000 tokens; nine-reviewer code review about 1.84 million; retest round about 0.74 million; round 3 about 0.75 million (0.33 million measured); the unit of 2026-11-14 about 3.2 million in helpers.
 
 ## Known gaps (every plan item that is absent or partial)
+
+- **The Brief.** A first slice: texts and three answers. The words of the contact form are fixed. No either/or picks about the brand, no pictures of the owner's own, no second page, no way to take texts from an existing site. The layout sweep measures width and the headline's size on all 38 Directions; overlap and beauty were looked at on six. The top bar now holds five links and wraps on a narrow window. The form is long and has no way to jump between its groups.
+- **The sixth red-team review.** 13 of its 67 findings are open (rows S6, U6, T6 in `redteam/FINDINGS.md`), among them: words for a value that matches no Option are missing in `PRESCRIPTION.md` (U6-07); a letter of another alphabet can make a name look like another name (S6-04); 13 named values that the sample website does not use stay in `tokens.css` (T6-12); a failed Dependabot run that the reviewer reported and the builder has not looked at (T6-16). No second reader has seen the repairs themselves, the Brief, or the layout sweep.
 
 - **The Prescription.** A first slice only: `DESIGN.md`, the shadcn theme, `FONTS.md`, and the floors are missing. No validator has read `tokens.json`. No AI coding tool has built from the files, so their effect on a build is unmeasured. The "Copy" buttons have no automatic test. The Mockup in the bundle shows the sample dental practice, not the owner's content (the Brief is not built).
 - **Craft rules.** Twelve, a first set. Each check reads the Mockup's style sheet, not drawn pixels. Four rules rest on the builder's opinion alone. No person has reviewed any.
