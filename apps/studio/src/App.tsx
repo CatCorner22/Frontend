@@ -1,5 +1,5 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, isSampleContent, plainName, BRIEF_KEYS, BRIEF_MAX, ITEM_LIMITS, LIST_LIMITS, NAV_WORD_MAX, REQUIRED_TEXTS, SAMPLE_CONTENT, TEXT_LIMITS, canAddContentItem, canRemoveContentItem, emphasisIsInHeadline, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, isSampleContent, plainName, zipFiles, BRIEF_KEYS, BRIEF_MAX, ITEM_LIMITS, LIST_LIMITS, NAV_WORD_MAX, REQUIRED_TEXTS, SAMPLE_CONTENT, TEXT_LIMITS, canAddContentItem, canRemoveContentItem, emphasisIsInHeadline, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
   type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type FontId, type MockupFocus, type PrescriptionFile, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, Fragment, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -437,7 +437,7 @@ function DirectionsView(): React.JSX.Element {
         <p className="eyebrow">Start here</p>
         <h1 ref={heading} tabIndex={-1}>Pick a Direction: a complete starting look</h1>
         <p className="teach">
-          The Studio helps you decide how a website looks and feels, one small decision at a time. Today you leave with a project file that holds your Decisions, and with the first part of the Prescription: four files that an AI coding tool builds your page from. You find both on the Summary.
+          The Studio helps you decide how a website looks and feels, one small decision at a time. Today you leave with a project file that holds your Decisions, and with the Prescription: seven files that an AI coding tool builds your page from. You find both on the Summary.
         </p>
         <p className="teach">
           First pick a Direction below. Then {STEPS.length} short Steps let you change one thing at a time, like an eye exam: “which is better, 1 or 2?” You can stop at any point; the line under the top bar says whether your work is saved.
@@ -1130,16 +1130,19 @@ function keptCopyFile(copy: KeptCopy, index: number): { name: string; text: stri
 
 const PRESCRIPTION_WORDS: Record<PrescriptionFile, string> = {
   'PRESCRIPTION.md': 'The instruction: every Decision with what you rejected and why, the fine details, and what a person must still check.',
+  'DESIGN.md': 'The same design in a second form that AI coding tools read (the DESIGN.md format).',
   'tokens.css': 'Every design value under a name, in the form that a web page uses.',
   'tokens.json': 'The same values in a form that design tools read (the Design Tokens format).',
+  'theme.css': 'The colors and the corner rounding under the names that a widely used set of ready-made parts reads (the shadcn library).',
   'mockup.html': 'The reference page: this design as one page without script, with its letter styles inside. The AI coding tool builds toward it.',
+  'FONTS.md': 'Which letter styles the design uses, and how the built website carries them without asking another website.',
 };
 
-/** The first part of the Prescription: four files, written from the open project (PLAN.md section 4.4; SPEC.md section 2.6). */
+/** The Prescription: seven files, written from the open project, singly or as one archive (PLAN.md section 4.4; SPEC.md sections 2.6 and 2.9). */
 function PrescriptionSection(): React.JSX.Element {
   const s = useStudio();
   // The message names the file that it is about, so that it can stand in that file's entry (finding U6-21).
-  const [said, setSaidOf] = useState<{ name: PrescriptionFile; text: string } | null>(null);
+  const [said, setSaidOf] = useState<{ name: PrescriptionFile | 'all'; text: string } | null>(null);
   const untouched = s.project.direction === null && Object.keys(s.project.decisions).length === 0;
   const sample = isSampleContent(s.project.content);
   const write = (): Record<PrescriptionFile, string> => {
@@ -1152,9 +1155,20 @@ function PrescriptionSection(): React.JSX.Element {
   const download = async (name: PrescriptionFile): Promise<void> => {
     const outcome = await saveFile(name, write()[name]);
     const setSaid = (text: string): void => setSaidOf({ name, text });
-    setSaid(outcome === 'saved' ? `The file “${name}” was handed to your browser to save, usually into your Downloads folder. Give all four files to the AI coding tool that builds your page.`
+    setSaid(outcome === 'saved' ? `The file “${name}” was handed to your browser to save, usually into your Downloads folder. Give all seven files to the AI coding tool that builds your page.`
+      : outcome === 'renamed' ? `This page may not hand over a file whose name ends as “${name}” does, so it was saved as “${name}.txt”. Take “.txt” off its name, or use the one download for all files below, which keeps every name.`
       : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
         : `This page cannot hand over files here. Use “Copy ${name}” and paste the text into a file of that name.`);
+  };
+  const downloadAll = async (): Promise<void> => {
+    const files = write();
+    // The archive's name carries the fingerprint of the design values, so that two archives can be told apart.
+    const mark = /Fingerprint: ([0-9a-f]{8})\./.exec(files['tokens.css'])?.[1] ?? 'design';
+    const archive = `refraction-prescription-${mark}.zip`;
+    const outcome = await saveFile(archive, zipFiles(files));
+    setSaidOf({ name: 'all', text: outcome === 'saved' || outcome === 'renamed' ? `The file “${archive}” was handed to your browser to save, usually into your Downloads folder. It is one archive file with all seven files inside; open it (on most computers by a double click) and give the seven files to the AI coding tool that builds your page.`
+      : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
+        : 'This page cannot hand over files here. Use the “Copy” button of each file and paste the text into a file of that name.' });
   };
   const copy = async (name: PrescriptionFile): Promise<void> => {
     setSaidOf({ name, text: (await copyText(write()[name])) ? `The text of “${name}” was copied. Paste it into a file of that name.` : 'Copying is blocked here. Use the download button.' });
@@ -1162,7 +1176,7 @@ function PrescriptionSection(): React.JSX.Element {
   return (
     <section id="prescription" aria-labelledby="prescription-heading">
       <h2 id="prescription-heading">The Prescription: files that an AI coding tool builds from</h2>
-      <p className="hint">These four files carry your design out of the Studio. Each is written afresh from the project as it stands when you press its button, so download them again after you change a Decision. To use them: Put the four files into one folder, open that folder with your AI coding tool, and ask it to build the home page from PRESCRIPTION.md.</p>
+      <p className="hint">These seven files carry your design out of the Studio. Each is written afresh from the project as it stands when you press its button, so download them again after you change a Decision. To use them: Put the seven files into one folder, open that folder with your AI coding tool, and ask it to build the home page from PRESCRIPTION.md.</p>
       {untouched && <p className="note">You have not picked a Direction or decided a Step yet, so these files describe the plain start.</p>}
       <ul className="prescription-files">
         {PRESCRIPTION_FILES.map((name) => (
@@ -1176,7 +1190,11 @@ function PrescriptionSection(): React.JSX.Element {
           </li>
         ))}
       </ul>
-      <p className="hint">This is the first part of the Prescription. It leaves out: two more files (a description of the design in words, and a file of colors and sizes for ready-made parts), a file about the letter styles, fixed requirements on security, on being found by search, and on speed, the checks for people with disabilities written as tests, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}every page but the home page, and one download that holds all four files. PRESCRIPTION.md lists the same in its section 7, and lists in its section 6 what no program checked and a person must still check.</p>
+      <div className="button-row">
+        <button type="button" className="btn" onClick={() => void downloadAll()}>Download all seven files as one file</button>
+      </div>
+      {said?.name === 'all' && <p className="note" role="status">{said.text}</p>}
+      <p className="hint">The Prescription has all seven of its files. It still leaves out: fixed requirements on security, on being found by search, and on speed, the checks for people with disabilities written as tests, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}and every page but the home page. PRESCRIPTION.md lists the same in its section 7, and lists in its section 6 what no program checked and a person must still check.</p>
     </section>
   );
 }
@@ -1356,7 +1374,7 @@ function SummaryView(): React.JSX.Element {
           You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s)}; a Step you have not decided keeps the value it started with.
         </p>
         <p className="teach">
-          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the first part of the Prescription: four files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the rest of the Prescription, which the section “The Prescription” lists, and the part of Refraction that measures a built page against it.
+          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Prescription: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Prescription” lists as left out, and the part of Refraction that measures a built page against it.
         </p>
         <p><button type="button" className="btn small" onClick={() => document.getElementById('prescription')?.scrollIntoView({ block: 'start' })}>Show me the Prescription</button></p>
         <p className="teach">{isSampleContent(s.project.content) ? 'The previews still show the sample dental practice.' : 'The previews show your own texts.'} To change the texts and your three answers about the project, open <a href="#content">Your content</a>.</p>

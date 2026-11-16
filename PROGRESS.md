@@ -4,7 +4,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Start here (written 2026-11-14, checked on 2026-11-15, for the next session)
 
-**The one-minute picture.** The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, and read the result back on a Summary with five research rules. It saves reliably. Since 2026-11-15 the Summary also lists twelve craft rules (fine details that the Studio adds by itself) and hands over a first slice of the Prescription: four files that an AI coding tool can build from. Since 2026-11-16 the screen "Your content" (the Brief) takes the owner's three answers about the project and every text of the page, so that the previews and the reference page show the owner's words. A sixth red-team review (67 findings, 1 blocker) ran on 2026-11-15; 41 findings are fixed, 10 fixed in part, 13 open. No AI coding tool has built from the four files yet; three files of the full Prescription are missing (milestone M6); the Studio has no Fitter (M7). Milestone M4 is open and waits for one thing that only the owner can do: the trial in `docs/trial-guide.md`.
+**The one-minute picture.** The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, and read the result back on a Summary with five research rules. It saves reliably. Since 2026-11-15 the Summary also lists twelve craft rules (fine details that the Studio adds by itself) and hands over a first slice of the Prescription: four files that an AI coding tool can build from. Since 2026-11-16 the screen "Your content" (the Brief) takes the owner's three answers about the project and every text of the page, so that the previews and the reference page show the owner's words. A sixth red-team review (67 findings, 1 blocker) ran on 2026-11-15; 41 findings are fixed, 10 fixed in part, 13 open. Since 2026-11-16 the Prescription has all seven of its files, each with one fingerprint of the design values, and two of them are checked on GitHub by programs that the builder did not write. The floors are still missing from it (milestone M6 is not complete). No AI coding tool has built from the files yet; the Studio has no Fitter (M7). Milestone M4 is open and waits for one thing that only the owner can do: the trial in `docs/trial-guide.md`.
 
 **Where the work is.** The main line is `claude/brave-mayer-sawqz9`. The session of 2026-11-15 works on `claude/festive-mendel-lfnahh`, into the main line. The owner merged pull request CatCorner22/Frontend#9 on 2026-11-15 (it ended at feature F003, commit `cb25f08`). The later commits (features F004 to F018) are in pull request CatCorner22/Frontend#10, which the owner marked ready for review on 2026-11-15. An automatic reviewer (Codex) then left two findings on it, the same faults as S6-01 and S6-03; both were already repaired by feature F012, and the builder answered and closed both threads on 2026-11-16. GitHub's checks passed on every commit of the branch up to `a93d781`. The branch was not rebased after the merge, so that the commits named in `WAYPOINTS.md` stay reachable. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc, Version 19 since 2026-11-16 (the build of commit `8bec9e5`; it holds the craft rules, the first part of the Prescription, the repairs after the sixth red-team review, and the screen "Your content").
 
@@ -50,7 +50,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 | M4 | In progress: it waits for the owner's trial. |
 | M4D | Built on 2026-11-15 (features F003 to F006); its exit test waits for the owner to make one Direction on the private page. |
 | M5 | Started early by the owner's decisions D52 and D58: Overlays, research rules, the first twelve craft rules, and the first slice of the Brief (the screen "Your content", features F015 to F018) are built. Not built: the floors, an inner page, the rest of the behavior Steps, either/or picks about the brand. |
-| M6 | Started early by decision D58: a first slice of four files. Its exit test is not met (three files are missing; no validator has read `tokens.json`). |
+| M6 | Started early by decision D58. Built: all seven files, a fingerprint, one archive download, and outside validators for `DESIGN.md` and `tokens.json` (features F010, F011, F019 to F023). Not built: the floors in the Prescription. Its exit test is met for the validators and not for the floors. |
 
 ## What exists
 
@@ -102,6 +102,32 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **A code review that the owner started with `/code-review` was stopped by the owner before it reported.** No review of the repairs of 2026-11-15 exists yet.
 
 ## Build log (verified build loop; newest entry first)
+
+- Date: 2026-11-16
+- Feature worked on (ID): F023 (seven Prescription files on the Summary, singly or as one archive file)
+- Result: passes
+- Commits: the commit "F020, F022, F023: ..." that holds this entry
+- Evidence: `npm run check`: 266 unit tests passed (2 new, for the archive). `npm run e2e`: 310 browser tests passed (2 new, 2 changed; 1,480 seconds). Tests first: the 2 archive tests failed before the code; the 2 new browser tests failed on the build from before it. The Summary offers seven files and one button for all of them; the archive's name carries the fingerprint; a browser test unpacks the archive and compares its seven files with the core's, letter for letter. The archive writer is 70 lines in the core, with no package.
+- A fault found on the way (finding R23-01): the private page hands over only files of certain kinds, and ".css" is not among them. So "Download tokens.css" must have failed on the private page since Version 16 with the words "cannot hand over files here". No test had seen it, because no test opens the real private page. Such a file is now saved with ".txt" at the end of its name, the Studio says so, and the archive keeps every name. A browser test with a stand-in for the private page covers it; the real page is still untested.
+- What went wrong on the way: the archive writer first used the platform's text encoder, which the core may not use; the core's type check refused it, and the encoding is now written out by hand (a test compares it for every kind of character). The plain-words test caught the file name `theme.css`; it is set aside as a name, like `tokens.css` (decision D61, point 1).
+- Open problems for the next session: the floors are still missing from the Prescription, so milestone M6 is not complete. The private page must be republished to show any of this.
+- Next feature to build (ID): none in the list.
+
+- Date: 2026-11-16
+- Feature worked on (ID): F022 (`tokens.json`, read by an outside parser of the Design Tokens format)
+- Result: passes
+- Commits: the validators were added in commit `4550a57`; the commit "F020, F022, F023: ..." marks the feature as passing
+- Evidence: on GitHub, the check "Outside validators" on commit `4550a57`: `@terrazzo/parser` 2.10.0 read `tokens.json` of the plain start and of each of the 38 Directions without an error, and refused a file with a planted fault. The parser printed one remark on the planted file only. By the owner's choice (decision D64) this check runs on GitHub only; nothing of it ran on the builder's machine.
+- Open problems for the next session: the builder sees a failure of this check only after a push.
+- Next feature to build (ID): F023
+
+- Date: 2026-11-16
+- Feature worked on (ID): F020 (`DESIGN.md`, checked by the lint program of its format)
+- Result: passes
+- Commits: the writer and the validators were added in commit `4550a57`; the commit "F020, F022, F023: ..." marks the feature as passing
+- Evidence: unit test first (it failed before the writer). On GitHub, the check "Outside validators" on commit `4550a57`: `@google/design.md` 0.4.0 found no error in `DESIGN.md` of the plain start and of each of the 38 Directions, and found an error in a file with a planted fault. It gave warnings: three colors per file that no component names (the two border colors and the focus color; the format's components have no place for a border), and the link color of Poster Block, Sticker Pop, and Sunlit Studio below 4.5 to 1, which are the same three Directions whose links the Studio itself notes (decision D57). The owner's words stay out of `DESIGN.md` altogether.
+- Open problems for the next session: the format calls itself "alpha"; a later version may ask for changes. The licence file of the lint package is still unread by the builder (research record 11).
+- Next feature to build (ID): F022
 
 - Date: 2026-11-16
 - Feature worked on (ID): F021 (`theme.css`: the design under the names that the shadcn component library reads)

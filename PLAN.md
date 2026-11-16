@@ -32,7 +32,7 @@
 | You need no knowledge of optics | Each Step teaches its concept in plain words | built |
 | Coatings and extras: anti-glare, a case | An **Overlay**: a small helper over the page (a tooltip, an "Are you sure?" question) | built (first set of six) |
 | No lens that harms you is offered | Contrast checks warn or repair, as you choose | built |
-| The written prescription | The **Prescription**: a Markdown prompt plus token files | built in part: a first slice of four files (2026-11-15); the rest is M6 |
+| The written prescription | The **Prescription**: a Markdown prompt plus token files | built: seven files and one archive (2026-11-16); the floors are missing |
 | The optician fits the glasses and has you read the chart again | The **Fitter** renders the build, measures it, and repairs | not built (M7) |
 
 In your forest terms: a Step is a tree, a design dimension is a species, section 4 maps the forest, and section 9 lists what can go wrong.
@@ -68,7 +68,7 @@ A rule graded C or D is shown as opinion or folklore, never as science.
 | 2 | Steps | 23 Steps in two stages (6 for layout, in gray; 17 for look and feel). On each: compare cards, pick one, fine-tune with sliders, ask for small variations, write a reason, decide later, undo, or put the Step back | built |
 | 3 | Overlays | Switch small helpers on or off; the preview draws each one open, in your design | built |
 | 4 | Summary | Read every Decision back; see the contrast notes and the research rules; download or open a project file; manage kept copies | built |
-| 5 | Export | Receive the Prescription | built in part: the Summary hands over four files (2026-11-15); the rest is M6 |
+| 5 | Export | Receive the Prescription | built: the Summary hands over seven files, singly or as one archive (2026-11-16); the floors are missing |
 
 ### 4.2 Rules that hold at every Step
 1. One variable per Step. Apples to apples.
@@ -184,7 +184,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
 | M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | built on 2026-11-15 (features F003 to F006); its exit test waits for you to make one Direction on the private page. You asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
 | M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52); the craft layer's first twelve craft rules are built (2026-11-15, decisions D58 and D60); the first slice of the Brief is built (2026-11-16, decisions D61 and D62); the floors and an inner page are not started |
-| M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | started early by your decision D58: a first slice of four files is built and has snapshot tests (2026-11-15). Not built: `DESIGN.md`, the shadcn theme, `FONTS.md`, the floors in the Prescription. No validator has read `tokens.json` yet |
+| M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). Not built: the floors in the Prescription |
 | M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | not started |
 | M8 | **Your first real project, end to end**; hardening | You judge the result; red-team blockers at zero | not started |
 | M9–M11 | Templates 2, 3, 4 | Same tests as M5–M7 per Template | not started |

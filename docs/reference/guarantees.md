@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.10. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
+Version 1.11. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
 
 Stale-after: 90
 
@@ -117,6 +117,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [65.04 The same project always gives the same four files, and a change of any line is seen](#6504-the-same-project-always-gives-the-same-four-files-and-a-change-of-any-line-is-seen)
   - [65.05 The Prescription names the start, every Decision, every craft rule, and what a person must still check, and claims no standard](#6505-the-prescription-names-the-start-every-decision-every-craft-rule-and-what-a-person-must-still-check-and-claims-no-standard)
   - [65.06 A file that the Summary hands over equals what the core writes for the stored project](#6506-a-file-that-the-summary-hands-over-equals-what-the-core-writes-for-the-stored-project)
+  - [65.07 Every file of the Prescription carries one fingerprint of the design values, and no date](#6507-every-file-of-the-prescription-carries-one-fingerprint-of-the-design-values-and-no-date)
+  - [65.08 FONTS.md, DESIGN.md, and theme.css say the design in three more forms, each from the design's own values](#6508-fontsmd-designmd-and-themecss-say-the-design-in-three-more-forms-each-from-the-designs-own-values)
+  - [65.09 Two programs that the builder did not write read DESIGN.md and tokens.json, on GitHub only](#6509-two-programs-that-the-builder-did-not-write-read-designmd-and-tokensjson-on-github-only)
+  - [65.10 One archive file holds the seven files, each letter for letter](#6510-one-archive-file-holds-the-seven-files-each-letter-for-letter)
 - [70 How the Studio is built](#70-how-the-studio-is-built)
   - [70.01 The shared core holds no React import and no browser API](#7001-the-shared-core-holds-no-react-import-and-no-browser-api)
   - [70.02 No look changes by accident](#7002-no-look-changes-by-accident)
@@ -677,7 +681,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 <!-- index: stored copy of the files | snapshot; same files again -->
 
 - **Rule.** The core writes the four files from the project alone: the same project gives the same files, and the files for two projects are stored word for word, so that a change of any line fails a test until someone decides it. [S13]
-- **Test.** "writes four files, and writes the same files again for the same project"; "keeps the four files as stored for two projects, so that a change of any line is seen and decided". [S13]
+- **Test.** "writes seven files, and writes the same files again for the same project"; "keeps the four files as stored for two projects, so that a change of any line is seen and decided". [S13]
 - **Elements.** `PRESCRIPTION.md`, `tokens.css`, and `tokens.json` are stored in one file of the test; `mockup.html` is stored for the same two projects as a page of its own, which a person can open in a browser.
 - Last verified: 2026-11-15
 
@@ -699,6 +703,43 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "hands over each of the four files as the core writes it for the stored project, and follows a new Decision"; "names a start that only the Studio knows: a Direction of the owner’s own"; "hands over a mockup.html that draws each switched-on Overlay open (findings T6-02, U6-03)". [S3]
 - **Open.** The "Copy" buttons are not covered by an automatic test.
 - Last verified: 2026-11-15
+
+### [65.07] Every file of the Prescription carries one fingerprint of the design values, and no date
+
+<!-- index: fingerprint | which files belong together; eight characters; no date in the files -->
+
+- **Rule.** The core works out eight characters from the design values. The same design gives the same eight, a changed value gives others, and each of the 38 Directions has its own. All seven files carry them. No file carries a date, so the same project always gives the same files. [S13; S1 at D63]
+- **Test.** "marks every file with one fingerprint of the design values: the same for the same design, another for a changed one, and never a date (SPEC.md section 2.9)". [S13]
+- **Exceptions.** The fingerprint is a mark to compare, not a seal: it proves nothing about who wrote a file. It covers the design values, not the owner's texts. The comments of the sample website's style sheet name earlier reviews, some with a day; they are fixed text.
+- Last verified: 2026-11-16
+
+### [65.08] FONTS.md, DESIGN.md, and theme.css say the design in three more forms, each from the design's own values
+
+<!-- index: FONTS.md | DESIGN.md; theme.css; ready-made parts; how to ship the letter styles -->
+
+- **Rule.** `FONTS.md` names each typeface with its CSS family, licence, package, and the version that the Studio itself ships. `DESIGN.md` holds the values first and then eight sections in the order that its format fixes; every color in it is a color of the design. `theme.css` gives each of the 32 names that the shadcn library reads a value of the design, the same for the light and the dark name. The owner's words reach none of the three. [S13]
+- **Test.** "writes FONTS.md: each typeface with its family, licence, package, and version, and a device’s own typeface without a file (SPEC.md section 2.9)"; "writes DESIGN.md in the DESIGN.md format as its specification was read: values first, then the eight sections in their fixed order (SPEC.md section 2.9)"; "writes theme.css: every name that the shadcn component library reads, each with a value of the design, the same for the light and the dark name (SPEC.md section 2.9)". [S13]
+- **Exceptions.** The lists of names and sections are as the two formats' own pages had them on 2026-11-16 (research record 11). No program of the shadcn library has read `theme.css`.
+- Last verified: 2026-11-16
+
+### [65.09] Two programs that the builder did not write read DESIGN.md and tokens.json, on GitHub only
+
+<!-- index: outside validators | lint program; parser; checked on GitHub only -->
+
+- **Rule.** On every push, GitHub runs the lint program of the DESIGN.md format on `DESIGN.md` and an outside parser of the Design Tokens format on `tokens.json`, for the plain start and each of the 38 Directions. Neither may report an error. Each must report one for a planted fault, so that its silence means something. [S17; S1 at D64]
+- **Test.** "has no error for the plain start and for every built-in Direction"; "does report an error for a planted fault, so that its silence means something"; "is read without an error for the plain start and for every built-in Direction"; "is refused with a planted fault, so that a clean reading means something". [S17]
+- **Exceptions.** By the owner's choice these four tests never run on the machine where the Studio is built; `npm run check` and `npm run e2e` do not include them. The lint program's warnings do not fail the check; the run's log prints them.
+- Last verified: 2026-11-16
+
+### [65.10] One archive file holds the seven files, each letter for letter
+
+<!-- index: archive | one download for all files; zip file -->
+
+- **Rule.** The button for all files hands over one archive file whose name carries the fingerprint. It holds the seven files under their names, each equal to the file that its own button hands over, and the same files always give the same archive. A file that the private page refuses for its kind is saved with ".txt" at the end of its name, and the Studio says so. [S16; S3]
+- **Test.** "holds every file under its name, letter for letter, with a check sum that an unpacking program accepts"; "keeps letters beyond the plain alphabet, an empty file, and a name with a space". [S16]
+- **Test.** In the browser: "hands over all seven files, each as the core writes it, and all of them as one archive file that holds the same seven (SPEC.md section 2.9)"; "saves a file that the private page may not hand over under its own name with “.txt” at its end, and says so". [S3]
+- **Open.** The second browser test uses a stand-in for the private page; no test opens the real one (finding R23-01).
+- Last verified: 2026-11-16
 
 ## [70] How the Studio is built
 
@@ -767,6 +808,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.11: after the rest of the Prescription's files (features F019 to F023, decisions D63 and D64): added §65.07 to §65.10; §65.04 names its test by its new title. 66 guarantees.
 - 2026-11-16 v1.10: after the first slice of the Brief (features F015 to F018, decisions D61 and D62): added §55.01 to §55.05. 62 guarantees.
 - 2026-11-16 v1.9: after the sixth red-team review (features F012 and F013, decision D61): §65.01, §65.03, §65.04, §65.05, and §65.06 state the repaired behavior and name the new tests; §20.06 names the tests of the look-alike signs and its limit; added §50.09 and §50.10. 57 guarantees.
 - 2026-11-15 v1.8: after the craft layer and the first slice of the Prescription (features F009 to F011, decisions D58 and D60): added §65.01 to §65.06. 55 guarantees.
@@ -795,13 +837,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15). Accessed 2026-11-15. Grade: A.
 - [S14] The builder, *Unit tests of a Direction of the owner's own*, file `packages/core/test/ownDirections.test.ts` (2026-11-15). Accessed 2026-11-16. Grade: A.
 - [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs` (2026-11-16). Accessed 2026-11-16. Grade: A.
 
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §65.07, §65.09, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08
-- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §60.01, §60.04, §65.01, §65.03, §65.06, §70.04
+- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §60.01, §60.04, §65.01, §65.03, §65.06, §65.10, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
 - [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.05, §40.04
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03, §30.06
@@ -810,9 +854,11 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §55.02, §60.02, §60.03, §65.01, §65.03, §65.05, §70.01, §70.03, §70.05
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13) — §70.01
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file… — §10.14
-- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §55.04, §65.02, §65.03, §65.04, §65.05
+- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §55.04, §65.02, §65.03, §65.04, §65.05, §65.07, §65.08
 - [S14] The builder, *Unit tests of a Direction of the owner's own*, file `packages/core/test/ownDirections.test.ts`… — §20.06, §50.09, §50.10
 - [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16) — §55.01, §55.02
+- [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16) — §65.10
+- [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs`… — §65.09
 <!-- authorities:end -->
 
 ## [92] Index
@@ -827,6 +873,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - accessible — *see* compliance claim
 - ADA — *see* compliance claim
 - another window — *see* two tabs
+- **archive** — §65.10
 - are you sure — *see* Overlay
 - autosave — *see* saving
 
@@ -842,6 +889,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **card** — §50.04; *see also* Decision
 - **changed Decision** — §20.04; *see also* project file
+- checked on GitHub only — *see* outside validators
 - chip — *see* Skin
 - closing a tab — *see* unsaved work
 - **closing in the same instant** — §10.13; *see also* two tabs
@@ -865,6 +913,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Decision** — §50.01; *see also* project file
 - **dependency** — §70.03
 - design values — *see* Prescription
+- DESIGN.md — *see* FONTS.md
 - **Direction** — §50.03
 - does not hold — *see* research rule
 - download — *see* project file
@@ -873,6 +922,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **E**
 
+- eight characters — *see* fingerprint
 - empty list — *see* empty text
 - **empty text** — §55.02
 - enforce — *see* Fix for me
@@ -889,8 +939,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - file name — *see* quotation marks
 - files to build from — *see* Prescription
 - fine detail — *see* craft rule
+- **fingerprint** — §65.07
 - **Fix for me** — §40.03; *see also* contrast check
 - **following value** — §50.05; *see also* Decision
+- **FONTS.md** — §65.08
 - foreign data — *see* unknown values in a file of own Directions
 - forged sentence — *see* quotation marks
 
@@ -908,6 +960,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - hold — *see* standing notice
 - holds — *see* research rule
 - **hostile text** — §30.02; *see also* Mockup
+- how to ship the letter styles — *see* FONTS.md
 
 **I**
 
@@ -937,6 +990,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - limit of a text — *see* your content
 - **limit of own Directions** — §50.09
 - line length — *see* research rule
+- lint program — *see* outside validators
 - lint rule — *see* text as text
 - list too long — *see* limit of own Directions
 - **locked frame** — §30.03
@@ -959,6 +1013,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - new pick — *see* reason
 - new project — *see* replace action
 - newer copy — *see* late copy
+- no date in the files — *see* fingerprint
 - no empty box — *see* empty text
 - not checked — *see* what a person must still check
 - not saving — *see* standing notice
@@ -967,6 +1022,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **O**
 
 - **old project** — §20.03; *see also* project file
+- one download for all files — *see* archive
 - one variable — *see* Step
 - only my texts — *see* put the sample text back
 - open a file — *see* project file
@@ -977,6 +1033,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - other colors — *see* Skin
 - out of range — *see* rejected Options
 - **outside request** — §30.04
+- **outside validators** — §65.09
 - overflow — *see* phone width
 - **Overlay** — §50.08
 - **Overlay picture** — §30.06; *see also* Mockup
@@ -989,6 +1046,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - page database — *see* late copy
 - **page error** — §70.04; *see also* stored picture
 - page wider than the window — *see* long word
+- parser — *see* outside validators
 - passing pair — *see* contrast check
 - **phone width** — §30.05; *see also* Mockup
 - pick — *see* Decision
@@ -1015,6 +1073,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - race — *see* closing in the same instant
 - reading size — *see* research rule
+- ready-made parts — *see* FONTS.md
 - **reason** — §50.06; *see also* Decision
 - record — *see* Decision
 - **refused file** — §20.02; *see also* project file
@@ -1068,6 +1127,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - target size — *see* research rule
 - **text as text** — §70.05; *see also* hostile text
 - texts of the page — *see* your content
+- theme.css — *see* FONTS.md
 - **three answers** — §55.04
 - tooltip — *see* Overlay
 - tracking — *see* outside request
@@ -1097,6 +1157,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **what a person must still check** — §65.05
 - what you offer — *see* three answers
 - where guidance comes from — *see* source
+- which files belong together — *see* fingerprint
 - who it is for — *see* three answers
 - why this choice — *see* reason
 - **written color** — §40.01
@@ -1106,12 +1167,16 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **your content** — §55.01
 - your own words in the Prescription — *see* quoted data
+
+**Z**
+
+- zip file — *see* archive
 <!-- index:end -->
 
 ## [99] Health
 
 <!-- health:start -->
-_81 sections, 14 sources, 61 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
+_85 sections, 16 sources, 65 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
 
 - No findings.
 <!-- health:end -->

@@ -238,7 +238,7 @@
         "The format's lint program reports no error for the plain start and for each of the 38 Directions",
         "A hostile project name appears only inside a block marked as quoted data, or not at all"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F021",
@@ -258,7 +258,7 @@
         "Run the unit tests: the outside parser reads tokens.json of the plain start and of each of the 38 Directions and reports no error",
         "The same parser reports an error for a file with a planted fault, so that its silence means something"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F023",
@@ -269,7 +269,7 @@
         "Download each file and the archive: every file equals what the core writes for the stored project, and the archive holds the same seven files",
         "The section no longer says that the three files are missing"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

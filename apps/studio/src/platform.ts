@@ -624,17 +624,31 @@ export function storeOwnDirections(list: readonly OwnDirection[]): boolean {
   }
 }
 
-export type FileOutcome = 'saved' | 'declined' | 'unavailable';
+/**
+ * `renamed`: the private page hands over only files of certain kinds, and ".css" is not among them (its list, read on
+ * 2026-11-16: txt, json, md, html, zip, and others). Such a file is saved with ".txt" at the end of its name, and the
+ * caller says so. Before, the page answered "cannot hand over files here" for tokens.css, and nobody had seen it, because
+ * no test opens the real private page.
+ */
+export type FileOutcome = 'saved' | 'renamed' | 'declined' | 'unavailable';
 
 /** Offer a file to the person. On the private page a confirmation appears; elsewhere the browser downloads it. */
-export async function saveFile(filename: string, text: string): Promise<FileOutcome> {
+export async function saveFile(filename: string, text: string | Uint8Array): Promise<FileOutcome> {
   const rt = runtime();
   if (rt) {
     try {
       const downloads = await withTimeout(rt.use('downloads').catch(() => null), READ_TIMEOUT_MS);
       if (downloads !== TIMED_OUT && downloads) {
-        await downloads.save({ filename, data: text });
-        return 'saved';
+        // Bytes (the archive) go as a Blob; text goes as text.
+        const data = typeof text === 'string' ? text : new Blob([text as BlobPart]);
+        try {
+          await downloads.save({ filename, data });
+          return 'saved';
+        } catch (error) {
+          if ((error as { code?: string } | null)?.code !== 'rejected_extension') throw error;
+          await downloads.save({ filename: `${filename}.txt`, data });
+          return 'renamed';
+        }
       }
     } catch (error) {
       const code = (error as { code?: string } | null)?.code;
@@ -643,7 +657,7 @@ export async function saveFile(filename: string, text: string): Promise<FileOutc
     return 'unavailable';
   }
   try {
-    const url = URL.createObjectURL(new Blob([text], { type: 'application/octet-stream' }));
+    const url = URL.createObjectURL(new Blob([text as BlobPart], { type: 'application/octet-stream' }));
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;

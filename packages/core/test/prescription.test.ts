@@ -17,7 +17,7 @@ function worked(): Project {
 const plain = (): Project => createProject('Untitled');
 
 describe('The Prescription, first slice (SPEC.md section 2.6)', () => {
-  it('writes four files, and writes the same files again for the same project', () => {
+  it('writes seven files, and writes the same files again for the same project', () => {
     const files = writePrescription(worked());
     expect(Object.keys(files)).toEqual([...PRESCRIPTION_FILES]);
     for (const name of PRESCRIPTION_FILES) expect(files[name].length, name).toBeGreaterThan(200);
@@ -117,7 +117,9 @@ describe('The Prescription, first slice (SPEC.md section 2.6)', () => {
     // One word for the reference page, and one for this first part (findings U6-13, U6-25).
     expect(md).not.toMatch(/reference picture|this slice|this bundle|the Mockup/);
     expect(md).toContain('## 7. What this first part leaves out');
-    for (const part of ['`DESIGN.md`', 'theme file', 'file about fonts', 'The floors', 'How an Overlay opens', 'One download that holds every file']) expect(md, part).toContain(part);
+    for (const part of ['The floors', 'How an Overlay opens', 'Every page but the home page']) expect(md, part).toContain(part);
+    // The three files that this part once left out are now named as files to read, and the reader is told to count seven.
+    for (const part of ['`DESIGN.md` in the DESIGN.md format', '`theme.css`', '`FONTS.md`', 'check that you have all seven files']) expect(md, part).toContain(part);
     // The file states what was measured; it claims no standard (hard rule 8).
     expect(md).not.toMatch(/\bWCAG compliant|\bADA compliant|\bis accessible\b|\bfully accessible\b/i);
   });
