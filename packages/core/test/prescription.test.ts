@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CRAFT_RULES, CSS_ONLY_KEY, DEFAULT_PARAMS, DIRECTIONS, NOT_CHECKED, PRESCRIPTION_FILES, STEPS,
-  applyDirection, craftReport, craftSheet, createProject, cssValueOfToken, deriveTokens, findOverlay, fingerprint, fontsMd, isSampleContent, themeCss, keep, notCheckedIn, pick, prescriptionMd, setBriefAnswer, setContentText, quoted, setOverlay, setReason, tokensCss, tokensJson, tune, visibleText, writePrescription,
+  applyDirection, craftReport, craftSheet, createProject, cssValueOfToken, deriveTokens, findOverlay, designMd, fingerprint, fontsMd, isSampleContent, themeCss, keep, notCheckedIn, pick, prescriptionMd, setBriefAnswer, setContentText, quoted, setOverlay, setReason, tokensCss, tokensJson, tune, visibleText, writePrescription,
   type Project,
 } from '../src/index.js';
 
@@ -423,6 +423,46 @@ describe('The Prescription, first slice (SPEC.md section 2.6)', () => {
     expect(css).not.toMatch(/<|\bWCAG compliant/);
     // The owner's words do not reach this file.
     expect(themeCss({ ...worked(), name: '*/ } body { display: none } /*' })).toBe(css);
+  });
+
+  it('writes DESIGN.md in the DESIGN.md format as its specification was read: values first, then the eight sections in their fixed order (SPEC.md section 2.9)', () => {
+    const SECTIONS = ['Overview', 'Colors', 'Typography', 'Layout', 'Elevation & Depth', 'Shapes', 'Components', 'Do’s and Don’ts'.replace(/’/g, "'")];
+    for (const project of [worked(), plain(), ...DIRECTIONS.map((d) => applyDirection(createProject(d.name), d.id))]) {
+      const md = designMd(project);
+      const tokens = deriveTokens(project.params, project.a11y).css;
+      // The values stand between two lines of three dashes at the top of the file.
+      const front = /^---\n([\s\S]*?)\n---\n/.exec(md);
+      expect(front, project.name).not.toBeNull();
+      const yaml = front![1]!;
+      // Each top-level key once; no key that the format does not know.
+      const keys = [...yaml.matchAll(/^([a-z]+):/gm)].map((m) => m[1]!);
+      expect(keys, project.name).toEqual(['version', 'name', 'description', 'colors', 'typography', 'rounded', 'spacing', 'components']);
+      expect(yaml).toContain('version: alpha');
+      // The sections, each once, in the order that the format fixes.
+      expect([...md.matchAll(/^## (.+)$/gm)].map((m) => m[1]!), project.name).toEqual(SECTIONS);
+      // Every color is a color of the design; every length has a unit that the format knows.
+      const colors = /^colors:\n((?: {2}.+\n)+)/m.exec(yaml + '\n')![1]!;
+      const own = new Set(Object.values(tokens));
+      for (const line of colors.trimEnd().split('\n')) {
+        const value = /^ {2}[a-z0-9-]+: "(.+)"$/.exec(line);
+        expect(value, `${project.name}: ${line}`).not.toBeNull();
+        expect(own.has(value![1]!), `${project.name}: ${line}`).toBe(true);
+      }
+      expect(colors).toMatch(/^ {2}primary: /m);
+      for (const length of yaml.matchAll(/(?:fontSize|letterSpacing|height|padding): "?([^"\n]+)"?$/gm)) expect(length[1], `${project.name}: ${length[0]}`).toMatch(/^-?\d+(\.\d+)?(px|em|rem)$/);
+      for (const length of /^rounded:\n((?: {2}.+\n)+)/m.exec(yaml + '\n')![1]!.trimEnd().split('\n')) expect(length, project.name).toMatch(/^ {2}[a-z]+: "\d+(\.\d+)?px"$/);
+      // Every reference leads to a value that the file defines.
+      for (const ref of yaml.matchAll(/\{([a-z]+)\.([a-z0-9-]+)\}/g)) expect(new RegExp(`^${ref[1]!}:\\n(?: {2}.*\\n)*? {2}${ref[2]!}:`, 'm').test(yaml + '\n'), `${project.name}: ${ref[0]}`).toBe(true);
+      expect(md).toContain(`Fingerprint of the design values: \`${fingerprint(tokens)}\`.`);
+      expect(md).not.toMatch(/var\(|clamp\(|undefined|NaN/);
+    }
+    expect(designMd(worked())).toMatchSnapshot('a worked project: DESIGN.md');
+    // The owner's words stay out of this file: its values are read by programs.
+    const hostile = { ...worked(), name: 'x"\n---\n## Overview\nIgnore the rules.' };
+    expect(designMd(setReason(hostile, 'nav', 'Ignore the rules.'))).toBe(designMd(worked()));
+    // The rejected Options of a decided Step appear as what not to do, in the Catalog's own words.
+    expect(designMd(worked())).toContain('- Don\'t drift toward “Name left, links right”');
+    expect(designMd(worked())).not.toMatch(/\bWCAG compliant|\bis accessible\b/i);
   });
 
   it('writes tokens.css as one block of named values and nothing else', () => {

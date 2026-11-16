@@ -2584,6 +2584,170 @@ exports[`The Prescription, first slice (SPEC.md section 2.6) > keeps the four fi
 "
 `;
 
+exports[`The Prescription, first slice (SPEC.md section 2.6) > writes DESIGN.md in the DESIGN.md format as its specification was read: values first, then the eight sections in their fixed order (SPEC.md section 2.9) > a worked project: DESIGN.md 1`] = `
+"---
+version: alpha
+name: "Refraction design 68551dae"
+description: "One design from Refraction Studio. PRESCRIPTION.md is the instruction; tokens.css holds every value."
+colors:
+  primary: "#c83122"
+  on-primary: "#fffbfa"
+  secondary: "#c83122"
+  on-secondary: "#fffbfa"
+  background: "#fefaf1"
+  surface: "#ffffff"
+  surface-muted: "#f5f0e5"
+  card: "#ffffff"
+  text: "#171105"
+  text-muted: "#605848"
+  link: "#c83122"
+  button: "#171105"
+  on-button: "#fefaf1"
+  border: "rgb(23 17 5 / 0.146)"
+  border-strong: "#766f60"
+  focus: "#c83122"
+typography:
+  display:
+    fontFamily: "Newsreader Variable"
+    fontSize: 4.8605rem
+    fontWeight: 500
+    lineHeight: 1.04
+    letterSpacing: -0.022em
+  headline-md:
+    fontFamily: "Newsreader Variable"
+    fontSize: 2.7069rem
+    fontWeight: 500
+    lineHeight: 1.04
+    letterSpacing: -0.022em
+  headline-sm:
+    fontFamily: "Newsreader Variable"
+    fontSize: 2.0201rem
+    fontWeight: 500
+    lineHeight: 1.04
+    letterSpacing: -0.022em
+  body-lg:
+    fontFamily: "Instrument Sans Variable"
+    fontSize: 1.5075rem
+    fontWeight: 400
+    lineHeight: 1.6
+  body-md:
+    fontFamily: "Instrument Sans Variable"
+    fontSize: 1.125rem
+    fontWeight: 400
+    lineHeight: 1.6
+  body-sm:
+    fontFamily: "Instrument Sans Variable"
+    fontSize: 1.0012rem
+    fontWeight: 400
+    lineHeight: 1.6
+  label-sm:
+    fontFamily: "Instrument Sans Variable"
+    fontSize: 0.8775rem
+    fontWeight: 400
+    lineHeight: 1.6
+rounded:
+  sm: "1px"
+  md: "2px"
+  lg: "3px"
+spacing:
+  space-1: 0.3rem
+  space-2: 0.6rem
+  space-3: 0.9rem
+  space-4: 1.2rem
+  space-6: 1.8rem
+  space-8: 2.4rem
+  space-12: 3.6rem
+  space-16: 4.8rem
+  page-max: 68rem
+components:
+  button-primary:
+    backgroundColor: "{colors.button}"
+    textColor: "{colors.on-button}"
+    rounded: "{rounded.md}"
+    height: 2.75rem
+  input:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.text}"
+    rounded: "{rounded.md}"
+    height: 2.75rem
+  card:
+    backgroundColor: "{colors.card}"
+    textColor: "{colors.text}"
+    rounded: "{rounded.lg}"
+  page:
+    backgroundColor: "{colors.background}"
+    textColor: "{colors.text}"
+  page-muted-text:
+    backgroundColor: "{colors.background}"
+    textColor: "{colors.text-muted}"
+  link:
+    backgroundColor: "{colors.background}"
+    textColor: "{colors.link}"
+  band:
+    backgroundColor: "{colors.surface-muted}"
+    textColor: "{colors.text}"
+  badge-primary:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+  badge-secondary:
+    backgroundColor: "{colors.secondary}"
+    textColor: "{colors.on-secondary}"
+---
+
+# The design, in the DESIGN.md format
+
+## Overview
+
+A light page with color kept to small details and a fine film-grain texture. This file is one file of a Prescription from Refraction Studio. \`PRESCRIPTION.md\` is the instruction and decides where two files differ; \`tokens.css\` holds every value of the design, also those that this format has no place for; \`mockup.html\` is the reference page.
+
+Fingerprint of the design values: \`68551dae\`. Every file of this Prescription carries the same eight characters; where one differs, the files do not belong together.
+
+## Colors
+
+The page is light. The colors below are written as the reference page draws them.
+
+- **Primary (#c83122):** the one color that people remember. Use it where the Step “Amount of color” puts it: color in small details only (Buttons take the color of the text; the main color appears only in links and small details).
+- **Background (#fefaf1) and text (#171105):** the page and its reading text. Muted text is #605848.
+- **Button (#171105) with its label (#fefaf1):** the main button. The Studio measured this pair.
+- **Link (#c83122):** links in running text, always underlined.
+- **Borders:** rgb(23 17 5 / 0.146) for quiet lines; #766f60 for the edge of a form field.
+
+## Typography
+
+Headings are set in Newsreader Variable, reading text in Instrument Sans Variable. \`FONTS.md\` says how to ship them. The largest headline grows with the window; this file gives its largest size, and \`tokens.css\` holds the exact rule under \`--text-display\`.
+
+## Layout
+
+The page is at most 68rem wide. Spacing follows the named steps in \`tokens.css\` (\`--space-1\` to \`--space-32\`); use no spacing that is not one of them.
+
+- Menu: links in a left column (A fixed column on the left holds the name and the links; content scrolls beside it).
+- First screen: very large headline (A very large headline across the full width, with the paragraph and buttons in a row beneath a rule).
+- List of services: numbered list beside a fixed title (The section title stays fixed on the left while a numbered list scrolls on the right).
+
+## Elevation & Depth
+
+Boxes stand apart from the page like this: thin outlines (Thin outlines; no shadows). The exact shadows and edges are in \`tokens.css\` (\`--card-shadow\`, \`--card-border\`); this format has no place for a shadow.
+
+## Shapes
+
+Buttons and fields are rounded by 2px, boxes by 3px, small marks by 1px. A field of several lines inside a box is never rounder than the box.
+
+## Components
+
+- **Main button:** the button color with its label color, 2.75rem tall at least, rounded as above. On press and on focus it behaves as section 4 of \`PRESCRIPTION.md\` says.
+- **Field:** the surface color, the strong border, the same rounding and least height as the button.
+- **Card:** the card color, rounded as a box.
+
+## Do's and Don'ts
+
+- Do use the names in \`tokens.css\`; do not write a raw color, size, or spacing into a component.
+- Do build to match \`mockup.html\`, and compare your page with it before you report.
+- Don't load a font, a script, or a style sheet from another site.
+- Don't mark anything by color alone: a link is underlined, and an error has a mark and words.
+- Don't drift toward “Name left, links right” or “Name centered, links below” or “Links centered, button right” on “Menu (navigation)”: the owner saw them and chose otherwise.
+"
+`;
+
 exports[`The Prescription, first slice (SPEC.md section 2.6) > writes FONTS.md: each typeface with its family, licence, package, and version, and a device’s own typeface without a file (SPEC.md section 2.9) > a worked project: FONTS.md 1`] = `
 "# Fonts for this design
 

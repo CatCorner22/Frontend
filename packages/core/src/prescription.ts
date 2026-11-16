@@ -25,7 +25,7 @@ import { findDirection, isOwnDirectionId } from './catalog/directions.js';
 import { findOverlay } from './catalog/overlays.js';
 import { findSkin } from './catalog/skins.js';
 import { STEPS } from './catalog/steps.js';
-import { heldOptionId, isSampleContent, overlaysOf, ownedValues, type Project } from './engine.js';
+import { describeDesign, heldOptionId, isSampleContent, overlaysOf, ownedValues, type Project } from './engine.js';
 import { FONT_PACKAGE_VERSION, FONTS, type A11yProfile, type FontId } from './params.js';
 import { renderSmallBusiness } from './templates/smallBusiness.js';
 import { visibleText } from './text.js';
@@ -382,6 +382,102 @@ export function fontsMd(project: Project): string {
     out.push('```css', '@font-face {', `  font-family: "${family!}";`, `  src: url("/fonts/${file}") format("woff2");`, '  font-weight: 100 900;', '  font-style: normal;', '  font-display: swap;', '}', '```', '');
   }
   out.push('The address `/fonts/` is an example: put the files where the site keeps its own files, and write that address.', '');
+  return out.join('\n');
+}
+
+// ───────── DESIGN.md ─────────
+
+/** The colors that DESIGN.md names, each with the design value that stands for it. `primary` is the name that the format asks for. */
+const DESIGN_COLORS: readonly [string, string][] = [
+  ['primary', '--accent'], ['on-primary', '--on-accent'], ['secondary', '--accent-2'], ['on-secondary', '--on-accent-2'],
+  ['background', '--bg'], ['surface', '--surface'], ['surface-muted', '--surface-2'], ['card', '--card-surface'],
+  ['text', '--text'], ['text-muted', '--text-muted'], ['link', '--accent-text'],
+  ['button', '--btn-fill'], ['on-button', '--btn-label'], ['border', '--border'], ['border-strong', '--border-strong'], ['focus', '--focus'],
+];
+/** The type levels: a name, the value that holds its size, and whether it is set in the heading typeface. */
+const DESIGN_TYPE: readonly [string, string, boolean][] = [
+  ['display', '--text-display', true], ['headline-md', '--text-2xl', true], ['headline-sm', '--text-xl', true],
+  ['body-lg', '--text-lg', false], ['body-md', '--text-base', false], ['body-sm', '--text-sm', false], ['label-sm', '--text-xs', false],
+];
+const SPACING_STEPS = ['1', '2', '3', '4', '6', '8', '12', '16'] as const;
+
+/**
+ * The design in the DESIGN.md format of Google Labs (SPEC.md section 2.9; the specification as read on 2026-11-16, research
+ * record 11). The format is read by programs, so the owner's own words stay out of this file altogether: they stand in
+ * PRESCRIPTION.md, as quoted data. A value that the format has no place for (a size that grows with the window, a shadow)
+ * is left out here; tokens.css holds it.
+ */
+export function designMd(project: Project): string {
+  const tokens = deriveTokens(project.params, project.a11y).css;
+  const value = (name: string): string => tokens[name] ?? '';
+  const firstFamily = (stack: string): string => stack.split(',')[0]!.trim().replace(/^"|"$/g, '');
+  // A size that grows with the window is written as `clamp(least, rule, most)`. The format knows plain lengths only, so the file gives the most.
+  const size = (css: string): string => (/^clamp\(.*,\s*([\d.]+rem)\)$/.exec(css)?.[1] ?? css);
+  const word = (stepId: string): string => {
+    const step = STEPS.find((each) => each.id === stepId);
+    const option = step?.options.find((each) => each.id === (step ? heldOptionId(project, step) : null));
+    return option ? `${option.label.toLowerCase()} (${option.what.replace(/\.$/, '')})` : 'as the values below say';
+  };
+  const mark = fingerprint(tokens);
+
+  const yaml: string[] = ['---', 'version: alpha', `name: "Refraction design ${mark}"`, 'description: "One design from Refraction Studio. PRESCRIPTION.md is the instruction; tokens.css holds every value."', 'colors:'];
+  for (const [name, from] of DESIGN_COLORS) yaml.push(`  ${name}: "${value(from)}"`);
+  yaml.push('typography:');
+  for (const [name, from, heading] of DESIGN_TYPE) {
+    yaml.push(`  ${name}:`, `    fontFamily: "${firstFamily(value(heading ? '--font-heading' : '--font-body'))}"`, `    fontSize: ${size(value(from))}`, `    fontWeight: ${heading ? value('--heading-weight') : '400'}`, `    lineHeight: ${heading ? value('--leading-heading') : value('--leading-body')}`);
+    if (heading) yaml.push(`    letterSpacing: ${value('--heading-tracking')}`);
+  }
+  yaml.push('rounded:', `  sm: "${value('--radius-small')}"`, `  md: "${value('--radius-control')}"`, `  lg: "${value('--radius-surface')}"`);
+  yaml.push('spacing:');
+  for (const step of SPACING_STEPS) yaml.push(`  space-${step}: ${value(`--space-${step}`)}`);
+  yaml.push(`  page-max: ${value('--page-max')}`);
+  yaml.push('components:',
+    '  button-primary:', '    backgroundColor: "{colors.button}"', '    textColor: "{colors.on-button}"', '    rounded: "{rounded.md}"', `    height: ${value('--target-min')}`,
+    '  input:', '    backgroundColor: "{colors.surface}"', '    textColor: "{colors.text}"', '    rounded: "{rounded.md}"', `    height: ${value('--target-min')}`,
+    '  card:', '    backgroundColor: "{colors.card}"', '    textColor: "{colors.text}"', '    rounded: "{rounded.lg}"',
+    '  page:', '    backgroundColor: "{colors.background}"', '    textColor: "{colors.text}"',
+    '  page-muted-text:', '    backgroundColor: "{colors.background}"', '    textColor: "{colors.text-muted}"',
+    '  link:', '    backgroundColor: "{colors.background}"', '    textColor: "{colors.link}"',
+    '  band:', '    backgroundColor: "{colors.surface-muted}"', '    textColor: "{colors.text}"',
+    '  badge-primary:', '    backgroundColor: "{colors.primary}"', '    textColor: "{colors.on-primary}"',
+    '  badge-secondary:', '    backgroundColor: "{colors.secondary}"', '    textColor: "{colors.on-secondary}"',
+    '---', '');
+
+  const out: string[] = [...yaml];
+  out.push('# The design, in the DESIGN.md format', '');
+  out.push('## Overview', '');
+  out.push(`${describeDesign(project.params)} This file is one file of a Prescription from Refraction Studio. \`PRESCRIPTION.md\` is the instruction and decides where two files differ; \`tokens.css\` holds every value of the design, also those that this format has no place for; \`mockup.html\` is the reference page.`, '');
+  out.push(fingerprintLine(tokens), '');
+  out.push('## Colors', '');
+  out.push(`The page is ${project.params.theme}. The colors below are written as the reference page draws them.`, '');
+  out.push(`- **Primary (${value('--accent')}):** the one color that people remember. Use it where the Step “Amount of color” puts it: ${word('color-strategy')}.`);
+  out.push(`- **Background (${value('--bg')}) and text (${value('--text')}):** the page and its reading text. Muted text is ${value('--text-muted')}.`);
+  out.push(`- **Button (${value('--btn-fill')}) with its label (${value('--btn-label')}):** the main button. The Studio measured this pair.`);
+  out.push(`- **Link (${value('--accent-text')}):** links in running text, always underlined.`);
+  out.push(`- **Borders:** ${value('--border')} for quiet lines; ${value('--border-strong')} for the edge of a form field.`, '');
+  out.push('## Typography', '');
+  out.push(`Headings are set in ${firstFamily(value('--font-heading'))}, reading text in ${firstFamily(value('--font-body'))}. \`FONTS.md\` says how to ship them. The largest headline grows with the window; this file gives its largest size, and \`tokens.css\` holds the exact rule under \`--text-display\`.`, '');
+  out.push('## Layout', '');
+  out.push(`The page is at most ${value('--page-max')} wide. Spacing follows the named steps in \`tokens.css\` (\`--space-1\` to \`--space-32\`); use no spacing that is not one of them.`, '');
+  out.push(`- Menu: ${word('nav')}.`, `- First screen: ${word('hero')}.`, `- List of services: ${word('sections')}.`, '');
+  out.push('## Elevation & Depth', '');
+  out.push(`Boxes stand apart from the page like this: ${word('elevation')}. The exact shadows and edges are in \`tokens.css\` (\`--card-shadow\`, \`--card-border\`); this format has no place for a shadow.`, '');
+  out.push('## Shapes', '');
+  out.push(`Buttons and fields are rounded by ${value('--radius-control')}, boxes by ${value('--radius-surface')}, small marks by ${value('--radius-small')}. A field of several lines inside a box is never rounder than the box.`, '');
+  out.push('## Components', '');
+  out.push(`- **Main button:** the button color with its label color, ${value('--target-min')} tall at least, rounded as above. On press and on focus it behaves as section 4 of \`PRESCRIPTION.md\` says.`);
+  out.push('- **Field:** the surface color, the strong border, the same rounding and least height as the button.');
+  out.push('- **Card:** the card color, rounded as a box.', '');
+  out.push("## Do's and Don'ts", '');
+  out.push('- Do use the names in `tokens.css`; do not write a raw color, size, or spacing into a component.');
+  out.push('- Do build to match `mockup.html`, and compare your page with it before you report.');
+  out.push("- Don't load a font, a script, or a style sheet from another site.");
+  out.push("- Don't mark anything by color alone: a link is underlined, and an error has a mark and words.");
+  for (const step of STEPS) {
+    const rejected = (project.decisions[step.id]?.rejected ?? []).map((id) => step.options.find((option) => option.id === id)?.label).filter((label): label is string => label !== undefined);
+    if (rejected.length > 0) out.push(`- Don't drift toward ${rejected.map((label) => `“${label}”`).join(' or ')} on “${step.name}”: the owner saw ${rejected.length === 1 ? 'it' : 'them'} and chose otherwise.`);
+  }
+  out.push('');
   return out.join('\n');
 }
 

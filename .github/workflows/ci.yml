@@ -41,3 +41,27 @@ jobs:
         run: npm run e2e
       - name: Dependency audit
         run: npm audit --audit-level=high
+
+  # Two programs that the builder did not write read two files of the Prescription (SPEC.md section 2.9, decision D64).
+  # They run here only: the owner decided on 2026-11-16 that they are never run on the machine where the Studio is built.
+  # Their packages live in a folder of their own, with their own pinned versions, and never ship in the Studio.
+  outside-validators:
+    name: Outside validators
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install the Studio's packages (exact versions, no install scripts)
+        run: npm ci --ignore-scripts
+      - name: Install the two outside validators (exact versions, no install scripts)
+        run: npm ci --ignore-scripts
+        working-directory: validators
+      - name: DESIGN.md and tokens.json, read by programs that the builder did not write
+        run: npx vitest run --config validators/vitest.config.mjs
+
