@@ -194,7 +194,7 @@
         "Type markup into a field: the screen and the preview show it as text, and nothing runs",
         "Press \"Put the sample text back\": the Studio asks first, and Undo brings your texts back"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F017",

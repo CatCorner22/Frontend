@@ -1,8 +1,8 @@
 // The Studio's state. Every change to the design goes through the engine in @refraction/core.
 import {
-  DIRECTIONS, OWN_MAX, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName, readOwnDirections,
+  DIRECTIONS, OWN_MAX, STEPS, activeTunables, addContentItem, isSampleContent, removeContentItem, restoreSampleContent, setBriefAnswer, setContentItem, setContentText, setNavWord, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName, readOwnDirections,
   nextStepId, overlaysOf, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setOverlay, setReason, startPlain, tune,
-  type A11yProfile, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type OwnDirection, type Project, type Skin, type Step,
+  type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type OwnDirection, type Project, type Skin, type Step,
 } from '@refraction/core';
 import { create } from 'zustand';
 import {
@@ -12,8 +12,8 @@ import {
 
 export type Device = 'phone' | 'tablet' | 'desktop';
 export const DEVICE_WIDTH: Record<Device, number> = { phone: 375, tablet: 768, desktop: 1280 };
-export type View = 'directions' | 'steps' | 'overlays' | 'summary' | 'licences';
-const VIEWS: readonly View[] = ['directions', 'steps', 'overlays', 'summary', 'licences'];
+export type View = 'directions' | 'steps' | 'overlays' | 'summary' | 'content' | 'licences';
+const VIEWS: readonly View[] = ['directions', 'steps', 'overlays', 'summary', 'content', 'licences'];
 
 /** The card that stands for the design as it is, when no Catalog Option matches it. */
 export const CURRENT = 'current';
@@ -113,6 +113,15 @@ export interface StudioState {
   setProfile(profile: A11yProfile): void;
   /** Switch one Overlay on or off for this project. */
   toggleOverlay(overlayId: string, on: boolean): void;
+  /** The Brief: the owner's own texts and three answers. Each typed letter is stored at once; a run of typing in one field is one Undo step. */
+  setContentText(key: ContentTextKey, text: string): void;
+  setContentItem(list: ContentList, index: number, field: string, text: string): void;
+  setNavWord(index: number, text: string): void;
+  addContentItem(list: ContentList): void;
+  removeContentItem(list: ContentList, index: number): void;
+  setBriefAnswer(key: BriefKey, text: string): void;
+  /** Ask, then put the sample texts back in place of the owner's own. */
+  requestSampleContent(): void;
   rename(name: string): void;
   /** Try once more to save, after a save failed (for example when the owner has made room in storage). */
   saveAgain(): void;
@@ -195,7 +204,9 @@ function readHash(): { view: View; stepId?: string } | null {
 
 const hashFor = (view: View, stepId: string): string => (view === 'steps' ? `#${stepId}` : `#${view}`);
 /** Switched-on Overlays are work too: a project that holds nothing else is still asked about, and kept, before it is replaced (code review of 2026-11-14). */
-const hasWork = (project: Project): boolean => project.direction !== null || Object.keys(project.decisions).length > 0 || overlaysOf(project).length > 0;
+const hasWork = (project: Project): boolean => project.direction !== null || Object.keys(project.decisions).length > 0 || overlaysOf(project).length > 0 || hasOwnWords(project);
+/** The owner's own texts and answers (the Brief) are work as well: a project that holds nothing else is still asked about, and kept, before it is replaced. */
+const hasOwnWords = (project: Project): boolean => project.brief !== undefined || !isSampleContent(project.content);
 /** The names that the Studio itself gives a project. A project under another name holds something the owner typed. */
 const OWN_NAMES = ['My first project', 'My project'];
 /**
@@ -1068,6 +1079,44 @@ export const useStudio = create<StudioState>((set, get) => {
       commit(setOverlay(get().project, overlayId, on));
     },
 
+    setContentText(key, text) {
+      commit(setContentText(get().project, key, text), `content:${key}`);
+    },
+
+    setContentItem(list, index, field, text) {
+      commit(setContentItem(get().project, list, index, field as never, text), `content:${list}:${String(index)}:${field}`);
+    },
+
+    setNavWord(index, text) {
+      commit(setNavWord(get().project, index, text), `content:nav:${String(index)}`);
+    },
+
+    addContentItem(list) {
+      commit(addContentItem(get().project, list));
+    },
+
+    removeContentItem(list, index) {
+      commit(removeContentItem(get().project, list, index));
+    },
+
+    setBriefAnswer(key, text) {
+      commit(setBriefAnswer(get().project, key, text), `brief:${key}`);
+    },
+
+    requestSampleContent() {
+      if (isSampleContent(get().project.content)) return;
+      set({
+        confirmation: {
+          title: 'Put the sample text back?',
+          body: `This replaces every text of the page that you wrote with the text of the sample dental practice. Your three answers about the project stay. ${UNDO_PROMISE}. The Studio also keeps a copy of the project as it is now where this browser allows it; the Summary lists such copies.`,
+          confirmLabel: 'Yes, put the sample back',
+          cancelLabel: 'No, keep my texts',
+          danger: true,
+          run: () => replaceKeepingCopy(() => replaceProject(restoreSampleContent(get().project), 'The sample text is back in place of your own texts.'), 'you put the sample text back'),
+        },
+      });
+    },
+
     rename(name) {
       commit({ ...get().project, name: name.slice(0, 120) }, 'name');
     },
@@ -1123,7 +1172,7 @@ export const useStudio = create<StudioState>((set, get) => {
       set({
         confirmation: {
           title: 'Start a new project?',
-          body: `This clears the Direction, ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}, ${plural(overlaysOf(project).length, 'switched-on Overlay', 'switched-on Overlays')}, the project name, and the Contrast checks setting. ${UNDO_PROMISE}. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`,
+          body: `This clears ${hasOwnWords(project) ? 'your own texts and answers on “Your content”, ' : ''}the Direction, ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}, ${plural(overlaysOf(project).length, 'switched-on Overlay', 'switched-on Overlays')}, the project name, and the Contrast checks setting. ${UNDO_PROMISE}. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`,
           confirmLabel: 'Yes, clear this project',
           cancelLabel: 'Keep it',
           danger: true,

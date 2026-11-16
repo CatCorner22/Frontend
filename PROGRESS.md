@@ -104,6 +104,15 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F016 (the Brief, part 2: the screen "Your content")
+- Result: passes
+- Commits: the commit "F016: ..." that holds this entry
+- Evidence: `npm run check`: 257 unit tests passed. `npm run e2e`: 306 browser tests passed (5 new; 1,344 seconds). Tests first: all 5 failed on the build from before the screen. The screen: three questions about the project; every text of the sample website in eight groups; add and remove for services, facts, and prices; the preview shows the part of the page that the field in use belongs to; "Put the sample text back" asks, keeps a copy, and can be undone. A link in the top bar, a sentence on the Directions screen, and a sentence on the Summary lead to it. The Direction cards keep the sample practice. A project that holds only the owner's texts now counts as work: the Studio asks before it replaces one. The builder looked at the screen at 1440 and 375 pixels: no fault seen.
+- What went wrong on the way: two of the builder's new tests were wrong at first. One waited for a "Remove" button of a list that was rightly empty; one read a Direction card's picture before the picture had loaded, and read the name as drawn (in capitals on some Directions) instead of as written. After the corrections the 5 tests passed 3 times in a row before the full run.
+- Open problems for the next session: the top bar now holds five links and wraps on a narrow window (it wrapped with four at 320 pixels already). The form is long; it has no way to jump between its groups. The words of the contact form are fixed. The private page does not hold the Brief yet. No second reader has seen this code.
+- Next feature to build (ID): F017
+
+- Date: 2026-11-16
 - Feature worked on (ID): F015 (the Brief, part 1: the core holds the owner's texts and three answers, and the Mockup draws them with no empty box)
 - Result: passes
 - Commits: the commit "F015: ..." that holds this entry

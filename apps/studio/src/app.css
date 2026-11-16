@@ -206,6 +206,14 @@ select, .name, .project-text {
 
 /* The Overlays screen: one switch per Overlay, each with its explanation. */
 .overlay-list { gap: 0.75rem; }
+/* Your content (the Brief): groups of fields, one under the other. */
+.content-form { display: grid; gap: 1rem; align-content: start; }
+.content-form fieldset { display: grid; gap: 0.625rem; min-width: 0; }
+.content-field { display: grid; gap: 0.25rem; min-width: 0; }
+.content-field label { font-size: 0.8125rem; font-weight: 600; }
+.content-field input { width: 100%; min-width: 0; }
+.content-list { display: grid; gap: 0.625rem; justify-items: start; }
+.content-item { width: 100%; padding: 0.625rem; border: 1px solid var(--border); border-radius: var(--radius-control); }
 .overlay { display: grid; gap: 0.375rem; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-control, 0.5rem); background: var(--surface); }
 .overlay[data-on] { border-color: var(--accent); }
 .overlay .check { color: var(--text); font-weight: 600; font-size: 0.9375rem; }

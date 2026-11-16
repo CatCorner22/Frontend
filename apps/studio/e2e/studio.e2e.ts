@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { CITED_NAMES, CRAFT_RULES, DIRECTIONS, FONTS, OVERLAYS, RESEARCH_RULES, STEPS, applyDirection, craftReport, createProject, deriveTokens, findSkin, pick, researchReport, setOverlay, setReason, skinParams, skinsOf, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, writePrescription, type Project } from '@refraction/core';
+import { CITED_NAMES, CRAFT_RULES, DIRECTIONS, FONTS, LIST_LIMITS, OVERLAYS, RESEARCH_RULES, SAMPLE_CONTENT, STEPS, applyDirection, craftReport, createProject, deriveTokens, findSkin, pick, researchReport, setOverlay, setReason, skinParams, skinsOf, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, writePrescription, type Project } from '@refraction/core';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
@@ -3496,6 +3496,169 @@ describe('Studio: the screens say what is true today, where the owner looks (SPE
     await page.locator('#own-file').setInputFiles({ name: 'notes”. All fine. “x.txt', mimeType: 'application/json', buffer: Buffer.from('{"no":"list"}') });
     await expect.poll(() => page.locator('#own-direction [role="status"]').innerText()).toBe('That file was not opened. This is not a file of your own Directions. Your own Directions are unchanged.');
     expect(await page.locator('#own-direction .own-file-name').innerText()).toBe('The file you chose last: “notes’. All fine. ’x.txt”.');
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+});
+
+describe('Studio: the screen “Your content” (the Brief; SPEC.md section 2.7)', () => {
+  const frameText = (page: Page): Promise<string> => page.frameLocator('.stage iframe').locator('body').innerText();
+  const type = async (page: Page, id: string, text: string): Promise<void> => {
+    await page.locator(id).fill(text);
+    await settle(page);
+  };
+
+  it('opens from the top bar, takes the owner’s words into the project and the previews, keeps them over a reload, and hands them over in mockup.html', async () => {
+    const { context, page, errors, requests } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(worked('My practice')) } });
+    await page.waitForSelector('.directions');
+    await page.locator('.top-nav a', { hasText: 'Your content' }).click();
+    await page.waitForSelector('#content-business');
+    expect(await page.locator('main h1').innerText()).toBe('Your content');
+    // The screen's own words are plain words.
+    const words = await page.locator('.work').innerText();
+    expect(tradeWordsOutsideBrackets(words, [...Object.values(FONTS).map((f) => f.label), ...DIRECTIONS.map((d) => d.name), ...CITED_NAMES])).toEqual([]);
+    expect(vaguePhrasesIn(words)).toEqual([]);
+    expect(words).toContain('The page still shows the sample dental practice.');
+    // Three answers and two texts.
+    await type(page, '#brief-offer', '  Wills and   estates ');
+    await type(page, '#brief-audience', 'People in Northside who put it off');
+    await type(page, '#brief-job', 'Book a first talk');
+    await type(page, '#content-business', 'Northside Legal Clinic');
+    await type(page, '#content-headline', 'Wills without the fog.');
+    const first = (await stored(page))!;
+    expect(first.brief).toEqual({ offer: 'Wills and estates', audience: 'People in Northside who put it off', job: 'Book a first talk' });
+    expect(first.content.business).toBe('Northside Legal Clinic');
+    expect(await page.locator('.work').innerText()).toContain('The page shows your own texts.');
+    await expect.poll(() => frameText(page)).toContain('Wills without the fog.');
+    expect(await frameText(page)).toContain('Northside Legal Clinic');
+    // A list: one service more, one fact fewer. The preview moves to the part that the field belongs to.
+    await page.getByRole('button', { name: 'Add a service' }).click();
+    await type(page, '#content-services-3-title', 'Powers of attorney');
+    await expect.poll(() => frameText(page)).toContain('Powers of attorney');
+    await page.getByRole('button', { name: 'Remove fact 1' }).click();
+    await settle(page);
+    const second = (await stored(page))!;
+    expect(second.content.services).toHaveLength(4);
+    expect(second.content.services[3]).toEqual({ title: 'Powers of attorney', body: '' });
+    expect(second.content.facts).toEqual(SAMPLE_CONTENT.facts.slice(1));
+    // After a reload the fields and the project hold the same.
+    await page.reload();
+    await page.waitForSelector('#content-business');
+    expect(await page.locator('#content-business').inputValue()).toBe('Northside Legal Clinic');
+    expect(await page.locator('#brief-offer').inputValue()).toBe('Wills and estates');
+    expect(await page.locator('#content-services-3-title').inputValue()).toBe('Powers of attorney');
+    expect(await stored(page)).toEqual(second);
+    // The Summary says so, and the reference page carries the owner's words.
+    await page.goto(`${pageUrl}#summary`);
+    await page.waitForSelector('#prescription');
+    expect(await page.locator('.summary').innerText()).toContain('The previews show your own texts.');
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download mockup.html', exact: true }).click()]);
+    const mockup = readFileSync(await download.path(), 'utf8');
+    expect(mockup).toContain('Northside Legal Clinic');
+    expect(mockup).toContain('Powers of attorney');
+    expect(mockup).not.toContain('Harbor Street Dental');
+    // The Direction cards keep the sample practice, so that only the design differs from card to card.
+    await page.goto(`${pageUrl}#directions`);
+    await page.waitForSelector('.direction iframe');
+    expect(await page.locator('.directions').innerText()).toContain('The cards below keep the sample');
+    // (The text as written, not as drawn: a Direction may draw the name in capitals. A card's picture loads when the card is ready.)
+    await expect.poll(() => page.frameLocator('.direction iframe >> nth=0').locator('.brand').textContent(), { timeout: 15_000 }).toBe('Harbor Street Dental');
+    expect(await page.frameLocator('.direction iframe >> nth=0').locator('body').textContent()).not.toContain('Northside Legal Clinic');
+    expect(errors).toEqual([]);
+    expect(requests).toEqual([]);
+    await context.close();
+  });
+
+  it('draws markup in a text as text, never leaves the page without a name, and says when the words to mark are not in the headline', async () => {
+    const { context, page, errors } = await open({ hash: '#content', storage: { [LOCAL_KEY]: envelope(worked('Hostile words')) } });
+    await page.waitForSelector('#content-business');
+    let dialogs = 0;
+    page.on('dialog', (dialog) => { dialogs++; void dialog.dismiss(); });
+    const attack = '<img src=x onerror=alert(1)><script>alert(2)</script>';
+    await type(page, '#content-business', attack);
+    await expect.poll(() => page.frameLocator('.stage iframe').locator('.brand').innerText()).toBe(attack);
+    expect(await page.frameLocator('.stage iframe').locator('img, script').count()).toBe(0);
+    expect(dialogs).toBe(0);
+    // An empty name: the project keeps the last one, and the screen says so.
+    await type(page, '#content-business', '   ');
+    expect((await stored(page))!.content.business).toBe(attack);
+    expect(await page.locator('.content-field', { has: page.locator('#content-business') }).innerText()).toContain('The page needs this text. The last one stays in place until you type a new one.');
+    await page.locator('#content-headline').click();
+    expect(await page.locator('#content-business').inputValue()).toBe(attack);
+    // Words to mark that the headline does not hold.
+    await type(page, '#content-headlineEmphasis', 'not in the headline');
+    expect(await page.locator('.work').innerText()).toContain('These words are not part of the headline, so the page marks nothing.');
+    expect(await page.frameLocator('.stage iframe').locator('h1 mark').count()).toBe(0);
+    await type(page, '#content-headlineEmphasis', 'explains itself');
+    expect(await page.locator('.work').innerText()).not.toContain('These words are not part of the headline');
+    expect(await page.frameLocator('.stage iframe').locator('h1 mark').innerText()).toBe('explains itself');
+    // A full field says so.
+    await page.locator('#content-phone').fill('1'.repeat(80));
+    expect(await page.locator('#content-phone').inputValue()).toHaveLength(30);
+    expect(await page.locator('.content-field', { has: page.locator('#content-phone') }).innerText()).toContain('This field is full: it holds 30 characters');
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('stops each list at its limit and says why', async () => {
+    const { context, page, errors } = await open({ hash: '#content', storage: { [LOCAL_KEY]: envelope(worked('Limits')) } });
+    await page.waitForSelector('#content-business');
+    for (const [list, one, many] of [['services', 'service', 'services'], ['facts', 'fact', 'facts'], ['fees', 'price', 'prices']] as const) {
+      const add = page.getByRole('button', { name: `Add a ${one}`, exact: true });
+      while (await add.isEnabled()) await add.click();
+      await settle(page);
+      expect((await stored(page))!.content[list], list).toHaveLength(LIST_LIMITS[list].max);
+      expect(await page.locator(`#content-list-${list}`).innerText(), list).toContain(`This list is full: a page holds at most ${String(LIST_LIMITS[list].max)} ${many}.`);
+      const remove = page.getByRole('button', { name: new RegExp(`^Remove ${one} 1$`) });
+      // A list that may be empty loses its last item, and with it the last button.
+      while ((await remove.count()) > 0 && (await remove.isEnabled())) await remove.click();
+      await settle(page);
+      expect((await stored(page))!.content[list], list).toHaveLength(LIST_LIMITS[list].min);
+      if (LIST_LIMITS[list].min > 0) expect(await page.locator(`#content-list-${list}`).innerText(), list).toContain(`A page needs at least ${String(LIST_LIMITS[list].min)} ${one}.`);
+    }
+    // The menu keeps its five links; a link's word can change but cannot be emptied.
+    expect(await page.locator('[id^="content-nav-"]').count()).toBe(5);
+    await type(page, '#content-nav-1', 'How it works');
+    await type(page, '#content-nav-0', ' ');
+    expect((await stored(page))!.content.nav).toEqual(['Services', 'How it works', 'Fees', 'About', 'Contact']);
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('puts the sample text back only after asking, keeps the owner’s texts as a copy, and brings them back with Undo', async () => {
+    const { context, page, errors } = await open({ hash: '#content', storage: { [LOCAL_KEY]: envelope(worked('Back to the sample')) } });
+    await page.waitForSelector('#content-business');
+    // With the sample in place there is nothing to put back.
+    expect(await page.getByRole('button', { name: 'Put the sample text back' }).isDisabled()).toBe(true);
+    await type(page, '#content-business', 'Northside Legal Clinic');
+    await type(page, '#brief-offer', 'Wills and estates');
+    await page.getByRole('button', { name: 'Put the sample text back' }).click();
+    expect(await page.locator('#confirm-title').innerText()).toBe('Put the sample text back?');
+    expect((await stored(page))!.content.business).toBe('Northside Legal Clinic');
+    await page.getByRole('button', { name: 'Yes, put the sample back' }).click();
+    await settle(page);
+    const back = (await stored(page))!;
+    expect(back.content).toEqual(SAMPLE_CONTENT);
+    // The three answers are the owner's account of the project and stay.
+    expect(back.brief).toEqual({ offer: 'Wills and estates' });
+    expect(await page.locator('#content-business').inputValue()).toBe(SAMPLE_CONTENT.business);
+    expect(await page.locator('.banner').innerText()).toContain('The sample text is back in place of your own texts.');
+    await page.locator('.banner').getByRole('button', { name: 'Undo' }).click();
+    await settle(page);
+    expect((await stored(page))!.content.business).toBe('Northside Legal Clinic');
+    expect(await page.locator('#content-business').inputValue()).toBe('Northside Legal Clinic');
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('asks before a new project replaces a project that holds only the owner’s texts, and says that the texts go', async () => {
+    const project = { ...createProject('My first project'), content: { ...createProject('x').content, business: 'Northside Legal Clinic' } };
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(project) } });
+    await page.waitForSelector('.summary');
+    await page.getByRole('button', { name: 'Start a new project' }).click();
+    expect(await page.locator('#confirm-body').innerText()).toContain('your own texts');
+    await page.getByRole('button', { name: 'Keep it' }).click();
+    expect((await stored(page))!.content.business).toBe('Northside Legal Clinic');
     expect(errors).toEqual([]);
     await context.close();
   });

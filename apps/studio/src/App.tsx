@@ -1,6 +1,6 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, isSampleContent, plainName, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
-  type A11yProfile, type DesignParams, type Direction, type FontId, type MockupFocus, type PrescriptionFile, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, isSampleContent, plainName, BRIEF_KEYS, BRIEF_MAX, ITEM_LIMITS, LIST_LIMITS, NAV_WORD_MAX, REQUIRED_TEXTS, SAMPLE_CONTENT, TEXT_LIMITS, canAddContentItem, canRemoveContentItem, emphasisIsInHeadline, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
+  type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type FontId, type MockupFocus, type PrescriptionFile, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, Fragment, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
@@ -186,6 +186,7 @@ function TopBar(): React.JSX.Element {
         <a href={`#${s.stepId}`} aria-current={s.view === 'steps' ? 'page' : undefined}>2. Steps</a>
         <a href="#overlays" aria-current={s.view === 'overlays' ? 'page' : undefined}>3. Overlays</a>
         <a href="#summary" aria-current={s.view === 'summary' ? 'page' : undefined}>4. Summary</a>
+        <a href="#content" aria-current={s.view === 'content' ? 'page' : undefined}>Your content</a>
       </nav>
       <div className="profile">
         <label htmlFor="a11y-profile">Contrast checks</label>
@@ -367,7 +368,8 @@ function DirectionCard({ direction, own = false }: { direction: Direction; own?:
   const [skinId, setSkinId] = useState<string | null>(null);
   const skin = skinId === null ? undefined : findSkin(skinId);
   const params = useMemo(() => (skin ? skinParams(direction, skin) : direction.params), [direction, skin]);
-  const html = useMemo(() => mockupHtml(project, params, { wireframe: false, focus: 'top', still: true }).html, [project.content, project.a11y, params]);
+  // A card keeps the sample practice whatever the owner's own texts are: from card to card only the design may differ.
+  const html = useMemo(() => mockupHtml({ ...project, content: SAMPLE_CONTENT }, params, { wireframe: false, focus: 'top', still: true }).html, [project.a11y, params]);
   const twoColors = direction.params.colorStrategy === 'duo';
   // What the contrast checks would note on this start under "Warn me", whatever the open project's own setting.
   const notes = useMemo(() => tokensFor(params, 'advise').issues, [params]);
@@ -440,7 +442,7 @@ function DirectionsView(): React.JSX.Element {
         <p className="teach">
           First pick a Direction below. Then {STEPS.length} short Steps let you change one thing at a time, like an eye exam: “which is better, 1 or 2?” You can stop at any point; the line under the top bar says whether your work is saved.
         </p>
-        <p className="teach">Every picture shows the same made-up dental practice, so that only the design differs. It is a sample; it is not your content.</p>
+        <p className="teach">Every picture shows the same made-up dental practice, so that only the design differs. It is a sample; it is not your content. To put in your own words, open <a href="#content">Your content</a> at any time. The cards below keep the sample, so that only the design differs from card to card; every other preview then shows your words.</p>
         {started && <p className="note">You already have a project, started from {directionName(s.project, s)}. If you start from another Direction, the Studio asks first, and you can undo it.</p>}
       </div>
       {/* The Directions stand in groups, each under a plain heading. On a wide window every group is open; on a narrow one
@@ -945,6 +947,162 @@ function OverlaysView(): React.JSX.Element {
   );
 }
 
+// ───────── Your content (the Brief) ─────────
+
+const BRIEF_QUESTIONS: Record<BriefKey, string> = {
+  offer: 'What do you offer?',
+  audience: 'Who is it for?',
+  job: 'What is the one thing that a visitor should do on this page?',
+};
+const LIST_WORDS: Record<ContentList, { one: string; many: string; region: MockupFocus; fields: { field: string; label: string }[] }> = {
+  facts: { one: 'fact', many: 'facts', region: 'facts', fields: [{ field: 'value', label: 'The figure or short word' }, { field: 'label', label: 'What it counts' }] },
+  services: { one: 'service', many: 'services', region: 'services', fields: [{ field: 'title', label: 'Its name' }, { field: 'body', label: 'One or two sentences about it' }] },
+  fees: { one: 'price', many: 'prices', region: 'fees', fields: [{ field: 'item', label: 'What it is for' }, { field: 'price', label: 'The price, as you write it' }] },
+};
+
+/**
+ * One line of the owner's words. The field shows what is typed; the project holds the cleaned text (one line, no invisible
+ * signs, cut at the limit). When the owner leaves the field, or when the project changes from elsewhere (Undo, an opened
+ * file, "Put the sample text back"), the field shows what the project holds.
+ */
+function ContentField({ id, label, value, max, required = false, onSave, onFocus }: { id: string; label: string; value: string; max: number; required?: boolean; onSave: (text: string) => void; onFocus?: () => void }): React.JSX.Element {
+  const [text, setText] = useState(value);
+  const field = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    if (document.activeElement !== field.current) setText(value);
+  }, [value]);
+  return (
+    <div className="content-field">
+      <label htmlFor={id}>{label}</label>
+      <input ref={field} id={id} className="name" type="text" value={text} maxLength={max} autoComplete="off" onFocus={onFocus} onChange={(e) => { setText(e.target.value); onSave(e.target.value); }} onBlur={() => setText(value)} />
+      {required && text.trim() === '' && <p className="note" role="status">The page needs this text. The last one stays in place until you type a new one.</p>}
+      {text.length >= max && <p className="note field-full" role="status">This field is full: it holds {max} characters, and anything beyond that was left out.</p>}
+    </div>
+  );
+}
+
+/**
+ * The screen "Your content": the Brief (CLAUDE.md, defined terms; SPEC.md section 2.7). The owner answers three questions
+ * about the project and replaces the sample dental practice's texts with the page's real ones. Every text is drawn as text.
+ */
+function ContentView(): React.JSX.Element {
+  const s = useStudio();
+  const heading = useHeadingFocus();
+  // The preview shows the part of the page that the field in use belongs to.
+  const [region, setRegion] = useState<MockupFocus>('top');
+  const c = s.project.content;
+  const html = useMemo(() => mockupHtml(s.project, s.project.params, { wireframe: false, focus: region, still: true }), [s.project, region]);
+  const sample = isSampleContent(c);
+  const text = (key: ContentTextKey, label: string, where: MockupFocus): React.JSX.Element => (
+    <ContentField key={key} id={`content-${key}`} label={label} value={c[key]} max={TEXT_LIMITS[key]} required={REQUIRED_TEXTS.includes(key)} onSave={(typed) => s.setContentText(key, typed)} onFocus={() => setRegion(where)} />
+  );
+  const list = (name: ContentList): React.JSX.Element => {
+    const words = LIST_WORDS[name];
+    const limits = LIST_LIMITS[name];
+    const items = c[name] as unknown as Record<string, string>[];
+    return (
+      <div id={`content-list-${name}`} className="content-list">
+        {items.map((item, index) => (
+          <fieldset key={index} className="content-item">
+            <legend>{words.one.charAt(0).toUpperCase() + words.one.slice(1)} {index + 1}</legend>
+            {words.fields.map(({ field, label }) => (
+              <ContentField key={field} id={`content-${name}-${index}-${field}`} label={label} value={item[field] ?? ''} max={(ITEM_LIMITS[name] as Record<string, number>)[field] ?? 0} onSave={(typed) => s.setContentItem(name, index, field, typed)} onFocus={() => setRegion(words.region)} />
+            ))}
+            <button type="button" className="btn small" disabled={!canRemoveContentItem(s.project, name)} onClick={() => { setRegion(words.region); s.removeContentItem(name, index); }}>Remove {words.one} {index + 1}</button>
+          </fieldset>
+        ))}
+        <button type="button" className="btn small" disabled={!canAddContentItem(s.project, name)} onClick={() => { setRegion(words.region); s.addContentItem(name); }}>Add a {words.one}</button>
+        {!canAddContentItem(s.project, name) && <p className="hint">This list is full: a page holds at most {limits.max} {words.many}.</p>}
+        {!canRemoveContentItem(s.project, name) && limits.min > 0 && <p className="hint">A page needs at least {limits.min} {words.one}.</p>}
+        <p className="hint">The page draws a {words.one} once it holds words.</p>
+      </div>
+    );
+  };
+  return (
+    <div className="work">
+      <Rail />
+      <main className="stage" id="main" tabIndex={-1}>
+        <div className="step-head">
+          <p className="eyebrow">At any time · Your content</p>
+          <h1 ref={heading} tabIndex={-1}>Your content</h1>
+          <p className="teach">A design is judged best on the words that it will really carry. Here you replace the sample dental practice with your own words, and you answer three questions about the project. You can do this before, during, or after the Steps; nothing here changes a Decision. <strong>{sample ? 'The page still shows the sample dental practice.' : 'The page shows your own texts.'}</strong></p>
+        </div>
+        <div className="preview-bar">
+          <div className="segmented" role="group" aria-label="Width of the large preview">
+            {DEVICES.map((d) => <button key={d.id} type="button" aria-pressed={s.device === d.id} onClick={() => s.setDevice(d.id)}>{d.label}</button>)}
+          </div>
+          <span className="showing" aria-live="polite">The preview shows the part of the page that the field in use belongs to.</span>
+        </div>
+        <div className="preview-wrap">
+          <button type="button" className="skip-preview" onClick={() => document.getElementById('brief-offer')?.focus()}>Jump past the preview to the fields</button>
+          <LargePreview html={html.html} width={DEVICE_WIDTH[s.device]} title="Large preview of the sample website with your content" />
+        </div>
+        <p className="hint">Every text is drawn as text: a sign such as “&lt;” appears as that sign and does nothing. The Studio saves each letter as you type; Undo in the top bar takes a change back.</p>
+      </main>
+      <aside className="options content-form" aria-label="Your content">
+        <fieldset>
+          <legend>Three questions about the project</legend>
+          <p className="hint">The page does not show these answers. They go, word for word, into PRESCRIPTION.md, so that the AI coding tool that builds your page knows what the page is for. Write nothing here that you want to keep to yourself.</p>
+          {BRIEF_KEYS.map((key) => <ContentField key={key} id={`brief-${key}`} label={BRIEF_QUESTIONS[key]} value={s.project.brief?.[key] ?? ''} max={BRIEF_MAX} onSave={(typed) => s.setBriefAnswer(key, typed)} />)}
+        </fieldset>
+        <fieldset>
+          <legend>Name, menu, and main button</legend>
+          {text('business', 'The name of the business or project', 'top')}
+          {text('primaryAction', 'The words on the main button', 'top')}
+          {text('phone', 'Telephone number (leave it empty and the page shows none)', 'top')}
+          <p className="hint">The menu keeps its five links, because each leads to a fixed part of the page. You change their words.</p>
+          {c.nav.map((word, index) => <ContentField key={index} id={`content-nav-${index}`} label={`Menu link ${index + 1}`} value={word} max={NAV_WORD_MAX} onSave={(typed) => s.setNavWord(index, typed)} onFocus={() => setRegion('top')} />)}
+        </fieldset>
+        <fieldset>
+          <legend>First screen</legend>
+          {text('tag', 'A short line above the headline', 'top')}
+          {text('headline', 'The headline', 'top')}
+          {text('headlineEmphasis', 'Words of the headline to mark, where the design marks some', 'top')}
+          {!emphasisIsInHeadline(c) && <p className="note" role="status">These words are not part of the headline, so the page marks nothing. Type them exactly as the headline has them.</p>}
+          {text('lede', 'The paragraph under the headline', 'top')}
+          {text('secondaryAction', 'The words of the second link', 'top')}
+        </fieldset>
+        <fieldset>
+          <legend>Facts at a glance</legend>
+          {list('facts')}
+        </fieldset>
+        <fieldset>
+          <legend>Services</legend>
+          {text('servicesTitle', 'The heading', 'services')}
+          {text('servicesIntro', 'A sentence under the heading', 'services')}
+          {list('services')}
+        </fieldset>
+        <fieldset>
+          <legend>Prices</legend>
+          {text('feesTitle', 'The heading of the price list', 'fees')}
+          {list('fees')}
+        </fieldset>
+        <fieldset>
+          <legend>About</legend>
+          {text('aboutTitle', 'The heading', 'about')}
+          {text('aboutBody', 'The paragraph', 'about')}
+          {text('promise', 'One promise, drawn in a box of its own', 'about')}
+        </fieldset>
+        <fieldset>
+          <legend>Contact and foot of the page</legend>
+          {text('contactTitle', 'The heading', 'contact')}
+          {text('contactBody', 'The paragraph', 'contact')}
+          {text('address', 'Address', 'contact')}
+          {text('hours', 'Opening hours', 'contact')}
+          {text('footerNote', 'A note at the foot of the page', 'contact')}
+          <p className="hint">The words of the contact form itself (“Your name”, “Send my request”) are fixed in this version.</p>
+        </fieldset>
+        <div className="button-row">
+          <button type="button" className="btn" disabled={sample} onClick={s.requestSampleContent}>Put the sample text back</button>
+        </div>
+        <div className="actions sticky">
+          <a className="btn primary" href="#summary">Go to the Summary</a>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
 // ───────── Summary ─────────
 
 /** The time at which a copy was kept, on the reader's own clock, or an empty text when the time is unknown. */
@@ -1201,6 +1359,7 @@ function SummaryView(): React.JSX.Element {
           <strong>What works today:</strong> you can download the project file and open it here later, and you can download the first part of the Prescription: four files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the rest of the Prescription, which the section “The Prescription” lists, and the part of Refraction that measures a built page against it.
         </p>
         <p><button type="button" className="btn small" onClick={() => document.getElementById('prescription')?.scrollIntoView({ block: 'start' })}>Show me the Prescription</button></p>
+        <p className="teach">{isSampleContent(s.project.content) ? 'The previews still show the sample dental practice.' : 'The previews show your own texts.'} To change the texts and your three answers about the project, open <a href="#content">Your content</a>.</p>
         <section aria-labelledby="file-heading">
           <h2 id="file-heading">Project file</h2>
           <div className="actions">
@@ -1446,7 +1605,7 @@ export function App(): React.JSX.Element {
         <div className="banner" role="alert"><p>This page is not allowed to show the embedded pictures of the sample website, so they will be blank. Tell Claude: “the previews are blocked.”</p></div>
       )}
       <ScreenBoundary key={view}>
-        {!ready ? <main className="loading" id="main" tabIndex={-1}><p>Opening your project…</p></main> : view === 'directions' ? <DirectionsView /> : view === 'overlays' ? <OverlaysView /> : view === 'summary' ? <SummaryView /> : view === 'licences' ? <LicencesView /> : <StepsView />}
+        {!ready ? <main className="loading" id="main" tabIndex={-1}><p>Opening your project…</p></main> : view === 'directions' ? <DirectionsView /> : view === 'overlays' ? <OverlaysView /> : view === 'summary' ? <SummaryView /> : view === 'content' ? <ContentView /> : view === 'licences' ? <LicencesView /> : <StepsView />}
       </ScreenBoundary>
       <ConfirmDialog />
     </div>
