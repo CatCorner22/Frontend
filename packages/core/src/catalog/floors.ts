@@ -1,9 +1,9 @@
-// The Floors: requirements that the Prescription writes whatever the design is (SPEC.md section 2.18; decisions D13 and D70).
+// The Floors: requirements that the Prescription writes whatever the design is (SPEC.md section 2.18; decisions D13 and D69).
 //
 // Each record is data: an id, its Floor, its text for the AI coding tool, what a person must still check, its source (an address
 // on one of five approved hosts and a short quotation), its grade, and its review date. The records come from the research records
 // `docs/research/12a` to `12d`, whose quotations an independent helper compared with the pages on 2026-11-16 (decision D68). The
-// records omit some rows of those research records on purpose; decision D70 lists each omission and its reason.
+// records omit some rows of those research records on purpose; decision D69 lists each omission and its reason.
 //
 // What this file does not say. No program checks a Floor yet; the Fit check measures none of them. A requirement states what to
 // build and what to check, never that a page meets a standard (hard rule 8). The Catalog grades are "measured", "convention", and

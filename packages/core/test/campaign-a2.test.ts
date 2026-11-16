@@ -1,5 +1,5 @@
 // Red-team campaign A2 (2026-11-16): the core's repairs. Each test follows the judge's reproduction of one finding
-// (redteam/campaign-a2/findings.md); decision D69 records the owner's deferral and the builder's rulings.
+// (redteam/campaign-a2/findings.md); decision D71 records the owner's deferral and the builder's rulings.
 import { describe, expect, it } from 'vitest';
 import {
   DIRECTIONS, SAMPLE_CONTENT, STEPS, applyDirection, createProject, parseProject, plainName, readOwnDirections, setContentText, skinParams,
