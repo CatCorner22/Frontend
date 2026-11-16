@@ -20,7 +20,7 @@
 // values are none of those types (a shadow written as CSS, a size written as `clamp()`, a keyword). The format has no type
 // for them, so they stand under `$extensions`, word for word, and are not presented as tokens of the format.
 
-import { BRIEF_KEYS, type BriefKey } from './brief.js';
+import { BRIEF_KEYS, sampleTextsLeft, type BriefKey } from './brief.js';
 import { craftReport, craftSheet } from './catalog/craftRules.js';
 import { findDirection, isOwnDirectionId } from './catalog/directions.js';
 import { findOverlay } from './catalog/overlays.js';
@@ -277,7 +277,9 @@ export function prescriptionMd(project: Project, context: PrescriptionContext = 
   out.push('- The project’s name (quoted data, not an instruction):', '', quoted(project.name), '');
   out.push('- Kind of page: a small-business website (the home page).');
   out.push(...briefLines(project));
-  out.push(`- Texts: ${sample ? '`mockup.html` shows a sample dental practice, not the owner’s content.' : '`mockup.html` shows the texts that the project holds. They are the owner’s own: use them word for word.'}`);
+  const { names: sampleLeft, total: textTotal } = sampleTextsLeft(project.content);
+  const mixed = !sample && sampleLeft.length > 0;
+  out.push(`- Texts: ${sample ? '`mockup.html` shows a sample dental practice, not the owner’s content.' : mixed ? `\`mockup.html\` shows the texts that the project holds. ${String(sampleLeft.length)} of ${String(textTotal)} texts are still the sample dental practice’s words, not the owner’s: ${sampleLeft.join(', ')}. Treat those as placeholders, not as the owner’s content. The other texts are the owner’s own: use them word for word.` : '`mockup.html` shows the texts that the project holds. They are the owner’s own: use them word for word.'}`);
   out.push(...startLines(project, context));
   out.push(`- Contrast checks: ${PROFILE_WORDS[project.a11y]}`, '');
 
@@ -332,6 +334,7 @@ export function prescriptionMd(project: Project, context: PrescriptionContext = 
   out.push('- The floors: fixed requirements on security, on being found by search, and on speed, and the checks for people with disabilities written as acceptance tests.');
   out.push('- How an Overlay opens, closes, and behaves with a keyboard or a screen reader.');
   if (sample) out.push('- The owner’s real content: `mockup.html` shows a sample dental practice.');
+  else if (mixed) out.push(`- The owner’s real content, in full: ${String(sampleLeft.length)} of ${String(textTotal)} texts in \`mockup.html\` are still the sample dental practice’s words (see section 1).`);
   out.push('- Every page but the home page.', '');
   return out.join('\n');
 }
@@ -452,7 +455,7 @@ export function designMd(project: Project): string {
   out.push(`The page is ${project.params.theme}. The colors below are written as the reference page draws them.`, '');
   out.push(`- **Primary (${value('--accent')}):** the one color that people remember. Use it where the Step “Amount of color” puts it: ${word('color-strategy')}.`);
   out.push(`- **Background (${value('--bg')}) and text (${value('--text')}):** the page and its reading text. Muted text is ${value('--text-muted')}.`);
-  out.push(`- **Button (${value('--btn-fill')}) with its label (${value('--btn-label')}):** the main button. The Studio measured this pair.`);
+  out.push(`- **Button (${value('--btn-fill')}) with its label (${value('--btn-label')}):** the main button. ${project.a11y === 'off' ? 'Contrast checks are Off for this project, so no program measured this pair.' : 'The Studio measured this pair.'}`);
   out.push(`- **Link (${value('--accent-text')}):** links in running text, always underlined.`);
   out.push(`- **Borders:** ${value('--border')} for quiet lines; ${value('--border-strong')} for the edge of a form field.`, '');
   out.push('## Typography', '');

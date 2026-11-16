@@ -339,6 +339,18 @@
         "Measure pages with an oklch color, a DATA: address, a formaction, a poster, a meta refresh, and a text hidden at 375 pixels: each is read as the requirement says"
       ],
       "passes": true
+    },
+    {
+      "id": "F030",
+      "description": "The owner double-clicks by accident and loses nothing, is told which texts of the page are still the sample's, loads a hostile project file and gets clean texts, and reads a DESIGN.md that claims no measurement that did not happen.",
+      "spec_section": "SPEC.md section 2.16",
+      "steps": [
+        "Double-click the main button on a Step: one Decision, and one Step forward",
+        "Change one text on \"Your content\": the screen and the Summary say how many of the 23 texts are still the sample's, and PRESCRIPTION.md names the placeholders",
+        "Open a project file whose texts hold hidden signs, line breaks, and 600 characters: the texts are cleaned and cut, and the notes say so",
+        "Set Contrast checks to Off and download DESIGN.md: it says that no program measured the pair; with \"Warn me\" it says what it said before"
+      ],
+      "passes": true
     }
   ]
 }

@@ -40,6 +40,62 @@ export type ContentItemField<L extends ContentList> = keyof (typeof ITEM_LIMITS)
 /** The menu keeps its links: each leads to a fixed part of the page. Only the words change. */
 export const NAV_WORD_MAX = 24;
 
+/** The texts of the page in plain words, for the sentences that say which of them are still the sample's. */
+const TEXT_NAMES: Record<ContentTextKey, string> = {
+  business: 'the business name', tag: 'the tag line above the headline', headline: 'the headline', headlineEmphasis: 'the emphasized words of the headline',
+  lede: 'the opening paragraph', primaryAction: 'the words of the main button', secondaryAction: 'the words of the second link', phone: 'the phone number',
+  servicesTitle: 'the title of the services', servicesIntro: 'the line under the title of the services', feesTitle: 'the title of the fees',
+  aboutTitle: 'the title of the About part', aboutBody: 'the About paragraph', promise: 'the promise', contactTitle: 'the title of the contact part',
+  contactBody: 'the contact paragraph', address: 'the address', hours: 'the opening hours', footerNote: 'the note in the footer',
+};
+const LIST_NAMES = { services: 'the services', facts: 'the facts', fees: 'the fees' } as const;
+
+/**
+ * Which texts and lists of the page still equal the sample's, word for word, in plain words and in a fixed order, and how many
+ * there are in all (finding U7-01). A page that holds some of the owner's texts and some of the sample's must say so.
+ */
+export function sampleTextsLeft(content: SiteContent): { names: string[]; total: number } {
+  const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
+  const keys = Object.keys(TEXT_LIMITS) as ContentTextKey[];
+  const names = keys.filter((key) => content[key] === SAMPLE_CONTENT[key]).map((key) => TEXT_NAMES[key]);
+  for (const list of ['services', 'facts', 'fees'] as const) if (same(content[list], SAMPLE_CONTENT[list])) names.push(LIST_NAMES[list]);
+  if (same(content.nav, SAMPLE_CONTENT.nav)) names.push('the menu words');
+  return { names, total: keys.length + 4 };
+}
+
+/**
+ * The texts of a loaded file, cleaned as typed text is cleaned (finding X7-05): hidden signs and signs that change the direction of
+ * writing go, line breaks and runs of spaces become one space, and each text is cut at its limit by whole characters. A required
+ * text that cleaning would leave empty is replaced by the sample's. `changed` counts the texts that cleaning changed.
+ */
+export function cleanLoaded(content: SiteContent, brief: Brief | undefined): { content: SiteContent; brief: Brief | undefined; changed: number } {
+  let changed = 0;
+  const tidy = (value: string, max: number, fallback = ''): string => {
+    const text = oneLine(value, max);
+    const result = text === '' ? fallback : text;
+    if (result !== value) changed++;
+    return result;
+  };
+  const next: SiteContent = { ...content, nav: [...content.nav], services: content.services.map((s) => ({ ...s })), facts: content.facts.map((f) => ({ ...f })), fees: content.fees.map((f) => ({ ...f })) };
+  for (const key of Object.keys(TEXT_LIMITS) as ContentTextKey[]) next[key] = tidy(content[key], TEXT_LIMITS[key], REQUIRED_TEXTS.includes(key) ? SAMPLE_CONTENT[key] : '');
+  next.nav = content.nav.map((word, i) => tidy(word, NAV_WORD_MAX, SAMPLE_CONTENT.nav[i] ?? ''));
+  next.services = content.services.map((item) => ({ title: tidy(item.title, ITEM_LIMITS.services.title), body: tidy(item.body, ITEM_LIMITS.services.body) }));
+  next.facts = content.facts.map((item) => ({ value: tidy(item.value, ITEM_LIMITS.facts.value), label: tidy(item.label, ITEM_LIMITS.facts.label) }));
+  next.fees = content.fees.map((item) => ({ item: tidy(item.item, ITEM_LIMITS.fees.item), price: tidy(item.price, ITEM_LIMITS.fees.price) }));
+  let answers: Brief | undefined;
+  if (brief) {
+    const out: Brief = {};
+    for (const key of BRIEF_KEYS) {
+      const value = brief[key];
+      if (value === undefined) continue;
+      const text = tidy(value, BRIEF_MAX);
+      if (text !== '') out[key] = text;
+    }
+    answers = Object.keys(out).length > 0 ? out : undefined;
+  }
+  return { content: next, brief: answers, changed };
+}
+
 /** A project, as far as the Brief is concerned. */
 interface Holder {
   content: SiteContent;
