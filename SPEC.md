@@ -215,6 +215,16 @@ This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside t
   - One run, one model, one project: the record says that it is a first measurement, not a rate.
 - How to test it end to end: a unit test reads the stored receipt of the trial, checks that it names the fingerprint of the files that the builder writes today for the fixed project, and checks that the stored page measures to the stored receipt (the program runs on the stored page and the result equals the stored receipt).
 
+### 2.12 The comparison run: the same project, built without the seven files (milestone M7; decision D66)
+
+- What the user does: asks for one more run. One helper agent receives the same project in plain words and no file: the six Decisions as the labels and descriptions that the Studio shows, the owner's one reason, and every text of the sample content. The helper builds `index.html`. The program of section 2.10 measures that page against the seven files that the first trial's helper received.
+- What the system does in response: the instruction, the page, the receipt, and a record stand in `plugin/fit/trials/002/`. The record holds a table that sets the two receipts side by side, one row for each measure.
+- Edge cases:
+  - The second helper never sees the seven files, but the measure uses their values. The record says so: the comparison shows how far a plain request lands from the Prescription's values, not whether the second page is worse in a way that a person would see.
+  - The helper cannot be held to the rule "read no other file". The record says so.
+  - One run each, one project: the record says that it is two measurements, not a rate, and that it does not say which page looks better.
+- How to test it end to end: the tests of the first trial run on both folders. A further test reads both receipts and requires that the record's table holds each measure's two counts exactly as the receipts state them.
+
 ## 3. Out of scope
 
 - For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.

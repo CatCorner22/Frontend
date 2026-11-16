@@ -104,6 +104,18 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F026 (the comparison run: the same project, built by a helper agent without the seven files)
+- Result: passes
+- Commits: the commit "F026: ..." that holds this entry
+- Evidence: `npm run check`: 266 unit tests passed. `npm run e2e`: 342 browser tests passed (the trial tests now run on two folders: 13 trial tests where there were 5). The first full run of this unit failed once (341 of 342): the existing Studio test "can be used from the first screen to the Summary with the keyboard alone" timed out waiting for the Summary screen. The builder changed no Studio file in this unit; the test passed alone 3 times out of 3 and passed in the second full run (342 of 342, 1,403 seconds). The cause is unknown and the failure is not reproduced; the record calls it an unexplained one-off, not a known flaw. Tests first: the 5 new tests failed because the second record did not exist. One helper agent (about 39 seconds, 2 tool calls) built `index.html` from the project in plain words. The program's counts, trial 001 against trial 002: requests 3 and 0; colors 0 and 12; typefaces 0 and 2; corner radii 0 and 0; contrast 0 and 2; content 0 and 0; width 0 and 0.
+- What the run found: (1) the plain-words page misses the Prescription's values (colors and typeface names) by construction, which shows how far a plain request lands from them and says nothing about which page is better. (2) A real contrast fault in the plain-words page: the promise sentence is dark gray on dark green, 1.24 to 1. The builder read the page's style sheet to confirm the cause (`.about p` is more specific than `.promise`), so that it is not a fault of the program. The helper could not see it, because the instruction forbade rendering. (3) The trial 001 page has no such fault.
+- What the run does not show: which page looks better; how often either approach lands where it did; whether the files caused the difference (trial 001's helper received `mockup.html`, which holds the exact values, so a zero there partly reflects copying). A run without `mockup.html` in the folder was not made.
+- A confound found on the way (finding R26-01): trial 002's helper reported that it read no file, yet its report cites "CLAUDE.md hard rule 7". The repository's `CLAUDE.md` seems to reach a helper without a file read. Not verified. If so, both helpers knew the repository's rules.
+- Not run: the reviewer helper and the three red-team reviewers for F024 to F026 (decision D55: each needs the owner's yes).
+- Open problems for the next session: R25-01 (the requests measure and `FONTS.md`; the owner's choice between (a) and (b)); R26-01; the Floors in the Prescription (M6); the owner's trial of the Studio (M4).
+- Next feature to build (ID): none in the list.
+
+- Date: 2026-11-16
 - Feature worked on (ID): F025 (the first build trial: a helper agent built a page from the seven files, and the program measured it)
 - Result: passes
 - Commits: the commit "F025: ..." that holds this entry

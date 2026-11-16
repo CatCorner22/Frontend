@@ -293,6 +293,17 @@
         "The receipt names the fingerprint of the files that the builder writes today for the fixed project"
       ],
       "passes": true
+    },
+    {
+      "id": "F026",
+      "description": "The owner reads the record of the comparison run: the same project built by a helper agent without the seven files, measured against the same values, and set beside the first trial.",
+      "spec_section": "SPEC.md section 2.12",
+      "steps": [
+        "Open plugin/fit/trials/002/: it holds the instruction (the project in plain words), the helper's page, the receipt, and a record",
+        "Run the program on the stored page against the stored files: the receipt equals the stored receipt",
+        "The record's table gives, for each measure, the deviation counts of both receipts exactly as the receipts state them, and the record says what the comparison does not show"
+      ],
+      "passes": true
     }
   ]
 }

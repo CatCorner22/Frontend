@@ -1,15 +1,15 @@
-// The first build trial (SPEC.md section 2.11): the stored record of one run in which a helper agent built a page from the seven files.
-// These tests do not run the helper. They check that the stored record is whole, that it belongs to today's files, and that the
+// The build trials (SPEC.md sections 2.11 and 2.12): the stored records of the runs in which a helper agent built a page.
+// Trial 001: the helper received the seven files. Trial 002: the helper received the same project in plain words and no file.
+// These tests do not run a helper. They check that each stored record is whole, that it belongs to today's files, and that the
 // stored page still measures to the stored receipt.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium, type Browser } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PRESCRIPTION_FILES, writePrescription } from '@refraction/core';
-import { fit } from '../src/fit.ts';
+import { fit, type Receipt } from '../src/fit.ts';
 import { TRIAL_DECISIONS, trialProject } from './trial-project.ts';
 
-const FOLDER = join(process.cwd(), 'plugin/fit/trials/001');
 const LOCAL_BROWSER = process.env['PW_CHROMIUM'] ? { executablePath: process.env['PW_CHROMIUM'] } : {};
 let browser: Browser;
 beforeAll(async () => {
@@ -18,38 +18,71 @@ beforeAll(async () => {
 afterAll(async () => {
   await browser.close();
 });
-const read = (...parts: string[]): string => readFileSync(join(FOLDER, ...parts), 'utf8');
 
-describe('First build trial: the stored record', () => {
-  it('holds the instruction, the helper’s page, the receipt in two forms, the record, and the seven files that the helper received', () => {
-    for (const name of ['INSTRUCTION.md', 'index.html', 'receipt.json', 'RECEIPT.md', 'RECORD.md']) expect(existsSync(join(FOLDER, name)), name).toBe(true);
-    expect(readdirSync(join(FOLDER, 'files')).sort()).toEqual([...PRESCRIPTION_FILES].sort());
+const readIn = (id: string, ...parts: string[]): string => readFileSync(join(process.cwd(), 'plugin/fit/trials', id, ...parts), 'utf8');
+const receiptOf = (id: string): Receipt => JSON.parse(readIn(id, 'receipt.json')) as Receipt;
+
+for (const id of ['001', '002']) {
+  const read = (...parts: string[]): string => readIn(id, ...parts);
+  describe(`Build trial ${id}: the stored record`, () => {
+    it('holds the instruction, the helper’s page, the receipt in two forms, the record, and the seven files', () => {
+      for (const name of ['INSTRUCTION.md', 'index.html', 'receipt.json', 'RECEIPT.md', 'RECORD.md']) expect(existsSync(join(process.cwd(), 'plugin/fit/trials', id, name)), name).toBe(true);
+      expect(readdirSync(join(process.cwd(), 'plugin/fit/trials', id, 'files')).sort()).toEqual([...PRESCRIPTION_FILES].sort());
+    });
+
+    it('keeps the files that the builder writes today for the fixed project, letter for letter', () => {
+      expect(TRIAL_DECISIONS).toHaveLength(6);
+      const today = writePrescription(trialProject());
+      for (const name of PRESCRIPTION_FILES) expect(read('files', name), name).toBe(today[name]);
+    });
+
+    it('names the fingerprint of those files in the receipt', () => {
+      const fingerprint = (JSON.parse(read('files', 'tokens.json')) as { $extensions: Record<string, string> }).$extensions['refraction.fingerprint'];
+      expect(fingerprint).toMatch(/^[0-9a-f]{8}$/);
+      expect(receiptOf(id).fingerprint).toBe(fingerprint);
+      expect(read('RECEIPT.md')).toContain(`\`${String(fingerprint)}\``);
+    });
+
+    it('measures the stored page to the stored receipt, byte for byte', async () => {
+      const files = Object.fromEntries(PRESCRIPTION_FILES.map((name) => [name, read('files', name)]));
+      const { receipt, markdown } = await fit({ files, html: read('index.html'), browser });
+      expect(`${JSON.stringify(receipt, null, 2)}\n`).toBe(read('receipt.json'));
+      expect(markdown).toBe(read('RECEIPT.md'));
+    });
+
+    it('says in the record what the run shows and what it does not show', () => {
+      const record = read('RECORD.md');
+      for (const words of ['one run', 'not a rate', 'cannot be held', 'What the run shows', 'What the run does not show', 'Instruction']) expect(record, words).toContain(words);
+      expect(record).not.toMatch(/\baccessib|\bcomplian/i);
+      expect(read('INSTRUCTION.md').length).toBeGreaterThan(100);
+    });
+  });
+}
+
+describe('Build trial 002: the comparison', () => {
+  it('gives the second helper no file: its instruction names none of the seven files as something to read', () => {
+    const instruction = readIn('002', 'INSTRUCTION.md');
+    expect(instruction).toContain('without the Prescription');
+    for (const name of PRESCRIPTION_FILES) expect(instruction.split('---\n')[1] ?? '', name).not.toContain(name);
   });
 
-  it('gives the helper the files that the builder writes today for the fixed project, letter for letter', () => {
-    expect(TRIAL_DECISIONS).toHaveLength(6);
-    const today = writePrescription(trialProject());
-    for (const name of PRESCRIPTION_FILES) expect(read('files', name), name).toBe(today[name]);
+  it('carries every text of the sample content and all six chosen Options in the instruction, so that the project is the same', () => {
+    const body = readIn('002', 'INSTRUCTION.md');
+    const today = writePrescription(trialProject())['mockup.html'];
+    for (const text of ['Harbor Street Dental', 'Dental care that explains itself before it begins.', 'Book a visit', 'Name centered, links below', 'Text and photo side by side', 'Roomy', 'Soft headings with small feet', 'Dark green', 'Clearly rounded (14 px)', 'A calm green, so that the practice does not feel clinical.']) expect(body, text).toContain(text);
+    expect(today).toContain('Harbor Street Dental');
   });
 
-  it('names the fingerprint of those files in the receipt', () => {
-    const fingerprint = (JSON.parse(read('files', 'tokens.json')) as { $extensions: Record<string, string> }).$extensions['refraction.fingerprint'];
-    expect(fingerprint).toMatch(/^[0-9a-f]{8}$/);
-    expect((JSON.parse(read('receipt.json')) as { fingerprint: string }).fingerprint).toBe(fingerprint);
-    expect(read('RECEIPT.md')).toContain(`\`${String(fingerprint)}\``);
-  });
-
-  it('measures the stored page to the stored receipt, byte for byte', async () => {
-    const files = Object.fromEntries(PRESCRIPTION_FILES.map((name) => [name, read('files', name)]));
-    const { receipt, markdown } = await fit({ files, html: read('index.html'), browser });
-    expect(`${JSON.stringify(receipt, null, 2)}\n`).toBe(read('receipt.json'));
-    expect(markdown).toBe(read('RECEIPT.md'));
-  });
-
-  it('says in the record what the run shows and what it does not show', () => {
-    const record = read('RECORD.md');
-    for (const words of ['one run', 'not a rate', 'cannot be held', 'What the run shows', 'What the run does not show', 'Instruction']) expect(record, words).toContain(words);
-    expect(record).not.toMatch(/\baccessib|\bcomplian/i);
-    expect(read('INSTRUCTION.md').length).toBeGreaterThan(100);
+  it('has a table in its record that gives, for each measure, the deviation counts of both receipts exactly as the receipts state them', () => {
+    const record = readIn('002', 'RECORD.md');
+    const first = receiptOf('001');
+    const second = receiptOf('002');
+    for (const m of first.measured) {
+      const other = second.measured.find((x) => x.id === m.id);
+      expect(other, m.id).toBeDefined();
+      expect(record, m.id).toContain(`| ${m.title.split(':')[0] ?? ''} | ${String(m.deviations)} | ${String(other?.deviations)} |`);
+    }
+    expect(record).toContain('does not say which page looks better');
+    expect(record).toContain('two measurements');
   });
 });

@@ -126,6 +126,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [66.02 Each deviation that the program claims to find, it finds; each fault of its own inputs, it names](#6602-each-deviation-that-the-program-claims-to-find-it-finds-each-fault-of-its-own-inputs-it-names)
   - [66.03 The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs](#6603-the-receipt-keeps-measuring-judging-and-asking-apart-and-holds-nothing-that-changes-between-two-runs)
   - [66.04 The first build trial is stored whole, belongs to today's files, and measures to its own receipt](#6604-the-first-build-trial-is-stored-whole-belongs-to-todays-files-and-measures-to-its-own-receipt)
+  - [66.05 The comparison run sets two pages side by side with numbers that come from the receipts](#6605-the-comparison-run-sets-two-pages-side-by-side-with-numbers-that-come-from-the-receipts)
 - [70 How the Studio is built](#70-how-the-studio-is-built)
   - [70.01 The shared core holds no React import and no browser API](#7001-the-shared-core-holds-no-react-import-and-no-browser-api)
   - [70.02 No look changes by accident](#7002-no-look-changes-by-accident)
@@ -785,6 +786,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Open.** The run found that the "requests" measure lists the font files that `FONTS.md` tells the builder to ship (finding R25-01). No run without the Prescription exists, so the record cannot say that the files improved the page.
 - Last verified: 2026-11-16
 
+### [66.05] The comparison run sets two pages side by side with numbers that come from the receipts
+
+<!-- index: comparison run | side by side; without the files; table -->
+
+- **Rule.** `plugin/fit/trials/002/` holds a second run: the same project in plain words, no file, and the page that a helper built. The program measured it against the same values as trial 001. The record's table gives each measure's two deviation counts exactly as the receipts state them, and the record says that it does not say which page looks better and that it holds two measurements, not a rate. [S19; S1 at D66]
+- **Test.** "gives the second helper no file"; "carries every text of the sample content and all six chosen Options in the instruction"; "has a table in its record that gives, for each measure, the deviation counts of both receipts exactly as the receipts state them". [S19]
+- **Open.** Trial 001's helper received `mockup.html` and `tokens.css`, so a zero there partly reflects copied values. The helpers may have had the repository's `CLAUDE.md` in their context (finding R26-01).
+- Last verified: 2026-11-16
+
 ## [70] How the Studio is built
 
 ### [70.01] The shared core holds no React import and no browser API
@@ -852,6 +862,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.14: after the comparison run (feature F026, decision D66): added §66.05. 71 guarantees.
 - 2026-11-16 v1.13: after the first build trial (feature F025, decision D65): added §66.04. 70 guarantees.
 - 2026-11-16 v1.12: after the first slice of the Fit check (feature F024, decision D65): added §66.01 to §66.03. 69 guarantees.
 - 2026-11-16 v1.11: after the rest of the Prescription's files (features F019 to F023, decisions D63 and D64): added §65.07 to §65.10; §65.04 names its test by its new title. 66 guarantees.
@@ -891,7 +902,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §65.07, §65.09, §66.01, §66.04, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §65.07, §65.09, §66.01, §66.04, §66.05, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08
 - [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §60.01, §60.04, §65.01, §65.03, §65.06, §65.10, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
@@ -908,7 +919,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16) — §65.10
 - [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs`… — §65.09
 - [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16) — §66.01, §66.02, §66.03
-- [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16) — §66.04
+- [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16) — §66.04, §66.05
 <!-- authorities:end -->
 
 ## [92] Index
@@ -945,6 +956,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - closing a tab — *see* unsaved work
 - **closing in the same instant** — §10.13; *see also* two tabs
 - color fade — *see* Skin
+- **comparison run** — §66.05
 - **compliance claim** — §40.04
 - compliance claim in the Prescription — *see* what a person must still check
 - console error — *see* page error
@@ -1165,6 +1177,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - second tab — *see* two tabs
 - **self-test** — §66.02
 - set aside — *see* craft rule
+- side by side — *see* comparison run
 - **Skin** — §50.07; *see also* Direction
 - slider end — *see* rejected Options
 - slow opening — *see* opening while another tab saves
@@ -1189,6 +1202,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **T**
 
+- table — *see* comparison run
 - target size — *see* research rule
 - **text as text** — §70.05; *see also* hostile text
 - texts of the page — *see* your content
@@ -1226,6 +1240,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - which files belong together — *see* fingerprint
 - who it is for — *see* three answers
 - why this choice — *see* reason
+- without the files — *see* comparison run
 - **written color** — §40.01
 - wrong file — *see* refused file
 
@@ -1242,7 +1257,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_90 sections, 18 sources, 69 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
+_91 sections, 18 sources, 70 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
 
 - No findings.
 <!-- health:end -->

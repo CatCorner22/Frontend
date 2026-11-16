@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harbor Street Dental</title>
+<meta name="description" content="Family dentistry on Harbor Street">
+<style>
+:root{
+  --green:#1f4d3a;
+  --green-deep:#163829;
+  --green-tint:#e8f0ea;
+  --paper:#fbf9f4;
+  --ink:#1c2420;
+  --muted:#4a554f;
+  --line:#d5ddd6;
+  --r:14px;
+  --s1:.75rem; --s2:1.5rem; --s3:2.5rem; --s4:4rem; --s5:7rem;
+  --head:"Fraunces","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --body:"Public Sans","Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.7}
+h1,h2,h3{font-family:var(--head);font-weight:600;line-height:1.15;color:var(--green-deep);margin:0}
+p{margin:0}
+a{color:var(--green)}
+:focus-visible{outline:3px solid var(--green);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+section{padding:var(--s5) 0}
+
+/* header */
+header{border-bottom:1px solid var(--line);padding:var(--s3) 0 var(--s2);text-align:center}
+.name{font-family:var(--head);font-weight:700;font-size:clamp(1.9rem,4vw,2.6rem);letter-spacing:.01em;color:var(--green-deep);text-decoration:none;display:inline-block}
+.tag{font-size:.95rem;color:var(--muted);margin-top:.25rem}
+nav ul{list-style:none;margin:var(--s2) 0 0;padding:var(--s1) 0 0;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 2.25rem}
+nav a{color:var(--ink);text-decoration:none;font-weight:500;padding:.4rem .1rem;border-bottom:2px solid transparent;display:inline-block}
+nav a:hover{border-bottom-color:var(--green)}
+
+/* buttons */
+.btn{display:inline-block;padding:.95rem 1.6rem;border-radius:var(--r);font-weight:600;text-decoration:none;font-family:var(--body);font-size:1rem;border:2px solid var(--green);cursor:pointer;line-height:1.3}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green-deep)}
+.btn-secondary{background:transparent;color:var(--green)}
+.btn-secondary:hover{background:var(--green-tint)}
+
+/* hero */
+.hero{padding:var(--s5) 0}
+.hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:var(--s4);align-items:center}
+.hero h1{font-size:clamp(2.2rem,4.6vw,3.6rem);letter-spacing:-.01em}
+.hero h1 em{font-style:italic;color:var(--green);font-weight:500}
+.lede{font-size:1.2rem;color:var(--muted);margin-top:var(--s2);max-width:34rem}
+.actions{display:flex;flex-wrap:wrap;gap:1rem;margin-top:var(--s3)}
+.phone{margin-top:var(--s2);color:var(--muted)}
+.phone a{font-weight:700;color:var(--green-deep)}
+.photo{margin:0;border-radius:var(--r);overflow:hidden;background:var(--green-tint);aspect-ratio:4/5;box-shadow:0 1px 0 var(--line)}
+.photo svg{display:block;width:100%;height:100%}
+
+/* services */
+.band{background:var(--green-tint)}
+.sec-head{max-width:38rem;margin-bottom:var(--s3)}
+.sec-head h2,.split h2{font-size:clamp(1.8rem,3.2vw,2.5rem)}
+.sec-head p{margin-top:var(--s1);color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);list-style:none;padding:0;margin:0}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:var(--s3)}
+.card h3{font-size:1.4rem;margin-bottom:var(--s1)}
+.card p{color:var(--muted)}
+
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);margin:0;padding:0;list-style:none;text-align:center}
+.facts li{padding:var(--s2) var(--s1)}
+.facts .v{display:block;font-family:var(--head);font-weight:600;font-size:clamp(2.4rem,5vw,3.6rem);color:var(--green);line-height:1.1}
+.facts .l{display:block;color:var(--muted);margin-top:.4rem}
+
+/* fees + about */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);align-items:start}
+.fees{margin:var(--s3) 0 0;padding:0;border:1px solid var(--line);border-radius:var(--r);background:#fff;overflow:hidden}
+.fees div{display:flex;justify-content:space-between;gap:1rem;padding:1.1rem var(--s2);border-top:1px solid var(--line)}
+.fees div:first-child{border-top:0}
+.fees dt{margin:0}
+.fees dd{margin:0;font-weight:700;color:var(--green-deep);font-variant-numeric:tabular-nums}
+.about p{margin-top:var(--s2);color:var(--muted)}
+.promise{margin-top:var(--s3);padding:var(--s2) var(--s3);background:var(--green);color:#fff;border-radius:var(--r);font-family:var(--head);font-size:1.3rem;line-height:1.4}
+
+/* contact */
+.contact{background:var(--green-deep);color:#fff}
+.contact h2{color:#fff;font-size:clamp(1.8rem,3.2vw,2.5rem)}
+.contact .split{align-items:start}
+.contact p{color:#dbe7df;margin-top:var(--s1)}
+.contact address{font-style:normal;margin-top:var(--s2);color:#fff}
+.contact a{color:#fff}
+form{background:#fff;color:var(--ink);border-radius:var(--r);padding:var(--s3);display:grid;gap:var(--s2)}
+label{display:grid;gap:.4rem;font-weight:600;font-size:.95rem}
+input,textarea{font:inherit;font-weight:400;padding:.8rem 1rem;border:1.5px solid #7d8a82;border-radius:var(--r);background:#fff;color:var(--ink);width:100%}
+textarea{min-height:7rem;resize:vertical}
+form .btn{justify-self:start}
+
+footer{padding:var(--s3) 0;text-align:center;color:var(--muted);font-size:.95rem;background:var(--paper)}
+
+@media (max-width:860px){
+  section,.hero{padding:var(--s4) 0}
+  .hero-grid,.split{grid-template-columns:1fr;gap:var(--s3)}
+  .cards,.facts{grid-template-columns:1fr}
+  .photo{aspect-ratio:4/3}
+  .promise{padding:var(--s2)}
+  form{padding:var(--s2)}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="name" href="#top">Harbor Street Dental</a>
+    <p class="tag">Family dentistry on Harbor Street</p>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#first-visit">First visit</a></li>
+        <li><a href="#fees">Fees</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>Dental care that <em>explains itself</em> before it begins.</h1>
+        <p class="lede">Checkups, cleanings, and repairs for adults and children. We show you what we see, tell you what it costs, and let you decide.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#contact">Book a visit</a>
+          <a class="btn btn-secondary" href="#first-visit">See what a first visit includes</a>
+        </div>
+        <p class="phone">Call <a href="tel:5550117">555-0117</a></p>
+      </div>
+      <figure class="photo">
+        <svg viewBox="0 0 400 500" role="img" aria-label="Placeholder picture of a calm treatment room with a window and a chair" preserveAspectRatio="xMidYMid slice">
+          <rect width="400" height="500" fill="#dfe9e1"/>
+          <rect x="0" y="360" width="400" height="140" fill="#c5d6ca"/>
+          <rect x="60" y="50" width="280" height="230" rx="14" fill="#f4f8f5"/>
+          <rect x="72" y="62" width="256" height="206" rx="8" fill="#bcd5cc"/>
+          <path d="M72 268 L72 190 Q140 140 200 190 T328 170 L328 268 Z" fill="#7fa593"/>
+          <rect x="198" y="62" width="4" height="206" fill="#f4f8f5"/>
+          <rect x="72" y="162" width="256" height="4" fill="#f4f8f5"/>
+          <rect x="120" y="330" width="170" height="70" rx="30" fill="#1f4d3a"/>
+          <rect x="262" y="290" width="40" height="110" rx="18" fill="#163829"/>
+          <rect x="150" y="400" width="12" height="50" fill="#163829"/>
+          <rect x="250" y="400" width="12" height="50" fill="#163829"/>
+          <circle cx="330" cy="420" r="26" fill="#6b9a7f"/>
+          <rect x="326" y="420" width="8" height="60" fill="#163829"/>
+        </svg>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band" id="services">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>What we do</h2>
+        <p>Three kinds of visit cover most of what people need.</p>
+      </div>
+      <ul class="cards">
+        <li class="card">
+          <h3>Checkups and cleanings</h3>
+          <p>A full look, a careful clean, and photographs of anything worth watching, explained in plain words.</p>
+        </li>
+        <li class="card">
+          <h3>Repairs</h3>
+          <p>Fillings, crowns, and chipped teeth. You see the price and the options before any work starts.</p>
+        </li>
+        <li class="card">
+          <h3>Urgent visits</h3>
+          <p>Pain, swelling, or a broken tooth. Call before ten and we will see you the same day when a chair is free.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="first-visit" aria-label="Practice facts">
+    <div class="wrap">
+      <ul class="facts">
+        <li><span class="v">6 days</span><span class="l">open each week</span></li>
+        <li><span class="v">45 min</span><span class="l">for a first visit</span></li>
+        <li><span class="v">3</span><span class="l">treatment rooms</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap split">
+      <div id="fees">
+        <h2>Typical fees</h2>
+        <dl class="fees">
+          <div><dt>Checkup and cleaning</dt><dd>$118</dd></div>
+          <div><dt>Filling</dt><dd>$181</dd></div>
+          <div><dt>Crown</dt><dd>$1,110</dd></div>
+          <div><dt>Urgent visit</dt><dd>$88</dd></div>
+        </dl>
+      </div>
+      <div class="about" id="about">
+        <h2>A small practice, on purpose</h2>
+        <p>Two dentists and one hygienist. You see the same people each time, and they remember what you told them last time.</p>
+        <p class="promise">No work starts until you have seen the price and said yes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="wrap split">
+      <div>
+        <h2>Ask for an appointment</h2>
+        <p>Tell us how to reach you and what you need. We reply on the next working day.</p>
+        <address>
+          41 Harbor Street, Suite 2<br>
+          Monday to Saturday, 8 to 5<br>
+          <a href="tel:5550117">555-0117</a>
+        </address>
+      </div>
+      <form action="#" method="post">
+        <label for="f-name">Your name
+          <input id="f-name" name="name" type="text" autocomplete="name">
+        </label>
+        <label for="f-reach">Phone or email
+          <input id="f-reach" name="reach" type="text" autocomplete="email">
+        </label>
+        <label for="f-need">What you need
+          <textarea id="f-need" name="need"></textarea>
+        </label>
+        <button class="btn btn-primary" type="submit">Book a visit</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Harbor Street Dental &middot; 41 Harbor Street, Suite 2 &middot; 555-0117</p>
+    <p>Sample content for design preview.</p>
+  </div>
+</footer>
+</body>
+</html>
