@@ -46,12 +46,9 @@ export function collect(): Collected {
   // and others for the newer ones. The program can compare only `rgb()`, so a one-pixel canvas turns every other form into sRGB channels
   // (finding A1-03: before, such a color was skipped without a word). An `rgb()` value passes unchanged, so that it stays exact.
   const pen = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
-  const converted = new Map<string, string>();
   const rgbOf = (css: string): string => {
     const text = css.trim();
-    if (/^rgba?\(/i.test(text) || pen === null || !CSS.supports('color', text)) return text;
-    const known = converted.get(text);
-    if (known !== undefined) return known;
+    if (/^rgba?\(/i.test(text) || pen === null) return text;
     // A canvas that cannot read a color keeps its previous fill without a word. Two different previous fills tell the cases apart: a color
     // that the canvas reads gives the same fill after both; a color that it refuses stays unconverted, and the receipt counts it as not measured.
     pen.fillStyle = '#010203';
@@ -63,9 +60,7 @@ export function collect(): Collected {
     pen.clearRect(0, 0, 1, 1);
     pen.fillRect(0, 0, 1, 1);
     const [r = 0, g = 0, b = 0, a = 0] = pen.getImageData(0, 0, 1, 1).data;
-    const result = a === 255 ? `rgb(${String(r)}, ${String(g)}, ${String(b)})` : `rgba(${String(r)}, ${String(g)}, ${String(b)}, ${String(a / 255)})`;
-    converted.set(text, result);
-    return result;
+    return a === 255 ? `rgb(${String(r)}, ${String(g)}, ${String(b)})` : `rgba(${String(r)}, ${String(g)}, ${String(b)}, ${String(a / 255)})`;
   };
   const alphaOf = (css: string): number => {
     const m = /^rgba?\(\s*[\d.]+[\s,]+[\d.]+[\s,]+[\d.]+(?:\s*[,/]\s*([\d.]+%?))?\s*\)$/.exec(css.trim());
