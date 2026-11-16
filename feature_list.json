@@ -170,6 +170,53 @@
         "Rename an own Direction: the Studio says 'Renamed'; keep a 60-character name without spaces at 375 pixels: nothing leaves the window; the Directions screen has a jump link to 'Your own'"
       ],
       "passes": true
+    },
+    {
+      "id": "F015",
+      "description": "The Brief, part 1 (core): the project holds the owner's texts and three answers; the core sets, adds, and removes them within limits, cleans them, writes them to the project file, and the Mockup draws them as text with no empty box where a text or a list is empty.",
+      "spec_section": "SPEC.md section 2.7",
+      "steps": [
+        "Run the unit tests: a text is cleaned and cut at its limit; the page's name and headline cannot become empty",
+        "A service, a fact, and a price are added and removed within 1 to 8, 0 to 4, and 0 to 8; the menu keeps five links",
+        "The three answers are held only where the owner wrote one, and travel in the project file; a file from before opens unchanged",
+        "With every optional text empty and every list at its fewest, the Mockup's page holds no empty element; a text with markup is drawn as text"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F016",
+      "description": "The Brief, part 2 (screen): on the screen \"Your content\" the owner answers three questions, replaces any text of the sample website, adds and removes list items, and puts the sample back; every preview and the downloaded mockup.html follow.",
+      "spec_section": "SPEC.md section 2.7",
+      "steps": [
+        "Open \"Your content\" from the top bar: type a name, a headline, and the three answers; the preview beside the form shows the words",
+        "Add a service and a price, remove a fact, reload: the texts and the lists are as you left them",
+        "Open the Summary and download mockup.html: it holds your words and not the sample practice's",
+        "Type markup into a field: the screen and the preview show it as text, and nothing runs",
+        "Press \"Put the sample text back\": the Studio asks first, and Undo brings your texts back"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F017",
+      "description": "The Brief, part 3 (layout): every built-in Direction draws the fewest and the most list items, long words, and long texts at phone and desktop width without overflow or overlap.",
+      "spec_section": "SPEC.md section 2.7",
+      "steps": [
+        "Run the browser tests: for each of the 38 Directions, with the fewest items and with the most, at 375 and 1280 pixels, the page is no wider than its window and the headline is the largest text",
+        "The same with a 40-letter word in the name, the headline, a service, and a price",
+        "Each fault that the sweep finds has a row in redteam/FINDINGS.md and a repair, or a reason why it stays"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F018",
+      "description": "The Brief, part 4 (Prescription): PRESCRIPTION.md carries the three answers as quoted data and says that mockup.html shows the owner's own texts.",
+      "spec_section": "SPEC.md section 2.7",
+      "steps": [
+        "Run the unit tests: the three answers stand in PRESCRIPTION.md inside fenced blocks marked as quoted data; an answer with a code fence or an instruction stays inside its fence",
+        "A project with the owner's texts: the file says that mockup.html shows the project's own texts and tells the AI coding tool to use them word for word",
+        "In the browser: type the answers, download PRESCRIPTION.md, and read them there"
+      ],
+      "passes": false
     }
   ]
 }

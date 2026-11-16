@@ -48,7 +48,7 @@ export interface SiteContent {
   footerNote: string;
 }
 
-/** Sample content. The Studio labels it as a sample; the owner replaces it in the Brief Stage. */
+/** Sample content. The Studio labels it as a sample; the owner replaces it on the screen "Your content" (the Brief). */
 export const SAMPLE_CONTENT: SiteContent = {
   business: 'Harbor Street Dental',
   tag: 'Family dentistry on Harbor Street',
@@ -550,17 +550,22 @@ export function renderSmallBusiness(input: MockupInput): string {
   const overlayDemo = overlays.length === 0
     ? '<p class="ov-none">No Overlay is switched on.</p>'
     : overlays.map((id) => `<div class="ov"><p class="ov-name">${OVERLAY_NAMES[id]}</p><div class="ov-stage">${OVERLAY_PICTURES[id](e(c.primaryAction))}</div></div>`).join('');
-  const facts = c.facts.map((f) => `<div><dt>${e(f.value)}</dt><dd>${e(f.label)}</dd></div>`).join('');
+  // The owner's texts (the Brief) may leave a text or a whole list empty. An empty text leaves no element behind, and an
+  // item of a list is drawn only once it holds words, so that no empty box, heading, or gap stays on the page.
+  const part = (text: string, html: (escaped: string) => string): string => (text === '' ? '' : html(e(text)));
+  const facts = c.facts.filter((f) => f.value !== '' || f.label !== '').map((f) => `<div>${part(f.value, (t) => `<dt>${t}</dt>`)}${part(f.label, (t) => `<dd>${t}</dd>`)}</div>`).join('');
   const services = c.services
+    .filter((s) => s.title !== '' || s.body !== '')
     .map(
       (s, i) => `<li class="service">
         <div class="service-media media" role="img" aria-label="Photo placeholder"><span>Your photo</span></div>
         <span class="num" aria-hidden="true">${pad2(i + 1)}</span>
-        <div class="service-body"><h3>${e(s.title)}</h3><p>${e(s.body)}</p><a class="more" ${link('#contact')}>About ${e(s.title.toLowerCase())}</a></div>
+        <div class="service-body">${part(s.title, (t) => `<h3>${t}</h3>`)}${part(s.body, (t) => `<p>${t}</p>`)}${s.title === '' ? '' : `<a class="more" ${link('#contact')}>About ${e(s.title.toLowerCase())}</a>`}</div>
       </li>`,
     )
     .join('');
-  const fees = c.fees.map((f) => `<tr><th scope="row">${e(f.item)}</th><td>${e(f.price)}</td></tr>`).join('');
+  const fees = c.fees.filter((f) => f.item !== '' || f.price !== '').map((f) => `<tr><th scope="row">${e(f.item)}</th><td>${e(f.price)}</td></tr>`).join('');
+  const phone = (cls: string, words = ''): string => part(c.phone, (t) => `<a class="${cls}" ${link('#contact')}>${words}${t}</a>`);
   const nav = c.nav.map((n, i) => `<li><a ${link('#main')}${i === 0 ? ' aria-current="page"' : ''}>${e(n)}</a></li>`).join('');
 
   return `<!doctype html>
@@ -583,48 +588,48 @@ ${SMALL_BUSINESS_CSS}
   <div class="wrap nav">
     <a class="brand" ${link('#main')}>${e(c.business)}</a>
     <nav aria-label="Main"><ul>${nav}</ul></nav>
-    <div class="nav-actions"><a class="phone" ${link('#contact')}>${e(c.phone)}</a><a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a></div>
+    <div class="nav-actions">${phone('phone')}<a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a></div>
   </div>
 </header>
 <main id="main">
   <section class="hero">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <p class="tag">${e(c.tag)}</p>
+        ${part(c.tag, (t) => `<p class="tag">${t}</p>`)}
         <h1>${headlineHtml(c)}</h1>
         <div class="hero-sub">
-          <p class="lede">${e(c.lede)}</p>
+          ${part(c.lede, (t) => `<p class="lede">${t}</p>`)}
           <div class="actions">
             <a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a>
-            <a class="phone phone-big" ${link('#contact')}>Call ${e(c.phone)}</a>
-            <a class="link" ${link('#services')}>${e(c.secondaryAction)}</a>
+            ${phone('phone phone-big', 'Call ')}
+            ${part(c.secondaryAction, (t) => `<a class="link" ${link('#services')}>${t}</a>`)}
           </div>
         </div>
-        <dl class="fact-list hero-facts">${facts}</dl>
+        ${facts === '' ? '' : `<dl class="fact-list hero-facts">${facts}</dl>`}
       </div>
       <div class="hero-media media" role="img" aria-label="Photo placeholder"><span>Your photo</span></div>
     </div>
   </section>
-  <section class="facts" aria-label="At a glance"><div class="wrap"><dl class="fact-list">${facts}</dl></div></section>
+  ${facts === '' ? '' : `<section class="facts" aria-label="At a glance"><div class="wrap"><dl class="fact-list">${facts}</dl></div></section>`}
   <section class="block services" id="services">
     <div class="wrap">
-      <div class="section-head"><h2>${e(c.servicesTitle)}</h2><p>${e(c.servicesIntro)}</p></div>
-      <ol class="service-list">${services}</ol>
-      ${c.fees.length > 0 ? `<div class="fees"><h3>${e(c.feesTitle)}</h3><table><tbody>${fees}</tbody></table></div>` : ''}
+      ${c.servicesTitle === '' && c.servicesIntro === '' ? '' : `<div class="section-head">${part(c.servicesTitle, (t) => `<h2>${t}</h2>`)}${part(c.servicesIntro, (t) => `<p>${t}</p>`)}</div>`}
+      ${services === '' ? '' : `<ol class="service-list">${services}</ol>`}
+      ${fees === '' ? '' : `<div class="fees">${part(c.feesTitle, (t) => `<h3>${t}</h3>`)}<table><tbody>${fees}</tbody></table></div>`}
     </div>
   </section>
-  <section class="block about">
+  ${c.aboutTitle === '' && c.aboutBody === '' && c.promise === '' ? '' : `<section class="block about">
     <div class="wrap about-grid">
-      <div><h2>${e(c.aboutTitle)}</h2><p>${e(c.aboutBody)}</p></div>
-      <figure class="promise card"><p>${e(c.promise)}</p><span>${e(c.business)}</span></figure>
+      ${c.aboutTitle === '' && c.aboutBody === '' ? '' : `<div>${part(c.aboutTitle, (t) => `<h2>${t}</h2>`)}${part(c.aboutBody, (t) => `<p>${t}</p>`)}</div>`}
+      ${part(c.promise, (t) => `<figure class="promise card"><p>${t}</p><span>${e(c.business)}</span></figure>`)}
     </div>
-  </section>
+  </section>`}
   <section class="block contact" id="contact">
     <div class="wrap contact-grid">
       <div>
-        <h2>${e(c.contactTitle)}</h2>
-        <p>${e(c.contactBody)}</p>
-        <address><strong>${e(c.business)}</strong><span>${e(c.address)}</span><span>${e(c.hours)}</span><a class="phone" ${link('#contact')}>${e(c.phone)}</a></address>
+        ${part(c.contactTitle, (t) => `<h2>${t}</h2>`)}
+        ${part(c.contactBody, (t) => `<p>${t}</p>`)}
+        <address><strong>${e(c.business)}</strong>${part(c.address, (t) => `<span>${t}</span>`)}${part(c.hours, (t) => `<span>${t}</span>`)}${phone('phone')}</address>
       </div>
       <form class="form card"${inert ? '' : ' action="#contact" method="post"'}>
         <div class="field"><label for="m-name">Your name</label><input id="m-name" name="name" type="text" autocomplete="name"></div>
@@ -637,7 +642,7 @@ ${SMALL_BUSINESS_CSS}
   <section class="block overlay-demo" aria-label="Overlays, each shown open"><div class="wrap overlay-grid">${overlayDemo}</div></section>
 </main>
 <div class="sticky-call"><a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a></div>
-<footer class="site-footer"><div class="wrap"><span>${e(c.business)} · ${e(c.address)}</span><span>${e(c.footerNote)}</span></div></footer>
+<footer class="site-footer"><div class="wrap"><span>${e(c.business)}${part(c.address, (t) => ` · ${t}`)}</span>${part(c.footerNote, (t) => `<span>${t}</span>`)}</div></footer>
 </body>
 </html>`;
 }

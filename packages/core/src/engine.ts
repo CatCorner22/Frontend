@@ -8,6 +8,7 @@ import { CONFLICT_RULES, HARMONY_RULES } from './catalog/rules.js';
 import { STEPS, findStep } from './catalog/steps.js';
 import type { Option, Step, Tunable } from './catalog/types.js';
 import { A11Y_PROFILES, DEFAULT_PARAMS, FONTS, PARAM_RANGES, PARAM_VALUES, RETIRED_FONTS, assertKnownParams, type A11yProfile, type DesignParams } from './params.js';
+import { BRIEF_KEYS, BRIEF_MAX, type Brief } from './brief.js';
 import { SAMPLE_CONTENT, type SiteContent } from './templates/smallBusiness.js';
 import { deriveTokens, type DerivedTokens } from './tokens.js';
 
@@ -49,6 +50,11 @@ export interface Project {
   params: DesignParams;
   decisions: Record<string, Decision>;
   content: SiteContent;
+  /**
+   * The owner's three answers about the project (what is offered, for whom, the one thing a visitor should do). Absent when
+   * the owner wrote none, so that a project saved before the Brief existed opens without a change.
+   */
+  brief?: Brief;
   /**
    * The Overlays that are switched on, by identifier, in the Catalog's order. Absent when none is on, so that a project saved
    * before Overlays existed opens without a change.
@@ -751,6 +757,7 @@ const projectSchema = z.object({
   params: paramsSchema,
   decisions: z.record(z.string().max(60), decisionSchema),
   content: contentSchema,
+  brief: z.strictObject(Object.fromEntries(BRIEF_KEYS.map((key) => [key, z.string().max(BRIEF_MAX).optional()]))).optional(),
   overlays: z.array(z.string().max(40)).max(40).optional(),
   skin: z.string().max(40).optional(),
 });
@@ -762,7 +769,7 @@ export type ParseResult =
 // Every message is fixed text. A message never repeats content from the file.
 const NOT_A_PROJECT = 'This is not a Refraction project file.';
 const NEWER_VERSION = 'A newer version of the Studio made this file, and this version cannot read it.';
-const SECTIONS = ['name', 'template', 'a11y', 'direction', 'base', 'params', 'decisions', 'content', 'overlays', 'skin'] as const;
+const SECTIONS = ['name', 'template', 'a11y', 'direction', 'base', 'params', 'decisions', 'content', 'brief', 'overlays', 'skin'] as const;
 /** What each part of a project file holds, in plain words, for the message that refuses a damaged file (finding U2-21). The words are fixed; nothing from the file is repeated. */
 const SECTION_WORDS: Record<(typeof SECTIONS)[number], string> = {
   name: 'the project name',
@@ -772,7 +779,8 @@ const SECTION_WORDS: Record<(typeof SECTIONS)[number], string> = {
   base: 'the starting design values',
   params: 'the design values',
   decisions: 'the Decisions',
-  content: 'the sample text',
+  content: 'the texts of the page',
+  brief: 'the three answers about the project',
   overlays: 'the Overlays',
   skin: 'the Skin',
 };
@@ -898,6 +906,9 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   if (relabelled > 0) notes.push(relabelled === 1 ? 'One Decision was recorded as a picked Option, but its design values match no Option of this version of the Catalog. Its values were kept and it is now marked as hand-set.' : `${relabelled} Decisions were recorded as picked Options, but their design values match no Option of this version of the Catalog. Their values were kept and they are now marked as hand-set.`);
   if (corrected > 0) notes.push(corrected === 1 ? 'One Decision in the file named a choice that the file’s own design values do not show. The Studio follows the design values, so it changed that Decision to match them.' : `${corrected} Decisions in the file named choices that the file’s own design values do not show. The Studio follows the design values, so it changed those Decisions to match them.`);
   if (shortened > 0) notes.push(shortened === 1 ? `One written reason was longer than ${REASON_MAX} characters. It was shortened to fit.` : `${shortened} written reasons were longer than ${REASON_MAX} characters. They were shortened to fit.`);
+  // The three answers: those that the file holds with words, in their fixed order; none at all when the file holds none.
+  const answers = Object.fromEntries(BRIEF_KEYS.flatMap((key) => (data.brief?.[key] ? [[key, data.brief[key]]] : []))) as Brief;
+  const brief = Object.keys(answers).length > 0 ? answers : undefined;
   // Overlays: those of the file that this Catalog has, each once, in the Catalog's order.
   const listed = data.overlays ?? [];
   const overlays = OVERLAYS.map((overlay) => overlay.id).filter((id) => listed.includes(id));
@@ -906,7 +917,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   // The Skin's name stays only when this Direction offers that Skin; the colors are in the design values either way.
   const skin = data.skin !== undefined && offersSkin(direction, data.skin) ? data.skin : undefined;
   if (data.skin !== undefined && skin === undefined) notes.push('The file names a Skin that this version of the Studio does not offer for this Direction. The name was left out; the colors are unchanged.');
-  const project: Project = { schemaVersion: SCHEMA_VERSION, name: data.name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content: data.content, ...(overlays.length > 0 ? { overlays } : {}), ...(skin !== undefined ? { skin } : {}) };
+  const project: Project = { schemaVersion: SCHEMA_VERSION, name: data.name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content: data.content, ...(brief ? { brief } : {}), ...(overlays.length > 0 ? { overlays } : {}), ...(skin !== undefined ? { skin } : {}) };
   return { project, notes };
 }
 

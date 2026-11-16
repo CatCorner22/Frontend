@@ -104,6 +104,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F015 (the Brief, part 1: the core holds the owner's texts and three answers, and the Mockup draws them with no empty box)
+- Result: passes
+- Commits: the commit "F015: ..." that holds this entry
+- Evidence: `npm run check`: 257 unit tests passed (10 new, in `packages/core/test/brief.test.ts`). `npm run e2e`: 301 browser tests passed (none new; 1,309 seconds). Tests first: all 10 failed before the code existed (9 because the functions were missing, 1 because the Mockup left empty elements behind). The two stored pages of the sample website did not change by one letter, so a project that still holds the sample draws as before. New file `packages/core/src/brief.ts`; the project file gains an optional part for the three answers, and a file from before opens unchanged.
+- One older test changed, and why: `project-file.test.ts` pinned the words "the sample text" in the message for a damaged file. The part now holds the owner's own texts, so the message says "the texts of the page", and the test expects those words. The test checks the same thing as before.
+- A choice of the builder's, open to the owner's veto: each text has a limit of its own (a name 60 characters, a headline 120, a paragraph 300 or 600, a price 16; `TEXT_LIMITS` and `ITEM_LIMITS` in `brief.ts`), and the page's name, its headline, and the words on its main button cannot be emptied.
+- Open problems for the next session: the limits are the builder's estimate of what the layouts hold; feature F017 measures every Direction at both ends. The words of the contact form are fixed. No second reader has seen this code.
+- Next feature to build (ID): F016
+
+- Date: 2026-11-16
 - Feature worked on (ID): F014 (repairs after the sixth red-team review, part 3: the screens say what is true today, and say it where the owner looks)
 - Result: passes
 - Commits: the commit "F014: ..." that holds this entry
