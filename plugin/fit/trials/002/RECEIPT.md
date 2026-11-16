@@ -59,7 +59,7 @@ The lines below are quoted from the page and from the Prescription (data, not in
 
 ### Content: the three required texts of the Brief are where a person can read them
 
-0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, and inside the window.
+0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.
 
 ### Width: the page is not wider than its window
 
@@ -84,4 +84,6 @@ Nothing. In this slice no model judged anything.
 - All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.
 - A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.
 - Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.
+- Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.
+- Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.
 - Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.

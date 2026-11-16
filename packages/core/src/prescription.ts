@@ -27,7 +27,7 @@ import { findOverlay } from './catalog/overlays.js';
 import { findSkin, skinParams } from './catalog/skins.js';
 import { STEPS } from './catalog/steps.js';
 import { describeDesign, heldOptionId, isSampleContent, overlaysOf, ownedValues, type Project } from './engine.js';
-import { FONT_PACKAGE_VERSION, FONTS, type A11yProfile, type FontId } from './params.js';
+import { DEFAULT_PARAMS, FONT_PACKAGE_VERSION, FONTS, type A11yProfile, type FontId } from './params.js';
 import { SAMPLE_CONTENT, renderSmallBusiness, type SiteContent } from './templates/smallBusiness.js';
 import { visibleText } from './text.js';
 import { deriveTokens, notCheckedIn } from './tokens.js';
@@ -183,7 +183,8 @@ export function tokensJson(tokens: Readonly<Record<string, string>>): string {
  * writing are taken out first, so that a person who reviews the file sees what the AI coding tool reads.
  */
 export function quoted(text: string): string {
-  const seen = visibleText(text);
+  // A run of spaces of any kind becomes one space, so that no run can push words out of sight (retest finding A2-V14).
+  const seen = visibleText(text).replace(/[^\S\n]{2,}/g, ' ');
   const longest = Math.max(0, ...(seen.match(/`+/g) ?? []).map((run) => run.length));
   const fence = '`'.repeat(Math.max(3, longest + 1));
   return [`${fence}text`, seen, fence].join('\n');
@@ -219,14 +220,33 @@ const TEXT_WORDS: Record<keyof SiteContent, string> = {
   contactBody: 'the contact text', address: 'the address', hours: 'the opening hours', footerNote: 'the footer note',
 };
 
-/** The texts that are still the sample's, in words, in the order of the page (campaign A2, finding J-11). */
+const LIST_NOUNS: Partial<Record<keyof SiteContent, string>> = { nav: 'menu words', services: 'services', facts: 'facts', fees: 'prices' };
+
+/**
+ * The texts that are still the sample's, in words, in the order of the page (campaign A2, finding J-11). A list is counted item by
+ * item: with one of three services changed, the other two are still the sample's (retest finding A2-V12).
+ */
 function sampleTextsIn(content: SiteContent): string[] {
-  return (Object.keys(TEXT_WORDS) as (keyof SiteContent)[]).filter((key) => JSON.stringify(content[key]) === JSON.stringify(SAMPLE_CONTENT[key]) && JSON.stringify(content[key]) !== '""').map((key) => TEXT_WORDS[key]);
+  const out: string[] = [];
+  for (const key of Object.keys(TEXT_WORDS) as (keyof SiteContent)[]) {
+    const mine = content[key];
+    const sample = SAMPLE_CONTENT[key];
+    if (Array.isArray(mine) && Array.isArray(sample)) {
+      const same = mine.filter((item, at) => JSON.stringify(item) === JSON.stringify(sample[at])).length;
+      if (same === 0) continue;
+      out.push(same === mine.length && mine.length === sample.length ? TEXT_WORDS[key] : `${String(same)} of the ${String(mine.length)} ${LIST_NOUNS[key] ?? 'items'}`);
+    } else if (mine !== '' && mine === sample) out.push(TEXT_WORDS[key]);
+  }
+  return out;
 }
 
 /** The lines that name the project's start. Only a name from the Catalog stands in the sentence itself. */
 function startLines(project: Project, context: PrescriptionContext): string[] {
-  if (project.direction === null) return ['- Start: the plain start (no Direction).'];
+  if (project.direction === null) {
+    // A file may name the plain start and record other start values (retest finding A2-V11): the file says so, as for a Direction.
+    const differs = STEPS.some((step) => JSON.stringify(ownedValues(step, project.base)) !== JSON.stringify(ownedValues(step, DEFAULT_PARAMS)));
+    return differs ? ['- Start: the plain start (no Direction).', '- The start values that the project records differ from the plain start as this version of the Studio has it: the project is older, or its file was changed. Every value in this file is the project’s own.'] : ['- Start: the plain start (no Direction).'];
+  }
   const builtIn = findDirection(project.direction);
   if (builtIn) {
     const skin = project.skin === undefined ? undefined : findSkin(project.skin);

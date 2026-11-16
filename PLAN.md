@@ -269,11 +269,11 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 **The order.** It follows your decisions D63 and D65 (first the Floors, then the Fitter, then the rest of M5), and adds the joining of the two branches in front, because nothing can be built on two disagreeing copies.
 
-### 13.1 Now: close today's work and join the two branches (builder: 5 to 11 hours; your time: 5 minutes)
+### 13.1 Now: close today's work and join the two branches (builder: 4 to 8 hours left; your time: 5 minutes)
 
 | Step | What | Who | Estimate | Depends on |
 |---|---|---|---|---|
-| 1 | Close campaign A2: read the retest judge and the variant lane (both running), repair what fails its retest, record each finding as "retested-pass" or reopened | builder | 1 to 3 hours | nothing |
+| 1 | Close campaign A2: read the retest judge and the variant lane, repair what fails its retest, record each finding as "retested-pass" or reopened. **Done on 2026-11-16:** all 18 findings retested-pass; the variant lane found 12 more ways around the repairs, all repaired or stated (rows A2-V1 to A2-V14) | builder | done |
 | 2 | **Your decision:** how sessions work from now on: one session at a time, or one area each (for example, the Fitter in one session and the Studio in another). Today two sessions repaired the same faults in different ways; joining their work is step 3 | you | 5 minutes | nothing |
 | 3 | Join the audit branch (`claude/eloquent-curie-hnhykj`, pull request 12) with the main line: 18 files disagree. For each overlap, keep one design (the largest: whether the Fit check runs the page's scripts, as campaign A2's repairs do, or not by default, as feature F029 does); one test suite; every check twice; one retest of the joined Fit check | builder | 4 to 8 hours | steps 1 and 2 |
 
@@ -301,11 +301,12 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | 11 | Write the Floors into the Prescription as testable requirements (about six to ten features) | builder | 6 to 10 hours |
 | 12 | The Fit check measures what the Floors require; contrast becomes binding | builder | 2 to 4 hours |
 
-### 13.5 Milestone M7: the rest of the Fitter (builder: 13 to 22 hours)
+### 13.5 Milestone M7: the rest of the Fitter (builder: 19 to 32 hours)
 
 | Step | What | Estimate |
 |---|---|---|
 | 13 | The third window width (768 pixels) and the exit test: a build with planted defects, every one found and no false blocker | 3 to 5 hours |
+| 13a | **Read what is drawn, not only what the styles say.** Campaign A2 showed that a check that reads computed styles can always be led around by one more route (a shadow root, a clip, a fill color, an import); each round closed the routes it found. The lasting answer: compare the pixels of a screenshot with the Prescription's colors, and find the three required texts in the drawn page, beside the style reading. | 6 to 10 hours |
 | 14 | `/fit-build` and `/fit-repair` as commands of a Claude Code plugin: packaging, at most three rounds of repair, and the receipt's part "Judged by the model" | 8 to 14 hours |
 | 15 | One red-team round on the whole Fitter, and its retest | 2 to 3 hours |
 
@@ -337,9 +338,9 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 | Point reached | Builder hours | Your time | At about 10 building hours a day | At about 20 a day (two sessions, one area each) |
 |---|---|---|---|---|
-| Today's work closed and the branches joined (13.1) | 5 to 11 | 5 minutes | 1 day | under 1 day |
-| **M8: the tool does its job on a real project** (13.1 to 13.7) | **65 to 122** | about 3 to 5 hours, in five short sittings | **7 to 13 working days** | **4 to 6 days** |
-| Everything in this plan (to M12) | 148 to 271 | about 3 to 6 hours | 15 to 28 working days | 8 to 14 days |
+| Today's work closed and the branches joined (13.1; step 1 done) | 4 to 8 | 5 minutes | 1 day | under 1 day |
+| **M8: the tool does its job on a real project** (13.1 to 13.7) | **70 to 129** | about 3 to 5 hours, in five short sittings | **7 to 13 working days** | **4 to 7 days** |
+| Everything in this plan (to M12) | 153 to 278 | about 3 to 6 hours | 16 to 28 working days | 8 to 14 days |
 
 **What these totals do not hold.** Your steps set the pace as much as the builder's: the trial, the Floors, and the real project each wait for you, and each can stop the line while it waits. Red-team rounds beyond those named cost about 2 hours and 1.3 million tokens each. Any new request of yours adds its own estimate. "Completing the app today" is not within reach: today closes step 1, and possibly steps 2 and 3.
 

@@ -69,7 +69,15 @@ function disagreements(tokens: TokensJson, css: readonly [string, string][]): st
       const value = token.$value;
       let same = true;
       if (there === undefined) same = false;
-      else if (group === 'color' && value && !Array.isArray(value) && typeof value.hex === 'string' && /^#[0-9a-f]{6}$/i.test(there)) same = there.toLowerCase() === value.hex.toLowerCase();
+      else if (group === 'color' && value && !Array.isArray(value) && typeof value.hex === 'string') {
+        // tokens.css writes an opaque color as six-digit hex and a partly transparent one as rgb(r g b / a); any other form is a
+        // disagreement, so that doubt is never "the same" (retest finding A2-V8).
+        const alpha = value.alpha ?? 1;
+        const rgb = /^rgb\((\d+) (\d+) (\d+) \/ ([\d.]+)\)$/.exec(there);
+        if (/^#[0-9a-f]{6}$/i.test(there)) same = alpha === 1 && there.toLowerCase() === value.hex.toLowerCase();
+        else if (rgb) same = `#${[rgb[1], rgb[2], rgb[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('')}` === value.hex.toLowerCase() && Math.abs(Number(rgb[4]) - alpha) < 0.0005;
+        else same = false;
+      }
       else if (group === 'dimension' && value && !Array.isArray(value) && typeof value.value === 'number') same = there === `${String(value.value)}${value.unit ?? ''}`;
       else if (group === 'typeface' && Array.isArray(value)) same = there.split(',')[0]?.trim().replace(/^"|"$/g, '') === value[0];
       if (!same) out.push(`--${name}`);

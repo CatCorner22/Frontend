@@ -279,6 +279,7 @@ Campaign A2 (`redteam/campaign-a2/`) confirmed fifteen findings against sections
 - **The owner's words.** The cleaning removes every control sign, every format sign, and every sign that Unicode says draws nothing (by property, not by list), and cuts a long name before it cleans it. (A2-J12, A2-J16)
 - **Own Directions.** A repeat inside one file is named as a repeat. (A2-J15)
 - **Accepted as stated:** two designs can share the 32-bit fingerprint; it is a mark to compare, not a seal. (A2-J14)
+- **After the retest's variants (A2-V1 to A2-V14).** Only a box that scrolls excuses text cut off at the window's edge; style sheets that `@import` brings in and open shadow roots are read; the color that paints the letters, `::first-letter`, and `::first-line` are compared; a required text in a transparent color is not counted as present, and one under a clip-path or a mask is not measured; `tokens.css` colors written as `rgb(r g b / a)` must agree with `tokens.json` too; a blob address's random part and a long run of spaces become visible marks; a plain start that records other values says so; a list of the sample is counted item by item. "Still needs a person" names dark mode, touch screens, other window heights, and closed shadow roots.
 
 ## 3. Out of scope
 

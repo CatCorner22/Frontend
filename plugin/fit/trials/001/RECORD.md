@@ -49,3 +49,5 @@ The first program skipped, without a word, every color that the browser reports 
 ## A later change to the program (2026-11-16, campaign A2, decision D69)
 
 The program now serves the build at a stand-in address of the site and reads each width three times (with reduced motion; with motion allowed, after the animations have ended and two seconds later). The stored receipt was measured again with that program. No deviation count changed. Two things in the receipt changed: the page's two font files at `/fonts/…`, which it names, are now also listed as requests to the site's own address (stopped, information, not deviations), and the contrast measure's "not measured" count is 18 where it was 6, because each text is now read three times at each width.
+
+Later the same day (the retest's variant findings A2-V1 to A2-V14): the receipt was measured again. No count and no line of the measures changed; "Still needs a person" gained two lines (dark mode, touch screens, and other window heights; closed shadow roots).

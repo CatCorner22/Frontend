@@ -104,6 +104,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): none in the list. The retest of campaign A2 and its repairs.
+- Result: the retest judge reproduced all 18 retested findings at `9334433` and found none of them again (retested-pass; `redteam/campaign-a2/retest-judge.md`). Its side observations gave three new rows (A2-R1 to A2-R3), all repaired. The variant lane's own log was never written (a safety classifier stopped its reply); its 19 attempts were rebuilt by program from its files and a separate judge confirmed 12 findings (10 at S2, 2 at S1; `redteam/campaign-a2/retest-variants.md`): fourteen rows A2-V1 to A2-V14, all repaired or stated, A2-V15 open.
+- Evidence: `npm run check` passed (282 unit tests). Fit and trial tests: 65 passed. `npm run e2e`: 381 of 381 browser tests passed (1,799 seconds), in one run. Tests first: the variant tests failed in a full run before their repairs (7 failed, 374 passed, because the tests had been added while that run was going); each core test failed alone before its repair. Both trial receipts were measured again: no count and no line of the measures changed; "Still needs a person" gained two lines.
+- What the retest teaches: a check that reads computed styles can always be led around by one more route; each round closed the routes that it found. `PLAN.md` section 13.5 gains a step (13a): read what is drawn (the screenshot's pixels and the drawn texts) beside the styles, 6 to 10 hours; to M8 the estimate is now 70 to 129 builder hours.
+- Open problems for the next session: joining the audit branch with the main line (`PLAN.md` 13.1, step 3); A2-V15.
+- Next feature to build (ID): none in the list.
+
+- Date: 2026-11-16
 - Feature worked on (ID): none in the list. The repairs after red-team campaign A2, on the owner's deferral (decision D69: "I defer to you. Fix everything that is not working optimally.").
 - Result: fourteen confirmed findings repaired, one accepted (A2-J14), one corrected in `SPEC.md` 2.9 (A2-J13); the five items for human review decided; A1-06 stated and A1-07 repaired. `SPEC.md` section 2.14 lists every repair.
 - Commits: the commit that holds this entry; before it, the merge of D68 from the parallel branch (`2aff02b`).

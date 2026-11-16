@@ -95,6 +95,26 @@ describe('Campaign A2: invisible signs, long names, and own Directions (J-12, J-
     expect(read.project.content.headline).toBe('Smile s');
   });
 
+  it('says when a plain start records other values than the plain start (A2-V11), and counts the items of a list one by one (A2-V12)', () => {
+    const v11 = opened(fileOf({ ...createProject('V11'), base: { ...aurora.params }, params: { ...aurora.params } }));
+    expect(writePrescription(v11.project)['PRESCRIPTION.md']).toMatch(/Start: the plain start \(no Direction\)\.\n- The start values that the project records differ from the plain start/);
+    expect(writePrescription(createProject('Plain'))['PRESCRIPTION.md']).not.toContain('differ from the plain start');
+    const base = createProject('V12');
+    const one = { ...base, content: { ...base.content, services: base.content.services.map((item, i) => (i === 0 ? { ...item, title: 'Wills' } : item)) } };
+    expect(writePrescription(one)['PRESCRIPTION.md']).toMatch(new RegExp(`still the sample dental practice’s: [^\\n]*${String(base.content.services.length - 1)} of the ${String(base.content.services.length)} services`));
+  });
+
+  it('writes a long run of spaces in the owner’s words as one space (A2-V14)', () => {
+    const project = { ...createProject('V14'), name: `Harbor${'\u3000'.repeat(150)}Street` };
+    expect(writePrescription(project)['PRESCRIPTION.md']).not.toMatch(/[\u3000]{2}/);
+  });
+
+  it('takes the invisible signs out of the project’s name when a file opens, and says so (retest finding A2-R3)', () => {
+    const read = opened(fileOf(createProject(`Harbor\u200b Street${String.fromCodePoint(0xe0041)}`)));
+    expect(read.project.name).toBe('Harbor  Street');
+    expect(read.notes.join(' ')).toMatch(/signs that do not show/);
+  });
+
   it('cleans a very long name in a short time, because it cuts before it cleans (J-16)', () => {
     const name = `a${'̖́'.repeat(200_000)}`;
     const started = Date.now();

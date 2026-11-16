@@ -9,7 +9,7 @@ export interface Reference {
   address: string;
 }
 export interface Drawn {
-  kind: 'text' | 'background' | 'border' | 'outline' | 'text stroke';
+  kind: 'text' | 'text fill' | 'background' | 'border' | 'outline' | 'text stroke';
   css: string;
   where: string;
 }
@@ -32,6 +32,8 @@ export interface Collected {
   texts: TextRead[];
   /** The text that a person can read in the window: drawn at 6 pixels or more, not (nearly) transparent, and inside the window's width (campaign A2, finding J-7). */
   shownText: string;
+  /** Text that a `clip-path` or a mask may hide; whether a person sees it, the program cannot tell (retest finding A2-V7). */
+  clippedText: string;
   /** Elements with text, or form controls and pictures, that reach past an edge of the window where nothing lets a person scroll to them (finding J-18). */
   cutOff: string[];
   /** Drawn colors that a CSS filter changes before they reach the screen; they are counted as not measured (finding J-6). */
@@ -83,6 +85,10 @@ export function collect(): Collected {
   // What the page refers to outside itself: anything that is not a data address or a place in the page.
   const references: Reference[] = [];
   const fontFaces: Collected['fontFaces'] = [];
+  // The document and every open shadow root: a shadow root draws as the page does, and querySelectorAll does not enter it (A2-V4).
+  const roots: (Document | ShadowRoot)[] = [document];
+  for (let at = 0; at < roots.length; at++) for (const el of roots[at]!.querySelectorAll('*')) if (el.shadowRoot) roots.push(el.shadowRoot);
+  const every = (selector: string): Element[] => roots.flatMap((root) => [...root.querySelectorAll(selector)]);
   const outside = (value: string): boolean => {
     const t = value.trim().toLowerCase();
     return t !== '' && !t.startsWith('data:') && !t.startsWith('#') && !t.startsWith('about:blank');
@@ -95,12 +101,12 @@ export function collect(): Collected {
   });
   const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['form', 'action'], ['button', 'formaction'], ['input', 'formaction'], ['base', 'href']];
   for (const [tag, attribute] of holders) {
-    for (const el of document.querySelectorAll(tag)) {
+    for (const el of every(tag)) {
       const value = el.getAttribute(attribute) ?? '';
       if (outside(value)) references.push({ kind: `${tag} ${attribute}`, value: collapse(value), address: value });
     }
   }
-  for (const el of document.querySelectorAll('img[srcset], source[srcset]')) {
+  for (const el of every('img[srcset], source[srcset]')) {
     for (const candidate of (el.getAttribute('srcset') ?? '').split(',')) {
       const value = candidate.trim().split(/\s+/)[0] ?? '';
       if (outside(value)) references.push({ kind: `${el.tagName.toLowerCase()} srcset`, value, address: value });
@@ -115,36 +121,39 @@ export function collect(): Collected {
     for (const m of text.matchAll(/@import\s+(?:url\(\s*)?(['"])(.*?)\1/gi)) add(m[2] ?? '', 'css import');
     for (const m of text.matchAll(/image-set\(([^)]*)\)/gi)) for (const quoted of (m[1] ?? '').matchAll(/(['"])(.*?)\1/g)) add(quoted[2] ?? '', kind);
   };
-  for (const style of document.querySelectorAll('style')) fromCss(style.textContent ?? '', 'css url');
-  for (const el of document.querySelectorAll('[style]')) fromCss(el.getAttribute('style') ?? '', 'css url');
+  for (const style of every('style')) fromCss(style.textContent ?? '', 'css url');
+  for (const el of every('[style]')) fromCss(el.getAttribute('style') ?? '', 'css url');
   // A rule that a script adds (`insertRule`, `adoptedStyleSheets`) stands in no style text; the browser's own sheets hold it (finding A1-11).
-  for (const sheet of [...document.styleSheets, ...document.adoptedStyleSheets]) {
+  // Every style sheet: the document's, each shadow root's, and every sheet that an @import rule brings in (retest finding A2-V2).
+  const sheets: CSSStyleSheet[] = roots.flatMap((root) => [...root.styleSheets, ...root.adoptedStyleSheets]);
+  for (let at = 0; at < sheets.length && at < 500; at++) {
     let rules: CSSRuleList;
     try {
-      rules = sheet.cssRules;
+      rules = sheets[at]!.cssRules;
     } catch {
       continue;
     }
-    for (const rule of rules) fromCss(rule.cssText, 'css url');
-    const faces = (list: CSSRuleList): void => {
+    const walk = (list: CSSRuleList): void => {
       for (const rule of list) {
-        if (rule.type === 5) {
+        fromCss(rule.cssText, 'css url');
+        if (rule.type === 3 && (rule as CSSImportRule).styleSheet) sheets.push((rule as CSSImportRule).styleSheet!);
+        else if (rule.type === 5) {
           const style = (rule as CSSFontFaceRule).style;
           fontFaces.push({ family: style.getPropertyValue('font-family').trim().replace(/^["']|["']$/g, ''), src: style.getPropertyValue('src') });
         } else if ('cssRules' in rule) {
           try {
-            faces((rule as CSSGroupingRule).cssRules);
+            walk((rule as CSSGroupingRule).cssRules);
           } catch {
-            // A rule whose inner rules cannot be read holds no face that the page can use either.
+            // A rule whose inner rules cannot be read holds nothing that the page can use either.
           }
         }
       }
     };
-    faces(rules);
+    walk(rules);
   }
 
   const scripts = { inline: 0, external: 0 };
-  for (const script of document.scripts) {
+  for (const script of every('script')) {
     if (script.hasAttribute('src')) scripts.external++;
     else scripts.inline++;
   }
@@ -179,9 +188,10 @@ export function collect(): Collected {
     return value;
   };
   const viewWidth = document.documentElement.clientWidth;
-  // A box between the element and the page that clips or scrolls sideways: the element is cut on purpose, or a person can scroll to it.
+  // A box between the element and the page that scrolls sideways: a person can scroll to the element. A box that hides or clips
+  // what overflows lets no person reach it, so that is a cut, not an exception (retest finding A2-V1).
   const clippedOnPurpose = (el: Element): boolean => {
-    for (let up = el.parentElement; up && up !== document.body && up !== document.documentElement; up = up.parentElement) if (getComputedStyle(up).overflowX !== 'visible') return true;
+    for (let up = el.parentElement; up && up !== document.body && up !== document.documentElement; up = up.parentElement) if (['auto', 'scroll'].includes(getComputedStyle(up).overflowX)) return true;
     return false;
   };
   const cutOff: string[] = [];
@@ -209,12 +219,15 @@ export function collect(): Collected {
     }
     if (!withText) return;
     add('text', rgbOf(cs.color), label, recolored);
+    // The fill paints the letters when it is set apart from the color (retest finding A2-V3).
+    const letters = rgbOf(cs.webkitTextFillColor);
+    if (letters !== rgbOf(cs.color)) add('text fill', letters, label, recolored);
     if (Number.parseFloat(cs.webkitTextStrokeWidth) > 0) add('text stroke', rgbOf(cs.webkitTextStrokeColor), label, recolored);
     const family = (cs.fontFamily.match(/^\s*(?:"([^"]*)"|'([^']*)'|([^,]*))/) ?? []).slice(1).find((part) => part !== undefined) ?? '';
     families.push({ family: family.trim(), where: label });
   };
 
-  for (const el of document.querySelectorAll('body, body *')) {
+  for (const el of [...(document.body ? [document.body] : []), ...every('body *'), ...roots.slice(1).flatMap((root) => [...root.querySelectorAll('*')])]) {
     if (skip.has(el.tagName) || el.getClientRects().length === 0) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility !== 'visible') continue;
@@ -227,6 +240,14 @@ export function collect(): Collected {
       const ps = getComputedStyle(el, pseudo);
       if (ps.content === 'none' || ps.content === 'normal' || ps.display === 'none' || ps.visibility !== 'visible') continue;
       box(ps, `${label}${pseudo}`, !/^(""|''|url\(.*\))$/.test(ps.content), recolored, false);
+    }
+    // The first letter and the first line take their own colors and typefaces (retest finding A2-V5).
+    // Each is read only where it differs from its element, so that the element is not counted three times.
+    if (hasText) {
+      for (const pseudo of ['::first-letter', '::first-line'] as const) {
+        const ps = getComputedStyle(el, pseudo);
+        if (ps.color !== cs.color || ps.webkitTextFillColor !== cs.webkitTextFillColor || ps.fontFamily !== cs.fontFamily || ps.backgroundColor !== 'rgba(0, 0, 0, 0)' || ps.borderTopStyle !== 'none') box(ps, `${label}${pseudo}`, true, recolored, false);
+      }
     }
     if (hasText || ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'IMG'].includes(el.tagName)) {
       const r = el.getBoundingClientRect();
@@ -253,22 +274,42 @@ export function collect(): Collected {
 
   // The text that a person can read in this window (finding J-7). innerText counts text at size 0, at opacity 0, and outside the window.
   const shown: string[] = [];
-  const walker = document.createTreeWalker(document.body ?? document.documentElement, NodeFilter.SHOW_TEXT);
-  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-    const value = node.textContent ?? '';
-    const host = node.parentElement;
-    if (value.trim() === '' || host === null || host.closest('script, style, template, noscript, title') !== null) continue;
-    const hs = getComputedStyle(host);
-    if (hs.visibility !== 'visible' || Number.parseFloat(hs.fontSize) < 6 || seenOpacity(host) < 0.1) continue;
-    const range = document.createRange();
-    range.selectNodeContents(node);
-    const r = range.getBoundingClientRect();
-    if (r.width <= 0 || r.height <= 0 || r.right <= 0 || r.left >= viewWidth) continue;
-    shown.push(value);
+  const clipped: string[] = [];
+  // Letters drawn in a transparent color are not read, unless a gradient fills them through the text (retest finding A2-V6).
+  const fillsThroughText = (el: Element | null): boolean => {
+    for (let up = el; up; up = up.parentElement) {
+      const style = getComputedStyle(up);
+      if (style.backgroundClip === 'text' || style.webkitBackgroundClip === 'text') return true;
+    }
+    return false;
+  };
+  // A clip-path or a mask on a box around a text may hide it; the program cannot tell how much (retest finding A2-V7).
+  const underClip = (el: Element | null): boolean => {
+    for (let up = el; up; up = up.parentElement) {
+      const style = getComputedStyle(up);
+      if (style.clipPath !== 'none' || (style.maskImage !== '' && style.maskImage !== 'none') || (style.webkitMaskImage !== '' && style.webkitMaskImage !== 'none')) return true;
+    }
+    return false;
+  };
+  for (const root of [document.body ?? document.documentElement, ...roots.slice(1)]) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const value = node.textContent ?? '';
+      const host = node.parentElement;
+      if (value.trim() === '' || host === null || host.closest('script, style, template, noscript, title') !== null) continue;
+      const hs = getComputedStyle(host);
+      if (hs.visibility !== 'visible' || Number.parseFloat(hs.fontSize) < 6 || seenOpacity(host) < 0.1) continue;
+      if (alphaOf(rgbOf(hs.webkitTextFillColor)) === 0 && !fillsThroughText(host)) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const r = range.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0 || r.right <= 0 || r.left >= viewWidth) continue;
+      (underClip(host) ? clipped : shown).push(value);
+    }
   }
 
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, shownText: collapse(shown.join(' ')), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
+  return { references, scripts, drawn, families, radii, texts, shownText: collapse(shown.join(' ')), clippedText: collapse(clipped.join(' ')), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */

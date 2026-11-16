@@ -1,7 +1,7 @@
 // The command line of the Fit check:  node plugin/fit/src/cli.ts <build.html> <folder of the Prescription's files> <result folder>
 // Status 0: no deviation in the six measured things. Status 1: at least one deviation, or a window that could not be measured.
 // Status 2: the program refused, and it wrote no receipt.
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { FitError, fit } from './fit.ts';
 import { READ_FILES } from './prescription.ts';
@@ -19,6 +19,8 @@ function readText(path: string, what: string): string {
 async function main(args: string[]): Promise<number> {
   const [buildPath, folder, outFolder] = args;
   if (args.length !== 3 || !buildPath || !folder || !outFolder) throw new FitError(USAGE);
+  // An earlier receipt in the result folder would look current after a refusal; it goes first (retest finding A2-R2).
+  for (const name of ['receipt.json', 'RECEIPT.md']) rmSync(join(resolve(outFolder), name), { force: true });
   const html = readText(resolve(buildPath), 'the build');
   const files: Record<string, string> = {};
   for (const name of READ_FILES) {

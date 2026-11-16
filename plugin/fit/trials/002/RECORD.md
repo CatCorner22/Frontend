@@ -39,3 +39,5 @@ What the helper said about itself (a claim, not a measurement): it read no file;
 ## A later change to the program (2026-11-16, campaign A2, decision D69)
 
 The program now serves the build at a stand-in address of the site and reads each width three times. The stored receipt was measured again with that program; no count of the table above changed, and the two contrast lines read as before, because a line that holds in every reading of a width still says "at 375 pixels".
+
+Later the same day (the retest's variant findings A2-V1 to A2-V14): the receipt was measured again. No count and no line of the measures changed; "Still needs a person" gained two lines (dark mode, touch screens, and other window heights; closed shadow roots).

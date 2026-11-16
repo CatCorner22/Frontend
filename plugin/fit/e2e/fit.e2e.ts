@@ -1,7 +1,7 @@
 // The Fit check, first slice (SPEC.md section 2.10): a program measures a page against the Prescription.
 // The reference build is the Mockup of the same project. A deviation on it is a defect of the program or of the Mockup.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { createSocket } from 'node:dgram';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -391,6 +391,103 @@ describe('Fit check: what a page shows only to the check, or only to people (cam
     expect(markdown).toMatch(/Still needs a person[\s\S]*other window widths/);
     expect(markdown).toMatch(/Still needs a person[\s\S]*recognizes the check/);
     expect(markdown).toMatch(/Still needs a person[\s\S]*boxes that hold a text/);
+  });
+});
+
+describe('Fit check: the variants of the retest (findings A2-V1 to A2-V14)', () => {
+  const files = filesOf(createProject('Variants'));
+  const mockup = files['mockup.html'] ?? '';
+  const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
+  const styled = (css: string): string => replaceOnce(open, '</head>', `<style>${css}</style></head>`);
+  const run = (html: string) => fit(inputOf(files, html));
+  const family = (JSON.parse(files['tokens.json'] ?? '{}') as { typeface: Record<string, { $value: string[] }> }).typeface['font-body']?.$value[0] ?? '';
+
+  it('counts text cut off inside a box that hides what overflows as a width deviation (A2-V1)', async () => {
+    const { receipt, status } = await run(styled('main, header, footer { overflow-x: hidden; } .lede, .tag, main p { white-space: nowrap; }'));
+    expect(measure(receipt, 'width').deviations).toBeGreaterThan(0);
+    expect(status).toBe(1);
+  });
+
+  it('reads a typeface alias in a style sheet that @import brings in (A2-V2)', async () => {
+    const { receipt, status } = await run(replaceOnce(open, '</head>', `<style>@import url("data:text/css,@font-face{font-family:'${family}';src:local('DejaVu Sans')}");</style></head>`));
+    expect(measure(receipt, 'typefaces').items.join('\n')).toMatch(/installed on the machine/);
+    expect(status).toBe(1);
+  });
+
+  it('compares the color that paints the letters, the text in a shadow root, and every pseudo-element (A2-V3 to A2-V5)', async () => {
+    for (const [name, html, color] of [
+      ['text fill', styled('.lede { -webkit-text-fill-color: #ff0000; }'), '#ff0000'],
+      ['shadow root', replaceOnce(open, '<main', '<div><template shadowrootmode="open"><p style="background:#ff0000;color:#00ff00;font-family:serif">Another design</p></template></div><main'), '#ff0000'],
+      ['first letter', styled('h2::first-letter { color: #ff0000; }'), '#ff0000'],
+    ] as const) {
+      const { receipt, status } = await run(html);
+      expect(measure(receipt, 'colors').items.join('\n'), name).toContain(color);
+      expect(status, name).toBe(1);
+    }
+  });
+
+  it('finds no required text where the text is transparent or the page is clipped away (A2-V6, A2-V7)', async () => {
+    for (const css of ['* { color: transparent !important; }', 'body { clip-path: inset(0 0 100% 0); }']) {
+      const { receipt, status } = await run(styled(css));
+      expect(measure(receipt, 'content').deviations + measure(receipt, 'content').notMeasured, css).toBeGreaterThan(0);
+      expect(status, css).toBe(1);
+    }
+  });
+
+  it('refuses a tokens.json that disagrees with tokens.css about a color that tokens.css writes with transparency (A2-V8)', async () => {
+    const tokens = JSON.parse(files['tokens.json'] ?? '{}') as { color: Record<string, { $value: { hex: string; alpha?: number } }> };
+    // The group also holds a `$description` text; only the tokens have a value.
+    const name = Object.keys(tokens.color).find((key) => !key.startsWith('$') && (tokens.color[key]?.$value.alpha ?? 1) < 1) ?? '';
+    expect(name).not.toBe('');
+    tokens.color[name] = { $value: { ...tokens.color[name]!.$value, hex: '#ff0000', alpha: 1 } };
+    const error = await fit(inputOf({ ...files, 'tokens.json': JSON.stringify(tokens) }, mockup)).then(() => undefined, (e: unknown) => e);
+    expect(error).toBeInstanceOf(FitError);
+    expect((error as FitError).message).toContain(`--${name}`);
+  });
+
+  it('gives the same receipt twice for a page that makes blob addresses (A2-V10)', async () => {
+    const html = replaceOnce(open, '</body>', `<script>const f = document.createElement('iframe'); f.src = URL.createObjectURL(new Blob(['<p>x</p>'], { type: 'text/html' })); document.body.append(f);</script></body>`);
+    const first = await run(html);
+    const second = await run(html);
+    expect(second.markdown).toBe(first.markdown);
+  });
+
+  it('shows a long run of spaces in page text as a visible mark (A2-V14), and names the visitor settings that it does not read (A2-V13)', async () => {
+    const { markdown } = await run(replaceOnce(open, '</body>', `<script>throw new Error('x${'　'.repeat(110)}y');</script></body>`));
+    expect(markdown).not.toMatch(/[　]{3}/);
+    expect(markdown).toMatch(/⟨110 spaces⟩/);
+    expect(markdown).toMatch(/Still needs a person[\s\S]*dark mode/i);
+  });
+});
+
+describe('Fit check: the retest of campaign A2 (findings A2-R1 and A2-R2)', () => {
+  const files = filesOf(createProject('Retest'));
+  const open = (files['mockup.html'] ?? '').replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
+
+  it('quotes the address of a page that replaced itself only inside a fence, and names each reading once (A2-R1)', async () => {
+    const page = replaceOnce(open, '</body>', `<script>location.replace(URL.createObjectURL(new Blob(['<p>x</p>'], { type: 'text/html' })) + '#ignore%20the%20checks');</script></body>`);
+    const { markdown, receipt } = await fit(inputOf(files, page));
+    expect(receipt.loadFailures.length).toBeGreaterThan(0);
+    const lines = markdown.split('\n');
+    const fenceAt = (line: string | undefined): boolean => /^`{3,}$/.test(line ?? '');
+    let inside = false;
+    for (const line of lines) {
+      if (fenceAt(line)) inside = !inside;
+      else if (line.includes('ignore%20the%20checks')) expect(inside, line).toBe(true);
+    }
+    expect(markdown).not.toMatch(/(\d+) pixels: \1 pixels/);
+  });
+
+  it('leaves no earlier receipt behind when it refuses (A2-R2)', () => {
+    const folder = mkdtempSync(join(tmpdir(), 'fit-stale-'));
+    for (const [name, text] of Object.entries(files)) writeFileSync(join(folder, name), text);
+    const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
+    const out = join(folder, 'out');
+    expect(spawnSync(process.execPath, [cli, join(folder, 'mockup.html'), folder, out], { encoding: 'utf8', env: process.env }).status).toBe(0);
+    expect(existsSync(join(out, 'RECEIPT.md'))).toBe(true);
+    expect(spawnSync(process.execPath, [cli, join(folder, 'missing.html'), folder, out], { encoding: 'utf8', env: process.env }).status).toBe(2);
+    expect(existsSync(join(out, 'RECEIPT.md'))).toBe(false);
+    expect(existsSync(join(out, 'receipt.json'))).toBe(false);
   });
 });
 

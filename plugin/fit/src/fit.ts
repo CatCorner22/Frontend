@@ -351,10 +351,15 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
 
   // Each reading on its own, and only the text that a person can read in that window (campaign A2, finding J-7).
   const contentLines: string[] = [];
+  let contentUnsure = 0;
   const required: [string, string][] = [['business name', mockupBrief.business], ['headline', mockupBrief.headline], ['primary action', mockupBrief.primaryAction]];
   for (const [label, wanted] of required) {
-    const missing = good.filter((p) => !collapse(p.collected.shownText).includes(collapse(wanted))).map((p) => p.label);
-    if (missing.length > 0) contentLines.push(`the ${label} is not where a person can read it at ${missing.join('; ')}: "${wanted}"`);
+    const missing = good.filter((p) => !collapse(p.collected.shownText).includes(collapse(wanted)));
+    // A text that stands only under a clip-path or a mask may be hidden: not measured, never "found" (retest finding A2-V7).
+    const unsure = missing.filter((p) => collapse(p.collected.clippedText).includes(collapse(wanted)));
+    contentUnsure += unsure.length;
+    const absent = missing.filter((p) => !unsure.includes(p)).map((p) => p.label);
+    if (absent.length > 0) contentLines.push(`the ${label} is not where a person can read it at ${absent.join('; ')}: "${wanted}"`);
   }
 
   // Sideways scrolling, and text cut off at the window's edge where nothing lets a person reach it (campaign A2, finding J-18).
@@ -378,7 +383,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
       measureOf('typefaces', 'Typefaces: every text names a typeface of the Prescription', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Prescription typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Prescription', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
       measureOf('contrast', 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed),
-      measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, and inside the window.', contentLines, failed),
+      measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.', contentLines, failed + contentUnsure),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
     ],
   };
