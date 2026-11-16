@@ -262,7 +262,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 ## 13. Next actions
 
-1. **Done on 2026-11-15:** the repairs F-23, F-24, and U5-16; the verified build loop; the C4-F18 repair and the two typefaces. **Now:** the repairs after the sixth red-team review (`SPEC.md` section 2.8), then the Brief (section 2.7, decision D61).
+1. **Done on 2026-11-15:** the repairs F-23, F-24, and U5-16; the verified build loop; the C4-F18 repair and the two typefaces. **Done on 2026-11-16:** the repairs after the sixth red-team review (`SPEC.md` section 2.8, features F012 to F014). **Now:** the Brief (section 2.7, decision D61).
 2. **You:** the trial (`docs/trial-guide.md`). You settled the open decisions on 2026-11-15 (decision D55).
 3. **Now, by your decision of 2026-11-15 (D58):** the hardening (features F006 to F008); then the craft layer (the invisible details of M5, drawn in the Mockup); then a first slice of the Prescription (M6). After that slice a design from the Studio can reach Claude Code for the first time. **All three are built (features F006 to F011).**
 4. **Then the rest of M5:** your own content in every preview; the floors; an inner page.
