@@ -104,6 +104,15 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F017 (the Brief, part 3: every Direction holds the owner's content at the ends of what the Brief allows)
+- Result: passes
+- Commits: the commit "F017: ..." that holds this entry
+- Evidence: `npm run check`: 257 unit tests passed. `npm run e2e`: 307 browser tests passed (1 new; 1,421 seconds). The new test draws 39 starts with three contents (the fewest items and no optional text; the most items and every text at its limit; one 46-letter word everywhere) at 375 and 1280 pixels. Test first: it failed with 79 cases. Two real faults of the sample website's style sheet caused them and are repaired (findings B17-01 and B17-02): a long word made the page wider than its window, and a long figure in the facts could not break. The stored pictures of all 38 Directions still match, so the sample content draws as before. The builder then looked at 24 pictures (finding B17-03).
+- What went wrong on the way: the new test first held the figures of the facts against the headline, which two Directions draw larger on purpose; it now follows the existing rule (finding B17-04).
+- Open problems for the next session: the test measures width and the headline's size; it does not measure overlap or beauty, and the builder looked at 6 of 38 Directions. The craft rule on long words changed with the style sheet (`overflow-wrap: anywhere`).
+- Next feature to build (ID): F018
+
+- Date: 2026-11-16
 - Feature worked on (ID): F016 (the Brief, part 2: the screen "Your content")
 - Result: passes
 - Commits: the commit "F016: ..." that holds this entry

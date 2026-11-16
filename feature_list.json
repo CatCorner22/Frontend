@@ -205,7 +205,7 @@
         "The same with a 40-letter word in the name, the headline, a service, and a price",
         "Each fault that the sweep finds has a row in redteam/FINDINGS.md and a repair, or a reason why it stays"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F018",

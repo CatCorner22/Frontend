@@ -6,7 +6,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_PARAMS, DIRECTIONS, FONTS, SAMPLE_CONTENT, STEPS, deriveTokens, renderSmallBusiness, resolvePatch, type DesignParams, type FontId, type MockupFocus } from '@refraction/core';
+import {
+  DEFAULT_PARAMS, DIRECTIONS, FONTS, ITEM_LIMITS, LIST_LIMITS, NAV_WORD_MAX, SAMPLE_CONTENT, STEPS, TEXT_LIMITS,
+  addContentItem, canAddContentItem, canRemoveContentItem, deriveTokens, removeContentItem, renderSmallBusiness, resolvePatch, setContentItem, setContentText, setNavWord,
+  type ContentList, type ContentTextKey, type DesignParams, type FontId, type MockupFocus, type SiteContent,
+} from '@refraction/core';
 import { chromium, type Browser, type Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -35,9 +39,9 @@ function fontFace(id: FontId): string {
   return css;
 }
 
-function mockup(params: DesignParams, focus: MockupFocus): string {
+function mockup(params: DesignParams, focus: MockupFocus, content: SiteContent = SAMPLE_CONTENT): string {
   const fonts: FontId[] = [params.fontHeading, params.fontBody, ...(params.numerals === 'mono' ? (['jetbrains-mono'] as FontId[]) : [])];
-  return renderSmallBusiness({ params, tokens: deriveTokens(params, 'advise').css, content: SAMPLE_CONTENT, focus, still: true, links: 'inert', fontFaceCss: [...new Set(fonts)].map(fontFace).join('\n') });
+  return renderSmallBusiness({ params, tokens: deriveTokens(params, 'advise').css, content, focus, still: true, links: 'inert', fontFaceCss: [...new Set(fonts)].map(fontFace).join('\n') });
 }
 
 // A machine whose installed browser is older than this Playwright version names its browser here; CI sets nothing.
@@ -204,6 +208,76 @@ describe('Mockup: fits a phone, and keeps the headline the largest text (campaig
     // with 38 Directions). Alone it takes about 140 seconds on the builder's machine; inside a full run it once passed the
     // earlier limit of 240 seconds (2026-11-15). The limit is a budget for the machine, not part of what the test asserts.
   }, 480_000);
+
+  /**
+   * The owner's content at the ends of what the Brief allows (SPEC.md section 2.7): the fewest items with every optional
+   * text empty; the most items with every text at its limit; and one long word without a break in every place that takes one.
+   */
+  function briefCases(): [string, SiteContent][] {
+    type Holder = { content: SiteContent };
+    const lists: ContentList[] = ['services', 'facts', 'fees'];
+    const texts = Object.keys(TEXT_LIMITS) as ContentTextKey[];
+    const words = (max: number): string => 'Clear words about the work that we do for you. '.repeat(20).slice(0, max).trim();
+    const fields = (list: ContentList): [string, number][] => Object.entries(ITEM_LIMITS[list]);
+
+    let fewest: Holder = { content: SAMPLE_CONTENT };
+    for (const key of texts) fewest = setContentText(fewest, key, '');
+    for (const list of lists) while (canRemoveContentItem(fewest, list)) fewest = removeContentItem(fewest, list, 0);
+
+    let most: Holder = { content: SAMPLE_CONTENT };
+    for (const key of texts) most = setContentText(most, key, key === 'headlineEmphasis' ? 'Clear words' : words(TEXT_LIMITS[key]));
+    for (const list of lists) {
+      while (canAddContentItem(most, list)) most = addContentItem(most, list);
+      most.content[list].forEach((_, index) => { for (const [field, max] of fields(list)) most = setContentItem(most, list, index, field as never, list === 'fees' && field === 'price' ? '$1,234,567.00/yr' : list === 'facts' && field === 'value' ? '1,234,567 km' : words(max)); });
+    }
+    most.content.nav.forEach((_, index) => { most = setNavWord(most, index, words(NAV_WORD_MAX)); });
+
+    const word = 'Rechtsschutzversicherungsgesellschaftenverband';
+    let long: Holder = { content: SAMPLE_CONTENT };
+    for (const key of ['business', 'headline', 'tag', 'lede', 'primaryAction', 'secondaryAction', 'phone', 'servicesTitle', 'feesTitle', 'aboutTitle', 'promise', 'contactTitle', 'address', 'hours', 'footerNote'] as ContentTextKey[]) long = setContentText(long, key, word);
+    for (const list of lists) for (const [field] of fields(list)) long = setContentItem(long, list, 0, field as never, word);
+    long.content.nav.forEach((_, index) => { long = setNavWord(long, index, word); });
+
+    expect(fewest.content.services).toHaveLength(LIST_LIMITS.services.min);
+    expect(most.content.services).toHaveLength(LIST_LIMITS.services.max);
+    return [['the fewest items and no optional text', fewest.content], ['the most items and every text at its limit', most.content], ['one long word everywhere', long.content]];
+  }
+
+  it('holds the owner’s content at the ends of what the Brief allows, on every Direction, at phone and desktop width: no page wider than its window, and the headline the largest text', async () => {
+    const faults: string[] = [];
+    const cases = briefCases();
+    for (const width of [375, 1280]) {
+      await page.setViewportSize({ width, height: 800 });
+      for (const direction of [{ name: 'plain start', params: DEFAULT_PARAMS }, ...DIRECTIONS]) {
+        for (const [label, content] of cases) {
+          await show(mockup(direction.params, 'top', content));
+          const report = await page.evaluate(() => {
+            const limit = document.documentElement.clientWidth;
+            const out: string[] = [];
+            if (document.documentElement.scrollWidth > limit) {
+              const culprits = [...document.querySelectorAll<HTMLElement>('body *')]
+                .filter((el) => el.getClientRects().length > 0 && el.getBoundingClientRect().right > limit + 0.5 && !el.classList.contains('skip'))
+                .slice(0, 4)
+                .map((el) => `${el.tagName.toLowerCase()}${el.className ? '.' + String(el.className).split(' ')[0] : ''}→${Math.round(el.getBoundingClientRect().right)}`);
+              out.push(`wider than its window: ${document.documentElement.scrollWidth} px (${culprits.join(', ')})`);
+            }
+            const size = (el: Element): number => parseFloat(getComputedStyle(el).fontSize);
+            const headline = document.querySelector('h1');
+            // As in the test of the headline below: the headline stands above the reading text and above every section heading.
+            // A figure of the facts may be larger; two Directions draw it so on purpose.
+            const shown = [...document.querySelectorAll<HTMLElement>('h2, h3, p')].filter((el) => el.getClientRects().length > 0);
+            const larger = headline ? shown.filter((el) => size(el) > size(headline) + 0.5).slice(0, 2).map((el) => `${el.tagName.toLowerCase()}${el.className ? '.' + String(el.className).split(' ')[0] : ''} at ${size(el)} px over ${size(headline)} px`) : ['no headline'];
+            if (larger.length > 0) out.push(`the headline is not the largest text: ${larger.join(', ')}`);
+            return out.length > 0 ? out.join('; ') : null;
+          });
+          if (report) faults.push(`${String(width)} px, ${direction.name}, ${label}: ${report}`);
+        }
+      }
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
+    expect(faults).toEqual([]);
+    // 39 starts, 3 contents, 2 widths: 234 pages. The limit is a budget for the machine, not part of what the test asserts.
+  }, 240_000);
 
   it('fits the window at other widths as well: a small phone, the width at which two columns begin, and wider (code review of 2026-11-13, finding "tokens 4")', async () => {
     const wide: string[] = [];

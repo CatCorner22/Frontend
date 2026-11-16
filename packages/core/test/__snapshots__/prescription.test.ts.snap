@@ -265,7 +265,7 @@ Basis: the judgment of the assistant that wrote the Studio; no outside source wa
 
 ### 4.12 A long word or address cannot push the page wider than the screen.
 
-Set \`overflow-wrap: break-word\` on the body, and \`min-width: 0\` on grid and flex children that hold text. Test every screen at 320 px for horizontal scrolling.
+Set \`overflow-wrap: anywhere\` on the body: a long word then breaks where it must, and a grid or flex child may become narrower than its longest word (\`break-word\` does not allow that). Keep \`white-space: nowrap\` only on short labels such as a button. Test every screen at 320 px, with a 40-letter word in the name and the headline, for horizontal scrolling.
 
 Basis: the judgment of the assistant that wrote the Studio; no outside source was read. No person has reviewed this rule.
 
@@ -1550,7 +1550,7 @@ Basis: the judgment of the assistant that wrote the Studio; no outside source wa
 
 ### 4.12 A long word or address cannot push the page wider than the screen.
 
-Set \`overflow-wrap: break-word\` on the body, and \`min-width: 0\` on grid and flex children that hold text. Test every screen at 320 px for horizontal scrolling.
+Set \`overflow-wrap: anywhere\` on the body: a long word then breaks where it must, and a grid or flex child may become narrower than its longest word (\`break-word\` does not allow that). Keep \`white-space: nowrap\` only on short labels such as a button. Test every screen at 320 px, with a 40-letter word in the name and the headline, for horizontal scrolling.
 
 Basis: the judgment of the assistant that wrote the Studio; no outside source was read. No person has reviewed this rule.
 

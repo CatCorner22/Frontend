@@ -148,7 +148,10 @@ body {
   font-family: var(--font-body); font-size: var(--text-base); line-height: var(--leading-body);
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-kerning: normal; font-optical-sizing: auto;
   /* A word that is wider than its line breaks instead of pushing the page wider than the screen. */
-  overflow-wrap: break-word;
+  /* "anywhere", not "break-word": a long word then breaks where it must, and a grid or flex part may also become narrower
+     than its longest word. With "break-word" a long name or headline of the owner's own made the whole page wider than
+     the window (the Brief's layout sweep, 2026-11-16). */
+  overflow-wrap: anywhere;
 }
 ::selection { background: var(--selection); }
 h1, h2, h3 {
@@ -273,6 +276,8 @@ body[data-emphasis="proof"] .hero h1 { font-size: clamp(var(--h1-floor), calc(va
 .fact-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--space-6) var(--space-8); margin: 0; }
 .fact-list div { display: grid; gap: var(--space-1); }
 .fact-list dt { font-family: var(--font-heading); font-weight: var(--heading-weight); font-size: var(--h2-size); line-height: 1.05; letter-spacing: var(--heading-tracking); font-variant-numeric: var(--numeric); white-space: nowrap; }
+/* A short figure ("45 min") stays on one line. A long one may break, and is drawn one size smaller so that it fits its column. */
+.fact-list dt.long { white-space: normal; font-size: var(--h3-size); line-height: 1.15; }
 .fact-list dd { margin: 0; font-size: var(--text-sm); opacity: var(--soft-label-alpha); }
 body[data-numerals="mono"] .fact-list dt, body[data-numerals="mono"] .phone, body[data-numerals="mono"] .num { font-family: var(--font-numeric); letter-spacing: -0.02em; }
 .facts { background: var(--band-bg); color: var(--band-text); padding-block: var(--space-10); }
@@ -553,7 +558,7 @@ export function renderSmallBusiness(input: MockupInput): string {
   // The owner's texts (the Brief) may leave a text or a whole list empty. An empty text leaves no element behind, and an
   // item of a list is drawn only once it holds words, so that no empty box, heading, or gap stays on the page.
   const part = (text: string, html: (escaped: string) => string): string => (text === '' ? '' : html(e(text)));
-  const facts = c.facts.filter((f) => f.value !== '' || f.label !== '').map((f) => `<div>${part(f.value, (t) => `<dt>${t}</dt>`)}${part(f.label, (t) => `<dd>${t}</dd>`)}</div>`).join('');
+  const facts = c.facts.filter((f) => f.value !== '' || f.label !== '').map((f) => `<div>${part(f.value, (t) => `<dt${f.value.length > 8 ? ' class="long"' : ''}>${t}</dt>`)}${part(f.label, (t) => `<dd>${t}</dd>`)}</div>`).join('');
   const services = c.services
     .filter((s) => s.title !== '' || s.body !== '')
     .map(
