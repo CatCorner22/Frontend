@@ -40,6 +40,80 @@ export type ContentItemField<L extends ContentList> = keyof (typeof ITEM_LIMITS)
 /** The menu keeps its links: each leads to a fixed part of the page. Only the words change. */
 export const NAV_WORD_MAX = 24;
 
+/** The texts of the page in plain words, for the sentences that say which of them are still the sample's. */
+const TEXT_NAMES: Record<ContentTextKey, string> = {
+  business: 'the business name', tag: 'the tag line above the headline', headline: 'the headline', headlineEmphasis: 'the emphasized words of the headline',
+  lede: 'the opening paragraph', primaryAction: 'the words of the main button', secondaryAction: 'the words of the second link', phone: 'the phone number',
+  servicesTitle: 'the title of the services', servicesIntro: 'the line under the title of the services', feesTitle: 'the title of the fees',
+  aboutTitle: 'the title of the About part', aboutBody: 'the About paragraph', promise: 'the promise', contactTitle: 'the title of the contact part',
+  contactBody: 'the contact paragraph', address: 'the address', hours: 'the opening hours', footerNote: 'the note in the footer',
+};
+const LIST_NAMES = { services: 'the services', facts: 'the facts', fees: 'the fees' } as const;
+
+/**
+ * Which texts and lists of the page still equal the sample's, word for word, in plain words and in a fixed order, and how many
+ * there are in all (finding U7-01). A page that holds some of the owner's texts and some of the sample's must say so.
+ */
+export function sampleTextsLeft(content: SiteContent): { names: string[]; total: number } {
+  const keys = Object.keys(TEXT_LIMITS) as ContentTextKey[];
+  const names = keys.filter((key) => content[key] === SAMPLE_CONTENT[key]).map((key) => TEXT_NAMES[key]);
+  // A list is counted item by item: with one of three services changed, the other two are still the sample's (campaign A2,
+  // finding A2-V12; joined into this function on 2026-11-16, decision D72).
+  // An item is the sample's when it equals a sample item that no other item has matched, wherever it stands: a removed or moved item
+  // leaves the others the sample's (found at the join, 2026-11-16). A list whose items are all the sample's keeps its plain name.
+  const items = (mine: readonly unknown[], sample: readonly unknown[], whole: string, noun: string): void => {
+    const left = sample.map((item) => JSON.stringify(item));
+    let kept = 0;
+    for (const item of mine) {
+      const at = left.indexOf(JSON.stringify(item));
+      if (at < 0) continue;
+      left.splice(at, 1);
+      kept++;
+    }
+    if (kept === 0) return;
+    names.push(kept === mine.length ? whole : `${String(kept)} of the ${String(mine.length)} ${noun}`);
+  };
+  for (const list of ['services', 'facts', 'fees'] as const) items(content[list], SAMPLE_CONTENT[list], LIST_NAMES[list], LIST_NAMES[list].replace(/^the /, ''));
+  items(content.nav, SAMPLE_CONTENT.nav, 'the menu words', 'menu words');
+  return { names, total: keys.length + 4 };
+}
+
+/**
+ * The texts of a loaded file, cleaned as typed text is cleaned (finding X7-05): hidden signs and signs that change the direction of
+ * writing go, line breaks and runs of spaces become one space, and each text is cut at its limit by whole characters. A required
+ * text that cleaning would leave empty is replaced by the sample's. `changed` counts the texts that cleaning changed.
+ */
+export function cleanLoaded(content: SiteContent, brief: Brief | undefined): { content: SiteContent; brief: Brief | undefined; changed: number; replaced: number } {
+  let changed = 0;
+  let replaced = 0;
+  const tidy = (value: string, max: number, fallback = ''): string => {
+    const text = oneLine(value, max);
+    const result = text === '' ? fallback : text;
+    if (result !== value) changed++;
+    if (text === '' && fallback !== '' && value !== fallback) replaced++;
+    return result;
+  };
+  const next: SiteContent = { ...content, nav: [...content.nav], services: content.services.map((s) => ({ ...s })), facts: content.facts.map((f) => ({ ...f })), fees: content.fees.map((f) => ({ ...f })) };
+  for (const key of Object.keys(TEXT_LIMITS) as ContentTextKey[]) next[key] = tidy(content[key], TEXT_LIMITS[key], REQUIRED_TEXTS.includes(key) ? SAMPLE_CONTENT[key] : '');
+  // A link without words is a link that nobody can see (`setNavWord` refuses to make one): an extra link whose words cleaning empties goes.
+  next.nav = content.nav.map((word, i) => tidy(word, NAV_WORD_MAX, SAMPLE_CONTENT.nav[i] ?? '')).filter((word) => word !== '');
+  next.services = content.services.map((item) => ({ title: tidy(item.title, ITEM_LIMITS.services.title), body: tidy(item.body, ITEM_LIMITS.services.body) }));
+  next.facts = content.facts.map((item) => ({ value: tidy(item.value, ITEM_LIMITS.facts.value), label: tidy(item.label, ITEM_LIMITS.facts.label) }));
+  next.fees = content.fees.map((item) => ({ item: tidy(item.item, ITEM_LIMITS.fees.item), price: tidy(item.price, ITEM_LIMITS.fees.price) }));
+  let answers: Brief | undefined;
+  if (brief) {
+    const out: Brief = {};
+    for (const key of BRIEF_KEYS) {
+      const value = brief[key];
+      if (value === undefined) continue;
+      const text = tidy(value, BRIEF_MAX);
+      if (text !== '') out[key] = text;
+    }
+    answers = Object.keys(out).length > 0 ? out : undefined;
+  }
+  return { content: next, brief: answers, changed, replaced };
+}
+
 /** A project, as far as the Brief is concerned. */
 interface Holder {
   content: SiteContent;
@@ -113,40 +187,6 @@ export function setBriefAnswer<P extends Holder>(project: P, key: BriefKey, text
   }
   const { brief: _old, ...rest } = project;
   return (Object.keys(answers).length > 0 ? { ...rest, brief: answers } : rest) as P;
-}
-
-/**
- * The page's texts as a file brings them, made to hold what typed text holds (guarantee 55.01; audit finding A1-04). Before,
- * a file's texts reached the page and `mockup.html` as the file wrote them: longer than their limits, on several lines, and with
- * invisible signs, among them the "tag" signs in which a whole hidden sentence can travel to an AI coding tool (finding S6-05).
- * Each text is cleaned and cut exactly as a typed text is. A text that the page needs and that holds nothing visible becomes the
- * sample text, so that the page never loses its name, its headline, or its main button. A menu word that holds nothing visible
- * becomes the sample word at its place: a link without words is a link that nobody can see, and the owner cannot add a link
- * back, because only the words of the menu change (review finding A1-15). Lists keep their length: a project from before the Brief
- * may hold more items than the limit (decision D62 and its test), and its items are cleaned and cut like any text.
- * Returns the very object that came in when nothing changes.
- */
-export function cleanContent(content: SiteContent): SiteContent {
-  const out = { ...content };
-  for (const key of Object.keys(TEXT_LIMITS) as ContentTextKey[]) {
-    const value = oneLine(content[key], TEXT_LIMITS[key]);
-    out[key] = value === '' && REQUIRED_TEXTS.includes(key) ? SAMPLE_CONTENT[key] : value;
-  }
-  out.nav = content.nav.map((word, at) => oneLine(word, NAV_WORD_MAX) || (SAMPLE_CONTENT.nav[at] ?? '')).filter((word) => word !== '');
-  out.services = content.services.map((s) => ({ title: oneLine(s.title, ITEM_LIMITS.services.title), body: oneLine(s.body, ITEM_LIMITS.services.body) }));
-  out.facts = content.facts.map((f) => ({ value: oneLine(f.value, ITEM_LIMITS.facts.value), label: oneLine(f.label, ITEM_LIMITS.facts.label) }));
-  out.fees = content.fees.map((f) => ({ item: oneLine(f.item, ITEM_LIMITS.fees.item), price: oneLine(f.price, ITEM_LIMITS.fees.price) }));
-  return JSON.stringify(out) === JSON.stringify(content) ? content : out;
-}
-
-/** The three answers as a file brings them, cleaned as typed answers are. An answer that holds nothing visible goes. Returns `undefined` when none is left. */
-export function cleanBrief(brief: Readonly<Record<string, string | undefined>> | undefined): Brief | undefined {
-  const answers: Brief = {};
-  for (const key of BRIEF_KEYS) {
-    const value = oneLine(brief?.[key] ?? '', BRIEF_MAX);
-    if (value !== '') answers[key] = value;
-  }
-  return Object.keys(answers).length > 0 ? answers : undefined;
 }
 
 /** True when the words to mark in the headline are part of the headline, or when there are none to mark. */

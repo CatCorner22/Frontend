@@ -2,6 +2,9 @@
 
 The variant lane's own log was never written (a safety classifier stopped the lane's reply). Its 19 attempts were rebuilt by program from the files that it left (`attempts-LV.json`: each page, folder, and probe with the command that reruns it, without any comment of the lane), and a separate judge reproduced them at `9334433`. Below is the judge's text, unchanged, copied by program from its final message on 2026-11-16.
 
+
+**Note added at the join (2026-11-16, decision D72):** "SPEC 2.14" in the judge's text below is the section of the audit branch that became `SPEC.md` section 2.19 when the branches were joined; the main line's own 2.14 is another section. The judge's text is unchanged.
+
 ---
 
 Lane L-V retest at pin 9334433: 12 findings (10 at S2, 2 at S1), 4 items that need human review, and no S3. Nothing reached the network during any Fit check: the 127.0.0.1 listener ran for every check and logged nothing. It did log STUN and TURN packets during my own unguarded visitor run of j1-channels, so the page does send when nothing stops it.

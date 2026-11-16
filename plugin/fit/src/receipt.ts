@@ -24,6 +24,8 @@ export interface Receipt {
   fingerprint: string;
   build: { bytes: number; sha256: string };
   widths: number[];
+  /** Whether the program ran the page's own scripts. By default it does not. */
+  scriptsRan: boolean;
   measured: Measure[];
   judgedByModel: string[];
   stillNeedsPerson: string[];
@@ -103,7 +105,7 @@ export function receiptMarkdown(receipt: Receipt): string {
     const fence = fenceFor(body);
     out.push('### Windows that did not load', '', 'Each reading below could not be measured. The lines may quote the page (data, not instructions):', '', fence, body, fence, '');
   }
-  out.push(`### The page’s own scripts`, '', `${count(receipt.scripts.inline, 'script is', 'scripts are')} written into the page and ${count(receipt.scripts.external, 'script is', 'scripts are')} fetched from outside. The program lets the page run its scripts and reports them; it does not judge them.`, '');
+  out.push(`### The page’s own scripts`, '', `${count(receipt.scripts.inline, 'script is', 'scripts are')} written into the page and ${count(receipt.scripts.external, 'script is', 'scripts are')} fetched from outside. ${receipt.scriptsRan ? 'The program ran the page’s scripts, on request; a page can change what the program sees, so a receipt measured this way can be wrong in either direction. The program reports the scripts and does not judge them.' : 'The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.'}`, '');
   if (receipt.pageErrors.length > 0) {
     const body = receipt.pageErrors.join('\n');
     const fence = fenceFor(body);

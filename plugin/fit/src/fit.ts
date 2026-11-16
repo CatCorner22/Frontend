@@ -1,9 +1,9 @@
-// The Fit check, first slice (SPEC.md section 2.10): open a build in a real browser at two window widths, measure it against the
+// The Fit check (SPEC.md sections 2.10, 2.13, 2.15, and 2.19): open a build in a real browser at two window widths, measure it against the
 // Prescription's design values, and write an Honest receipt. The program builds nothing and judges nothing.
 import { createHash } from 'node:crypto';
 import { chromium, type Browser, type LaunchOptions, type Page } from 'playwright';
 import { contrastRatio, hexOf, over, parseRgba, type Rgba } from './color.ts';
-import { collect, readBrief, type Collected } from './collect.ts';
+import { collect, readBrief, type Collected, type TextRead } from './collect.ts';
 import { FitError, readDesignValues, type DesignValues } from './prescription.ts';
 import { STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt } from './receipt.ts';
 
@@ -20,6 +20,8 @@ export interface FitInput {
   launch?: LaunchOptions;
   /** How long a window may take to load and answer, in milliseconds. */
   loadTimeoutMs?: number;
+  /** Run the page's own scripts. By default they do not run, because a page that runs a script can change what the program sees (main line, finding X7). */
+  runScripts?: boolean;
 }
 
 export interface FitResult {
@@ -38,7 +40,72 @@ export const LATER_MS = 2000;
  */
 const READINGS = WIDTHS.flatMap((width) => [{ width, motion: 'reduce' as const }, { width, motion: 'allowed' as const }]);
 const LISTED = 20;
+const INFORMATION_LISTED = 50;
+const LINE_MAX = 200;
+const ERRORS_LISTED = 5;
+const ELEMENTS_MAX = 20_000;
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
+/** A proxy at a port where nothing listens, for every address (`<-loopback>` includes this machine's own). A window that opens another window or moves itself still cannot reach any host (main line, finding X7). */
+const DEAD_PROXY = { server: 'http://127.0.0.1:1', bypass: '<-loopback>' } as const;
+
+/**
+ * A text from the page, made safe to write into the receipt and cut at `max` characters by whole characters (the main line's rule):
+ * line breaks become spaces, and every sign that draws nothing becomes a visible mark (`shown`, campaign A2, finding J-5).
+ */
+export function clean(text: unknown, max = LINE_MAX): string {
+  const raw = typeof text === 'string' ? text.slice(0, max * 8) : String(text ?? '').slice(0, max * 8);
+  const bare = shown(raw.replace(/[\r\n\u0085\u2028\u2029]+/g, ' ')).replace(/[ \t]+/g, ' ').trim();
+  const points = [...bare];
+  return points.length > max ? `${points.slice(0, max - 1).join('')}…` : bare;
+}
+
+const UNMEASURED_WHY: Record<string, string> = {
+  fill: 'the text is filled by an image or a gradient',
+  opacity: 'the text or a box around it is drawn partly transparent',
+  image: 'an image or a gradient lies behind the text',
+  filter: 'a filter changes how the text is drawn',
+};
+
+/** A fixed sentence for a window that did not load. The browser's own message is never used: a page can shape it (main line, finding X7). */
+function failureSentence(error: unknown, ms: number): string {
+  const message = error instanceof Error ? `${error.name} ${error.message}` : '';
+  const what = /did not finish loading|Timeout.*goto|goto.*Timeout/i.test(message) ? 'the page did not finish loading' : /did not answer|Timeout/i.test(message) ? 'the page did not answer' : 'the page could not be read';
+  return `${what} within ${String(ms)} milliseconds`;
+}
+
+const list = <T>(value: unknown, keep: (item: unknown) => item is T): T[] => (Array.isArray(value) ? value.slice(0, ELEMENTS_MAX).filter(keep) : []);
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+const str = (v: unknown): string => (typeof v === 'string' ? v : '');
+const num = (v: unknown, fallback = 0): number => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
+const strings = (v: unknown, max = ELEMENTS_MAX): string[] => (Array.isArray(v) ? v.slice(0, max).map((x) => str(x).slice(0, 5000)) : []);
+const DRAWN_KINDS = new Set(['text', 'text fill', 'background', 'border', 'outline', 'text stroke']);
+
+/** What the page returned, checked for type and size: the reading runs in a world of its own, and this is a second guard (main line, finding X7). */
+function checked(raw: unknown): Collected {
+  const r = isObject(raw) ? raw : {};
+  const scripts = isObject(r['scripts']) ? r['scripts'] : {};
+  return {
+    references: list(r['references'], isObject).map((x) => ({ kind: str(x['kind']), value: str(x['value']), address: str(x['address']) })),
+    scripts: { inline: num(scripts['inline']), external: num(scripts['external']) },
+    drawn: list(r['drawn'], isObject).flatMap((x) => (DRAWN_KINDS.has(str(x['kind'])) ? [{ kind: str(x['kind']) as Collected['drawn'][number]['kind'], css: str(x['css']), where: str(x['where']) }] : [])),
+    families: list(r['families'], isObject).map((x) => ({ family: str(x['family']), where: str(x['where']) })),
+    radii: list(r['radii'], isObject).map((x) => ({ value: str(x['value']), where: str(x['where']) })),
+    texts: list(r['texts'], isObject).map((x): TextRead => ({
+      where: str(x['where']), foreground: str(x['foreground']),
+      layers: Array.isArray(x['layers']) ? x['layers'].slice(0, 200).map(str) : null,
+      unmeasured: x['unmeasured'] === 'fill' || x['unmeasured'] === 'opacity' || x['unmeasured'] === 'image' || x['unmeasured'] === 'filter' ? x['unmeasured'] : '',
+      sizePx: num(x['sizePx'], 16), weight: num(x['weight'], 400),
+    })),
+    shownLines: strings(r['shownLines']),
+    clippedLines: strings(r['clippedLines']),
+    cutOff: strings(r['cutOff']),
+    filtered: num(r['filtered']),
+    fontFaces: list(r['fontFaces'], isObject).map((x) => ({ family: str(x['family']), src: str(x['src']) })),
+    scrollWidth: num(r['scrollWidth']),
+    clientWidth: num(r['clientWidth']),
+    baseHref: str(r['baseHref']),
+  };
+}
 
 /** One reading of the page. A reading that failed still keeps the requests that its page made before it failed. */
 type Pass = { label: string; width: number; requests: string[]; own: string[] } & ({ collected: Collected; errors: string[] } | { failure: string });
@@ -115,10 +182,11 @@ async function readInOwnWorld<T>(page: Page, read: () => T): Promise<T> {
  * relative addresses resolve as on the site, and so that the program's own world exists before the page's first script and can see
  * the page replace itself (campaign A2, finding J-4). Nothing leaves the machine: every request is written down and stopped.
  */
-async function readAt(browser: Browser, html: string, reading: (typeof READINGS)[number], ms: number): Promise<Pass[]> {
+async function readAt(browser: Browser, html: string, reading: (typeof READINGS)[number], ms: number, runScripts: boolean): Promise<Pass[]> {
   const { width, motion } = reading;
   const base = motion === 'reduce' ? `${String(width)} pixels` : `${String(width)} pixels, motion allowed`;
-  const context = await browser.newContext({ viewport: { width, height: 800 }, deviceScaleFactor: 1, reducedMotion: motion === 'reduce' ? 'reduce' : 'no-preference' });
+  // No network at all, and by default no script of the page (main line, finding X7); the readings of campaign A2 run all the same.
+  const context = await browser.newContext({ viewport: { width, height: 800 }, deviceScaleFactor: 1, reducedMotion: motion === 'reduce' ? 'reduce' : 'no-preference', offline: true, javaScriptEnabled: runScripts, serviceWorkers: 'block', proxy: DEAD_PROXY });
   const requests: string[] = [];
   const own: string[] = [];
   const passes: Pass[] = [];
@@ -183,7 +251,7 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
         if (exceptionDetails) return fail(label, 'the program could not read the page');
         const value = result.value as { collected: Collected; replaced: boolean };
         if (value.replaced) return fail(label, 'the page replaced itself: a script wrote a new document over it');
-        return { label, width, collected: value.collected, errors: [...errors], requests: [...requests], own: [...own] };
+        return { label, width, collected: checked(value.collected), errors: [...errors], requests: [...requests], own: [...own] };
       };
       if (motion === 'reduce') passes.push(await read(base));
       else {
@@ -196,7 +264,7 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
       }
     } catch (error) {
       // The requests made before the failure stay in the receipt (finding A1-02).
-      passes.push(fail(base, `${error instanceof Error ? error.message : 'the page could not be read'} within ${String(ms)} milliseconds`));
+      passes.push(fail(base, failureSentence(error, ms)));
     }
     // A page that never ends can hold its debugging connection too; the program stops waiting for it after a short time.
     await within(session.detach(), 2000, 'detach').catch(() => undefined);
@@ -209,12 +277,11 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
 
 const collapse = (text: string): string => text.replace(/\s+/g, ' ').trim().toLowerCase();
 
-const INFORMATION_LISTED = 50;
 
 function measureOf(id: string, title: string, note: string, deviations: string[], notMeasured: number, information: string[] = []): Measure {
   // Every line may quote the page: an invisible sign becomes a visible mark before it enters the receipt (campaign A2, finding J-5).
-  const sorted = [...new Set(deviations.map(shown))].sort();
-  const info = [...new Set(information.map(shown))].sort();
+  const sorted = [...new Set(deviations.map((d) => clean(d)))].sort();
+  const info = [...new Set(information.map((d) => clean(d)))].sort();
   return { id, title, deviations: sorted.length, notMeasured, items: sorted.slice(0, LISTED), more: Math.max(0, sorted.length - LISTED), note, information: info.slice(0, INFORMATION_LISTED), informationMore: Math.max(0, info.length - INFORMATION_LISTED) };
 }
 
@@ -288,21 +355,27 @@ function contrastOf(text: Collected['texts'][number]): number | null {
 
 function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures'] } {
   const good = passes.filter((p): p is Extract<Pass, { collected: Collected }> => 'collected' in p);
-  const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: shown(`${p.label}: ${p.failure}`) }] : []));
+  const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: clean(`${p.label}: ${p.failure}`, 400) }] : []));
   const failed = loadFailures.length;
 
   // Another site is a deviation. A reference at the page's own address is information: the page names it but, being one file, cannot ship it.
   const requests = new Set<string>();
-  const ownAddress = new Set<string>();
-  for (const p of passes) for (const url of p.requests) requests.add(url.startsWith('WebRTC ') ? url : `request to ${url}`);
+  // The same address once, with every kind in which the page names it (main line, finding X7).
+  const ownKinds = new Map<string, Set<string>>();
+  const own = (value: string, kind: string): void => {
+    const key = clean(value, 150);
+    ownKinds.set(key, (ownKinds.get(key) ?? new Set<string>()).add(clean(kind, 40)));
+  };
+  for (const p of passes) for (const url of p.requests) requests.add(url.startsWith('WebRTC ') ? clean(url) : `request to ${clean(url)}`);
   // A request to the site's own address is the page asking for a file that it names but, being one file, cannot ship.
-  for (const p of passes) for (const path of p.own) ownAddress.add(`request: ${path}`);
+  for (const p of passes) for (const path of p.own) own(path, 'request');
   for (const p of good) {
     for (const ref of p.collected.references) {
-      if (isOtherSite(ref.address, p.collected.baseHref)) requests.add(`reference (${ref.kind}) to ${ref.value}`);
-      else ownAddress.add(`${ref.kind}: ${ref.value}`);
+      if (isOtherSite(ref.address, p.collected.baseHref)) requests.add(`reference (${clean(ref.kind, 40)}) to ${clean(ref.value)}`);
+      else own(ref.value, ref.kind);
     }
   }
+  const ownAddress = [...ownKinds].map(([value, kinds]) => `${value} (${[...kinds].sort().join(', ')})`);
 
   const translucent = new Set<string>();
   // A color that the program cannot read is counted as not measured, never passed over in silence (finding A1-03).
@@ -313,37 +386,42 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
       const rgba = parseRgba(item.css);
       if (!rgba) { unreadColors++; continue; }
       if (rgba.a === 0) continue;
-      if (rgba.a < 1) { translucent.add(item.css); continue; }
+      if (rgba.a < 1) { translucent.add(`partly transparent color ${clean(item.css, 60)}`); continue; }
       const hex = hexOf(rgba);
-      if (!design.colors.has(hex)) colorRows.push({ key: `${item.kind} color ${hex}`, where: item.where, width: p.label });
+      if (!design.colors.has(hex)) colorRows.push({ key: `${item.kind} color ${hex}`, where: clean(item.where), width: p.label });
     }
   }
 
   // A color that passes through a CSS filter is changed before it reaches the screen: not measured (campaign A2, finding J-6).
   const filtered = good.reduce((sum, p) => sum + p.collected.filtered, 0);
-  const fontRows = good.flatMap((p) => p.collected.families.filter((f) => !design.typefaces.has(f.family.toLowerCase())).map((f) => ({ key: f.family, where: f.where, width: p.label })));
+  const fontRows = good.flatMap((p) => p.collected.families.filter((f) => !design.typefaces.has(clean(f.family).toLowerCase())).map((f) => ({ key: clean(f.family, 80), where: clean(f.where), width: p.label })));
   // FONTS.md ships every typeface as a file; a Prescription name given to a font installed on the machine draws other letters (J-19).
-  const aliases = new Set(good.flatMap((p) => p.collected.fontFaces.filter((face) => design.typefaces.has(face.family.toLowerCase()) && /local\(/i.test(face.src)).map((face) => `typeface "${face.family}" is drawn from a font installed on the machine (${face.src.trim()}), not from a file`)));
-  const radiusRows = good.flatMap((p) => p.collected.radii.filter((r) => { const px = /^([\d.]+)px$/.exec(r.value); return !px || !design.radii.has(Number(px[1])); }).map((r) => ({ key: r.value, where: r.where, width: p.label })));
+  const aliases = new Set(good.flatMap((p) => p.collected.fontFaces.filter((face) => design.typefaces.has(face.family.toLowerCase()) && /local\(/i.test(face.src)).map((face) => `typeface "${clean(face.family, 80)}" is drawn from a font installed on the machine (${clean(face.src, 120)}), not from a file`)));
+  const radiusRows = good.flatMap((p) => p.collected.radii.filter((r) => { const px = /^([\d.]+)px$/.exec(r.value); return !px || !design.radii.has(Number(px[1])); }).map((r) => ({ key: clean(r.value, 40), where: clean(r.where), width: p.label })));
 
   const contrastRows: { ratio: number; key: string; width: number; label: string }[] = [];
   // The readings of each width that could be read, to say "at 375 pixels" when a line holds in all of them.
   const readingsAt = new Map<number, Set<string>>();
   for (const p of good) readingsAt.set(p.width, (readingsAt.get(p.width) ?? new Set<string>()).add(p.label));
-  let unreadable = 0;
+  // A text that cannot be measured counts once for each window width, however many readings of that width found it (joined, D72:
+  // the main line counts one for each text and width, and the note says so).
+  const unreadAt = new Set<string>();
   const reasons = new Map<string, number>();
   for (const p of good) {
     for (const text of p.collected.texts) {
       const ratio = contrastOf(text);
       if (ratio === null) {
-        unreadable++;
-        const why = text.unmeasured === '' ? 'a color could not be read' : text.unmeasured;
-        reasons.set(why, (reasons.get(why) ?? 0) + 1);
+        const why = UNMEASURED_WHY[text.unmeasured] ?? 'a color could not be read';
+        const id = `${String(p.width)}\u0000${text.where}\u0000${why}`;
+        if (!unreadAt.has(id)) {
+          unreadAt.add(id);
+          reasons.set(why, (reasons.get(why) ?? 0) + 1);
+        }
         continue;
       }
       const large = text.sizePx >= 24 || (text.sizePx >= 18.66 && text.weight >= 700);
       const needed = large ? 3 : 4.5;
-      if (ratio < needed) contrastRows.push({ ratio, key: `${ratio.toFixed(2)} to 1, where ${String(needed)} to 1 is the usual least, on ${text.where}`, width: p.width, label: p.label });
+      if (ratio < needed) contrastRows.push({ ratio, key: `${ratio.toFixed(2)} to 1, where ${String(needed)} to 1 is the usual least, on ${clean(text.where)}`, width: p.width, label: p.label });
     }
   }
   const ratioOf = new Map(contrastRows.map((row) => [row.key, row.ratio]));
@@ -353,37 +431,43 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   const contentLines: string[] = [];
   let contentUnsure = 0;
   const required: [string, string][] = [['business name', mockupBrief.business], ['headline', mockupBrief.headline], ['primary action', mockupBrief.primaryAction]];
+  // A required text that is empty in the Mockup cannot be compared: not measured, never "found" (main line, SPEC.md 2.15 point 11).
+  const emptyRequired = required.filter(([, wanted]) => wanted === '').length;
+  // A required text must stand inside one block of text (main line), where a person can read it (campaign A2, J-7).
+  const inLine = (lines: readonly string[], wanted: string): boolean => lines.some((line) => collapse(line).includes(collapse(wanted)));
   for (const [label, wanted] of required) {
-    const missing = good.filter((p) => !collapse(p.collected.shownText).includes(collapse(wanted)));
+    if (wanted === '') continue;
+    const missing = good.filter((p) => !inLine(p.collected.shownLines, wanted));
     // A text that stands only under a clip-path or a mask may be hidden: not measured, never "found" (retest finding A2-V7).
-    const unsure = missing.filter((p) => collapse(p.collected.clippedText).includes(collapse(wanted)));
-    contentUnsure += unsure.length;
-    const absent = missing.filter((p) => !unsure.includes(p)).map((p) => p.label);
-    if (absent.length > 0) contentLines.push(`the ${label} is not where a person can read it at ${absent.join('; ')}: "${wanted}"`);
+    const unsure = missing.filter((p) => inLine(p.collected.clippedLines, wanted));
+    contentUnsure += new Set(unsure.map((p) => p.width)).size;
+    // One line for each width at which the text is missing, as the main line counts it (SPEC.md 2.15 point 11).
+    const absent = missing.filter((p) => !unsure.includes(p)).map((p) => ({ key: `the ${label} is not where a person can read it`, width: p.width, label: p.label }));
+    for (const line of atWidths(absent, readingsAt)) contentLines.push(`${line.text}: "${clean(wanted, 80)}"`);
   }
 
   // Sideways scrolling, and text cut off at the window's edge where nothing lets a person reach it (campaign A2, finding J-18).
   const widthLines = atWidths(good.flatMap((p) => [
     ...(p.collected.scrollWidth > p.collected.clientWidth ? [{ key: `the page is wider than its window (${String(p.collected.scrollWidth)} against ${String(p.collected.clientWidth)})`, width: p.width, label: p.label }] : []),
-    ...(p.collected.cutOff.length > 0 ? [{ key: `${count(p.collected.cutOff.length)} reach past the window's edge and are cut off, first ${p.collected.cutOff[0] ?? ''}`, width: p.width, label: p.label }] : []),
+    ...(p.collected.cutOff.length > 0 ? [{ key: `${count(p.collected.cutOff.length)} reach past the window's edge and are cut off, first ${clean(p.collected.cutOff[0] ?? '')}`, width: p.width, label: p.label }] : []),
   ]), readingsAt).map((line) => line.text);
 
-  const colorNote = `A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${translucent.size > 0 ? ` ${String(translucent.size)} partly transparent ${translucent.size === 1 ? 'color was' : 'colors were'} not compared.` : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
+  const colorNote = `A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'is' : 'are'} counted as not measured.` : ''} Partly transparent colors are listed as information and not compared.`;
   const whyUnread = [...reasons].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([why, n]) => `${String(n)} because ${why}`).join('; ');
-  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least.${unreadable > 0 ? ` ${String(unreadable)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
-  const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => [...shown(e)].slice(0, 200).join(''))))].sort().slice(0, 5);
+  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.${unreadAt.size > 0 ? ` ${String(unreadAt.size)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
+  const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => clean(e))))].sort().slice(0, ERRORS_LISTED);
   const most = (pick: (c: Collected) => number): number => Math.max(0, ...good.map((p) => pick(p.collected)));
   return {
     loadFailures,
     pageErrors,
     scripts: { inline: Math.max(source.inline, most((c) => c.scripts.inline)), external: Math.max(source.external, most((c) => c.scripts.external)) },
     measured: [
-      measureOf('requests', 'Requests: the page asks for nothing from another site', 'Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page\u2019s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.', [...requests], failed, [...ownAddress]),
-      measureOf('colors', 'Colors: every color that the page draws is a color of the Prescription', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered),
+      measureOf('requests', 'Requests: the page asks for nothing from another site', 'Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page\u2019s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.', [...requests], failed, ownAddress),
+      measureOf('colors', 'Colors: every color that the page draws is a color of the Prescription', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered, [...translucent]),
       measureOf('typefaces', 'Typefaces: every text names a typeface of the Prescription', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Prescription typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Prescription', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
-      measureOf('contrast', 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed),
-      measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.', contentLines, failed + contentUnsure),
+      measureOf('contrast', 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadAt.size + failed),
+      measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own, inside one block of text. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask, and a text that is empty in the Mockup, are counted as not measured.', contentLines, failed + contentUnsure + emptyRequired),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
     ],
   };
@@ -396,10 +480,11 @@ export async function fit(input: FitInput): Promise<FitResult> {
   if (input.html.trim() === '') throw new FitError('The build is empty.');
   if (!/<(?:!doctype|html|body)\b/i.test(input.html)) throw new FitError('The build is not an HTML page.');
   const ms = input.loadTimeoutMs ?? 10_000;
+  const runScripts = input.runScripts === true;
   const browser = input.browser ?? (await chromium.launch({ ...input.launch, args: [...(input.launch?.args ?? []), ...LAUNCH_ARGS] }));
   try {
     // The four windows are read side by side; their order in the receipt is fixed, so the same inputs give the same receipt.
-    const passes: Pass[] = (await Promise.all(READINGS.map((reading) => readAt(browser, input.html, reading, ms)))).flat();
+    const passes: Pass[] = (await Promise.all(READINGS.map((reading) => readAt(browser, input.html, reading, ms, runScripts)))).flat();
     const brief = await readMockupBrief(browser, input.files['mockup.html'] ?? '', ms);
     const { measured, pageErrors, scripts, loadFailures } = measures(design, passes, brief, scriptsInSource(input.html));
     const receipt: Receipt = {
@@ -411,6 +496,7 @@ export async function fit(input: FitInput): Promise<FitResult> {
       stillNeedsPerson: [...STILL_NEEDS_A_PERSON],
       pageErrors,
       scripts,
+      scriptsRan: runScripts,
       loadFailures,
     };
     // "Not measured" is never "no deviation": anything not measured in the six measured things gives status 1 (decision D71, A1-07).
@@ -423,23 +509,18 @@ export async function fit(input: FitInput): Promise<FitResult> {
 }
 
 async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief>> {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-  let brief: ReturnType<typeof readBrief>;
+  // The Mockup is the Studio's own file, and it holds no script; the window has no script and no network all the same (main line),
+  // and the program reads it from a world of its own, as it reads the build (finding A1-14).
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, offline: true, javaScriptEnabled: false });
   try {
     const page = await context.newPage();
     await context.route('**/*', (route) => route.abort());
-    await context.routeWebSocket(() => true, (socket) => socket.close());
     await within(page.setContent(mockup, { waitUntil: 'load', timeout: ms }), ms + 1000, 'the Mockup did not load');
-    // Read from a world of its own, as the build is: a script in a changed mockup.html cannot blank or forge the texts (finding A1-14).
-    brief = await within(readInOwnWorld(page, readBrief), ms, 'the Mockup did not answer');
+    const read = await within(readInOwnWorld(page, readBrief), ms, 'the Mockup did not answer');
+    return { business: str(read.business), headline: str(read.headline), primaryAction: str(read.primaryAction) };
   } catch {
     throw new FitError('The file "mockup.html" could not be opened to read the three required texts.');
   } finally {
     await within(context.close(), 5000, 'close').catch(() => undefined);
   }
-  // The Studio never writes a Mockup without these texts (guarantee 55.01). Without one, the content measure would compare nothing
-  // and report "no deviation", so the program refuses instead (finding A1-14).
-  const missing = ([['business name', brief.business], ['headline', brief.headline], ['primary action', brief.primaryAction]] as const).filter(([, text]) => text === '').map(([label]) => label);
-  if (missing.length > 0) throw new FitError(`The file "mockup.html" holds no ${missing.join(', no ')}, so the program cannot check that the page shows it.`);
-  return brief;
 }

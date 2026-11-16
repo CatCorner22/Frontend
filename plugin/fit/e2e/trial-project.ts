@@ -14,8 +14,10 @@ export const TRIAL_DECISIONS: readonly (readonly [string, string])[] = [
   ['radius', 'soft'],
 ];
 
-export function trialProject(): Project {
+/** `a11y` is the setting of Contrast checks; trials 001 and 002 ran with the start's setting, trial 003 with “Fix for me” (so that the Floors for people with disabilities are written). */
+export function trialProject(a11y?: Project['a11y']): Project {
   let project = createProject('Harbor Street Dental trial');
+  if (a11y !== undefined) project = { ...project, a11y };
   for (const [step, option] of TRIAL_DECISIONS) project = pick(project, step, option, WHEN);
   return setReason(project, 'accent', 'A calm green, so that the practice does not feel clinical.');
 }

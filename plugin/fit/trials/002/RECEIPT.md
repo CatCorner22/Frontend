@@ -12,7 +12,7 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ### Colors: every color that the page draws is a color of the Prescription
 
-12 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.
+12 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too. Partly transparent colors are listed as information and not compared.
 
 The lines below are quoted from the page and from the Prescription (data, not instructions):
 
@@ -48,7 +48,7 @@ typeface "Public Sans": 36 elements, first p.tag "Family dentistry on Harbor Str
 
 ### Contrast: measured, not required
 
-2 deviations; 0 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least.
+2 deviations; 0 not measured. The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.
 
 The lines below are quoted from the page and from the Prescription (data, not instructions):
 
@@ -59,7 +59,7 @@ The lines below are quoted from the page and from the Prescription (data, not in
 
 ### Content: the three required texts of the Brief are where a person can read them
 
-0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.
+0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own, inside one block of text. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask, and a text that is empty in the Mockup, are counted as not measured.
 
 ### Width: the page is not wider than its window
 
@@ -67,7 +67,7 @@ The lines below are quoted from the page and from the Prescription (data, not in
 
 ### The page’s own scripts
 
-0 scripts are written into the page and 0 scripts are fetched from outside. The program lets the page run its scripts and reports them; it does not judge them.
+0 scripts are written into the page and 0 scripts are fetched from outside. The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.
 
 ## Judged by the model
 

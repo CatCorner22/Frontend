@@ -174,6 +174,8 @@ export interface FontInfo {
   character: string;
   /** SPDX license identifier of the font files; `null` for system fonts (nothing to ship). */
   license: string | null;
+  /** The lowest and the highest weight that the variable font file covers, as its package states them; absent for a device font. */
+  weights?: readonly [number, number];
 }
 
 const SANS_FALLBACK = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
@@ -182,19 +184,19 @@ const SERIF_FALLBACK = 'Georgia, "Times New Roman", serif';
 export const FONTS: Record<FontId, FontInfo> = {
   'system-sans': { id: 'system-sans', label: 'Device font', stack: SANS_FALLBACK, character: 'Whatever the device uses. Invisible and fast.', license: null },
   'system-serif': { id: 'system-serif', label: 'Device font with small feet', stack: SERIF_FALLBACK, character: 'Bookish and traditional, with nothing to download.', license: null },
-  inter: { id: 'inter', label: 'Inter', stack: `"Inter Variable", ${SANS_FALLBACK}`, character: 'A neutral workhorse for screens. It is also on published lists of looks that many AI-made pages share.', license: 'OFL-1.1' },
-  'public-sans': { id: 'public-sans', label: 'Public Sans', stack: `"Public Sans Variable", ${SANS_FALLBACK}`, character: 'Plain, civic, trustworthy.', license: 'OFL-1.1' },
-  'dm-sans': { id: 'dm-sans', label: 'DM Sans', stack: `"DM Sans Variable", ${SANS_FALLBACK}`, character: 'Geometric and friendly, with round shapes.', license: 'OFL-1.1' },
-  manrope: { id: 'manrope', label: 'Manrope', stack: `"Manrope Variable", ${SANS_FALLBACK}`, character: 'Modern and slightly technical, with open shapes.', license: 'OFL-1.1' },
-  'instrument-sans': { id: 'instrument-sans', label: 'Instrument Sans', stack: `"Instrument Sans Variable", ${SANS_FALLBACK}`, character: 'Crisp and magazine-like, a little narrow.', license: 'OFL-1.1' },
-  outfit: { id: 'outfit', label: 'Outfit', stack: `"Outfit Variable", ${SANS_FALLBACK}`, character: 'Round, geometric letters without feet, made for headings; cheerful at large sizes.', license: 'OFL-1.1' },
-  'space-grotesk': { id: 'space-grotesk', label: 'Space Grotesk', stack: `"Space Grotesk Variable", ${SANS_FALLBACK}`, character: 'Quirky and technical, with distinctive letters.', license: 'OFL-1.1' },
-  'bricolage-grotesque': { id: 'bricolage-grotesque', label: 'Bricolage Grotesque', stack: `"Bricolage Grotesque Variable", ${SANS_FALLBACK}`, character: 'Expressive, hand-cut feeling; strong personality in headings.', license: 'OFL-1.1' },
-  fraunces: { id: 'fraunces', label: 'Fraunces', stack: `"Fraunces Variable", ${SERIF_FALLBACK}`, character: 'Soft, warm, old-style letters with small feet and plenty of character.', license: 'OFL-1.1' },
-  literata: { id: 'literata', label: 'Literata', stack: `"Literata Variable", ${SERIF_FALLBACK}`, character: 'Clear, sturdy letters with small feet, made for reading.', license: 'OFL-1.1' },
-  newsreader: { id: 'newsreader', label: 'Newsreader', stack: `"Newsreader Variable", ${SERIF_FALLBACK}`, character: 'Newspaper-style letters with small feet; literate and calm.', license: 'OFL-1.1' },
-  playfair: { id: 'playfair', label: 'Playfair', stack: `"Playfair Variable", ${SERIF_FALLBACK}`, character: 'Letters with small feet and with thick and thin strokes, made for headings; elegant and formal.', license: 'OFL-1.1' },
-  'jetbrains-mono': { id: 'jetbrains-mono', label: 'JetBrains Mono', stack: `"JetBrains Mono Variable", ui-monospace, monospace`, character: 'Typewriter-style letters, every one the same width; technical, good for columns of numbers.', license: 'OFL-1.1' },
+  inter: { id: 'inter', label: 'Inter', stack: `"Inter Variable", ${SANS_FALLBACK}`, character: 'A neutral workhorse for screens. It is also on published lists of looks that many AI-made pages share.', license: 'OFL-1.1', weights: [100, 900] },
+  'public-sans': { id: 'public-sans', label: 'Public Sans', stack: `"Public Sans Variable", ${SANS_FALLBACK}`, character: 'Plain, civic, trustworthy.', license: 'OFL-1.1', weights: [100, 900] },
+  'dm-sans': { id: 'dm-sans', label: 'DM Sans', stack: `"DM Sans Variable", ${SANS_FALLBACK}`, character: 'Geometric and friendly, with round shapes.', license: 'OFL-1.1', weights: [100, 1000] },
+  manrope: { id: 'manrope', label: 'Manrope', stack: `"Manrope Variable", ${SANS_FALLBACK}`, character: 'Modern and slightly technical, with open shapes.', license: 'OFL-1.1', weights: [200, 800] },
+  'instrument-sans': { id: 'instrument-sans', label: 'Instrument Sans', stack: `"Instrument Sans Variable", ${SANS_FALLBACK}`, character: 'Crisp and magazine-like, a little narrow.', license: 'OFL-1.1', weights: [400, 700] },
+  outfit: { id: 'outfit', label: 'Outfit', stack: `"Outfit Variable", ${SANS_FALLBACK}`, character: 'Round, geometric letters without feet, made for headings; cheerful at large sizes.', license: 'OFL-1.1', weights: [100, 900] },
+  'space-grotesk': { id: 'space-grotesk', label: 'Space Grotesk', stack: `"Space Grotesk Variable", ${SANS_FALLBACK}`, character: 'Quirky and technical, with distinctive letters.', license: 'OFL-1.1', weights: [300, 700] },
+  'bricolage-grotesque': { id: 'bricolage-grotesque', label: 'Bricolage Grotesque', stack: `"Bricolage Grotesque Variable", ${SANS_FALLBACK}`, character: 'Expressive, hand-cut feeling; strong personality in headings.', license: 'OFL-1.1', weights: [200, 800] },
+  fraunces: { id: 'fraunces', label: 'Fraunces', stack: `"Fraunces Variable", ${SERIF_FALLBACK}`, character: 'Soft, warm, old-style letters with small feet and plenty of character.', license: 'OFL-1.1', weights: [100, 900] },
+  literata: { id: 'literata', label: 'Literata', stack: `"Literata Variable", ${SERIF_FALLBACK}`, character: 'Clear, sturdy letters with small feet, made for reading.', license: 'OFL-1.1', weights: [200, 900] },
+  newsreader: { id: 'newsreader', label: 'Newsreader', stack: `"Newsreader Variable", ${SERIF_FALLBACK}`, character: 'Newspaper-style letters with small feet; literate and calm.', license: 'OFL-1.1', weights: [200, 800] },
+  playfair: { id: 'playfair', label: 'Playfair', stack: `"Playfair Variable", ${SERIF_FALLBACK}`, character: 'Letters with small feet and with thick and thin strokes, made for headings; elegant and formal.', license: 'OFL-1.1', weights: [300, 900] },
+  'jetbrains-mono': { id: 'jetbrains-mono', label: 'JetBrains Mono', stack: `"JetBrains Mono Variable", ui-monospace, monospace`, character: 'Typewriter-style letters, every one the same width; technical, good for columns of numbers.', license: 'OFL-1.1', weights: [100, 800] },
 };
 
 /**

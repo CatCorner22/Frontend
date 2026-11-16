@@ -8,10 +8,10 @@ import { CONFLICT_RULES, HARMONY_RULES } from './catalog/rules.js';
 import { STEPS, findStep } from './catalog/steps.js';
 import type { Option, Step, Tunable } from './catalog/types.js';
 import { A11Y_PROFILES, DEFAULT_PARAMS, FONTS, PARAM_RANGES, PARAM_VALUES, RETIRED_FONTS, assertKnownParams, type A11yProfile, type DesignParams } from './params.js';
-import { BRIEF_KEYS, BRIEF_MAX, cleanBrief, cleanContent, type Brief } from './brief.js';
+import { BRIEF_KEYS, BRIEF_MAX, cleanLoaded, type Brief } from './brief.js';
 import { SAMPLE_CONTENT, type SiteContent } from './templates/smallBusiness.js';
 import { deriveTokens, type DerivedTokens } from './tokens.js';
-import { visibleText } from './text.js';
+import { cutUnits, visibleText } from './text.js';
 
 /** The version of the saved-project shape. Raise it on every change of shape, and add a migration and a fixture file for the old shape. */
 export const SCHEMA_VERSION = 2;
@@ -397,7 +397,7 @@ export const REASON_MAX = 280;
 export function setReason(project: Project, stepId: string, reason: string): Project {
   const decision = project.decisions[mustStep(stepId).id];
   if (!decision) throw new Error('This Step has no Decision yet.');
-  const text = reason.trim().slice(0, REASON_MAX);
+  const text = cutUnits(reason.trim(), REASON_MAX);
   const { reason: _old, ...rest } = decision;
   return { ...project, decisions: { ...project.decisions, [stepId]: text ? { ...rest, reason: text } : rest } };
 }
@@ -895,7 +895,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
     // Catalog after the owner picked then counted as rejected, though the owner never saw it (round 3).
     const rejected = [...new Set(d.rejected)].filter((id) => optionIds.includes(id) && id !== optionId && !(d.kind === 'picked' && id === d.optionId));
     const fullReason = d.reason?.trim();
-    const reason = fullReason?.slice(0, REASON_MAX);
+    const reason = fullReason === undefined ? undefined : cutUnits(fullReason, REASON_MAX);
     if (fullReason !== undefined && fullReason.length > REASON_MAX) shortened++;
     decisions.push([key, { stepId: key, optionId, kind, rejected, values: ownedValues(step, params), at: ISO_TIME.test(d.at) && !Number.isNaN(Date.parse(d.at)) ? d.at : UNKNOWN_TIME, ...(reason ? { reason } : {}) }]);
   }
@@ -909,14 +909,16 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   if (relabelled > 0) notes.push(relabelled === 1 ? 'One Decision was recorded as a picked Option, but its design values match no Option of this version of the Catalog. Its values were kept and it is now marked as hand-set.' : `${relabelled} Decisions were recorded as picked Options, but their design values match no Option of this version of the Catalog. Their values were kept and they are now marked as hand-set.`);
   if (corrected > 0) notes.push(corrected === 1 ? 'One Decision in the file named a choice that the file’s own design values do not show. The Studio follows the design values, so it changed that Decision to match them.' : `${corrected} Decisions in the file named choices that the file’s own design values do not show. The Studio follows the design values, so it changed those Decisions to match them.`);
   if (shortened > 0) notes.push(shortened === 1 ? `One written reason was longer than ${REASON_MAX} characters. It was shortened to fit.` : `${shortened} written reasons were longer than ${REASON_MAX} characters. They were shortened to fit.`);
-  // The three answers: those that the file holds with words, in their fixed order; none at all when the file holds none. They and
-  // the page's texts are cleaned and cut as typed text is, so that a file brings nothing that typing could not (audit finding A1-04).
-  const brief = cleanBrief(data.brief);
-  const content = cleanContent(data.content);
-  const answersChanged = BRIEF_KEYS.some((key) => (brief?.[key] ?? '') !== (data.brief?.[key] ?? ''));
-  // The project's name, too: every file cleans it when it writes it, but the project in memory should not keep what nobody sees (A2-R3).
+  // The three answers: those that the file holds with words, in their fixed order; none at all when the file holds none.
+  const loadedAnswers = Object.fromEntries(BRIEF_KEYS.flatMap((key) => (data.brief?.[key] ? [[key, data.brief[key]]] : []))) as Brief;
+  // The texts of the page and the answers are cleaned as typed text is cleaned: a file is not a way around the cleaning (finding X7-05).
+  const cleaned = cleanLoaded(data.content, Object.keys(loadedAnswers).length > 0 ? loadedAnswers : undefined);
+  // The project's name too: every file cleans it when it writes it, but the project in memory keeps nothing that nobody sees (A2-R3).
   const name = visibleText(data.name);
-  if (content !== data.content || answersChanged || name !== data.name) notes.push('Some texts of the page, answers about the project, or the project’s name in the file held signs that do not show, more than one line, or more characters than the Studio allows. The Studio cleaned and shortened them as it does with typed text. A text that the page needs and that held nothing became the sample text.');
+  const changedTexts = cleaned.changed + (name === data.name ? 0 : 1);
+  if (changedTexts > 0) notes.push(changedTexts === 1 ? 'One text in the file held hidden signs, a line break, or more characters than the page allows. The Studio cleaned it.' : `${changedTexts} texts in the file held hidden signs, line breaks, or more characters than the page allows. The Studio cleaned them.`);
+  if (cleaned.replaced > 0) notes.push(cleaned.replaced === 1 ? 'One text in the file held nothing that a person can see. The sample’s words stand in its place.' : `${cleaned.replaced} texts in the file held nothing that a person can see. The sample’s words stand in their place.`);
+  const brief = cleaned.brief;
   // Overlays: those of the file that this Catalog has, each once, in the Catalog's order.
   const listed = data.overlays ?? [];
   const overlays = OVERLAYS.map((overlay) => overlay.id).filter((id) => listed.includes(id));
@@ -925,7 +927,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   // The Skin's name stays only when this Direction offers that Skin; the colors are in the design values either way.
   const skin = data.skin !== undefined && offersSkin(direction, data.skin) ? data.skin : undefined;
   if (data.skin !== undefined && skin === undefined) notes.push('The file names a Skin that this version of the Studio does not offer for this Direction. The name was left out; the colors are unchanged.');
-  const project: Project = { schemaVersion: SCHEMA_VERSION, name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content, ...(brief ? { brief } : {}), ...(overlays.length > 0 ? { overlays } : {}), ...(skin !== undefined ? { skin } : {}) };
+  const project: Project = { schemaVersion: SCHEMA_VERSION, name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content: cleaned.content, ...(brief ? { brief } : {}), ...(overlays.length > 0 ? { overlays } : {}), ...(skin !== undefined ? { skin } : {}) };
   return { project, notes };
 }
 

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { DIRECTIONS, FONT_IDS, FONT_PACKAGE_VERSION, FONTS, STEPS, applyDirection, createProject, parseProject, type Project } from '../src/index.js';
+import { DIRECTIONS, FONT_IDS, FONT_PACKAGE_VERSION, FONTS, STEPS, applyDirection, createProject, fontsMd, parseProject, type Project } from '../src/index.js';
 
 /** A project as an earlier version stored it: both typefaces that the Studio no longer carries, in every place a file holds one. */
 function withRetiredFonts(): Record<string, unknown> {
@@ -68,5 +68,35 @@ describe('The version of the font packages that FONTS.md names', () => {
     const fonts = Object.entries(lock.packages).filter(([name]) => name.includes('node_modules/@fontsource-variable/'));
     expect(fonts.length).toBeGreaterThan(10);
     for (const [name, entry] of fonts) expect(entry.version, name).toBe(FONT_PACKAGE_VERSION);
+  });
+});
+
+describe('The weight range that FONTS.md writes for a font file (finding C7-08)', () => {
+  it('is the range that the font package states for its Latin file, for every font that ships a file', () => {
+    let checked = 0;
+    for (const id of FONT_IDS) {
+      const font = FONTS[id];
+      if (font.license === null) { expect(font.weights).toBeUndefined(); continue; }
+      const css = readFileSync(new URL(`../../../node_modules/@fontsource-variable/${id}/index.css`, import.meta.url), 'utf8');
+      const ranges = new Set<string>();
+      for (const block of css.match(/@font-face\s*\{[^}]*\}/g) ?? []) {
+        if (block.includes('U+0000-00FF') && block.includes('font-style: normal')) { const m = /font-weight:\s*(\d+)\s+(\d+)/.exec(block); if (m) ranges.add(`${m[1] ?? ''} ${m[2] ?? ''}`); }
+      }
+      expect([...ranges], id).toHaveLength(1);
+      expect(font.weights?.join(' '), id).toBe([...ranges][0]);
+      checked++;
+    }
+    expect(checked).toBe(13);
+  });
+
+  it('writes that range into the @font-face block of FONTS.md, and not 100 900 for every font', () => {
+    const md = (id: 'dm-sans' | 'space-grotesk' | 'instrument-sans'): string => {
+      const project = { ...applyDirection(createProject('x'), 'paper-and-ink'), params: { ...applyDirection(createProject('x'), 'paper-and-ink').params, fontBody: id, fontHeading: id } };
+      return fontsMd(project);
+    };
+    expect(md('dm-sans')).toContain('font-weight: 100 1000;');
+    expect(md('space-grotesk')).toContain('font-weight: 300 700;');
+    expect(md('instrument-sans')).toContain('font-weight: 400 700;');
+    expect(md('space-grotesk')).not.toContain('font-weight: 100 900;');
   });
 });

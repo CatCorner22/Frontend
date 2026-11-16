@@ -40,7 +40,7 @@
         "text color #dbe7df: 1 element, first p \"Tell us how to reach you and what you ne…\""
       ],
       "more": 0,
-      "note": "A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.",
+      "note": "A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too. Partly transparent colors are listed as information and not compared.",
       "information": [],
       "informationMore": 0
     },
@@ -79,7 +79,7 @@
         "1.24 to 1, where 4.5 to 1 is the usual least, on p.promise \"No work starts until you have seen the p…\" at 375 pixels"
       ],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least.",
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.",
       "information": [],
       "informationMore": 0
     },
@@ -90,7 +90,7 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.",
+      "note": "The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own, inside one block of text. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask, and a text that is empty in the Mockup, are counted as not measured.",
       "information": [],
       "informationMore": 0
     },
@@ -126,5 +126,6 @@
     "inline": 0,
     "external": 0
   },
+  "scriptsRan": false,
   "loadFailures": []
 }

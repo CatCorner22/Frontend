@@ -78,7 +78,12 @@ function disagreements(tokens: TokensJson, css: readonly [string, string][]): st
         else if (rgb) same = `#${[rgb[1], rgb[2], rgb[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('')}` === value.hex.toLowerCase() && Math.abs(Number(rgb[4]) - alpha) < 0.0005;
         else same = false;
       }
-      else if (group === 'dimension' && value && !Array.isArray(value) && typeof value.value === 'number') same = there === `${String(value.value)}${value.unit ?? ''}`;
+      else if (group === 'dimension' && value && !Array.isArray(value) && typeof value.value === 'number') {
+        // A size may stand in rem in one file and in pixels in the other: 16 pixels to the rem, as the program reads radii (joined, D72).
+        const px = (n: number, unit: string): number => (unit === 'rem' ? n * 16 : n);
+        const css = /^(-?[\d.]+)(px|rem)$/.exec(there);
+        same = there === `${String(value.value)}${value.unit ?? ''}` || (css !== null && (value.unit === 'px' || value.unit === 'rem') && Math.abs(px(Number(css[1]), css[2] ?? '') - px(value.value, value.unit)) < 0.001);
+      }
       else if (group === 'typeface' && Array.isArray(value)) same = there.split(',')[0]?.trim().replace(/^"|"$/g, '') === value[0];
       if (!same) out.push(`--${name}`);
     }

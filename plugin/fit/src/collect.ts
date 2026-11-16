@@ -18,8 +18,8 @@ export interface TextRead {
   foreground: string;
   /** Background layers, from the outermost to the one under the text, as computed CSS colors; null when the background cannot be read. */
   layers: string[] | null;
-  /** Why the contrast of this text cannot be measured; empty when it can. */
-  unmeasured: string;
+  /** Why the contrast of this text cannot be measured, as a fixed code; empty when it can. The program turns a code into a sentence; page text never stands here (main line, finding X7). */
+  unmeasured: '' | 'fill' | 'opacity' | 'image' | 'filter';
   sizePx: number;
   weight: number;
 }
@@ -30,10 +30,15 @@ export interface Collected {
   families: { family: string; where: string }[];
   radii: { value: string; where: string }[];
   texts: TextRead[];
-  /** The text that a person can read in the window: drawn at 6 pixels or more, not (nearly) transparent, and inside the window's width (campaign A2, finding J-7). */
-  shownText: string;
-  /** Text that a `clip-path` or a mask may hide; whether a person sees it, the program cannot tell (retest finding A2-V7). */
-  clippedText: string;
+  /**
+   * The text that a person can read in the window, one entry for each block of text: drawn at 6 pixels or more, not (nearly)
+   * transparent, in a color that is not transparent, and inside the window's width (campaign A2, findings J-7 and A2-V6). A required
+   * text must stand inside one block, so that it cannot be pieced together from the end of one block and the start of the next
+   * (the main line's rule, finding X7). Joined on 2026-11-16 (decision D72).
+   */
+  shownLines: string[];
+  /** Text that a `clip-path` or a mask may hide, by block; whether a person sees it, the program cannot tell (retest finding A2-V7). */
+  clippedLines: string[];
   /** Elements with text, or form controls and pictures, that reach past an edge of the window where nothing lets a person scroll to them (finding J-18). */
   cutOff: string[];
   /** Drawn colors that a CSS filter changes before they reach the screen; they are counted as not measured (finding J-6). */
@@ -99,12 +104,19 @@ export function collect(): Collected {
     const code = Number.parseInt(hex, 16);
     return code > 0 && code <= 0x10ffff && (code < 0xd800 || code > 0xdfff) ? String.fromCodePoint(code) : '\ufffd';
   });
-  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['form', 'action'], ['button', 'formaction'], ['input', 'formaction'], ['base', 'href']];
+  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['video', 'poster'], ['form', 'action'], ['button', 'formaction'], ['input', 'formaction'], ['base', 'href'], ['image', 'href'], ['image', 'xlink:href'], ['use', 'href'], ['use', 'xlink:href']];
   for (const [tag, attribute] of holders) {
     for (const el of every(tag)) {
       const value = el.getAttribute(attribute) ?? '';
       if (outside(value)) references.push({ kind: `${tag} ${attribute}`, value: collapse(value), address: value });
     }
+  }
+  // A ping holds several addresses, separated by spaces; a meta refresh names the address that the page moves to (main line, finding X7).
+  for (const el of every('a[ping], area[ping]')) for (const value of (el.getAttribute('ping') ?? '').split(/\s+/)) if (outside(value)) references.push({ kind: `${el.tagName.toLowerCase()} ping`, value: collapse(value), address: value });
+  for (const el of every('meta[http-equiv]')) {
+    if ((el.getAttribute('http-equiv') ?? '').toLowerCase() !== 'refresh') continue;
+    const target = /url\s*=\s*['"]?([^'";]+)/i.exec(el.getAttribute('content') ?? '')?.[1] ?? '';
+    if (outside(target)) references.push({ kind: 'meta refresh', value: collapse(target), address: target });
   }
   for (const el of every('img[srcset], source[srcset]')) {
     for (const candidate of (el.getAttribute('srcset') ?? '').split(',')) {
@@ -256,14 +268,14 @@ export function collect(): Collected {
 
     if (!hasText) continue;
     const textColor = rgbOf(cs.color);
-    let unmeasured = '';
+    let unmeasured: TextRead['unmeasured'] = '';
     const layers: string[] = [];
-    if (alphaOf(textColor) === 0 || alphaOf(rgbOf(cs.webkitTextFillColor)) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') unmeasured = 'the text is filled by an image or a gradient';
-    if (unmeasured === '' && recolored) unmeasured = 'a filter changes how the text is drawn';
+    if (alphaOf(textColor) === 0 || alphaOf(rgbOf(cs.webkitTextFillColor)) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') unmeasured = 'fill';
+    if (unmeasured === '' && recolored) unmeasured = 'filter';
     for (let up: Element | null = el; up && unmeasured === ''; up = up.parentElement) {
       const style = getComputedStyle(up);
-      if (Number.parseFloat(style.opacity) < 1) { unmeasured = 'the text or a box around it is drawn partly transparent'; break; }
-      if (style.backgroundImage !== 'none') { unmeasured = 'an image or a gradient lies behind the text'; break; }
+      if (Number.parseFloat(style.opacity) < 1) { unmeasured = 'opacity'; break; }
+      if (style.backgroundImage !== 'none') { unmeasured = 'image'; break; }
       const behind = rgbOf(style.backgroundColor);
       const a = alphaOf(behind);
       if (a > 0) layers.unshift(behind);
@@ -273,8 +285,14 @@ export function collect(): Collected {
   }
 
   // The text that a person can read in this window (finding J-7). innerText counts text at size 0, at opacity 0, and outside the window.
-  const shown: string[] = [];
-  const clipped: string[] = [];
+  // Text is gathered by block: the nearest box around it that is not drawn inline, as a browser breaks the visible text into lines.
+  const shown = new Map<Element, string[]>();
+  const clipped = new Map<Element, string[]>();
+  const blockOf = (el: Element): Element => {
+    let at = el;
+    while (at.parentElement && /^(inline|contents)$/.test(getComputedStyle(at).display)) at = at.parentElement;
+    return at;
+  };
   // Letters drawn in a transparent color are not read, unless a gradient fills them through the text (retest finding A2-V6).
   const fillsThroughText = (el: Element | null): boolean => {
     for (let up = el; up; up = up.parentElement) {
@@ -304,12 +322,14 @@ export function collect(): Collected {
       range.selectNodeContents(node);
       const r = range.getBoundingClientRect();
       if (r.width <= 0 || r.height <= 0 || r.right <= 0 || r.left >= viewWidth) continue;
-      (underClip(host) ? clipped : shown).push(value);
+      const into = underClip(host) ? clipped : shown;
+      const block = blockOf(host);
+      into.set(block, [...(into.get(block) ?? []), value]);
     }
   }
 
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, shownText: collapse(shown.join(' ')), clippedText: collapse(clipped.join(' ')), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
+  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */

@@ -14,13 +14,20 @@
  * What this does not catch: a letter of another alphabet that looks like a Latin letter. No list of such letters is
  * complete, so a name can still look like another name; the Studio compares names, it does not judge their looks.
  */
-// After red-team campaign A2 (finding J-12): the signs are matched by Unicode property, not by a list. A list missed 50 signs
-// (among them U+1D173, U+13430, U+1BCA0); every control sign (Cc), every format sign (Cf), and every sign that Unicode says draws
-// nothing (Default_Ignorable_Code_Point) now goes, and so do the line and paragraph separators and the blank braille sign.
-const INVISIBLE_SIGNS = /[\p{Cc}\p{Cf}\p{Default_Ignorable_Code_Point}\u2028\u2029\u2800]/gu;
+// After red-team campaign A2 (finding J-12) the signs are matched by Unicode property, not only by a list: a list missed 13 format
+// signs (among them U+0600 to U+0605 and U+110BD). Every control sign (Cc), every format sign (Cf), and every sign that Unicode says
+// draws nothing (Default_Ignorable_Code_Point) goes, and so do the line and paragraph separators, the narrow no-break space (which the
+// main line's list removed, findings X7-10 and C7-05), and the blank braille sign. Joined on 2026-11-16 (decision D72).
+const INVISIBLE_SIGNS = /[\p{Cc}\p{Cf}\p{Default_Ignorable_Code_Point}\u2028\u2029\u202f\u2800]/gu;
 /** Half of a two-part character with its other half missing. */
 const HALF_CHARACTERS = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g;
 const QUOTATION_SIGNS = /["'`´“”„‟‘’‚‛«»‹›＂＇″‴‶′‵ʺʹˮ˝❛❜❝❞〝〞〟ʻ-ʽˊˋ˵˶׳״〃Ꞌꞌ]+/g;
+
+/** The first `max` UTF-16 units of a text, never ending on half of a two-part character (finding C7-06). */
+export function cutUnits(text: string, max: number): string {
+  const cut = text.slice(0, max);
+  return /[\ud800-\udbff]$/.test(cut) && cut.length === max && text.length > max ? cut.slice(0, -1) : cut;
+}
 
 export function plainName(name: string, limit = 60): string {
   // Cut first, with a wide margin, then clean: bringing letters to one form (NFC) takes time that grows with the square of a long

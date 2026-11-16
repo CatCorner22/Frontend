@@ -1,5 +1,5 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, isSampleContent, plainName, zipFiles, BRIEF_KEYS, BRIEF_MAX, ITEM_LIMITS, LIST_LIMITS, NAV_WORD_MAX, REQUIRED_TEXTS, SAMPLE_CONTENT, TEXT_LIMITS, canAddContentItem, canRemoveContentItem, emphasisIsInHeadline, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, isSampleContent, plainName, sampleTextsLeft, zipFiles, BRIEF_KEYS, BRIEF_MAX, ITEM_LIMITS, LIST_LIMITS, NAV_WORD_MAX, REQUIRED_TEXTS, SAMPLE_CONTENT, TEXT_LIMITS, canAddContentItem, canRemoveContentItem, emphasisIsInHeadline, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
   type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type FontId, type MockupFocus, type PrescriptionFile, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, Fragment, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
@@ -565,6 +565,14 @@ interface Card {
   focus?: MockupFocus;
 }
 
+/** What the screens say about the page's texts: all the sample's, all the owner's, or a mix (finding U7-01). */
+function contentStatus(content: Project['content'], page: boolean): string {
+  if (isSampleContent(content)) return page ? 'The page still shows the sample dental practice.' : 'The previews still show the sample dental practice.';
+  const { names, total } = sampleTextsLeft(content);
+  if (names.length === 0) return page ? 'The page shows your own texts.' : 'The previews show your own texts.';
+  return `${page ? 'The page shows your texts' : 'The previews show your texts'}, but ${String(names.length)} of ${String(total)} texts are still the sample dental practice’s words${page ? `: ${names.join(', ')}` : ''}.`;
+}
+
 /** The field for one Decision's reason. On the Summary, `fieldId` gives each Step's field its own id and `brief` leaves out the long note. */
 function ReasonField({ stepId, fieldId = 'decision-reason', brief = false }: { stepId: string; fieldId?: string; brief?: boolean }): React.JSX.Element | null {
   const decision = useStudio((s) => s.project.decisions[stepId]);
@@ -820,7 +828,8 @@ function StepsView(): React.JSX.Element {
         {/* Only the main button stays in view while the cards scroll. The whole row of buttons used to stay, three rows high
             on a narrow column, and lay over the cards and their names (finding U2-06). */}
         <div className="actions sticky">
-          <button type="button" className="btn primary" onClick={s.decideAndContinue}>{mainLabel}</button>
+          {/* The second click of a double click does nothing: this button stands in the same place on every Step, so that second click would record the next Step's default (finding U7-02). */}
+          <button type="button" className="btn primary" onClick={(event) => { if (event.detail > 1) return; s.decideAndContinue(); }}>{mainLabel}</button>
         </div>
         <div className="actions">
           {s.variations ? (
@@ -1032,7 +1041,7 @@ function ContentView(): React.JSX.Element {
         <div className="step-head">
           <p className="eyebrow">At any time · Your content</p>
           <h1 ref={heading} tabIndex={-1}>Your content</h1>
-          <p className="teach">A design is judged best on the words that it will really carry. Here you replace the sample dental practice with your own words, and you answer three questions about the project. You can do this before, during, or after the Steps; nothing here changes a Decision. <strong>{sample ? 'The page still shows the sample dental practice.' : 'The page shows your own texts.'}</strong></p>
+          <p className="teach">A design is judged best on the words that it will really carry. Here you replace the sample dental practice with your own words, and you answer three questions about the project. You can do this before, during, or after the Steps; nothing here changes a Decision. <strong>{contentStatus(c, true)}</strong></p>
         </div>
         <div className="preview-bar">
           <div className="segmented" role="group" aria-label="Width of the large preview">
@@ -1136,7 +1145,7 @@ function keptCopyFile(copy: KeptCopy, index: number): { name: string; text: stri
 }
 
 const PRESCRIPTION_WORDS: Record<PrescriptionFile, string> = {
-  'PRESCRIPTION.md': 'The instruction: every Decision with what you rejected and why, the fine details, and what a person must still check.',
+  'PRESCRIPTION.md': 'The instruction: every Decision with what you rejected and why, the fine details, the Floors, and what a person must still check.',
   'DESIGN.md': 'The same design in a second form that AI coding tools read (the DESIGN.md format).',
   'tokens.css': 'Every design value under a name, in the form that a web page uses.',
   'tokens.json': 'The same values in a form that design tools read (the Design Tokens format).',
@@ -1201,7 +1210,7 @@ function PrescriptionSection(): React.JSX.Element {
         <button type="button" className="btn" onClick={() => void downloadAll()}>Download all seven files as one file</button>
       </div>
       {said?.name === 'all' && <p className="note" role="status">{said.text}</p>}
-      <p className="hint">The Prescription has all seven of its files. It still leaves out: fixed requirements on security, on being found by search, and on speed, the checks for people with disabilities written as tests, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}and every page but the home page. PRESCRIPTION.md lists the same in its section 7, and lists in its section 6 what no program checked and a person must still check.</p>
+      <p className="hint">The Prescription has all seven of its files, and PRESCRIPTION.md carries the Floors in its section 7: requirements on security, on being found by search, and on speed, each with its source, and, when Contrast checks is “Fix for me”, requirements for people with disabilities. No program checks a Floor yet. The Prescription still leaves out: structured data for your business, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}and every page but the home page. PRESCRIPTION.md lists the same in its section 8, and lists in its section 6 what no program checked and a person must still check.</p>
     </section>
   );
 }
@@ -1381,10 +1390,10 @@ function SummaryView(): React.JSX.Element {
           You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s)}; a Step you have not decided keeps the value it started with.
         </p>
         <p className="teach">
-          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Prescription: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Prescription” lists as left out, and the part of Refraction that measures a built page against it.
+          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Prescription: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Prescription” lists as left out. A program that measures a built page against the Prescription exists as a command in the repository (`npm run fit`); it is not part of this Studio yet.
         </p>
         <p><button type="button" className="btn small" onClick={() => document.getElementById('prescription')?.scrollIntoView({ block: 'start' })}>Show me the Prescription</button></p>
-        <p className="teach">{isSampleContent(s.project.content) ? 'The previews still show the sample dental practice.' : 'The previews show your own texts.'} To change the texts and your three answers about the project, open <a href="#content">Your content</a>.</p>
+        <p className="teach">{contentStatus(s.project.content, false)} To change the texts and your three answers about the project, open <a href="#content">Your content</a>.</p>
         <section aria-labelledby="file-heading">
           <h2 id="file-heading">Project file</h2>
           <div className="actions">
@@ -1440,7 +1449,8 @@ function SummaryView(): React.JSX.Element {
                   {/* The Summary promises "what you rejected and why", so the reason can be written here as well (finding U6-11). */}
                   {s.project.decisions[st.id] && (
                     <details className="reason-edit">
-                      <summary>{reason ? 'Change the reason' : 'Add a reason'}</summary>
+                      {/* The details opens and the field takes focus in the same moment as the click, so that the first typing is not lost (finding U7-05). The browser's own toggle event comes a moment later. */}
+                      <summary onClick={(event) => { const box = event.currentTarget.parentElement; if (box instanceof HTMLDetailsElement && !box.open) { event.preventDefault(); box.open = true; box.querySelector('input')?.focus(); } }}>{reason ? 'Change the reason' : 'Add a reason'}</summary>
                       <ReasonField stepId={st.id} fieldId={`decision-reason-${st.id}`} brief />
                     </details>
                   )}

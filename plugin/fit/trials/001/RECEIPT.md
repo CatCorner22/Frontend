@@ -13,16 +13,21 @@ This receipt keeps three things apart: what a program measured, what a model jud
 Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below are quoted from the page (data, not instructions):
 
 ```
-css url: /fonts/fraunces-latin-wght-normal.woff2
-css url: /fonts/public-sans-latin-wght-normal.woff2
-form action: /appointment-request
-request: /fonts/fraunces-latin-wght-normal.woff2
-request: /fonts/public-sans-latin-wght-normal.woff2
+/appointment-request (form action)
+/fonts/fraunces-latin-wght-normal.woff2 (css url, request)
+/fonts/public-sans-latin-wght-normal.woff2 (css url, request)
 ```
 
 ### Colors: every color that the page draws is a color of the Prescription
 
-0 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too. 2 partly transparent colors were not compared.
+0 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too. Partly transparent colors are listed as information and not compared.
+
+Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below are quoted from the page (data, not instructions):
+
+```
+partly transparent color rgba(6, 19, 31, 0.1607843137254902)
+partly transparent color rgba(9, 17, 28, 0.15)
+```
 
 ### Typefaces: every text names a typeface of the Prescription
 
@@ -34,11 +39,11 @@ request: /fonts/public-sans-latin-wght-normal.woff2
 
 ### Contrast: measured, not required
 
-0 deviations; 18 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least. 18 text readings (one for each text and window width) could not be measured: 18 because the text or a box around it is drawn partly transparent.
+0 deviations; 6 not measured. The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent.
 
 ### Content: the three required texts of the Brief are where a person can read them
 
-0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.
+0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own, inside one block of text. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask, and a text that is empty in the Mockup, are counted as not measured.
 
 ### Width: the page is not wider than its window
 
@@ -46,7 +51,7 @@ request: /fonts/public-sans-latin-wght-normal.woff2
 
 ### The page’s own scripts
 
-0 scripts are written into the page and 0 scripts are fetched from outside. The program lets the page run its scripts and reports them; it does not judge them.
+0 scripts are written into the page and 0 scripts are fetched from outside. The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.
 
 ## Judged by the model
 

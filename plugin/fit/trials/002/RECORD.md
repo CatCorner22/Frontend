@@ -41,3 +41,11 @@ What the helper said about itself (a claim, not a measurement): it read no file;
 The program now serves the build at a stand-in address of the site and reads each width three times. The stored receipt was measured again with that program; no count of the table above changed, and the two contrast lines read as before, because a line that holds in every reading of a width still says "at 375 pixels".
 
 Later the same day (the retest's variant findings A2-V1 to A2-V14): the receipt was measured again. No count and no line of the measures changed; "Still needs a person" gained two lines (dark mode, touch screens, and other window heights; closed shadow roots).
+
+## Update of 2026-11-16 (decision D68, section 2.15)
+
+The receipt was measured again after the seventh review's repairs of the program. The page holds no script, so the counts did not change. One label needs a word: the table counts "deviations" per measure, and for contrast the 2 are readings below the usual least, which the receipt does not count as deviations from the Prescription (it holds no Floors yet) and which never change the program's status. (Update of 2026-11-16, feature F032: the Prescription now holds the Floors, but no program checks them, so the readings still count as no deviation. The receipt's sentence now says "No program checks a Floor of the Prescription yet", and the stored receipts of the three trials changed in that one sentence only.)
+
+## The branches joined (2026-11-16, decision D72)
+
+The two branches of this repository were joined (decision D72), and the stored receipt was measured again with the joined program. **No count changed from the main line's receipt**, in any measure. No count changed against the audit branch's receipt either, so the table above still holds. The wording changed in the same places as in `../001/RECORD.md`: the first lines, two measure titles, four measure notes, the scripts line, and six more lines under "Still needs a person".
