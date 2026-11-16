@@ -94,7 +94,7 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
 - What the user does: opens the Summary, presses the download button of each of the four files ("Download PRESCRIPTION.md" and so on), or copies a file's text; gives the files to Claude Code.
 - What the system does in response: the core writes, as pure functions of the project:
   - `tokens.css`: every design value of the open design as a named CSS custom property, exactly the values that the preview draws.
-  - `tokens.json`: the same values in the Design Tokens format (name, value, type), grouped by role.
+  - `tokens.json`: the same values in the Design Tokens format (name, value, type), grouped by type (decision D63, point 2; the words were "by role" until 2026-11-16).
   - `mockup.html`: the Mockup of the open design as one self-contained page without script, as the reference picture for the build.
   - `PRESCRIPTION.md`: the instruction for the AI coding tool, in three layers: (1) every Decision with the picked Option, the rejected Options, and the owner's reason; (2) the craft rules with their exact instructions; (3) what a person must still check. The owner's own words (the project name, each reason) stand in a fenced block that the text marks as quoted data, never as instructions.
 - Edge cases:
@@ -161,6 +161,22 @@ Three reviewers read the code of 2026-11-15 and used the running Studio: 1 block
 - The craft list explains the grades in one sentence.
 - The Directions screen has a jump link to "Your own"; a rename says "Renamed"; a message about a file names the file; a long name without spaces stays inside a 375-pixel window; the form says so when it cuts a text.
 - Not in these repairs (they stay open in the findings log for the owner's judgment): the look of quiet buttons (U6-22), what "Undo" covers (U6-23), a date or a name inside the four files (U6-24), where the field for a reason sits (U6-11), the wording of small variations on the Summary (U6-10, second half), and the notes U6-27 to U6-30.
+
+### 2.9 The rest of the Prescription's files, each checked by a validator (milestone M6; decision D63, point 5)
+
+**What it is.** The Prescription is seven files. Four exist. This requirement adds the other three, a mark that tells two sets of files apart, one download for all of them, and a check of each machine-read file by a program that the builder did not write. The floors are not part of this requirement: each floor is a Catalog record that needs a source read in full (decision D63, point 3), so the floors get a requirement of their own.
+
+- What the user does: opens the Summary and downloads each of seven files, or all of them as one file.
+- What the system does in response:
+  - **A fingerprint.** The core works out eight characters from the design values. The same design always gives the same eight characters, and a changed design gives others. Every file of the Prescription carries them, so that the owner and the AI coding tool can see whether seven files belong together. No file carries a date: the same project must always give the same files.
+  - **`FONTS.md`.** For each typeface of the design: its name, its CSS family, its licence, the package that holds its files and the version that the Studio itself ships, how to load it from the site's own address, and the sentence that no font may come from another site. A device's own typeface is named as such, with no file.
+  - **`DESIGN.md`.** The design in the DESIGN.md format of Google Labs, as its specification read on 2026-11-16: named colors, type levels, corner roundings, spacing, and the main button and the field as components, with the eight sections in their fixed order. The format's own lint program checks the file in a test, for every built-in Direction.
+  - **`theme.css`.** The design's colors and corner rounding under the names that the shadcn component library reads (`--background`, `--primary`, `--radius`, and the rest of its list as read on 2026-11-16), so that ready-made parts take the design. The test holds the file against that list of names.
+  - **A validator for `tokens.json`.** A parser of the Design Tokens format that the builder did not write reads the file in a test, for every built-in Direction.
+  - **One download.** A button hands over all files as one archive file. Each file in it equals the file that its own button hands over.
+- Edge cases: a design with a device's own typeface; a dark design (`theme.css` gives the same values for the light and the dark name, and says so); a color with transparency; a hostile project name (it appears in the new files only inside a block marked as quoted data, or not at all); a design value for which a format has no place (left out of that file, and the file says where it stands instead).
+- Not in this requirement: the floors; a registry file for the shadcn command-line tool; more than one page.
+- How to test it end to end: unit tests with stored copies of the three new files for two projects; the two outside validators in unit tests over every built-in Direction; a unit test that the fingerprint is the same in all files and changes with a design value; a browser test that downloads every file and the archive, and compares them with what the core writes.
 
 ## 3. Out of scope
 

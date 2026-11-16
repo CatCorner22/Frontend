@@ -104,6 +104,15 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F019 (`FONTS.md`, and one fingerprint of the design values in every file of the Prescription)
+- Result: passes
+- Commits: the commit "F019: ..." that holds this entry
+- Evidence: `npm run check`: 262 unit tests passed (3 new). `npm run e2e`: 308 browser tests passed (none new; 1,444 seconds). Tests first: the 3 new tests and 1 changed test failed before the code. The fingerprint is eight characters worked out from the design values; `PRESCRIPTION.md`, `tokens.css`, `tokens.json`, `mockup.html`, and `FONTS.md` carry it; each of the 38 Directions has its own. `FONTS.md` names each typeface with its CSS family, licence, package, and the version that the Studio ships (a test holds that version against the lock file). The Summary does not offer `FONTS.md` yet; feature F023 adds it.
+- What went wrong on the way: the new test forbade a date in any file and so caught dated comments from earlier reviews in the sample website's style sheet. Those comments are fixed text; the test now sets style-sheet comments aside, and the one comment that the builder had dated on this day names its finding instead.
+- Open problems for the next session: the fingerprint is a mark to compare, not a seal. It covers the design values, not the owner's texts.
+- Next feature to build (ID): F020 in the list; see the entry of F021 for why F021 came first.
+
+- Date: 2026-11-16
 - Feature worked on (ID): F018 (the Brief, part 4: the Prescription carries the three answers and says whose texts the reference page shows)
 - Result: passes
 - Commits: the commit "F018: ..." that holds this entry

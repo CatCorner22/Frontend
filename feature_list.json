@@ -217,6 +217,59 @@
         "In the browser: type the answers, download PRESCRIPTION.md, and read them there"
       ],
       "passes": true
+    },
+    {
+      "id": "F019",
+      "description": "The core writes FONTS.md, and every file of the Prescription carries one fingerprint of the design values, so that the files of one design can be told from those of another.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Run the unit tests: the same project gives the same fingerprint in every file, and a changed design value gives another",
+        "FONTS.md names each typeface of the design with its CSS family, licence, package, and the version that the Studio ships, and names a device's own typeface as such",
+        "No file carries a date; the same project gives the same files"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F020",
+      "description": "The core writes DESIGN.md in the DESIGN.md format, and the format's own lint program finds no error in it for any built-in Direction.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Run the unit tests: DESIGN.md holds the eight sections in their fixed order, with named colors, type levels, roundings, spacing, and two components",
+        "The format's lint program reports no error for the plain start and for each of the 38 Directions",
+        "A hostile project name appears only inside a block marked as quoted data, or not at all"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F021",
+      "description": "The core writes theme.css with the design's colors and corner rounding under the names that the shadcn component library reads.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Run the unit tests: theme.css defines every name of the library's list, each with a value of the design",
+        "A dark design and a light design both give the light name and the dark name the same values, and the file says so"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F022",
+      "description": "A parser of the Design Tokens format that the builder did not write reads tokens.json without an error, for every built-in Direction.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Run the unit tests: the outside parser reads tokens.json of the plain start and of each of the 38 Directions and reports no error",
+        "The same parser reports an error for a file with a planted fault, so that its silence means something"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F023",
+      "description": "The owner downloads each of the seven Prescription files from the Summary, or all of them as one archive file whose content equals the single files.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Open the Summary: the section \"The Prescription\" offers seven files and one button for all of them",
+        "Download each file and the archive: every file equals what the core writes for the stored project, and the archive holds the same seven files",
+        "The section no longer says that the three files are missing"
+      ],
+      "passes": false
     }
   ]
 }

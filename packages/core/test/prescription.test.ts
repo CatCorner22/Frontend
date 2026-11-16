@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CRAFT_RULES, CSS_ONLY_KEY, DEFAULT_PARAMS, DIRECTIONS, NOT_CHECKED, PRESCRIPTION_FILES, STEPS,
-  applyDirection, craftReport, craftSheet, createProject, cssValueOfToken, deriveTokens, findOverlay, isSampleContent, keep, notCheckedIn, pick, prescriptionMd, setBriefAnswer, setContentText, quoted, setOverlay, setReason, tokensCss, tokensJson, tune, visibleText, writePrescription,
+  applyDirection, craftReport, craftSheet, createProject, cssValueOfToken, deriveTokens, findOverlay, fingerprint, fontsMd, isSampleContent, keep, notCheckedIn, pick, prescriptionMd, setBriefAnswer, setContentText, quoted, setOverlay, setReason, tokensCss, tokensJson, tune, visibleText, writePrescription,
   type Project,
 } from '../src/index.js';
 
@@ -341,8 +341,58 @@ describe('The Prescription, first slice (SPEC.md section 2.6)', () => {
     expect(prescriptionMd(worked())).toContain('- Texts: `mockup.html` shows a sample dental practice, not the owner’s content.');
   });
 
+  it('marks every file with one fingerprint of the design values: the same for the same design, another for a changed one, and never a date (SPEC.md section 2.9)', () => {
+    const project = worked();
+    const tokens = deriveTokens(project.params, project.a11y).css;
+    const mark = fingerprint(tokens);
+    expect(mark).toMatch(/^[0-9a-f]{8}$/);
+    expect(fingerprint({ ...tokens })).toBe(mark);
+    const files = writePrescription(project);
+    expect(files['PRESCRIPTION.md']).toContain(`Fingerprint of the design values: \`${mark}\`.`);
+    expect(files['tokens.css']).toContain(`Fingerprint: ${mark}.`);
+    expect((JSON.parse(files['tokens.json']) as { $extensions: Record<string, unknown> }).$extensions['refraction.fingerprint']).toBe(mark);
+    expect(files['mockup.html']).toContain(`<meta name="refraction-fingerprint" content="${mark}">`);
+    expect(fontsMd(project)).toContain(`Fingerprint of the design values: \`${mark}\`.`);
+    // One changed design value gives other characters, in every file.
+    const changed = tune(project, 'density', 'density', 1.3, AT);
+    const other = fingerprint(deriveTokens(changed.params, changed.a11y).css);
+    expect(other).not.toBe(mark);
+    for (const text of [...Object.values(writePrescription(changed)), fontsMd(changed)]) {
+      expect(text).toContain(other);
+      expect(text).not.toContain(mark);
+    }
+    // The owner's words change no design value, so they change no fingerprint.
+    expect(fingerprint(deriveTokens(setReason(project, 'nav', 'Another reason.').params, project.a11y).css)).toBe(mark);
+    // Every Direction has a fingerprint of its own.
+    const all = DIRECTIONS.map((d) => fingerprint(deriveTokens(d.params, 'advise').css));
+    expect(new Set(all).size).toBe(all.length);
+    // No file carries a date: the same project always gives the same files.
+    // (The comments of the sample website's style sheet name the reviews that led to a rule, some with a day. They are fixed
+    // text, the same in every file, so they are set aside here.)
+    for (const [name, text] of [...Object.entries(files), ['FONTS.md', fontsMd(project)]] as [string, string][]) expect(text.replace(/\/\*[\s\S]*?\*\//g, ''), name).not.toMatch(/\b20\d\d-\d\d-\d\d\b/);
+  });
+
+  it('writes FONTS.md: each typeface with its family, licence, package, and version, and a device’s own typeface without a file (SPEC.md section 2.9)', () => {
+    const md = fontsMd(worked());
+    expect(md).toMatchSnapshot('a worked project: FONTS.md');
+    for (const part of ['### Newsreader (headings)', '- CSS family: `Newsreader Variable`', '`@fontsource-variable/newsreader`, version 5.3.0', '### Instrument Sans (reading text)', 'OFL-1.1', 'font-display: swap', 'Load no font from another site']) expect(md, part).toContain(part);
+    expect(md.match(/@font-face \{/g)).toHaveLength(2);
+    // One typeface for headings and reading text is listed once, with both jobs.
+    const one = fontsMd(plain());
+    expect(one).toContain('(headings and reading text)');
+    expect(one.match(/^### /gm)).toHaveLength(1);
+    // Typewriter digits bring a third typeface.
+    expect(fontsMd({ ...plain(), params: { ...DEFAULT_PARAMS, numerals: 'mono' } })).toContain('### JetBrains Mono (numbers)');
+    // A device's own typeface has no file, no package, and no licence to keep.
+    const device = fontsMd({ ...plain(), params: { ...DEFAULT_PARAMS, fontHeading: 'system-serif', fontBody: 'system-sans' } });
+    expect(device).toContain('the device’s own typeface. Ship no font file for it.');
+    expect(device).not.toMatch(/@font-face|@fontsource/);
+    expect(md).not.toMatch(/\bWCAG compliant|\bis accessible\b/i);
+  });
+
   it('writes tokens.css as one block of named values and nothing else', () => {
     const css = tokensCss({ '--bg': '#ffffff', '--space-4': '1rem' });
-    expect(css).toBe('/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. */\n:root {\n  --bg: #ffffff;\n  --space-4: 1rem;\n}\n');
+    const mark = fingerprint({ '--bg': '#ffffff', '--space-4': '1rem' });
+    expect(css).toBe(`/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: ${mark}. */\n:root {\n  --bg: #ffffff;\n  --space-4: 1rem;\n}\n`);
   });
 });

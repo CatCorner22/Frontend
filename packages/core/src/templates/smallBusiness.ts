@@ -111,6 +111,8 @@ export interface MockupInput {
   overlays?: readonly string[];
   /** Draw the switched-on Overlays, open, as a last part of the whole page too (for the reference page of the Prescription). */
   overlaysShown?: boolean;
+  /** The fingerprint of the design values, written into the page's head so that the page can be matched with the other files of a Prescription. */
+  fingerprint?: string;
   /** `@font-face` rules for the fonts in use. The Studio supplies these; exports reference font files instead. */
   fontFaceCss?: string;
   /**
@@ -150,7 +152,7 @@ body {
   /* A word that is wider than its line breaks instead of pushing the page wider than the screen. */
   /* "anywhere", not "break-word": a long word then breaks where it must, and a grid or flex part may also become narrower
      than its longest word. With "break-word" a long name or headline of the owner's own made the whole page wider than
-     the window (the Brief's layout sweep, 2026-11-16). */
+     the window (finding B17-01). */
   overflow-wrap: anywhere;
 }
 ::selection { background: var(--selection); }
@@ -579,7 +581,7 @@ export function renderSmallBusiness(input: MockupInput): string {
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; form-action 'none'; base-uri 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="${e(p.theme)}">
+${input.fingerprint && /^[0-9a-f]{8}$/.test(input.fingerprint) ? `<meta name="refraction-fingerprint" content="${input.fingerprint}">\n` : ''}<meta name="color-scheme" content="${e(p.theme)}">
 <title>${e(c.business)}</title>
 <style>
 ${fontFaceCss}
