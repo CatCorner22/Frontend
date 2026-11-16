@@ -1,10 +1,11 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, STEPS, activeTunables, conflicts, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
-  type A11yProfile, type DesignParams, type Direction, type MockupFocus, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, isSampleContent, plainName, zipFiles, BRIEF_KEYS, BRIEF_MAX, ITEM_LIMITS, LIST_LIMITS, NAV_WORD_MAX, REQUIRED_TEXTS, SAMPLE_CONTENT, TEXT_LIMITS, canAddContentItem, canRemoveContentItem, emphasisIsInHeadline, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
+  type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type FontId, type MockupFocus, type PrescriptionFile, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
-import { Component, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { Component, Fragment, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
-import { copyText, fileNameFor, probePreviews, readBackups, removeBackup, saveFile, storedProjectText, type KeptCopy } from './platform';
+import { fontFaceCss } from './fonts';
+import { copyText, fileNameFor, loadOwnDirections, probePreviews, readBackups, removeBackup, saveFile, storedProjectText, type KeptCopy } from './platform';
 import { LargePreview, Thumbnail, mockupHtml, tokensFor } from './preview';
 import { CURRENT, DEVICE_WIDTH, appliedCardId, directionName, paramsForCard, stepOf, useStudio, type Device, type StudioState } from './store';
 import { STUDIO_PARAMS, applyStudioTheme, installSpecimenFonts } from './theme';
@@ -185,6 +186,7 @@ function TopBar(): React.JSX.Element {
         <a href={`#${s.stepId}`} aria-current={s.view === 'steps' ? 'page' : undefined}>2. Steps</a>
         <a href="#overlays" aria-current={s.view === 'overlays' ? 'page' : undefined}>3. Overlays</a>
         <a href="#summary" aria-current={s.view === 'summary' ? 'page' : undefined}>4. Summary</a>
+        <a href="#content" aria-current={s.view === 'content' ? 'page' : undefined}>Your content</a>
       </nav>
       <div className="profile">
         <label htmlFor="a11y-profile">Contrast checks</label>
@@ -323,7 +325,42 @@ function chipColors(direction: Direction, skinId: string | null): [string, strin
   return [main, second];
 }
 
-function DirectionCard({ direction }: { direction: Direction }): React.JSX.Element {
+/** Rename and remove, on the card of a Direction of the owner's own. */
+function OwnCardActions({ id, name }: { id: string; name: string }): React.JSX.Element {
+  const rename = useStudio((s) => s.renameOwnDirection);
+  const remove = useStudio((s) => s.requestRemoveOwnDirection);
+  // `null`: the name is not being changed.
+  const [draft, setDraft] = useState<string | null>(null);
+  const [refusal, setRefusal] = useState<string | null>(null);
+  const fieldId = `rename-${id}`;
+  if (draft === null) {
+    return (
+      <div className="button-row">
+        <button type="button" className="btn small quiet" onClick={() => { setDraft(name); setRefusal(null); }}>Rename</button>
+        <button type="button" className="btn small quiet" onClick={() => remove(id)}>Remove</button>
+      </div>
+    );
+  }
+  const save = (event: React.FormEvent): void => {
+    event.preventDefault();
+    const error = rename(id, draft);
+    setRefusal(error);
+    if (error === null) setDraft(null);
+  };
+  return (
+    <form className="own-form" onSubmit={save}>
+      <label htmlFor={fieldId}>New name for “{name}”</label>
+      <input id={fieldId} className="name" maxLength={OWN_NAME_MAX} value={draft} autoFocus onChange={(e) => setDraft(e.target.value)} />
+      {refusal && <p className="note" role="alert">{refusal}</p>}
+      <div className="button-row">
+        <button type="submit" className="btn small">Save the name</button>
+        <button type="button" className="btn small quiet" onClick={() => setDraft(null)}>Cancel</button>
+      </div>
+    </form>
+  );
+}
+
+function DirectionCard({ direction, own = false }: { direction: Direction; own?: boolean }): React.JSX.Element {
   const project = useStudio((s) => s.project);
   const request = useStudio((s) => s.requestDirection);
   const skins = skinsOf(direction);
@@ -331,8 +368,11 @@ function DirectionCard({ direction }: { direction: Direction }): React.JSX.Eleme
   const [skinId, setSkinId] = useState<string | null>(null);
   const skin = skinId === null ? undefined : findSkin(skinId);
   const params = useMemo(() => (skin ? skinParams(direction, skin) : direction.params), [direction, skin]);
-  const html = useMemo(() => mockupHtml(project, params, { wireframe: false, focus: 'top', still: true }).html, [project.content, project.a11y, params]);
+  // A card keeps the sample practice whatever the owner's own texts are: from card to card only the design may differ.
+  const html = useMemo(() => mockupHtml({ ...project, content: SAMPLE_CONTENT }, params, { wireframe: false, focus: 'top', still: true }).html, [project.a11y, params]);
   const twoColors = direction.params.colorStrategy === 'duo';
+  // What the contrast checks would note on this start under "Warn me", whatever the open project's own setting.
+  const notes = useMemo(() => tokensFor(params, 'advise').issues, [params]);
   return (
     <article className="direction" aria-labelledby={`direction-${direction.id}`}>
       <div className="direction-body">
@@ -362,9 +402,16 @@ function DirectionCard({ direction }: { direction: Direction }): React.JSX.Eleme
           </fieldset>
         )}
         <dl>
-          <div><dt>Best for</dt><dd>{direction.bestFor}</dd></div>
-          <div><dt>Watch for</dt><dd>{direction.risk}</dd></div>
+          {direction.bestFor && <div><dt>Best for</dt><dd>{direction.bestFor}</dd></div>}
+          {direction.risk && <div><dt>Watch for</dt><dd>{direction.risk}</dd></div>}
         </dl>
+        {notes.length > 0 && (
+          <p className="hint starts-noted">
+            Starts with {notes.length === 1 ? '1 contrast note' : `${notes.length} contrast notes`} under “Warn me”: {notes.map((issue) => issue.pair).join('; ')}. “Fix for me” adjusts these colors; “Warn me” and “Off” leave the look as it is.
+          </p>
+        )}
+        {own && <p className="hint">Your own; no source, not reviewed.</p>}
+        {own && <OwnCardActions id={direction.id} name={direction.name} />}
         <button type="button" className="btn primary" onClick={() => request(skin ? { ...direction, params } : direction, skin)}>Start from {direction.name}</button>
       </div>
     </article>
@@ -390,18 +437,19 @@ function DirectionsView(): React.JSX.Element {
         <p className="eyebrow">Start here</p>
         <h1 ref={heading} tabIndex={-1}>Pick a Direction: a complete starting look</h1>
         <p className="teach">
-          The Studio helps you decide how a website looks and feels, one small decision at a time. Today you leave with a project file that holds your Decisions. A later version will turn them into exact instructions for an AI coding tool.
+          The Studio helps you decide how a website looks and feels, one small decision at a time. Today you leave with a project file that holds your Decisions, and with the Prescription: seven files that an AI coding tool builds your page from. You find both on the Summary.
         </p>
         <p className="teach">
           First pick a Direction below. Then {STEPS.length} short Steps let you change one thing at a time, like an eye exam: “which is better, 1 or 2?” You can stop at any point; the line under the top bar says whether your work is saved.
         </p>
-        <p className="teach">Every picture shows the same made-up dental practice, so that only the design differs. It is a sample; it is not your content.</p>
-        {started && <p className="note">You already have a project, started from {directionName(s.project, s.generated)}. If you start from another Direction, the Studio asks first, and you can undo it.</p>}
+        <p className="teach">Every picture shows the same made-up dental practice, so that only the design differs. It is a sample; it is not your content. To put in your own words, open <a href="#content">Your content</a> at any time. The cards below keep the sample, so that only the design differs from card to card; every other preview then shows your words.</p>
+        {started && <p className="note">You already have a project, started from {directionName(s.project, s)}. If you start from another Direction, the Studio asks first, and you can undo it.</p>}
       </div>
       {/* The Directions stand in groups, each under a plain heading. On a wide window every group is open; on a narrow one
           only the first is, so that the person meets four headings and not thirty-five cards in a row. */}
       <nav className="group-links" aria-label="Groups of Directions">
         {DIRECTION_GROUPS.map((g) => <a key={g.id} href={`#group-${g.id}`} onClick={(e) => { e.preventDefault(); openGroup(g.id); }}>{g.label} ({DIRECTIONS.filter((d) => d.group === g.id).length})</a>)}
+        {s.own.length > 0 && <a href="#group-own" onClick={(e) => { e.preventDefault(); openGroup('own'); }}>Your own ({s.own.length})</a>}
       </nav>
       {DIRECTION_GROUPS.map((g, i) => (
         <details key={g.id} id={`group-${g.id}`} className="direction-group" open={wide || i === 0 || undefined}>
@@ -411,6 +459,14 @@ function DirectionsView(): React.JSX.Element {
           </div>
         </details>
       ))}
+      {s.own.length > 0 && (
+        <details id="group-own" className="direction-group" open>
+          <summary><h2>Your own</h2><span>{s.own.length === 1 ? '1 Direction' : `${s.own.length} Directions`}</span></summary>
+          <div className="direction-grid">
+            {s.own.map((d) => <DirectionCard key={d.id} direction={asDirection(d)} own />)}
+          </div>
+        </details>
+      )}
       {s.generated.length > 0 && (
         <details id="group-generated" className="direction-group" open>
           <summary><h2>Composed at random</h2><span>{s.generated.length} Directions</span></summary>
@@ -463,7 +519,7 @@ function Rail(): React.JSX.Element {
       {/* One link of the list takes the Tab key: the current Step, the Overlays link on the Overlays screen, or else this one. */}
       <a className="rail-direction" href="#directions" tabIndex={tab(s.view !== 'steps' && s.view !== 'overlays')}>
         <span>Started from</span>
-        <strong>{directionName(s.project, s.generated)}</strong>
+        <strong>{directionName(s.project, s)}</strong>
       </a>
       <p className="rail-count">{decided} of {STEPS.length} Steps decided</p>
       {(['structure', 'feel'] as const).map((stage) => (
@@ -525,7 +581,7 @@ function ReasonField({ stepId }: { stepId: string }): React.JSX.Element | null {
           lost keyboard focus: Enter, a reload, or the browser's Back button then lost the text, and Back could even store it
           on another Step (code review of 2026-11-13, findings "screen 4" and "gaps 0"). */}
       <input id="decision-reason" type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => { setText(e.target.value); save(stepId, e.target.value); }} />
-      <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved in the project file; a later version of the Studio will pass it to the AI coding tool that builds your site.</small>
+      <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved with the project and goes, word for word, into PRESCRIPTION.md, the file that an AI coding tool reads. Write nothing here that you want to keep to yourself.</small>
     </label>
   );
 }
@@ -549,7 +605,7 @@ function StepsView(): React.JSX.Element {
     }
     const out: Card[] = step.options.map((o) => ({ id: o.id, label: o.label, what: o.what, chooseWhen: o.chooseWhen, risk: o.risk, exemplar: o.exemplar?.text, warn: o.warn?.text, focus: o.focus }));
     if (applied === CURRENT) {
-      const origin = decision ? 'You set these values by hand.' : `These values come from ${directionName(s.project, s.generated)}.`;
+      const origin = decision ? 'You set these values by hand.' : `These values come from ${directionName(s.project, s)}.`;
       out.unshift({ id: CURRENT, label: 'Your design now', what: `${valueLabel(s.project, step)}. ${origin} They match none of the standard Options, so they have a card of their own.` });
     }
     return out;
@@ -891,6 +947,162 @@ function OverlaysView(): React.JSX.Element {
   );
 }
 
+// ───────── Your content (the Brief) ─────────
+
+const BRIEF_QUESTIONS: Record<BriefKey, string> = {
+  offer: 'What do you offer?',
+  audience: 'Who is it for?',
+  job: 'What is the one thing that a visitor should do on this page?',
+};
+const LIST_WORDS: Record<ContentList, { one: string; many: string; region: MockupFocus; fields: { field: string; label: string }[] }> = {
+  facts: { one: 'fact', many: 'facts', region: 'facts', fields: [{ field: 'value', label: 'The figure or short word' }, { field: 'label', label: 'What it counts' }] },
+  services: { one: 'service', many: 'services', region: 'services', fields: [{ field: 'title', label: 'Its name' }, { field: 'body', label: 'One or two sentences about it' }] },
+  fees: { one: 'price', many: 'prices', region: 'fees', fields: [{ field: 'item', label: 'What it is for' }, { field: 'price', label: 'The price, as you write it' }] },
+};
+
+/**
+ * One line of the owner's words. The field shows what is typed; the project holds the cleaned text (one line, no invisible
+ * signs, cut at the limit). When the owner leaves the field, or when the project changes from elsewhere (Undo, an opened
+ * file, "Put the sample text back"), the field shows what the project holds.
+ */
+function ContentField({ id, label, value, max, required = false, onSave, onFocus }: { id: string; label: string; value: string; max: number; required?: boolean; onSave: (text: string) => void; onFocus?: () => void }): React.JSX.Element {
+  const [text, setText] = useState(value);
+  const field = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    if (document.activeElement !== field.current) setText(value);
+  }, [value]);
+  return (
+    <div className="content-field">
+      <label htmlFor={id}>{label}</label>
+      <input ref={field} id={id} className="name" type="text" value={text} maxLength={max} autoComplete="off" onFocus={onFocus} onChange={(e) => { setText(e.target.value); onSave(e.target.value); }} onBlur={() => setText(value)} />
+      {required && text.trim() === '' && <p className="note" role="status">The page needs this text. The last one stays in place until you type a new one.</p>}
+      {text.length >= max && <p className="note field-full" role="status">This field is full: it holds {max} characters, and anything beyond that was left out.</p>}
+    </div>
+  );
+}
+
+/**
+ * The screen "Your content": the Brief (CLAUDE.md, defined terms; SPEC.md section 2.7). The owner answers three questions
+ * about the project and replaces the sample dental practice's texts with the page's real ones. Every text is drawn as text.
+ */
+function ContentView(): React.JSX.Element {
+  const s = useStudio();
+  const heading = useHeadingFocus();
+  // The preview shows the part of the page that the field in use belongs to.
+  const [region, setRegion] = useState<MockupFocus>('top');
+  const c = s.project.content;
+  const html = useMemo(() => mockupHtml(s.project, s.project.params, { wireframe: false, focus: region, still: true }), [s.project, region]);
+  const sample = isSampleContent(c);
+  const text = (key: ContentTextKey, label: string, where: MockupFocus): React.JSX.Element => (
+    <ContentField key={key} id={`content-${key}`} label={label} value={c[key]} max={TEXT_LIMITS[key]} required={REQUIRED_TEXTS.includes(key)} onSave={(typed) => s.setContentText(key, typed)} onFocus={() => setRegion(where)} />
+  );
+  const list = (name: ContentList): React.JSX.Element => {
+    const words = LIST_WORDS[name];
+    const limits = LIST_LIMITS[name];
+    const items = c[name] as unknown as Record<string, string>[];
+    return (
+      <div id={`content-list-${name}`} className="content-list">
+        {items.map((item, index) => (
+          <fieldset key={index} className="content-item">
+            <legend>{words.one.charAt(0).toUpperCase() + words.one.slice(1)} {index + 1}</legend>
+            {words.fields.map(({ field, label }) => (
+              <ContentField key={field} id={`content-${name}-${index}-${field}`} label={label} value={item[field] ?? ''} max={(ITEM_LIMITS[name] as Record<string, number>)[field] ?? 0} onSave={(typed) => s.setContentItem(name, index, field, typed)} onFocus={() => setRegion(words.region)} />
+            ))}
+            <button type="button" className="btn small" disabled={!canRemoveContentItem(s.project, name)} onClick={() => { setRegion(words.region); s.removeContentItem(name, index); }}>Remove {words.one} {index + 1}</button>
+          </fieldset>
+        ))}
+        <button type="button" className="btn small" disabled={!canAddContentItem(s.project, name)} onClick={() => { setRegion(words.region); s.addContentItem(name); }}>Add a {words.one}</button>
+        {!canAddContentItem(s.project, name) && <p className="hint">This list is full: a page holds at most {limits.max} {words.many}.</p>}
+        {!canRemoveContentItem(s.project, name) && limits.min > 0 && <p className="hint">A page needs at least {limits.min} {words.one}.</p>}
+        <p className="hint">The page draws a {words.one} once it holds words.</p>
+      </div>
+    );
+  };
+  return (
+    <div className="work">
+      <Rail />
+      <main className="stage" id="main" tabIndex={-1}>
+        <div className="step-head">
+          <p className="eyebrow">At any time · Your content</p>
+          <h1 ref={heading} tabIndex={-1}>Your content</h1>
+          <p className="teach">A design is judged best on the words that it will really carry. Here you replace the sample dental practice with your own words, and you answer three questions about the project. You can do this before, during, or after the Steps; nothing here changes a Decision. <strong>{sample ? 'The page still shows the sample dental practice.' : 'The page shows your own texts.'}</strong></p>
+        </div>
+        <div className="preview-bar">
+          <div className="segmented" role="group" aria-label="Width of the large preview">
+            {DEVICES.map((d) => <button key={d.id} type="button" aria-pressed={s.device === d.id} onClick={() => s.setDevice(d.id)}>{d.label}</button>)}
+          </div>
+          <span className="showing" aria-live="polite">The preview shows the part of the page that the field in use belongs to.</span>
+        </div>
+        <div className="preview-wrap">
+          <button type="button" className="skip-preview" onClick={() => document.getElementById('brief-offer')?.focus()}>Jump past the preview to the fields</button>
+          <LargePreview html={html.html} width={DEVICE_WIDTH[s.device]} title="Large preview of the sample website with your content" />
+        </div>
+        <p className="hint">Every text is drawn as text: a sign such as “&lt;” appears as that sign and does nothing. The Studio saves each letter as you type; Undo in the top bar takes a change back.</p>
+      </main>
+      <aside className="options content-form" aria-label="Your content">
+        <fieldset>
+          <legend>Three questions about the project</legend>
+          <p className="hint">The page does not show these answers. They go, word for word, into PRESCRIPTION.md, so that the AI coding tool that builds your page knows what the page is for. Write nothing here that you want to keep to yourself.</p>
+          {BRIEF_KEYS.map((key) => <ContentField key={key} id={`brief-${key}`} label={BRIEF_QUESTIONS[key]} value={s.project.brief?.[key] ?? ''} max={BRIEF_MAX} onSave={(typed) => s.setBriefAnswer(key, typed)} />)}
+        </fieldset>
+        <fieldset>
+          <legend>Name, menu, and main button</legend>
+          {text('business', 'The name of the business or project', 'top')}
+          {text('primaryAction', 'The words on the main button', 'top')}
+          {text('phone', 'Telephone number (leave it empty and the page shows none)', 'top')}
+          <p className="hint">The menu keeps its five links, because each leads to a fixed part of the page. You change their words.</p>
+          {c.nav.map((word, index) => <ContentField key={index} id={`content-nav-${index}`} label={`Menu link ${index + 1}`} value={word} max={NAV_WORD_MAX} onSave={(typed) => s.setNavWord(index, typed)} onFocus={() => setRegion('top')} />)}
+        </fieldset>
+        <fieldset>
+          <legend>First screen</legend>
+          {text('tag', 'A short line above the headline', 'top')}
+          {text('headline', 'The headline', 'top')}
+          {text('headlineEmphasis', 'Words of the headline to mark, where the design marks some', 'top')}
+          {!emphasisIsInHeadline(c) && <p className="note" role="status">These words are not part of the headline, so the page marks nothing. Type them exactly as the headline has them.</p>}
+          {text('lede', 'The paragraph under the headline', 'top')}
+          {text('secondaryAction', 'The words of the second link', 'top')}
+        </fieldset>
+        <fieldset>
+          <legend>Facts at a glance</legend>
+          {list('facts')}
+        </fieldset>
+        <fieldset>
+          <legend>Services</legend>
+          {text('servicesTitle', 'The heading', 'services')}
+          {text('servicesIntro', 'A sentence under the heading', 'services')}
+          {list('services')}
+        </fieldset>
+        <fieldset>
+          <legend>Prices</legend>
+          {text('feesTitle', 'The heading of the price list', 'fees')}
+          {list('fees')}
+        </fieldset>
+        <fieldset>
+          <legend>About</legend>
+          {text('aboutTitle', 'The heading', 'about')}
+          {text('aboutBody', 'The paragraph', 'about')}
+          {text('promise', 'One promise, drawn in a box of its own', 'about')}
+        </fieldset>
+        <fieldset>
+          <legend>Contact and foot of the page</legend>
+          {text('contactTitle', 'The heading', 'contact')}
+          {text('contactBody', 'The paragraph', 'contact')}
+          {text('address', 'Address', 'contact')}
+          {text('hours', 'Opening hours', 'contact')}
+          {text('footerNote', 'A note at the foot of the page', 'contact')}
+          <p className="hint">The words of the contact form itself (“Your name”, “Send my request”) are fixed in this version.</p>
+        </fieldset>
+        <div className="button-row">
+          <button type="button" className="btn" disabled={sample} onClick={s.requestSampleContent}>Put the sample text back</button>
+        </div>
+        <div className="actions sticky">
+          <a className="btn primary" href="#summary">Go to the Summary</a>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
 // ───────── Summary ─────────
 
 /** The time at which a copy was kept, on the reader's own clock, or an empty text when the time is unknown. */
@@ -916,6 +1128,175 @@ function keptCopyFile(copy: KeptCopy, index: number): { name: string; text: stri
   return { name: `refraction-kept-copy-${index + 1}.${record ? 'json' : 'txt'}`, text: copy.text };
 }
 
+const PRESCRIPTION_WORDS: Record<PrescriptionFile, string> = {
+  'PRESCRIPTION.md': 'The instruction: every Decision with what you rejected and why, the fine details, and what a person must still check.',
+  'DESIGN.md': 'The same design in a second form that AI coding tools read (the DESIGN.md format).',
+  'tokens.css': 'Every design value under a name, in the form that a web page uses.',
+  'tokens.json': 'The same values in a form that design tools read (the Design Tokens format).',
+  'theme.css': 'The colors and the corner rounding under the names that a widely used set of ready-made parts reads (the shadcn library).',
+  'mockup.html': 'The reference page: this design as one page without script, with its letter styles inside. The AI coding tool builds toward it.',
+  'FONTS.md': 'Which letter styles the design uses, and how the built website carries them without asking another website.',
+};
+
+/** The Prescription: seven files, written from the open project, singly or as one archive (PLAN.md section 4.4; SPEC.md sections 2.6 and 2.9). */
+function PrescriptionSection(): React.JSX.Element {
+  const s = useStudio();
+  // The message names the file that it is about, so that it can stand in that file's entry (finding U6-21).
+  const [said, setSaidOf] = useState<{ name: PrescriptionFile | 'all'; text: string } | null>(null);
+  const untouched = s.project.direction === null && Object.keys(s.project.decisions).length === 0;
+  const sample = isSampleContent(s.project.content);
+  const write = (): Record<PrescriptionFile, string> => {
+    const { project } = s;
+    // The core knows the built-in Directions; only the Studio knows the name of one of the owner's own or of a random one.
+    const startName = project.direction === null || findDirection(project.direction) ? undefined : [...s.own, ...s.generated].find((d) => d.id === project.direction)?.name;
+    const fonts: FontId[] = [project.params.fontHeading, project.params.fontBody, ...(project.params.numerals === 'mono' ? (['jetbrains-mono'] as FontId[]) : [])];
+    return writePrescription(project, { ...(startName ? { startName } : {}), fontFaceCss: fontFaceCss(fonts) });
+  };
+  const download = async (name: PrescriptionFile): Promise<void> => {
+    const outcome = await saveFile(name, write()[name]);
+    const setSaid = (text: string): void => setSaidOf({ name, text });
+    setSaid(outcome === 'saved' ? `The file “${name}” was handed to your browser to save, usually into your Downloads folder. Give all seven files to the AI coding tool that builds your page.`
+      : outcome === 'renamed' ? `This page may not hand over a file whose name ends as “${name}” does, so it was saved as “${name}.txt”. Take “.txt” off its name, or use the one download for all files below, which keeps every name.`
+      : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
+        : `This page cannot hand over files here. Use “Copy ${name}” and paste the text into a file of that name.`);
+  };
+  const downloadAll = async (): Promise<void> => {
+    const files = write();
+    // The archive's name carries the fingerprint of the design values, so that two archives can be told apart.
+    const mark = /Fingerprint: ([0-9a-f]{8})\./.exec(files['tokens.css'])?.[1] ?? 'design';
+    const archive = `refraction-prescription-${mark}.zip`;
+    const outcome = await saveFile(archive, zipFiles(files));
+    setSaidOf({ name: 'all', text: outcome === 'saved' || outcome === 'renamed' ? `The file “${archive}” was handed to your browser to save, usually into your Downloads folder. It is one archive file with all seven files inside; open it (on most computers by a double click) and give the seven files to the AI coding tool that builds your page.`
+      : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
+        : 'This page cannot hand over files here. Use the “Copy” button of each file and paste the text into a file of that name.' });
+  };
+  const copy = async (name: PrescriptionFile): Promise<void> => {
+    setSaidOf({ name, text: (await copyText(write()[name])) ? `The text of “${name}” was copied. Paste it into a file of that name.` : 'Copying is blocked here. Use the download button.' });
+  };
+  return (
+    <section id="prescription" aria-labelledby="prescription-heading">
+      <h2 id="prescription-heading">The Prescription: files that an AI coding tool builds from</h2>
+      <p className="hint">These seven files carry your design out of the Studio. Each is written afresh from the project as it stands when you press its button, so download them again after you change a Decision. To use them: Put the seven files into one folder, open that folder with your AI coding tool, and ask it to build the home page from PRESCRIPTION.md.</p>
+      {untouched && <p className="note">You have not picked a Direction or decided a Step yet, so these files describe the plain start.</p>}
+      <ul className="prescription-files">
+        {PRESCRIPTION_FILES.map((name) => (
+          <li key={name}>
+            <p><strong>{name}</strong>. {PRESCRIPTION_WORDS[name]}</p>
+            <div className="button-row">
+              <button type="button" className="btn small" onClick={() => void download(name)}>Download {name}</button>
+              <button type="button" className="btn small quiet" onClick={() => void copy(name)}>Copy {name}</button>
+            </div>
+            {said?.name === name && <p className="note" role="status">{said.text}</p>}
+          </li>
+        ))}
+      </ul>
+      <div className="button-row">
+        <button type="button" className="btn" onClick={() => void downloadAll()}>Download all seven files as one file</button>
+      </div>
+      {said?.name === 'all' && <p className="note" role="status">{said.text}</p>}
+      <p className="hint">The Prescription has all seven of its files. It still leaves out: fixed requirements on security, on being found by search, and on speed, the checks for people with disabilities written as tests, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}and every page but the home page. PRESCRIPTION.md lists the same in its section 7, and lists in its section 6 what no program checked and a person must still check.</p>
+    </section>
+  );
+}
+
+const OWN_FIELDS = [
+  { key: 'mood', id: 'own-mood', short: 'The mood', label: 'The mood, in a sentence (leave it empty and the Studio writes it from the design)' },
+  { key: 'bestFor', id: 'own-best', short: 'What it is best for', label: 'What it is best for' },
+  { key: 'risk', id: 'own-risk', short: 'What to watch for', label: 'What to watch for' },
+] as const;
+const NO_TEXTS = { name: '', mood: '', bestFor: '', risk: '' };
+const OWN_FILE_NAME = 'refraction-own-directions.json';
+
+/** Keep the design on screen as a Direction of the owner's own (PLAN.md section 4.7). */
+function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }): React.JSX.Element {
+  const keepOwn = useStudio((s) => s.keepOwnDirection);
+  const openOwn = useStudio((s) => s.openOwnDirections);
+  const held = useStudio((s) => s.own.length);
+  const ownNote = useStudio((s) => s.ownNote);
+  const [said, setSaid] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [texts, setTexts] = useState(NO_TEXTS);
+  const [refusal, setRefusal] = useState<string | null>(null);
+  const [chosen, setChosen] = useState<string | null>(null);
+  // A field stops at its limit without a sound; the form says which field is full (finding U6-19).
+  const full = [{ label: 'Name', length: texts.name.length, max: OWN_NAME_MAX }, ...OWN_FIELDS.map((field) => ({ label: field.short, length: texts[field.key].length, max: OWN_TEXT_MAX }))].filter((field) => field.length >= field.max);
+  const startsWith = notes + clashes === 0
+    ? 'This design starts with no contrast note and no Decisions that pull against each other.'
+    : `This design starts with ${notes === 0 ? 'no contrast note' : notes === 1 ? '1 contrast note' : `${notes} contrast notes`} and ${clashes === 0 ? 'no pair' : clashes === 1 ? '1 pair' : `${clashes} pairs`} of Decisions that pull against each other. You may keep it all the same.`;
+  const submit = (event: React.FormEvent): void => {
+    event.preventDefault();
+    const error = keepOwn(texts);
+    setRefusal(error);
+    // What the owner typed stays after a refusal; after a success the form is empty, so that a second press keeps nothing twice.
+    if (error === null) setTexts(NO_TEXTS);
+  };
+  const download = async (): Promise<void> => {
+    // The list as storage holds it now: another tab may have changed it.
+    const stored = loadOwnDirections();
+    if (stored.list.length === 0) {
+      setSaid('There is no Direction of your own to download: this browser shows none now.');
+      return;
+    }
+    const shown = stored.list.length;
+    const missing = stored.unshown ? ` The file holds the ${shown === 1 ? '1 Direction' : `${shown} Directions`} that this version of the Studio can show; ${stored.unshown === 1 ? '1 stored Direction is' : `${stored.unshown} stored Directions are`} not in it.` : '';
+    const outcome = await saveFile(OWN_FILE_NAME, JSON.stringify(ownDirectionsFile(stored.list), null, 2));
+    setSaid(outcome === 'saved' ? `The file “${OWN_FILE_NAME}” was handed to your browser to save, usually into your Downloads folder. To bring your own Directions back later, open it here with “Open a file of own Directions”.${missing}`
+      : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
+        : 'This page cannot hand over files here, so your own Directions could not be downloaded.');
+  };
+  const open = (file: File | undefined): void => {
+    if (!file) return;
+    setChosen(plainName(file.name));
+    if (file.size > 2_000_000) {
+      setSaid('That file was not opened: it is far larger than any file of own Directions. Your own Directions are unchanged.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      let data: unknown = null;
+      try {
+        data = JSON.parse(String(reader.result));
+      } catch {
+        // Not JSON at all: `openOwnDirections` refuses it in the same words as any other file that is not a list.
+      }
+      setSaid(openOwn(data));
+    };
+    reader.onerror = () => setSaid('That file could not be read. Your own Directions are unchanged.');
+    reader.readAsText(file);
+  };
+  return (
+    <section id="own-direction" aria-labelledby="own-heading">
+      <h2 id="own-heading">Keep this design as a Direction of your own</h2>
+      <p className="hint">A Direction of your own is this design under a name. It then stands on the Directions screen, under “Your own”, and you can start later projects from it. It stays in this browser; it is not part of this project’s file.</p>
+      <p className="hint starts-with">{startsWith}</p>
+      <form className="own-form" onSubmit={submit}>
+        <label htmlFor="own-name">Name</label>
+        <input id="own-name" className="name" maxLength={OWN_NAME_MAX} value={texts.name} onChange={(e) => setTexts({ ...texts, name: e.target.value })} />
+        {OWN_FIELDS.map((field) => (
+          <Fragment key={field.id}>
+            <label htmlFor={field.id}>{field.label}</label>
+            <input id={field.id} className="name" maxLength={OWN_TEXT_MAX} value={texts[field.key]} onChange={(e) => setTexts({ ...texts, [field.key]: e.target.value })} />
+          </Fragment>
+        ))}
+        <p className="hint">A name holds up to {OWN_NAME_MAX} characters, each text up to {OWN_TEXT_MAX}; a field stops at its limit.</p>
+        {full.map((field) => <p key={field.label} className="note field-full" role="status">“{field.label}” is full: it holds {field.max} characters, and anything beyond that was left out.</p>)}
+        {refusal && <p className="note" role="alert">{refusal}</p>}
+        <div><button type="submit" className="btn">Keep this design as a Direction of my own</button></div>
+      </form>
+      <h3>Your own Directions as a file</h3>
+      <p className="hint">Your own Directions stay in this browser only, and a browser can clear what it stores. One file holds them all: download it after you keep, rename, or remove one, and open it in any browser to bring them back.</p>
+      <div className="button-row">
+        {held > 0 && <button type="button" className="btn" onClick={() => void download()}>Download my own Directions ({held})</button>}
+        <button type="button" className="btn" onClick={() => fileRef.current?.click()}>Open a file of own Directions</button>
+        <input ref={fileRef} id="own-file" type="file" accept=".json,application/json" hidden onChange={(e) => { open(e.target.files?.[0]); e.target.value = ''; }} />
+      </div>
+      {chosen !== null && <p className="hint own-file-name">The file you chose last: “{chosen}”.</p>}
+      {said && <p className="note" role="status">{said}</p>}
+      {ownNote && <p className="note own-note">{ownNote}</p>}
+    </section>
+  );
+}
+
 function SummaryView(): React.JSX.Element {
   const s = useStudio();
   const heading = useHeadingFocus();
@@ -927,6 +1308,7 @@ function SummaryView(): React.JSX.Element {
   const html = useMemo(() => mockupHtml(s.project, s.project.params, { wireframe: false, focus: 'top', still: true, overlays: overlaysOn }), [s.project, overlaysOn]);
   const clashes = useMemo(() => conflicts(s.project), [s.project]);
   const research = useMemo(() => researchReport(s.project.params, tokensFor(s.project.params, s.project.a11y).css), [s.project.params, s.project.a11y]);
+  const craft = useMemo(() => craftReport(s.project.params, tokensFor(s.project.params, s.project.a11y).css), [s.project.params, s.project.a11y]);
   const decided = STEPS.filter((st) => s.project.decisions[st.id]).length;
   const [keptTick, setKeptTick] = useState(0);
   // The kept copy that the owner is about to remove, by a name that stays the same when the list is read again. Holding the
@@ -989,11 +1371,13 @@ function SummaryView(): React.JSX.Element {
         <p className="eyebrow">Summary</p>
         <h1 ref={heading} tabIndex={-1}>Your Decisions, read back</h1>
         <p className="teach">
-          You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s.generated)}; a Step you have not decided keeps the value it started with.
+          You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s)}; a Step you have not decided keeps the value it started with.
         </p>
         <p className="teach">
-          <strong>What works today:</strong> you can download the project file and open it here later. <strong>What does not exist yet:</strong> the instructions for an AI coding tool, the files of exact design values, and the reference page. They arrive in a later version of the Studio.
+          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Prescription: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Prescription” lists as left out, and the part of Refraction that measures a built page against it.
         </p>
+        <p><button type="button" className="btn small" onClick={() => document.getElementById('prescription')?.scrollIntoView({ block: 'start' })}>Show me the Prescription</button></p>
+        <p className="teach">{isSampleContent(s.project.content) ? 'The previews still show the sample dental practice.' : 'The previews show your own texts.'} To change the texts and your three answers about the project, open <a href="#content">Your content</a>.</p>
         <section aria-labelledby="file-heading">
           <h2 id="file-heading">Project file</h2>
           <div className="actions">
@@ -1064,6 +1448,26 @@ function SummaryView(): React.JSX.Element {
             </>
           )}
         </section>
+        <section id="craft" aria-labelledby="craft-heading">
+          <h2 id="craft-heading">Fine details the Studio adds by itself</h2>
+          <p className="hint">A page made with care differs from an ordinary one in small things that nobody asks for. You do not choose these: every design has them, except where one of your Steps sets a detail aside (the list then says so). The preview already draws them, and the Prescription asks the AI coding tool that builds your page for each one. Open a detail to read what it is and how strong the guidance behind it is. The Studio knows three strengths, from strong to weak: measured in studies that were read; long-standing convention; expert opinion. Every detail in this list is expert opinion.</p>
+          <ul className="craft-list">
+            {craft.map(({ rule, now, aside, ownJudgment }) => (
+              <li key={rule.id}>
+                <details className="source">
+                  <summary><strong>{rule.name}</strong>{now && <> <span className="found">{aside && 'Set aside in your design: '}{now}</span></>}</summary>
+                  <p>{rule.what}</p>
+                  <p><strong>How strong the guidance is:</strong> {EVIDENCE_LABEL[rule.evidence]}{ownJudgment ? ', and here the opinion of the assistant that wrote this Studio: no outside source was read' : ': rule sets that people who build websites have published, not a measurement'}. Written on {rule.reviewed}; no person has reviewed it yet.</p>
+                  <ul>
+                    {rule.sources.map((source) => <li key={source.text}>{source.text} <em>({BASIS_LABEL[source.basis]})</em></li>)}
+                  </ul>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <PrescriptionSection />
+        <OwnDirectionForm notes={html.issues.length} clashes={clashes.length} />
         <section aria-labelledby="research-heading">
           <h2 id="research-heading">Research rules</h2>
           <p className="hint">A research rule turns a finding from research into a number that the Studio measures on your design. “Holds” means that your design meets the rule. Each rule is advice, with its strength stated; none of them changes your design. Open a rule to read why it exists and what you must still check yourself.</p>
@@ -1084,7 +1488,7 @@ function SummaryView(): React.JSX.Element {
                       {result.rule.sources.map((source) => <li key={source.text}>{source.text} <em>({BASIS_LABEL[source.basis]})</em></li>)}
                     </ul>
                   </details>
-                  {onPurpose && <p className="hint on-purpose">This project’s start, {directionName(s.project, s.generated)}, is made this way on purpose. {onPurpose}</p>}
+                  {onPurpose && <p className="hint on-purpose">This project’s start, {directionName(s.project, s)}, is made this way on purpose. {onPurpose}</p>}
                 </li>
               );
             })}
@@ -1219,7 +1623,7 @@ export function App(): React.JSX.Element {
         <div className="banner" role="alert"><p>This page is not allowed to show the embedded pictures of the sample website, so they will be blank. Tell Claude: “the previews are blocked.”</p></div>
       )}
       <ScreenBoundary key={view}>
-        {!ready ? <main className="loading" id="main" tabIndex={-1}><p>Opening your project…</p></main> : view === 'directions' ? <DirectionsView /> : view === 'overlays' ? <OverlaysView /> : view === 'summary' ? <SummaryView /> : view === 'licences' ? <LicencesView /> : <StepsView />}
+        {!ready ? <main className="loading" id="main" tabIndex={-1}><p>Opening your project…</p></main> : view === 'directions' ? <DirectionsView /> : view === 'overlays' ? <OverlaysView /> : view === 'summary' ? <SummaryView /> : view === 'content' ? <ContentView /> : view === 'licences' ? <LicencesView /> : <StepsView />}
       </ScreenBoundary>
       <ConfirmDialog />
     </div>

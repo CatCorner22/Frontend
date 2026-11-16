@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { DIRECTIONS, FONT_IDS, FONTS, STEPS, applyDirection, createProject, parseProject, type Project } from '../src/index.js';
+import { DIRECTIONS, FONT_IDS, FONT_PACKAGE_VERSION, FONTS, STEPS, applyDirection, createProject, parseProject, type Project } from '../src/index.js';
 
 /** A project as an earlier version stored it: both typefaces that the Studio no longer carries, in every place a file holds one. */
 function withRetiredFonts(): Record<string, unknown> {
@@ -59,5 +59,14 @@ describe('typefaces: no bundled typeface reserves its name (SPEC.md section 2.2)
   it('still refuses a typeface that the Studio never carried', () => {
     const file = withRetiredFonts();
     expect(parseProject({ ...file, params: { ...(file['params'] as object), fontHeading: 'comic-sans' } }).ok).toBe(false);
+  });
+});
+
+describe('The version of the font packages that FONTS.md names', () => {
+  it('is the version that the Studio itself ships, for every font package in the lock file', () => {
+    const lock = JSON.parse(readFileSync(new URL('../../../package-lock.json', import.meta.url), 'utf8')) as { packages: Record<string, { version?: string }> };
+    const fonts = Object.entries(lock.packages).filter(([name]) => name.includes('node_modules/@fontsource-variable/'));
+    expect(fonts.length).toBeGreaterThan(10);
+    for (const [name, entry] of fonts) expect(entry.version, name).toBe(FONT_PACKAGE_VERSION);
   });
 });

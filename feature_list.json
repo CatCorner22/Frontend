@@ -47,7 +47,7 @@
         "Type markup and script into each field: the screen shows them as text, and nothing runs",
         "Fill the browser's storage and keep a Direction: the Studio says that it could not keep it"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F005",
@@ -59,7 +59,251 @@
         "Download the file of own Directions, clear the browser's storage, and open the file: the Directions are back, and a notice says how many were added",
         "Open the same file again: none is added twice, and the notice says so"
       ],
-      "passes": false
+      "passes": true
+    },
+    {
+      "id": "F006",
+      "description": "Hardening, part 1: the owner's own Directions are never lost without a word, a change to a Direction that another tab removed says so, and a file with hostile content adds only inert text.",
+      "spec_section": "SPEC.md section 2.4.1",
+      "steps": [
+        "Put a list into storage in which one entry has the name of a built-in Direction, open the Studio, and keep a new Direction: the stored list as it was is among the kept copies",
+        "Open two tabs, remove a Direction in one, and rename it in the other: the second tab says that the Direction is no longer here, and the stored list is unchanged",
+        "Open a file whose entries carry markup, script, and signs that change the direction of writing: the cards show them as text, nothing runs, and no request leaves the page",
+        "Press the download button while the stored list cannot be read: the Studio says so and hands over no empty file"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F007",
+      "description": "Hardening, part 2: six built-in Directions no longer start with a contrast note on form-field borders or small labels, and a test pins the three Directions whose link colors stay as known departures that their cards state.",
+      "spec_section": "SPEC.md section 2.4.2",
+      "steps": [
+        "Run the unit tests: under Warn me, exactly Sticker Pop, Sunlit Studio, and Poster Block start with a contrast note, each on links only (Poster Block also on its opening paragraph), with every Skin",
+        "Open the Directions screen: the cards of those three say that the Direction starts with contrast notes on its links",
+        "Start from Midnight Aurora and open the Summary: it lists no contrast note"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F008",
+      "description": "Hardening, part 3: the builder has looked at every built-in Direction at phone and desktop width, logged each visible fault, and repaired the faults of the Mockup or of a Direction's values.",
+      "spec_section": "SPEC.md section 2.4.3",
+      "steps": [
+        "Read redteam/FINDINGS.md: it holds one row for each fault that the builder saw, or one row that says that none was seen, with the source \"the builder's look of 2026-11-15\"",
+        "Each repaired fault that a program can measure has a test that fails without the repair",
+        "The full checks pass"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F009",
+      "description": "The craft layer: each fine detail that the Studio adds by itself is a Catalog record with plain words, an exact instruction, a check that a program runs on the Mockup of every built-in Direction, a source, and a grade; the Summary lists them.",
+      "spec_section": "SPEC.md section 2.5",
+      "steps": [
+        "Run the unit tests: every craft rule is a complete record in plain words, and its check holds on the Mockup's style sheet for every built-in Direction",
+        "Open the Summary of a project: the section \"Fine details the Studio adds by itself\" lists every craft rule with its sentence, its strength, and its source",
+        "Start from a Direction whose motion is \"none\" and open the Summary: the rules about movement say that nothing moves",
+        "No text of a craft rule calls a result accessible or compliant"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F010",
+      "description": "The core writes the first slice of the Prescription from a project as four files that agree with each other and with the preview: tokens.css, tokens.json, mockup.html, and PRESCRIPTION.md, with the owner's own words fenced as quoted data.",
+      "spec_section": "SPEC.md section 2.6",
+      "steps": [
+        "Run the unit tests: for two projects the four files equal their stored snapshots",
+        "Every value in tokens.css equals the value in tokens.json and the value that mockup.html draws",
+        "A project name and a reason that hold markup, a code fence, and a sentence that addresses the builder stay inside their fence in PRESCRIPTION.md",
+        "PRESCRIPTION.md names the start (also a Direction of the owner's own, or one that was removed), lists every Decision with its rejected Options and reason, lists the craft rules, and says what a person must still check and what this slice leaves out"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F011",
+      "description": "The owner downloads each of the four Prescription files from the Summary, or copies its text, and each file equals what the core writes for the stored project.",
+      "spec_section": "SPEC.md section 2.6",
+      "steps": [
+        "Open the Summary of a project and find the section \"The Prescription\" with one download button for each of the four files",
+        "Download each file: its content equals what the core writes for the stored project",
+        "Change a Decision and download again: the files show the change",
+        "The section says what the files are for, what this slice leaves out, and what a person must still check"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F012",
+      "description": "Repairs after the red-team review, part 1: no text from a file acts as an instruction in PRESCRIPTION.md, and no file can break or bloat the list of the owner's own Directions.",
+      "spec_section": "SPEC.md section 2.8.1",
+      "steps": [
+        "Run the unit tests: the name of an own Direction stands in PRESCRIPTION.md inside a fenced block marked as quoted data, and the file says that the Direction is the owner's own",
+        "A name, a reason, and a project name with invisible signs or signs that change the direction of writing reach PRESCRIPTION.md without them",
+        "The name cleaner refuses the look-alike names and quotation signs of findings S6-04 and S6-05, and never cuts a character in two",
+        "An own Direction read from a file holds the known design values and nothing else; the Studio holds at most 100 and says so; a date that is no date is refused; a replaced typeface is said in the note",
+        "Content that holds the words ':hover' or 'transition: all' does not change what PRESCRIPTION.md says about the craft rules",
+        "In the browser: open a file of 101 own Directions; the Studio adds 100, says that 1 was left out, and shows them again after a reload"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F013",
+      "description": "Repairs after the red-team review, part 2: every sentence of the Prescription and of a craft rule is true of the design in hand, and the tests assert what their titles say.",
+      "spec_section": "SPEC.md section 2.8.2",
+      "steps": [
+        "Run the unit tests: for every built-in Direction and every Option, no craft rule's sentence contradicts the design (digits of natural width, no motion, a button with a hard shadow)",
+        "Each craft rule's grade is no stronger than its source, and PRESCRIPTION.md gives each rule's basis",
+        "Switch on an Overlay and download mockup.html: the page shows the Overlay open",
+        "PRESCRIPTION.md lists under 'what no program checked' only what the design has, and with contrast checks off it does not read as if every pair had passed",
+        "tokens.json types a typeface list as a typeface and a keyword as a keyword; each color's components equal its CSS color; mockup.html is stored for two projects"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F014",
+      "description": "Repairs after the red-team review, part 3: the screens say what is true today, and say it where the owner looks.",
+      "spec_section": "SPEC.md section 2.8.3",
+      "steps": [
+        "Open the Directions screen and the Summary: no sentence says that the instructions for an AI coding tool come in a later version",
+        "Decide a Step and read the field for a reason: it says that the reason goes into PRESCRIPTION.md",
+        "Open the Summary of a new project: the Prescription section says that no Direction and no Decision is picked yet",
+        "Download a file: the message appears beside that file; the section's closing sentence lists what section 7 of PRESCRIPTION.md lists",
+        "Rename an own Direction: the Studio says 'Renamed'; keep a 60-character name without spaces at 375 pixels: nothing leaves the window; the Directions screen has a jump link to 'Your own'"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F015",
+      "description": "The Brief, part 1 (core): the project holds the owner's texts and three answers; the core sets, adds, and removes them within limits, cleans them, writes them to the project file, and the Mockup draws them as text with no empty box where a text or a list is empty.",
+      "spec_section": "SPEC.md section 2.7",
+      "steps": [
+        "Run the unit tests: a text is cleaned and cut at its limit; the page's name and headline cannot become empty",
+        "A service, a fact, and a price are added and removed within 1 to 8, 0 to 4, and 0 to 8; the menu keeps five links",
+        "The three answers are held only where the owner wrote one, and travel in the project file; a file from before opens unchanged",
+        "With every optional text empty and every list at its fewest, the Mockup's page holds no empty element; a text with markup is drawn as text"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F016",
+      "description": "The Brief, part 2 (screen): on the screen \"Your content\" the owner answers three questions, replaces any text of the sample website, adds and removes list items, and puts the sample back; every preview and the downloaded mockup.html follow.",
+      "spec_section": "SPEC.md section 2.7",
+      "steps": [
+        "Open \"Your content\" from the top bar: type a name, a headline, and the three answers; the preview beside the form shows the words",
+        "Add a service and a price, remove a fact, reload: the texts and the lists are as you left them",
+        "Open the Summary and download mockup.html: it holds your words and not the sample practice's",
+        "Type markup into a field: the screen and the preview show it as text, and nothing runs",
+        "Press \"Put the sample text back\": the Studio asks first, and Undo brings your texts back"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F017",
+      "description": "The Brief, part 3 (layout): every built-in Direction draws the fewest and the most list items, long words, and long texts at phone and desktop width without overflow or overlap.",
+      "spec_section": "SPEC.md section 2.7",
+      "steps": [
+        "Run the browser tests: for each of the 38 Directions, with the fewest items and with the most, at 375 and 1280 pixels, the page is no wider than its window and the headline is the largest text",
+        "The same with a 40-letter word in the name, the headline, a service, and a price",
+        "Each fault that the sweep finds has a row in redteam/FINDINGS.md and a repair, or a reason why it stays"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F018",
+      "description": "The Brief, part 4 (Prescription): PRESCRIPTION.md carries the three answers as quoted data and says that mockup.html shows the owner's own texts.",
+      "spec_section": "SPEC.md section 2.7",
+      "steps": [
+        "Run the unit tests: the three answers stand in PRESCRIPTION.md inside fenced blocks marked as quoted data; an answer with a code fence or an instruction stays inside its fence",
+        "A project with the owner's texts: the file says that mockup.html shows the project's own texts and tells the AI coding tool to use them word for word",
+        "In the browser: type the answers, download PRESCRIPTION.md, and read them there"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F019",
+      "description": "The core writes FONTS.md, and every file of the Prescription carries one fingerprint of the design values, so that the files of one design can be told from those of another.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Run the unit tests: the same project gives the same fingerprint in every file, and a changed design value gives another",
+        "FONTS.md names each typeface of the design with its CSS family, licence, package, and the version that the Studio ships, and names a device's own typeface as such",
+        "No file carries a date; the same project gives the same files"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F020",
+      "description": "The core writes DESIGN.md in the DESIGN.md format, and the format's own lint program finds no error in it for any built-in Direction.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Run the unit tests: DESIGN.md holds the eight sections in their fixed order, with named colors, type levels, roundings, spacing, and two components",
+        "The format's lint program reports no error for the plain start and for each of the 38 Directions",
+        "A hostile project name appears only inside a block marked as quoted data, or not at all"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F021",
+      "description": "The core writes theme.css with the design's colors and corner rounding under the names that the shadcn component library reads.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Run the unit tests: theme.css defines every name of the library's list, each with a value of the design",
+        "A dark design and a light design both give the light name and the dark name the same values, and the file says so"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F022",
+      "description": "A parser of the Design Tokens format that the builder did not write reads tokens.json without an error, for every built-in Direction.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Run the unit tests: the outside parser reads tokens.json of the plain start and of each of the 38 Directions and reports no error",
+        "The same parser reports an error for a file with a planted fault, so that its silence means something"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F023",
+      "description": "The owner downloads each of the seven Prescription files from the Summary, or all of them as one archive file whose content equals the single files.",
+      "spec_section": "SPEC.md section 2.9",
+      "steps": [
+        "Open the Summary: the section \"The Prescription\" offers seven files and one button for all of them",
+        "Download each file and the archive: every file equals what the core writes for the stored project, and the archive holds the same seven files",
+        "The section no longer says that the three files are missing"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F024",
+      "description": "The owner runs one command that measures a page, built from the Prescription, against the Prescription's files, and reads an Honest receipt that names every deviation.",
+      "spec_section": "SPEC.md section 2.10",
+      "steps": [
+        "Write the seven files of a project into a folder, and give the Mockup as the build: the receipt reports zero deviations for requests, colors, typefaces, radii, content, and width, on the plain start and on all 38 Directions",
+        "Damage the Mockup in each of eight ways, one at a time: the receipt reports the matching deviation each time",
+        "Give a missing file, two different fingerprints, an empty build, hostile page text, and a page that never finishes loading: the program refuses or records the fault, and writes no false result",
+        "Run the program twice on the same inputs: the two receipts are byte for byte the same, and neither says that the page is accessible or compliant"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F025",
+      "description": "The owner reads the record of the first build trial: one helper agent built a page from the seven files, and the program measured it.",
+      "spec_section": "SPEC.md section 2.11",
+      "steps": [
+        "Open plugin/fit/trials/001/: it holds the instruction, the helper's page, the receipt, and a record of what the run shows and does not show",
+        "Run the program on the stored page: the receipt equals the stored receipt",
+        "The receipt names the fingerprint of the files that the builder writes today for the fixed project"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F026",
+      "description": "The owner reads the record of the comparison run: the same project built by a helper agent without the seven files, measured against the same values, and set beside the first trial.",
+      "spec_section": "SPEC.md section 2.12",
+      "steps": [
+        "Open plugin/fit/trials/002/: it holds the instruction (the project in plain words), the helper's page, the receipt, and a record",
+        "Run the program on the stored page against the stored files: the receipt equals the stored receipt",
+        "The record's table gives, for each measure, the deviation counts of both receipts exactly as the receipts state them, and the record says what the comparison does not show"
+      ],
+      "passes": true
     }
   ]
 }

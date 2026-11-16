@@ -1,0 +1,10 @@
+{
+  "name": "refraction-outside-validators",
+  "private": true,
+  "description": "Two programs that the builder did not write, used only by the check \"Outside validators\" on GitHub. They are never run on a developer's machine and never ship in the Studio (decision D64).",
+  "type": "module",
+  "devDependencies": {
+    "@google/design.md": "0.4.0",
+    "@terrazzo/parser": "2.10.0"
+  }
+}

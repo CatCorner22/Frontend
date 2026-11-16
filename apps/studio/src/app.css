@@ -112,7 +112,7 @@ select, .name, .project-text {
 .top-nav a[aria-current="page"] { color: var(--text); background: var(--surface-2); }
 .save-state { font-size: 0.8125rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 .banner { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.625rem max(16px, env(safe-area-inset-right, 0px)) 0.625rem max(16px, env(safe-area-inset-left, 0px)); background: var(--accent-soft); border-bottom: 1px solid var(--border); font-size: 0.875rem; }
-.banner p { flex: 1 1 24rem; max-width: 90ch; }
+.banner p { flex: 1 1 24rem; max-width: 90ch; min-width: 0; overflow-wrap: anywhere; }
 .banner-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .banner.hold { border-left: 4px solid var(--accent); }
 .confirm { max-width: min(32rem, calc(100vw - 2rem)); padding: 1.25rem; border: 0; border-radius: var(--radius-surface); background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border), 0 24px 64px -16px rgb(0 0 0 / 0.5); }
@@ -206,15 +206,23 @@ select, .name, .project-text {
 
 /* The Overlays screen: one switch per Overlay, each with its explanation. */
 .overlay-list { gap: 0.75rem; }
+/* Your content (the Brief): groups of fields, one under the other. */
+.content-form { display: grid; gap: 1rem; align-content: start; }
+.content-form fieldset { display: grid; gap: 0.625rem; min-width: 0; }
+.content-field { display: grid; gap: 0.25rem; min-width: 0; }
+.content-field label { font-size: 0.8125rem; font-weight: 600; }
+.content-field input { width: 100%; min-width: 0; }
+.content-list { display: grid; gap: 0.625rem; justify-items: start; }
+.content-item { width: 100%; padding: 0.625rem; border: 1px solid var(--border); border-radius: var(--radius-control); }
 .overlay { display: grid; gap: 0.375rem; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-control, 0.5rem); background: var(--surface); }
 .overlay[data-on] { border-color: var(--accent); }
 .overlay .check { color: var(--text); font-weight: 600; font-size: 0.9375rem; }
 .overlay p { margin: 0; font-size: 0.8125rem; color: var(--text-muted); }
 .overlay-summary { margin: 0; padding-left: 1.25rem; }
-.research-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.375rem; }
-.research-list > li { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-control, 0.5rem); background: var(--surface); }
+.research-list, .craft-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.375rem; }
+.research-list > li, .craft-list > li { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-control, 0.5rem); background: var(--surface); }
 .research-list > li[data-holds="false"] { border-left-width: 4px; border-left-color: var(--text); }
-.research-list .found { color: var(--text-muted); }
+.research-list .found, .craft-list .found { color: var(--text-muted); }
 .research-list .on-purpose { margin: 0.375rem 0 0; }
 .tune { font-size: 0.875rem; display: grid; gap: 0.5rem; padding-bottom: 1.5rem; }
 .slider { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 0.125rem 0.5rem; margin-top: 0.75rem; }
@@ -250,16 +258,17 @@ select, .name, .project-text {
 .direction-group > summary h2 { font-size: 1.25rem; display: inline; }
 .direction-group > summary span { color: var(--text-muted); font-size: 0.875rem; }
 .direction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr)); gap: 1.25rem; }
-.direction { display: grid; grid-template-rows: auto auto 1fr; border-radius: var(--radius-surface); background: var(--card-bg); box-shadow: var(--card-shadow); overflow: hidden; }
+.direction { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; border-radius: var(--radius-surface); background: var(--card-bg); box-shadow: var(--card-shadow); overflow: hidden; }
 .direction .thumb { border-radius: 0; box-shadow: 0 1px 0 var(--border), 0 -1px 0 var(--border); }
-.direction-body { display: grid; gap: 0.5rem; padding: 1rem; align-content: start; }
+.direction-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.5rem; padding: 1rem; align-content: start; overflow-wrap: anywhere; }
 /* The name and mood take the same height on every card, so that the pictures in a row line up. */
 .direction > .direction-body:first-child { min-height: 7.25rem; }
 .direction .mood { color: var(--text); }
 .direction dl { display: grid; gap: 0.25rem; font-size: 0.8125rem; color: var(--text-muted); }
 .direction dl div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0.5rem; }
 .direction dt { font-weight: 600; color: var(--text); }
-.direction .btn { margin-top: 0.5rem; justify-self: start; }
+/* A name may be one long word: the button then breaks its label instead of leaving the card (finding U6-20). */
+.direction .btn { margin-top: 0.5rem; justify-self: start; max-width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; padding-block: 0.375rem; }
 .more { display: grid; gap: 0.5rem; justify-items: start; }
 
 /* Summary view: the read-back and the file buttons first; the picture of the design beside them. */
@@ -306,11 +315,17 @@ select, .name, .project-text {
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 
 /* Copies the Studio kept (Summary). */
+.prescription-files { list-style: none; margin: 0.5rem 0; padding: 0; display: grid; gap: 0.5rem; }
+.prescription-files li { display: grid; gap: 0.35rem; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-control, 0.5rem); background: var(--surface); }
+.prescription-files .button-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.own-form { display: grid; gap: 0.35rem; max-width: 40rem; margin-top: 0.5rem; }
+.own-form label { font-weight: 600; margin-top: 0.35rem; }
 .kept-copies { margin-top: 1rem; }
 .kept-copies h3 { margin: 0 0 0.25rem; font-size: 1rem; }
 .kept-copies ul { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.5rem; }
 .kept-copies li { display: grid; gap: 0.35rem; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md, 8px); }
-.kept-copies .button-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.kept-copies .button-row, #own-direction .button-row, .direction .button-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+#own-direction h3 { margin: 1.25rem 0 0.25rem; font-size: 1rem; }
 
 /* The measured contrast figure on the Step about contrast; a date that must not break in two. */
 .measure { margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--text-muted); }

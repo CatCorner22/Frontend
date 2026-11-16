@@ -24,6 +24,7 @@ The tool is for the owner alone. Do not add accounts, payments, analytics, or ma
 | Catalog | The typed data that defines every Step, Option, craft rule, and floor |
 | Craft rule | An invisible-detail rule that the exporter writes into every Prescription automatically |
 | Floor | A requirement that the exporter writes into the Prescription (accessibility, security, search, performance). The security, search, and performance Floors are not overridable; the owner chooses per project whether the accessibility Floor applies (decision D13) |
+| Brief | The owner's own account of one project: what is offered, for whom, the main job of the page, and the page's real texts. The Studio's screen calls it "Your content"; code and records say "Brief" (added with the owner's approval, 2026-11-15, decision D61) |
 | Research rule | A check, drawn from a research record, that the Studio measures on the open design and shows as "Holds" or "Does not hold" (added with the owner's approval, 2026-11-15) |
 | Prescription | The export bundle: `PRESCRIPTION.md`, `DESIGN.md`, `tokens.json`, `tokens.css`, shadcn theme, `mockup.html`, `FONTS.md` |
 | Fit check | The Fitter's measurement of a build against a Prescription |

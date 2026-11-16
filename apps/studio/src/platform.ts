@@ -8,6 +8,8 @@
 // 3. After a read of the page database timed out, nothing is written there until a read has succeeded.
 // 4. A save never replaces a copy that another tab wrote after this tab last looked.
 
+import { ownDirectionsFile, readOwnDirections, type OwnDirection } from '@refraction/core';
+
 interface DocSnapshot {
   exists: boolean;
   data(): Record<string, unknown> | undefined;
@@ -585,17 +587,68 @@ export function savePrefs(prefs: Prefs): void {
   }
 }
 
-export type FileOutcome = 'saved' | 'declined' | 'unavailable';
+const OWN_KEY = 'refraction.directions.own';
+
+/**
+ * The owner's own Directions, as this browser stores them (docs/reference/saving-table.md, "The owner's own Directions").
+ * `unshown` counts the stored entries that this version cannot show (a name now in use, an unknown value); `null` means
+ * that the stored text is no list that the Studio can read at all. `raw` is the stored text. Whenever the list does not
+ * hold everything that `raw` holds, the caller keeps `raw` before anything replaces it.
+ */
+export interface StoredOwnDirections {
+  list: OwnDirection[];
+  raw: string | null;
+  unshown: number | null;
+}
+export function loadOwnDirections(): StoredOwnDirections {
+  let raw: string | null = null;
+  try {
+    raw = window.localStorage.getItem(OWN_KEY);
+    if (raw === null) return { list: [], raw, unshown: 0 };
+    const file = JSON.parse(raw) as { directions?: unknown };
+    const read = readOwnDirections(file, []);
+    if (!read.ok || !Array.isArray(file.directions)) return { list: [], raw, unshown: null };
+    return { list: read.added, raw, unshown: file.directions.length - read.added.length };
+  } catch {
+    return { list: [], raw, unshown: null };
+  }
+}
+
+/** Write the whole list. Returns false when the browser refuses (storage full or blocked); the stored list then stays as it was. */
+export function storeOwnDirections(list: readonly OwnDirection[]): boolean {
+  try {
+    window.localStorage.setItem(OWN_KEY, JSON.stringify(ownDirectionsFile(list)));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * `renamed`: the private page hands over only files of certain kinds, and ".css" is not among them (its list, read on
+ * 2026-11-16: txt, json, md, html, zip, and others). Such a file is saved with ".txt" at the end of its name, and the
+ * caller says so. Before, the page answered "cannot hand over files here" for tokens.css, and nobody had seen it, because
+ * no test opens the real private page.
+ */
+export type FileOutcome = 'saved' | 'renamed' | 'declined' | 'unavailable';
 
 /** Offer a file to the person. On the private page a confirmation appears; elsewhere the browser downloads it. */
-export async function saveFile(filename: string, text: string): Promise<FileOutcome> {
+export async function saveFile(filename: string, text: string | Uint8Array): Promise<FileOutcome> {
   const rt = runtime();
   if (rt) {
     try {
       const downloads = await withTimeout(rt.use('downloads').catch(() => null), READ_TIMEOUT_MS);
       if (downloads !== TIMED_OUT && downloads) {
-        await downloads.save({ filename, data: text });
-        return 'saved';
+        // Bytes (the archive) go as a Blob; text goes as text.
+        const data = typeof text === 'string' ? text : new Blob([text as BlobPart]);
+        try {
+          await downloads.save({ filename, data });
+          return 'saved';
+        } catch (error) {
+          if ((error as { code?: string } | null)?.code !== 'rejected_extension') throw error;
+          await downloads.save({ filename: `${filename}.txt`, data });
+          return 'renamed';
+        }
       }
     } catch (error) {
       const code = (error as { code?: string } | null)?.code;
@@ -604,7 +657,7 @@ export async function saveFile(filename: string, text: string): Promise<FileOutc
     return 'unavailable';
   }
   try {
-    const url = URL.createObjectURL(new Blob([text], { type: 'application/octet-stream' }));
+    const url = URL.createObjectURL(new Blob([text as BlobPart], { type: 'application/octet-stream' }));
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;

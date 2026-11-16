@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.7. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, and its own words, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
+Version 1.11. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it does not cover design advice, the Fitter, or the plan.
 
 Stale-after: 90
 
@@ -22,6 +22,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - A notice that needs your answer stays on screen until you answer. §10.07
 - A promise to keep a copy never rests on a copy that can go away. §10.12
 - A page that closes with an unsaved change first writes it to an entry of its own. §10.13
+- Your own words stand in the Prescription as quoted data, inside a fence that they cannot close. §65.03
 - Opening a file never adds to a Decision, and brings no value the Studio cannot set. §20.05
 - A written reason leaves a Decision only with a notice that offers it back. §50.06
 - A tab that is not saving keeps its unsaved work as a copy when it reloads or closes. §10.08
@@ -96,11 +97,36 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [50.06 A written reason leaves a Decision only with a notice that offers it back](#5006-a-written-reason-leaves-a-decision-only-with-a-notice-that-offers-it-back)
   - [50.07 A Skin changes colors only](#5007-a-skin-changes-colors-only)
   - [50.08 An Overlay changes no value of the design, and a project without Overlays is stored as before](#5008-an-overlay-changes-no-value-of-the-design-and-a-project-without-overlays-is-stored-as-before)
+  - [50.09 The Studio never writes a list of own Directions that it cannot read again](#5009-the-studio-never-writes-a-list-of-own-directions-that-it-cannot-read-again)
+  - [50.10 A Direction of the owner's own holds the known design values and nothing else](#5010-a-direction-of-the-owners-own-holds-the-known-design-values-and-nothing-else)
+- [55 Your content (the Brief)](#55-your-content-the-brief)
+  - [55.01 A text of the owner's is kept as typed, cleaned and cut at its limit, and the page never loses its name, its headline, or its main button](#5501-a-text-of-the-owners-is-kept-as-typed-cleaned-and-cut-at-its-limit-and-the-page-never-loses-its-name-its-headline-or-its-main-button)
+  - [55.02 An empty text or an empty list leaves no empty box on the page, and a text with markup is drawn as text](#5502-an-empty-text-or-an-empty-list-leaves-no-empty-box-on-the-page-and-a-text-with-markup-is-drawn-as-text)
+  - [55.03 Every built-in Direction holds the owner's content at the ends of what the Brief allows without becoming wider than its window](#5503-every-built-in-direction-holds-the-owners-content-at-the-ends-of-what-the-brief-allows-without-becoming-wider-than-its-window)
+  - [55.04 The three answers go into the Prescription as quoted data, and the owner's texts go into the reference page and nowhere else](#5504-the-three-answers-go-into-the-prescription-as-quoted-data-and-the-owners-texts-go-into-the-reference-page-and-nowhere-else)
+  - [55.05 The Studio asks before the sample replaces the owner's texts, keeps a copy, and treats a project that holds only the owner's words as work](#5505-the-studio-asks-before-the-sample-replaces-the-owners-texts-keeps-a-copy-and-treats-a-project-that-holds-only-the-owners-words-as-work)
 - [60 The Studio's words](#60-the-studios-words)
   - [60.01 A trade word appears only inside round brackets](#6001-a-trade-word-appears-only-inside-round-brackets)
   - [60.02 Every Step says where its guidance comes from and how well it is known](#6002-every-step-says-where-its-guidance-comes-from-and-how-well-it-is-known)
   - [60.03 No Overlay and no research rule is graded "measured" without a source that was read in full](#6003-no-overlay-and-no-research-rule-is-graded-measured-without-a-source-that-was-read-in-full)
   - [60.04 A research rule says "Holds" only when the measured number meets it](#6004-a-research-rule-says-holds-only-when-the-measured-number-meets-it)
+- [65 The craft rules and the Prescription](#65-the-craft-rules-and-the-prescription)
+  - [65.01 Every craft rule carries its mark on the sample website of every built-in Direction, and says so when a design sets it aside](#6501-every-craft-rule-carries-its-mark-on-the-sample-website-of-every-built-in-direction-and-says-so-when-a-design-sets-it-aside)
+  - [65.02 The four files of the Prescription hold the same design values, value by value](#6502-the-four-files-of-the-prescription-hold-the-same-design-values-value-by-value)
+  - [65.03 Words that the owner typed, or that came from a file, stand in the Prescription as quoted data, inside a fence that they cannot close](#6503-words-that-the-owner-typed-or-that-came-from-a-file-stand-in-the-prescription-as-quoted-data-inside-a-fence-that-they-cannot-close)
+  - [65.04 The same project always gives the same four files, and a change of any line is seen](#6504-the-same-project-always-gives-the-same-four-files-and-a-change-of-any-line-is-seen)
+  - [65.05 The Prescription names the start, every Decision, every craft rule, and what a person must still check, and claims no standard](#6505-the-prescription-names-the-start-every-decision-every-craft-rule-and-what-a-person-must-still-check-and-claims-no-standard)
+  - [65.06 A file that the Summary hands over equals what the core writes for the stored project](#6506-a-file-that-the-summary-hands-over-equals-what-the-core-writes-for-the-stored-project)
+  - [65.07 Every file of the Prescription carries one fingerprint of the design values, and no date](#6507-every-file-of-the-prescription-carries-one-fingerprint-of-the-design-values-and-no-date)
+  - [65.08 FONTS.md, DESIGN.md, and theme.css say the design in three more forms, each from the design's own values](#6508-fontsmd-designmd-and-themecss-say-the-design-in-three-more-forms-each-from-the-designs-own-values)
+  - [65.09 Two programs that the builder did not write read DESIGN.md and tokens.json, on GitHub only](#6509-two-programs-that-the-builder-did-not-write-read-designmd-and-tokensjson-on-github-only)
+  - [65.10 One archive file holds the seven files, each letter for letter](#6510-one-archive-file-holds-the-seven-files-each-letter-for-letter)
+- [66 The Fit check (measuring a build against the Prescription)](#66-the-fit-check-measuring-a-build-against-the-prescription)
+  - [66.01 The program measures six things and one more, and the Mockup passes its own measure](#6601-the-program-measures-six-things-and-one-more-and-the-mockup-passes-its-own-measure)
+  - [66.02 Each deviation that the program claims to find, it finds; each fault of its own inputs, it names](#6602-each-deviation-that-the-program-claims-to-find-it-finds-each-fault-of-its-own-inputs-it-names)
+  - [66.03 The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs](#6603-the-receipt-keeps-measuring-judging-and-asking-apart-and-holds-nothing-that-changes-between-two-runs)
+  - [66.04 The first build trial is stored whole, belongs to today's files, and measures to its own receipt](#6604-the-first-build-trial-is-stored-whole-belongs-to-todays-files-and-measures-to-its-own-receipt)
+  - [66.05 The comparison run sets two pages side by side with numbers that come from the receipts](#6605-the-comparison-run-sets-two-pages-side-by-side-with-numbers-that-come-from-the-receipts)
 - [70 How the Studio is built](#70-how-the-studio-is-built)
   - [70.01 The shared core holds no React import and no browser API](#7001-the-shared-core-holds-no-react-import-and-no-browser-api)
   - [70.02 No look changes by accident](#7002-no-look-changes-by-accident)
@@ -320,6 +346,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **Rule.** A project name or a file name enters one of the Studio's sentences only after cleaning: every quotation mark and every sign that looks like one becomes a single mark, a run of such marks becomes one mark, and the invisible signs that change the direction of writing or hide between letters are taken out. A name therefore cannot end the quotation, and cannot turn the Studio's sentence into mirror writing. [S1 at D50]
 - **Test.** "lets no project name or file name end the quotation in one of the Studio’s own sentences". [S3]
+- **Test.** For the signs that the sixth review used: "turns the look-alike quotation signs of finding S6-05 into single marks, so that a name cannot end a quotation"; "takes a name with an invisible sign for the name without it, so that it cannot pass as a second “Graphite Precision” (finding S6-04)". [S14]
+- **Exceptions.** No list of look-alike signs is complete. A letter of another alphabet that looks like a Latin letter is not caught.
 - **Examples.** A file whose project name held a closing quotation mark and a sentence made the dialog read: "holds the project “Owner work”. It is the same as the open project, so nothing will change." (campaign 4, finding F-19).
 - **Open.** A name can still hold a misleading sentence inside its quotation marks.
 - Last verified: 2026-11-14
@@ -366,7 +394,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 <!-- index: outside request | network; tracking; remote font -->
 
 - **Rule.** On the Directions, on every Step, and on the Summary, the Studio requests nothing from any outside address. [S3]
-- **Test.** "shows no trade word outside round brackets and no vague phrase on the Directions, on every Step, and on the Summary, with no error and no outside request".
+- **Test.** "shows no trade word outside round brackets and no vague phrase on the Directions, on every Step, on the Overlays, and on the Summary, with no error and no outside request".
 - **Policy.** Hard rule 7: no CDN scripts, no remote fonts, no analytics. [S10 at hard rule 7]
 - **Exceptions.** On the private page, the page's own database receives the project (§10.01); that request goes to the page's host, not to a third party.
 - Last verified: 2026-11-13
@@ -463,7 +491,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 <!-- index: Direction | starting look; generated Direction -->
 
 - **Rule.** Each of the 18 curated Directions, and each generated Direction, is complete, valid, and free of the conflicts that the Catalog knows. [S8; S9]
-- **Test.** "has 18 curated Directions, each a complete, valid, conflict-free design with record fields"; "keeps the curated Directions clearly different from each other"; "never offers a generated Direction whose own choices pull against each other, over 60 seeds (decision D23)".
+- **Test.** "has 38 curated Directions, each a complete, valid, conflict-free design with record fields"; "keeps the curated Directions clearly different from each other"; "never offers a generated Direction whose own choices pull against each other, over 60 seeds (decision D23)".
 - Last verified: 2026-11-13
 
 ### [50.04] A card shows exactly the design that picking it gives
@@ -514,6 +542,74 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "draws a switched-on Overlay in the preview, saves it, lists it on the Summary, keeps it through a reload, and lets Undo take it back"; "shows the main button that stays in view in the Summary’s phone preview only, and never on the cards of a Step"; "treats switched-on Overlays as work: a project that holds nothing else is kept as a copy, with Undo offered, when a Direction replaces it". [S3]
 - Last verified: 2026-11-14
 
+### [50.09] The Studio never writes a list of own Directions that it cannot read again
+
+<!-- index: limit of own Directions | 100 Directions of your own; list too long -->
+
+- **Rule.** The Studio holds at most 100 Directions of the owner's own. The form and a file both stop at that number and say how many were left out, so the stored list never grows past what the Studio reads at the next opening. [S1 at D61]
+- **Test.** "holds at most 100, adds up to that number from a file, and says how many it left out (finding S6-03)". [S14]
+- **Test.** In the browser: "adds 100 from a file of 101, says that 1 was left out, shows them after a reload, and keeps no 101st by the form". [S3]
+- **Examples.** Until 2026-11-16 a file of 500 followed by one kept Direction made 501; at the next opening the Studio refused its own list and showed none (sixth review, finding S6-03).
+- Last verified: 2026-11-16
+
+### [50.10] A Direction of the owner's own holds the known design values and nothing else
+
+<!-- index: unknown values in a file of own Directions | foreign data; bloated project -->
+
+- **Rule.** Whatever a file of own Directions holds beside the known design values stays behind: it reaches neither the stored list nor a project started from the Direction. A name is stored in one form of its letters and never ends on a space or on half a character; a date must be written as the Studio writes dates; a replaced typeface is said in the note. [S14]
+- **Test.** "holds the known design values and nothing else, whatever a file adds (finding S6-02)"; "compares names in one form of their letters, and stores a name in one form"; "never ends a cut name on a space or on half a character"; "refuses a date that is not written as the Studio writes dates (finding S6-09)"; "says so when a file names a typeface that the Studio replaced (finding S6-11)". [S14]
+- Last verified: 2026-11-16
+
+## [55] Your content (the Brief)
+
+### [55.01] A text of the owner's is kept as typed, cleaned and cut at its limit, and the page never loses its name, its headline, or its main button
+
+<!-- index: your content | Brief; own words; texts of the page; limit of a text -->
+
+- **Rule.** Each text of the page and each of the three answers is stored on one line, without invisible signs and without signs that change the direction of writing, and cut at its own limit by whole characters. Quotation marks and apostrophes stay. The page's name, its headline, and the words on its main button cannot be emptied: an empty one changes nothing, and the screen says so. A service, a fact, and a price are added and removed within 1 to 8, 0 to 4, and 0 to 8; the menu keeps its five links. [S15; S1 at D61; S1 at D62]
+- **Test.** "sets a text of the page, cleaned like any text that the Studio keeps, and cut at that text’s limit"; "never leaves the page without a name or a headline: an empty one changes nothing"; "adds and removes a service, a fact, and a price within the limits, and changes nothing beyond them"; "keeps the menu at its five links and changes their words only"; "lets a project from before this slice keep a list that is longer than the limit, and add nothing to it"; "holds the three answers with the project, cleaned and cut, and holds nothing where the owner wrote nothing"; "writes the texts and the answers into the project file and reads them back unchanged". [S15]
+- **Test.** In the browser: "opens from the top bar, takes the owner’s words into the project and the previews, keeps them over a reload, and hands them over in mockup.html"; "stops each list at its limit and says why"; "draws markup in a text as text, never leaves the page without a name, and says when the words to mark are not in the headline". [S3]
+- **Exceptions.** The limits are the builder's choice (decision D62). The words of the contact form are fixed. A project file from before may hold a longer list; the Studio then adds nothing to it.
+- Last verified: 2026-11-16
+
+### [55.02] An empty text or an empty list leaves no empty box on the page, and a text with markup is drawn as text
+
+<!-- index: empty text | empty list; no empty box; markup in your content -->
+
+- **Rule.** The Mockup draws a text only when it holds words, an item of a list only once it holds words, and a part of the page only when something stands in it. A text that holds markup or script is drawn as that text, and nothing runs. [S15; S10 at hard rule 6]
+- **Test.** "draws the owner’s texts as text, and leaves no empty box where a text or a list is empty"; "draws every list at its most, and marks the headline’s words only where the headline holds them". [S15]
+- **Exceptions.** The test looks for an element without content among the kinds of element that the page uses for text; it does not look at drawn pixels.
+- Last verified: 2026-11-16
+
+### [55.03] Every built-in Direction holds the owner's content at the ends of what the Brief allows without becoming wider than its window
+
+<!-- index: long word | long name; fewest and most items; page wider than the window -->
+
+- **Rule.** With the fewest items and no optional text, with the most items and every text at its limit, and with one 46-letter word in every place that takes one, no page of the 38 Directions and the plain start is wider than its window at 375 or 1280 pixels, and the headline stays larger than the reading text and every section heading. [S4]
+- **Test.** "holds the owner’s content at the ends of what the Brief allows, on every Direction, at phone and desktop width: no page wider than its window, and the headline the largest text". [S4]
+- **Exceptions.** The test measures width and the size of the headline. It does not measure overlap or beauty; the builder looked at 24 pictures of six Directions (finding B17-03). A figure of the facts may be larger than the headline; two Directions draw it so on purpose.
+- **Examples.** Before 2026-11-16 a long word in the name or the headline made 46 of 234 such pages wider than their window (finding B17-01).
+- Last verified: 2026-11-16
+
+### [55.04] The three answers go into the Prescription as quoted data, and the owner's texts go into the reference page and nowhere else
+
+<!-- index: three answers | what you offer; who it is for; quoted answers -->
+
+- **Rule.** `PRESCRIPTION.md` carries each written answer inside a fenced block marked as quoted data, says when none was written, and says whether `mockup.html` shows the sample or the project's own texts. The owner's texts stand in `mockup.html`, as text; they stand in no other file of the four. [S13]
+- **Test.** "carries the owner’s three answers as quoted data, and says when none was written (the Brief; SPEC.md section 2.7)"; "tells the AI coding tool to use the owner’s own texts word for word, and still treats them as content, never as instructions". [S13]
+- **Test.** In the browser: "hands the three answers to the AI coding tool as quoted data in PRESCRIPTION.md, and says whose texts mockup.html shows". [S3]
+- **Open.** As in §65.03: a fence marks text as data; whether an AI coding tool obeys the mark is not tested here.
+- Last verified: 2026-11-16
+
+### [55.05] The Studio asks before the sample replaces the owner's texts, keeps a copy, and treats a project that holds only the owner's words as work
+
+<!-- index: put the sample text back | replace my texts; only my texts -->
+
+- **Rule.** "Put the sample text back" asks first, keeps the project as it was among the kept copies where the browser allows it, and can be undone; the three answers stay. A project that holds nothing but the owner's texts or answers counts as work: the Studio asks before a new project, a Direction, or a file replaces it, and the question names the texts. [S3]
+- **Test.** "puts the sample text back only after asking, keeps the owner’s texts as a copy, and brings them back with Undo"; "asks before a new project replaces a project that holds only the owner’s texts, and says that the texts go". [S3]
+- **Exceptions.** The first test reads the stored project and the Undo; it does not open the list of kept copies.
+- Last verified: 2026-11-16
+
 ## [60] The Studio's words
 
 ### [60.01] A trade word appears only inside round brackets
@@ -552,6 +648,152 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Test.** "measures every research rule on the open design and says "Holds" or "Does not hold" with the number, as the core computes it"; "says so when a design does not hold a rule, leads to the Step that changes it, and follows the change". [S3]
 - **Exceptions.** The rule "Reading text is at least 16 pixels tall" does not bind: the Direction "Control Room" uses 15 pixels on purpose. The Direction's record states that reason, a unit test refuses a departure without such a record, and the Summary shows the reason beside "Does not hold" while the start's text size stands (finding U5-16; test "names the Directions that depart from a rule that does not bind, so that a new departure is a decision and not an accident"). A rule measures values of the design, not the built website, and each rule states what a person must still check.
 - Last verified: 2026-11-15
+
+## [65] The craft rules and the Prescription
+
+### [65.01] Every craft rule carries its mark on the sample website of every built-in Direction, and says so when a design sets it aside
+
+<!-- index: craft rule | fine detail; invisible detail; set aside; see also: Prescription -->
+
+- **Rule.** Each craft rule is a Catalog record with plain words for the owner, an exact instruction for the AI coding tool, a check that a program runs, a source, an evidence grade, and a date. The check finds the rule's mark in the style sheet of the Mockup of every built-in Direction. The instruction and the plain sentence follow the design: where a Step sets a rule aside (digits of natural width; no motion), both say so, and neither asks for what the design excludes. Every craft rule is graded "expert opinion". [S1 at D60; S1 at D61; S10 at hard rule 5]
+- **Test.** "has craft rules, each a complete record in plain words with an exact instruction, a source, an evidence grade, and a date"; "holds every craft rule on the Mockup of every built-in Direction: the Mockup practices what the Prescription will ask for"; "has checks that can fail: no rule holds on an empty page, and each fails when its own detail is taken out of the Mockup"; "says what the open design gives where a Decision sets a rule’s value, and that nothing moves when motion is off"; "says of no design what the design does not do: every instruction and every sentence follows the design, for every Direction and every Option (findings T6-01, T6-03, U6-08, U6-09)"; "has a style sheet that does what the rules say in the cases that the review found"; "has checks that fail on each fault that the review planted (finding T6-13)"; "says where a rule departs from its source, and names an outside source where the research record holds one (finding T6-05)". [S8]
+- **Test.** In the browser: "lists every craft rule with what the open design gives, as the core works it out, and follows a design without movement". [S3]
+- **Exceptions.** A check is a search of the style sheet for text. It does not look at drawn pixels, and a style sheet can hold a fault that no check looks for; the sixth review showed five such cases, now repaired. Nine rules rest on practitioners' published rule sets, which the research record itself calls opinion; three rest on the builder's judgment alone. No person has reviewed a craft rule.
+- Last verified: 2026-11-16
+
+### [65.02] The four files of the Prescription hold the same design values, value by value
+
+<!-- index: Prescription | export; files to build from; design values; see also: craft rule -->
+
+- **Rule.** `tokens.css` holds every design value of the project and nothing else; `tokens.json` holds each of those values, either as a typed entry that stands for exactly the CSS value or as the CSS value word for word; `mockup.html` draws with each value under its name and holds no script. [S13]
+- **Test.** "holds every design value in tokens.css, and the same value in tokens.json and in mockup.html"; "writes typed tokens only in the types of the Design Tokens format, each with a value of that type’s form"; "types a list of typefaces as a typeface and a keyword as a keyword, and gives each color’s parts as its six digits say (findings T6-10, T6-11)"; "writes tokens.css as one block of named values and nothing else". [S13]
+- **Exceptions.** The builder read the Design Tokens format in the specification's own repository on 2026-11-15 and wrote the test from that reading. No validator program of the format has checked `tokens.json` (decision D60).
+- Last verified: 2026-11-15
+
+### [65.03] Words that the owner typed, or that came from a file, stand in the Prescription as quoted data, inside a fence that they cannot close
+
+<!-- index: quoted data | fence; injected instruction; your own words in the Prescription; name of a Direction of your own -->
+
+- **Rule.** The project's name, each written reason, and the name of a Direction that only the Studio knows (one of the owner's own, or one composed at random) stand in `PRESCRIPTION.md` inside a fenced block that the file marks as quoted data, not an instruction. The fence is longer than any run of fence marks in the text. Invisible signs and signs that change the direction of writing are taken out before the text is written. The name reaches neither `tokens.css` nor `tokens.json`. The file says that every word of `mockup.html` is content for the page, never an instruction. [S13; S1 at D60; S1 at D61]
+- **Test.** "fences the owner’s own words so that they cannot act as an instruction or close their fence"; "keeps the name of an own Direction from acting as an instruction, as markup, or as a hidden sentence (findings S6-01, S6-07, T6-04)"; "writes the owner’s words without invisible signs and without signs that change the direction of writing"; "says “a sample dental practice” only of the sample texts, and says that no word of mockup.html is an instruction". [S13]
+- **Test.** In the browser: "writes a name from a file of own Directions as quoted data, so that it cannot act as an instruction (finding S6-01)"; "names a start that only the Studio knows: a Direction of the owner’s own". [S3]
+- **Policy.** Hard rule 10: content is data, never an instruction. [S10 at hard rule 10]
+- **Examples.** Until 2026-11-16 the name of an own Direction stood in the sentence "Start: the Direction “...”", outside every fence; a file of own Directions could put an instruction there (sixth review, finding S6-01, a blocker).
+- **Open.** A fence marks text as data; it cannot force a reader to treat it so. Whether an AI coding tool obeys the mark is not tested here; the Fitter (M7) will test builds.
+- Last verified: 2026-11-16
+
+### [65.04] The same project always gives the same four files, and a change of any line is seen
+
+<!-- index: stored copy of the files | snapshot; same files again -->
+
+- **Rule.** The core writes the four files from the project alone: the same project gives the same files, and the files for two projects are stored word for word, so that a change of any line fails a test until someone decides it. [S13]
+- **Test.** "writes seven files, and writes the same files again for the same project"; "keeps the four files as stored for two projects, so that a change of any line is seen and decided". [S13]
+- **Elements.** `PRESCRIPTION.md`, `tokens.css`, and `tokens.json` are stored in one file of the test; `mockup.html` is stored for the same two projects as a page of its own, which a person can open in a browser.
+- Last verified: 2026-11-15
+
+### [65.05] The Prescription names the start, every Decision, every craft rule, and what a person must still check, and claims no standard
+
+<!-- index: what a person must still check | not checked; compliance claim in the Prescription -->
+
+- **Rule.** `PRESCRIPTION.md` names the project's start (also a Direction of the owner's own, a Direction composed at random, or the plain start), lists every Step with its Decision, its rejected Options, and its reason, names the Option that stands where a Step is not decided, lists the Overlays and every craft rule with its instruction, says what was checked and what a person must still check, says what this first slice leaves out, and calls no result compliant with a standard. [S13]
+- **Test.** "names the start, every Step with its Decision, the rejected Options, the Overlays, every craft rule, and what a person must still check"; "names a start that the core cannot know by the name that the Studio hands over, and says so plainly when it has none"; "says that mockup.html has every craft rule only where a check of that very page holds, for every Direction and every Option"; "says whether mockup.html carries the typefaces, as the Studio hands them over or not"; "reads the craft rules in the style sheet only: words in the content cannot change what the file says (finding S6-06)"; "shows each switched-on Overlay open in mockup.html, and says where (findings T6-02, U6-03)"; "lists under “no program checked” only what the design has (finding U6-04)"; "reports contrast in words that are true of the setting: off is not “none failed”, and nothing is called the owner’s pick (findings U6-06, U6-08)"; "writes a kept Decision, and writes a craft rule that the design sets aside without asking for what the Decision excludes (findings T6-03, U6-09)". [S13]
+- **Exceptions.** The sentence that the file writes when a craft rule's check does not hold on the page has no test: no design that the tests can make fails a check.
+- **Policy.** Hard rule 8. [S10 at hard rule 8]
+- Last verified: 2026-11-15
+
+### [65.06] A file that the Summary hands over equals what the core writes for the stored project
+
+<!-- index: download a Prescription file | copy a Prescription file -->
+
+- **Rule.** Each of the four download buttons on the Summary hands over exactly the file that the core writes for the stored project and for the font rules that the Studio adds (`mockup.html` included, letter for letter); a downloaded `mockup.html` draws each switched-on Overlay open; after a new Decision the files show the change; a project that started from a Direction of the owner's own names that Direction. [S3]
+- **Test.** "hands over each of the four files as the core writes it for the stored project, and follows a new Decision"; "names a start that only the Studio knows: a Direction of the owner’s own"; "hands over a mockup.html that draws each switched-on Overlay open (findings T6-02, U6-03)". [S3]
+- **Open.** The "Copy" buttons are not covered by an automatic test.
+- Last verified: 2026-11-15
+
+### [65.07] Every file of the Prescription carries one fingerprint of the design values, and no date
+
+<!-- index: fingerprint | which files belong together; eight characters; no date in the files -->
+
+- **Rule.** The core works out eight characters from the design values. The same design gives the same eight, a changed value gives others, and each of the 38 Directions has its own. All seven files carry them. No file carries a date, so the same project always gives the same files. [S13; S1 at D63]
+- **Test.** "marks every file with one fingerprint of the design values: the same for the same design, another for a changed one, and never a date (SPEC.md section 2.9)". [S13]
+- **Exceptions.** The fingerprint is a mark to compare, not a seal: it proves nothing about who wrote a file. It covers the design values, not the owner's texts. The comments of the sample website's style sheet name earlier reviews, some with a day; they are fixed text.
+- Last verified: 2026-11-16
+
+### [65.08] FONTS.md, DESIGN.md, and theme.css say the design in three more forms, each from the design's own values
+
+<!-- index: FONTS.md | DESIGN.md; theme.css; ready-made parts; how to ship the letter styles -->
+
+- **Rule.** `FONTS.md` names each typeface with its CSS family, licence, package, and the version that the Studio itself ships. `DESIGN.md` holds the values first and then eight sections in the order that its format fixes; every color in it is a color of the design. `theme.css` gives each of the 32 names that the shadcn library reads a value of the design, the same for the light and the dark name. The owner's words reach none of the three. [S13]
+- **Test.** "writes FONTS.md: each typeface with its family, licence, package, and version, and a device’s own typeface without a file (SPEC.md section 2.9)"; "writes DESIGN.md in the DESIGN.md format as its specification was read: values first, then the eight sections in their fixed order (SPEC.md section 2.9)"; "writes theme.css: every name that the shadcn component library reads, each with a value of the design, the same for the light and the dark name (SPEC.md section 2.9)". [S13]
+- **Exceptions.** The lists of names and sections are as the two formats' own pages had them on 2026-11-16 (research record 11). No program of the shadcn library has read `theme.css`.
+- Last verified: 2026-11-16
+
+### [65.09] Two programs that the builder did not write read DESIGN.md and tokens.json, on GitHub only
+
+<!-- index: outside validators | lint program; parser; checked on GitHub only -->
+
+- **Rule.** On every push, GitHub runs the lint program of the DESIGN.md format on `DESIGN.md` and an outside parser of the Design Tokens format on `tokens.json`, for the plain start and each of the 38 Directions. Neither may report an error. Each must report one for a planted fault, so that its silence means something. [S17; S1 at D64]
+- **Test.** "has no error for the plain start and for every built-in Direction"; "does report an error for a planted fault, so that its silence means something"; "is read without an error for the plain start and for every built-in Direction"; "is refused with a planted fault, so that a clean reading means something". [S17]
+- **Exceptions.** By the owner's choice these four tests never run on the machine where the Studio is built; `npm run check` and `npm run e2e` do not include them. The lint program's warnings do not fail the check; the run's log prints them.
+- Last verified: 2026-11-16
+
+### [65.10] One archive file holds the seven files, each letter for letter
+
+<!-- index: archive | one download for all files; zip file -->
+
+- **Rule.** The button for all files hands over one archive file whose name carries the fingerprint. It holds the seven files under their names, each equal to the file that its own button hands over, and the same files always give the same archive. A file that the private page refuses for its kind is saved with ".txt" at the end of its name, and the Studio says so. [S16; S3]
+- **Test.** "holds every file under its name, letter for letter, with a check sum that an unpacking program accepts"; "keeps letters beyond the plain alphabet, an empty file, and a name with a space". [S16]
+- **Test.** In the browser: "hands over all seven files, each as the core writes it, and all of them as one archive file that holds the same seven (SPEC.md section 2.9)"; "saves a file that the private page may not hand over under its own name with “.txt” at its end, and says so". [S3]
+- **Open.** The second browser test uses a stand-in for the private page; no test opens the real one (finding R23-01).
+- Last verified: 2026-11-16
+
+## [66] The Fit check (measuring a build against the Prescription)
+
+### [66.01] The program measures six things and one more, and the Mockup passes its own measure
+
+<!-- index: fit check | measures a build; receipt; reference build -->
+
+- **Rule.** `npm run fit -- <build.html> <folder> <result folder>` opens the build in a real browser at 375 and 1280 pixels, and measures: every request and every outside reference; every color that a visible element draws; the typeface of every text; the radius of every drawn box; the contrast of every text; the three required texts of the Brief; and the page's width. It reports each deviation with its element. The Mockup of a project is the reference build, and it must show no deviation in requests, colors, typefaces, radii, content, and width. Contrast is reported as a measurement and never changes the status, because the Prescription holds no Floors yet. [S18; S1 at D65]
+- **Test.** "finds no deviation in the Mockup of the plain start or of any of the 38 Directions". [S18]
+- **Elements.** Playwright and a Chromium browser are on the machine. The four files of the Prescription (`PRESCRIPTION.md`, `tokens.css`, `tokens.json`, `mockup.html`) are in one folder.
+- **Exceptions.** Hover, focus, shadows, gradients, images, and every page other than the one given are not measured. A text on an image or a gradient, and a text drawn partly transparent, have no contrast reading; the receipt counts them and names the reason.
+- Last verified: 2026-11-16
+
+### [66.02] Each deviation that the program claims to find, it finds; each fault of its own inputs, it names
+
+<!-- index: self-test | planted damage; refusals; status -->
+
+- **Rule.** The program reports each of eight damages of the reference build: one color changed, one typeface changed, one radius changed, a remote font link, a remote script, the headline removed, the page widened, and the text color made equal to the background. It refuses, with status 2 and no receipt, a missing file, files with different fingerprints, an empty build, and a build that is not an HTML page. A page that never finishes loading is recorded, every measure of that window width is marked "not measured", and the status is 1. A page's error while it loads is recorded, and the measurements still run. [S18]
+- **Test.** The eight tests of "eight damages, each reported", and the tests of "refusals and faults of the build". [S18]
+- **Exceptions.** A damage that the program has no measure for is not found: the self-test names eight, not every possible fault.
+- Last verified: 2026-11-16
+
+### [66.03] The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs
+
+<!-- index: honest receipt | three parts; fenced quotes; same receipt -->
+
+- **Rule.** The receipt has three parts: "Measured", "Judged by the model" (empty in this slice), and "Still needs a person". Text that comes from the page stands only inside a fence of backticks longer than any run in the text, and the receipt marks it as quoted data. The receipt holds no date and no time, so the same page and the same files give the same receipt, byte for byte. It never calls a page accessible or compliant (hard rule 8). [S18; S10 at hard rule 8]
+- **Test.** "shows page text only inside a fence that no backtick of the page can close, and treats it as data"; "gives byte-for-byte the same receipt for the same inputs, and never claims that a page is accessible or compliant". [S18]
+- **Exceptions.** The program reads the page's text only through the browser's own engine; a page that attacks the browser itself is outside what this slice defends against (the program blocks every network request, but the page runs its own scripts).
+- Last verified: 2026-11-16
+
+### [66.04] The first build trial is stored whole, belongs to today's files, and measures to its own receipt
+
+<!-- index: build trial | stored run; helper agent; one run -->
+
+- **Rule.** `plugin/fit/trials/001/` holds the instruction, the seven files that the helper received, the helper's page, the receipt in two forms, and a record that says what the run shows and what it does not show. The seven files equal what the core writes today for the fixed project of `plugin/fit/e2e/trial-project.ts`, and the receipt names their fingerprint. Run again on the stored page, the program gives the stored receipt byte for byte. The record states that it is one run and not a rate, and that the helper cannot be held to the rule of reading no other file. [S19; S1 at D65]
+- **Test.** The five tests of "First build trial: the stored record". [S19]
+- **Open.** The run found that the "requests" measure lists the font files that `FONTS.md` tells the builder to ship (finding R25-01). No run without the Prescription exists, so the record cannot say that the files improved the page.
+- Last verified: 2026-11-16
+
+### [66.05] The comparison run sets two pages side by side with numbers that come from the receipts
+
+<!-- index: comparison run | side by side; without the files; table -->
+
+- **Rule.** `plugin/fit/trials/002/` holds a second run: the same project in plain words, no file, and the page that a helper built. The program measured it against the same values as trial 001. The record's table gives each measure's two deviation counts exactly as the receipts state them, and the record says that it does not say which page looks better and that it holds two measurements, not a rate. [S19; S1 at D66]
+- **Test.** "gives the second helper no file"; "carries every text of the sample content and all six chosen Options in the instruction"; "has a table in its record that gives, for each measure, the deviation counts of both receipts exactly as the receipts state them". [S19]
+- **Open.** Trial 001's helper received `mockup.html` and `tokens.css`, so a zero there partly reflects copied values. The helpers may have had the repository's `CLAUDE.md` in their context (finding R26-01).
+- Last verified: 2026-11-16
 
 ## [70] How the Studio is built
 
@@ -620,6 +862,13 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.14: after the comparison run (feature F026, decision D66): added §66.05. 71 guarantees.
+- 2026-11-16 v1.13: after the first build trial (feature F025, decision D65): added §66.04. 70 guarantees.
+- 2026-11-16 v1.12: after the first slice of the Fit check (feature F024, decision D65): added §66.01 to §66.03. 69 guarantees.
+- 2026-11-16 v1.11: after the rest of the Prescription's files (features F019 to F023, decisions D63 and D64): added §65.07 to §65.10; §65.04 names its test by its new title. 66 guarantees.
+- 2026-11-16 v1.10: after the first slice of the Brief (features F015 to F018, decisions D61 and D62): added §55.01 to §55.05. 62 guarantees.
+- 2026-11-16 v1.9: after the sixth red-team review (features F012 and F013, decision D61): §65.01, §65.03, §65.04, §65.05, and §65.06 state the repaired behavior and name the new tests; §20.06 names the tests of the look-alike signs and its limit; added §50.09 and §50.10. 57 guarantees.
+- 2026-11-15 v1.8: after the craft layer and the first slice of the Prescription (features F009 to F011, decisions D58 and D60): added §65.01 to §65.06. 55 guarantees.
 - 2026-11-15 v1.7: after the repair of finding F-18 (feature F001): §10.13 covers a page that closes within 2 seconds after its own save, and names five new tests and the trial's counts. 49 guarantees.
 - 2026-11-15 v1.6: after the owner's decisions of 2026-11-15 (decision D55): §10.01 states the status line after an Undo back to the stored project; §50.01 states when a design holds an Option whose second color follows, and names the new test; §60.04 states how a departure on purpose is recorded and shown; §70.03 names Dependabot's cooldown. 49 guarantees.
 - 2026-11-14 v1.5: after the reviews of 2026-11-14 (decision D54): §20.06 covers look-alike marks and invisible direction signs; §20.07 says which original is kept; §50.07 states the rule for offering a Skin; §70.03 states its exception. 49 guarantees.
@@ -642,31 +891,50 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md` (2026-11-13). Accessed 2026-11-13. Grade: A. A pinpoint names a hard rule.
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13). Accessed 2026-11-13. Grade: A.
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file `docs/reference/saving-table.md` (2026-11-14). Accessed 2026-11-14. Grade: A.
+- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15). Accessed 2026-11-15. Grade: A.
+- [S14] The builder, *Unit tests of a Direction of the owner's own*, file `packages/core/test/ownDirections.test.ts` (2026-11-15). Accessed 2026-11-16. Grade: A.
+- [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §60.01, §60.03, §60.04, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §65.07, §65.09, §66.01, §66.04, §66.05, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08
-- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §60.01, §60.04, §70.04
-- [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §70.02
+- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §60.01, §60.04, §65.01, §65.03, §65.06, §65.10, §70.04
+- [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
 - [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.05, §40.04
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03, §30.06
-- [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §50.07, §60.01, §60.02, §60.03, §60.04, §70.05
+- [S8] The builder, *Unit tests of the Catalog*, file `packages/core/test/catalog.test.ts` (2026-11-13) — §40.04, §50.02, §50.03, §50.07, §60.01, §60.02, §60.03, §60.04, §65.01, §70.05
 - [S9] The builder, *Unit tests of the engine*, file `packages/core/test/engine.test.ts` (2026-11-13) — §20.01, §50.01, §50.02, §50.03, §50.04, §50.05, §50.06
-- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §60.02, §60.03, §70.01, §70.03, §70.05
+- [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §55.02, §60.02, §60.03, §65.01, §65.03, §65.05, §66.03, §70.01, §70.03, §70.05
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13) — §70.01
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file… — §10.14
+- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §55.04, §65.02, §65.03, §65.04, §65.05, §65.07, §65.08
+- [S14] The builder, *Unit tests of a Direction of the owner's own*, file `packages/core/test/ownDirections.test.ts`… — §20.06, §50.09, §50.10
+- [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16) — §55.01, §55.02
+- [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16) — §65.10
+- [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs`… — §65.09
+- [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16) — §66.01, §66.02, §66.03
+- [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16) — §66.04, §66.05
 <!-- authorities:end -->
 
 ## [92] Index
 
 <!-- index:start -->
+**Symbols**
+
+- 100 Directions of your own — *see* limit of own Directions
+
 **A**
 
 - accessible — *see* compliance claim
 - ADA — *see* compliance claim
 - another window — *see* two tabs
+- **archive** — §65.10
 - are you sure — *see* Overlay
 - autosave — *see* saving
 
@@ -674,49 +942,73 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - backup — *see* kept copy
 - baseline — *see* stored picture
+- bloated project — *see* unknown values in a file of own Directions
 - boundary — *see* core
+- Brief — *see* your content
+- **build trial** — §66.04
 
 **C**
 
 - **card** — §50.04; *see also* Decision
 - **changed Decision** — §20.04; *see also* project file
+- checked on GitHub only — *see* outside validators
 - chip — *see* Skin
 - closing a tab — *see* unsaved work
 - **closing in the same instant** — §10.13; *see also* two tabs
 - color fade — *see* Skin
+- **comparison run** — §66.05
 - **compliance claim** — §40.04
+- compliance claim in the Prescription — *see* what a person must still check
 - console error — *see* page error
 - content policy — *see* locked frame
 - contrast — *see* contrast check
 - **contrast check** — §40.02; *see also* written color
 - copy — *see* kept copy
+- copy a Prescription file — *see* download a Prescription file
 - **core** — §70.01
 - corrected file — *see* changed Decision
 - corrupt — *see* unreadable project
+- **craft rule** — §65.01; *see also* Prescription
 
 **D**
 
 - damaged project — *see* unreadable project
 - **Decision** — §50.01; *see also* project file
 - **dependency** — §70.03
+- design values — *see* Prescription
+- DESIGN.md — *see* FONTS.md
 - **Direction** — §50.03
 - does not hold — *see* research rule
 - download — *see* project file
+- **download a Prescription file** — §65.06
 - **drawn color** — §40.05; *see also* contrast check
 
 **E**
 
+- eight characters — *see* fingerprint
+- empty list — *see* empty text
+- **empty text** — §55.02
 - enforce — *see* Fix for me
 - error message — *see* refused file
 - evidence — *see* source
 - **evidence grade** — §60.03; *see also* source
 - exact digits — *see* written color
+- export — *see* Prescription
 
 **F**
 
+- fence — *see* quoted data
+- fenced quotes — *see* honest receipt
+- fewest and most items — *see* long word
 - file name — *see* quotation marks
+- files to build from — *see* Prescription
+- fine detail — *see* craft rule
+- **fingerprint** — §65.07
+- **fit check** — §66.01
 - **Fix for me** — §40.03; *see also* contrast check
 - **following value** — §50.05; *see also* Decision
+- **FONTS.md** — §65.08
+- foreign data — *see* unknown values in a file of own Directions
 - forged sentence — *see* quotation marks
 
 **G**
@@ -729,16 +1021,21 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - hand-edited file — *see* changed Decision
 - heading size — *see* phone width
+- helper agent — *see* build trial
 - hex — *see* written color
 - hold — *see* standing notice
 - holds — *see* research rule
+- **honest receipt** — §66.03
 - **hostile text** — §30.02; *see also* Mockup
+- how to ship the letter styles — *see* FONTS.md
 
 **I**
 
 - iframe — *see* locked frame
+- injected instruction — *see* quoted data
 - injection — *see* hostile text
 - innerHTML — *see* text as text
+- invisible detail — *see* craft rule
 
 **J**
 
@@ -757,31 +1054,46 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - leaving copy — *see* closing in the same instant
 - leaving the page — *see* unsaved work
 - left out — *see* unknown Overlay
+- limit of a text — *see* your content
+- **limit of own Directions** — §50.09
 - line length — *see* research rule
+- lint program — *see* outside validators
 - lint rule — *see* text as text
+- list too long — *see* limit of own Directions
 - **locked frame** — §30.03
+- long name — *see* long word
+- **long word** — §55.03
 
 **M**
 
 - markup — *see* hostile text
+- markup in your content — *see* empty text
 - measured — *see* evidence grade
 - measured style — *see* stored picture
+- measures a build — *see* fit check
 - **Mockup** — §30.01; *see also* locked frame
 
 **N**
 
+- name of a Direction of your own — *see* quoted data
 - narrow screen — *see* phone width
 - network — *see* outside request
 - new pick — *see* reason
 - new project — *see* replace action
 - newer copy — *see* late copy
+- no date in the files — *see* fingerprint
+- no empty box — *see* empty text
+- not checked — *see* what a person must still check
 - not saving — *see* standing notice
 - notice — *see* Overlay picture
 
 **O**
 
 - **old project** — §20.03; *see also* project file
+- one download for all files — *see* archive
+- one run — *see* build trial
 - one variable — *see* Step
+- only my texts — *see* put the sample text back
 - open a file — *see* project file
 - **opening** — §10.10; *see also* saving
 - **opening while another tab saves** — §10.14; *see also* two tabs
@@ -790,9 +1102,11 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - other colors — *see* Skin
 - out of range — *see* rejected Options
 - **outside request** — §30.04
+- **outside validators** — §65.09
 - overflow — *see* phone width
 - **Overlay** — §50.08
 - **Overlay picture** — §30.06; *see also* Mockup
+- own words — *see* your content
 
 **P**
 
@@ -800,42 +1114,56 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - packages/core — *see* core
 - page database — *see* late copy
 - **page error** — §70.04; *see also* stored picture
+- page wider than the window — *see* long word
+- parser — *see* outside validators
 - passing pair — *see* contrast check
 - **phone width** — §30.05; *see also* Mockup
 - pick — *see* Decision
 - pinned version — *see* dependency
 - placeholder project — *see* opening
 - **plain words** — §60.01
+- planted damage — *see* self-test
+- **Prescription** — §65.02; *see also* craft rule
 - preview — *see* Mockup
 - preview of an Option — *see* card
 - **project file** — §20.01
 - project name — *see* quotation marks
 - promise of a kept copy — *see* lasting copy
 - put back — *see* reason
+- **put the sample text back** — §55.05
 
 **Q**
 
 - question — *see* Overlay picture
 - **quotation marks** — §20.06
+- quoted answers — *see* three answers
+- **quoted data** — §65.03
 
 **R**
 
 - race — *see* closing in the same instant
 - reading size — *see* research rule
+- ready-made parts — *see* FONTS.md
 - **reason** — §50.06; *see also* Decision
+- receipt — *see* fit check
 - record — *see* Decision
+- reference build — *see* fit check
+- refusals — *see* self-test
 - **refused file** — §20.02; *see also* project file
 - **rejected Options** — §20.05; *see also* Decision
 - remote font — *see* outside request
 - repaired — *see* Fix for me
 - **replace action** — §10.05
+- replace my texts — *see* put the sample text back
 - research file — *see* evidence grade
 - **research rule** — §60.04
 - running copy — *see* unsaved work
 
 **S**
 
+- same files again — *see* stored copy of the files
 - same millisecond — *see* save mark
+- same receipt — *see* honest receipt
 - same text — *see* lasting copy
 - sandbox — *see* locked frame
 - **save mark** — §10.09; *see also* two tabs
@@ -847,28 +1175,40 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - search summary — *see* evidence grade
 - second color — *see* following value
 - second tab — *see* two tabs
+- **self-test** — §66.02
+- set aside — *see* craft rule
+- side by side — *see* comparison run
 - **Skin** — §50.07; *see also* Direction
 - slider end — *see* rejected Options
 - slow opening — *see* opening while another tab saves
 - slow page database — *see* opening
 - small helper — *see* Overlay
 - small variation — *see* card
+- snapshot — *see* stored copy of the files
 - **source** — §60.02
 - **standing notice** — §10.07; *see also* saving
 - start again — *see* replace action
 - starting look — *see* Direction
+- status — *see* self-test
 - **Step** — §50.02
 - still picture — *see* Overlay picture
 - stopped saving — *see* standing notice
 - storage — *see* saving
 - storage full — *see* kept copy
+- **stored copy of the files** — §65.04
 - **stored picture** — §70.02
+- stored run — *see* build trial
 - switch — *see* Overlay
 
 **T**
 
+- table — *see* comparison run
 - target size — *see* research rule
 - **text as text** — §70.05; *see also* hostile text
+- texts of the page — *see* your content
+- theme.css — *see* FONTS.md
+- **three answers** — §55.04
+- three parts — *see* honest receipt
 - tooltip — *see* Overlay
 - tracking — *see* outside request
 - trade word — *see* plain words
@@ -880,6 +1220,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - uncaught error — *see* page error
 - undo — *see* replace action
 - **unknown Overlay** — §20.07; *see also* Overlay
+- **unknown values in a file of own Directions** — §50.10
 - **unreadable project** — §10.04; *see also* kept copy
 - **unsaved work** — §10.08; *see also* kept copy
 - upgrade — *see* old project
@@ -893,16 +1234,30 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **W**
 
 - WCAG — *see* compliance claim
+- **what a person must still check** — §65.05
+- what you offer — *see* three answers
 - where guidance comes from — *see* source
+- which files belong together — *see* fingerprint
+- who it is for — *see* three answers
 - why this choice — *see* reason
+- without the files — *see* comparison run
 - **written color** — §40.01
 - wrong file — *see* refused file
+
+**Y**
+
+- **your content** — §55.01
+- your own words in the Prescription — *see* quoted data
+
+**Z**
+
+- zip file — *see* archive
 <!-- index:end -->
 
 ## [99] Health
 
 <!-- health:start -->
-_66 sections, 11 sources, 48 index terms. Cadence: 90 days. Generated content last changed 2026-11-14._
+_91 sections, 18 sources, 70 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
 
 - No findings.
 <!-- health:end -->

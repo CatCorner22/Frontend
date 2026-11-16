@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { DIRECTIONS, type Direction } from './catalog/directions.js';
+import { DIRECTIONS, isOwnDirectionId, type Direction } from './catalog/directions.js';
 import { currentFonts, describeDesign, withinReach } from './engine.js';
-import { assertKnownParams, type DesignParams } from './params.js';
-import { plainName } from './text.js';
+import { DEFAULT_PARAMS, assertKnownParams, type DesignParams } from './params.js';
+import { plainName, sameName } from './text.js';
 
 /**
  * A Direction of the owner's own: a design that the owner kept under a name, to start later projects from (PLAN.md section
@@ -24,17 +24,20 @@ export interface OwnDirection {
 
 export const OWN_NAME_MAX = 60;
 export const OWN_TEXT_MAX = 200;
-/** The most Directions that one file may hold; a larger file is not one of the Studio's. */
+/**
+ * The most own Directions that the Studio holds. Every card draws a live preview, and 500 of them took the Directions screen
+ * about 10 seconds to open (finding S6-08). What the Studio writes it must be able to read again, so the same number binds
+ * the form, a file, and the entry in storage (finding S6-03: at 501 the Studio refused its own list).
+ */
+export const OWN_MAX = 100;
+/** The most entries that one file may hold; a larger file is not one of the Studio's. */
 const OWN_FILE_MAX = 500;
+/** A date as the Studio writes it. */
+const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
 const OWN_FILE_KIND = 'refraction-own-directions';
 const OWN_FILE_VERSION = 1;
-const OWN_ID = /^own-[0-9a-z]{4,24}$/;
-
-export const isOwnDirectionId = (id: string): boolean => OWN_ID.test(id);
 
 export type OwnDirectionResult = { ok: true; direction: OwnDirection } | { ok: false; error: string };
-
-const sameName = (a: string, b: string): boolean => a.toLocaleLowerCase() === b.toLocaleLowerCase();
 
 /**
  * Make the record from what the owner typed and from a design. Names and texts are cleaned like a project name (they enter
@@ -43,17 +46,22 @@ const sameName = (a: string, b: string): boolean => a.toLocaleLowerCase() === b.
  */
 export function makeOwnDirection(draft: OwnDirection, takenNames: readonly string[]): OwnDirectionResult {
   if (!isOwnDirectionId(draft.id)) return { ok: false, error: 'The Direction has no identifier that the Studio can use.' };
-  const name = plainName(draft.name, OWN_NAME_MAX);
+  if (!ISO_TIME.test(draft.madeAt) || Number.isNaN(Date.parse(draft.madeAt))) return { ok: false, error: 'The Direction has no date that the Studio can read.' };
+  // Trimmed after the cut: a name that ends on a space would pass as a second name beside the same name without it (finding S6-04).
+  const name = plainName(draft.name, OWN_NAME_MAX).trim();
   if (name === '') return { ok: false, error: 'Give the Direction a name.' };
   if ([...DIRECTIONS.map((d) => d.name), ...takenNames].some((taken) => sameName(taken, name))) return { ok: false, error: `Another Direction already has the name “${name}”. Choose another name.` };
   let params: DesignParams;
   try {
-    assertKnownParams(draft.params);
-    params = withinReach({ ...draft.params }).params;
+    // The known values and nothing else: whatever else a file holds under "params" stays behind (finding S6-02).
+    const given = draft.params as unknown as Record<string, unknown>;
+    const known = Object.fromEntries(Object.keys(DEFAULT_PARAMS).map((key) => [key, Object.hasOwn(given, key) ? given[key] : undefined])) as unknown as DesignParams;
+    assertKnownParams(known);
+    params = withinReach(known).params;
   } catch {
     return { ok: false, error: 'The design holds a value that this version of the Studio does not know.' };
   }
-  const text = (value: string): string => plainName(value, OWN_TEXT_MAX);
+  const text = (value: string): string => plainName(value, OWN_TEXT_MAX).trim();
   return { ok: true, direction: { id: draft.id, name, mood: text(draft.mood) || describeDesign(params), bestFor: text(draft.bestFor), risk: text(draft.risk), params, madeAt: draft.madeAt } };
 }
 
@@ -90,6 +98,8 @@ export function readOwnDirections(input: unknown, held: readonly OwnDirection[])
   let alreadyHere = 0;
   let nameInUse = 0;
   let unreadable = 0;
+  let overLimit = 0;
+  let swapped = 0;
   for (const entry of entries) {
     const parsed = entrySchema.safeParse(entry);
     if (!parsed.success) {
@@ -97,22 +107,31 @@ export function readOwnDirections(input: unknown, held: readonly OwnDirection[])
       continue;
     }
     const all = [...held, ...added];
-    const params = currentFonts(parsed.data.params) as unknown as DesignParams;
+    const retired = new Set<string>();
+    const params = currentFonts(parsed.data.params, retired) as unknown as DesignParams;
     if (all.some((d) => d.id === parsed.data.id)) {
       alreadyHere++;
       continue;
     }
+    if (all.length >= OWN_MAX) {
+      overLimit++;
+      continue;
+    }
     const result = makeOwnDirection({ ...parsed.data, params }, all.map((d) => d.name));
-    if (result.ok) added.push(result.direction);
-    else if (result.error.startsWith('Another Direction')) nameInUse++;
+    if (result.ok) {
+      added.push(result.direction);
+      if (retired.size > 0) swapped++;
+    } else if (result.error.startsWith('Another Direction')) nameInUse++;
     else unreadable++;
   }
   const notes: string[] = [];
   if (added.length > 0) notes.push(`Added ${added.length} ${added.length === 1 ? 'Direction' : 'Directions'} of your own.`);
-  else if (alreadyHere > 0 && nameInUse + unreadable === 0) return { ok: true, added, notes: ['Added none: this browser already holds every Direction in the file.'] };
+  else if (alreadyHere > 0 && nameInUse + unreadable + overLimit === 0) return { ok: true, added, notes: ['Added none: this browser already holds every Direction in the file.'] };
   else notes.push('Added none.');
   if (alreadyHere > 0) notes.push(`${count(alreadyHere)} left out: this browser already holds it.`);
   if (nameInUse > 0) notes.push(`${count(nameInUse)} left out: another Direction already has its name.`);
   if (unreadable > 0) notes.push(`${count(unreadable)} left out: the Studio could not read them.`);
+  if (overLimit > 0) notes.push(`${count(overLimit)} left out: the Studio holds at most ${OWN_MAX} Directions of your own.`);
+  if (swapped > 0) notes.push(`${swapped} named a typeface that the Studio no longer carries; the Studio put the replacement in its place.`);
   return { ok: true, added, notes };
 }

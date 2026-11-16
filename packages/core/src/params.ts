@@ -202,6 +202,12 @@ export const FONTS: Record<FontId, FontInfo> = {
  * Reserved Font Name, which the font licence does not let a cut-down copy keep (docs/research/10-font-reserved-names.md;
  * decision D56). A saved project can still name one; opening swaps it and says so (see `parseProject`).
  */
+/**
+ * The version of the font packages (`@fontsource-variable/...`) that the Studio itself ships. `FONTS.md` names it, so that a
+ * built site can take the very files that the preview drew. A unit test holds it against the lock file.
+ */
+export const FONT_PACKAGE_VERSION = '5.3.0';
+
 export const RETIRED_FONTS: Readonly<Record<string, { label: string; now: FontId }>> = {
   'playfair-display': { label: 'Playfair Display', now: 'playfair' },
   'source-serif-4': { label: 'Source Serif 4', now: 'literata' },

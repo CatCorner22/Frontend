@@ -78,6 +78,37 @@
 | The owner presses "Go on" or "Start a new project" | What another tab saved meanwhile is kept first; saving resumes at once | "saves at once after "Go on: let the Studio save over it", also when nothing changed on screen (finding F-15)"; "keeps what another tab saved before "Start a new project" in a stopped tab replaces it (finding "saving 4")" |
 | The owner starts again from another Direction | The replaced project is kept for good, also when the tab's running copy held the same text | "keeps the replaced project for good when a stopped tab starts again, although the tab’s running copy held the same text" |
 
+## The owner's own Directions (a list of its own, beside the project)
+
+**What this is.** A Direction of the owner's own must outlive the project it came from, so it is not part of the saved project. The browser holds one entry with the whole list. The list is small and changes only when the owner keeps, renames, or removes a Direction, so it needs no status line: each action says at once whether it worked.
+
+| Event | What must happen | Test |
+|---|---|---|
+| The owner keeps the design as a Direction | The stored list is read afresh, the new Direction is added, and the list is written. A notice says where to find it | "keeps the design on screen as a Direction of the owner’s own, shows it under “Your own” after a reload, and starts a project that holds exactly the kept design" |
+| The page reloads, or the Studio opens | The list is read; the Directions screen shows the group "Your own" | the same test |
+| A project that started from an own Direction is saved and opened again | It still names that Direction | the same test |
+| Storage has no room | Nothing is kept, the stored list stays as it was, and words beside the button say so | "says so when storage has no room for an own Direction, and keeps none" |
+| Another tab kept a Direction meanwhile | This tab's next keep adds to the other tab's list; it never writes its own older list over it. When the owner comes back to this tab, it reads the list again | "adds to the list that another tab stored, and shows the other tab’s Direction when the owner comes back" |
+| The stored list cannot be read (damaged, or not a list at all) | The Studio shows none. Before a new Direction replaces the entry, the entry is kept among the kept copies; if it cannot be kept, nothing is written | "keeps a stored list of own Directions that it cannot read, before a new Direction replaces it" |
+| The owner renames a Direction | The stored list is read afresh; the name is checked against every other name; the list is written. A project that started from the Direction shows the new name, because it holds the Direction's identifier, not its name | "renames an own Direction on its card; the card and a project that started from it show the new name, and a name in use is refused" |
+| The owner removes a Direction | The Studio asks first. After "Yes, remove it for good" the stored list is read afresh and written without it. Undo does not bring it back, and the question says so. A project that started from it keeps its design and says that its start was removed | "asks before it removes an own Direction; afterwards the card is gone, and a project that started from it says so and keeps its design" |
+| The owner downloads the list | The list as storage holds it now goes into one file; nothing in storage changes | "downloads every own Direction as one file, and opens that file in a browser that holds none; a second opening adds none twice" |
+| The owner opens a file of own Directions | The stored list is read afresh; the Directions that it lacks are added; the list is written only if something was added. Words say how many were added, how many were left out, and why | the same test; "refuses a file that is not a set of own Directions, in plain words, and changes nothing" |
+| An entry of the list cannot stand (a name in use, a value the Studio does not know) | That entry is not shown; the others are | unit test "leaves out, with the reason, an entry that cannot stand or whose name is in use; the rest is added" |
+
+**What no test covers.** The private page's database: own Directions live in the browser's storage only, also on the private page, where that storage is a convenience and can be cleared. The download of the list (feature F005) is the safeguard.
+
+## The owner's own texts and answers (the Brief; part of the project)
+
+**What this is.** The page's texts and the three answers about the project are part of the saved project. They are saved, kept, and undone exactly like a Decision; the rows above apply to them. Three things are particular to them.
+
+| Event | What must happen | Test |
+|---|---|---|
+| The owner types into a field of "Your content" | Each letter is stored at once, as with the project's name. A run of typing in one field is one Undo step. The project holds the cleaned text; the field shows what was typed until the owner leaves it | "opens from the top bar, takes the owner’s words into the project and the previews, keeps them over a reload, and hands them over in mockup.html" |
+| The owner empties the page's name, its headline, or the words on its main button | The project keeps the last text, and words under the field say so | "draws markup in a text as text, never leaves the page without a name, and says when the words to mark are not in the headline" |
+| The owner presses "Put the sample text back" | The Studio asks first. After "Yes, put the sample back" the project as it was is kept among the kept copies where the browser allows it, the sample replaces the texts, the three answers stay, and Undo brings the texts back | "puts the sample text back only after asking, keeps the owner’s texts as a copy, and brings them back with Undo" |
+| A new project, a Direction, or a file would replace a project that holds nothing but the owner's texts or answers | Such a project counts as work: the Studio asks first and keeps a copy, as for a project with a Decision | "asks before a new project replaces a project that holds only the owner’s texts, and says that the texts go" |
+
 ## Why 2 seconds (finding F-18)
 
 **What goes wrong without it.** A browser passes one tab's storage write on to the other tabs with a short delay (a few milliseconds). In that gap, tab A cannot see that tab B has just saved. If A closes in that gap, A's closing write replaces B's save. B counts its work as saved, so B used to write nothing when it closed, and B's work was then in no entry. A judge measured 2 such losses in 120 trials on 2026-11-14 (11 milliseconds lay between the two writes in the recorded loss).

@@ -1,19 +1,19 @@
 // The Studio's state. Every change to the design goes through the engine in @refraction/core.
 import {
-  DIRECTIONS, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, keep, matchingOptionId, plainName,
+  DIRECTIONS, OWN_MAX, STEPS, activeTunables, addContentItem, isSampleContent, removeContentItem, restoreSampleContent, setBriefAnswer, setContentItem, setContentText, setNavWord, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName, readOwnDirections,
   nextStepId, overlaysOf, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setOverlay, setReason, startPlain, tune,
-  type A11yProfile, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type Project, type Skin, type Step,
+  type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type OwnDirection, type Project, type Skin, type Step,
 } from '@refraction/core';
 import { create } from 'zustand';
 import {
-  adoptStoredCopy, dropLeavingCopy, endRunningCopy, keepBackup, keepLeavingCopy, keepRunningCopy, keptAlready, leaveKeptNote, loadPrefs, settleLeavingCopies, storedProjectText, loadSaved, retryPageRead, saveBrowserNow, saveFile, savePrefs, saveProject, storedCopyChangedElsewhere, takeKeptNote, watchOtherTabs,
-  type LoadResult, type RawCopy,
+  adoptStoredCopy, dropLeavingCopy, endRunningCopy, keepBackup, keepLeavingCopy, keepRunningCopy, keptAlready, leaveKeptNote, loadOwnDirections, loadPrefs, settleLeavingCopies, storedProjectText, loadSaved, retryPageRead, saveBrowserNow, saveFile, savePrefs, saveProject, storeOwnDirections, storedCopyChangedElsewhere, takeKeptNote, watchOtherTabs,
+  type LoadResult, type RawCopy, type StoredOwnDirections,
 } from './platform';
 
 export type Device = 'phone' | 'tablet' | 'desktop';
 export const DEVICE_WIDTH: Record<Device, number> = { phone: 375, tablet: 768, desktop: 1280 };
-export type View = 'directions' | 'steps' | 'overlays' | 'summary' | 'licences';
-const VIEWS: readonly View[] = ['directions', 'steps', 'overlays', 'summary', 'licences'];
+export type View = 'directions' | 'steps' | 'overlays' | 'summary' | 'content' | 'licences';
+const VIEWS: readonly View[] = ['directions', 'steps', 'overlays', 'summary', 'content', 'licences'];
 
 /** The card that stands for the design as it is, when no Catalog Option matches it. */
 export const CURRENT = 'current';
@@ -71,6 +71,10 @@ export interface StudioState {
   wireframe: boolean;
   studioLook: 'studio' | 'project';
   generated: Direction[];
+  /** The owner's own Directions, as this browser stores them. */
+  own: OwnDirection[];
+  /** A sentence for the owner when storage holds own Directions that the list does not show; otherwise null. */
+  ownNote: string | null;
   saved: SaveState;
   notice: Notice | null;
   /**
@@ -98,9 +102,26 @@ export interface StudioState {
   requestDirection(direction: Direction, skin?: Skin): void;
   requestPlainStart(): void;
   moreDirections(): void;
+  /** Keep the design on screen as a Direction of the owner's own. Returns the reason in words when it could not be kept. */
+  keepOwnDirection(texts: { name: string; mood: string; bestFor: string; risk: string }): string | null;
+  /** Give an own Direction another name. Returns the reason in words when the name cannot stand. */
+  renameOwnDirection(id: string, name: string): string | null;
+  /** Ask, then remove an own Direction for good. */
+  requestRemoveOwnDirection(id: string): void;
+  /** Add the Directions of a file to the owner's own. Returns what happened, in words. */
+  openOwnDirections(data: unknown): string;
   setProfile(profile: A11yProfile): void;
   /** Switch one Overlay on or off for this project. */
   toggleOverlay(overlayId: string, on: boolean): void;
+  /** The Brief: the owner's own texts and three answers. Each typed letter is stored at once; a run of typing in one field is one Undo step. */
+  setContentText(key: ContentTextKey, text: string): void;
+  setContentItem(list: ContentList, index: number, field: string, text: string): void;
+  setNavWord(index: number, text: string): void;
+  addContentItem(list: ContentList): void;
+  removeContentItem(list: ContentList, index: number): void;
+  setBriefAnswer(key: BriefKey, text: string): void;
+  /** Ask, then put the sample texts back in place of the owner's own. */
+  requestSampleContent(): void;
   rename(name: string): void;
   /** Try once more to save, after a save failed (for example when the owner has made room in storage). */
   saveAgain(): void;
@@ -120,9 +141,12 @@ export interface StudioState {
 export const stepOf = (id: string): Step => findStep(id) ?? STEPS[0]!;
 
 /** The name to show for where a project started. */
-export function directionName(project: Project, generated: Direction[] = []): string {
-  if (project.direction === null) return 'the plain start';
-  const name = findDirection(project.direction)?.name ?? generated.find((d) => d.id === project.direction)?.name ?? 'a generated Direction';
+export function directionName(project: Project, known: Pick<StudioState, 'generated' | 'own'>): string {
+  const id = project.direction;
+  if (id === null) return 'the plain start';
+  // A Direction of the owner's own lives in the browser, not in the project; the owner may have removed it since.
+  if (isOwnDirectionId(id)) return known.own.find((d) => d.id === id)?.name ?? 'a Direction of your own that you removed';
+  const name = findDirection(id)?.name ?? known.generated.find((d) => d.id === id)?.name ?? 'a generated Direction';
   // A project that started in a Skin says so wherever it names its start (review of 2026-11-14, finding U5-04).
   const skin = project.skin === undefined ? undefined : findSkin(project.skin);
   return skin ? `${name} in the Skin “${skin.name}”` : name;
@@ -180,7 +204,9 @@ function readHash(): { view: View; stepId?: string } | null {
 
 const hashFor = (view: View, stepId: string): string => (view === 'steps' ? `#${stepId}` : `#${view}`);
 /** Switched-on Overlays are work too: a project that holds nothing else is still asked about, and kept, before it is replaced (code review of 2026-11-14). */
-const hasWork = (project: Project): boolean => project.direction !== null || Object.keys(project.decisions).length > 0 || overlaysOf(project).length > 0;
+const hasWork = (project: Project): boolean => project.direction !== null || Object.keys(project.decisions).length > 0 || overlaysOf(project).length > 0 || hasOwnWords(project);
+/** The owner's own texts and answers (the Brief) are work as well: a project that holds nothing else is still asked about, and kept, before it is replaced. */
+const hasOwnWords = (project: Project): boolean => project.brief !== undefined || !isSampleContent(project.content);
 /** The names that the Studio itself gives a project. A project under another name holds something the owner typed. */
 const OWN_NAMES = ['My first project', 'My project'];
 /**
@@ -232,6 +258,17 @@ let storeOnceOpen = false;
  * that finishes while the page dies must not remove it: that save is the very write that another page's write can replace.
  */
 let seemsToLeave = false;
+/** What the screen shows of the stored own Directions: the list, and a sentence when storage holds more than the list. */
+function ownOnScreen(stored: StoredOwnDirections = loadOwnDirections()): Pick<StudioState, 'own' | 'ownNote'> {
+  const AHEAD = 'Before your next change to your own Directions, the Studio keeps';
+  const ownNote = stored.unshown === null
+    ? `This browser holds a list of your own Directions that the Studio cannot read, so it shows none and offers no download. The list stays stored. ${AHEAD} it as it is among the kept copies.`
+    : stored.unshown > 0
+      ? `This browser holds ${stored.unshown === 1 ? '1 Direction' : `${stored.unshown} Directions`} of your own that this version of the Studio cannot show: another Direction has the name now, or a value is unknown. They stay stored. ${AHEAD} the stored list as it is among the kept copies.`
+      : null;
+  return { own: stored.list, ownNote };
+}
+const GONE_ELSEWHERE = 'That Direction is no longer here: it was removed in another tab or window.';
 const EITHER_WAY = 'Whichever you choose, the Studio first keeps the other copy; you then find it on the Summary, under “Copies the Studio kept for you”.';
 const WHY_LEFT = (name: string): string => `The work in the project “${plainName(name)}” that this tab had not saved, as it was when you last left the tab, reloaded it, or closed it.`;
 const WHY_SAVED = (name: string): string => `The project “${plainName(name)}” as one page of the Studio saved it a moment before that page closed. Another page replaced the saved project in that moment.`;
@@ -339,6 +376,32 @@ export const useStudio = create<StudioState>((set, get) => {
     if (performance.now() - lastSaveAt >= RECENT_SAVE_MS) return;
     seemsToLeave = true;
     keepLeavingCopy(text, WHY_SAVED(name));
+  };
+
+  /**
+   * Change the owner's own Directions: read the stored list afresh, apply the change, and write the result. Reading afresh
+   * matters: another tab may have added to the list, and this tab must not write an older list over it. `change` returns
+   * the new list, or the reason in words why nothing changes. Returns that reason, or null when the list is as wanted.
+   * In both cases the screen then shows what storage holds.
+   *
+   * When the stored text holds more than the list shows (entries that this version cannot show, or no readable list at
+   * all), a write would drop that for good. The stored text is therefore kept among the kept copies first; if it cannot
+   * be kept, nothing is written (SPEC.md section 2.4.1).
+   */
+  const changeOwn = (change: (list: OwnDirection[]) => OwnDirection[] | string, whenFull = 'This browser’s storage is full or blocked, so the Studio could not write your own Directions. Nothing was changed.'): string | null => {
+    const stored = loadOwnDirections();
+    const next = change(stored.list);
+    if (typeof next === 'string' || next === stored.list) {
+      set(ownOnScreen(stored));
+      return typeof next === 'string' ? next : null;
+    }
+    if (stored.raw !== null && stored.unshown !== 0) {
+      const why = stored.unshown === null ? 'The stored list of your own Directions, which the Studio could not read.' : 'The stored list of your own Directions as it was, with entries that this version of the Studio cannot show.';
+      if (!keepBackup(stored.raw, why)) return 'This browser holds own Directions that the Studio cannot show, and the Studio could not keep a copy of that stored list. Nothing was changed.';
+    }
+    if (!storeOwnDirections(next)) return whenFull;
+    set({ own: next, ownNote: null });
+    return null;
   };
 
   const leaveSafely = (): boolean => {
@@ -703,6 +766,8 @@ export const useStudio = create<StudioState>((set, get) => {
     wireframe: true,
     studioLook: 'studio',
     generated: [],
+    own: [],
+    ownNote: null,
     saved: 'idle',
     notice: null,
     hold: null,
@@ -710,6 +775,7 @@ export const useStudio = create<StudioState>((set, get) => {
 
     async init() {
       applyPrefs();
+      set(ownOnScreen());
       // The listeners come first, so that a fault further down cannot leave the Studio's links dead (finding SEC-04).
       window.addEventListener('hashchange', () => {
         const next = readHash();
@@ -735,6 +801,8 @@ export const useStudio = create<StudioState>((set, get) => {
       window.addEventListener('focus', () => {
         livesOn();
         checkStored();
+        // Another tab may have kept a Direction of the owner's own meanwhile.
+        set(ownOnScreen());
       });
       window.addEventListener('pageshow', (event) => {
         livesOn();
@@ -931,7 +999,7 @@ export const useStudio = create<StudioState>((set, get) => {
       };
       const start = (): void => replaceKeepingCopy(replace, 'you started again from the plain start');
       if (!hasWork(project)) start();
-      else set({ confirmation: { title: 'Start again from the plain start?', body: `This replaces your current design (started from ${directionName(project, get().generated)}) and clears your ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}. ${UNDO_PROMISE}. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Start again', cancelLabel: 'Keep my project', run: start } });
+      else set({ confirmation: { title: 'Start again from the plain start?', body: `This replaces your current design (started from ${directionName(project, get())}) and clears your ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}. ${UNDO_PROMISE}. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`, confirmLabel: 'Start again', cancelLabel: 'Keep my project', run: start } });
     },
 
     moreDirections() {
@@ -941,12 +1009,112 @@ export const useStudio = create<StudioState>((set, get) => {
       set({ generated: [...generated, ...generateDirections(seed, 6, avoid)] });
     },
 
+    keepOwnDirection(texts) {
+      let name = '';
+      const error = changeOwn((list) => {
+        if (list.length >= OWN_MAX) return `The Studio holds at most ${String(OWN_MAX)} Directions of your own. Remove one before you keep another.`;
+        const id = `own-${Date.now().toString(36)}${Math.floor(Math.random() * 36 ** 4).toString(36).padStart(4, '0')}`;
+        const made = makeOwnDirection({ id, ...texts, params: get().project.params, madeAt: new Date().toISOString() }, list.map((d) => d.name));
+        if (!made.ok) return made.error;
+        name = made.direction.name;
+        return [...list, made.direction];
+      }, 'The Studio could not keep the Direction: this browser’s storage is full or blocked. Nothing was changed.');
+      if (error === null) set({ notice: { text: `Kept “${name}” as a Direction of your own. You find it on the Directions screen, under “Your own”.`, actions: [{ label: 'Go to the Directions', run: () => get().go('directions') }] } });
+      return error;
+    },
+
+    renameOwnDirection(id, name) {
+      let renamed: { from: string; to: string } | null = null;
+      const error = changeOwn((list) => {
+        const own = list.find((d) => d.id === id);
+        if (!own) return GONE_ELSEWHERE;
+        const made = makeOwnDirection({ ...own, name }, list.filter((d) => d.id !== id).map((d) => d.name));
+        if (!made.ok) return made.error;
+        renamed = { from: own.name, to: made.direction.name };
+        return list.map((d) => (d.id === id ? made.direction : d));
+      });
+      // A rename that worked is said in words, as keeping and removing are (finding U6-17).
+      const done = renamed as { from: string; to: string } | null;
+      if (error === null && done && done.from !== done.to) set({ notice: { text: `Renamed “${done.from}” to “${done.to}”.` } });
+      // The card with its field is gone from the screen, so the sentence goes where the owner still sees it.
+      if (error === GONE_ELSEWHERE) set({ notice: { text: error } });
+      return error;
+    },
+
+    requestRemoveOwnDirection(id) {
+      const own = get().own.find((d) => d.id === id);
+      if (!own) return;
+      set({
+        confirmation: {
+          title: `Remove “${own.name}” for good?`,
+          body: `This removes the Direction of your own “${own.name}” from this browser. Undo does not bring it back. A project that started from it keeps its design. If you may want the Direction again, download your own Directions on the Summary first.`,
+          confirmLabel: 'Yes, remove it for good',
+          cancelLabel: 'No, keep it',
+          danger: true,
+          run: () => {
+            const error = changeOwn((list) => (list.some((d) => d.id === id) ? list.filter((d) => d.id !== id) : GONE_ELSEWHERE));
+            set({ notice: { text: error ?? `Removed “${own.name}” from your own Directions.` } });
+          },
+        },
+      });
+    },
+
+    openOwnDirections(data) {
+      let said = '';
+      const error = changeOwn((list) => {
+        const read = readOwnDirections(data, list);
+        if (!read.ok) return read.error;
+        said = read.notes.join(' ');
+        // Nothing to add: hand back the same list, so that nothing is written.
+        return read.added.length > 0 ? [...list, ...read.added] : list;
+      });
+      return error === null ? said : `That file was not opened. ${error} Your own Directions are unchanged.`;
+    },
+
     setProfile(profile) {
       commit({ ...get().project, a11y: profile });
     },
 
     toggleOverlay(overlayId, on) {
       commit(setOverlay(get().project, overlayId, on));
+    },
+
+    setContentText(key, text) {
+      commit(setContentText(get().project, key, text), `content:${key}`);
+    },
+
+    setContentItem(list, index, field, text) {
+      commit(setContentItem(get().project, list, index, field as never, text), `content:${list}:${String(index)}:${field}`);
+    },
+
+    setNavWord(index, text) {
+      commit(setNavWord(get().project, index, text), `content:nav:${String(index)}`);
+    },
+
+    addContentItem(list) {
+      commit(addContentItem(get().project, list));
+    },
+
+    removeContentItem(list, index) {
+      commit(removeContentItem(get().project, list, index));
+    },
+
+    setBriefAnswer(key, text) {
+      commit(setBriefAnswer(get().project, key, text), `brief:${key}`);
+    },
+
+    requestSampleContent() {
+      if (isSampleContent(get().project.content)) return;
+      set({
+        confirmation: {
+          title: 'Put the sample text back?',
+          body: `This replaces every text of the page that you wrote with the text of the sample dental practice. Your three answers about the project stay. ${UNDO_PROMISE}. The Studio also keeps a copy of the project as it is now where this browser allows it; the Summary lists such copies.`,
+          confirmLabel: 'Yes, put the sample back',
+          cancelLabel: 'No, keep my texts',
+          danger: true,
+          run: () => replaceKeepingCopy(() => replaceProject(restoreSampleContent(get().project), 'The sample text is back in place of your own texts.'), 'you put the sample text back'),
+        },
+      });
     },
 
     rename(name) {
@@ -1004,7 +1172,7 @@ export const useStudio = create<StudioState>((set, get) => {
       set({
         confirmation: {
           title: 'Start a new project?',
-          body: `This clears the Direction, ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}, ${plural(overlaysOf(project).length, 'switched-on Overlay', 'switched-on Overlays')}, the project name, and the Contrast checks setting. ${UNDO_PROMISE}. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`,
+          body: `This clears ${hasOwnWords(project) ? 'your own texts and answers on “Your content”, ' : ''}the Direction, ${plural(Object.keys(project.decisions).length, 'Decision', 'Decisions')}, ${plural(overlaysOf(project).length, 'switched-on Overlay', 'switched-on Overlays')}, the project name, and the Contrast checks setting. ${UNDO_PROMISE}. The Studio also keeps a copy of the replaced project where this browser allows it; the Summary lists every kept copy.`,
           confirmLabel: 'Yes, clear this project',
           cancelLabel: 'Keep it',
           danger: true,
@@ -1040,7 +1208,7 @@ export const useStudio = create<StudioState>((set, get) => {
         : null;
       const text = small
         ?? (wholeProject || !first
-        ? `Undone: your earlier project is back, the one that started from ${directionName(previous, get().generated)}.`
+        ? `Undone: your earlier project is back, the one that started from ${directionName(previous, get())}.`
         : touched.length === 1
           ? `Undone: the Step “${first.name}” is back to how it was.`
           : `Undone: the Steps ${touched.map((st) => `“${st.name}”`).join(' and ')} are back to how they were.`);

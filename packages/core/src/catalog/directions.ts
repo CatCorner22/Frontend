@@ -19,6 +19,10 @@ export const DIRECTION_GROUPS = [
 ] as const;
 export type DirectionGroup = (typeof DIRECTION_GROUPS)[number]['id'];
 
+/** The identifier of a Direction of the owner's own (see `ownDirections.ts`). No built-in or random Direction has this form. */
+const OWN_ID = /^own-[0-9a-z]{4,24}$/;
+export const isOwnDirectionId = (id: string): boolean => OWN_ID.test(id);
+
 export interface Direction {
   id: string;
   /** The group on the first screen; `null` for a generated Direction, which has a list of its own. */
@@ -322,7 +326,7 @@ export const DIRECTIONS: Direction[] = [
     params: d({
       nav: 'top-centered', hero: 'centered', sections: 'stacked', contentWidth: 'standard', emphasis: 'headline', density: 1.05,
       fontHeading: 'playfair', fontBody: 'literata', headingWeight: 800, headingTracking: 0.07, headingCase: 'upper', baseSize: 17, scaleRatio: 1.3, numerals: 'proportional',
-      neutralHue: 78, neutralChroma: 0.03, accentHue: 38, accentChroma: 0.15, accentLightness: 0.5, accent2Hue: 245, colorStrategy: 'duo', theme: 'light', contrast: 0.85,
+      neutralHue: 78, neutralChroma: 0.03, accentHue: 38, accentChroma: 0.15, accentLightness: 0.46, accent2Hue: 245, colorStrategy: 'duo', theme: 'light', contrast: 0.85,
       radius: 0, elevation: 'borders', borderWeight: 2, signature: 'corner-tag', atmosphere: 'grain', buttonFinish: 'flat', displayTreatment: 'solid', motion: 'subtle',
     }),
   },

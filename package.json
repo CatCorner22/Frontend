@@ -11,7 +11,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "typecheck": "tsc -p packages/core && tsc -p packages/core/tsconfig.test.json && tsc -p apps/studio && tsc -p tsconfig.e2e.json",
+    "typecheck": "tsc -p packages/core && tsc -p packages/core/tsconfig.test.json && tsc -p apps/studio && tsc -p tsconfig.e2e.json && tsc -p plugin/fit",
     "lint": "eslint . --max-warnings 0",
     "boundaries": "depcruise packages apps --config .dependency-cruiser.cjs",
     "test": "vitest run",
@@ -21,6 +21,7 @@
     "build:page": "npm run build && node apps/studio/scripts/make-artifact.mjs",
     "size": "node scripts/check-size.mjs",
     "e2e": "npm run build:page && npm run size && vitest run --config vitest.e2e.config.ts",
+    "fit": "node plugin/fit/src/cli.ts",
     "notices": "node scripts/make-notices.mjs",
     "visual:update": "UPDATE_BASELINES=1 vitest run --config vitest.e2e.config.ts apps/studio/e2e/visual.e2e.ts"
   },

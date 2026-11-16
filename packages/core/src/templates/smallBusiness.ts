@@ -48,7 +48,7 @@ export interface SiteContent {
   footerNote: string;
 }
 
-/** Sample content. The Studio labels it as a sample; the owner replaces it in the Brief Stage. */
+/** Sample content. The Studio labels it as a sample; the owner replaces it on the screen "Your content" (the Brief). */
 export const SAMPLE_CONTENT: SiteContent = {
   business: 'Harbor Street Dental',
   tag: 'Family dentistry on Harbor Street',
@@ -109,6 +109,10 @@ export interface MockupInput {
   still?: boolean;
   /** The Overlays that are switched on. The region "overlays" draws each one open; a Mockup has no script, so none opens or closes. */
   overlays?: readonly string[];
+  /** Draw the switched-on Overlays, open, as a last part of the whole page too (for the reference page of the Prescription). */
+  overlaysShown?: boolean;
+  /** The fingerprint of the design values, written into the page's head so that the page can be matched with the other files of a Prescription. */
+  fingerprint?: string;
   /** `@font-face` rules for the fonts in use. The Studio supplies these; exports reference font files instead. */
   fontFaceCss?: string;
   /**
@@ -146,7 +150,10 @@ body {
   font-family: var(--font-body); font-size: var(--text-base); line-height: var(--leading-body);
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-kerning: normal; font-optical-sizing: auto;
   /* A word that is wider than its line breaks instead of pushing the page wider than the screen. */
-  overflow-wrap: break-word;
+  /* "anywhere", not "break-word": a long word then breaks where it must, and a grid or flex part may also become narrower
+     than its longest word. With "break-word" a long name or headline of the owner's own made the whole page wider than
+     the window (finding B17-01). */
+  overflow-wrap: anywhere;
 }
 ::selection { background: var(--selection); }
 h1, h2, h3 {
@@ -157,7 +164,7 @@ p { margin: 0; text-wrap: pretty; }
 :where(a[role="link"]) { text-decoration: underline; cursor: pointer; }
 /* Underlines sit a little below the text and start soft; they firm up under the pointer. */
 a { color: var(--accent-text); text-underline-offset: 0.22em; text-decoration-thickness: 0.07em; text-decoration-color: color-mix(in oklch, currentColor 45%, transparent); transition: text-decoration-color var(--dur-fast) var(--ease-out); }
-@media (hover: hover) { a:hover { text-decoration-color: currentColor; } }
+@media (hover: hover) and (pointer: fine) { a:hover { text-decoration-color: currentColor; } }
 .wrap { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--space-6); }
 .skip { position: absolute; left: var(--space-4); top: -100px; background: var(--surface); color: var(--text); padding: var(--space-2) var(--space-4); border-radius: var(--radius-small); z-index: 60; }
 .skip:focus { top: var(--space-4); }
@@ -184,11 +191,12 @@ body[data-atmosphere="grain"][data-theme="dark"]::after { mix-blend-mode: overla
   font: inherit; font-weight: 600; letter-spacing: -0.006em; text-decoration: none; cursor: pointer; white-space: nowrap; user-select: none;
 }
 .btn-primary { background: var(--btn-bg); color: var(--btn-color); border-color: var(--btn-border); box-shadow: var(--btn-shadow); }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .btn-primary:hover { background: var(--btn-bg-hover); box-shadow: var(--btn-shadow-hover); }
 }
 .btn:active { transform: scale(var(--press-scale)); }
-body[data-elevation="hard-shadow"] .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+/* A button with a hard shadow moves into its shadow. Not in a design without movement: there a pressed button stays put. */
+body[data-elevation="hard-shadow"]:not([data-motion="none"]) .btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
 /* Header and navigation */
 .site-header { position: var(--header-position); top: 0; z-index: 30; border-bottom: var(--border-w) solid var(--border); background: var(--header-bg); -webkit-backdrop-filter: var(--header-backdrop); backdrop-filter: var(--header-backdrop); }
@@ -197,7 +205,7 @@ body[data-elevation="hard-shadow"] .btn:active { transform: translate(2px, 2px);
 .nav ul { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); list-style: none; margin: 0; padding: 0; }
 .nav li a { display: inline-flex; align-items: center; min-height: var(--target-min); color: var(--text-muted); text-decoration: none; font-size: var(--text-sm); font-weight: 500; }
 .nav li a[aria-current="page"] { color: var(--text); }
-@media (hover: hover) { .nav li a:hover { color: var(--text); } }
+@media (hover: hover) and (pointer: fine) { .nav li a:hover { color: var(--text); } }
 .nav-actions { display: none; align-items: center; gap: var(--space-4); }
 .phone { color: var(--text); font-weight: 600; text-decoration: none; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
@@ -269,7 +277,9 @@ body[data-emphasis="proof"] .hero h1 { font-size: clamp(var(--h1-floor), calc(va
 /* Facts */
 .fact-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--space-6) var(--space-8); margin: 0; }
 .fact-list div { display: grid; gap: var(--space-1); }
-.fact-list dt { font-family: var(--font-heading); font-weight: var(--heading-weight); font-size: var(--h2-size); line-height: 1.05; letter-spacing: var(--heading-tracking); font-variant-numeric: var(--numeric); }
+.fact-list dt { font-family: var(--font-heading); font-weight: var(--heading-weight); font-size: var(--h2-size); line-height: 1.05; letter-spacing: var(--heading-tracking); font-variant-numeric: var(--numeric); white-space: nowrap; }
+/* A short figure ("45 min") stays on one line. A long one may break, and is drawn one size smaller so that it fits its column. */
+.fact-list dt.long { white-space: normal; font-size: var(--h3-size); line-height: 1.15; }
 .fact-list dd { margin: 0; font-size: var(--text-sm); opacity: var(--soft-label-alpha); }
 body[data-numerals="mono"] .fact-list dt, body[data-numerals="mono"] .phone, body[data-numerals="mono"] .num { font-family: var(--font-numeric); letter-spacing: -0.02em; }
 .facts { background: var(--band-bg); color: var(--band-text); padding-block: var(--space-10); }
@@ -311,7 +321,7 @@ body[data-sections="alternating"] .service-media { display: grid; aspect-ratio: 
 
 body[data-sections="grid"] .service-list { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--space-6); }
 body[data-sections="grid"] .service, body[data-sections="bento"] .service { background: var(--card-bg); border: var(--card-border-w) solid var(--card-border); border-radius: var(--radius-surface); box-shadow: var(--card-shadow); -webkit-backdrop-filter: var(--card-backdrop); backdrop-filter: var(--card-backdrop); padding: var(--space-8); display: grid; gap: var(--space-4); align-content: start; }
-@media (hover: hover) { body[data-sections="grid"] .service:hover, body[data-sections="bento"] .service:hover { transform: translateY(var(--hover-lift)); } }
+@media (hover: hover) and (pointer: fine) { body[data-sections="grid"] .service:hover, body[data-sections="bento"] .service:hover { transform: translateY(var(--hover-lift)); } }
 
 /* Bento: one large tile and smaller tiles beside it, so that size itself says which item matters most. */
 body[data-sections="bento"] .service-list { gap: var(--space-5); }
@@ -325,6 +335,7 @@ body[data-sections="bento"] .service:first-child h3 { font-size: var(--h2-size);
 @media (min-width: 960px) {
   body[data-sections="ledger"] .services .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--space-16); align-items: start; }
   body[data-sections="ledger"] .section-head { position: sticky; top: var(--space-8); margin: 0; }
+  body[data-sections="ledger"] .fees { grid-column: var(--fees-column); }
 }
 body[data-sections="ledger"] .service { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-6); padding-block: var(--space-6); border-top: var(--border-w) solid var(--border-strong); }
 body[data-sections="ledger"] .service .num { display: block; font-size: var(--text-sm); padding-top: 0.35em; }
@@ -342,7 +353,7 @@ body[data-numerals="mono"] .fees td { font-family: var(--font-numeric); letter-s
 .about { background: var(--surface-2); }
 body[data-elevation="glass"] .about { background: transparent; }
 .about-grid { display: grid; gap: var(--space-10); align-items: center; }
-@media (min-width: 860px) { .about-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: var(--space-16); } }
+@media (min-width: 860px) { .about-grid { grid-template-columns: var(--about-columns); gap: var(--space-16); } }
 .about p { color: var(--text-muted); font-size: var(--lede-size); margin-top: var(--space-4); max-width: var(--measure); }
 .promise { margin: 0; padding: var(--space-8); }
 .promise p { font-family: var(--font-heading); font-weight: var(--heading-weight); letter-spacing: var(--heading-tracking); font-size: var(--h3-size); line-height: 1.25; color: var(--text); margin: 0; }
@@ -364,7 +375,7 @@ body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about
   border: var(--control-border-w) solid var(--border-strong); border-radius: var(--radius-control);
   box-shadow: inset 0 1px 2px var(--recess);
 }
-@media (hover: hover) { .field input:hover, .field textarea:hover { border-color: var(--text-muted); } }
+@media (hover: hover) and (pointer: fine) { .field input:hover, .field textarea:hover { border-color: var(--text-muted); } }
 /* A focused field: the ring, plus a soft halo of the same color. */
 .field input:focus-visible, .field textarea:focus-visible { outline-offset: 0; box-shadow: 0 0 0 4px color-mix(in oklch, var(--focus) 22%, transparent); }
 .field textarea { min-height: 6.5rem; resize: vertical; border-radius: min(var(--radius-control), var(--radius-surface)); }
@@ -420,7 +431,7 @@ body[data-focus="about"] .services, body[data-focus="contact"] .services, body[d
    can show as it will behave. */
 .overlay-demo { display: none; }
 body[data-focus="overlays"] main > :not(.overlay-demo), body[data-focus="overlays"] .site-footer { display: none; }
-body[data-focus="overlays"] .overlay-demo { display: block; padding-block: var(--space-8); }
+body[data-focus="overlays"] .overlay-demo, body[data-overlays-shown] .overlay-demo { display: block; padding-block: var(--space-8); }
 .overlay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: var(--space-8) var(--space-6); align-items: start; }
 .ov { display: grid; gap: var(--space-3); min-width: 0; }
 .ov-name { font-size: var(--text-sm); font-weight: 600; color: var(--text-muted); margin: 0; }
@@ -540,22 +551,28 @@ export function renderSmallBusiness(input: MockupInput): string {
     `data-focus="${e(focus)}"`,
     ...(overlays.length > 0 ? [`data-overlays="${overlays.join(' ')}"`] : []),
     ...(input.still ? ['data-still'] : []),
+    ...(input.overlaysShown && overlays.length > 0 ? ['data-overlays-shown'] : []),
   ].join(' ');
 
   const overlayDemo = overlays.length === 0
     ? '<p class="ov-none">No Overlay is switched on.</p>'
     : overlays.map((id) => `<div class="ov"><p class="ov-name">${OVERLAY_NAMES[id]}</p><div class="ov-stage">${OVERLAY_PICTURES[id](e(c.primaryAction))}</div></div>`).join('');
-  const facts = c.facts.map((f) => `<div><dt>${e(f.value)}</dt><dd>${e(f.label)}</dd></div>`).join('');
+  // The owner's texts (the Brief) may leave a text or a whole list empty. An empty text leaves no element behind, and an
+  // item of a list is drawn only once it holds words, so that no empty box, heading, or gap stays on the page.
+  const part = (text: string, html: (escaped: string) => string): string => (text === '' ? '' : html(e(text)));
+  const facts = c.facts.filter((f) => f.value !== '' || f.label !== '').map((f) => `<div>${part(f.value, (t) => `<dt${f.value.length > 8 ? ' class="long"' : ''}>${t}</dt>`)}${part(f.label, (t) => `<dd>${t}</dd>`)}</div>`).join('');
   const services = c.services
+    .filter((s) => s.title !== '' || s.body !== '')
     .map(
       (s, i) => `<li class="service">
         <div class="service-media media" role="img" aria-label="Photo placeholder"><span>Your photo</span></div>
         <span class="num" aria-hidden="true">${pad2(i + 1)}</span>
-        <div class="service-body"><h3>${e(s.title)}</h3><p>${e(s.body)}</p><a class="more" ${link('#contact')}>About ${e(s.title.toLowerCase())}</a></div>
+        <div class="service-body">${part(s.title, (t) => `<h3>${t}</h3>`)}${part(s.body, (t) => `<p>${t}</p>`)}${s.title === '' ? '' : `<a class="more" ${link('#contact')}>About ${e(s.title.toLowerCase())}</a>`}</div>
       </li>`,
     )
     .join('');
-  const fees = c.fees.map((f) => `<tr><th scope="row">${e(f.item)}</th><td>${e(f.price)}</td></tr>`).join('');
+  const fees = c.fees.filter((f) => f.item !== '' || f.price !== '').map((f) => `<tr><th scope="row">${e(f.item)}</th><td>${e(f.price)}</td></tr>`).join('');
+  const phone = (cls: string, words = ''): string => part(c.phone, (t) => `<a class="${cls}" ${link('#contact')}>${words}${t}</a>`);
   const nav = c.nav.map((n, i) => `<li><a ${link('#main')}${i === 0 ? ' aria-current="page"' : ''}>${e(n)}</a></li>`).join('');
 
   return `<!doctype html>
@@ -564,7 +581,7 @@ export function renderSmallBusiness(input: MockupInput): string {
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; form-action 'none'; base-uri 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="${e(p.theme)}">
+${input.fingerprint && /^[0-9a-f]{8}$/.test(input.fingerprint) ? `<meta name="refraction-fingerprint" content="${input.fingerprint}">\n` : ''}<meta name="color-scheme" content="${e(p.theme)}">
 <title>${e(c.business)}</title>
 <style>
 ${fontFaceCss}
@@ -578,48 +595,48 @@ ${SMALL_BUSINESS_CSS}
   <div class="wrap nav">
     <a class="brand" ${link('#main')}>${e(c.business)}</a>
     <nav aria-label="Main"><ul>${nav}</ul></nav>
-    <div class="nav-actions"><a class="phone" ${link('#contact')}>${e(c.phone)}</a><a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a></div>
+    <div class="nav-actions">${phone('phone')}<a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a></div>
   </div>
 </header>
 <main id="main">
   <section class="hero">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <p class="tag">${e(c.tag)}</p>
+        ${part(c.tag, (t) => `<p class="tag">${t}</p>`)}
         <h1>${headlineHtml(c)}</h1>
         <div class="hero-sub">
-          <p class="lede">${e(c.lede)}</p>
+          ${part(c.lede, (t) => `<p class="lede">${t}</p>`)}
           <div class="actions">
             <a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a>
-            <a class="phone phone-big" ${link('#contact')}>Call ${e(c.phone)}</a>
-            <a class="link" ${link('#services')}>${e(c.secondaryAction)}</a>
+            ${phone('phone phone-big', 'Call ')}
+            ${part(c.secondaryAction, (t) => `<a class="link" ${link('#services')}>${t}</a>`)}
           </div>
         </div>
-        <dl class="fact-list hero-facts">${facts}</dl>
+        ${facts === '' ? '' : `<dl class="fact-list hero-facts">${facts}</dl>`}
       </div>
       <div class="hero-media media" role="img" aria-label="Photo placeholder"><span>Your photo</span></div>
     </div>
   </section>
-  <section class="facts" aria-label="At a glance"><div class="wrap"><dl class="fact-list">${facts}</dl></div></section>
+  ${facts === '' ? '' : `<section class="facts" aria-label="At a glance"><div class="wrap"><dl class="fact-list">${facts}</dl></div></section>`}
   <section class="block services" id="services">
     <div class="wrap">
-      <div class="section-head"><h2>${e(c.servicesTitle)}</h2><p>${e(c.servicesIntro)}</p></div>
-      <ol class="service-list">${services}</ol>
-      ${c.fees.length > 0 ? `<div class="fees"><h3>${e(c.feesTitle)}</h3><table><tbody>${fees}</tbody></table></div>` : ''}
+      ${c.servicesTitle === '' && c.servicesIntro === '' ? '' : `<div class="section-head">${part(c.servicesTitle, (t) => `<h2>${t}</h2>`)}${part(c.servicesIntro, (t) => `<p>${t}</p>`)}</div>`}
+      ${services === '' ? '' : `<ol class="service-list">${services}</ol>`}
+      ${fees === '' ? '' : `<div class="fees">${part(c.feesTitle, (t) => `<h3>${t}</h3>`)}<table><tbody>${fees}</tbody></table></div>`}
     </div>
   </section>
-  <section class="block about">
+  ${c.aboutTitle === '' && c.aboutBody === '' && c.promise === '' ? '' : `<section class="block about">
     <div class="wrap about-grid">
-      <div><h2>${e(c.aboutTitle)}</h2><p>${e(c.aboutBody)}</p></div>
-      <figure class="promise card"><p>${e(c.promise)}</p><span>${e(c.business)}</span></figure>
+      ${c.aboutTitle === '' && c.aboutBody === '' ? '' : `<div>${part(c.aboutTitle, (t) => `<h2>${t}</h2>`)}${part(c.aboutBody, (t) => `<p>${t}</p>`)}</div>`}
+      ${part(c.promise, (t) => `<figure class="promise card"><p>${t}</p><span>${e(c.business)}</span></figure>`)}
     </div>
-  </section>
+  </section>`}
   <section class="block contact" id="contact">
     <div class="wrap contact-grid">
       <div>
-        <h2>${e(c.contactTitle)}</h2>
-        <p>${e(c.contactBody)}</p>
-        <address><strong>${e(c.business)}</strong><span>${e(c.address)}</span><span>${e(c.hours)}</span><a class="phone" ${link('#contact')}>${e(c.phone)}</a></address>
+        ${part(c.contactTitle, (t) => `<h2>${t}</h2>`)}
+        ${part(c.contactBody, (t) => `<p>${t}</p>`)}
+        <address><strong>${e(c.business)}</strong>${part(c.address, (t) => `<span>${t}</span>`)}${part(c.hours, (t) => `<span>${t}</span>`)}${phone('phone')}</address>
       </div>
       <form class="form card"${inert ? '' : ' action="#contact" method="post"'}>
         <div class="field"><label for="m-name">Your name</label><input id="m-name" name="name" type="text" autocomplete="name"></div>
@@ -632,7 +649,7 @@ ${SMALL_BUSINESS_CSS}
   <section class="block overlay-demo" aria-label="Overlays, each shown open"><div class="wrap overlay-grid">${overlayDemo}</div></section>
 </main>
 <div class="sticky-call"><a class="btn btn-primary" ${link('#contact')}>${e(c.primaryAction)}</a></div>
-<footer class="site-footer"><div class="wrap"><span>${e(c.business)} · ${e(c.address)}</span><span>${e(c.footerNote)}</span></div></footer>
+<footer class="site-footer"><div class="wrap"><span>${e(c.business)}${part(c.address, (t) => ` · ${t}`)}</span>${part(c.footerNote, (t) => `<span>${t}</span>`)}</div></footer>
 </body>
 </html>`;
 }

@@ -1,13 +1,14 @@
 // The engine: pure functions that turn the owner's actions into a project state. No React, no browser APIs.
 
 import { z } from 'zod';
-import { DIRECTIONS, findDirection, type Direction } from './catalog/directions.js';
+import { DIRECTIONS, findDirection, isOwnDirectionId, type Direction } from './catalog/directions.js';
 import { OVERLAYS, findOverlay } from './catalog/overlays.js';
 import { skinsOf } from './catalog/skins.js';
 import { CONFLICT_RULES, HARMONY_RULES } from './catalog/rules.js';
 import { STEPS, findStep } from './catalog/steps.js';
 import type { Option, Step, Tunable } from './catalog/types.js';
 import { A11Y_PROFILES, DEFAULT_PARAMS, FONTS, PARAM_RANGES, PARAM_VALUES, RETIRED_FONTS, assertKnownParams, type A11yProfile, type DesignParams } from './params.js';
+import { BRIEF_KEYS, BRIEF_MAX, type Brief } from './brief.js';
 import { SAMPLE_CONTENT, type SiteContent } from './templates/smallBusiness.js';
 import { deriveTokens, type DerivedTokens } from './tokens.js';
 
@@ -50,6 +51,11 @@ export interface Project {
   decisions: Record<string, Decision>;
   content: SiteContent;
   /**
+   * The owner's three answers about the project (what is offered, for whom, the one thing a visitor should do). Absent when
+   * the owner wrote none, so that a project saved before the Brief existed opens without a change.
+   */
+  brief?: Brief;
+  /**
    * The Overlays that are switched on, by identifier, in the Catalog's order. Absent when none is on, so that a project saved
    * before Overlays existed opens without a change.
    */
@@ -69,6 +75,15 @@ const GENERATED_ID = /^generated-\d{1,10}-\d{1,3}$/;
 
 export function createProject(name = 'Untitled project'): Project {
   return { schemaVersion: SCHEMA_VERSION, name, template: 'small-business', a11y: 'advise', direction: null, base: { ...DEFAULT_PARAMS }, params: { ...DEFAULT_PARAMS }, decisions: {}, content: structuredCopy(SAMPLE_CONTENT) };
+}
+
+/** True while a project still holds the sample texts, word for word. */
+export function isSampleContent(content: SiteContent): boolean {
+  const same = (a: unknown, b: unknown): boolean =>
+    typeof a === 'object' && a !== null && typeof b === 'object' && b !== null
+      ? Object.keys(a).length === Object.keys(b).length && Object.keys(a).every((key) => same((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]))
+      : a === b;
+  return same(content, SAMPLE_CONTENT);
 }
 
 function structuredCopy(content: SiteContent): SiteContent {
@@ -742,6 +757,7 @@ const projectSchema = z.object({
   params: paramsSchema,
   decisions: z.record(z.string().max(60), decisionSchema),
   content: contentSchema,
+  brief: z.strictObject(Object.fromEntries(BRIEF_KEYS.map((key) => [key, z.string().max(BRIEF_MAX).optional()]))).optional(),
   overlays: z.array(z.string().max(40)).max(40).optional(),
   skin: z.string().max(40).optional(),
 });
@@ -753,7 +769,7 @@ export type ParseResult =
 // Every message is fixed text. A message never repeats content from the file.
 const NOT_A_PROJECT = 'This is not a Refraction project file.';
 const NEWER_VERSION = 'A newer version of the Studio made this file, and this version cannot read it.';
-const SECTIONS = ['name', 'template', 'a11y', 'direction', 'base', 'params', 'decisions', 'content', 'overlays', 'skin'] as const;
+const SECTIONS = ['name', 'template', 'a11y', 'direction', 'base', 'params', 'decisions', 'content', 'brief', 'overlays', 'skin'] as const;
 /** What each part of a project file holds, in plain words, for the message that refuses a damaged file (finding U2-21). The words are fixed; nothing from the file is repeated. */
 const SECTION_WORDS: Record<(typeof SECTIONS)[number], string> = {
   name: 'the project name',
@@ -763,7 +779,8 @@ const SECTION_WORDS: Record<(typeof SECTIONS)[number], string> = {
   base: 'the starting design values',
   params: 'the design values',
   decisions: 'the Decisions',
-  content: 'the sample text',
+  content: 'the texts of the page',
+  brief: 'the three answers about the project',
   overlays: 'the Overlays',
   skin: 'the Skin',
 };
@@ -880,7 +897,8 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
     decisions.push([key, { stepId: key, optionId, kind, rejected, values: ownedValues(step, params), at: ISO_TIME.test(d.at) && !Number.isNaN(Date.parse(d.at)) ? d.at : UNKNOWN_TIME, ...(reason ? { reason } : {}) }]);
   }
   let direction = data.direction;
-  if (direction !== null && !findDirection(direction) && !GENERATED_ID.test(direction)) {
+  // A Direction of the owner's own lives outside the project, in the browser; the project keeps its identifier.
+  if (direction !== null && !findDirection(direction) && !GENERATED_ID.test(direction) && !isOwnDirectionId(direction)) {
     direction = 'generated-0-0';
     notes.push('The file named a Direction that this version of the Studio does not have. The design itself is unchanged.');
   }
@@ -888,6 +906,9 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   if (relabelled > 0) notes.push(relabelled === 1 ? 'One Decision was recorded as a picked Option, but its design values match no Option of this version of the Catalog. Its values were kept and it is now marked as hand-set.' : `${relabelled} Decisions were recorded as picked Options, but their design values match no Option of this version of the Catalog. Their values were kept and they are now marked as hand-set.`);
   if (corrected > 0) notes.push(corrected === 1 ? 'One Decision in the file named a choice that the file’s own design values do not show. The Studio follows the design values, so it changed that Decision to match them.' : `${corrected} Decisions in the file named choices that the file’s own design values do not show. The Studio follows the design values, so it changed those Decisions to match them.`);
   if (shortened > 0) notes.push(shortened === 1 ? `One written reason was longer than ${REASON_MAX} characters. It was shortened to fit.` : `${shortened} written reasons were longer than ${REASON_MAX} characters. They were shortened to fit.`);
+  // The three answers: those that the file holds with words, in their fixed order; none at all when the file holds none.
+  const answers = Object.fromEntries(BRIEF_KEYS.flatMap((key) => (data.brief?.[key] ? [[key, data.brief[key]]] : []))) as Brief;
+  const brief = Object.keys(answers).length > 0 ? answers : undefined;
   // Overlays: those of the file that this Catalog has, each once, in the Catalog's order.
   const listed = data.overlays ?? [];
   const overlays = OVERLAYS.map((overlay) => overlay.id).filter((id) => listed.includes(id));
@@ -896,7 +917,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   // The Skin's name stays only when this Direction offers that Skin; the colors are in the design values either way.
   const skin = data.skin !== undefined && offersSkin(direction, data.skin) ? data.skin : undefined;
   if (data.skin !== undefined && skin === undefined) notes.push('The file names a Skin that this version of the Studio does not offer for this Direction. The name was left out; the colors are unchanged.');
-  const project: Project = { schemaVersion: SCHEMA_VERSION, name: data.name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content: data.content, ...(overlays.length > 0 ? { overlays } : {}), ...(skin !== undefined ? { skin } : {}) };
+  const project: Project = { schemaVersion: SCHEMA_VERSION, name: data.name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content: data.content, ...(brief ? { brief } : {}), ...(overlays.length > 0 ? { overlays } : {}), ...(skin !== undefined ? { skin } : {}) };
   return { project, notes };
 }
 

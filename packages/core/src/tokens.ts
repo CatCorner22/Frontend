@@ -110,7 +110,10 @@ function basePalette(p: DesignParams): Palette {
   const text = dark ? n(lerp(0.87, 0.97, k), 1.2) : n(lerp(0.33, 0.15, k), 2.2);
   const textMuted = dark ? n(lerp(0.67, 0.76, k), 1.5) : n(lerp(0.57, 0.44, k), 2.2);
   const hairlineAlpha = dark ? lerp(0.1, 0.18, k) : lerp(0.08, 0.16, k);
-  const borderStrong = dark ? n(bg.l + lerp(0.2, 0.36, k), 1.8) : n(lerp(0.74, 0.5, k), 2);
+  // The edge of a form field. A field whose edge cannot be seen cannot be found, so the edge stands at least 3 to 1 from
+  // the field and from the box around it, in every contrast setting, as an accent used for text does (decisions D24 and
+  // D57). The rule moves the edge only where it stood below 3 to 1: five dark Directions started that way (2.15 to 2.91).
+  const borderStrong = ensureContrastAll(dark ? n(bg.l + lerp(0.2, 0.36, k), 1.8) : n(lerp(0.74, 0.5, k), 2), [cardBg, surface], 3 * MARGIN);
 
   const accentL = dark ? Math.min(0.82, Math.max(p.accentLightness + 0.14, 0.62)) : p.accentLightness;
   const accent: Oklch = { l: accentL, c: p.accentChroma, h: p.accentHue };
@@ -227,11 +230,25 @@ export const PAIRS: readonly PairSpec[] = [
 export const NOT_CHECKED: readonly string[] = [
   'Text over a background glow, soft clouds of color, a pattern of dots, lines, or stars, or a frosted-glass box, where the color behind the text varies from point to point.',
   'The fine grain texture. It lies over the whole page and darkens text and background a little; on a light page that lowers every figure by a few percent.',
-  'A headline filled with a fade or with a two-color gradient. “Fix for me” keeps both ends of the fill at 3 to 1 or better against the first screen; “Warn me” does not measure the fill.',
+  'The middle of a headline that is filled with a fade or with a two-color gradient. Both ends of the fill stand at 3 to 1 or better against the first screen in every setting; the colors between the two ends are not measured.',
   'Text over your photographs.',
   'How a button or a link looks while the pointer is over it, or while it is pressed.',
   'Anything a person must judge: whether the page reads well in sunlight, with a screen reader, or to a person with low vision.',
 ];
+
+/**
+ * The lines of `NOT_CHECKED` that apply to one design. A design without a grain, without a varied background, and with a
+ * headline in one color is told nothing about them: read as a list of facts, the full list said of every design that it
+ * has a grain (review of 2026-11-15, finding U6-04).
+ */
+export function notCheckedIn(params: DesignParams): string[] {
+  const varied = !['plain', 'grain'].includes(params.atmosphere) || params.elevation === 'glass';
+  const grain = params.atmosphere === 'grain';
+  const filled = params.displayTreatment !== 'solid';
+  const [variedLine, grainLine, filledLine, ...always] = NOT_CHECKED as [string, string, string, ...string[]];
+  const grainHere = params.theme === 'light' ? grainLine : 'The fine grain texture. It lies over the whole page and darkens text and background a little; the figures above do not include it.';
+  return [...(varied ? [variedLine] : []), ...(grain ? [grainHere] : []), ...(filled ? [filledLine] : []), ...always];
+}
 
 // Every pair is measured on the colors as they are written to the page, so that "passes" means the emitted colors pass (finding T2-01).
 const measure = (pal: Palette, spec: PairSpec): number => contrastOverEmitted(pal[spec.fg], spec.alpha ? pal[spec.alpha] : 1, pal[spec.bg]);
@@ -476,23 +493,23 @@ function atmosphereTokens(p: DesignParams, pal: Palette): Record<string, string>
   return out;
 }
 
-function displayTokens(p: DesignParams, pal: Palette, profile: A11yProfile): Record<string, string> {
+function displayTokens(p: DesignParams, pal: Palette): Record<string, string> {
   const ground = pal.heroBg;
   if (p.displayTreatment === 'ink-gradient') {
     // A quiet sheen: full ink at the top, fading slightly toward the bottom.
     let fade = 0.56;
-    // Large text needs 3:1. Under "Fix for me" the faded end is strengthened until it holds that against the first screen (finding T2-03).
-    if (profile === 'enforce') while (fade < 1 && contrastOverEmitted(pal.heroText, fade, ground) < 3 * MARGIN) fade = round(fade + 0.04, 2);
+    // Large text needs 3:1. The faded end is strengthened until it holds that against the first screen, in every contrast
+    // setting: a headline whose end cannot be read is no headline (finding T2-03; decision D59). No built-in Direction
+    // needed it; four Skins with a color fade did.
+    while (fade < 1 && contrastOverEmitted(pal.heroText, fade, ground) < 3 * MARGIN) fade = round(fade + 0.04, 2);
     return { '--display-fill': `linear-gradient(to bottom, ${toCss(pal.heroText)} 28%, ${toCssAlpha(pal.heroText, Math.min(1, fade))} 112%)` };
   }
   if (p.displayTreatment === 'accent-gradient') {
     let from = pal.heroPainted ? pal.heroText : pal.accentText;
     let to = pal.heroPainted ? shiftL(pal.heroText, pal.heroText.l > 0.5 ? -0.16 : 0.2) : p.colorStrategy === 'duo' ? pal.accent2 : shiftH(pal.accentText, 52);
-    if (profile === 'enforce') {
-      // Large text needs 3:1.
-      from = ensureContrast(from, ground, 3 * MARGIN);
-      to = ensureContrast(to, ground, 3 * MARGIN);
-    }
+    // Large text needs 3:1, in every contrast setting (decision D59).
+    from = ensureContrast(from, ground, 3 * MARGIN);
+    to = ensureContrast(to, ground, 3 * MARGIN);
     // The ends are written as exact digits. The blend between them runs in the OKLab color space, where the middle keeps a
     // lightness between its two ends; a blend in plain red-green-blue can dip darker in the middle (finding T3-15).
     return { '--display-fill': `linear-gradient(96deg in oklab, ${toCss(from)} 4%, ${toCss(to)} 96%)` };
@@ -565,6 +582,12 @@ function spaceTokens(p: DesignParams): Record<string, string> {
   out['--section-gap'] = rem(4 * (p.density >= 1.15 ? 36 : p.density <= 0.9 ? 18 : 26) * p.density);
   out['--page-max'] = p.contentWidth === 'narrow' ? '46rem' : p.contentWidth === 'wide' ? '84rem' : '68rem';
   out['--measure'] = '65ch';
+  // A narrow page has no room for two columns side by side in two places: the promise stood in a box so narrow that it
+  // broke into seven lines, and the price list in a third of the page (the builder's look of 2026-11-15). On a narrow
+  // page both take the full width; on every other width nothing changes.
+  const narrow = p.contentWidth === 'narrow';
+  out['--about-columns'] = narrow ? 'minmax(0, 1fr)' : 'minmax(0, 1.1fr) minmax(0, 0.9fr)';
+  out['--fees-column'] = narrow ? '1 / -1' : 'auto';
   return out;
 }
 
@@ -610,7 +633,7 @@ export function deriveTokens(p: DesignParams, profile: A11yProfile): DerivedToke
   css['--media-b'] = toCss(pal.surface2);
   css['--inset-highlight'] = p.theme === 'dark' ? toCssAlpha(WHITE, 0.07) : toCssAlpha(WHITE, 0.8);
   css['--recess'] = p.theme === 'dark' ? toCssAlpha(BLACK, 0.35) : toCssAlpha(BLACK, 0.045);
-  Object.assign(css, elevationTokens(p, pal), buttonTokens(p, pal), atmosphereTokens(p, pal), displayTokens(p, pal, profile), motionTokens(p), typeTokens(p), spaceTokens(p), shapeTokens(p));
+  Object.assign(css, elevationTokens(p, pal), buttonTokens(p, pal), atmosphereTokens(p, pal), displayTokens(p, pal), motionTokens(p), typeTokens(p), spaceTokens(p), shapeTokens(p));
   return { css, hex, issues, pairs: measurePairs(p, pal) };
 }
 
