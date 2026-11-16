@@ -385,6 +385,50 @@ export function fontsMd(project: Project): string {
   return out.join('\n');
 }
 
+// ───────── theme.css ─────────
+
+/**
+ * The names that the shadcn component library reads, each with the design value that stands for it (SPEC.md section 2.9;
+ * the list as the library's theming page had it on 2026-11-16). The pairs that the Studio's contrast checks measure stay
+ * pairs: page and text, main button and its label, focus ring.
+ */
+const THEME_VALUES: readonly [string, string][] = [
+  ['radius', '--radius-surface'],
+  ['background', '--bg'], ['foreground', '--text'],
+  ['card', '--card-surface'], ['card-foreground', '--text'],
+  ['popover', '--surface'], ['popover-foreground', '--text'],
+  ['primary', '--btn-fill'], ['primary-foreground', '--btn-label'],
+  ['secondary', '--surface-2'], ['secondary-foreground', '--text'],
+  ['muted', '--surface-2'], ['muted-foreground', '--text-muted'],
+  ['accent', '--accent-soft'], ['accent-foreground', '--text'],
+  ['destructive', '--text'],
+  ['border', '--border'], ['input', '--border-strong'], ['ring', '--focus'],
+  ['chart-1', '--accent'], ['chart-2', '--accent-2'], ['chart-3', '--text-muted'], ['chart-4', '--border-strong'], ['chart-5', '--text'],
+  ['sidebar', '--surface-2'], ['sidebar-foreground', '--text'],
+  ['sidebar-primary', '--btn-fill'], ['sidebar-primary-foreground', '--btn-label'],
+  ['sidebar-accent', '--accent-soft'], ['sidebar-accent-foreground', '--text'],
+  ['sidebar-border', '--border'], ['sidebar-ring', '--focus'],
+];
+
+/** The design's colors and corner rounding under the names that ready-made parts of the shadcn library read. */
+export function themeCss(project: Project): string {
+  const tokens = deriveTokens(project.params, project.a11y).css;
+  const lines = THEME_VALUES.map(([name, from]) => `  --${name}: ${tokens[from] ?? ''};`);
+  return [
+    `/* The design of one Refraction project, under the names that the shadcn component library reads. Fingerprint: ${fingerprint(tokens)}.`,
+    '   Put these two blocks where the project keeps the library\'s theme (its main style sheet), in place of the library\'s own values.',
+    '   tokens.css holds every value of the design under the design\'s own names; this file holds the part that the library has names for.',
+    '',
+    `   The design is a ${project.params.theme} page and has one set of colors. The dark name holds the same values as the light one, so that`,
+    '   the page looks the same whichever of the two the library switches on.',
+    '   --radius is the rounding of boxes. The design rounds buttons and fields by --radius-control in tokens.css; give them that.',
+    '   --destructive: the design draws an error in the color of the text, with a mark and words, and never by color alone.',
+    '   --chart-1 to --chart-5: the design has no palette for charts. These are five of its own colors; a chart needs a palette',
+    '   that a person has looked at. */',
+    ':root {', ...lines, '}', '', '.dark {', ...lines, '}', '',
+  ].join('\n');
+}
+
 // ───────── the bundle ─────────
 
 /** The four files of the first part, by file name. */

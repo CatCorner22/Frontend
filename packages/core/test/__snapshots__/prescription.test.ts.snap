@@ -2640,3 +2640,86 @@ Fingerprint of the design values: \`68551dae\`. Every file of this Prescription 
 The address \`/fonts/\` is an example: put the files where the site keeps its own files, and write that address.
 "
 `;
+
+exports[`The Prescription, first slice (SPEC.md section 2.6) > writes theme.css: every name that the shadcn component library reads, each with a value of the design, the same for the light and the dark name (SPEC.md section 2.9) > a worked project: theme.css 1`] = `
+"/* The design of one Refraction project, under the names that the shadcn component library reads. Fingerprint: 68551dae.
+   Put these two blocks where the project keeps the library's theme (its main style sheet), in place of the library's own values.
+   tokens.css holds every value of the design under the design's own names; this file holds the part that the library has names for.
+
+   The design is a light page and has one set of colors. The dark name holds the same values as the light one, so that
+   the page looks the same whichever of the two the library switches on.
+   --radius is the rounding of boxes. The design rounds buttons and fields by --radius-control in tokens.css; give them that.
+   --destructive: the design draws an error in the color of the text, with a mark and words, and never by color alone.
+   --chart-1 to --chart-5: the design has no palette for charts. These are five of its own colors; a chart needs a palette
+   that a person has looked at. */
+:root {
+  --radius: 3px;
+  --background: #fefaf1;
+  --foreground: #171105;
+  --card: #ffffff;
+  --card-foreground: #171105;
+  --popover: #ffffff;
+  --popover-foreground: #171105;
+  --primary: #171105;
+  --primary-foreground: #fefaf1;
+  --secondary: #f5f0e5;
+  --secondary-foreground: #171105;
+  --muted: #f5f0e5;
+  --muted-foreground: #605848;
+  --accent: #f5f0e5;
+  --accent-foreground: #171105;
+  --destructive: #171105;
+  --border: rgb(23 17 5 / 0.146);
+  --input: #766f60;
+  --ring: #c83122;
+  --chart-1: #c83122;
+  --chart-2: #c83122;
+  --chart-3: #605848;
+  --chart-4: #766f60;
+  --chart-5: #171105;
+  --sidebar: #f5f0e5;
+  --sidebar-foreground: #171105;
+  --sidebar-primary: #171105;
+  --sidebar-primary-foreground: #fefaf1;
+  --sidebar-accent: #f5f0e5;
+  --sidebar-accent-foreground: #171105;
+  --sidebar-border: rgb(23 17 5 / 0.146);
+  --sidebar-ring: #c83122;
+}
+
+.dark {
+  --radius: 3px;
+  --background: #fefaf1;
+  --foreground: #171105;
+  --card: #ffffff;
+  --card-foreground: #171105;
+  --popover: #ffffff;
+  --popover-foreground: #171105;
+  --primary: #171105;
+  --primary-foreground: #fefaf1;
+  --secondary: #f5f0e5;
+  --secondary-foreground: #171105;
+  --muted: #f5f0e5;
+  --muted-foreground: #605848;
+  --accent: #f5f0e5;
+  --accent-foreground: #171105;
+  --destructive: #171105;
+  --border: rgb(23 17 5 / 0.146);
+  --input: #766f60;
+  --ring: #c83122;
+  --chart-1: #c83122;
+  --chart-2: #c83122;
+  --chart-3: #605848;
+  --chart-4: #766f60;
+  --chart-5: #171105;
+  --sidebar: #f5f0e5;
+  --sidebar-foreground: #171105;
+  --sidebar-primary: #171105;
+  --sidebar-primary-foreground: #fefaf1;
+  --sidebar-accent: #f5f0e5;
+  --sidebar-accent-foreground: #171105;
+  --sidebar-border: rgb(23 17 5 / 0.146);
+  --sidebar-ring: #c83122;
+}
+"
+`;

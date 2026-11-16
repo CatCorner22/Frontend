@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CRAFT_RULES, CSS_ONLY_KEY, DEFAULT_PARAMS, DIRECTIONS, NOT_CHECKED, PRESCRIPTION_FILES, STEPS,
-  applyDirection, craftReport, craftSheet, createProject, cssValueOfToken, deriveTokens, findOverlay, fingerprint, fontsMd, isSampleContent, keep, notCheckedIn, pick, prescriptionMd, setBriefAnswer, setContentText, quoted, setOverlay, setReason, tokensCss, tokensJson, tune, visibleText, writePrescription,
+  applyDirection, craftReport, craftSheet, createProject, cssValueOfToken, deriveTokens, findOverlay, fingerprint, fontsMd, isSampleContent, themeCss, keep, notCheckedIn, pick, prescriptionMd, setBriefAnswer, setContentText, quoted, setOverlay, setReason, tokensCss, tokensJson, tune, visibleText, writePrescription,
   type Project,
 } from '../src/index.js';
 
@@ -388,6 +388,41 @@ describe('The Prescription, first slice (SPEC.md section 2.6)', () => {
     expect(device).toContain('the device’s own typeface. Ship no font file for it.');
     expect(device).not.toMatch(/@font-face|@fontsource/);
     expect(md).not.toMatch(/\bWCAG compliant|\bis accessible\b/i);
+  });
+
+  it('writes theme.css: every name that the shadcn component library reads, each with a value of the design, the same for the light and the dark name (SPEC.md section 2.9)', () => {
+    // The library's list, as its theming page had it on 2026-11-16 (apps/v4/content/docs/(root)/theming.mdx in its repository).
+    const NAMES = ['radius', 'background', 'foreground', 'card', 'card-foreground', 'popover', 'popover-foreground', 'primary', 'primary-foreground', 'secondary', 'secondary-foreground', 'muted', 'muted-foreground', 'accent', 'accent-foreground', 'destructive', 'border', 'input', 'ring', 'chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5', 'sidebar', 'sidebar-foreground', 'sidebar-primary', 'sidebar-primary-foreground', 'sidebar-accent', 'sidebar-accent-foreground', 'sidebar-border', 'sidebar-ring'];
+    const block = (css: string, selector: string): Record<string, string> => {
+      const body = new RegExp(`^${selector.replace('.', '\\.')} \\{\\n([\\s\\S]*?)\\n\\}`, 'm').exec(css);
+      if (!body) throw new Error(`no block ${selector}`);
+      return Object.fromEntries([...body[1]!.matchAll(/^ {2}--([a-z0-9-]+): (.*);$/gm)].map((line) => [line[1]!, line[2]!]));
+    };
+    for (const project of [worked(), plain(), applyDirection(createProject('Dark'), 'midnight-aurora'), ...DIRECTIONS.map((d) => applyDirection(createProject(d.name), d.id))]) {
+      const css = themeCss(project);
+      const tokens = deriveTokens(project.params, project.a11y).css;
+      const light = block(css, ':root');
+      expect(Object.keys(light), project.name).toEqual(NAMES);
+      // One design, one set of colors: the dark name holds the same values, and the file says so.
+      expect(block(css, '.dark'), project.name).toEqual(light);
+      // Every value is a value of the design, written out, so that the file stands alone.
+      const own = new Set(Object.values(tokens));
+      for (const [name, value] of Object.entries(light)) {
+        expect(own.has(value), `${project.name}: --${name}: ${value}`).toBe(true);
+        expect(value, name).not.toMatch(/var\(|undefined/);
+      }
+      // The pairs that the contrast checks measure stay pairs.
+      expect([light['background'], light['foreground']]).toEqual([tokens['--bg'], tokens['--text']]);
+      expect([light['primary'], light['primary-foreground']]).toEqual([tokens['--btn-fill'], tokens['--btn-label']]);
+      expect(light['ring']).toBe(tokens['--focus']);
+      expect(css).toContain(`Fingerprint: ${fingerprint(tokens)}.`);
+    }
+    const css = themeCss(worked());
+    expect(css).toMatchSnapshot('a worked project: theme.css');
+    for (const part of ['The dark name holds the same values', 'draws an error in the color of the text', 'no palette for charts', '--radius-control']) expect(css, part).toContain(part);
+    expect(css).not.toMatch(/<|\bWCAG compliant/);
+    // The owner's words do not reach this file.
+    expect(themeCss({ ...worked(), name: '*/ } body { display: none } /*' })).toBe(css);
   });
 
   it('writes tokens.css as one block of named values and nothing else', () => {

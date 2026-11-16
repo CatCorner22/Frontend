@@ -248,7 +248,7 @@
         "Run the unit tests: theme.css defines every name of the library's list, each with a value of the design",
         "A dark design and a light design both give the light name and the dark name the same values, and the file says so"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F022",

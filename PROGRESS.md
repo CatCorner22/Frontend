@@ -104,6 +104,15 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F021 (`theme.css`: the design under the names that the shadcn component library reads)
+- Result: passes
+- Commits: the commit "F021: ..." that holds this entry
+- Evidence: `npm run check`: 263 unit tests passed (1 new). `npm run e2e`: 308 browser tests passed (none new; 1,433 seconds). Test first: it failed before the code. The test holds the file against the library's list of 32 names as its theming page had it on 2026-11-16 (research record 11), for the plain start and each of the 38 Directions: every name has a value, every value is a value of the design, the light and the dark name hold the same values, and the pairs that the contrast checks measure stay pairs. The owner's words do not reach the file.
+- Why F021 came before F020: features F020 and F022 need two outside validator programs, and the session's permission check refused to run the first of them (decision D64). F021 needs none. F020, F022, and F023 wait for the owner's choice in D64.
+- Open problems for the next session: no program of the library's own has read `theme.css`; the library publishes none for this. `--destructive` takes the text color and the five chart names take five of the design's colors, because the design has no color for errors and no palette for charts; the file says so. The Summary does not offer `theme.css` or `FONTS.md` yet (feature F023).
+- Next feature to build (ID): F020, once decision D64 is settled.
+
+- Date: 2026-11-16
 - Feature worked on (ID): F019 (`FONTS.md`, and one fingerprint of the design values in every file of the Prescription)
 - Result: passes
 - Commits: the commit "F019: ..." that holds this entry
