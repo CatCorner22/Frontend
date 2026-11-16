@@ -104,6 +104,18 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F025 (the first build trial: a helper agent built a page from the seven files, and the program measured it)
+- Result: passes
+- Commits: the commit "F025: ..." that holds this entry
+- Evidence: `npm run check`: 266 unit tests passed. `npm run e2e`: 334 browser tests passed (5 new, in `plugin/fit/e2e/trial.e2e.ts`). Tests first: the 5 tests failed because `plugin/fit/trials/001/` did not exist. One helper agent (about 71 seconds, 9 tool calls) built `index.html` from the seven files. The program measured it: no deviation in colors, typefaces, corner radii, content, and width; 3 deviations in requests. So on this one run, for these five things, a tool that read only the seven files built a page that agrees with them.
+- What the run found about the program itself (finding R25-01, open): two of the three request deviations are font files at `/fonts/…`, which `FONTS.md` tells the builder to ship. The measure and the Prescription contradict each other, so a tool that obeys `FONTS.md` cannot reach zero. The builder recommends (a): the measure separates a file at the site's own address from a request to another site. It changed neither, because a change after seeing a result needs the owner's word.
+- What the run does not show: how often a tool obeys; whether the Prescription made the page better than a plain instruction would have (no run without it exists); whether the helper read only the seven files (it cannot be held to that); what the page looks like (no person looked).
+- Checked against the helper's report: its four claims about its own page (no font files, no fingerprint meta tag, a loosened security policy, an invented form address) are true. Its other claims (a placeholder photograph, links, the footer line) are not measured.
+- Not run: the reviewer helper and the three red-team reviewers for F024 and F025 (decision D55: each needs the owner's yes, with its purpose and cost).
+- Open problems for the next session: R25-01; the Floors in the Prescription (M6); whether to run the same project without the Prescription, for comparison; the owner's trial of the Studio (M4).
+- Next feature to build (ID): none in the list.
+
+- Date: 2026-11-16
 - Feature worked on (ID): F024 (the Fit check, first slice: a program measures a build against the Prescription)
 - Result: passes
 - Commits: the commit "F024: ..." that holds this entry

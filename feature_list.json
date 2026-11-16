@@ -292,7 +292,7 @@
         "Run the program on the stored page: the receipt equals the stored receipt",
         "The receipt names the fingerprint of the files that the builder writes today for the fixed project"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

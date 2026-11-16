@@ -125,6 +125,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [66.01 The program measures six things and one more, and the Mockup passes its own measure](#6601-the-program-measures-six-things-and-one-more-and-the-mockup-passes-its-own-measure)
   - [66.02 Each deviation that the program claims to find, it finds; each fault of its own inputs, it names](#6602-each-deviation-that-the-program-claims-to-find-it-finds-each-fault-of-its-own-inputs-it-names)
   - [66.03 The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs](#6603-the-receipt-keeps-measuring-judging-and-asking-apart-and-holds-nothing-that-changes-between-two-runs)
+  - [66.04 The first build trial is stored whole, belongs to today's files, and measures to its own receipt](#6604-the-first-build-trial-is-stored-whole-belongs-to-todays-files-and-measures-to-its-own-receipt)
 - [70 How the Studio is built](#70-how-the-studio-is-built)
   - [70.01 The shared core holds no React import and no browser API](#7001-the-shared-core-holds-no-react-import-and-no-browser-api)
   - [70.02 No look changes by accident](#7002-no-look-changes-by-accident)
@@ -775,6 +776,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Exceptions.** The program reads the page's text only through the browser's own engine; a page that attacks the browser itself is outside what this slice defends against (the program blocks every network request, but the page runs its own scripts).
 - Last verified: 2026-11-16
 
+### [66.04] The first build trial is stored whole, belongs to today's files, and measures to its own receipt
+
+<!-- index: build trial | stored run; helper agent; one run -->
+
+- **Rule.** `plugin/fit/trials/001/` holds the instruction, the seven files that the helper received, the helper's page, the receipt in two forms, and a record that says what the run shows and what it does not show. The seven files equal what the core writes today for the fixed project of `plugin/fit/e2e/trial-project.ts`, and the receipt names their fingerprint. Run again on the stored page, the program gives the stored receipt byte for byte. The record states that it is one run and not a rate, and that the helper cannot be held to the rule of reading no other file. [S19; S1 at D65]
+- **Test.** The five tests of "First build trial: the stored record". [S19]
+- **Open.** The run found that the "requests" measure lists the font files that `FONTS.md` tells the builder to ship (finding R25-01). No run without the Prescription exists, so the record cannot say that the files improved the page.
+- Last verified: 2026-11-16
+
 ## [70] How the Studio is built
 
 ### [70.01] The shared core holds no React import and no browser API
@@ -842,6 +852,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.13: after the first build trial (feature F025, decision D65): added §66.04. 70 guarantees.
 - 2026-11-16 v1.12: after the first slice of the Fit check (feature F024, decision D65): added §66.01 to §66.03. 69 guarantees.
 - 2026-11-16 v1.11: after the rest of the Prescription's files (features F019 to F023, decisions D63 and D64): added §65.07 to §65.10; §65.04 names its test by its new title. 66 guarantees.
 - 2026-11-16 v1.10: after the first slice of the Brief (features F015 to F018, decisions D61 and D62): added §55.01 to §55.05. 62 guarantees.
@@ -875,11 +886,12 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 - [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs` (2026-11-16). Accessed 2026-11-16. Grade: A.
 - [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §65.07, §65.09, §66.01, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §65.07, §65.09, §66.01, §66.04, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08
 - [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §60.01, §60.04, §65.01, §65.03, §65.06, §65.10, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
@@ -896,6 +908,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16) — §65.10
 - [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs`… — §65.09
 - [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16) — §66.01, §66.02, §66.03
+- [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16) — §66.04
 <!-- authorities:end -->
 
 ## [92] Index
@@ -921,6 +934,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - bloated project — *see* unknown values in a file of own Directions
 - boundary — *see* core
 - Brief — *see* your content
+- **build trial** — §66.04
 
 **C**
 
@@ -995,6 +1009,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - hand-edited file — *see* changed Decision
 - heading size — *see* phone width
+- helper agent — *see* build trial
 - hex — *see* written color
 - hold — *see* standing notice
 - holds — *see* research rule
@@ -1064,6 +1079,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **old project** — §20.03; *see also* project file
 - one download for all files — *see* archive
+- one run — *see* build trial
 - one variable — *see* Step
 - only my texts — *see* put the sample text back
 - open a file — *see* project file
@@ -1168,6 +1184,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - storage full — *see* kept copy
 - **stored copy of the files** — §65.04
 - **stored picture** — §70.02
+- stored run — *see* build trial
 - switch — *see* Overlay
 
 **T**
@@ -1225,7 +1242,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_89 sections, 17 sources, 68 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
+_90 sections, 18 sources, 69 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
 
 - No findings.
 <!-- health:end -->
