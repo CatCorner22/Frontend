@@ -110,6 +110,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [60.02 Every Step says where its guidance comes from and how well it is known](#6002-every-step-says-where-its-guidance-comes-from-and-how-well-it-is-known)
   - [60.03 No Overlay and no research rule is graded "measured" without a source that was read in full](#6003-no-overlay-and-no-research-rule-is-graded-measured-without-a-source-that-was-read-in-full)
   - [60.04 A research rule says "Holds" only when the measured number meets it](#6004-a-research-rule-says-holds-only-when-the-measured-number-meets-it)
+  - [60.05 A reason can be written from the Summary, for each Step that has a Decision](#6005-a-reason-can-be-written-from-the-summary-for-each-step-that-has-a-decision)
+  - [60.06 Every quiet button has a drawn edge](#6006-every-quiet-button-has-a-drawn-edge)
+  - [60.07 A line beside the Undo button says what the next Undo takes back](#6007-a-line-beside-the-undo-button-says-what-the-next-undo-takes-back)
 - [65 The craft rules and the Prescription](#65-the-craft-rules-and-the-prescription)
   - [65.01 Every craft rule carries its mark on the sample website of every built-in Direction, and says so when a design sets it aside](#6501-every-craft-rule-carries-its-mark-on-the-sample-website-of-every-built-in-direction-and-says-so-when-a-design-sets-it-aside)
   - [65.02 The four files of the Prescription hold the same design values, value by value](#6502-the-four-files-of-the-prescription-hold-the-same-design-values-value-by-value)
@@ -649,6 +652,33 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Exceptions.** The rule "Reading text is at least 16 pixels tall" does not bind: the Direction "Control Room" uses 15 pixels on purpose. The Direction's record states that reason, a unit test refuses a departure without such a record, and the Summary shows the reason beside "Does not hold" while the start's text size stands (finding U5-16; test "names the Directions that depart from a rule that does not bind, so that a new departure is a decision and not an accident"). A rule measures values of the design, not the built website, and each rule states what a person must still check.
 - Last verified: 2026-11-15
 
+### [60.05] A reason can be written from the Summary, for each Step that has a Decision
+
+<!-- index: reason | written on the Summary; one reason per Decision -->
+
+- **Rule.** Under each Step that has a Decision, the Summary offers "Add a reason" (or "Change the reason"); it opens the same field as the Step's own screen, stores each typed letter at once on that Step, and shows the text in the row's "Why:" line. A Step without a Decision offers nothing. Each field has its own id. A reason typed on the Summary and one typed on the Step are one reason. One Undo takes a typed reason back. [S3; S1 at D63]
+- **Test.** "lets the owner write a reason from the Summary, for a Step that has a Decision, and for no other"; "keeps the reason from the Summary and the reason on the Step as one reason". [S3]
+- **Exceptions.** The reason is written word for word into PRESCRIPTION.md (the field's note says so); at most 280 characters.
+- Last verified: 2026-11-16
+
+### [60.06] Every quiet button has a drawn edge
+
+<!-- index: quiet button | edge; plain text look -->
+
+- **Rule.** Each quiet button ("Copy …", "Rename", "Remove", "Dismiss", and the like) has a solid edge of 1 pixel or more, opaque, at least 3 to 1 against the page behind it, in the light and the dark theme. It has no fill, so it stays quieter than a main button. [S3; S1 at D63]
+- **Test.** "gives every quiet button of the Summary a drawn edge of at least 3 to 1 against the page, in the light and the dark theme". [S3]
+- **Exceptions.** The test reads the quiet buttons that the Summary shows; a quiet button on another screen is covered by the same style rule and by no test of its own.
+- Last verified: 2026-11-16
+
+### [60.07] A line beside the Undo button says what the next Undo takes back
+
+<!-- index: undo; what it takes back | line beside the button -->
+
+- **Rule.** Beside the Undo button, always, one line says what the next Undo takes back: a Step, several Steps, the whole project, the name, the Contrast checks setting, the Overlays, the texts of the page, or the three answers; or "Nothing to undo." The line is tied to the button with `aria-describedby`, and the button's name stays "Undo". The notice after an Undo says the same in the past tense; before this repair an Undo of a typed text said "your earlier project is back". [S3; S1 at D63]
+- **Test.** "says beside the Undo button what the next Undo takes back, and ties the line to the button"; "names the texts of the page and the three answers, before and after the Undo, and no longer calls them \"your earlier project\""; "names the whole project when a start from another Direction would be taken back". [S3]
+- **Open.** "Redo" does not exist (finding U6-23's second half).
+- Last verified: 2026-11-16
+
 ## [65] The craft rules and the Prescription
 
 ### [65.01] Every craft rule carries its mark on the sample website of every built-in Direction, and says so when a design sets it aside
@@ -862,6 +892,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.16: after the three repairs of taste (feature F028, decision D63 point 4): added §60.05 to §60.07. 74 guarantees.
 - 2026-11-16 v1.15: after the repair of the requests measure (feature F027, decision D67): §66.01 states that a reference at the page's own address is information; §66.04 states the repaired receipt. 71 guarantees.
 - 2026-11-16 v1.14: after the comparison run (feature F026, decision D66): added §66.05. 71 guarantees.
 - 2026-11-16 v1.13: after the first build trial (feature F025, decision D65): added §66.04. 70 guarantees.
@@ -903,9 +934,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §65.01, §65.03, §65.07, §65.09, §66.01, §66.04, §66.05, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §60.01, §60.03, §60.04, §60.05, §60.06, §60.07, §65.01, §65.03, §65.07, §65.09, §66.01, §66.04, §66.05, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08
-- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §60.01, §60.04, §65.01, §65.03, §65.06, §65.10, §70.04
+- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §60.01, §60.04, §60.05, §60.06, §60.07, §65.01, §65.03, §65.06, §65.10, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
 - [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.05, §40.04
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03, §30.06
@@ -986,6 +1017,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 **E**
 
+- edge — *see* quiet button
 - eight characters — *see* fingerprint
 - empty list — *see* empty text
 - **empty text** — §55.02
@@ -1057,6 +1089,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - left out — *see* unknown Overlay
 - limit of a text — *see* your content
 - **limit of own Directions** — §50.09
+- line beside the button — *see* undo; what it takes back
 - line length — *see* research rule
 - lint program — *see* outside validators
 - lint rule — *see* text as text
@@ -1092,6 +1125,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **old project** — §20.03; *see also* project file
 - one download for all files — *see* archive
+- one reason per Decision — *see* reason
 - one run — *see* build trial
 - one variable — *see* Step
 - only my texts — *see* put the sample text back
@@ -1122,6 +1156,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - pick — *see* Decision
 - pinned version — *see* dependency
 - placeholder project — *see* opening
+- plain text look — *see* quiet button
 - **plain words** — §60.01
 - planted damage — *see* self-test
 - **Prescription** — §65.02; *see also* craft rule
@@ -1136,6 +1171,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **Q**
 
 - question — *see* Overlay picture
+- **quiet button** — §60.06
 - **quotation marks** — §20.06
 - quoted answers — *see* three answers
 - **quoted data** — §65.03
@@ -1145,7 +1181,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - race — *see* closing in the same instant
 - reading size — *see* research rule
 - ready-made parts — *see* FONTS.md
-- **reason** — §50.06; *see also* Decision
+- **reason** — §50.06, §60.05; *see also* Decision
 - receipt — *see* fit check
 - record — *see* Decision
 - reference build — *see* fit check
@@ -1220,6 +1256,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - uncaught error — *see* page error
 - undo — *see* replace action
+- **undo; what it takes back** — §60.07
 - **unknown Overlay** — §20.07; *see also* Overlay
 - **unknown values in a file of own Directions** — §50.10
 - **unreadable project** — §10.04; *see also* kept copy
@@ -1243,6 +1280,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - why this choice — *see* reason
 - without the files — *see* comparison run
 - **written color** — §40.01
+- written on the Summary — *see* reason
 - wrong file — *see* refused file
 
 **Y**
@@ -1258,7 +1296,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_91 sections, 18 sources, 70 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
+_94 sections, 18 sources, 72 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
 
 - No findings.
 <!-- health:end -->

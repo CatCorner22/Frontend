@@ -239,6 +239,26 @@ The first trial found that section 2.10, point 1, counts a font file at the site
   - The receipts of trials 001 and 002 are measured again with the repaired program, and their records say what changed and why; the old counts stay in the records as history.
 - How to test it end to end: a relative font file, a root-relative style sheet, and a relative form action are listed as information and give status 0; an absolute font link, a link that begins with `//`, and a `mailto:` form action each give a deviation; the stored receipts of both trials equal what the repaired program gives on the stored pages.
 
+### 2.14 Three repairs of taste after the sixth review (findings U6-11, U6-22, U6-23; decision D63, point 4)
+
+The owner left these three to the builder (decision D63). Each follows the finding's own words.
+
+1. **The reason, from the Summary (U6-11).** The Summary says that the Prescription holds "what you rejected and why", but the field for the reason showed only on a return to a decided Step.
+   - What the user does: opens the Summary; under each Step that has a Decision, presses "Add a reason" (or "Change the reason", when a reason exists), and types.
+   - What the system does: opens the same field that the Step shows; each typed letter is stored at once, on that Step, as on the Step's own screen; the row's "Why: …" line follows. A Step without a Decision shows no such control. The field's id differs for each Step (`decision-reason-<step>`), so that no two fields on the Summary share an id. The text is rendered as text and holds at most 280 characters, as before.
+   - Edge cases: Undo takes the typed reason back in one step, and the open field then shows the stored text; a reason typed on the Summary and one typed on the Step are the same reason.
+2. **The quiet buttons have an edge (U6-22).** "Copy …", "Rename", "Remove", "Dismiss", and the like looked like plain gray text beside the outlined "Download …" buttons.
+   - What the user sees: every quiet button has a visible edge, in the same color as the other buttons' edge (`--border-strong`), in the light and the dark theme; the edge is at least 3 to 1 against the page behind it. On hover the edge takes the text color. A quiet button stays quieter than a main button: no fill.
+3. **Undo says what it takes back (U6-23).** The reviewer pressed "Undo" out of habit and it took back something older than expected.
+   - What the user sees: beside the Undo button, always, a line that says what the next Undo takes back, or "Nothing to undo."; the line is tied to the button (`aria-describedby`), so that a screen reader says it with the button; the button's name stays "Undo". The line follows each change and each Undo. The words:
+     - one Step: "Undo takes back: the Step “X” goes back to how it was."; several Steps: "…the Steps “X” and “Y” go back to how they were."
+     - the whole project (a start from another Direction, or more than three Steps): "Undo takes back: the whole project goes back to the earlier one, which started from X."
+     - the name: "…the project’s name goes back to “X”."; the Contrast checks setting; the Overlays.
+     - the texts of the page ("Your content"): "…the texts of the page go back to how they were."; the three answers about the project: "…your three answers about the project go back to how they were."
+   - The message after an Undo says the same thing in the past tense, for the texts and the answers too. Before this repair, an Undo of a typed text said "your earlier project is back", which overstated what it did. All other "Undone: …" messages stay word for word.
+   - Not built: "Redo". The review noted its absence; it is recorded as a gap, not built here.
+- How to test it end to end: browser tests. Reason: a Step with a Decision shows the control, one without does not, the typed text reaches the stored project and the row's "Why:" line, no id is repeated, Undo takes it back. Edge: every quiet button of the Summary has a drawn edge with at least 3 to 1 in both themes. Undo: the line says "Nothing to undo." at the start; after a reason it names the Step; after a text of the page it names the texts, and the message after the Undo says so; the button's name is "Undo" and `aria-describedby` names the line.
+
 ## 3. Out of scope
 
 - For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.

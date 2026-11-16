@@ -3748,3 +3748,119 @@ describe('Studio: the screen “Your content” (the Brief; SPEC.md section 2.7)
     await context.close();
   });
 });
+
+describe('Studio: three repairs of taste (SPEC.md section 2.14; findings U6-11, U6-22, U6-23)', () => {
+  const topUndo = (page: Page) => page.locator('.top').getByRole('button', { name: 'Undo', exact: true });
+  const row = (page: Page, stepId: string) => page.locator('.decision-list li').nth(STEPS.findIndex((st) => st.id === stepId));
+
+  it('lets the owner write a reason from the Summary, for a Step that has a Decision, and for no other', async () => {
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Reasons')) } });
+    await page.waitForSelector('.summary');
+    const nav = row(page, 'nav');
+    expect(await nav.locator('summary').innerText()).toBe('Add a reason');
+    expect(await row(page, 'hero').locator('summary').count()).toBe(0);
+    await nav.locator('summary').click();
+    await page.locator('#decision-reason-nav').fill('Visitors look for it on the left');
+    await settle(page);
+    expect((await stored(page))!.decisions['nav']?.reason).toBe('Visitors look for it on the left');
+    expect(await nav.innerText()).toContain('Why: Visitors look for it on the left');
+    expect(await nav.locator('summary').innerText()).toBe('Change the reason');
+    // No id is used twice on the screen, and the Step's own field is not on the Summary.
+    const repeated = await page.evaluate(() => { const ids = [...document.querySelectorAll('[id]')].map((el) => el.id); return ids.filter((id, i) => ids.indexOf(id) !== i); });
+    expect(repeated).toEqual([]);
+    expect(await page.locator('#decision-reason').count()).toBe(0);
+    // The words are plain, and the control holds only text.
+    expect(tradeWordsOutsideBrackets(await nav.innerText(), [])).toEqual([]);
+    // One Undo takes the typed reason back, and the open field shows what is stored.
+    await topUndo(page).click();
+    await settle(page);
+    expect((await stored(page))!.decisions['nav']?.reason).toBeUndefined();
+    expect(await page.locator('#decision-reason-nav').inputValue()).toBe('');
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('keeps the reason from the Summary and the reason on the Step as one reason', async () => {
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('One reason')) } });
+    await page.waitForSelector('.summary');
+    await row(page, 'nav').locator('summary').click();
+    await page.locator('#decision-reason-nav').fill('Typed on the Summary');
+    await settle(page);
+    await page.goto(`${page.url().split('#')[0]}#nav`);
+    await page.waitForSelector('#decision-reason');
+    expect(await page.locator('#decision-reason').inputValue()).toBe('Typed on the Summary');
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('gives every quiet button of the Summary a drawn edge of at least 3 to 1 against the page, in the light and the dark theme', async () => {
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Edges')) } });
+    await page.waitForSelector('.summary');
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme);
+      const report = await page.evaluate(() => {
+        const rgb = (css: string): number[] => (css.match(/[\d.]+/g) ?? []).map(Number);
+        const lum = ([r, g, b]: number[]): number => { const f = (c: number): number => { const x = (c ?? 0) / 255; return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r ?? 0) + 0.7152 * f(g ?? 0) + 0.0722 * f(b ?? 0); };
+        const behind = (el: Element): number[] => { for (let up: Element | null = el.parentElement; up; up = up.parentElement) { const c = rgb(getComputedStyle(up).backgroundColor); if (c.length >= 3 && (c[3] ?? 1) === 1) return c; } return [255, 255, 255]; };
+        return [...document.querySelectorAll<HTMLElement>('.btn.quiet')].filter((el) => el.getClientRects().length > 0).map((el) => {
+          const cs = getComputedStyle(el);
+          const edge = rgb(cs.borderTopColor);
+          const [a, b] = [lum(edge), lum(behind(el))];
+          return { text: el.innerText, style: cs.borderTopStyle, width: cs.borderTopWidth, alpha: edge[3] ?? 1, ratio: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };
+        });
+      });
+      expect(report.length, theme).toBeGreaterThanOrEqual(3);
+      const weak = report.filter((b) => b.style === 'none' || Number.parseFloat(b.width) < 1 || b.alpha < 1 || b.ratio < 3);
+      expect(weak, `${theme}: ${JSON.stringify(weak)}`).toEqual([]);
+    }
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('says beside the Undo button what the next Undo takes back, and ties the line to the button', async () => {
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Undo says')) } });
+    await page.waitForSelector('.summary');
+    expect(await page.locator('#undo-says').innerText()).toBe('Nothing to undo.');
+    expect(await topUndo(page).getAttribute('aria-describedby')).toBe('undo-says');
+    expect(await topUndo(page).isDisabled()).toBe(true);
+    await row(page, 'nav').locator('summary').click();
+    await page.locator('#decision-reason-nav').fill('Because');
+    await settle(page);
+    expect(await page.locator('#undo-says').innerText()).toBe('Undo takes back: the Step “Menu (navigation)” goes back to how it was.');
+    await topUndo(page).click();
+    expect(await page.locator('#undo-says').innerText()).toBe('Nothing to undo.');
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('names the texts of the page and the three answers, before and after the Undo, and no longer calls them "your earlier project"', async () => {
+    const { context, page, errors } = await open({ hash: '#content', storage: { [LOCAL_KEY]: envelope(worked('Texts')) } });
+    await page.waitForSelector('#content-business');
+    await page.locator('#content-business').fill('Northside Legal Clinic');
+    await settle(page);
+    expect(await page.locator('#undo-says').innerText()).toBe('Undo takes back: the texts of the page go back to how they were.');
+    await topUndo(page).click();
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('Undone: the texts of the page are back to how they were.');
+    expect(await page.locator('.banner:not(.hold)').innerText()).not.toContain('earlier project');
+    await page.locator('#brief-offer').fill('Wills and estates');
+    await settle(page);
+    expect(await page.locator('#undo-says').innerText()).toBe('Undo takes back: your three answers about the project go back to how they were.');
+    await topUndo(page).click();
+    expect(await page.locator('.banner:not(.hold)').innerText()).toContain('Undone: your three answers about the project are back to how they were.');
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('names the whole project when a start from another Direction would be taken back', async () => {
+    const { context, page, errors } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(worked('Whole')) } });
+    await page.waitForSelector('.directions');
+    await page.getByRole('button', { name: /Start from/ }).first().click();
+    const confirm = page.getByRole('button', { name: /Start again|Replace|Yes/ }).first();
+    if (await confirm.count()) await confirm.click();
+    await settle(page);
+    const says = await page.locator('#undo-says').innerText();
+    expect(says).toMatch(/^Undo takes back: the whole project goes back to the earlier one, which started from .+\.$/);
+    expect(errors).toEqual([]);
+    await context.close();
+  });
+});

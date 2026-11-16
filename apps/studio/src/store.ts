@@ -133,12 +133,44 @@ export interface StudioState {
   requestImport(data: unknown, fileName: string): string | null;
   requestStartOver(): void;
   undo(): void;
+  /** What the next Undo takes back, in words (finding U6-23). */
+  undoPreview(): string;
   dismissNotice(): void;
   answerConfirmation(yes: boolean): void;
   flush(): void;
 }
 
 export const stepOf = (id: string): Step => findStep(id) ?? STEPS[0]!;
+
+/**
+ * What one Undo takes back, found by comparing the open project with the one before it. The same finding gives the words that
+ * stand beside the Undo button before the press and the words of the notice after it (finding U6-23).
+ */
+function undoWords(now: Project, previous: Project, known: Pick<StudioState, 'generated' | 'own'>): { preview: string; done: string; steps: Step[]; whole: boolean } {
+  const differs = (a: unknown, b: unknown): boolean => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null);
+  const touched = STEPS.filter((st) => differs(now.decisions[st.id], previous.decisions[st.id]) || differs(ownedValues(st, now.params), ownedValues(st, previous.params)));
+  const whole = now.direction !== previous.direction || touched.length > 3;
+  const first = touched[0];
+  const quoted = (list: Step[]): string => list.map((st) => `“${st.name}”`).join(' and ');
+  const start = directionName(previous, known);
+  // A change that touched no Step: the name, the Contrast checks setting, the Overlays, the texts of the page, or the three answers.
+  // Saying "your earlier project is back" for one of them would overstate what Undo does.
+  if (!whole && first) {
+    return touched.length === 1
+      ? { preview: `Undo takes back: the Step “${first.name}” goes back to how it was.`, done: `Undone: the Step “${first.name}” is back to how it was.`, steps: touched, whole }
+      : { preview: `Undo takes back: the Steps ${quoted(touched)} go back to how they were.`, done: `Undone: the Steps ${quoted(touched)} are back to how they were.`, steps: touched, whole };
+  }
+  if (!whole) {
+    const small = now.name !== previous.name ? { preview: `Undo takes back: the project’s name goes back to “${plainName(previous.name)}”.`, done: `Undone: the project’s name is “${plainName(previous.name)}” again.` }
+      : now.a11y !== previous.a11y ? { preview: 'Undo takes back: the Contrast checks setting goes back to how it was.', done: 'Undone: the Contrast checks setting is back to how it was.' }
+        : differs(overlaysOf(now), overlaysOf(previous)) ? { preview: 'Undo takes back: the Overlays go back to how they were.', done: 'Undone: the Overlays are back to how they were.' }
+          : differs(now.content, previous.content) ? { preview: 'Undo takes back: the texts of the page go back to how they were.', done: 'Undone: the texts of the page are back to how they were.' }
+            : differs(now.brief, previous.brief) ? { preview: 'Undo takes back: your three answers about the project go back to how they were.', done: 'Undone: your three answers about the project are back to how they were.' }
+              : null;
+    if (small) return { ...small, steps: [], whole };
+  }
+  return { preview: `Undo takes back: the whole project goes back to the earlier one, which started from ${start}.`, done: `Undone: your earlier project is back, the one that started from ${start}.`, steps: touched, whole: true };
+}
 
 /** The name to show for where a project started. */
 export function directionName(project: Project, known: Pick<StudioState, 'generated' | 'own'>): string {
@@ -1193,26 +1225,10 @@ export const useStudio = create<StudioState>((set, get) => {
       if (!previous) return;
       lastBurst = null;
       // Say what came back and where, so that an Undo of an earlier Step is not invisible (finding U2-07).
-      const now = get().project;
-      const differs = (a: unknown, b: unknown): boolean => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null);
-      const touched = STEPS.filter((st) => differs(now.decisions[st.id], previous.decisions[st.id]) || differs(ownedValues(st, now.params), ownedValues(st, previous.params)));
-      const wholeProject = now.direction !== previous.direction || touched.length > 3;
-      const first = touched[0];
-      // A change that touched no Step: the name, the Contrast checks setting, or the Overlays. Saying "your earlier project is
-      // back" for a changed name or for one Overlay would overstate what Undo did.
-      const small = !wholeProject && !first
-        ? now.name !== previous.name ? `Undone: the project’s name is “${plainName(previous.name)}” again.`
-          : now.a11y !== previous.a11y ? 'Undone: the Contrast checks setting is back to how it was.'
-            : differs(overlaysOf(now), overlaysOf(previous)) ? 'Undone: the Overlays are back to how they were.'
-              : null
-        : null;
-      const text = small
-        ?? (wholeProject || !first
-        ? `Undone: your earlier project is back, the one that started from ${directionName(previous, get())}.`
-        : touched.length === 1
-          ? `Undone: the Step “${first.name}” is back to how it was.`
-          : `Undone: the Steps ${touched.map((st) => `“${st.name}”`).join(' and ')} are back to how they were.`);
-      const elsewhere = !wholeProject && first && first.id !== stepId ? first : null;
+      const words = undoWords(get().project, previous, get());
+      const text = words.done;
+      const first = words.steps[0];
+      const elsewhere = !words.whole && first && first.id !== stepId ? first : null;
       set({
         project: previous, history: history.slice(0, -1), variations: null, shownId: appliedCardId(previous, stepOf(stepId)),
         notice: { text, ...(elsewhere ? { actions: [{ label: `Go to “${elsewhere.name}”`, run: () => get().go('steps', elsewhere.id) }] } : {}) },
@@ -1224,6 +1240,12 @@ export const useStudio = create<StudioState>((set, get) => {
         const at = document.activeElement;
         if (!at || at === document.body || (at as HTMLButtonElement).disabled) refocus();
       }, 0);
+    },
+
+    undoPreview() {
+      const { history, project } = get();
+      const previous = history[history.length - 1];
+      return previous ? undoWords(project, previous, get()).preview : 'Nothing to undo.';
     },
 
     dismissNotice() {

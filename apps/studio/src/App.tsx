@@ -197,7 +197,11 @@ function TopBar(): React.JSX.Element {
         </select>
         <span id="a11y-meaning" className="profile-meaning">{PROFILE_MEANING[s.project.a11y]}</span>
       </div>
-      <button type="button" className="btn small" disabled={s.history.length === 0} onClick={s.undo}>Undo</button>
+      {/* The button and the line that says what the next Undo takes back stay together, also when the bar wraps (finding U6-23). */}
+      <div className="undo-group">
+        <button type="button" className="btn small" disabled={s.history.length === 0} aria-describedby="undo-says" onClick={s.undo}>Undo</button>
+        <span id="undo-says" className="undo-says">{s.undoPreview()}</span>
+      </div>
       <span className="save-state" role="status">{SAVE_LABEL[s.saved]}</span>
       {/* After a failed save the Studio tries again at the next change. This button lets the owner try at once, for example after making room. */}
       {s.saved === 'failed' && <button type="button" className="btn small" onClick={s.saveAgain}>Try to save again</button>}
@@ -561,7 +565,8 @@ interface Card {
   focus?: MockupFocus;
 }
 
-function ReasonField({ stepId }: { stepId: string }): React.JSX.Element | null {
+/** The field for one Decision's reason. On the Summary, `fieldId` gives each Step's field its own id and `brief` leaves out the long note. */
+function ReasonField({ stepId, fieldId = 'decision-reason', brief = false }: { stepId: string; fieldId?: string; brief?: boolean }): React.JSX.Element | null {
   const decision = useStudio((s) => s.project.decisions[stepId]);
   const save = useStudio((s) => s.setReason);
   const stored = decision?.reason ?? '';
@@ -580,8 +585,10 @@ function ReasonField({ stepId }: { stepId: string }): React.JSX.Element | null {
       {/* Each typed letter is stored at once, on the Step it was typed for. The field used to store its text only when it
           lost keyboard focus: Enter, a reload, or the browser's Back button then lost the text, and Back could even store it
           on another Step (code review of 2026-11-13, findings "screen 4" and "gaps 0"). */}
-      <input id="decision-reason" type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => { setText(e.target.value); save(stepId, e.target.value); }} />
-      <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved with the project and goes, word for word, into PRESCRIPTION.md, the file that an AI coding tool reads. Write nothing here that you want to keep to yourself.</small>
+      <input id={fieldId} type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => { setText(e.target.value); save(stepId, e.target.value); }} />
+      {brief
+        ? <small>Saved with the project, and written word for word into PRESCRIPTION.md.</small>
+        : <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved with the project and goes, word for word, into PRESCRIPTION.md, the file that an AI coding tool reads. Write nothing here that you want to keep to yourself.</small>}
     </label>
   );
 }
@@ -1430,6 +1437,13 @@ function SummaryView(): React.JSX.Element {
                     <span className="rail-text"><span>{i + 1}. {st.name}</span><small>{status.text}{reason ? ` Why: ${reason}` : ''}</small></span>
                     <span className="change">Change</span>
                   </a>
+                  {/* The Summary promises "what you rejected and why", so the reason can be written here as well (finding U6-11). */}
+                  {s.project.decisions[st.id] && (
+                    <details className="reason-edit">
+                      <summary>{reason ? 'Change the reason' : 'Add a reason'}</summary>
+                      <ReasonField stepId={st.id} fieldId={`decision-reason-${st.id}`} brief />
+                    </details>
+                  )}
                 </li>
               );
             })}
