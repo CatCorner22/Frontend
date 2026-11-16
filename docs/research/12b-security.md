@@ -1,6 +1,6 @@
 > **Checked on 2026-11-16 (decision D68).** An independent helper fetched every cited page again and compared each quotation and number with the page. Corrections that it proposed are applied below. What the check did not cover: the evidence grades, the order of the rows, the "how a program checks it" methods (none was tested), and anything that no cited page can confirm.
 
-> **Status.** Written by a helper agent on 2026-11-16 at the builder's request (decisions D63 point 3 and D68), from pages that the helper read through the five hosts that the owner approved. The builder has not yet checked its quotations against the pages, and the owner has not reviewed it. Nothing in the Catalog rests on it until the builder has done both.
+> **Status.** Written by a helper agent on 2026-11-16 at the builder's request (decisions D63 point 3 and D68), from pages that the helper read through the five hosts that the owner approved. Independent helpers checked its quotations against the pages on 2026-11-16 (see the box above), and the Floors in the Catalog rest on it under decision D69. The owner has not reviewed it.
 
 # Research record 12b: the security Floor
 

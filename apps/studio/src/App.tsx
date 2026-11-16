@@ -1145,7 +1145,7 @@ function keptCopyFile(copy: KeptCopy, index: number): { name: string; text: stri
 }
 
 const PRESCRIPTION_WORDS: Record<PrescriptionFile, string> = {
-  'PRESCRIPTION.md': 'The instruction: every Decision with what you rejected and why, the fine details, and what a person must still check.',
+  'PRESCRIPTION.md': 'The instruction: every Decision with what you rejected and why, the fine details, the Floors, and what a person must still check.',
   'DESIGN.md': 'The same design in a second form that AI coding tools read (the DESIGN.md format).',
   'tokens.css': 'Every design value under a name, in the form that a web page uses.',
   'tokens.json': 'The same values in a form that design tools read (the Design Tokens format).',
@@ -1210,7 +1210,7 @@ function PrescriptionSection(): React.JSX.Element {
         <button type="button" className="btn" onClick={() => void downloadAll()}>Download all seven files as one file</button>
       </div>
       {said?.name === 'all' && <p className="note" role="status">{said.text}</p>}
-      <p className="hint">The Prescription has all seven of its files. It still leaves out: fixed requirements on security, on being found by search, and on speed, the checks for people with disabilities written as tests, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}and every page but the home page. PRESCRIPTION.md lists the same in its section 7, and lists in its section 6 what no program checked and a person must still check.</p>
+      <p className="hint">The Prescription has all seven of its files, and PRESCRIPTION.md carries the Floors in its section 7: requirements on security, on being found by search, and on speed, each with its source, and, when Contrast checks is “Fix for me”, requirements for people with disabilities. No program checks a Floor yet. The Prescription still leaves out: structured data for your business, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}and every page but the home page. PRESCRIPTION.md lists the same in its section 8, and lists in its section 6 what no program checked and a person must still check.</p>
     </section>
   );
 }

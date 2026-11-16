@@ -1,5 +1,6 @@
 // The build trials (SPEC.md sections 2.11 and 2.12): the stored records of the runs in which a helper agent built a page.
 // Trial 001: the helper received the seven files. Trial 002: the helper received the same project in plain words and no file.
+// Trial 003: the helper received seven files for the same project with Contrast checks "Fix for me", so that PRESCRIPTION.md carried the Floors (first draft).
 // These tests do not run a helper. They check that each stored record is whole, that it belongs to today's files, and that the
 // stored page still measures to the stored receipt.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -22,7 +23,7 @@ afterAll(async () => {
 const readIn = (id: string, ...parts: string[]): string => readFileSync(join(process.cwd(), 'plugin/fit/trials', id, ...parts), 'utf8');
 const receiptOf = (id: string): Receipt => JSON.parse(readIn(id, 'receipt.json')) as Receipt;
 
-for (const id of ['001', '002']) {
+for (const id of ['001', '002', '003']) {
   const read = (...parts: string[]): string => readIn(id, ...parts);
   describe(`Build trial ${id}: the stored record`, () => {
     it('holds the instruction, the helper’s page, the receipt in two forms, the record, and the seven files', () => {
@@ -32,8 +33,30 @@ for (const id of ['001', '002']) {
 
     it('keeps the files that the builder writes today for the fixed project, letter for letter', () => {
       expect(TRIAL_DECISIONS).toHaveLength(6);
-      const today = writePrescription(trialProject());
-      for (const name of PRESCRIPTION_FILES) expect(read('files', name), name).toBe(today[name]);
+      const today = writePrescription(trialProject(id === '003' ? 'enforce' : undefined));
+      // The trials ran before the Floors existed (SPEC.md section 2.18). The six files of design values are the same today, letter for letter.
+      for (const name of PRESCRIPTION_FILES) if (name !== 'PRESCRIPTION.md') expect(read('files', name), name).toBe(today[name]);
+      // `PRESCRIPTION.md` is the file that the helper received. Trials 001 and 002 ran before the Floors existed: today's file holds every line of
+      // the stored one, in the same order, except the three lines that the Floors replaced; it adds the Floors. Trial 003 ran with the first
+      // draft of the Floors: the stored file and today's file are the same outside section 7 (the Floors), and the stored one holds 48 requirements.
+      const stored = read('files', 'PRESCRIPTION.md');
+      const current = today['PRESCRIPTION.md'] ?? '';
+      if (id === '003') {
+        const outside = (text: string): string => text.slice(0, text.indexOf('## 7. Floors')) + text.slice(text.indexOf('## 8. '));
+        expect(outside(stored)).toBe(outside(current));
+        expect(stored.match(/^- \*\*[ASHQP]\d+\.\*\*/gm)).toHaveLength(48);
+        return;
+      }
+      const replaced = (line: string): boolean => line.startsWith('This file is an instruction for an AI coding tool.') || line === '## 7. What this first part leaves out' || line.startsWith('- The floors: fixed requirements');
+      const storedLines = stored.split('\n').filter((line) => !replaced(line) && line !== '');
+      const currentLines = current.split('\n');
+      let at = 0;
+      for (const line of storedLines) {
+        const found = currentLines.indexOf(line, at);
+        expect(found, `the stored PRESCRIPTION.md holds a line that today's file lacks, or holds in another place: ${line.slice(0, 100)}`).toBeGreaterThanOrEqual(0);
+        at = found + 1;
+      }
+      expect(stored).not.toContain('## 7. Floors');
     });
 
     it('names the fingerprint of those files in the receipt', () => {

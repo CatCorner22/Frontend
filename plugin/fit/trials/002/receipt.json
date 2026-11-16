@@ -80,7 +80,7 @@
         "1.24 to 1, where 4.5 to 1 is the usual least, on p.promise \"No work starts until you have seen the p…\" at 375 pixels"
       ],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least.",
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.",
       "information": [],
       "informationMore": 0
     },

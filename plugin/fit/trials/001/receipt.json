@@ -68,7 +68,7 @@
       "notMeasured": 6,
       "items": [],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent.",
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent.",
       "information": [],
       "informationMore": 0
     },

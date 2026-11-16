@@ -1,0 +1,112 @@
+{
+  "fingerprint": "7776d35d",
+  "build": {
+    "bytes": 22625,
+    "sha256": "e4efc468a119001634e8de8e79fa74d580641153e7b22a2060adf71c0359570b"
+  },
+  "widths": [
+    375,
+    1280
+  ],
+  "scriptsRan": false,
+  "measured": [
+    {
+      "id": "requests",
+      "title": "Requests: the page asks for nothing from another site",
+      "deviations": 0,
+      "notMeasured": 0,
+      "items": [],
+      "more": 0,
+      "note": "Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page’s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.",
+      "information": [
+        "/appointment-request (form action)",
+        "fonts/fraunces-latin-wght-normal.woff2 (css url)",
+        "fonts/public-sans-latin-wght-normal.woff2 (css url)"
+      ],
+      "informationMore": 0
+    },
+    {
+      "id": "colors",
+      "title": "Colors: every color that the page draws is a color of the Prescription",
+      "deviations": 0,
+      "notMeasured": 0,
+      "items": [],
+      "more": 0,
+      "note": "A color is a deviation when it is not one of the Prescription's opaque colors. Partly transparent colors are listed as information and not compared.",
+      "information": [
+        "partly transparent color rgba(9, 17, 28, 0.15)"
+      ],
+      "informationMore": 0
+    },
+    {
+      "id": "typefaces",
+      "title": "Typefaces: every text uses a typeface that the Prescription names",
+      "deviations": 0,
+      "notMeasured": 0,
+      "items": [],
+      "more": 0,
+      "note": "The first family of each text is compared; a fallback after it is not.",
+      "information": [],
+      "informationMore": 0
+    },
+    {
+      "id": "radii",
+      "title": "Corner radii: every drawn box uses a radius of the Prescription",
+      "deviations": 0,
+      "notMeasured": 0,
+      "items": [],
+      "more": 0,
+      "note": "Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.",
+      "information": [],
+      "informationMore": 0
+    },
+    {
+      "id": "contrast",
+      "title": "Contrast: measured, not required",
+      "deviations": 0,
+      "notMeasured": 6,
+      "items": [],
+      "more": 0,
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent.",
+      "information": [],
+      "informationMore": 0
+    },
+    {
+      "id": "content",
+      "title": "Content: the three required texts of the Brief are on the page",
+      "deviations": 0,
+      "notMeasured": 0,
+      "items": [],
+      "more": 0,
+      "note": "The business name, the headline, and the primary action, as the Mockup shows them, compared at each window width without regard to letter case or runs of white space. A text that is empty in the Mockup is counted as not measured.",
+      "information": [],
+      "informationMore": 0
+    },
+    {
+      "id": "width",
+      "title": "Width: the page is not wider than its window",
+      "deviations": 0,
+      "notMeasured": 0,
+      "items": [],
+      "more": 0,
+      "note": "Measured at each window width; sideways scrolling is a deviation.",
+      "information": [],
+      "informationMore": 0
+    }
+  ],
+  "judgedByModel": [],
+  "stillNeedsPerson": [
+    "What the page looks like. The program measured colors, typefaces, corner radii, contrast, and widths; it did not look at the page.",
+    "Whether the page works with the keyboard alone, and with a screen reader.",
+    "Whether the words are right and say what the owner means.",
+    "Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.",
+    "The states that the program did not open: hover, focus, open menus, and every page other than the one given.",
+    "Shadows, gradients, and images. The program did not compare them with the Prescription."
+  ],
+  "pageErrors": [],
+  "scripts": {
+    "inline": 0,
+    "external": 0
+  },
+  "loadFailures": []
+}

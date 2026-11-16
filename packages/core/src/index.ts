@@ -17,3 +17,4 @@ export * from './catalog/researchRules.js';
 export * from './catalog/craftRules.js';
 export * from './catalog/words.js';
 export * from './templates/smallBusiness.js';
+export * from './catalog/floors.js';

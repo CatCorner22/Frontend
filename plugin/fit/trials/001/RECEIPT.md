@@ -39,7 +39,7 @@ partly transparent color rgba(9, 17, 28, 0.15)
 
 ### Contrast: measured, not required
 
-0 deviations; 6 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent.
+0 deviations; 6 not measured. The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent.
 
 ### Content: the three required texts of the Brief are on the page
 

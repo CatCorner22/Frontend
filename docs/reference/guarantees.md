@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.19. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Prescription); it does not cover design advice or the plan.
+Version 1.21. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Prescription); it does not cover design advice or the plan.
 
 Stale-after: 90
 
@@ -127,6 +127,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [65.08 FONTS.md, DESIGN.md, and theme.css say the design in three more forms, each from the design's own values](#6508-fontsmd-designmd-and-themecss-say-the-design-in-three-more-forms-each-from-the-designs-own-values)
   - [65.09 Two programs that the builder did not write read DESIGN.md and tokens.json, on GitHub only](#6509-two-programs-that-the-builder-did-not-write-read-designmd-and-tokensjson-on-github-only)
   - [65.10 One archive file holds the seven files, each letter for letter](#6510-one-archive-file-holds-the-seven-files-each-letter-for-letter)
+  - [65.13 Every Floor requirement is a complete, sourced, honest record](#6513-every-floor-requirement-is-a-complete-sourced-honest-record)
+  - [65.14 PRESCRIPTION.md writes the Floors, and the one for people with disabilities only with "Fix for me"](#6514-prescriptionmd-writes-the-floors-and-the-one-for-people-with-disabilities-only-with-fix-for-me)
   - [65.12 FONTS.md states each font file's real weight range](#6512-fontsmd-states-each-font-files-real-weight-range)
   - [65.11 DESIGN.md claims no measurement that did not happen](#6511-designmd-claims-no-measurement-that-did-not-happen)
 - [66 The Fit check (measuring a build against the Prescription)](#66-the-fit-check-measuring-a-build-against-the-prescription)
@@ -812,6 +814,25 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Open.** The second browser test uses a stand-in for the private page; no test opens the real one (finding R23-01).
 - Last verified: 2026-11-16
 
+### [65.13] Every Floor requirement is a complete, sourced, honest record
+
+<!-- index: Floors | requirements; sources; five approved hosts -->
+
+- **Rule.** The Catalog holds 56 Floor requirements in five Floors (20 for use by people with disabilities, 11 for the page's security, 5 for the host's settings, 10 for search, 10 for speed). Each has an id, a text, what a person must still check, a source address on one of the five approved hosts with a quotation of at most 25 words, a grade, and a review date. No text calls a page accessible, compliant, secure, fast, or ranked. [S20; S1 at D69]
+- **Test.** The tests of "the Floor records" and of "the Floor records: truth of each record" (grade of a standard, the success criterion, no note of the research in a text, how a program could check each, notes of what a person must check, S5, S6, the host). [S20]
+- **Exceptions.** A requirement that a published standard states is graded "convention" and marked `standard`, because the Catalog's three grades do not name a standard (decision D69). The records come from research records that helpers wrote and other helpers checked against the pages; the builder did not read each page itself. The data file is left out of the scan for the browser's HTML-writing calls, because requirement S4 names them as things to forbid in the built page (the test checks that the file exists).
+- **Open.** No program checks a Floor yet (milestone M7); the "how a program can check it" methods in the research records are untested.
+- Last verified: 2026-11-16
+
+### [65.14] PRESCRIPTION.md writes the Floors, and the one for people with disabilities only with "Fix for me"
+
+<!-- index: Floors section | section 7; contrast setting; no date -->
+
+- **Rule.** `PRESCRIPTION.md` has a section "7. Floors" with one part for each Floor. Security of the page, the host's settings, search, and speed are always written. Use by people with disabilities is written only when Contrast checks is "Fix for me" (decision D13); with "Warn me" or "Off" the section says that it is not written, why, and how to change that. The section says that no program checks any requirement yet, and the file carries no date. The old section 7 is section 8. The other six files and the fingerprint do not change. [S20; S13; S1 at D13 and D69]
+- **Test.** The tests of "PRESCRIPTION.md: section 7, Floors"; in the browser: "hands over a PRESCRIPTION.md whose section 7 holds the Floors, and writes the Floor for people with disabilities only with “Fix for me”". [S20; S3]
+- **Exceptions.** The stored copies of build trials 001 and 002 were made before the Floors; their test checks that the six other files are equal and that today's `PRESCRIPTION.md` holds every stored line in order, except three lines that the Floors replaced. Trial 003's helper received the first draft of the Floors, not today's.
+- Last verified: 2026-11-16
+
 ### [65.12] FONTS.md states each font file's real weight range
 
 <!-- index: font weight range | FONTS.md @font-face -->
@@ -864,7 +885,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
 <!-- index: build trial | stored run; helper agent; one run -->
 
 - **Rule.** `plugin/fit/trials/001/` holds the instruction, the seven files that the helper received, the helper's page, the receipt in two forms, and a record that says what the run shows and what it does not show. The seven files equal what the core writes today for the fixed project of `plugin/fit/e2e/trial-project.ts`, and the receipt names their fingerprint. Run again on the stored page, the program gives the stored receipt byte for byte. The record states that it is one run and not a rate, and that the helper cannot be held to the rule of reading no other file. [S19; S1 at D65]
-- **Test.** The five tests of "Build trial 001: the stored record" (the same five run on trial 002 as well). [S19]
+- **Test.** The five tests of "Build trial 001: the stored record" (the same five run on trials 002 and 003 as well). [S19]
+- **Trial 003.** `plugin/fit/trials/003/` holds a third run, with Contrast checks "Fix for me", so that `PRESCRIPTION.md` carries the Floors. The helper received the first draft of the Floors (48 requirements); the test checks that the stored `PRESCRIPTION.md` equals today's file outside section 7, and that it holds 48 requirements. The program measured no deviation. The record names what the builder read in the page by searching its text (which is not a measure of any Floor) and says that no program checks a Floor yet.
 - **Open.** The run found that the "requests" measure counted the font files that `FONTS.md` tells the builder to ship (finding R25-01); this is repaired (decision D67), and the stored receipt is measured again. No run without the Prescription exists, so the record cannot say that the files improved the page.
 - Last verified: 2026-11-16
 
@@ -970,6 +992,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.21: after the reviewer's findings on the Floors (feature F032): §65.13 states 56 requirements (20, 11, 5, 10, 10); the section says where to set a host requirement and that `mockup.html` is a reference only; §66.04 covers the third build trial; the receipt's contrast note no longer says that the Prescription holds no Floors. 84 guarantees.
+- 2026-11-16 v1.20: after the Floors (feature F032, decision D69): added §65.13 and §65.14. 84 guarantees.
 - 2026-11-16 v1.19: after the small repairs of feature F031 (decision D68): added §65.12; §55.07 states what stays open. 82 guarantees.
 - 2026-11-16 v1.18: after the four repairs of feature F030 (decision D68): added §55.06, §55.07, §60.08, and §65.11; the wording of §65.04, §65.06, §65.07, §66.04 follows the seven files. 81 guarantees.
 - 2026-11-16 v1.17: after the seventh review's repairs of the Fit check (feature F029, decision D68): added §66.06 to §66.08; the header and scope sentence now name the Fit check. 77 guarantees.
@@ -1011,13 +1035,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs` (2026-11-16). Accessed 2026-11-16. Grade: A.
 - [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 - [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S20] The builder, *Unit tests of the Floors*, file `packages/core/test/floors.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §55.06, §55.07, §60.01, §60.03, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.07, §65.09, §65.12, §65.11, §66.01, §66.04, §66.05, §66.06, §66.07, §66.08, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §55.06, §55.07, §60.01, §60.03, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.07, §65.09, §65.13, §65.14, §65.12, §65.11, §66.01, §66.04, §66.05, §66.06, §66.07, §66.08, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08, §55.07
-- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §55.06, §60.01, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.06, §65.10, §70.04
+- [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §55.06, §60.01, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.06, §65.10, §65.14, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
 - [S5] The builder, *Unit tests of the color values and contrast checks*, file `packages/core/test/tokens.test.ts`… — §40.01, §40.02, §40.03, §40.05, §40.04
 - [S7] The builder, *Unit tests of the Mockup*, file `packages/core/test/mockup.test.ts` (2026-11-13) — §30.01, §30.02, §30.03, §30.06
@@ -1026,13 +1051,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §55.02, §60.02, §60.03, §65.01, §65.03, §65.05, §66.03, §70.01, §70.03, §70.05
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13) — §70.01
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file… — §10.14
-- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §55.04, §55.06, §65.02, §65.03, §65.04, §65.05, §65.07, §65.08, §65.12, §65.11
+- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §55.04, §55.06, §65.02, §65.03, §65.04, §65.05, §65.07, §65.08, §65.14, §65.12, §65.11
 - [S14] The builder, *Unit tests of a Direction of the owner's own*, file `packages/core/test/ownDirections.test.ts`… — §20.06, §50.09, §50.10
 - [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16) — §55.01, §55.02, §55.06, §55.07
 - [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16) — §65.10
 - [S17] The builder, *The outside validators' tests, run on GitHub only*, file `validators/outside.test.mjs`… — §65.09
 - [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16) — §66.01, §66.02, §66.03, §66.06, §66.07, §66.08
 - [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16) — §66.04, §66.05
+- [S20] The builder, *Unit tests of the Floors*, file `packages/core/test/floors.test.ts` (2026-11-16) — §65.13, §65.14
 <!-- authorities:end -->
 
 ## [92] Index
@@ -1080,6 +1106,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - contrast — *see* contrast check
 - **contrast check** — §40.02; *see also* written color
 - Contrast checks Off — *see* DESIGN.md button pair
+- contrast setting — *see* Floors section
 - copy — *see* kept copy
 - copy a Prescription file — *see* download a Prescription file
 - **core** — §70.01
@@ -1126,7 +1153,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - fine detail — *see* craft rule
 - **fingerprint** — §65.07
 - **fit check** — §66.01
+- five approved hosts — *see* Floors
 - **Fix for me** — §40.03; *see also* contrast check
+- **Floors** — §65.13
+- **Floors section** — §65.14
 - **following value** — §50.05; *see also* Decision
 - **font weight range** — §65.12
 - **FONTS.md** — §65.08
@@ -1209,6 +1239,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - new pick — *see* reason
 - new project — *see* replace action
 - newer copy — *see* late copy
+- no date — *see* Floors section
 - no date in the files — *see* fingerprint
 - no empty box — *see* empty text
 - no write — *see* symbolic link; result folder
@@ -1292,6 +1323,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - repaired — *see* Fix for me
 - **replace action** — §10.05
 - replace my texts — *see* put the sample text back
+- requirements — *see* Floors
 - research file — *see* evidence grade
 - **research rule** — §60.04
 - running copy — *see* unsaved work
@@ -1314,6 +1346,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - search summary — *see* evidence grade
 - second color — *see* following value
 - second tab — *see* two tabs
+- section 7 — *see* Floors section
 - **self-test** — §66.02
 - set aside — *see* craft rule
 - side by side — *see* comparison run
@@ -1325,6 +1358,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - small variation — *see* card
 - snapshot — *see* stored copy of the files
 - **source** — §60.02
+- sources — *see* Floors
 - **standing notice** — §10.07; *see also* saving
 - start again — *see* replace action
 - starting look — *see* Direction
@@ -1399,7 +1433,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_102 sections, 18 sources, 80 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
+_104 sections, 19 sources, 82 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
 
 - No findings.
 <!-- health:end -->

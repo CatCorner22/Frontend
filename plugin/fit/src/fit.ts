@@ -245,7 +245,7 @@ function measures(design: DesignValues, passes: Pass[], brief: Brief): { measure
 
   const colorNote = `A color is a deviation when it is not one of the Prescription's opaque colors.${unreadable > 0 ? ` ${String(unreadable)} colors could not be read (a notation such as oklch() or color-mix()) and are counted as not measured.` : ''} Partly transparent colors are listed as information and not compared.`;
   const whyUnread = [...reasons].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([why, n]) => `${String(n)} because ${why}`).join('; ');
-  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least.${unmeasuredReadings > 0 ? ` ${String(unmeasuredReadings)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
+  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.${unmeasuredReadings > 0 ? ` ${String(unmeasuredReadings)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => clean(e))))].sort().slice(0, ERRORS_LISTED);
   const most = (pick: (c: Collected) => number): number => Math.max(0, ...good.map((p) => pick(p.collected)));
   return {

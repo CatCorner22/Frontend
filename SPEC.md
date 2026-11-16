@@ -188,7 +188,7 @@ This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside t
   2. **Colors.** Every text color, background color, and border color that a visible element draws, compared with the color values in `tokens.json`. A color that is not among them is listed as "outside the Prescription". A fully transparent color is skipped; a partly transparent color is listed apart, not as a deviation.
   3. **Typefaces.** The first family of the computed font stack of every visible element that holds text, compared with the typefaces that `tokens.json` names. A family that the Prescription does not name is listed.
   4. **Corner radii.** Every border radius of a visible element, compared with the radius values in `tokens.json`. A value that is not among them (and not 0) is listed.
-  5. **Contrast.** The contrast ratio of every visible text element against its background, by the WCAG 2.x formula and the Studio's own color math (hard rule 9). A text on an image or a gradient is listed as "not measured". The ratios are reported as measurements; no Floor requires them yet, because the Prescription carries no Floors (milestone M6 is not complete).
+  5. **Contrast.** The contrast ratio of every visible text element against its background, by the WCAG 2.x formula and the Studio's own color math (hard rule 9). A text on an image or a gradient is listed as "not measured". The ratios are reported as measurements; no program checks a Floor of the Prescription yet (the Floors in `PRESCRIPTION.md` section 7 are requirements for the builder, and the Fit check measures none of them).
   6. **Content.** Whether each of the Brief's three required texts (business, headline, primary action; section 2.7) appears in the page's visible text, after the program collapses runs of white space. The program reads them from `mockup.html`, which holds the owner's words.
   7. **Width.** Whether the page is wider than its window at either width.
 - The receipt is an Honest receipt with three parts: "Measured" (the seven things, each with its count of deviations), "Judged by the model" (empty in this slice; the receipt says so), and "Still needs a person" (the look of the page; keyboard use; screen-reader use; whether the words are right; every craft rule, because their checks search for the Mockup's own marks and cannot judge another page's style sheet). The receipt never says "accessible" or "compliant" (hard rule 8). It names the Prescription's fingerprint (section 2.9).
@@ -300,6 +300,27 @@ The seventh review found two blockers in the Fit check: a page that runs its own
 3. **`FONTS.md` states each font file's real weight range (C7-08).** The font table of the core holds, for each font that ships a file, the lowest and the highest weight that the package's file covers; `FONTS.md` writes that range in the `@font-face` block. A test compares the table with the packages' own style sheets.
 4. **The Undo line does not claim a whole-project change where nothing differs (V7-07).** When the project is the same as the one before it, the line says "Undo takes back: a change that left nothing different." and the notice after it says "Undone: the last change had left nothing different." A difference that the function does not compare (for example the Skin) still gives the whole-project sentence.
 - How to test it end to end: unit tests for each point; the stored copy of `FONTS.md` for the worked project is updated and its two changed lines are the weight lines.
+
+### 2.18 The Floors in the Prescription (milestone M6; decisions D13, D63 point 3, and D69)
+
+A Floor is a requirement that the Prescription writes whatever the design is. This section builds the Floors from the research records `docs/research/12a` to `12d`.
+
+- What the system does: the Catalog holds each Floor requirement as a record: an id, its Floor, its text (for the AI coding tool, in exact terms), the method by which a program could check it, what a person must still check, its source (an address on one of the five approved hosts and a short quotation), its grade, whether a published standard states it, the place in the standard where it states it (for the people Floor, the success criterion), and its review date. The research record holds 66 rows; the Catalog holds 56 requirements (20, 11, 5, 10, 10), and decision D69 point 6 names the ten rows left out and why. The Floors:
+  1. **Use by people with disabilities** (ids A1 and on): written only when Contrast checks is "Fix for me" (decision D13).
+  2. **Security of the page** (S1 and on): always written.
+  3. **Security settings of the host** (H1 and on): always written, as settings that a person must make at the host, because a page of one file cannot send headers; each requirement says where to set it, and the section tells the builder not to send them in the page.
+  4. **Being found by search** (Q1 and on): always written.
+  5. **Speed** (P1 and on): always written.
+  `PRESCRIPTION.md` has a section "7. Floors" that lists, for the project, each applicable requirement with its id, its text, what a person must still check, and its source. The section says that no program checks any Floor yet, and that a requirement states what to build and what to check, not that the page meets a standard.
+- Edge cases:
+  - Contrast checks "Off" or "Warn me": section 7 says that the Floor for people with disabilities is not written, why, and that the owner can choose "Fix for me"; the other Floors stand.
+  - No file says that a page is "accessible" or "compliant" (hard rule 8); the Floor for people with disabilities is not named with those words.
+  - A source address is on `www.w3.org`, `developer.mozilla.org`, `web.dev`, `developers.google.com`, or `cheatsheetseries.owasp.org`; a quotation is at most 25 words.
+  - The old section 7 ("What this first part leaves out") becomes section 8 and no longer lists the Floors as missing; it says that structured data for the business and the Fit check's measures of the Floors are not in the Prescription.
+  - `mockup.html` is a reference for the design only: it carries its own policy (which blocks files and forms), its own title, and no description for search engines. Section 7 says that the requirement decides wherever they differ; S5 places the policy after the character set and before every element that loads something; S6 says what a form does when the owner named no endpoint.
+  - The design values, `DESIGN.md`, `tokens.*`, `theme.css`, `mockup.html`, and `FONTS.md` do not change; the fingerprint does not change.
+- Not in this slice, and recorded: structured data (JSON-LD) for the business, which needs a data script element that the "no script" rule and the strict content security policy exclude (an owner decision, D69 point 5a); a program that checks the Floors (milestone M7); the choice of host (D69 point 5c).
+- How to test it end to end: unit tests of every record (fields, address host, quotation length, no claim words, unique ids); of the section for each of the three contrast settings; the stored copies of `PRESCRIPTION.md` are updated, and the diff is only the section and the changed lines; a browser test that the Summary says what the Prescription now holds.
 
 ## 3. Out of scope
 

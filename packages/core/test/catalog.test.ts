@@ -427,7 +427,13 @@ describe('text is rendered as text (hard rule 6)', () => {
       readdirSync(repoPath(dir), { withFileTypes: true }).flatMap((entry) =>
         entry.isDirectory() ? sourceFiles(`${dir}/${entry.name}`) : /\.(ts|tsx)$/.test(entry.name) ? [`${dir}/${entry.name}`] : [],
       );
-    const files = [...sourceFiles('packages/core/src'), ...sourceFiles('apps/studio/src')];
+    // One data file is left out of this scan: `catalog/floors.ts` names these browser calls as things to forbid in the page that an AI coding
+    // tool builds (requirement S4). It holds text for another reader and no code. The test checks that the file exists, so that the
+    // exemption cannot hide a deletion or a move.
+    const FLOORS_DATA = 'packages/core/src/catalog/floors.ts';
+    const all = [...sourceFiles('packages/core/src'), ...sourceFiles('apps/studio/src')];
+    expect(all).toContain(FLOORS_DATA);
+    const files = all.filter((file) => file !== FLOORS_DATA);
     expect(files.length).toBeGreaterThanOrEqual(15);
     // The lint rule stops these names as property names. This test also sees a name that sits whole inside a text or a comment
     // (code review of 2026-11-13, finding "gaps 4": the rule stopped four spellings of twelve). One limit stays: a name that is

@@ -3493,6 +3493,31 @@ describe('Studio: the screens say what is true today, where the owner looks (SPE
     await context.close();
   });
 
+  it('hands over a PRESCRIPTION.md whose section 7 holds the Floors, and writes the Floor for people with disabilities only with “Fix for me” (SPEC.md section 2.18)', async () => {
+    const download = async (page: Page): Promise<string> => {
+      const [file] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download PRESCRIPTION.md', exact: true }).click()]);
+      return readFileSync(await file.path(), 'utf8');
+    };
+    const warn = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(worked('Floors warn')) } });
+    await warn.page.waitForSelector('#prescription');
+    const md = await download(warn.page);
+    expect(md).toContain('## 7. Floors');
+    expect(md).toContain('### 7.2 Security of the page');
+    expect(md).toContain('Not written for this project: Contrast checks is “Warn me”');
+    expect(md).not.toContain('- **A1.**');
+    expect(md).toContain('No program checks any requirement of this section yet.');
+    expect(warn.errors).toEqual([]);
+    await warn.context.close();
+    const fix = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope({ ...worked('Floors fix'), a11y: 'enforce' }) } });
+    await fix.page.waitForSelector('#prescription');
+    const strict = await download(fix.page);
+    expect(strict).toContain('- **A1.**');
+    expect(strict).not.toContain('Not written for this project');
+    expect(strict).not.toMatch(/\baccessible\b|\bcompliant\b/i);
+    expect(fix.errors).toEqual([]);
+    await fix.context.close();
+  });
+
   it('says in the Prescription section when nothing is picked, shows a file’s message beside that file, and lists what the file’s section 7 lists (findings U6-12, U6-13, U6-21, U6-26, T6-14)', async () => {
     const fresh = await open({ hash: '#summary' });
     await fresh.page.waitForSelector('#prescription');
@@ -3503,7 +3528,7 @@ describe('Studio: the screens say what is true today, where the owner looks (SPE
     await page.waitForSelector('#prescription');
     const words = await page.locator('#prescription').innerText();
     expect(words).not.toContain('You have not picked a Direction');
-    for (const part of ['The Prescription has all seven of its files', 'security', 'found by search', 'speed', 'people with disabilities', 'how an Overlay opens and closes', 'every page but the home page', 'section 7', 'section 6', 'Put the seven files into one folder']) expect(words, part).toContain(part);
+    for (const part of ['The Prescription has all seven of its files', 'security', 'found by search', 'speed', 'people with disabilities', 'No program checks a Floor yet', 'structured data for your business', 'how an Overlay opens and closes', 'every page but the home page', 'section 7', 'section 8', 'section 6', 'Put the seven files into one folder']) expect(words, part).toContain(part);
     expect(words).not.toMatch(/the font files themselves|says the same|two more files|one download that holds/);
     // The message for a file stands in that file's own entry, not under the last one.
     const entry = (name: string) => page.locator('#prescription .prescription-files > li', { has: page.getByRole('button', { name: `Download ${name}`, exact: true }) });
