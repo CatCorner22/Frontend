@@ -753,8 +753,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 <!-- index: fit check | measures a build; receipt; reference build -->
 
-- **Rule.** `npm run fit -- <build.html> <folder> <result folder>` opens the build in a real browser at 375 and 1280 pixels, and measures: every request and every outside reference; every color that a visible element draws; the typeface of every text; the radius of every drawn box; the contrast of every text; the three required texts of the Brief; and the page's width. It reports each deviation with its element. The Mockup of a project is the reference build, and it must show no deviation in requests, colors, typefaces, radii, content, and width. Contrast is reported as a measurement and never changes the status, because the Prescription holds no Floors yet. [S18; S1 at D65]
-- **Test.** "finds no deviation in the Mockup of the plain start or of any of the 38 Directions". [S18]
+- **Rule.** `npm run fit -- <build.html> <folder> <result folder>` opens the build in a real browser at 375 and 1280 pixels, and measures: every request to another site and every reference to another site (a reference at the page's own address is listed as "Not shipped with the page" and is not a deviation, decision D67); every color that a visible element draws; the typeface of every text; the radius of every drawn box; the contrast of every text; the three required texts of the Brief; and the page's width. It reports each deviation with its element. The Mockup of a project is the reference build, and it must show no deviation in requests, colors, typefaces, radii, content, and width. Contrast is reported as a measurement and never changes the status, because the Prescription holds no Floors yet. [S18; S1 at D65]
+- **Test.** "finds no deviation in the Mockup of the plain start or of any of the 38 Directions" (and the Mockup names nothing that it does not ship); the three tests of "a file at the site’s own address is information, a request to another site is a deviation". [S18]
 - **Elements.** Playwright and a Chromium browser are on the machine. The four files of the Prescription (`PRESCRIPTION.md`, `tokens.css`, `tokens.json`, `mockup.html`) are in one folder.
 - **Exceptions.** Hover, focus, shadows, gradients, images, and every page other than the one given are not measured. A text on an image or a gradient, and a text drawn partly transparent, have no contrast reading; the receipt counts them and names the reason.
 - Last verified: 2026-11-16
@@ -783,7 +783,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **Rule.** `plugin/fit/trials/001/` holds the instruction, the seven files that the helper received, the helper's page, the receipt in two forms, and a record that says what the run shows and what it does not show. The seven files equal what the core writes today for the fixed project of `plugin/fit/e2e/trial-project.ts`, and the receipt names their fingerprint. Run again on the stored page, the program gives the stored receipt byte for byte. The record states that it is one run and not a rate, and that the helper cannot be held to the rule of reading no other file. [S19; S1 at D65]
 - **Test.** The five tests of "First build trial: the stored record". [S19]
-- **Open.** The run found that the "requests" measure lists the font files that `FONTS.md` tells the builder to ship (finding R25-01). No run without the Prescription exists, so the record cannot say that the files improved the page.
+- **Open.** The run found that the "requests" measure counted the font files that `FONTS.md` tells the builder to ship (finding R25-01); this is repaired (decision D67), and the stored receipt is measured again. No run without the Prescription exists, so the record cannot say that the files improved the page.
 - Last verified: 2026-11-16
 
 ### [66.05] The comparison run sets two pages side by side with numbers that come from the receipts
@@ -862,6 +862,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.15: after the repair of the requests measure (feature F027, decision D67): §66.01 states that a reference at the page's own address is information; §66.04 states the repaired receipt. 71 guarantees.
 - 2026-11-16 v1.14: after the comparison run (feature F026, decision D66): added §66.05. 71 guarantees.
 - 2026-11-16 v1.13: after the first build trial (feature F025, decision D65): added §66.04. 70 guarantees.
 - 2026-11-16 v1.12: after the first slice of the Fit check (feature F024, decision D65): added §66.01 to §66.03. 69 guarantees.

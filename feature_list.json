@@ -304,6 +304,17 @@
         "The record's table gives, for each measure, the deviation counts of both receipts exactly as the receipts state them, and the record says what the comparison does not show"
       ],
       "passes": true
+    },
+    {
+      "id": "F027",
+      "description": "The owner reads a receipt in which a font file at the site's own address is listed as not shipped with the page, and only a request to another site is a deviation.",
+      "spec_section": "SPEC.md section 2.13",
+      "steps": [
+        "Measure a page that names a font file at its own address, a root-relative style sheet, and a relative form action: the receipt lists each under \"Not shipped with the page\", reports no deviation in requests, and ends with status 0",
+        "Measure a page with an absolute font link, a link that begins with two slashes, and a mailto form action: each is a deviation in requests",
+        "Open the records of trials 001 and 002: their receipts are measured again with the repaired program, and the records say what changed and why"
+      ],
+      "passes": true
     }
   ]
 }

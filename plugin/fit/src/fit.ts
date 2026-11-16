@@ -71,9 +71,18 @@ async function measureAt(browser: Browser, html: string, width: number, ms: numb
 
 const collapse = (text: string): string => text.replace(/\s+/g, ' ').trim().toLowerCase();
 
-function measureOf(id: string, title: string, note: string, deviations: string[], notMeasured: number): Measure {
+const INFORMATION_LISTED = 50;
+
+function measureOf(id: string, title: string, note: string, deviations: string[], notMeasured: number, information: string[] = []): Measure {
   const sorted = [...deviations].sort();
-  return { id, title, deviations: sorted.length, notMeasured, items: sorted.slice(0, LISTED), more: Math.max(0, sorted.length - LISTED), note };
+  const info = [...information].sort();
+  return { id, title, deviations: sorted.length, notMeasured, items: sorted.slice(0, LISTED), more: Math.max(0, sorted.length - LISTED), note, information: info.slice(0, INFORMATION_LISTED), informationMore: Math.max(0, info.length - INFORMATION_LISTED) };
+}
+
+/** An address that points to another site: it has a scheme (`https:`, `mailto:`, and so on), or it begins with two slashes. */
+export function isOtherSite(address: string): boolean {
+  const t = address.trim();
+  return /^[a-z][a-z0-9+.-]*:/i.test(t) || t.startsWith('//');
 }
 
 /** One line for each different value, with how many elements show it and the first one. The count is the largest over the window widths. */
@@ -104,10 +113,15 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: p.failure }] : []));
   const failed = loadFailures.length;
 
+  // Another site is a deviation. A reference at the page's own address is information: the page names it but, being one file, cannot ship it.
   const requests = new Set<string>();
+  const ownAddress = new Set<string>();
   for (const p of good) {
     for (const url of p.requests) requests.add(`request to ${url}`);
-    for (const ref of p.collected.references) requests.add(`reference (${ref.kind}) to ${ref.value}`);
+    for (const ref of p.collected.references) {
+      if (isOtherSite(ref.value)) requests.add(`reference (${ref.kind}) to ${ref.value}`);
+      else ownAddress.add(`${ref.kind}: ${ref.value}`);
+    }
   }
 
   const translucent = new Set<string>();
@@ -163,7 +177,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     pageErrors,
     scripts: { inline: most((c) => c.scripts.inline), external: most((c) => c.scripts.external) },
     measured: [
-      measureOf('requests', 'Requests: the page asks for nothing outside its own file', 'Every request is written down and stopped; the page also counts when it names a place outside itself in its markup or its style sheets.', [...requests], failed),
+      measureOf('requests', 'Requests: the page asks for nothing from another site', 'Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page\u2019s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.', [...requests], failed, [...ownAddress]),
       measureOf('colors', 'Colors: every color that the page draws is a color of the Prescription', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed),
       measureOf('typefaces', 'Typefaces: every text uses a typeface that the Prescription names', 'The first family of each text is compared; a fallback after it is not.', grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Prescription', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),

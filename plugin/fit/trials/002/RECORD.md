@@ -12,7 +12,7 @@ Deviations that the program counted on each page. Trial 001's helper had the sev
 
 | Measure | Trial 001 (with the files) | Trial 002 (plain words) |
 |---|---|---|
-| Requests | 3 | 0 |
+| Requests | 0 | 0 |
 | Colors | 0 | 12 |
 | Typefaces | 0 | 2 |
 | Corner radii | 0 | 0 |
@@ -23,7 +23,7 @@ Deviations that the program counted on each page. Trial 001's helper had the sev
 - **Colors: 12 deviations on the plain-words page.** The helper chose its own dark green (`#1f4d3a`), its own tints and grays, and its own page color; none is a value of the Prescription. The Prescription's green is another green.
 - **Typefaces: 2 deviations, which are a difference of name.** The helper wrote "Fraunces" and "Public Sans", as the owner's words name them. The Prescription's names are "Fraunces Variable" and "Public Sans Variable". The program compares names; it does not compare what the browser draws. Neither font was loaded on the page, so a viewer sees fallback fonts unless the fonts are installed.
 - **Contrast: 2 readings below the usual least, and the cause is real.** The promise sentence ("No work starts until you have seen the price and said yes.") is dark gray on dark green, a ratio of 1.24 to 1. The builder read the page's style sheet to rule out a fault of the program: the rule `.about p { color: var(--muted) }` is more specific than the rule `.promise { color: #fff }`, so the gray wins. The helper did not render the page (the instruction forbade it), so it could not see this. The page of trial 001 shows no reading below the usual least.
-- **Requests: 0 deviations on the plain-words page.** It loaded nothing from outside. Trial 001's three deviations come from the font files and a form address (finding R25-01).
+- **Requests: 0 deviations on both pages.** The plain-words page loaded nothing from outside. When this table was first written, trial 001 showed 3 deviations in requests: the font files and a form address at the site's own address, which the measure then counted wrongly (finding R25-01). Under decision D67 the measure lists such references as information, so both receipts were measured again, and the table shows the repaired counts. The plain-words page names no place at its own address either.
 - **Content, corner radii, width: no deviation on either page.** Both helpers put the required texts on the page. Trial 002's helper took its 14-pixel corners from the plain words ("Clearly rounded (14 px)"); trial 001's helper took them from the files.
 
 What the helper said about itself (a claim, not a measurement): it read no file; it did not load the two typefaces; it drew a placeholder in place of a photograph; it ran no check on the page. The builder verified that the page loads no font and holds no script.

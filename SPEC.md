@@ -184,7 +184,7 @@ This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside t
 
 - What the user does: runs `npm run fit -- <build.html> <folder of the seven files> <result folder>`. The program reads `tokens.json`, `tokens.css`, `PRESCRIPTION.md`, and `mockup.html` from the folder, opens the build in a real browser at two window widths (375 and 1280 pixels), and writes `receipt.json` and `RECEIPT.md` into the result folder.
 - What the system does in response: it measures these seven things, and it names every deviation with the element and the value:
-  1. **Requests.** Every network request that the page makes. The program blocks each request to any place other than the page's own file, and lists it (no remote font, no remote script, no analytics: hard rule 7).
+  1. **Requests.** Every network request that the page makes. The program blocks each request to another site, and lists it (no remote font, no remote script, no analytics: hard rule 7). Section 2.13 (decision D67) repairs this point after the first trial: a reference at the page's own address is information, not a deviation.
   2. **Colors.** Every text color, background color, and border color that a visible element draws, compared with the color values in `tokens.json`. A color that is not among them is listed as "outside the Prescription". A fully transparent color is skipped; a partly transparent color is listed apart, not as a deviation.
   3. **Typefaces.** The first family of the computed font stack of every visible element that holds text, compared with the typefaces that `tokens.json` names. A family that the Prescription does not name is listed.
   4. **Corner radii.** Every border radius of a visible element, compared with the radius values in `tokens.json`. A value that is not among them (and not 0) is listed.
@@ -224,6 +224,20 @@ This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside t
   - The helper cannot be held to the rule "read no other file". The record says so.
   - One run each, one project: the record says that it is two measurements, not a rate, and that it does not say which page looks better.
 - How to test it end to end: the tests of the first trial run on both folders. A further test reads both receipts and requires that the record's table holds each measure's two counts exactly as the receipts state them.
+
+### 2.13 Repair of the requests measure after the first trial (finding R25-01; decision D67)
+
+The first trial found that section 2.10, point 1, counts a font file at the site's own address as a deviation, although `FONTS.md` tells the builder to ship each font file from that address. The repair separates two kinds of reference:
+
+- **Other site (a deviation).** A request that the browser makes to any address with a scheme (`https:`, `http:`, `ftp:`, `mailto:`, and any other except `data:`), to an address that begins with `//`, and every request that the program stops. The count of deviations in "Requests" counts only these.
+- **Own address (information, not a deviation).** A reference without a scheme: `/fonts/a.woff2`, `fonts/a.woff2`, `../a.css`, and a form that posts to `/send`. The receipt lists each one under "Not shipped with the page", with its kind, because a page of one file cannot ship it and a person must supply it or check that it exists. Such a reference never changes the status.
+- **Neither (left out).** A `data:` address and a place in the page (`#top`), as before.
+- Edge cases:
+  - The same reference stated twice appears once.
+  - A reference to the site's own address inside a style sheet (`url(/fonts/a.woff2)`) and one in markup (`<link href="/a.css">`) are treated alike.
+  - The Mockup, which carries no reference, shows an empty list.
+  - The receipts of trials 001 and 002 are measured again with the repaired program, and their records say what changed and why; the old counts stay in the records as history.
+- How to test it end to end: a relative font file, a root-relative style sheet, and a relative form action are listed as information and give status 0; an absolute font link, a link that begins with `//`, and a `mailto:` form action each give a deviation; the stored receipts of both trials equal what the repaired program gives on the stored pages.
 
 ## 3. Out of scope
 

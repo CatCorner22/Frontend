@@ -8,6 +8,10 @@ The helper received the text in `INSTRUCTION.md`, word for word, and a folder th
 
 The helper was a general-purpose helper agent of this session. It ran on the session's model at that time; the builder did not read which model served the turn, and the record does not claim one. The helper ran for about 71 seconds and used 9 tool calls.
 
+## Update of 2026-11-16 (decision D67): the receipt was measured again
+
+When the run was first measured, the "requests" measure counted every reference to a place other than the page's own file, and it listed three deviations on this page: two font files at `/fonts/…`, which `FONTS.md` tells the builder to ship, and a form that posts to `/appointment-request`. That was a fault of the measure (finding R25-01). The owner deferred the choice to the builder, and the builder repaired the measure: a deviation is now a request or a reference to another site; a file at the site's own address is listed as "Not shipped with the page", as information. The stored page is the same, and the stored receipt is measured again with the repaired program: **no deviation in any of the six measured things.** The three references stand in the receipt as information. The paragraphs below are the record as first written; where they say "three deviations", read "three references at the site's own address, now information".
+
 ## What the run shows
 
 What the program measured on the helper's page (`RECEIPT.md` has the full receipt):

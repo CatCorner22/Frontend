@@ -11,16 +11,18 @@
   "measured": [
     {
       "id": "requests",
-      "title": "Requests: the page asks for nothing outside its own file",
-      "deviations": 3,
+      "title": "Requests: the page asks for nothing from another site",
+      "deviations": 0,
       "notMeasured": 0,
-      "items": [
-        "reference (css url) to /fonts/fraunces-latin-wght-normal.woff2",
-        "reference (css url) to /fonts/public-sans-latin-wght-normal.woff2",
-        "reference (form action) to /appointment-request"
-      ],
+      "items": [],
       "more": 0,
-      "note": "Every request is written down and stopped; the page also counts when it names a place outside itself in its markup or its style sheets."
+      "note": "Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page’s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.",
+      "information": [
+        "css url: /fonts/fraunces-latin-wght-normal.woff2",
+        "css url: /fonts/public-sans-latin-wght-normal.woff2",
+        "form action: /appointment-request"
+      ],
+      "informationMore": 0
     },
     {
       "id": "colors",
@@ -29,7 +31,9 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "A color is a deviation when it is not one of the Prescription's opaque colors. 1 partly transparent color was not compared."
+      "note": "A color is a deviation when it is not one of the Prescription's opaque colors. 1 partly transparent color was not compared.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "typefaces",
@@ -38,7 +42,9 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The first family of each text is compared; a fallback after it is not."
+      "note": "The first family of each text is compared; a fallback after it is not.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "radii",
@@ -47,7 +53,9 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed."
+      "note": "Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "contrast",
@@ -56,7 +64,9 @@
       "notMeasured": 6,
       "items": [],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent."
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "content",
@@ -65,7 +75,9 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space."
+      "note": "The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "width",
@@ -74,7 +86,9 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "Measured at each window width; sideways scrolling is a deviation."
+      "note": "Measured at each window width; sideways scrolling is a deviation.",
+      "information": [],
+      "informationMore": 0
     }
   ],
   "judgedByModel": [],

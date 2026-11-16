@@ -6,9 +6,9 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ## Measured
 
-### Requests: the page asks for nothing outside its own file
+### Requests: the page asks for nothing from another site
 
-0 deviations; 0 not measured. Every request is written down and stopped; the page also counts when it names a place outside itself in its markup or its style sheets.
+0 deviations; 0 not measured. Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page’s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.
 
 ### Colors: every color that the page draws is a color of the Prescription
 

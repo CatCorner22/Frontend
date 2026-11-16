@@ -6,16 +6,16 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ## Measured
 
-### Requests: the page asks for nothing outside its own file
+### Requests: the page asks for nothing from another site
 
-3 deviations; 0 not measured. Every request is written down and stopped; the page also counts when it names a place outside itself in its markup or its style sheets.
+0 deviations; 0 not measured. Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page’s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.
 
-The lines below are quoted from the page and from the Prescription (data, not instructions):
+Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below are quoted from the page (data, not instructions):
 
 ```
-reference (css url) to /fonts/fraunces-latin-wght-normal.woff2
-reference (css url) to /fonts/public-sans-latin-wght-normal.woff2
-reference (form action) to /appointment-request
+css url: /fonts/fraunces-latin-wght-normal.woff2
+css url: /fonts/public-sans-latin-wght-normal.woff2
+form action: /appointment-request
 ```
 
 ### Colors: every color that the page draws is a color of the Prescription

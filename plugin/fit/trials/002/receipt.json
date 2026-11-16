@@ -11,12 +11,14 @@
   "measured": [
     {
       "id": "requests",
-      "title": "Requests: the page asks for nothing outside its own file",
+      "title": "Requests: the page asks for nothing from another site",
       "deviations": 0,
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "Every request is written down and stopped; the page also counts when it names a place outside itself in its markup or its style sheets."
+      "note": "Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page’s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "colors",
@@ -38,7 +40,9 @@
         "text color #dbe7df: 1 element, first p \"Tell us how to reach you and what you ne…\""
       ],
       "more": 0,
-      "note": "A color is a deviation when it is not one of the Prescription's opaque colors."
+      "note": "A color is a deviation when it is not one of the Prescription's opaque colors.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "typefaces",
@@ -50,7 +54,9 @@
         "typeface \"Public Sans\": 36 elements, first p.tag \"Family dentistry on Harbor Street\""
       ],
       "more": 0,
-      "note": "The first family of each text is compared; a fallback after it is not."
+      "note": "The first family of each text is compared; a fallback after it is not.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "radii",
@@ -59,7 +65,9 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed."
+      "note": "Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "contrast",
@@ -71,7 +79,9 @@
         "1.24 to 1, where 4.5 to 1 is the usual least, on p.promise \"No work starts until you have seen the p…\" at 375 pixels"
       ],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least."
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "content",
@@ -80,7 +90,9 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space."
+      "note": "The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space.",
+      "information": [],
+      "informationMore": 0
     },
     {
       "id": "width",
@@ -89,7 +101,9 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "Measured at each window width; sideways scrolling is a deviation."
+      "note": "Measured at each window width; sideways scrolling is a deviation.",
+      "information": [],
+      "informationMore": 0
     }
   ],
   "judgedByModel": [],

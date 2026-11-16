@@ -45,6 +45,7 @@ describe('Fit check: the reference build', () => {
       const seen = deviationsOf(receipt);
       if (status !== 0 || JSON.stringify(seen) !== JSON.stringify(NONE)) faults.push(`${name}: status ${String(status)}, ${JSON.stringify(seen)}, ${SIX.flatMap((id) => measure(receipt, id).items.slice(0, 2)).join(' | ')}`);
       if (receipt.measured.some((m) => m.notMeasured > 0 && m.id !== 'contrast')) faults.push(`${name}: something was not measured`);
+      if (receipt.measured.some((m) => m.information.length > 0)) faults.push(`${name}: the Mockup names something that it does not ship`);
     }
     expect(faults).toEqual([]);
   }, 600_000);
@@ -195,6 +196,44 @@ describe('Fit check: refusals and faults of the build', () => {
     for (const part of ['## Measured', '## Judged by the model', '## Still needs a person']) expect(first.markdown).toContain(part);
     expect(first.markdown).toContain(`\`${first.receipt.fingerprint}\``);
     expect(first.markdown).not.toMatch(/\b20\d\d-\d\d-\d\d\b/);
+  });
+});
+
+describe('Fit check: a file at the site’s own address is information, a request to another site is a deviation (SPEC.md section 2.13)', () => {
+  const files = filesOf(createProject('Own address'));
+  const mockup = files['mockup.html'] ?? '';
+  const run = (extra: string, where: '</head>' | '</body>' = '</body>') => fit(inputOf(files, replaceOnce(mockup, where, `${extra}${where}`)));
+
+  it('lists a font file, a style sheet, and a form action at the site’s own address as "Not shipped with the page", with no deviation and status 0', async () => {
+    const { receipt, markdown, status } = await run('<style>@font-face{font-family:"Own";src:url(/fonts/own.woff2) format("woff2")}</style><link rel="stylesheet" href="/site.css"><form action="/send"></form><img src="pictures/a.png" alt="">');
+    const requests = measure(receipt, 'requests');
+    expect(requests.deviations).toBe(0);
+    expect(status).toBe(0);
+    const listed = requests.information.join('\n');
+    for (const value of ['/fonts/own.woff2', '/site.css', '/send', 'pictures/a.png']) expect(listed, value).toContain(value);
+    expect(markdown).toContain('Not shipped with the page');
+    expect(markdown).toContain('/fonts/own.woff2');
+    expect(JSON.stringify(receipt)).toContain('"information"');
+  });
+
+  it('counts an absolute link, a link that begins with two slashes, and a mailto form action as deviations', async () => {
+    const absolute = await run('<link rel="stylesheet" href="https://fonts.example.com/a.css">');
+    const slashes = await run('<link rel="stylesheet" href="//cdn.example.com/b.css">');
+    const mail = await run('<form action="mailto:someone@example.com"></form>');
+    for (const [name, result, word] of [['absolute', absolute, 'fonts.example.com'], ['two slashes', slashes, 'cdn.example.com'], ['mailto', mail, 'mailto:']] as const) {
+      expect(measure(result.receipt, 'requests').deviations, name).toBeGreaterThan(0);
+      expect(measure(result.receipt, 'requests').items.join('\n'), name).toContain(word);
+      expect(result.status, name).toBe(1);
+    }
+  });
+
+  it('lists the same reference once, however often the page states it, and keeps a deviation out of the information', async () => {
+    const { receipt } = await run('<link rel="stylesheet" href="/same.css"><link rel="stylesheet" href="/same.css"><style>@import url(/same.css);</style><link rel="stylesheet" href="https://other.example.com/x.css">');
+    const requests = measure(receipt, 'requests');
+    expect(requests.information.filter((line) => line.includes('/same.css')).length).toBeLessThanOrEqual(3);
+    expect(new Set(requests.information).size).toBe(requests.information.length);
+    expect(requests.information.join('\n')).not.toContain('other.example.com');
+    expect(requests.deviations).toBe(1);
   });
 });
 
