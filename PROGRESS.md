@@ -114,7 +114,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - A repair that the trial brought: the receipt's contrast note said "The Prescription holds no Floors yet"; it now says "No program checks a Floor of the Prescription yet". The stored receipts of trials 001, 002, and 003 changed in that one sentence only.
 - Still open and decided by the owner (D69 point 5): (a) structured data for the business (JSON-LD); (b) whether "Warn me" writes the Floor for people with disabilities; (c) which host the owner uses. Also C7-04 (the zero-width joiner).
 - Not done: a program that checks the Floors (milestone M7); a trial with today's 56 requirements; the Studio's own list of the Floors (the Summary says only that the Prescription holds them). GitHub's results for the newest commits are not yet read.
-- Private page: Version 24 (to be published after this commit).
+- Private page: Version 24 (published after this commit).
 - Open problems for the next session: the 31 open findings of the seventh round; the owner's three questions; the owner's trial of the Studio (M4).
 
 - Date: 2026-11-16
