@@ -34,8 +34,11 @@ async function main(args: string[]): Promise<number> {
   mkdirSync(resolve(outFolder), { recursive: true });
   writeFileSync(join(resolve(outFolder), 'receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);
   writeFileSync(join(resolve(outFolder), 'RECEIPT.md'), markdown);
-  const deviations = receipt.measured.filter((m) => m.id !== 'contrast').reduce((sum, m) => sum + m.deviations, 0);
-  process.stdout.write(`${status === 0 ? 'No deviation' : `${String(deviations)} deviations, ${String(receipt.loadFailures.length)} windows not measured`}. Receipt: ${join(resolve(outFolder), 'RECEIPT.md')}\n`);
+  const six = receipt.measured.filter((m) => m.id !== 'contrast');
+  const deviations = six.reduce((sum, m) => sum + m.deviations, 0);
+  // "Not measured" is never "no deviation": the line names it whenever the receipt holds it.
+  const unmeasured = six.reduce((sum, m) => sum + m.notMeasured, 0);
+  process.stdout.write(`${status === 0 ? `No deviation${unmeasured > 0 ? `, but ${String(unmeasured)} things not measured` : ''}` : `${String(deviations)} deviations, ${String(receipt.loadFailures.length)} windows not measured`}. Receipt: ${join(resolve(outFolder), 'RECEIPT.md')}\n`);
   return status;
 }
 

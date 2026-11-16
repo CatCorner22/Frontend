@@ -2,6 +2,8 @@
 // The reference build is the Mockup of the same project. A deviation on it is a defect of the program or of the Mockup.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { createServer, type Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium, type Browser } from 'playwright';
@@ -234,6 +236,105 @@ describe('Fit check: a file at the site’s own address is information, a reques
     expect(new Set(requests.information).size).toBe(requests.information.length);
     expect(requests.information.join('\n')).not.toContain('other.example.com');
     expect(requests.deviations).toBe(1);
+  });
+
+  it('counts an address that a browser reads as another site, however the page writes it (audit finding A1-08)', async () => {
+    // None of these makes a request from a page without an address of its own, so only the reading of the address can find them.
+    // On the real site, a browser fetches each one from cdn.example.
+    for (const [name, extra] of [
+      ['two backslashes', '<form action="\\\\cdn.example/a"></form>'],
+      ['a slash and a backslash', '<form action="/\\cdn.example/b"></form>'],
+      ['a tab inside the scheme', '<form action="h&#9;ttps://cdn.example/c"></form>'],
+      ['an escape in a style sheet', '<style>@font-face{font-family:"X";src:url(htt\\70s://cdn.example/d.woff2)}</style>'],
+      ['an upper-case scheme', '<form action="HTTPS://cdn.example/e"></form>'],
+    ] as const) {
+      const { receipt, status } = await run(extra);
+      expect(measure(receipt, 'requests').deviations, name).toBeGreaterThan(0);
+      expect(measure(receipt, 'requests').information.join('\n'), name).not.toContain('cdn.example');
+      expect(status, name).toBe(1);
+    }
+  });
+});
+
+describe('Fit check: no way out of the page, and no color skipped (audit of 2026-11-16, findings A1-01 to A1-03)', () => {
+  // A server on this machine that writes down everything that reaches it. A request that the program truly stops never reaches it.
+  const reached: string[] = [];
+  let server: Server;
+  let base = '';
+  beforeAll(async () => {
+    server = createServer((request, response) => {
+      reached.push(`http ${request.url ?? ''}`);
+      response.end('reached');
+    });
+    server.on('upgrade', (request, socket) => {
+      reached.push(`websocket ${request.url ?? ''}`);
+      socket.destroy();
+    });
+    await new Promise<void>((done) => server.listen(0, '127.0.0.1', done));
+    base = `127.0.0.1:${String((server.address() as AddressInfo).port)}`;
+  });
+  afterAll(async () => {
+    await new Promise<void>((done) => server.close(() => done()));
+  });
+
+  const files = filesOf(createProject('No way out'));
+  const mockup = files['mockup.html'] ?? '';
+  const page = (script: string): string => `<!doctype html><html><head><title>Escape</title></head><body><p>Words</p><script>${script}</script></body></html>`;
+  const settle = (): Promise<void> => new Promise((done) => setTimeout(done, 1500));
+
+  it('stops a WebSocket, a window that the page opens, and a navigation away, and lists each one', async () => {
+    reached.length = 0;
+    const script = `new WebSocket('ws://${base}/socket'); window.open('http://${base}/window'); setTimeout(() => { location.href = 'http://${base}/away'; }, 0);`;
+    const { receipt, status } = await fit(inputOf(files, page(script)));
+    await settle();
+    expect(reached, 'nothing may reach the server').toEqual([]);
+    const listed = measure(receipt, 'requests').items.join('\n');
+    for (const path of ['/socket', '/window', '/away']) expect(listed, path).toContain(`${base}${path}`);
+    expect(status).toBe(1);
+  });
+
+  it('keeps the requests of a window width that could not be read', async () => {
+    reached.length = 0;
+    // The page asks for a picture and then never answers, so the window cannot be read; the request must still be listed.
+    const { receipt, status } = await fit(inputOf(files, page(`new Image().src = 'http://${base}/before-the-freeze'; setTimeout(() => { for (;;) {} }, 0);`), { loadTimeoutMs: 1500 }));
+    await settle();
+    expect(reached).toEqual([]);
+    expect(receipt.loadFailures.length).toBeGreaterThan(0);
+    expect(measure(receipt, 'requests').items.join('\n')).toContain('/before-the-freeze');
+    expect(status).toBe(1);
+  }, 60_000);
+
+  it('compares a color written as oklch(), lab(), or color-mix() instead of skipping it', async () => {
+    for (const color of ['oklch(0.55 0.2 30)', 'lab(40 50 30)', 'color-mix(in srgb, #ff0000 50%, #0000ff)']) {
+      const { receipt, status } = await fit(inputOf(files, mockup.replace('</head>', `<style>main p { color: ${color} !important; }</style></head>`)));
+      expect(measure(receipt, 'colors').deviations, color).toBeGreaterThan(0);
+      expect(measure(receipt, 'colors').items.join('\n'), color).toMatch(/text color #[0-9a-f]{6}/);
+      expect(status, color).toBe(1);
+    }
+  });
+
+  it('reads the page in a world of its own, so that a page script that replaces the browser’s functions cannot hide a deviation (finding A1-05)', async () => {
+    const tokens = JSON.parse(files['tokens.json'] ?? '{}') as { color: Record<string, { $value: { hex: string } }>; typeface: Record<string, { $value: string[] }> };
+    const family = tokens.typeface['font-body']?.$value[0] ?? '';
+    const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
+    const wrong = open.replace('</head>', '<style>body, body * { font-family: Papyrus !important; }</style></head>');
+    // The script answers every question about a typeface with the Prescription's own typeface.
+    const forger = `<script>const real = window.getComputedStyle; window.getComputedStyle = (el, p) => new Proxy(real(el, p), { get(t, k) { if (k === 'fontFamily') return ${JSON.stringify(family)}; const v = Reflect.get(t, k); return typeof v === 'function' ? v.bind(t) : v; } });</script>`;
+    const plain = await fit(inputOf(files, wrong));
+    const forged = await fit(inputOf(files, wrong.replace('</body>', `${forger}</body>`)));
+    expect(measure(plain.receipt, 'typefaces').deviations).toBeGreaterThan(0);
+    expect(measure(forged.receipt, 'typefaces').deviations).toBe(measure(plain.receipt, 'typefaces').deviations);
+    expect(measure(forged.receipt, 'typefaces').items.join('\n').toLowerCase()).toContain('papyrus');
+    expect(forged.status).toBe(1);
+  });
+
+  it('reads a Prescription color written as rgb() with spaces exactly as the same color', async () => {
+    const tokens = JSON.parse(files['tokens.json'] ?? '{}') as { color: Record<string, { $value: { hex: string } }> };
+    const hex = tokens.color['text']?.$value.hex ?? '';
+    expect(hex).toMatch(/^#[0-9a-f]{6}$/);
+    const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+    const { receipt } = await fit(inputOf(files, mockup.replace('</head>', `<style>main p { color: rgb(${String(r)} ${String(g)} ${String(b)}) !important; }</style></head>`)));
+    expect(measure(receipt, 'colors').deviations).toBe(0);
   });
 });
 

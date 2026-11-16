@@ -237,7 +237,12 @@ describe('saved projects: references to the Catalog are recomputed, never truste
   it('keeps hostile text as plain data', () => {
     const hostile = '"><script>alert(1)</script><img src=x onerror=alert(1)>';
     const project = { ...createProject(hostile.slice(0, 100)), content: { ...SAMPLE_CONTENT, headline: hostile, business: hostile, nav: [hostile], services: [{ title: hostile, body: hostile }], facts: [{ value: hostile, label: hostile }], fees: [{ item: hostile, price: hostile }] } };
-    expect(ok(roundTrip(project)).project).toEqual(project);
+    // The markup stays as plain characters, never escaped and never taken out. A text longer than its own limit is cut there, as a
+    // typed text is (guarantee 55.01; audit finding A1-04): the hostile text has 55 characters, and a figure holds 12, a label 40,
+    // a price 16, and a menu word 24.
+    expect(hostile).toHaveLength(55);
+    const cut = (n: number): string => hostile.slice(0, n);
+    expect(ok(roundTrip(project)).project).toEqual({ ...project, content: { ...project.content, nav: [cut(24)], facts: [{ value: cut(12), label: cut(40) }], fees: [{ item: hostile, price: cut(16) }] } });
   });
 });
 

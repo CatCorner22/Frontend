@@ -104,6 +104,19 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): none in the list. An audit at the owner's request ("serve as a quality-control audit advisor and serve an adversarial role and fix bug, optimize code, and harden as Claude Code works"), run beside the session that built F027 and F028. Findings A1-01 to A1-09 in `redteam/FINDINGS.md`.
+- Result: seven findings repaired, two open (A1-06, A1-07). No feature's "passes" changed.
+- Commits: the commit "Audit A1: ..." that holds this entry, on the branch `claude/eloquent-curie-hnhykj`, made on top of F028 (`eb88528`).
+- Evidence: before any change, on the merged state `abfa23f`: `npm run check` passed (266 unit tests); `npm run e2e` passed (342 browser tests, 1,544 seconds). After the repairs, on top of F028: `npm run check` passed (267 unit tests); `npm run e2e` passed (357 browser tests, 1,519 seconds). Tests first: each new test failed before its repair, for the reason named in its finding (the WebSocket and window test: the local server saw 4 arrivals; the failed-width test: the request was missing; the color test: 0 deviations for `oklch()`; the forged-page test: 0 typeface deviations where 1 is right; the address test: 0 deviations for `\\cdn.example/a` with F027's pattern; the file-text test: the hidden sentence reached the headline).
+- What the audit repaired: the Fit check let a WebSocket and a window that the page opens reach the network and counted 0 requests (A1-01); it dropped the requests of a window width that failed (A1-02); it skipped every color written as `oklch()`, `lab()`, `color()`, or `color-mix()` without a word (A1-03); a page script could forge its readings (A1-05; it now reads from an isolated world); F027's test for "another site" let three ways of writing another site pass (A1-08; the URL standard's parser now decides, and `SPEC.md` 2.13 gained one edge case, open to the owner's veto). In the core, a project file's page texts and answers skipped the cleaning and limits of typed text, so a hidden sentence could reach `mockup.html` (A1-04). CI's job ran 56 seconds below its time limit (A1-09; the limit is now 45 minutes).
+- A test whose expected values changed: "keeps hostile text as plain data" (A1-04). The same hostile text, every field compared exactly; four fields now expect it cut at their limits. The owner may veto that change.
+- Stored receipts: trial 001 was measured again (one more partly transparent color read; no count changed; its `RECORD.md` says so). Trial 002 measures the same.
+- Checked and found sound: the archive file (two outside readers, Python's `zipfile` and Info-ZIP's `unzip -t`, read every file of an archive whose project name holds an umlaut, an emoji, and backticks); the reader of a file of own Directions; the escaping of the Mockup; CI's pinning and permissions; F028's Undo words.
+- Not run: the reviewer helper and the three red-team reviewers (decision D55: each needs the owner's yes). The audit's probes are the builder's own; no second reader has seen the repairs.
+- Open problems for the next session: A1-06 (contrast reads the boxes that hold a text, not what lies under it on screen); A1-07 (whether "not measured" should give status 1); a page script can still change the page itself while the Fit check reads it; the browser run keeps growing (splitting CI into two jobs).
+- Next feature to build (ID): none in the list.
+
+- Date: 2026-11-16
 - Feature worked on (ID): F028 (three repairs of taste: the reason from the Summary, an edge on the quiet buttons, a line beside Undo; findings U6-11, U6-22, U6-23; decision D63 point 4)
 - Result: passes
 - Commits: the commit "F028: ..." that holds this entry
@@ -121,7 +134,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - Commits: the commit "F027: ..." that holds this entry
 - Evidence: `npm run check`: 266 unit tests passed. `npm run e2e`: 345 browser tests passed (3 new tests of the repaired measure, and one new assertion in the reference test). Tests first: 2 of the 3 new tests failed because the receipt had no "information" part; the third (an absolute link is a deviation) passed at once, as it should, because that behavior already existed. The Mockup of the plain start and of all 38 Directions names nothing that it does not ship. Trial 001 measured again: no deviation in any of the six things (it was 3 in requests); its 3 references are listed as information. Trial 002 measured again: unchanged.
 - What changed in the records: the receipts and records of both trials (the old counts stay in the text as history); finding R25-01 (repaired); `SPEC.md` sections 2.10 and 2.13; guarantees 66.01 and 66.04 (version 1.15). The progress record's line on pull request 10 is corrected: it was merged on 2026-11-16.
-- A limit of the repair: "own address" means only "no scheme and not two slashes". The program does not check that the file exists at that address; the receipt asks a person to check.
+- A limit of the repair: "own address" means only "no scheme and not two slashes". The program does not check that the file exists at that address; the receipt asks a person to check. (Later the same day, audit finding A1-08: that rule let three ways of writing another site pass as own address; the URL standard's parser now decides. See the entry above.)
 - Not run: the reviewer helper and the three red-team reviewers for F024 to F027 (decision D55: each needs the owner's yes).
 - Open problems for the next session: R26-01; the Floors in the Prescription (M6); the owner's trial of the Studio (M4); the reviews above.
 - Next feature to build (ID): none in the list.

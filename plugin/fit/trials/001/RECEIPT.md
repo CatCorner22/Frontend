@@ -20,7 +20,7 @@ form action: /appointment-request
 
 ### Colors: every color that the page draws is a color of the Prescription
 
-0 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. 1 partly transparent color was not compared.
+0 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. 2 partly transparent colors were not compared.
 
 ### Typefaces: every text uses a typeface that the Prescription names
 

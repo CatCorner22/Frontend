@@ -1,7 +1,7 @@
 // The Fit check, first slice (SPEC.md section 2.10): open a build in a real browser at two window widths, measure it against the
 // Prescription's design values, and write an Honest receipt. The program builds nothing and judges nothing.
 import { createHash } from 'node:crypto';
-import { chromium, type Browser, type LaunchOptions } from 'playwright';
+import { chromium, type Browser, type LaunchOptions, type Page } from 'playwright';
 import { contrastRatio, hexOf, over, parseRgba, type Rgba } from './color.ts';
 import { collect, readBrief, type Collected } from './collect.ts';
 import { FitError, readDesignValues, type DesignValues } from './prescription.ts';
@@ -33,7 +33,8 @@ export const WIDTHS = [375, 1280] as const;
 const LISTED = 20;
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
 
-type Pass = { width: number; collected: Collected; requests: string[]; errors: string[] } | { width: number; failure: string };
+/** One window width. A width that could not be read still keeps the requests that its page made before it failed. */
+type Pass = { width: number; requests: string[] } & ({ collected: Collected; errors: string[] } | { failure: string });
 
 async function within<T>(work: Promise<T>, ms: number, what: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
@@ -44,24 +45,50 @@ async function within<T>(work: Promise<T>, ms: number, what: string): Promise<T>
   }
 }
 
+/**
+ * Runs `read` in a world of its own inside the page (an "isolated world" of Chromium). That world shares the page's elements and
+ * styles but none of the page's scripts, so a page that replaces `getComputedStyle` or any other function of the browser cannot
+ * change what the program reads (finding A1-05: a page hid its own wrong typeface that way). `read` must stand alone, as for
+ * `page.evaluate`. Chromium only; the Fit check starts Chromium.
+ */
+async function readInOwnWorld<T>(page: Page, read: () => T): Promise<T> {
+  const session = await page.context().newCDPSession(page);
+  try {
+    const { frameTree } = await session.send('Page.getFrameTree');
+    const { executionContextId } = await session.send('Page.createIsolatedWorld', { frameId: frameTree.frame.id, worldName: 'refraction-fit-check' });
+    const { result, exceptionDetails } = await session.send('Runtime.evaluate', { expression: `(${read.toString()})()`, contextId: executionContextId, returnByValue: true });
+    if (exceptionDetails) throw new Error('the program could not read the page');
+    return result.value as T;
+  } finally {
+    await session.detach().catch(() => undefined);
+  }
+}
+
 async function measureAt(browser: Browser, html: string, width: number, ms: number): Promise<Pass> {
   const context = await browser.newContext({ viewport: { width, height: 800 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
+  const requests: string[] = [];
   try {
-    const page = await context.newPage();
-    const requests: string[] = [];
-    const errors: string[] = [];
-    // Nothing leaves the machine: every request that the page makes is written down and stopped.
-    await page.route('**/*', async (route) => {
+    // Nothing leaves the machine: every request is written down and stopped. The block stands on the whole browser context, because a
+    // block on the page alone misses a window that the page opens (finding A1-01). A WebSocket passes no ordinary route, so it has a
+    // block of its own: the program writes it down and closes it without ever connecting to a server.
+    await context.route('**/*', async (route) => {
       requests.push(route.request().url());
       await route.abort();
     });
+    await context.routeWebSocket(() => true, async (socket) => {
+      requests.push(socket.url());
+      await socket.close();
+    });
+    const page = await context.newPage();
+    const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     try {
       await within(page.setContent(html, { waitUntil: 'load', timeout: ms }), ms + 1000, 'the page did not finish loading');
-      const collected = await within(page.evaluate(collect), ms, 'the page did not answer');
+      const collected = await within(readInOwnWorld(page, collect), ms, 'the page did not answer');
       return { width, collected, requests, errors };
     } catch (error) {
-      return { width, failure: `${error instanceof Error ? error.message : 'the page could not be read'} within ${String(ms)} milliseconds` };
+      // The requests made before the failure stay in the receipt (finding A1-02).
+      return { width, failure: `${error instanceof Error ? error.message : 'the page could not be read'} within ${String(ms)} milliseconds`, requests: [...requests] };
     }
   } finally {
     // A page that never ends can hold its tab; the program stops waiting for the tab after a short time.
@@ -79,10 +106,22 @@ function measureOf(id: string, title: string, note: string, deviations: string[]
   return { id, title, deviations: sorted.length, notMeasured, items: sorted.slice(0, LISTED), more: Math.max(0, sorted.length - LISTED), note, information: info.slice(0, INFORMATION_LISTED), informationMore: Math.max(0, info.length - INFORMATION_LISTED) };
 }
 
-/** An address that points to another site: it has a scheme (`https:`, `mailto:`, and so on), or it begins with two slashes. */
+/** A stand-in for the address of the site that will serve the page. The name ends in `.invalid`, which no real site can have. */
+const OWN_SITE = 'https://own-site.invalid/page/';
+
+/**
+ * An address that a browser would fetch from another site, or that is not a web address of the site at all (`mailto:`,
+ * `javascript:`). The address parser of the URL standard decides, the same parser that browsers use, because a pattern of text
+ * misreads what a browser reads (audit finding A1-08): a browser treats `\\cdn.example/x` and `/\cdn.example/x` as
+ * `//cdn.example/x`, and deletes a tab or a line break anywhere in an address, so `h<tab>ttps://cdn.example` is `https://cdn.example`.
+ * An address that the parser refuses counts as another site, so that doubt is never "no deviation".
+ */
 export function isOtherSite(address: string): boolean {
-  const t = address.trim();
-  return /^[a-z][a-z0-9+.-]*:/i.test(t) || t.startsWith('//');
+  try {
+    return new URL(address, OWN_SITE).origin !== new URL(OWN_SITE).origin;
+  } catch {
+    return true;
+  }
 }
 
 /** One line for each different value, with how many elements show it and the first one. The count is the largest over the window widths. */
@@ -116,20 +155,23 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   // Another site is a deviation. A reference at the page's own address is information: the page names it but, being one file, cannot ship it.
   const requests = new Set<string>();
   const ownAddress = new Set<string>();
+  for (const p of passes) for (const url of p.requests) requests.add(`request to ${url}`);
   for (const p of good) {
-    for (const url of p.requests) requests.add(`request to ${url}`);
     for (const ref of p.collected.references) {
-      if (isOtherSite(ref.value)) requests.add(`reference (${ref.kind}) to ${ref.value}`);
+      if (isOtherSite(ref.address)) requests.add(`reference (${ref.kind}) to ${ref.value}`);
       else ownAddress.add(`${ref.kind}: ${ref.value}`);
     }
   }
 
   const translucent = new Set<string>();
+  // A color that the program cannot read is counted as not measured, never passed over in silence (finding A1-03).
+  let unreadColors = 0;
   const colorRows: { key: string; where: string; width: number }[] = [];
   for (const p of good) {
     for (const item of p.collected.drawn) {
       const rgba = parseRgba(item.css);
-      if (!rgba || rgba.a === 0) continue;
+      if (!rgba) { unreadColors++; continue; }
+      if (rgba.a === 0) continue;
       if (rgba.a < 1) { translucent.add(item.css); continue; }
       const hex = hexOf(rgba);
       if (!design.colors.has(hex)) colorRows.push({ key: `${item.kind} color ${hex}`, where: item.where, width: p.width });
@@ -167,7 +209,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
 
   const widthLines = good.filter((p) => p.collected.scrollWidth > p.collected.clientWidth).map((p) => `the page is wider than its window at ${String(p.width)} pixels (${String(p.collected.scrollWidth)} against ${String(p.collected.clientWidth)})`);
 
-  const colorNote = `A color is a deviation when it is not one of the Prescription's opaque colors.${translucent.size > 0 ? ` ${String(translucent.size)} partly transparent ${translucent.size === 1 ? 'color was' : 'colors were'} not compared.` : ''}`;
+  const colorNote = `A color is a deviation when it is not one of the Prescription's opaque colors.${translucent.size > 0 ? ` ${String(translucent.size)} partly transparent ${translucent.size === 1 ? 'color was' : 'colors were'} not compared.` : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
   const whyUnread = [...reasons].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([why, n]) => `${String(n)} because ${why}`).join('; ');
   const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least.${unreadable > 0 ? ` ${String(unreadable)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => e.slice(0, 200))))].sort().slice(0, 5);
@@ -178,7 +220,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     scripts: { inline: most((c) => c.scripts.inline), external: most((c) => c.scripts.external) },
     measured: [
       measureOf('requests', 'Requests: the page asks for nothing from another site', 'Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page\u2019s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.', [...requests], failed, [...ownAddress]),
-      measureOf('colors', 'Colors: every color that the page draws is a color of the Prescription', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed),
+      measureOf('colors', 'Colors: every color that the page draws is a color of the Prescription', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors),
       measureOf('typefaces', 'Typefaces: every text uses a typeface that the Prescription names', 'The first family of each text is compared; a fallback after it is not.', grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Prescription', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
       measureOf('contrast', 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed),
@@ -224,7 +266,8 @@ async function readMockupBrief(browser: Browser, mockup: string, ms: number): Pr
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   try {
     const page = await context.newPage();
-    await page.route('**/*', (route) => route.abort());
+    await context.route('**/*', (route) => route.abort());
+    await context.routeWebSocket(() => true, (socket) => socket.close());
     await within(page.setContent(mockup, { waitUntil: 'load', timeout: ms }), ms + 1000, 'the Mockup did not load');
     return await within(page.evaluate(readBrief), ms, 'the Mockup did not answer');
   } catch {

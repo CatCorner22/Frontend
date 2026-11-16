@@ -8,7 +8,7 @@ import { CONFLICT_RULES, HARMONY_RULES } from './catalog/rules.js';
 import { STEPS, findStep } from './catalog/steps.js';
 import type { Option, Step, Tunable } from './catalog/types.js';
 import { A11Y_PROFILES, DEFAULT_PARAMS, FONTS, PARAM_RANGES, PARAM_VALUES, RETIRED_FONTS, assertKnownParams, type A11yProfile, type DesignParams } from './params.js';
-import { BRIEF_KEYS, BRIEF_MAX, type Brief } from './brief.js';
+import { BRIEF_KEYS, BRIEF_MAX, cleanBrief, cleanContent, type Brief } from './brief.js';
 import { SAMPLE_CONTENT, type SiteContent } from './templates/smallBusiness.js';
 import { deriveTokens, type DerivedTokens } from './tokens.js';
 
@@ -906,9 +906,12 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   if (relabelled > 0) notes.push(relabelled === 1 ? 'One Decision was recorded as a picked Option, but its design values match no Option of this version of the Catalog. Its values were kept and it is now marked as hand-set.' : `${relabelled} Decisions were recorded as picked Options, but their design values match no Option of this version of the Catalog. Their values were kept and they are now marked as hand-set.`);
   if (corrected > 0) notes.push(corrected === 1 ? 'One Decision in the file named a choice that the file’s own design values do not show. The Studio follows the design values, so it changed that Decision to match them.' : `${corrected} Decisions in the file named choices that the file’s own design values do not show. The Studio follows the design values, so it changed those Decisions to match them.`);
   if (shortened > 0) notes.push(shortened === 1 ? `One written reason was longer than ${REASON_MAX} characters. It was shortened to fit.` : `${shortened} written reasons were longer than ${REASON_MAX} characters. They were shortened to fit.`);
-  // The three answers: those that the file holds with words, in their fixed order; none at all when the file holds none.
-  const answers = Object.fromEntries(BRIEF_KEYS.flatMap((key) => (data.brief?.[key] ? [[key, data.brief[key]]] : []))) as Brief;
-  const brief = Object.keys(answers).length > 0 ? answers : undefined;
+  // The three answers: those that the file holds with words, in their fixed order; none at all when the file holds none. They and
+  // the page's texts are cleaned and cut as typed text is, so that a file brings nothing that typing could not (audit finding A1-04).
+  const brief = cleanBrief(data.brief);
+  const content = cleanContent(data.content);
+  const answersChanged = BRIEF_KEYS.some((key) => (brief?.[key] ?? '') !== (data.brief?.[key] ?? ''));
+  if (content !== data.content || answersChanged) notes.push('Some texts of the page or answers about the project in the file held signs that do not show, more than one line, or more characters than the Studio allows. The Studio cleaned and shortened them as it does with typed text. A text that the page needs and that held nothing became the sample text.');
   // Overlays: those of the file that this Catalog has, each once, in the Catalog's order.
   const listed = data.overlays ?? [];
   const overlays = OVERLAYS.map((overlay) => overlay.id).filter((id) => listed.includes(id));
@@ -917,7 +920,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   // The Skin's name stays only when this Direction offers that Skin; the colors are in the design values either way.
   const skin = data.skin !== undefined && offersSkin(direction, data.skin) ? data.skin : undefined;
   if (data.skin !== undefined && skin === undefined) notes.push('The file names a Skin that this version of the Studio does not offer for this Direction. The name was left out; the colors are unchanged.');
-  const project: Project = { schemaVersion: SCHEMA_VERSION, name: data.name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content: data.content, ...(brief ? { brief } : {}), ...(overlays.length > 0 ? { overlays } : {}), ...(skin !== undefined ? { skin } : {}) };
+  const project: Project = { schemaVersion: SCHEMA_VERSION, name: data.name, template: data.template, a11y: data.a11y, direction, base, params, decisions: Object.fromEntries(decisions), content, ...(brief ? { brief } : {}), ...(overlays.length > 0 ? { overlays } : {}), ...(skin !== undefined ? { skin } : {}) };
   return { project, notes };
 }
 

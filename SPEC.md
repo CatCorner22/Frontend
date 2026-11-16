@@ -236,6 +236,7 @@ The first trial found that section 2.10, point 1, counts a font file at the site
   - The same reference stated twice appears once.
   - A reference to the site's own address inside a style sheet (`url(/fonts/a.woff2)`) and one in markup (`<link href="/a.css">`) are treated alike.
   - The Mockup, which carries no reference, shows an empty list.
+  - An address whose text has no scheme, but which a browser fetches from another site, is another site (added by the audit of 2026-11-16, finding A1-08, open to the owner's veto). A browser reads a backslash as a slash (`\\cdn.example/a.css`, `/\cdn.example/a.css`), deletes a tab or a line break anywhere in an address (`h<tab>ttps://cdn.example`), and decodes an escape in a style sheet (`url(htt\70s://cdn.example/f.woff2)`). The program therefore lets the address parser of the URL standard decide, the parser that browsers use: an address that resolves to a host other than the site's own is another site, and an address that the parser refuses counts as another site.
   - The receipts of trials 001 and 002 are measured again with the repaired program, and their records say what changed and why; the old counts stay in the records as history.
 - How to test it end to end: a relative font file, a root-relative style sheet, and a relative form action are listed as information and give status 0; an absolute font link, a link that begins with `//`, and a `mailto:` form action each give a deviation; the stored receipts of both trials equal what the repaired program gives on the stored pages.
 

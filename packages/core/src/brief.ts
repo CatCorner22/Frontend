@@ -115,6 +115,39 @@ export function setBriefAnswer<P extends Holder>(project: P, key: BriefKey, text
   return (Object.keys(answers).length > 0 ? { ...rest, brief: answers } : rest) as P;
 }
 
+/**
+ * The page's texts as a file brings them, made to hold what typed text holds (guarantee 55.01; audit finding A1-04). Before,
+ * a file's texts reached the page and `mockup.html` as the file wrote them: longer than their limits, on several lines, and with
+ * invisible signs, among them the "tag" signs in which a whole hidden sentence can travel to an AI coding tool (finding S6-05).
+ * Each text is cleaned and cut exactly as a typed text is. A text that the page needs and that holds nothing visible becomes the
+ * sample text, so that the page never loses its name, its headline, or its main button. A menu word that holds nothing visible
+ * goes, because a link without words is a link that nobody can see. Lists keep their length: a project from before the Brief
+ * may hold more items than the limit (decision D62 and its test), and its items are cleaned and cut like any text.
+ * Returns the very object that came in when nothing changes.
+ */
+export function cleanContent(content: SiteContent): SiteContent {
+  const out = { ...content };
+  for (const key of Object.keys(TEXT_LIMITS) as ContentTextKey[]) {
+    const value = oneLine(content[key], TEXT_LIMITS[key]);
+    out[key] = value === '' && REQUIRED_TEXTS.includes(key) ? SAMPLE_CONTENT[key] : value;
+  }
+  out.nav = content.nav.map((word) => oneLine(word, NAV_WORD_MAX)).filter((word) => word !== '');
+  out.services = content.services.map((s) => ({ title: oneLine(s.title, ITEM_LIMITS.services.title), body: oneLine(s.body, ITEM_LIMITS.services.body) }));
+  out.facts = content.facts.map((f) => ({ value: oneLine(f.value, ITEM_LIMITS.facts.value), label: oneLine(f.label, ITEM_LIMITS.facts.label) }));
+  out.fees = content.fees.map((f) => ({ item: oneLine(f.item, ITEM_LIMITS.fees.item), price: oneLine(f.price, ITEM_LIMITS.fees.price) }));
+  return JSON.stringify(out) === JSON.stringify(content) ? content : out;
+}
+
+/** The three answers as a file brings them, cleaned as typed answers are. An answer that holds nothing visible goes. Returns `undefined` when none is left. */
+export function cleanBrief(brief: Readonly<Record<string, string | undefined>> | undefined): Brief | undefined {
+  const answers: Brief = {};
+  for (const key of BRIEF_KEYS) {
+    const value = oneLine(brief?.[key] ?? '', BRIEF_MAX);
+    if (value !== '') answers[key] = value;
+  }
+  return Object.keys(answers).length > 0 ? answers : undefined;
+}
+
 /** True when the words to mark in the headline are part of the headline, or when there are none to mark. */
 export function emphasisIsInHeadline(content: SiteContent): boolean {
   return content.headlineEmphasis === '' || content.headline.includes(content.headlineEmphasis);
