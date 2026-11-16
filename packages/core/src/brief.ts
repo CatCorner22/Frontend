@@ -121,7 +121,8 @@ export function setBriefAnswer<P extends Holder>(project: P, key: BriefKey, text
  * invisible signs, among them the "tag" signs in which a whole hidden sentence can travel to an AI coding tool (finding S6-05).
  * Each text is cleaned and cut exactly as a typed text is. A text that the page needs and that holds nothing visible becomes the
  * sample text, so that the page never loses its name, its headline, or its main button. A menu word that holds nothing visible
- * goes, because a link without words is a link that nobody can see. Lists keep their length: a project from before the Brief
+ * becomes the sample word at its place: a link without words is a link that nobody can see, and the owner cannot add a link
+ * back, because only the words of the menu change (review finding A1-15). Lists keep their length: a project from before the Brief
  * may hold more items than the limit (decision D62 and its test), and its items are cleaned and cut like any text.
  * Returns the very object that came in when nothing changes.
  */
@@ -131,7 +132,7 @@ export function cleanContent(content: SiteContent): SiteContent {
     const value = oneLine(content[key], TEXT_LIMITS[key]);
     out[key] = value === '' && REQUIRED_TEXTS.includes(key) ? SAMPLE_CONTENT[key] : value;
   }
-  out.nav = content.nav.map((word) => oneLine(word, NAV_WORD_MAX)).filter((word) => word !== '');
+  out.nav = content.nav.map((word, at) => oneLine(word, NAV_WORD_MAX) || (SAMPLE_CONTENT.nav[at] ?? '')).filter((word) => word !== '');
   out.services = content.services.map((s) => ({ title: oneLine(s.title, ITEM_LIMITS.services.title), body: oneLine(s.body, ITEM_LIMITS.services.body) }));
   out.facts = content.facts.map((f) => ({ value: oneLine(f.value, ITEM_LIMITS.facts.value), label: oneLine(f.label, ITEM_LIMITS.facts.label) }));
   out.fees = content.fees.map((f) => ({ item: oneLine(f.item, ITEM_LIMITS.fees.item), price: oneLine(f.price, ITEM_LIMITS.fees.price) }));

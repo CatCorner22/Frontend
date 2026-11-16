@@ -33,6 +33,8 @@ export interface Collected {
   bodyText: string;
   scrollWidth: number;
   clientWidth: number;
+  /** The address of the page's first `<base href>`, against which a browser reads every other address; empty without one (finding A1-10). */
+  baseHref: string;
 }
 
 export function collect(): Collected {
@@ -81,7 +83,7 @@ export function collect(): Collected {
     const code = Number.parseInt(hex, 16);
     return code > 0 && code <= 0x10ffff && (code < 0xd800 || code > 0xdfff) ? String.fromCodePoint(code) : '\ufffd';
   });
-  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['form', 'action']];
+  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['form', 'action'], ['button', 'formaction'], ['input', 'formaction'], ['base', 'href']];
   for (const [tag, attribute] of holders) {
     for (const el of document.querySelectorAll(tag)) {
       const value = el.getAttribute(attribute) ?? '';
@@ -94,12 +96,27 @@ export function collect(): Collected {
       if (outside(value)) references.push({ kind: `${el.tagName.toLowerCase()} srcset`, value, address: value });
     }
   }
+  // The escapes are decoded first, so that neither an address nor the word `url` itself can hide behind one, and function names
+  // are read in any letter case, as a browser reads them (finding A1-11).
   const fromCss = (css: string, kind: string): void => {
-    for (const m of css.matchAll(/url\(\s*(['"]?)(.*?)\1\s*\)/g)) { const raw = unescapeCss(m[2] ?? ''); if (outside(raw)) references.push({ kind, value: collapse(raw), address: raw }); }
-    for (const m of css.matchAll(/@import\s+(?:url\(\s*)?(['"])(.*?)\1/g)) { const raw = unescapeCss(m[2] ?? ''); if (outside(raw)) references.push({ kind: 'css import', value: collapse(raw), address: raw }); }
+    const add = (raw: string, as: string): void => { if (outside(raw)) references.push({ kind: as, value: collapse(raw), address: raw }); };
+    const text = unescapeCss(css);
+    for (const m of text.matchAll(/url\(\s*(['"]?)(.*?)\1\s*\)/gi)) add(m[2] ?? '', kind);
+    for (const m of text.matchAll(/@import\s+(?:url\(\s*)?(['"])(.*?)\1/gi)) add(m[2] ?? '', 'css import');
+    for (const m of text.matchAll(/image-set\(([^)]*)\)/gi)) for (const quoted of (m[1] ?? '').matchAll(/(['"])(.*?)\1/g)) add(quoted[2] ?? '', kind);
   };
   for (const style of document.querySelectorAll('style')) fromCss(style.textContent ?? '', 'css url');
   for (const el of document.querySelectorAll('[style]')) fromCss(el.getAttribute('style') ?? '', 'css url');
+  // A rule that a script adds (`insertRule`, `adoptedStyleSheets`) stands in no style text; the browser's own sheets hold it (finding A1-11).
+  for (const sheet of [...document.styleSheets, ...document.adoptedStyleSheets]) {
+    let rules: CSSRuleList;
+    try {
+      rules = sheet.cssRules;
+    } catch {
+      continue;
+    }
+    for (const rule of rules) fromCss(rule.cssText, 'css url');
+  }
 
   const scripts = { inline: 0, external: 0 };
   for (const script of document.scripts) {
@@ -159,7 +176,7 @@ export function collect(): Collected {
   }
 
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, bodyText: collapse(document.body ? document.body.innerText : ''), scrollWidth: root.scrollWidth, clientWidth: root.clientWidth };
+  return { references, scripts, drawn, families, radii, texts, bodyText: collapse(document.body ? document.body.innerText : ''), scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */

@@ -256,6 +256,52 @@ describe('Fit check: a file at the site’s own address is information, a reques
   });
 });
 
+describe('Fit check: an address read as a browser reads it, and a damaged Mockup (review of 2026-11-16, findings A1-10 to A1-14)', () => {
+  const files = filesOf(createProject('Read as a browser reads'));
+  const mockup = files['mockup.html'] ?? '';
+  const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
+  // None of these pages makes a request during the check; on the real site, a browser reaches cdn.example from each.
+  const isOtherSite = async (name: string, html: string, ownLine: string): Promise<void> => {
+    const { receipt, status } = await fit(inputOf(files, html));
+    expect(measure(receipt, 'requests').deviations, name).toBeGreaterThan(0);
+    expect(measure(receipt, 'requests').information.join('\n'), name).not.toContain(ownLine);
+    expect(status, name).toBe(1);
+  };
+
+  it('counts an address under a base on another site as another site (A1-10)', async () => {
+    await isOtherSite('base', replaceOnce(mockup, '</head>', '<base href="https://cdn.example/"></head>').replace('</body>', '<form action="/send"></form></body>'), '/send');
+  });
+
+  it('reads a style sheet address in any letter case, behind an escape, in image-set(), and in a rule that a script adds (A1-11)', async () => {
+    await isOtherSite('upper case', replaceOnce(mockup, '</head>', '<style>a:hover{background:URL(https://cdn.example/a.png)}</style></head>'), 'cdn.example');
+    await isOtherSite('escape in the word', replaceOnce(mockup, '</head>', '<style>a:hover{background:u\\72l(https://cdn.example/b.png)}</style></head>'), 'cdn.example');
+    await isOtherSite('image-set', replaceOnce(mockup, '</head>', '<style>a:hover{background-image:image-set("https://cdn.example/c.png" 1x)}</style></head>'), 'cdn.example');
+    await isOtherSite('added by a script', replaceOnce(open, '</body>', '<script>document.styleSheets[0].insertRule("a:hover{background:url(https://cdn.example/d.png)}")</script></body>'), 'cdn.example');
+  });
+
+  it('counts an address that names a scheme as another site, with or without two slashes (A1-12)', async () => {
+    await isOtherSite('https without slashes', replaceOnce(mockup, '</body>', '<form action="https:cdn.example/send"></form></body>'), 'cdn.example');
+    await isOtherSite('http without slashes', replaceOnce(mockup, '</body>', '<form action="http:cdn.example/send"></form></body>'), 'cdn.example');
+  });
+
+  it('reads where a button sends its form (A1-13)', async () => {
+    const { receipt } = await fit(inputOf(files, replaceOnce(mockup, '</body>', '<form><button formaction="https://cdn.example/f">Go</button></form></body>')));
+    expect(measure(receipt, 'requests').items.join('\n')).toContain('cdn.example/f');
+  });
+
+  it('refuses a Mockup that lacks a required text, and reads the Mockup in a world of its own (A1-14)', async () => {
+    const headless = { ...files, 'mockup.html': mockup.replace(/<h1>[\s\S]*?<\/h1>/, '') };
+    const error = await fit(inputOf(headless, mockup)).then(() => undefined, (e: unknown) => e);
+    expect(error).toBeInstanceOf(FitError);
+    expect((error as FitError).message).toMatch(/mockup\.html[\s\S]*headline/);
+    // A Mockup whose script makes every text read as empty: read from a world of its own, it still holds its three texts.
+    const blanking = { ...files, 'mockup.html': open.replace('</body>', '<script>Object.defineProperty(HTMLElement.prototype, "innerText", { get: () => "" });</script></body>') };
+    const { receipt, status } = await fit(inputOf(blanking, mockup));
+    expect(measure(receipt, 'content').deviations).toBe(0);
+    expect(status).toBe(0);
+  });
+});
+
 describe('Fit check: no way out of the page, and no color skipped (audit of 2026-11-16, findings A1-01 to A1-03)', () => {
   // A server on this machine that writes down everything that reaches it. A request that the program truly stops never reaches it.
   const reached: string[] = [];

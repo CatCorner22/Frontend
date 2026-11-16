@@ -113,6 +113,15 @@ describe('The Brief, first slice: the owner’s own words (SPEC.md section 2.7)'
     expect(again.ok && again.notes).toEqual([]);
   });
 
+  it('keeps the menu at its five links when a file’s menu word holds nothing visible (review finding A1-15)', () => {
+    const base = start();
+    const read = parseProject(JSON.parse(JSON.stringify({ ...base, content: { ...base.content, nav: ['Services', '​', 'Fees', '⁠​', 'Contact'] } })));
+    if (!read.ok) throw new Error(read.error);
+    // The owner cannot add a link back (only words change), so an invisible word becomes the sample word at its place.
+    expect(read.project.content.nav).toEqual(['Services', SAMPLE_CONTENT.nav[1], 'Fees', SAMPLE_CONTENT.nav[3], 'Contact']);
+    expect(read.notes.join(' ')).toMatch(/texts of the page/);
+  });
+
   it('puts the sample texts back, and knows the sample from the owner’s own', () => {
     const own = setBriefAnswer(setContentText(start(), 'headline', 'Wills without the fog.'), 'offer', 'Wills and estates');
     expect(isSampleContent(own.content)).toBe(false);

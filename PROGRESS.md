@@ -104,6 +104,17 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): none in the list. The verified build loop's review step for the audit's repairs, and the opening of red-team campaign A2 (the owner's request; the owner approved each helper in the conversation).
+- Result: six correctness gaps that the reviewer helper reported are repaired (findings A1-10 to A1-15); the campaign's six lanes have reported, and the judge is adjudicating.
+- Commits: "Fit check: drop a redundant color guard and an unmeasured cache" (`59704b7`); "Campaign A2: charter, written before round 1" (`486ca84`); and the commit that holds this entry.
+- Evidence: `npm run check` passed (268 unit tests). `npm run e2e` passed (362 browser tests, 1,556 seconds, while the judge's runs shared the machine). Tests first: each of the six new tests failed before its repair, for its finding's reason (for example "base: expected 0 to be greater than 0"; the menu test received three links where five are right). The stored receipts of trials 001 and 002 still match byte for byte. The lean pass (`59704b7`) removed a redundant guard and an unmeasured cache: 2 lines added, 7 deleted, no measurement changed.
+- The reviewer helper: its first run ended without a report (the container restarted; its last message was a working note); it ran again with the same brief (109,108 tokens) and read the code without running it. The builder reproduced each gap at `59704b7` before repairing it; two related paths (`image-set()` and a rule added by a script) were found while reproducing. One gap (A1-15) was a defect of the builder's own repair A1-04.
+- Points for the owner's veto: the new refusal of a `mockup.html` that lacks a required text (A1-14); the earlier ones listed in pull request 12.
+- Campaign A2: the charter (`redteam/campaign-a2/charter.md`) was committed before round 1. Six lanes ran at the pin `59704b7` in private worktrees (about 0.98 million tokens, measured); their raw logs are in `redteam/campaign-a2/lanes/`, unchanged. No summary of their claims is written before the judge's findings, by the campaign's rule.
+- Open problems for the next session: the judge's findings, the campaign report, and the owner's decision on each fix; A1-06 and A1-07.
+- Next feature to build (ID): none in the list.
+
+- Date: 2026-11-16
 - Feature worked on (ID): none in the list. An audit at the owner's request ("serve as a quality-control audit advisor and serve an adversarial role and fix bug, optimize code, and harden as Claude Code works"), run beside the session that built F027 and F028. Findings A1-01 to A1-09 in `redteam/FINDINGS.md`.
 - Result: seven findings repaired, two open (A1-06, A1-07). No feature's "passes" changed.
 - Commits: the commit "Audit A1: ..." that holds this entry, on the branch `claude/eloquent-curie-hnhykj`, made on top of F028 (`eb88528`).

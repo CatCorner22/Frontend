@@ -111,14 +111,23 @@ const OWN_SITE = 'https://own-site.invalid/page/';
 
 /**
  * An address that a browser would fetch from another site, or that is not a web address of the site at all (`mailto:`,
- * `javascript:`). The address parser of the URL standard decides, the same parser that browsers use, because a pattern of text
- * misreads what a browser reads (audit finding A1-08): a browser treats `\\cdn.example/x` and `/\cdn.example/x` as
- * `//cdn.example/x`, and deletes a tab or a line break anywhere in an address, so `h<tab>ttps://cdn.example` is `https://cdn.example`.
- * An address that the parser refuses counts as another site, so that doubt is never "no deviation".
+ * `javascript:`). Two rules decide, and either one is enough:
+ * - The address names a scheme (`https:`, `http:`, `mailto:`, and any other), as `SPEC.md` 2.13 says, with or without two slashes:
+ *   on a page served over `http:`, `https:cdn.example/x` leads to cdn.example (review finding A1-12).
+ * - The address parser of the URL standard, the parser that browsers use, resolves it, against the page's own `<base href>` when
+ *   it has one, to a host other than the site's own (findings A1-08 and A1-10). A pattern of text misreads what a browser reads: a
+ *   browser treats `\\cdn.example/x` and `/\cdn.example/x` as `//cdn.example/x`, and a base on another site moves every relative
+ *   address there.
+ * The browser's own clean-up comes first: a tab or a line break anywhere in an address is deleted, and spaces and control signs at
+ * either end are cut, so `h<tab>ttps://cdn.example` is `https://cdn.example`. An address that the parser refuses counts as another
+ * site, so that doubt is never "no deviation".
  */
-export function isOtherSite(address: string): boolean {
+export function isOtherSite(address: string, base = ''): boolean {
+  const text = address.replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '');
+  if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return true;
   try {
-    return new URL(address, OWN_SITE).origin !== new URL(OWN_SITE).origin;
+    const own = new URL(OWN_SITE);
+    return new URL(text, base === '' ? own : new URL(base, own)).origin !== own.origin;
   } catch {
     return true;
   }
@@ -158,7 +167,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   for (const p of passes) for (const url of p.requests) requests.add(`request to ${url}`);
   for (const p of good) {
     for (const ref of p.collected.references) {
-      if (isOtherSite(ref.address)) requests.add(`reference (${ref.kind}) to ${ref.value}`);
+      if (isOtherSite(ref.address, p.collected.baseHref)) requests.add(`reference (${ref.kind}) to ${ref.value}`);
       else ownAddress.add(`${ref.kind}: ${ref.value}`);
     }
   }
@@ -264,15 +273,22 @@ export async function fit(input: FitInput): Promise<FitResult> {
 
 async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief>> {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  let brief: ReturnType<typeof readBrief>;
   try {
     const page = await context.newPage();
     await context.route('**/*', (route) => route.abort());
     await context.routeWebSocket(() => true, (socket) => socket.close());
     await within(page.setContent(mockup, { waitUntil: 'load', timeout: ms }), ms + 1000, 'the Mockup did not load');
-    return await within(page.evaluate(readBrief), ms, 'the Mockup did not answer');
+    // Read from a world of its own, as the build is: a script in a changed mockup.html cannot blank or forge the texts (finding A1-14).
+    brief = await within(readInOwnWorld(page, readBrief), ms, 'the Mockup did not answer');
   } catch {
     throw new FitError('The file "mockup.html" could not be opened to read the three required texts.');
   } finally {
     await within(context.close(), 5000, 'close').catch(() => undefined);
   }
+  // The Studio never writes a Mockup without these texts (guarantee 55.01). Without one, the content measure would compare nothing
+  // and report "no deviation", so the program refuses instead (finding A1-14).
+  const missing = ([['business name', brief.business], ['headline', brief.headline], ['primary action', brief.primaryAction]] as const).filter(([, text]) => text === '').map(([label]) => label);
+  if (missing.length > 0) throw new FitError(`The file "mockup.html" holds no ${missing.join(', no ')}, so the program cannot check that the page shows it.`);
+  return brief;
 }
