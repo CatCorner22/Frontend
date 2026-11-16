@@ -11,6 +11,7 @@ import { A11Y_PROFILES, DEFAULT_PARAMS, FONTS, PARAM_RANGES, PARAM_VALUES, RETIR
 import { BRIEF_KEYS, BRIEF_MAX, cleanLoaded, type Brief } from './brief.js';
 import { SAMPLE_CONTENT, type SiteContent } from './templates/smallBusiness.js';
 import { deriveTokens, type DerivedTokens } from './tokens.js';
+import { cutUnits } from './text.js';
 
 /** The version of the saved-project shape. Raise it on every change of shape, and add a migration and a fixture file for the old shape. */
 export const SCHEMA_VERSION = 2;
@@ -396,7 +397,7 @@ export const REASON_MAX = 280;
 export function setReason(project: Project, stepId: string, reason: string): Project {
   const decision = project.decisions[mustStep(stepId).id];
   if (!decision) throw new Error('This Step has no Decision yet.');
-  const text = reason.trim().slice(0, REASON_MAX);
+  const text = cutUnits(reason.trim(), REASON_MAX);
   const { reason: _old, ...rest } = decision;
   return { ...project, decisions: { ...project.decisions, [stepId]: text ? { ...rest, reason: text } : rest } };
 }
@@ -892,7 +893,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
     // Catalog after the owner picked then counted as rejected, though the owner never saw it (round 3).
     const rejected = [...new Set(d.rejected)].filter((id) => optionIds.includes(id) && id !== optionId && !(d.kind === 'picked' && id === d.optionId));
     const fullReason = d.reason?.trim();
-    const reason = fullReason?.slice(0, REASON_MAX);
+    const reason = fullReason === undefined ? undefined : cutUnits(fullReason, REASON_MAX);
     if (fullReason !== undefined && fullReason.length > REASON_MAX) shortened++;
     decisions.push([key, { stepId: key, optionId, kind, rejected, values: ownedValues(step, params), at: ISO_TIME.test(d.at) && !Number.isNaN(Date.parse(d.at)) ? d.at : UNKNOWN_TIME, ...(reason ? { reason } : {}) }]);
   }

@@ -14,10 +14,16 @@
  * What this does not catch: a letter of another alphabet that looks like a Latin letter. No list of such letters is
  * complete, so a name can still look like another name; the Studio compares names, it does not judge their looks.
  */
-const INVISIBLE_SIGNS = /[\u0000-\u001f\u007f-\u009f\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180f\u200b-\u200f\u2028-\u202f\u2060-\u206f\u2800\u3164\ufe00-\ufe0f\ufeff\uffa0\ufff9-\ufffb\u{e0000}-\u{e0fff}]/gu;
+const INVISIBLE_SIGNS = /[\u0000-\u001f\u007f-\u009f\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180f\u200b-\u200f\u2028-\u202f\u2060-\u206f\u2800\u3164\ufe00-\ufe0f\ufeff\uffa0\ufff0-\ufffb\u{13430}-\u{1343f}\u{1bca0}-\u{1bca3}\u{1d173}-\u{1d17a}\u{e0000}-\u{e0fff}]/gu;
 /** Half of a two-part character with its other half missing. */
 const HALF_CHARACTERS = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g;
 const QUOTATION_SIGNS = /["'`´“”„‟‘’‚‛«»‹›＂＇″‴‶′‵ʺʹˮ˝❛❜❝❞〝〞〟ʻ-ʽˊˋ˵˶׳״〃Ꞌꞌ]+/g;
+
+/** The first `max` UTF-16 units of a text, never ending on half of a two-part character (finding C7-06). */
+export function cutUnits(text: string, max: number): string {
+  const cut = text.slice(0, max);
+  return /[\ud800-\udbff]$/.test(cut) && cut.length === max && text.length > max ? cut.slice(0, -1) : cut;
+}
 
 export function plainName(name: string, limit = 60): string {
   const clean = name.normalize('NFC').replace(HALF_CHARACTERS, ' ').replace(INVISIBLE_SIGNS, ' ').replace(QUOTATION_SIGNS, '’').replace(/\s+/g, ' ').trim();

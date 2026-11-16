@@ -2775,7 +2775,7 @@ Fingerprint of the design values: \`68551dae\`. Every file of this Prescription 
 @font-face {
   font-family: "Newsreader Variable";
   src: url("/fonts/newsreader-latin-wght-normal.woff2") format("woff2");
-  font-weight: 100 900;
+  font-weight: 200 800;
   font-style: normal;
   font-display: swap;
 }
@@ -2793,7 +2793,7 @@ Fingerprint of the design values: \`68551dae\`. Every file of this Prescription 
 @font-face {
   font-family: "Instrument Sans Variable";
   src: url("/fonts/instrument-sans-latin-wght-normal.woff2") format("woff2");
-  font-weight: 100 900;
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
 }

@@ -382,7 +382,7 @@ export function fontsMd(project: Project): string {
     out.push(`- Licence: ${font.license} (the SIL Open Font License: free to use, to ship, and to change; the licence text stays with the files).`);
     out.push(`- Package: \`@fontsource-variable/${id}\`, version ${FONT_PACKAGE_VERSION}. This is the version that the Studio itself ships, so its files are the ones that the preview drew.`);
     out.push(`- File in the package: \`files/${file}\``, '');
-    out.push('```css', '@font-face {', `  font-family: "${family!}";`, `  src: url("/fonts/${file}") format("woff2");`, '  font-weight: 100 900;', '  font-style: normal;', '  font-display: swap;', '}', '```', '');
+    out.push('```css', '@font-face {', `  font-family: "${family!}";`, `  src: url("/fonts/${file}") format("woff2");`, `  font-weight: ${font.weights ? `${String(font.weights[0])} ${String(font.weights[1])}` : '100 900'};`, '  font-style: normal;', '  font-display: swap;', '}', '```', '');
   }
   out.push('The address `/fonts/` is an example: put the files where the site keeps its own files, and write that address.', '');
   return out.join('\n');

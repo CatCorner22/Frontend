@@ -351,6 +351,18 @@
         "Set Contrast checks to Off and download DESIGN.md: it says that no program measured the pair; with \"Warn me\" it says what it said before"
       ],
       "passes": true
+    },
+    {
+      "id": "F031",
+      "description": "The owner's texts lose the 28 remaining hidden format signs, a reason is never cut in half a character, FONTS.md states each font's real weight range, and the Undo line says when nothing differs.",
+      "spec_section": "SPEC.md section 2.17",
+      "steps": [
+        "Type a text with a hieroglyph format sign, a shorthand format sign, a musical format sign, and U+FFF0: each becomes a space in the name and in the texts for an AI tool",
+        "Write a reason of 279 letters followed by an emoji: the stored reason holds no lone half",
+        "Download FONTS.md for a project that uses Instrument Sans: its @font-face block says 400 700, not 100 900",
+        "Type a reason and delete it again within one run of typing: the Undo line says that the change left nothing different"
+      ],
+      "passes": true
     }
   ]
 }

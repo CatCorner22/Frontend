@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.18. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Prescription); it does not cover design advice or the plan.
+Version 1.19. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Prescription); it does not cover design advice or the plan.
 
 Stale-after: 90
 
@@ -127,6 +127,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [65.08 FONTS.md, DESIGN.md, and theme.css say the design in three more forms, each from the design's own values](#6508-fontsmd-designmd-and-themecss-say-the-design-in-three-more-forms-each-from-the-designs-own-values)
   - [65.09 Two programs that the builder did not write read DESIGN.md and tokens.json, on GitHub only](#6509-two-programs-that-the-builder-did-not-write-read-designmd-and-tokensjson-on-github-only)
   - [65.10 One archive file holds the seven files, each letter for letter](#6510-one-archive-file-holds-the-seven-files-each-letter-for-letter)
+  - [65.12 FONTS.md states each font file's real weight range](#6512-fontsmd-states-each-font-files-real-weight-range)
   - [65.11 DESIGN.md claims no measurement that did not happen](#6511-designmd-claims-no-measurement-that-did-not-happen)
 - [66 The Fit check (measuring a build against the Prescription)](#66-the-fit-check-measuring-a-build-against-the-prescription)
   - [66.01 The program measures six things and one more, and the Mockup passes its own measure](#6601-the-program-measures-six-things-and-one-more-and-the-mockup-passes-its-own-measure)
@@ -635,7 +636,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **Rule.** When a project loads, each text of the page, each item of a list, each menu word, and each of the three answers is cleaned as typed text is cleaned and cut at its limit; a required text that cleaning would leave empty is replaced by the sample's; the notes of the load say how many texts changed. A clean file loads without such a note. [S15; S1 at D68]
 - **Test.** The three tests of "loading a project file cleans the texts as typing does"; "keeps hostile text as plain data" (texts longer than a limit are cut). [S15; S2]
-- **Exceptions.** The cleaning replaces an invisible sign with a space, as it does for typed text; it keeps a sign that joins letters of one script only in the sense that the list of signs says (finding C7-04 and X7-10: the list leaves 28 format characters through, and it also removes the zero-width joiner that some scripts and emoji need; both are open).
+- **Exceptions.** The cleaning replaces an invisible sign with a space, as it does for typed text; it keeps a sign that joins letters of one script only in the sense that the list of signs says (finding C7-04 is open: the list turns the zero-width joiner and the variation selectors into spaces, and emoji and some scripts need them; the owner decides).
 - Last verified: 2026-11-16
 
 ## [60] The Studio's words
@@ -811,6 +812,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Open.** The second browser test uses a stand-in for the private page; no test opens the real one (finding R23-01).
 - Last verified: 2026-11-16
 
+### [65.12] FONTS.md states each font file's real weight range
+
+<!-- index: font weight range | FONTS.md @font-face -->
+
+- **Rule.** The font table of the core holds, for each font that ships a file, the lowest and the highest weight that the package's Latin file covers; `FONTS.md` writes that range in the `@font-face` block (for example 400 700 for Instrument Sans, not 100 900). A device font has none. [S13; S1 at D68]
+- **Test.** "is the range that the font package states for its Latin file, for every font that ships a file"; "writes that range into the @font-face block of FONTS.md, and not 100 900 for every font". [S13]
+- **Open.** Three designs set the heading weight to 800 on a font whose range ends at 700 (finding C7-08); a browser then draws 700.
+- Last verified: 2026-11-16
+
 ### [65.11] DESIGN.md claims no measurement that did not happen
 
 <!-- index: DESIGN.md button pair | Contrast checks Off -->
@@ -960,6 +970,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-16 v1.19: after the small repairs of feature F031 (decision D68): added §65.12; §55.07 states what stays open. 82 guarantees.
 - 2026-11-16 v1.18: after the four repairs of feature F030 (decision D68): added §55.06, §55.07, §60.08, and §65.11; the wording of §65.04, §65.06, §65.07, §66.04 follows the seven files. 81 guarantees.
 - 2026-11-16 v1.17: after the seventh review's repairs of the Fit check (feature F029, decision D68): added §66.06 to §66.08; the header and scope sentence now name the Fit check. 77 guarantees.
 - 2026-11-16 v1.16: after the three repairs of taste (feature F028, decision D63 point 4): added §60.05 to §60.07. 74 guarantees.
@@ -1004,7 +1015,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §55.06, §55.07, §60.01, §60.03, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.07, §65.09, §65.11, §66.01, §66.04, §66.05, §66.06, §66.07, §66.08, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §55.06, §55.07, §60.01, §60.03, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.07, §65.09, §65.12, §65.11, §66.01, §66.04, §66.05, §66.06, §66.07, §66.08, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08, §55.07
 - [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §55.06, §60.01, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.06, §65.10, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
@@ -1015,7 +1026,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S10] The owner and the builder, *Standing rules for every session in this repository*, file `CLAUDE.md`… — §30.01, §30.04, §30.06, §40.04, §55.02, §60.02, §60.03, §65.01, §65.03, §65.05, §66.03, §70.01, §70.03, §70.05
 - [S11] The builder, *Boundary rules*, file `.dependency-cruiser.cjs` (2026-11-13) — §70.01
 - [S12] The builder, *The saving table: what the Studio does with your work, in every situation*, file… — §10.14
-- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §55.04, §55.06, §65.02, §65.03, §65.04, §65.05, §65.07, §65.08, §65.11
+- [S13] The builder, *Unit tests of the Prescription*, file `packages/core/test/prescription.test.ts` (2026-11-15) — §55.04, §55.06, §65.02, §65.03, §65.04, §65.05, §65.07, §65.08, §65.12, §65.11
 - [S14] The builder, *Unit tests of a Direction of the owner's own*, file `packages/core/test/ownDirections.test.ts`… — §20.06, §50.09, §50.10
 - [S15] The builder, *Unit tests of the Brief*, file `packages/core/test/brief.test.ts` (2026-11-16) — §55.01, §55.02, §55.06, §55.07
 - [S16] The builder, *Unit tests of the archive file*, file `packages/core/test/zip.test.ts` (2026-11-16) — §65.10
@@ -1117,7 +1128,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **fit check** — §66.01
 - **Fix for me** — §40.03; *see also* contrast check
 - **following value** — §50.05; *see also* Decision
+- **font weight range** — §65.12
 - **FONTS.md** — §65.08
+- FONTS.md @font-face — *see* font weight range
 - foreign data — *see* unknown values in a file of own Directions
 - forged sentence — *see* quotation marks
 
@@ -1386,7 +1399,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_101 sections, 18 sources, 79 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
+_102 sections, 18 sources, 80 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
 
 - No findings.
 <!-- health:end -->

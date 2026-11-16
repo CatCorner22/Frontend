@@ -1,3 +1,5 @@
+> **Checked on 2026-11-16 (decision D68).** An independent helper fetched every cited page again and compared each quotation and number with the page. Corrections that it proposed are applied below. What the check did not cover: the evidence grades, the order of the rows, the "how a program checks it" methods (none was tested), and anything that no cited page can confirm.
+
 > **Status.** Written by a helper agent on 2026-11-16 at the builder's request (decisions D63 point 3 and D68), from pages that the helper read through the five hosts that the owner approved. The builder has not yet checked its quotations against the pages, and the owner has not reviewed it. Nothing in the Catalog rests on it until the builder has done both.
 
 # Research record 12c: the search Floor
@@ -28,7 +30,7 @@ Record date: 2026-11-16. Prepared by a research helper for the owner of "Refract
 | Google: Image SEO best practices | https://developers.google.com/search/docs/appearance/google-images ; last updated 2026-03-02 | Use `<img src>`, not CSS images; alt text is the most important image metadata; descriptive file names; `src` fallback for `srcset` and `picture`; supported formats. |
 | Google: Introduction to structured data markup | https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data ; last updated 2025-12-10 | JSON-LD is the recommended format; markup must describe visible content; required properties give eligibility, not a guarantee. |
 | Google: Local business (LocalBusiness) structured data | https://developers.google.com/search/docs/appearance/structured-data/local-business ; last updated 2026-09-08 | Required properties (`address`, `name`), recommended properties, value rules (geo precision, `priceRange` length, `telephone` with country code), "most specific sub-type" rule, review properties not advised for a business's own site. |
-| Google: How to specify a canonical URL | https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls ; last updated 2026-07-10 | Canonical is optional; self-referential, absolute, in `<head>`, one only; Google prefers HTTPS. |
+| Google: How to specify a canonical URL | https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls ; last updated 2026-07-10 | Canonical is optional; self-referential, absolute, in `<head>` (the page says the link is "only accepted if it appears in the `<head>` section"); do not give different canonical URLs for the same page by different methods; Google prefers HTTPS. ("Exactly one" in Q14 is this record's own rule, not the page's.) |
 | Google: Robots meta tag, data-nosnippet, X-Robots-Tag | https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag ; last updated 2026-03-24 | What `noindex`, `nosnippet`, and `max-snippet` do; the more restrictive rule wins; rules are ignored if robots.txt blocks the page. |
 | Google: Introduction to robots.txt | https://developers.google.com/search/docs/crawling-indexing/robots/intro ; last updated 2025-12-10 | robots.txt manages crawling; it is not a way to hide a page; do not block resources the page needs. (I read this introduction only, not the "create a robots.txt file" page.) |
 | Google: Mobile site and mobile-first indexing best practices | https://developers.google.com/search/docs/crawling-indexing/mobile/mobile-sites-mobile-first-indexing ; last updated 2025-12-10 | Google indexes the mobile version; responsive design is the recommended setup; same content, headings, metadata, structured data, and alt text on mobile; do not lazy-load primary content on interaction. |
@@ -39,8 +41,8 @@ Record date: 2026-11-16. Prepared by a research helper for the owner of "Refract
 | MDN: `lang` global attribute | https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/lang ; last modified 2026-09-08 | Value is a BCP 47 tag; always set it; WCAG 3.1.1 asks for it. |
 | MDN: `<h1>` to `<h6>` | https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/Heading_Elements ; last modified 2026-08-26 | One `<h1>`; do not skip levels; do not use headings to resize text. |
 | MDN: `<link>` and `rel` values | https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/link ; last modified 2026-05-20 ; https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel ; last modified 2026-10-07 | `rel="canonical"` is valid on `<link>` and "defines the preferred URL for the current document". |
-| W3C: Understanding SC 2.4.2 Page Titled (added by me; supports Q3) | https://www.w3.org/WAI/WCAG22/Understanding/page-titled.html ; updated 2026-03-09 | A published requirement (WCAG 2.2) that each page has a descriptive title. |
-| W3C: Understanding SC 3.1.1 Language of Page (added by me; supports Q13) | https://www.w3.org/WAI/WCAG22/Understanding/language-of-page.html ; updated 2026-03-09 | A published requirement (WCAG 2.2) that the page language can be determined by a program. |
+| W3C: Understanding SC 2.4.2 Page Titled (added by me; supports Q3) | https://www.w3.org/WAI/WCAG22/Understanding/page-titled.html ; updated 2026-03-09 | The Understanding page explains WCAG 2.2 success criterion 2.4.2, which is a requirement: each page has a descriptive title. |
+| W3C: Understanding SC 3.1.1 Language of Page (added by me; supports Q13) | https://www.w3.org/WAI/WCAG22/Understanding/language-of-page.html ; updated 2026-03-09 | The Understanding page explains WCAG 2.2 success criterion 3.1.1, which is a requirement: the page language can be determined by a program. |
 
 Not fetched: `web.dev`, `cheatsheetseries.owasp.org`, and any W3C page other than the two above. They were allowed but not needed for the search Floor. The owner already has an accessibility Floor (decision D13); the two W3C pages are here only because title and language serve both Floors.
 
@@ -77,7 +79,7 @@ Order is my judgement of how much each item matters for one local-business page.
 
 ### Notes on individual rows
 
-- **Q4 and Q5 are the only rows where a Google page uses "must".** Even there the consequence is eligibility for a display feature, not ranking.
+- **Q4 and Q5 are the rows where Google's structured-data pages say "must" (local-business: "You must include the required properties"; intro-structured-data: "You must include all the required properties").** Even there the consequence is eligibility for a display feature, not ranking. Other cited pages also use "must": creating-helpful-content says YMYL content "must be highly accurate and consistent with established expert consensus" (relevant to Q15 for a dental practice), and the robots-meta page says rules that must be followed "cannot be disallowed" in robots.txt.
 - **Q9 and the images in Q12.** Mobile-first indexing means the phone version is the one Google reads. A responsive page serves one HTML document, so the "same content on both" rule is met by construction; the program check guards against a template that hides content at narrow widths.
 - **Q6 is partly redundant with the project's rule that Mockups contain no script.** It still belongs in the Floor because the Fitter also checks the build, and the build may use a framework.
 
@@ -85,7 +87,7 @@ Order is my judgement of how much each item matters for one local-business page.
 
 The Floor should not write any of these as a rule. I list them because a builder will meet them.
 
-- **A meta description of 150 to 160 characters.** Google says "There's no limit" and that snippets are cut to fit the device width. MDN gives no description length. The only length figure in the pages read is MDN's "about the first 55–60 characters" for titles, which MDN does not source.
+- **A meta description of 150 to 160 characters.** Google says "There's no limit" and that snippets are cut to fit the device width. MDN gives no description length. The only figure for title or description length in the pages read is MDN's "about the first 55–60 characters" for titles; I saw no source cited next to it. (Other length figures exist for other fields, for example priceRange under 100 characters.)
 - **A `keywords` meta tag.** Google: "Google Search doesn't use the keywords meta tag." Do not require it.
 - **A minimum word count, or a keyword density target.** Google: "there's no magical word count target"; the helpful-content page asks whether you write to a word count and answers "No, we don't".
 - **Keywords in the domain name or URL path.** Google: they have "hardly any effect beyond appearing in breadcrumbs".
@@ -109,7 +111,7 @@ The Floor should not write any of these as a rule. I list them because a builder
 ## Conflicts or doubts
 
 1. **Few musts, many recommendations.** The Google pages describe nearly everything here as a best practice. If the Floor says "requirement", the owner should know that for search most items are recommendations. I suggest the Floor wording "checked: present" and "not checked: whether it helps".
-2. **Heading rules.** Google says heading order and count do not matter for Search; MDN and WCAG ask for one `<h1>` and no skipped levels. Q7 rests on accessibility and on Google's example of making the main title clear, not on a ranking effect.
+2. **Heading rules.** Google says heading order does not matter for Search and there is "no magical, ideal amount of headings"; MDN and WCAG ask for one `<h1>` and no skipped levels. Q7 rests on accessibility and on Google's example of making the main title clear, not on a ranking effect.
 3. **Title length.** MDN says about 55 to 60 characters show; Google says there is no limit and the cut-off depends on device width. Q3 has no length test for that reason. If the owner wants one, it is a convention, not a source rule.
 4. **Canonical.** Google says no canonical method is required and it picks one when none is given, but it recommends a self-referential canonical. The exporter cannot know the production address. Decide whether the Floor leaves the check as "not checked until the address is known" or asks the owner for the address in the Brief.
 5. **Structured data sub-type.** The Google page says to use the most specific LocalBusiness sub-type and lists examples (Restaurant, DaySpa, HealthClub). It does not list the sub-types. The valid list is on schema.org, which was not an allowed host. The builder must confirm `Dentist` (or the owner's sub-type) there before the check can fail on an unknown type.

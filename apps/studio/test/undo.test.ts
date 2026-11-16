@@ -96,10 +96,14 @@ describe('undoWords: changes that touch no Step', () => {
     expect(words(answers, before).done).toBe('Undone: your three answers about the project are back to how they were.');
   });
 
-  it('falls back to the whole project only when nothing that it knows differs', () => {
+  it('says that nothing differs when the two projects are the same, and falls back to the whole project when only something that it does not compare differs', () => {
     const same = base();
-    const w = words({ ...same }, same, 'Clinical Calm');
-    expect(w.whole).toBe(true);
-    expect(w.preview).toContain('which started from Clinical Calm.');
+    const nothing = words({ ...same }, same, 'Clinical Calm');
+    expect(nothing.preview).toBe('Undo takes back: a change that left nothing different.');
+    expect(nothing.done).toBe('Undone: the last change had left nothing different.');
+    expect(nothing.whole).toBe(false);
+    const other = words({ ...same, skin: 'indigo' }, same, 'Clinical Calm');
+    expect(other.whole).toBe(true);
+    expect(other.preview).toContain('which started from Clinical Calm.');
   });
 });

@@ -293,6 +293,14 @@ The seventh review found two blockers in the Fit check: a page that runs its own
 - Not changed in this feature, and recorded: the fingerprint sentence in all files (finding C7-07) says more than the fingerprint covers; the words cannot change until the stored copies of the build trials are made again, because the trial tests compare them with what the core writes today. This waits for the Floors, which change the files anyway.
 - How to test it end to end: a browser test double-clicks the main button; unit tests for `sampleTextsLeft`, for the line in `PRESCRIPTION.md` in the three cases, for loading a hostile file, and for `DESIGN.md` with the setting Off and on; a browser test for the sentence on "Your content" and on the Summary in the mixed case.
 
+### 2.17 Small repairs of the core and of the Undo line (findings X7-10 and C7-05, C7-06, C7-08, V7-07; decision D68)
+
+1. **The list of invisible signs is complete for the families that carry hidden text (X7-10, C7-05).** The format characters U+FFF0 to U+FFFB, U+13430 to U+1343F, U+1BCA0 to U+1BCA3, and U+1D173 to U+1D17A are treated as the other invisible signs are (a space in a name and in a text for an AI tool). The zero-width joiner and non-joiner and the variation selectors stay as they are, until the owner decides (emoji and some scripts need them; finding C7-04 stays open).
+2. **A cut never leaves half a character (C7-06).** A reason and a project name are cut at their limit in UTF-16 units, as before, but a cut that would end on the first half of a two-part character drops that half.
+3. **`FONTS.md` states each font file's real weight range (C7-08).** The font table of the core holds, for each font that ships a file, the lowest and the highest weight that the package's file covers; `FONTS.md` writes that range in the `@font-face` block. A test compares the table with the packages' own style sheets.
+4. **The Undo line does not claim a whole-project change where nothing differs (V7-07).** When the project is the same as the one before it, the line says "Undo takes back: a change that left nothing different." and the notice after it says "Undone: the last change had left nothing different." A difference that the function does not compare (for example the Skin) still gives the whole-project sentence.
+- How to test it end to end: unit tests for each point; the stored copy of `FONTS.md` for the worked project is updated and its two changed lines are the weight lines.
+
 ## 3. Out of scope
 
 - For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.
