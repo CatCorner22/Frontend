@@ -28,5 +28,7 @@ export function undoWords(now: Project, previous: Project, startName: string): {
               : null;
     if (small) return { ...small, steps: [], whole };
   }
+  // Nothing differs at all (for example, a reason that was typed and then deleted within one run of typing): say so, and do not claim a whole-project change.
+  if (JSON.stringify(now) === JSON.stringify(previous)) return { preview: 'Undo takes back: a change that left nothing different.', done: 'Undone: the last change had left nothing different.', steps: [], whole: false };
   return { preview: `Undo takes back: the whole project goes back to the earlier one, which started from ${start}.`, done: `Undone: your earlier project is back, the one that started from ${start}.`, steps: touched, whole: true };
 }

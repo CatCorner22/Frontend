@@ -11,9 +11,10 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    # The browser tests take about nine minutes on a developer machine since the width, headline, and page-database tests
-    # were added (2026-11-13). The limit leaves room for a slower machine; a run that hangs still ends.
-    timeout-minutes: 25
+    # The browser tests grew with every feature: on 2026-11-16 this job took 19 to 24 minutes on GitHub (run 164: 24 minutes
+    # 4 seconds, 56 seconds below the old limit of 25; audit finding A1-09). A run that stops at the limit is a red run, and
+    # no milestone closes on a red run (hard rule 3). The limit leaves room to grow; a run that hangs still ends.
+    timeout-minutes: 45
     steps:
       # Actions are pinned by commit hash so that a moved tag cannot change what runs.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

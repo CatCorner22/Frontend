@@ -339,6 +339,42 @@
         "Measure pages with an oklch color, a DATA: address, a formaction, a poster, a meta refresh, and a text hidden at 375 pixels: each is read as the requirement says"
       ],
       "passes": true
+    },
+    {
+      "id": "F030",
+      "description": "The owner double-clicks by accident and loses nothing, is told which texts of the page are still the sample's, loads a hostile project file and gets clean texts, and reads a DESIGN.md that claims no measurement that did not happen.",
+      "spec_section": "SPEC.md section 2.16",
+      "steps": [
+        "Double-click the main button on a Step: one Decision, and one Step forward",
+        "Change one text on \"Your content\": the screen and the Summary say how many of the 23 texts are still the sample's, and PRESCRIPTION.md names the placeholders",
+        "Open a project file whose texts hold hidden signs, line breaks, and 600 characters: the texts are cleaned and cut, and the notes say so",
+        "Set Contrast checks to Off and download DESIGN.md: it says that no program measured the pair; with \"Warn me\" it says what it said before"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F031",
+      "description": "The owner's texts lose the 28 remaining hidden format signs, a reason is never cut in half a character, FONTS.md states each font's real weight range, and the Undo line says when nothing differs.",
+      "spec_section": "SPEC.md section 2.17",
+      "steps": [
+        "Type a text with a hieroglyph format sign, a shorthand format sign, a musical format sign, and U+FFF0: each becomes a space in the name and in the texts for an AI tool",
+        "Write a reason of 279 letters followed by an emoji: the stored reason holds no lone half",
+        "Download FONTS.md for a project that uses Instrument Sans: its @font-face block says 400 700, not 100 900",
+        "Type a reason and delete it again within one run of typing: the Undo line says that the change left nothing different"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F032",
+      "description": "The owner downloads a PRESCRIPTION.md that carries the Floors, each requirement with its source, and that says what is written, what is not, and why.",
+      "spec_section": "SPEC.md section 2.18",
+      "steps": [
+        "Download PRESCRIPTION.md with Contrast checks set to \"Warn me\": section 7 lists the Floors for security of the page, the host's settings, search, and speed, and says that the Floor for people with disabilities is not written and why",
+        "Set Contrast checks to \"Fix for me\" and download again: section 7 also lists the requirements for people with disabilities",
+        "Every requirement shows its id, its text, what a person must still check, and a source address on an approved host; none says that the page is accessible or compliant",
+        "The Summary says what the Prescription holds and no longer says that the Floors are missing"
+      ],
+      "passes": true
     }
   ]
 }

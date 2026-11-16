@@ -41,6 +41,51 @@ function fingerprintsOf(files: Readonly<Record<string, string | undefined>>, tok
   };
 }
 
+/** The named values of `tokens.css`, in their order, as the Studio writes them: one `  --name: value;` line each. */
+export function cssValues(text: string): [string, string][] {
+  return [...text.matchAll(/^ {2}(--[\w-]+): (.*);$/gm)].map((m) => [m[1] ?? '', m[2] ?? '']);
+}
+
+/** The fingerprint of the design values, worked out as the Studio works it out (FNV-1a over "name:value;" of every value, in order). */
+export function fingerprintOf(values: readonly [string, string][]): string {
+  let sum = 0x811c9dc5;
+  for (const [name, value] of values) {
+    for (const unit of `${name}:${value};`) {
+      sum ^= unit.codePointAt(0)!;
+      sum = Math.imul(sum, 0x01000193) >>> 0;
+    }
+  }
+  return sum.toString(16).padStart(8, '0');
+}
+
+/** The colors, sizes, and typefaces on which tokens.json says another thing than tokens.css. */
+function disagreements(tokens: TokensJson, css: readonly [string, string][]): string[] {
+  const byName = new Map(css);
+  const out: string[] = [];
+  for (const [group, entries] of Object.entries({ color: tokens.color, dimension: tokens.dimension, typeface: tokens.typeface })) {
+    for (const [name, token] of Object.entries(entries ?? {})) {
+      if (typeof token !== 'object' || token === null || !('$value' in token)) continue;
+      const there = byName.get(`--${name}`);
+      const value = token.$value;
+      let same = true;
+      if (there === undefined) same = false;
+      else if (group === 'color' && value && !Array.isArray(value) && typeof value.hex === 'string') {
+        // tokens.css writes an opaque color as six-digit hex and a partly transparent one as rgb(r g b / a); any other form is a
+        // disagreement, so that doubt is never "the same" (retest finding A2-V8).
+        const alpha = value.alpha ?? 1;
+        const rgb = /^rgb\((\d+) (\d+) (\d+) \/ ([\d.]+)\)$/.exec(there);
+        if (/^#[0-9a-f]{6}$/i.test(there)) same = alpha === 1 && there.toLowerCase() === value.hex.toLowerCase();
+        else if (rgb) same = `#${[rgb[1], rgb[2], rgb[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('')}` === value.hex.toLowerCase() && Math.abs(Number(rgb[4]) - alpha) < 0.0005;
+        else same = false;
+      }
+      else if (group === 'dimension' && value && !Array.isArray(value) && typeof value.value === 'number') same = there === `${String(value.value)}${value.unit ?? ''}`;
+      else if (group === 'typeface' && Array.isArray(value)) same = there.split(',')[0]?.trim().replace(/^"|"$/g, '') === value[0];
+      if (!same) out.push(`--${name}`);
+    }
+  }
+  return out;
+}
+
 export function readDesignValues(files: Readonly<Record<string, string | undefined>>): DesignValues {
   for (const name of READ_FILES) if (files[name] === undefined) throw new FitError(`The folder has no file "${name}".`);
   let tokens: TokensJson;
@@ -57,6 +102,13 @@ export function readDesignValues(files: Readonly<Record<string, string | undefin
     const list = Object.entries(found).map(([name, value]) => `${name} ${String(value)}`).join('; ');
     throw new FitError(`The files carry different fingerprints, so they do not belong together: ${list}.`);
   }
+  // The stated fingerprint is checked against the values themselves (campaign A2, finding J-20): a value changed by hand, or a
+  // fingerprint retyped to quiet the refusal above, would otherwise give a receipt that names a design that it did not measure.
+  const css = cssValues(files['tokens.css'] ?? '');
+  const worked = fingerprintOf(css);
+  if (worked !== [...distinct][0]) throw new FitError(`The values in tokens.css give the fingerprint ${worked}, but the files state ${String([...distinct][0])}: a value was changed by hand, or the files come from two designs. Write the files again from the Studio.`);
+  const disagree = disagreements(tokens, css);
+  if (disagree.length > 0) throw new FitError(`tokens.json and tokens.css disagree about ${disagree.slice(0, 5).join(', ')}${disagree.length > 5 ? ` and ${String(disagree.length - 5)} more` : ''}: a value was changed by hand, or the files come from two designs. Write the files again from the Studio.`);
   const colors = new Set<string>();
   for (const token of Object.values(tokens.color ?? {})) {
     const value = token.$value;

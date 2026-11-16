@@ -1,0 +1,116 @@
+[
+ {
+  "id": "V-01",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j1-channels.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j1-channels.html plugin/fit/trials/001/files probes/L-V/judge/j1-channels; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-02",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j1-realms.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j1-realms.html plugin/fit/trials/001/files probes/L-V/judge/j1-realms; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-03",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j18-clip.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j18-clip.html plugin/fit/trials/001/files probes/L-V/judge/j18-clip; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-04",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j18-clip2.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j18-clip2.html plugin/fit/trials/001/files probes/L-V/judge/j18-clip2; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-05",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j18-clip3.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j18-clip3.html plugin/fit/trials/001/files probes/L-V/judge/j18-clip3; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-06",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j19-control.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j19-control.html plugin/fit/trials/001/files probes/L-V/judge/j19-control; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-07",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j19-import.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j19-import.html plugin/fit/trials/001/files probes/L-V/judge/j19-import; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-08",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j20-red.html measured against the folder /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/folder-j20",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j20-red.html probes/L-V/folder-j20 probes/L-V/judge/j20-red; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-09",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j3-media.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j3-media.html plugin/fit/trials/001/files probes/L-V/judge/j3-media; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-10",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j4-handler.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j4-handler.html plugin/fit/trials/001/files probes/L-V/judge/j4-handler; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-11",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j5-spaces.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j5-spaces.html plugin/fit/trials/001/files probes/L-V/judge/j5-spaces; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-12",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j5-unfenced.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j5-unfenced.html plugin/fit/trials/001/files probes/L-V/judge/j5-unfenced; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-13",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j6-combo.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j6-combo.html plugin/fit/trials/001/files probes/L-V/judge/j6-combo; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-14",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j6-shadow.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j6-shadow.html plugin/fit/trials/001/files probes/L-V/judge/j6-shadow; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-15",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j6-textfill.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j6-textfill.html plugin/fit/trials/001/files probes/L-V/judge/j6-textfill; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-16",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j7-clippath.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j7-clippath.html plugin/fit/trials/001/files probes/L-V/judge/j7-clippath; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-17",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/j7-transparent.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/j7-transparent.html plugin/fit/trials/001/files probes/L-V/judge/j7-transparent; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-18",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/pages/x-preconnect.html",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts probes/L-V/pages/x-preconnect.html plugin/fit/trials/001/files probes/L-V/judge/x-preconnect; echo status=$?  (a listener, where the page needs one: see /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/probes/L-V/tools/listen.py)"
+ },
+ {
+  "id": "V-19",
+  "worktree": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7",
+  "input": "/tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7/packages/core/test/probe-lv.test.ts (a project built in the probe; it prints PRESCRIPTION.md)",
+  "repro_steps": "cd /tmp/claude-0/-home-user-Frontend/05f1e85c-2c2a-5e1e-823f-634a3377d480/scratchpad/rt/lane-7 && npx vitest run packages/core/test/probe-lv.test.ts --silent=false"
+ }
+]

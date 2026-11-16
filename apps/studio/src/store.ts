@@ -1,6 +1,6 @@
 // The Studio's state. Every change to the design goes through the engine in @refraction/core.
 import {
-  DIRECTIONS, OWN_MAX, STEPS, activeTunables, addContentItem, isSampleContent, removeContentItem, restoreSampleContent, setBriefAnswer, setContentItem, setContentText, setNavWord, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName, readOwnDirections,
+  DIRECTIONS, OWN_MAX, STEPS, activeTunables, cutUnits, addContentItem, isSampleContent, removeContentItem, restoreSampleContent, setBriefAnswer, setContentItem, setContentText, setNavWord, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName, readOwnDirections,
   nextStepId, overlaysOf, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setOverlay, setReason, startPlain, tune,
   type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type OwnDirection, type Project, type Skin, type Step,
 } from '@refraction/core';
@@ -1121,7 +1121,7 @@ export const useStudio = create<StudioState>((set, get) => {
     },
 
     rename(name) {
-      commit({ ...get().project, name: name.slice(0, 120) }, 'name');
+      commit({ ...get().project, name: cutUnits(name, 120) }, 'name');
     },
 
     saveAgain() {

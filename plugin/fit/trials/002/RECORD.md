@@ -36,6 +36,16 @@ What the helper said about itself (a claim, not a measurement): it read no file;
 - **Whether the helpers stayed in their rules.** The helpers cannot be held to the rule "read no other file" (or "read no file"): they ran in the same environment as this repository. Trial 002's helper reported that it read none, yet its report names "CLAUDE.md hard rule 7" and "CLAUDE.md's other required files". The repository's `CLAUDE.md` seems to reach a helper without a file read, as part of the context that the harness gives it. The builder did not verify this. If it is so, both helpers knew the repository's rules, and the plain-words helper had more than its instruction.
 - **A fair price.** The measure uses the Prescription's colors. A plain-words page cannot hit them, by construction; the colors row shows how far a plain request lands from them, not that the plain page is wrong for its owner.
 
+## A later change to the program (2026-11-16, campaign A2, decision D71)
+
+The program now serves the build at a stand-in address of the site and reads each width three times. The stored receipt was measured again with that program; no count of the table above changed, and the two contrast lines read as before, because a line that holds in every reading of a width still says "at 375 pixels".
+
+Later the same day (the retest's variant findings A2-V1 to A2-V14): the receipt was measured again. No count and no line of the measures changed; "Still needs a person" gained two lines (dark mode, touch screens, and other window heights; closed shadow roots).
+
 ## Update of 2026-11-16 (decision D68, section 2.15)
 
-The receipt was measured again after the seventh review's repairs of the program. The page holds no script, so the counts did not change. One label needs a word: the table counts "deviations" per measure, and for contrast the 2 are readings below the usual least, which the receipt does not count as deviations from the Prescription (it holds no Floors yet) and which never change the program's status.
+The receipt was measured again after the seventh review's repairs of the program. The page holds no script, so the counts did not change. One label needs a word: the table counts "deviations" per measure, and for contrast the 2 are readings below the usual least, which the receipt does not count as deviations from the Prescription (it holds no Floors yet) and which never change the program's status. (Update of 2026-11-16, feature F032: the Prescription now holds the Floors, but no program checks them, so the readings still count as no deviation. The receipt's sentence now says "No program checks a Floor of the Prescription yet", and the stored receipts of the three trials changed in that one sentence only.)
+
+## After the join of the two branches (2026-11-16, decision D73)
+
+The stored receipt was measured again with the joined program. No count of the table above changed. The receipt now says that the page's scripts were run (the page holds none), and the contrast note says that no program checks a Floor yet.

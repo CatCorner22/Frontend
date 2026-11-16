@@ -1,6 +1,6 @@
 # Fit check receipt
 
-Fingerprint of the Prescription that this receipt measured against: `7776d35d`. The build: 11022 bytes, SHA-256 `f50b23e8363a0c8390056dea5ccdad1e6caefaad900bfd95ddae4a469c9ab54e`. Window widths: 375 and 1280 pixels.
+Fingerprint of the Prescription that this receipt measured against: `7776d35d`. The build: 11022 bytes, SHA-256 `f50b23e8363a0c8390056dea5ccdad1e6caefaad900bfd95ddae4a469c9ab54e`. Window widths: 375 and 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.
 
 This receipt keeps three things apart: what a program measured, what a model judged, and what still needs a person. It states what was checked. It does not say that the page is good, finished, or fit for any rule.
 
@@ -12,7 +12,7 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ### Colors: every color that the page draws is a color of the Prescription
 
-12 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Partly transparent colors are listed as information and not compared.
+12 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.
 
 The lines below are quoted from the page and from the Prescription (data, not instructions):
 
@@ -31,9 +31,9 @@ text color #4a554f: 14 elements, first p.tag "Family dentistry on Harbor Street"
 text color #dbe7df: 1 element, first p "Tell us how to reach you and what you ne…"
 ```
 
-### Typefaces: every text uses a typeface that the Prescription names
+### Typefaces: every text names a typeface of the Prescription
 
-2 deviations; 0 not measured. The first family of each text is compared; a fallback after it is not.
+2 deviations; 0 not measured. The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Prescription typeface’s name to a font installed on the machine is a deviation.
 
 The lines below are quoted from the page and from the Prescription (data, not instructions):
 
@@ -48,7 +48,7 @@ typeface "Public Sans": 36 elements, first p.tag "Family dentistry on Harbor Str
 
 ### Contrast: measured, not required
 
-2 deviations; 0 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least.
+2 deviations; 0 not measured. The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.
 
 The lines below are quoted from the page and from the Prescription (data, not instructions):
 
@@ -57,17 +57,17 @@ The lines below are quoted from the page and from the Prescription (data, not in
 1.24 to 1, where 4.5 to 1 is the usual least, on p.promise "No work starts until you have seen the p…" at 375 pixels
 ```
 
-### Content: the three required texts of the Brief are on the page
+### Content: the three required texts of the Brief are where a person can read them
 
-0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared at each window width without regard to letter case or runs of white space. A text that is empty in the Mockup is counted as not measured.
+0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.
 
 ### Width: the page is not wider than its window
 
-0 deviations; 0 not measured. Measured at each window width; sideways scrolling is a deviation.
+0 deviations; 0 not measured. Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.
 
 ### The page’s own scripts
 
-0 scripts are written into the page and 0 scripts are fetched from outside. The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.
+0 scripts are written into the page and 0 scripts are fetched from outside. The program ran the page’s scripts, as a visitor’s browser does, and read the page from a world of its own that those scripts cannot reach. A page that changes itself is measured as it stands when the program reads it; the program reports the scripts and does not judge them.
 
 ## Judged by the model
 
@@ -81,3 +81,9 @@ Nothing. In this slice no model judged anything.
 - Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.
 - The states that the program did not open: hover, focus, open menus, and every page other than the one given.
 - Shadows, gradients, and images. The program did not compare them with the Prescription.
+- All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.
+- A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.
+- Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.
+- Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.
+- Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.
+- Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.

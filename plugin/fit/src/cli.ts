@@ -1,12 +1,12 @@
 // The command line of the Fit check:  node plugin/fit/src/cli.ts <build.html> <folder of the Prescription's files> <result folder>
 // Status 0: no deviation in the six measured things. Status 1: at least one deviation, or a window that could not be measured.
 // Status 2: the program refused, and it wrote no receipt.
-import { closeSync, constants, lstatSync, mkdirSync, openSync, readFileSync, writeSync } from 'node:fs';
+import { closeSync, constants, lstatSync, mkdirSync, openSync, readFileSync, rmSync, writeSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { FitError, fit } from './fit.ts';
 import { READ_FILES } from './prescription.ts';
 
-const USAGE = 'Usage: node plugin/fit/src/cli.ts [--run-scripts] <build.html> <folder of the Prescription files> <result folder>';
+const USAGE = 'Usage: node plugin/fit/src/cli.ts [--no-scripts] <build.html> <folder of the Prescription files> <result folder>';
 const RESULT_FILES = ['receipt.json', 'RECEIPT.md'] as const;
 
 /** The program never writes through a symbolic link: a result folder from another place could point a link at a file that it must not replace. */
@@ -41,10 +41,12 @@ function readText(path: string, what: string): string {
 }
 
 async function main(args: string[]): Promise<number> {
-  const runScripts = args.includes('--run-scripts');
-  const [buildPath, folder, outFolder] = args.filter((a) => a !== '--run-scripts');
-  if (args.filter((a) => a !== '--run-scripts').length !== 3 || !buildPath || !folder || !outFolder) throw new FitError(USAGE);
+  const runScripts = !args.includes('--no-scripts');
+  const [buildPath, folder, outFolder] = args.filter((a) => a !== '--no-scripts');
+  if (args.filter((a) => a !== '--no-scripts').length !== 3 || !buildPath || !folder || !outFolder) throw new FitError(USAGE);
   refuseLinks(resolve(outFolder));
+  // An earlier receipt in the result folder would look current after a refusal; it goes first (retest finding A2-R2).
+  for (const name of RESULT_FILES) rmSync(join(resolve(outFolder), name), { force: true });
   const html = readText(resolve(buildPath), 'the build');
   const files: Record<string, string> = {};
   for (const name of READ_FILES) {
@@ -61,8 +63,11 @@ async function main(args: string[]): Promise<number> {
   refuseLinks(resolve(outFolder));
   writeNoFollow(join(resolve(outFolder), 'receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);
   writeNoFollow(join(resolve(outFolder), 'RECEIPT.md'), markdown);
-  const deviations = receipt.measured.filter((m) => m.id !== 'contrast').reduce((sum, m) => sum + m.deviations, 0);
-  process.stdout.write(`${status === 0 ? 'No deviation' : `${String(deviations)} deviations, ${String(receipt.loadFailures.length)} windows not measured`}. Receipt: ${join(resolve(outFolder), 'RECEIPT.md')}\n`);
+  const six = receipt.measured.filter((m) => m.id !== 'contrast');
+  const deviations = six.reduce((sum, m) => sum + m.deviations, 0);
+  // "Not measured" is never "no deviation": the line names it whenever the receipt holds it.
+  const unmeasured = six.reduce((sum, m) => sum + m.notMeasured, 0);
+  process.stdout.write(`${status === 0 ? `No deviation${unmeasured > 0 ? `, but ${String(unmeasured)} things not measured` : ''}` : `${String(deviations)} deviations, ${String(receipt.loadFailures.length)} windows not measured`}. Receipt: ${join(resolve(outFolder), 'RECEIPT.md')}\n`);
   return status;
 }
 

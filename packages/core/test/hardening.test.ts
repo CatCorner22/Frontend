@@ -1,7 +1,7 @@
 // Faults that no test caught (the seventh review's test auditor, rows Q7-53, Q7-84, Q7-89, Q7-96, Q7-97, Q7-98).
 import { crc32 } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { createProject, plainName, removeContentItem, visibleText, zipFiles } from '../src/index.js';
+import { createProject, cutUnits, pick, plainName, removeContentItem, setReason, visibleText, zipFiles } from '../src/index.js';
 
 describe('the archive writer: the check sum stands in the header before the file as well as in the list at the end', () => {
   it('writes the same, correct check sum in both places for each file', () => {
@@ -46,6 +46,8 @@ describe('the cleaning of the owner’s texts: invisible signs, half characters,
     ['Khmer vowel inherent', 0x17b4], ['Mongolian free variation selector', 0x180b], ['zero-width space', 0x200b], ['left-to-right mark', 0x200e],
     ['right-to-left override', 0x202e], ['word joiner', 0x2060], ['left-to-right isolate', 0x2066], ['braille blank', 0x2800], ['Hangul filler 3', 0x3164],
     ['variation selector 16', 0xfe0f], ['byte order mark', 0xfeff], ['half-width Hangul filler', 0xffa0], ['interlinear annotation anchor', 0xfff9], ['tag letter', 0xe0049],
+    ['unassigned format sign FFF0', 0xfff0], ['unassigned format sign FFF8', 0xfff8], ['Egyptian hieroglyph format', 0x13430], ['Egyptian hieroglyph format, last', 0x1343f],
+    ['shorthand format', 0x1bca0], ['shorthand format, last', 0x1bca3], ['musical symbol begin beam', 0x1d173], ['musical symbol end phrase', 0x1d17a],
   ];
   it.each(SIGNS)('turns %s (U+%s) into a space, in a name and in a text for an AI tool', (_label, code) => {
     const sign = String.fromCodePoint(code);
@@ -67,5 +69,22 @@ describe('the cleaning of the owner’s texts: invisible signs, half characters,
     expect(visibleText('a\r\nb\rc')).toBe('a\nb\nc');
     expect(visibleText('a\tb')).toBe('a b');
     expect(plainName('a\nb')).toBe('a b');
+  });
+});
+
+describe('cutting a text by UTF-16 units never leaves half of a two-part character (finding C7-06)', () => {
+  it('drops a high half that the cut would leave at the end, and keeps a whole character that fits', () => {
+    expect(cutUnits('a'.repeat(279) + '😀 tail', 280)).toBe('a'.repeat(279));
+    expect(cutUnits('a'.repeat(278) + '😀 tail', 280)).toBe('a'.repeat(278) + '😀');
+    expect(cutUnits('short', 280)).toBe('short');
+    expect(cutUnits('ab', 2)).toBe('ab');
+    expect(cutUnits('a😀', 3)).toBe('a😀');
+  });
+
+  it('keeps a reason, when it is written, free of a lone half', () => {
+    const project = pick(createProject('x'), 'nav', 'side-rail', '2026-11-16T09:00:00.000Z');
+    const reason = setReason(project, 'nav', 'a'.repeat(279) + '😀 tail').decisions['nav']?.reason ?? '';
+    expect(reason).toBe('a'.repeat(279));
+    expect(reason).not.toMatch(/[\ud800-\udbff]$/);
   });
 });
