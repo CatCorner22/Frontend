@@ -156,7 +156,7 @@
         "PRESCRIPTION.md lists under 'what no program checked' only what the design has, and with contrast checks off it does not read as if every pair had passed",
         "tokens.json types a typeface list as a typeface and a keyword as a keyword; each color's components equal its CSS color; mockup.html is stored for two projects"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "F014",

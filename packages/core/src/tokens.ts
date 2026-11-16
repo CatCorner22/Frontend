@@ -236,6 +236,20 @@ export const NOT_CHECKED: readonly string[] = [
   'Anything a person must judge: whether the page reads well in sunlight, with a screen reader, or to a person with low vision.',
 ];
 
+/**
+ * The lines of `NOT_CHECKED` that apply to one design. A design without a grain, without a varied background, and with a
+ * headline in one color is told nothing about them: read as a list of facts, the full list said of every design that it
+ * has a grain (review of 2026-11-15, finding U6-04).
+ */
+export function notCheckedIn(params: DesignParams): string[] {
+  const varied = !['plain', 'grain'].includes(params.atmosphere) || params.elevation === 'glass';
+  const grain = params.atmosphere === 'grain';
+  const filled = params.displayTreatment !== 'solid';
+  const [variedLine, grainLine, filledLine, ...always] = NOT_CHECKED as [string, string, string, ...string[]];
+  const grainHere = params.theme === 'light' ? grainLine : 'The fine grain texture. It lies over the whole page and darkens text and background a little; the figures above do not include it.';
+  return [...(varied ? [variedLine] : []), ...(grain ? [grainHere] : []), ...(filled ? [filledLine] : []), ...always];
+}
+
 // Every pair is measured on the colors as they are written to the page, so that "passes" means the emitted colors pass (finding T2-01).
 const measure = (pal: Palette, spec: PairSpec): number => contrastOverEmitted(pal[spec.fg], spec.alpha ? pal[spec.alpha] : 1, pal[spec.bg]);
 const markerApplies = (p: DesignParams): boolean => p.signature === 'marker';

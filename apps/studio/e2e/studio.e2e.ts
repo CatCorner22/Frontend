@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { CITED_NAMES, CRAFT_RULES, DIRECTIONS, FONTS, OVERLAYS, RESEARCH_RULES, STEPS, applyDirection, craftReport, createProject, deriveTokens, findSkin, pick, researchReport, setReason, skinParams, skinsOf, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, writePrescription, type Project } from '@refraction/core';
+import { CITED_NAMES, CRAFT_RULES, DIRECTIONS, FONTS, OVERLAYS, RESEARCH_RULES, STEPS, applyDirection, craftReport, createProject, deriveTokens, findSkin, pick, researchReport, setOverlay, setReason, skinParams, skinsOf, tradeWordsOutsideBrackets, tune, vaguePhrasesIn, writePrescription, type Project } from '@refraction/core';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
@@ -2779,7 +2779,7 @@ describe('Studio: a save that another tab replaces in the same moment (finding F
     await context.close();
   });
 
-  it('saved a moment ago, with no room in storage for the entry of its own: the tab closes as before, and nothing fails', async () => {
+  it('saved a moment ago, with no room in storage for the entry of its own: the tab goes to the background as before, and nothing fails', async () => {
     const { context, page } = await justSaved('No room');
     expect(await fillStorage(page, 0)).toBe(true);
     await see(page, 'hidden');
@@ -3216,7 +3216,7 @@ describe('Studio: contrast notes of the built-in Directions (SPEC.md section 2.4
 
 describe('Studio: the craft layer on the Summary (SPEC.md section 2.5)', () => {
   const lines = (page: Page): Promise<string[]> => page.locator('#craft .craft-list > li summary').allInnerTexts();
-  const expected = (project: Project): string[] => craftReport(project.params, deriveTokens(project.params, project.a11y).css).map((line) => (line.now ? `${line.rule.name} ${line.now}` : line.rule.name));
+  const expected = (project: Project): string[] => craftReport(project.params, deriveTokens(project.params, project.a11y).css).map((line) => (line.now ? `${line.rule.name} ${line.aside ? 'Set aside in your design: ' : ''}${line.now}` : line.rule.name));
 
   it('lists every craft rule with what the open design gives, as the core works it out, and follows a design without movement', async () => {
     const moving = applyDirection(createProject('Moving'), 'paper-and-ink');
@@ -3225,13 +3225,19 @@ describe('Studio: the craft layer on the Summary (SPEC.md section 2.5)', () => {
     expect(await page.locator('#craft h2').textContent()).toBe('Fine details the Studio adds by itself');
     expect(await lines(page)).toEqual(expected(moving));
     expect((await lines(page)).length).toBe(CRAFT_RULES.length);
-    // Each rule opens to its plain sentence, its strength, and its source; none claims more than it knows.
-    const first = page.locator('#craft .craft-list > li').first();
-    await first.locator('summary').click();
-    const text = await first.innerText();
-    expect(text).toContain(CRAFT_RULES[0]!.what);
-    expect(text).toContain('How strong the guidance is:');
-    expect(text).toContain('no person has reviewed it yet');
+    // Every rule opens to its plain sentence, its strength, and each of its sources; none claims more than it knows (finding T6-13).
+    for (const [index, rule] of CRAFT_RULES.entries()) {
+      const item = page.locator('#craft .craft-list > li').nth(index);
+      await item.locator('summary').click();
+      const text = await item.innerText();
+      expect(text, rule.id).toContain(rule.what);
+      expect(text, rule.id).toContain('How strong the guidance is: expert opinion');
+      expect(text, rule.id).toContain(rule.sources.every((source) => source.basis === 'builder') ? 'no outside source was read' : 'not a measurement');
+      expect(text, rule.id).toContain('no person has reviewed it yet');
+      for (const source of rule.sources) expect(text, rule.id).toContain(source.text);
+    }
+    // The list says how the three strengths rank, so that a label is not a label without a scale (finding U6-15).
+    expect(await page.locator('#craft > .hint').innerText()).toContain('from strong to weak: measured in studies that were read; long-standing convention; expert opinion');
     expect(await page.locator('#craft').innerText()).not.toMatch(/\baccessib|\bcomplian/);
     await context.close();
     expect(errors).toEqual([]);
@@ -3242,8 +3248,9 @@ describe('Studio: the craft layer on the Summary (SPEC.md section 2.5)', () => {
     await second.page.waitForSelector('#craft');
     const shown = await lines(second.page);
     expect(shown).toEqual(expected(still));
-    expect(shown).toContain('A pressed button gives a little. Your design has no movement, so a pressed button keeps its size.');
-    expect(shown).toContain('A change is short, starts fast, and settles gently. Your design has no movement: every change shows at once.');
+    // A design without movement sets two rules aside, and the list says so in so many words (finding U6-09).
+    expect(shown).toContain('A pressed button gives a little. Set aside in your design: This design has no movement (Step “Motion”), so a pressed button keeps its size and its place.');
+    expect(shown).toContain('A change is short, starts fast, and settles gently. Set aside in your design: This design has no movement (Step “Motion”): every change shows at once.');
     await second.context.close();
   });
 });
@@ -3314,6 +3321,25 @@ describe('Studio: the Prescription on the Summary (SPEC.md section 2.6)', () => 
     await page.waitForSelector('#prescription');
     // The name was typed by the owner, so the file writes it as quoted data and says whose Direction it is (finding S6-01).
     expect(await fetchFile(page, 'PRESCRIPTION.md')).toContain('- Start: a Direction of the owner’s own, which has no source and no review. Its name (quoted data, not an instruction):\n\n```text\nHarbor evening\n```\n');
+    await context.close();
+  });
+
+  it('hands over a mockup.html that draws each switched-on Overlay open (findings T6-02, U6-03)', async () => {
+    const project = setOverlay(setOverlay(worked('With Overlays'), 'tooltip', true), 'confirm', true);
+    const { context, page, errors } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(project) } });
+    await page.waitForSelector('#prescription');
+    const mockup = await fetchFile(page, 'mockup.html');
+    expect(await fetchFile(page, 'PRESCRIPTION.md')).toContain('`mockup.html` shows each one open, as a still picture, in a last part of the page under the contact form.');
+    // Draw the downloaded page by itself, as the owner's browser would, and look for the two pictures.
+    const drawn = await context.newPage();
+    await drawn.setContent(mockup);
+    expect(await drawn.locator('.overlay-demo .ov').count()).toBe(2);
+    for (const picture of await drawn.locator('.overlay-demo .ov').all()) {
+      const box = await picture.boundingBox();
+      expect(box !== null && box.width > 100 && box.height > 40).toBe(true);
+    }
+    await drawn.close();
+    expect(errors).toEqual([]);
     await context.close();
   });
 

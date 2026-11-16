@@ -1260,14 +1260,14 @@ function SummaryView(): React.JSX.Element {
         </section>
         <section id="craft" aria-labelledby="craft-heading">
           <h2 id="craft-heading">Fine details the Studio adds by itself</h2>
-          <p className="hint">A page made with care differs from an ordinary one in small things that nobody asks for. You do not choose these: every design has them, the preview already draws them, and the Prescription will ask the AI coding tool that builds your page for each one. Open a detail to read what it is and how strong the guidance behind it is.</p>
+          <p className="hint">A page made with care differs from an ordinary one in small things that nobody asks for. You do not choose these: every design has them, except where one of your Steps sets a detail aside (the list then says so). The preview already draws them, and the Prescription asks the AI coding tool that builds your page for each one. Open a detail to read what it is and how strong the guidance behind it is. The Studio knows three strengths, from strong to weak: measured in studies that were read; long-standing convention; expert opinion. Every detail in this list is expert opinion.</p>
           <ul className="craft-list">
-            {craft.map(({ rule, now }) => (
+            {craft.map(({ rule, now, aside, ownJudgment }) => (
               <li key={rule.id}>
                 <details className="source">
-                  <summary><strong>{rule.name}</strong>{now && <> <span className="found">{now}</span></>}</summary>
+                  <summary><strong>{rule.name}</strong>{now && <> <span className="found">{aside && 'Set aside in your design: '}{now}</span></>}</summary>
                   <p>{rule.what}</p>
-                  <p><strong>How strong the guidance is:</strong> {EVIDENCE_LABEL[rule.evidence]}. Written on {rule.reviewed}; no person has reviewed it yet.</p>
+                  <p><strong>How strong the guidance is:</strong> {EVIDENCE_LABEL[rule.evidence]}{ownJudgment ? ', and here the opinion of the assistant that wrote this Studio: no outside source was read' : ': rule sets that people who build websites have published, not a measurement'}. Written on {rule.reviewed}; no person has reviewed it yet.</p>
                   <ul>
                     {rule.sources.map((source) => <li key={source.text}>{source.text} <em>({BASIS_LABEL[source.basis]})</em></li>)}
                   </ul>

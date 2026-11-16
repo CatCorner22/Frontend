@@ -30,7 +30,7 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
   - The second opening of a swapped project says nothing more.
   - The licence notices (`THIRD_PARTY_NOTICES.md` and the Licences screen) list the new fonts and no longer list the replaced ones.
   - The Studio's script stays within its size budget (1,600 KB).
-- How to test it end to end: a unit test reads the copyright notice inside every shipped font file and fails on the words "Reserved Font Name"; a browser test opens a stored project that names both replaced typefaces and reads the notice, the kept copy, and the drawn font family.
+- How to test it end to end: a unit test reads the copyright notices that the build takes out of every shipped font file (the generated notices file; the check `node scripts/make-notices.mjs --check` in CI proves that file current) and fails on the words "Reserved Font Name"; a browser test opens a stored project that names both replaced typefaces and reads the notice, the kept copy, and the drawn font family.
 - Behind it: `PLAN.md` section 6; `docs/research/10-font-reserved-names.md`; decision D55.
 
 ### 2.3 The Direction Creator: the owner keeps a design as a Direction of the owner's own (milestone M4D)
@@ -82,7 +82,7 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
 
 - What the user does: nothing to get them; opens the Summary to read them.
 - What the system does in response:
-  - The Catalog holds one record per craft rule: a name and a sentence in plain words (what it is, why a person notices its absence), the instruction for a builder in exact terms, a check that a program can run on a style sheet, a source, an evidence grade, and a date. No rule is graded "measured" unless its source was read in full.
+  - The Catalog holds one record per craft rule: a name and a sentence in plain words (what it is, why a person notices its absence), the instruction for the AI coding tool in exact terms, a check that a program can run on a style sheet, a source, an evidence grade, and a date. No rule is graded "measured" unless its source was read in full.
   - A unit test runs each rule's check on the Mockup's own style sheet for every built-in Direction: the Mockup practices what the Prescription will ask for. A rule that the Mockup does not meet cannot be in the list.
   - The Summary lists the craft rules under "Fine details the Studio adds by itself", each with its sentence, its strength, and its source, and says that the owner does not choose them.
   - Where a Decision sets a rule's value (the motion Step sets how long a movement lasts; "no motion" switches movement off), the list states the value that the open design gives.
@@ -96,9 +96,9 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
   - `tokens.css`: every design value of the open design as a named CSS custom property, exactly the values that the preview draws.
   - `tokens.json`: the same values in the Design Tokens format (name, value, type), grouped by role.
   - `mockup.html`: the Mockup of the open design as one self-contained page without script, as the reference picture for the build.
-  - `PRESCRIPTION.md`: the instruction for the builder, in three layers: (1) every Decision with the picked Option, the rejected Options, and the owner's reason; (2) the craft rules with their exact instructions; (3) what a person must still check. The owner's own words (the project name, each reason) stand in a fenced block that the text marks as quoted data, never as instructions.
+  - `PRESCRIPTION.md`: the instruction for the AI coding tool, in three layers: (1) every Decision with the picked Option, the rejected Options, and the owner's reason; (2) the craft rules with their exact instructions; (3) what a person must still check. The owner's own words (the project name, each reason) stand in a fenced block that the text marks as quoted data, never as instructions.
 - Edge cases:
-  - A project name or a reason that holds markup, a code fence, or a sentence that addresses the builder ("ignore the rules above"): it stays inside its fence; a fence inside the text cannot close the fence around it.
+  - A project name or a reason that holds markup, a code fence, or a sentence that addresses the AI coding tool ("ignore the rules above"): it stays inside its fence; a fence inside the text cannot close the fence around it.
   - A project with no Decision: the file says that every value comes from the start, and names the start.
   - A start that is a Direction of the owner's own, or one that was removed: named as such.
   - The four files agree: every value in `tokens.css` equals the value in `tokens.json` and the value that `mockup.html` draws; a unit test compares them.

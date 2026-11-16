@@ -104,6 +104,15 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): F013 (repairs after the sixth red-team review, part 2: every sentence of the Prescription and of a craft rule is true of the design in hand)
+- Result: passes
+- Commits: the commit "F013: ..." that holds this entry
+- Evidence: `npm run check`: 247 unit tests passed (9 new: 4 on the craft rules, 5 on the Prescription). `npm run e2e`: 297 browser tests passed (1 new, 1 widened; 1,257 seconds). Tests first: the 4 new craft tests and the 2 changed ones failed before the repair; the 2 browser tests failed on the build from before the repair. The 5 new tests of the Prescription were run only after the repair. What changed: a craft rule's instruction and sentence are worked out from the design, and a rule that the design sets aside says so; three faults of the style sheet are repaired (a button with a hard shadow moved in a design without movement; reactions to the pointer did not ask for a fine pointer; the entrance was longer than the rule allowed and the rule did not say so); every craft rule is graded "expert opinion"; the reference page of the four files draws each switched-on Overlay; "what no program checked" follows the design; `mockup.html` is stored for two projects.
+- What went wrong on the way: two of the builder's new tests were wrong at first. One looped over "every Option" through a field that an Option does not have, so it tested the plain start 80 times; the type check caught it, and it now reads each Option's real values. One forbade the words "on a light page" anywhere in the file, where an Option's own text holds them; it now reads the sentence about the grain.
+- Open problems for the next session: a check of a craft rule is a search for text; it can still pass on a style sheet with a fault that nobody thought of. Words for a value that matches no Option are still missing in the file (U6-07). Thirteen named values that the sample website does not use stay in `tokens.css` (T6-12). The requirement says that `tokens.json` is grouped by role; the file groups by type (T6-09, for the owner).
+- Next feature to build (ID): F014
+
+- Date: 2026-11-16
 - Feature worked on (ID): F012 (repairs after the sixth red-team review, part 1: no text from a file acts as an instruction; no file can break the list of own Directions)
 - Result: passes
 - Commits: the commit "F012: ..." that holds this entry

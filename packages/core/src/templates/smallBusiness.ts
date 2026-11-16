@@ -109,6 +109,8 @@ export interface MockupInput {
   still?: boolean;
   /** The Overlays that are switched on. The region "overlays" draws each one open; a Mockup has no script, so none opens or closes. */
   overlays?: readonly string[];
+  /** Draw the switched-on Overlays, open, as a last part of the whole page too (for the reference page of the Prescription). */
+  overlaysShown?: boolean;
   /** `@font-face` rules for the fonts in use. The Studio supplies these; exports reference font files instead. */
   fontFaceCss?: string;
   /**
@@ -157,7 +159,7 @@ p { margin: 0; text-wrap: pretty; }
 :where(a[role="link"]) { text-decoration: underline; cursor: pointer; }
 /* Underlines sit a little below the text and start soft; they firm up under the pointer. */
 a { color: var(--accent-text); text-underline-offset: 0.22em; text-decoration-thickness: 0.07em; text-decoration-color: color-mix(in oklch, currentColor 45%, transparent); transition: text-decoration-color var(--dur-fast) var(--ease-out); }
-@media (hover: hover) { a:hover { text-decoration-color: currentColor; } }
+@media (hover: hover) and (pointer: fine) { a:hover { text-decoration-color: currentColor; } }
 .wrap { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--space-6); }
 .skip { position: absolute; left: var(--space-4); top: -100px; background: var(--surface); color: var(--text); padding: var(--space-2) var(--space-4); border-radius: var(--radius-small); z-index: 60; }
 .skip:focus { top: var(--space-4); }
@@ -184,11 +186,12 @@ body[data-atmosphere="grain"][data-theme="dark"]::after { mix-blend-mode: overla
   font: inherit; font-weight: 600; letter-spacing: -0.006em; text-decoration: none; cursor: pointer; white-space: nowrap; user-select: none;
 }
 .btn-primary { background: var(--btn-bg); color: var(--btn-color); border-color: var(--btn-border); box-shadow: var(--btn-shadow); }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .btn-primary:hover { background: var(--btn-bg-hover); box-shadow: var(--btn-shadow-hover); }
 }
 .btn:active { transform: scale(var(--press-scale)); }
-body[data-elevation="hard-shadow"] .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+/* A button with a hard shadow moves into its shadow. Not in a design without movement: there a pressed button stays put. */
+body[data-elevation="hard-shadow"]:not([data-motion="none"]) .btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
 /* Header and navigation */
 .site-header { position: var(--header-position); top: 0; z-index: 30; border-bottom: var(--border-w) solid var(--border); background: var(--header-bg); -webkit-backdrop-filter: var(--header-backdrop); backdrop-filter: var(--header-backdrop); }
@@ -197,7 +200,7 @@ body[data-elevation="hard-shadow"] .btn:active { transform: translate(2px, 2px);
 .nav ul { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); list-style: none; margin: 0; padding: 0; }
 .nav li a { display: inline-flex; align-items: center; min-height: var(--target-min); color: var(--text-muted); text-decoration: none; font-size: var(--text-sm); font-weight: 500; }
 .nav li a[aria-current="page"] { color: var(--text); }
-@media (hover: hover) { .nav li a:hover { color: var(--text); } }
+@media (hover: hover) and (pointer: fine) { .nav li a:hover { color: var(--text); } }
 .nav-actions { display: none; align-items: center; gap: var(--space-4); }
 .phone { color: var(--text); font-weight: 600; text-decoration: none; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
@@ -311,7 +314,7 @@ body[data-sections="alternating"] .service-media { display: grid; aspect-ratio: 
 
 body[data-sections="grid"] .service-list { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--space-6); }
 body[data-sections="grid"] .service, body[data-sections="bento"] .service { background: var(--card-bg); border: var(--card-border-w) solid var(--card-border); border-radius: var(--radius-surface); box-shadow: var(--card-shadow); -webkit-backdrop-filter: var(--card-backdrop); backdrop-filter: var(--card-backdrop); padding: var(--space-8); display: grid; gap: var(--space-4); align-content: start; }
-@media (hover: hover) { body[data-sections="grid"] .service:hover, body[data-sections="bento"] .service:hover { transform: translateY(var(--hover-lift)); } }
+@media (hover: hover) and (pointer: fine) { body[data-sections="grid"] .service:hover, body[data-sections="bento"] .service:hover { transform: translateY(var(--hover-lift)); } }
 
 /* Bento: one large tile and smaller tiles beside it, so that size itself says which item matters most. */
 body[data-sections="bento"] .service-list { gap: var(--space-5); }
@@ -365,7 +368,7 @@ body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about
   border: var(--control-border-w) solid var(--border-strong); border-radius: var(--radius-control);
   box-shadow: inset 0 1px 2px var(--recess);
 }
-@media (hover: hover) { .field input:hover, .field textarea:hover { border-color: var(--text-muted); } }
+@media (hover: hover) and (pointer: fine) { .field input:hover, .field textarea:hover { border-color: var(--text-muted); } }
 /* A focused field: the ring, plus a soft halo of the same color. */
 .field input:focus-visible, .field textarea:focus-visible { outline-offset: 0; box-shadow: 0 0 0 4px color-mix(in oklch, var(--focus) 22%, transparent); }
 .field textarea { min-height: 6.5rem; resize: vertical; border-radius: min(var(--radius-control), var(--radius-surface)); }
@@ -421,7 +424,7 @@ body[data-focus="about"] .services, body[data-focus="contact"] .services, body[d
    can show as it will behave. */
 .overlay-demo { display: none; }
 body[data-focus="overlays"] main > :not(.overlay-demo), body[data-focus="overlays"] .site-footer { display: none; }
-body[data-focus="overlays"] .overlay-demo { display: block; padding-block: var(--space-8); }
+body[data-focus="overlays"] .overlay-demo, body[data-overlays-shown] .overlay-demo { display: block; padding-block: var(--space-8); }
 .overlay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: var(--space-8) var(--space-6); align-items: start; }
 .ov { display: grid; gap: var(--space-3); min-width: 0; }
 .ov-name { font-size: var(--text-sm); font-weight: 600; color: var(--text-muted); margin: 0; }
@@ -541,6 +544,7 @@ export function renderSmallBusiness(input: MockupInput): string {
     `data-focus="${e(focus)}"`,
     ...(overlays.length > 0 ? [`data-overlays="${overlays.join(' ')}"`] : []),
     ...(input.still ? ['data-still'] : []),
+    ...(input.overlaysShown && overlays.length > 0 ? ['data-overlays-shown'] : []),
   ].join(' ');
 
   const overlayDemo = overlays.length === 0
