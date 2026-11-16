@@ -139,3 +139,7 @@ Each approved fix is retested with the lane brief that found it plus one new var
 - **J-1 corrects one of the builder's own records.** Row A1-01 in `redteam/FINDINGS.md` says "one WebRTC probe to a STUN server on this machine sent nothing". The lanes' probe (with a data channel and an offer) did send; the builder's probe was weaker than the claim built on it. The row gets a dated correction; it is not deleted.
 - **J-5 and J-12 share a cause with A1-04:** the cleaning of invisible signs is a list. The builder proposes one cleaner by Unicode property for the Prescription and the receipt alike.
 - No fix is made until the owner decides.
+
+## Blue's response, continued: remediation (2026-11-16)
+
+The owner deferred every choice to the builder ("I defer to you. Fix everything that is not working optimally."), recorded as decision D69. Blue repaired every confirmed finding except A2-J14 (accepted), decided the five items for human review, and corrected `SPEC.md` 2.9 for A2-J13; `SPEC.md` section 2.14 lists each repair, and every row A2-J1 to A2-J21 of `redteam/FINDINGS.md` states its new status. Each repair has a test that failed before it. Two repairs went further than the first idea after existing tests showed a promise that the idea would have broken: a project's recorded start is kept (older projects keep theirs), so the falsehoods of A2-J9 were repaired in the Prescription's wording, not in the file reader. No finding is "retested-pass" until Red retests it with its lane brief and one new variant.

@@ -20,7 +20,9 @@
       "information": [
         "css url: /fonts/fraunces-latin-wght-normal.woff2",
         "css url: /fonts/public-sans-latin-wght-normal.woff2",
-        "form action: /appointment-request"
+        "form action: /appointment-request",
+        "request: /fonts/fraunces-latin-wght-normal.woff2",
+        "request: /fonts/public-sans-latin-wght-normal.woff2"
       ],
       "informationMore": 0
     },
@@ -31,18 +33,18 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "A color is a deviation when it is not one of the Prescription's opaque colors. 2 partly transparent colors were not compared.",
+      "note": "A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too. 2 partly transparent colors were not compared.",
       "information": [],
       "informationMore": 0
     },
     {
       "id": "typefaces",
-      "title": "Typefaces: every text uses a typeface that the Prescription names",
+      "title": "Typefaces: every text names a typeface of the Prescription",
       "deviations": 0,
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The first family of each text is compared; a fallback after it is not.",
+      "note": "The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Prescription typeface’s name to a font installed on the machine is a deviation.",
       "information": [],
       "informationMore": 0
     },
@@ -61,21 +63,21 @@
       "id": "contrast",
       "title": "Contrast: measured, not required",
       "deviations": 0,
-      "notMeasured": 6,
+      "notMeasured": 18,
       "items": [],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent.",
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds no Floors yet, so no ratio is a deviation from it; the lines show texts below the usual least. 18 text readings (one for each text and window width) could not be measured: 18 because the text or a box around it is drawn partly transparent.",
       "information": [],
       "informationMore": 0
     },
     {
       "id": "content",
-      "title": "Content: the three required texts of the Brief are on the page",
+      "title": "Content: the three required texts of the Brief are where a person can read them",
       "deviations": 0,
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space.",
+      "note": "The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, and inside the window.",
       "information": [],
       "informationMore": 0
     },
@@ -86,7 +88,7 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "Measured at each window width; sideways scrolling is a deviation.",
+      "note": "Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.",
       "information": [],
       "informationMore": 0
     }
@@ -98,7 +100,11 @@
     "Whether the words are right and say what the owner means.",
     "Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.",
     "The states that the program did not open: hover, focus, open menus, and every page other than the one given.",
-    "Shadows, gradients, and images. The program did not compare them with the Prescription."
+    "Shadows, gradients, and images. The program did not compare them with the Prescription.",
+    "All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.",
+    "A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.",
+    "Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.",
+    "Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast."
   ],
   "pageErrors": [],
   "scripts": {

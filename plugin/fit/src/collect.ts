@@ -9,7 +9,7 @@ export interface Reference {
   address: string;
 }
 export interface Drawn {
-  kind: 'text' | 'background' | 'border';
+  kind: 'text' | 'background' | 'border' | 'outline' | 'text stroke';
   css: string;
   where: string;
 }
@@ -30,7 +30,14 @@ export interface Collected {
   families: { family: string; where: string }[];
   radii: { value: string; where: string }[];
   texts: TextRead[];
-  bodyText: string;
+  /** The text that a person can read in the window: drawn at 6 pixels or more, not (nearly) transparent, and inside the window's width (campaign A2, finding J-7). */
+  shownText: string;
+  /** Elements with text, or form controls and pictures, that reach past an edge of the window where nothing lets a person scroll to them (finding J-18). */
+  cutOff: string[];
+  /** Drawn colors that a CSS filter changes before they reach the screen; they are counted as not measured (finding J-6). */
+  filtered: number;
+  /** Every `@font-face` rule of the page: the family that it names and where its letters come from (finding J-19). */
+  fontFaces: { family: string; src: string }[];
   scrollWidth: number;
   clientWidth: number;
   /** The address of the page's first `<base href>`, against which a browser reads every other address; empty without one (finding A1-10). */
@@ -42,7 +49,9 @@ export function collect(): Collected {
   const where = (el: Element): string => {
     const cls = typeof el.className === 'string' && el.className.trim() !== '' ? `.${el.className.trim().split(/\s+/)[0] ?? ''}` : '';
     const own = collapse([...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent ?? '').join(' '));
-    return `${el.tagName.toLowerCase()}${cls}${own === '' ? '' : ` "${own.length > 40 ? `${own.slice(0, 40)}…` : own}"`}`;
+    // The cut counts whole characters, so it never leaves half of one (campaign A2, finding J-5).
+    const chars = [...own];
+    return `${el.tagName.toLowerCase()}${cls}${own === '' ? '' : ` "${chars.length > 40 ? `${chars.slice(0, 40).join('')}…` : own}"`}`;
   };
   // A browser reports a computed color in the form that the page wrote it: `rgb()` for the old forms, but `oklch()`, `lab()`, `color()`,
   // and others for the newer ones. The program can compare only `rgb()`, so a one-pixel canvas turns every other form into sRGB channels
@@ -73,6 +82,7 @@ export function collect(): Collected {
 
   // What the page refers to outside itself: anything that is not a data address or a place in the page.
   const references: Reference[] = [];
+  const fontFaces: Collected['fontFaces'] = [];
   const outside = (value: string): boolean => {
     const t = value.trim().toLowerCase();
     return t !== '' && !t.startsWith('data:') && !t.startsWith('#') && !t.startsWith('about:blank');
@@ -116,6 +126,21 @@ export function collect(): Collected {
       continue;
     }
     for (const rule of rules) fromCss(rule.cssText, 'css url');
+    const faces = (list: CSSRuleList): void => {
+      for (const rule of list) {
+        if (rule.type === 5) {
+          const style = (rule as CSSFontFaceRule).style;
+          fontFaces.push({ family: style.getPropertyValue('font-family').trim().replace(/^["']|["']$/g, ''), src: style.getPropertyValue('src') });
+        } else if ('cssRules' in rule) {
+          try {
+            faces((rule as CSSGroupingRule).cssRules);
+          } catch {
+            // A rule whose inner rules cannot be read holds no face that the page can use either.
+          }
+        }
+      }
+    };
+    faces(rules);
   }
 
   const scripts = { inline: 0, external: 0 };
@@ -125,6 +150,7 @@ export function collect(): Collected {
   }
 
   const drawn: Drawn[] = [];
+  let filtered = 0;
   const families: Collected['families'] = [];
   const radii: Collected['radii'] = [];
   const texts: TextRead[] = [];
@@ -132,37 +158,87 @@ export function collect(): Collected {
   const corners = ['borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius'] as const;
   const sides = [['borderTopWidth', 'borderTopStyle', 'borderTopColor'], ['borderRightWidth', 'borderRightStyle', 'borderRightColor'], ['borderBottomWidth', 'borderBottomStyle', 'borderBottomColor'], ['borderLeftWidth', 'borderLeftStyle', 'borderLeftColor']] as const;
 
+  // A filter on an element, or on any box around it, changes every color that it draws (finding J-6). Memo by element.
+  const filterMemo = new Map<Element, boolean>();
+  const isFiltered = (el: Element | null): boolean => {
+    if (el === null) return false;
+    const known = filterMemo.get(el);
+    if (known !== undefined) return known;
+    const value = getComputedStyle(el).filter !== 'none' || isFiltered(el.parentElement);
+    filterMemo.set(el, value);
+    return value;
+  };
+  // How opaque an element is drawn, all the boxes around it together (finding J-7).
+  const opacityMemo = new Map<Element, number>();
+  const seenOpacity = (el: Element | null): number => {
+    if (el === null) return 1;
+    const known = opacityMemo.get(el);
+    if (known !== undefined) return known;
+    const value = Number.parseFloat(getComputedStyle(el).opacity) * seenOpacity(el.parentElement);
+    opacityMemo.set(el, value);
+    return value;
+  };
+  const viewWidth = document.documentElement.clientWidth;
+  // A box between the element and the page that clips or scrolls sideways: the element is cut on purpose, or a person can scroll to it.
+  const clippedOnPurpose = (el: Element): boolean => {
+    for (let up = el.parentElement; up && up !== document.body && up !== document.documentElement; up = up.parentElement) if (getComputedStyle(up).overflowX !== 'visible') return true;
+    return false;
+  };
+  const cutOff: string[] = [];
+  const add = (kind: Drawn['kind'], css: string, where: string, recolored: boolean): void => {
+    if (alphaOf(css) === 0) return;
+    if (recolored) filtered++;
+    else drawn.push({ kind, css, where });
+  };
+  // The colors, edges, and corners of one box: an element, or one of its pseudo-elements.
+  const box = (cs: CSSStyleDeclaration, label: string, withText: boolean, recolored: boolean, picture: boolean): void => {
+    const fill = rgbOf(cs.backgroundColor);
+    const fillShown = alphaOf(fill) > 0;
+    add('background', fill, label, recolored);
+    let edgeShown = false;
+    for (const [width, style, color] of sides) {
+      if (Number.parseFloat(cs[width]) > 0 && cs[style] !== 'none' && cs[style] !== 'hidden' && alphaOf(rgbOf(cs[color])) > 0) {
+        add('border', rgbOf(cs[color]), label, recolored);
+        edgeShown = true;
+      }
+    }
+    if (cs.outlineStyle !== 'none' && Number.parseFloat(cs.outlineWidth) > 0) add('outline', rgbOf(cs.outlineColor), label, recolored);
+    if (fillShown || edgeShown || picture) {
+      const seen = new Set<string>();
+      for (const corner of corners) for (const part of cs[corner].split(/\s+/)) if (part !== '0px' && part !== '0' && !seen.has(part)) { seen.add(part); radii.push({ value: part, where: label }); }
+    }
+    if (!withText) return;
+    add('text', rgbOf(cs.color), label, recolored);
+    if (Number.parseFloat(cs.webkitTextStrokeWidth) > 0) add('text stroke', rgbOf(cs.webkitTextStrokeColor), label, recolored);
+    const family = (cs.fontFamily.match(/^\s*(?:"([^"]*)"|'([^']*)'|([^,]*))/) ?? []).slice(1).find((part) => part !== undefined) ?? '';
+    families.push({ family: family.trim(), where: label });
+  };
+
   for (const el of document.querySelectorAll('body, body *')) {
     if (skip.has(el.tagName) || el.getClientRects().length === 0) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility !== 'visible') continue;
     const label = where(el);
     const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== '');
-
-    const fill = rgbOf(cs.backgroundColor);
-    const fillShown = alphaOf(fill) > 0;
-    if (fillShown) drawn.push({ kind: 'background', css: fill, where: label });
-    let edgeShown = false;
-    for (const [width, style, color] of sides) {
-      if (Number.parseFloat(cs[width]) > 0 && cs[style] !== 'none' && cs[style] !== 'hidden' && alphaOf(rgbOf(cs[color])) > 0) {
-        drawn.push({ kind: 'border', css: rgbOf(cs[color]), where: label });
-        edgeShown = true;
-      }
+    const recolored = isFiltered(el);
+    box(cs, label, hasText, recolored, el.tagName === 'IMG' || el.tagName === 'VIDEO' || el.tagName === 'CANVAS');
+    // Pseudo-elements draw too: a decoration, or words that stand in for the page's own (finding J-6).
+    for (const pseudo of ['::before', '::after'] as const) {
+      const ps = getComputedStyle(el, pseudo);
+      if (ps.content === 'none' || ps.content === 'normal' || ps.display === 'none' || ps.visibility !== 'visible') continue;
+      box(ps, `${label}${pseudo}`, !/^(""|''|url\(.*\))$/.test(ps.content), recolored, false);
     }
-    if (fillShown || edgeShown || el.tagName === 'IMG' || el.tagName === 'VIDEO' || el.tagName === 'CANVAS') {
-      const seen = new Set<string>();
-      for (const corner of corners) for (const part of cs[corner].split(/\s+/)) if (part !== '0px' && part !== '0' && !seen.has(part)) { seen.add(part); radii.push({ value: part, where: label }); }
+    if (hasText || ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'IMG'].includes(el.tagName)) {
+      const r = el.getBoundingClientRect();
+      if (r.width > 0 && (r.right > viewWidth + 1 || (r.left < -1 && r.right > 1)) && !clippedOnPurpose(el)) cutOff.push(label);
     }
 
     if (!hasText) continue;
     const textColor = rgbOf(cs.color);
-    drawn.push({ kind: 'text', css: textColor, where: label });
-    const family = (cs.fontFamily.match(/^\s*(?:"([^"]*)"|'([^']*)'|([^,]*))/) ?? []).slice(1).find((part) => part !== undefined) ?? '';
-    families.push({ family: family.trim(), where: label });
-
     let unmeasured = '';
     const layers: string[] = [];
     if (alphaOf(textColor) === 0 || alphaOf(rgbOf(cs.webkitTextFillColor)) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') unmeasured = 'the text is filled by an image or a gradient';
+    if (unmeasured === '' && recolored) unmeasured = 'a filter changes how the text is drawn';
     for (let up: Element | null = el; up && unmeasured === ''; up = up.parentElement) {
       const style = getComputedStyle(up);
       if (Number.parseFloat(style.opacity) < 1) { unmeasured = 'the text or a box around it is drawn partly transparent'; break; }
@@ -175,8 +251,24 @@ export function collect(): Collected {
     texts.push({ where: label, foreground: textColor, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400 });
   }
 
+  // The text that a person can read in this window (finding J-7). innerText counts text at size 0, at opacity 0, and outside the window.
+  const shown: string[] = [];
+  const walker = document.createTreeWalker(document.body ?? document.documentElement, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const value = node.textContent ?? '';
+    const host = node.parentElement;
+    if (value.trim() === '' || host === null || host.closest('script, style, template, noscript, title') !== null) continue;
+    const hs = getComputedStyle(host);
+    if (hs.visibility !== 'visible' || Number.parseFloat(hs.fontSize) < 6 || seenOpacity(host) < 0.1) continue;
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const r = range.getBoundingClientRect();
+    if (r.width <= 0 || r.height <= 0 || r.right <= 0 || r.left >= viewWidth) continue;
+    shown.push(value);
+  }
+
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, bodyText: collapse(document.body ? document.body.innerText : ''), scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
+  return { references, scripts, drawn, families, radii, texts, shownText: collapse(shown.join(' ')), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */

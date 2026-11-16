@@ -96,6 +96,7 @@ export function readOwnDirections(input: unknown, held: readonly OwnDirection[])
 
   const added: OwnDirection[] = [];
   let alreadyHere = 0;
+  let twiceInFile = 0;
   let nameInUse = 0;
   let unreadable = 0;
   let overLimit = 0;
@@ -109,7 +110,13 @@ export function readOwnDirections(input: unknown, held: readonly OwnDirection[])
     const all = [...held, ...added];
     const retired = new Set<string>();
     const params = currentFonts(parsed.data.params, retired) as unknown as DesignParams;
-    if (all.some((d) => d.id === parsed.data.id)) {
+    // An entry whose identifier an earlier entry of the same file already gave is a repeat inside the file, not one that this
+    // browser holds (campaign A2, finding J-15: the note blamed the browser).
+    if (added.some((d) => d.id === parsed.data.id)) {
+      twiceInFile++;
+      continue;
+    }
+    if (held.some((d) => d.id === parsed.data.id)) {
       alreadyHere++;
       continue;
     }
@@ -126,9 +133,10 @@ export function readOwnDirections(input: unknown, held: readonly OwnDirection[])
   }
   const notes: string[] = [];
   if (added.length > 0) notes.push(`Added ${added.length} ${added.length === 1 ? 'Direction' : 'Directions'} of your own.`);
-  else if (alreadyHere > 0 && nameInUse + unreadable + overLimit === 0) return { ok: true, added, notes: ['Added none: this browser already holds every Direction in the file.'] };
+  else if (alreadyHere > 0 && nameInUse + unreadable + overLimit + twiceInFile === 0) return { ok: true, added, notes: ['Added none: this browser already holds every Direction in the file.'] };
   else notes.push('Added none.');
   if (alreadyHere > 0) notes.push(`${count(alreadyHere)} left out: this browser already holds it.`);
+  if (twiceInFile > 0) notes.push(`${count(twiceInFile)} left out: the file holds it twice.`);
   if (nameInUse > 0) notes.push(`${count(nameInUse)} left out: another Direction already has its name.`);
   if (unreadable > 0) notes.push(`${count(unreadable)} left out: the Studio could not read them.`);
   if (overLimit > 0) notes.push(`${count(overLimit)} left out: the Studio holds at most ${OWN_MAX} Directions of your own.`);

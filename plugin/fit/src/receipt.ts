@@ -39,7 +39,25 @@ export const STILL_NEEDS_A_PERSON: readonly string[] = [
   'Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.',
   'The states that the program did not open: hover, focus, open menus, and every page other than the one given.',
   'Shadows, gradients, and images. The program did not compare them with the Prescription.',
+  'All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.',
+  'A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.',
+  'Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.',
+  'Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.',
 ];
+
+/**
+ * Text from the page, made safe to show to a person and to a model alike (campaign A2, finding J-5). A sign that draws nothing (a
+ * control sign, a format sign such as a "tag" sign or a change of writing direction, or any sign that Unicode says draws nothing)
+ * becomes a visible mark that names how many there were, so that nothing in the receipt is hidden from the owner. Half of a
+ * two-part character becomes the same mark.
+ */
+const INVISIBLE_RUN = /(?:[\p{Cc}\p{Cf}\p{Default_Ignorable_Code_Point}\u2028\u2029\u2800]|[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff])+/gu;
+export function shown(text: string): string {
+  return text.replace(/\u001b\[[0-9;]*m/g, '').replace(INVISIBLE_RUN, (run) => {
+    const n = [...run].length;
+    return `⟨${String(n)} invisible ${n === 1 ? 'sign' : 'signs'}⟩`;
+  });
+}
 
 /** A fence of backticks that is longer than any run of backticks inside `text`, so that the text cannot close it. */
 export function fenceFor(text: string): string {
@@ -52,7 +70,7 @@ const count = (n: number, one: string, many: string): string => `${String(n)} ${
 export function receiptMarkdown(receipt: Receipt): string {
   const out: string[] = [];
   out.push('# Fit check receipt', '');
-  out.push(`Fingerprint of the Prescription that this receipt measured against: \`${receipt.fingerprint}\`. The build: ${String(receipt.build.bytes)} bytes, SHA-256 \`${receipt.build.sha256}\`. Window widths: ${receipt.widths.join(' and ')} pixels.`, '');
+  out.push(`Fingerprint of the Prescription that this receipt measured against: \`${receipt.fingerprint}\`. The build: ${String(receipt.build.bytes)} bytes, SHA-256 \`${receipt.build.sha256}\`. Window widths: ${receipt.widths.join(' and ')} pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.`, '');
   out.push('This receipt keeps three things apart: what a program measured, what a model judged, and what still needs a person. It states what was checked. It does not say that the page is good, finished, or fit for any rule.', '');
   out.push('## Measured', '');
   for (const m of receipt.measured) {

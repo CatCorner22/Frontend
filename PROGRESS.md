@@ -104,6 +104,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-16
+- Feature worked on (ID): none in the list. The repairs after red-team campaign A2, on the owner's deferral (decision D69: "I defer to you. Fix everything that is not working optimally.").
+- Result: fourteen confirmed findings repaired, one accepted (A2-J14), one corrected in `SPEC.md` 2.9 (A2-J13); the five items for human review decided; A1-06 stated and A1-07 repaired. `SPEC.md` section 2.14 lists every repair.
+- Commits: the commit that holds this entry; before it, the merge of D68 from the parallel branch (`2aff02b`).
+- Evidence: `npm run check` passed (279 unit tests). Fit and trial tests: 56 passed. `npm run e2e`: 371 of 372 browser tests passed (1,755 seconds); the one failure was the Studio test "hands the three answers to the AI coding tool as quoted data in PRESCRIPTION.md, and says whose texts mockup.html shows", which still expected the old sentence of A2-J11; after its expectation was corrected it passed alone against the page that the same run had built. CI runs the whole suite on the push. Tests first: ten new core tests and ten new Fit tests failed before their repairs, each for its finding's reason (for example, cleaning one long name took 66 seconds; a page with a WebRTC script reached the local UDP listener; a blob swap gave status 0). Both trial receipts were measured again: no deviation count changed (their records say what did).
+- Existing tests whose expected values changed, each to the corrected behaviour and at least as strict: one in `apps/studio/e2e/studio.e2e.ts` (the same sentence of A2-J11), three in `prescription.test.ts` (the sentence for an unknown Direction; texts that are still the sample's, A2-J9 and A2-J11) and one in `fit.e2e.ts` (four failed readings where there were two, because each width is now read twice per motion setting). The owner may veto each.
+- Two first ideas were dropped after existing tests showed a promise that they would break: taking a project's start from today's Catalog (older projects keep their start), and relabelling a kept Decision (the version-1 migration keeps "kept"). Both falsehoods were repaired in the Prescription's wording instead.
+- Open problems for the next session: Red's retest of every repair (a retest helper runs after this commit); a page that recognizes the check in other ways, and every other window width, stay with a person (stated in the receipt).
+- Next feature to build (ID): none in the list.
+
+- Date: 2026-11-16
 - Feature worked on (ID): none in the list. The verified build loop's review step for the audit's repairs, and the opening of red-team campaign A2 (the owner's request; the owner approved each helper in the conversation).
 - Result: six correctness gaps that the reviewer helper reported are repaired (findings A1-10 to A1-15); the campaign's six lanes have reported, and the judge is adjudicating.
 - Commits: "Fit check: drop a redundant color guard and an unmeasured cache" (`59704b7`); "Campaign A2: charter, written before round 1" (`486ca84`); and the commit that holds this entry.

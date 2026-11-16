@@ -45,3 +45,7 @@ What the helper said about itself (its report, which is a claim and not a measur
 ## A later change to the program (2026-11-16, audit finding A1-03)
 
 The first program skipped, without a word, every color that the browser reports in a newer form (`oklch()`, `lab()`, `color-mix()`, and others). The audit repaired it, and the stored receipt was measured again with the repaired program. One thing changed: the page draws one more partly transparent color, written with `color-mix()`, which the first program skipped and the repaired program reads. The note of the colors measure now says "2 partly transparent colors were not compared" where it said 1. No deviation count changed, so the table in `../002/RECORD.md` still holds.
+
+## A later change to the program (2026-11-16, campaign A2, decision D69)
+
+The program now serves the build at a stand-in address of the site and reads each width three times (with reduced motion; with motion allowed, after the animations have ended and two seconds later). The stored receipt was measured again with that program. No deviation count changed. Two things in the receipt changed: the page's two font files at `/fonts/…`, which it names, are now also listed as requests to the site's own address (stopped, information, not deviations), and the contrast measure's "not measured" count is 18 where it was 6, because each text is now read three times at each width.
