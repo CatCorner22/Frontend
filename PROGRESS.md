@@ -112,10 +112,10 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - Review: a helper that had not seen the work compared it with the specification (`redteam/reports/2026-11-16-h-floors-reviewer.md`). It found 16 points (F7-01 to F7-16; none a blocker). I repaired 13 in full and 3 in part (F7-12, F7-13, F7-16; the notes in `redteam/FINDINGS.md` say what stays; the owner's question in D69 point 5b stays). The research for the Floors also stands behind the sources: four other helpers had compared every quotation with its page (D68).
 - Build trial 003: a helper built the same project from the seven files with the first draft of the Floors. The program measured no deviation. The record (`plugin/fit/trials/003/RECORD.md`) says what the builder read in the page by searching its text, and that this is not a measure of any Floor. One run; not a rate.
 - A repair that the trial brought: the receipt's contrast note said "The Prescription holds no Floors yet"; it now says "No program checks a Floor of the Prescription yet". The stored receipts of trials 001, 002, and 003 changed in that one sentence only.
-- Still open and decided by the owner (D69 point 5): (a) structured data for the business (JSON-LD); (b) whether "Warn me" writes the Floor for people with disabilities; (c) which host the owner uses. Also C7-04 (the zero-width joiner).
+- The owner's three questions (D69 point 5) and C7-04: the owner wrote "I defer to you"; decision D70 records the builder's answers: structured data stays out until M7; "Warn me" does not write the Floor for people with disabilities; no host is chosen until the owner names one; the cleaning keeps turning the zero-width joiner into a space. Each stays open to the owner's veto.
 - Not done: a program that checks the Floors (milestone M7); a trial with today's 56 requirements; the Studio's own list of the Floors (the Summary says only that the Prescription holds them). GitHub's results for the newest commits are not yet read.
 - Private page: Version 24 (published after this commit).
-- Open problems for the next session: the 31 open findings of the seventh round; the owner's three questions; the owner's trial of the Studio (M4).
+- Open problems for the next session: the 31 open findings of the seventh round; the owner's choice of host; the owner's trial of the Studio (M4).
 
 - Date: 2026-11-16
 - Feature worked on (ID): F031 (small repairs of the core and of the Undo line; requirement 2.17; decision D68)
