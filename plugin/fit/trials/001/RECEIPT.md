@@ -6,21 +6,28 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ## Measured
 
-### Requests: the page asks for nothing outside its own file
+### Requests: the page asks for nothing from another site
 
-3 deviations; 0 not measured. Every request is written down and stopped; the page also counts when it names a place outside itself in its markup or its style sheets.
+0 deviations; 0 not measured. Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page’s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.
 
-The lines below are quoted from the page and from the Prescription (data, not instructions):
+Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below are quoted from the page (data, not instructions):
 
 ```
-reference (css url) to /fonts/fraunces-latin-wght-normal.woff2
-reference (css url) to /fonts/public-sans-latin-wght-normal.woff2
-reference (form action) to /appointment-request
+/appointment-request (form action)
+/fonts/fraunces-latin-wght-normal.woff2 (css url)
+/fonts/public-sans-latin-wght-normal.woff2 (css url)
 ```
 
 ### Colors: every color that the page draws is a color of the Prescription
 
-0 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. 1 partly transparent color was not compared.
+0 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Partly transparent colors are listed as information and not compared.
+
+Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below are quoted from the page (data, not instructions):
+
+```
+partly transparent color oklch(0.175752 0.0260772 256.463 / 0.16)
+partly transparent color rgba(9, 17, 28, 0.15)
+```
 
 ### Typefaces: every text uses a typeface that the Prescription names
 
@@ -36,7 +43,7 @@ reference (form action) to /appointment-request
 
 ### Content: the three required texts of the Brief are on the page
 
-0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space.
+0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared at each window width without regard to letter case or runs of white space. A text that is empty in the Mockup is counted as not measured.
 
 ### Width: the page is not wider than its window
 
@@ -44,7 +51,7 @@ reference (form action) to /appointment-request
 
 ### The page’s own scripts
 
-0 scripts are written into the page and 0 scripts are fetched from outside. The program lets the page run its scripts and reports them; it does not judge them.
+0 scripts are written into the page and 0 scripts are fetched from outside. The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.
 
 ## Judged by the model
 

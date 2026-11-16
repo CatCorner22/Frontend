@@ -184,7 +184,7 @@ This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside t
 
 - What the user does: runs `npm run fit -- <build.html> <folder of the seven files> <result folder>`. The program reads `tokens.json`, `tokens.css`, `PRESCRIPTION.md`, and `mockup.html` from the folder, opens the build in a real browser at two window widths (375 and 1280 pixels), and writes `receipt.json` and `RECEIPT.md` into the result folder.
 - What the system does in response: it measures these seven things, and it names every deviation with the element and the value:
-  1. **Requests.** Every network request that the page makes. The program blocks each request to any place other than the page's own file, and lists it (no remote font, no remote script, no analytics: hard rule 7).
+  1. **Requests.** Every network request that the page makes. The program blocks each request to another site, and lists it (no remote font, no remote script, no analytics: hard rule 7). Section 2.13 (decision D67) repairs this point after the first trial: a reference at the page's own address is information, not a deviation.
   2. **Colors.** Every text color, background color, and border color that a visible element draws, compared with the color values in `tokens.json`. A color that is not among them is listed as "outside the Prescription". A fully transparent color is skipped; a partly transparent color is listed apart, not as a deviation.
   3. **Typefaces.** The first family of the computed font stack of every visible element that holds text, compared with the typefaces that `tokens.json` names. A family that the Prescription does not name is listed.
   4. **Corner radii.** Every border radius of a visible element, compared with the radius values in `tokens.json`. A value that is not among them (and not 0) is listed.
@@ -224,6 +224,58 @@ This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside t
   - The helper cannot be held to the rule "read no other file". The record says so.
   - One run each, one project: the record says that it is two measurements, not a rate, and that it does not say which page looks better.
 - How to test it end to end: the tests of the first trial run on both folders. A further test reads both receipts and requires that the record's table holds each measure's two counts exactly as the receipts state them.
+
+### 2.13 Repair of the requests measure after the first trial (finding R25-01; decision D67)
+
+The first trial found that section 2.10, point 1, counts a font file at the site's own address as a deviation, although `FONTS.md` tells the builder to ship each font file from that address. The repair separates two kinds of reference:
+
+- **Other site (a deviation).** A request that the browser makes to any address with a scheme (`https:`, `http:`, `ftp:`, `mailto:`, and any other except `data:`), to an address that begins with `//`, and every request that the program stops. The count of deviations in "Requests" counts only these.
+- **Own address (information, not a deviation).** A reference without a scheme: `/fonts/a.woff2`, `fonts/a.woff2`, `../a.css`, and a form that posts to `/send`. The receipt lists each one under "Not shipped with the page", with its kind, because a page of one file cannot ship it and a person must supply it or check that it exists. Such a reference never changes the status.
+- **Neither (left out).** A `data:` address and a place in the page (`#top`), as before.
+- Edge cases:
+  - The same reference stated twice appears once.
+  - A reference to the site's own address inside a style sheet (`url(/fonts/a.woff2)`) and one in markup (`<link href="/a.css">`) are treated alike.
+  - The Mockup, which carries no reference, shows an empty list.
+  - The receipts of trials 001 and 002 are measured again with the repaired program, and their records say what changed and why; the old counts stay in the records as history.
+- How to test it end to end: a relative font file, a root-relative style sheet, and a relative form action are listed as information and give status 0; an absolute font link, a link that begins with `//`, and a `mailto:` form action each give a deviation; the stored receipts of both trials equal what the repaired program gives on the stored pages.
+
+### 2.14 Three repairs of taste after the sixth review (findings U6-11, U6-22, U6-23; decision D63, point 4)
+
+The owner left these three to the builder (decision D63). Each follows the finding's own words.
+
+1. **The reason, from the Summary (U6-11).** The Summary says that the Prescription holds "what you rejected and why", but the field for the reason showed only on a return to a decided Step.
+   - What the user does: opens the Summary; under each Step that has a Decision, presses "Add a reason" (or "Change the reason", when a reason exists), and types.
+   - What the system does: opens the same field that the Step shows; each typed letter is stored at once, on that Step, as on the Step's own screen; the row's "Why: …" line follows. A Step without a Decision shows no such control. The field's id differs for each Step (`decision-reason-<step>`), so that no two fields on the Summary share an id. The text is rendered as text and holds at most 280 characters, as before.
+   - Edge cases: Undo takes the typed reason back in one step, and the open field then shows the stored text; a reason typed on the Summary and one typed on the Step are the same reason.
+2. **The quiet buttons have an edge (U6-22).** "Copy …", "Rename", "Remove", "Dismiss", and the like looked like plain gray text beside the outlined "Download …" buttons.
+   - What the user sees: every quiet button has a visible edge, in the same color as the other buttons' edge (`--border-strong`), in the light and the dark theme; the edge is at least 3 to 1 against the page behind it. On hover the edge takes the text color. A quiet button stays quieter than a main button: no fill.
+3. **Undo says what it takes back (U6-23).** The reviewer pressed "Undo" out of habit and it took back something older than expected.
+   - What the user sees: beside the Undo button, always, a line that says what the next Undo takes back, or "Nothing to undo."; the line is tied to the button (`aria-describedby`), so that a screen reader says it with the button; the button's name stays "Undo". The line follows each change and each Undo. The words:
+     - one Step: "Undo takes back: the Step “X” goes back to how it was."; several Steps: "…the Steps “X” and “Y” go back to how they were."
+     - the whole project (a start from another Direction, or more than three Steps): "Undo takes back: the whole project goes back to the earlier one, which started from X."
+     - the name: "…the project’s name goes back to “X”."; the Contrast checks setting; the Overlays.
+     - the texts of the page ("Your content"): "…the texts of the page go back to how they were."; the three answers about the project: "…your three answers about the project go back to how they were."
+   - The message after an Undo says the same thing in the past tense, for the texts and the answers too. Before this repair, an Undo of a typed text said "your earlier project is back", which overstated what it did. All other "Undone: …" messages stay word for word.
+   - Not built: "Redo". The review noted its absence; it is recorded as a gap, not built here.
+- How to test it end to end: browser tests. Reason: a Step with a Decision shows the control, one without does not, the typed text reaches the stored project and the row's "Why:" line, no id is repeated, Undo takes it back. Edge: every quiet button of the Summary has a drawn edge with at least 3 to 1 in both themes. Undo: the line says "Nothing to undo." at the start; after a reason it names the Step; after a text of the page it names the texts, and the message after the Undo says so; the button's name is "Undo" and `aria-describedby` names the line.
+
+### 2.15 Hardening of the Fit check after the seventh review (findings X7-01 to X7-04, X7-06 to X7-08, V7-01 to V7-05, V7-09; decision D68)
+
+The seventh review found two blockers in the Fit check: a page that runs its own script can change what the program sees (it made the receipt say "No deviation" for a page with a red box, a wrong typeface, and a wrong radius), and a page can send data over channels that the program did not stop (a WebSocket, a window that it opens, a prefetch or preconnect link), while the receipt said that every request was stopped. This section repairs both and the smaller faults around them.
+
+1. **The program does not run the page's own scripts, and it says so.** By default the browser window runs no script of the page. The receipt states "The program did not run the page's scripts." The call option `runScripts` (command line: `--run-scripts`) runs them. The receipt then states that the page's scripts ran and that a page can change what the program sees. Page errors are recorded only when scripts run.
+2. **The window is offline.** The browser window has no network at all, so no WebSocket, popup, prefetch, preconnect, or other channel can send anything. The program still writes down each request that it sees and each address that the page names.
+3. **Page text never stands in the receipt outside a fence, and never carries invisible signs.** Every text that comes from the page and enters the receipt (an element's label, a color value, a family, an address, an error message) is first cleaned: control characters, line breaks, and invisible format characters (the default-ignorable code points and the other format characters, among them the tag characters and the direction signs) are removed, and the line is cut at 200 characters. The reasons that a contrast reading could not be taken, and the reasons that a window did not load, are fixed sentences that the program chooses; no page text and no browser message enters them.
+4. **The receipt has a bounded size.** At most 20 deviations and 50 lines of information for each measure, each line at most 200 characters, at most 5 page errors.
+5. **The command line does not write through a symbolic link.** If `receipt.json` or `RECEIPT.md` exists in the result folder as a symbolic link, the program refuses (status 2) and writes nothing.
+6. **Colors that the program cannot read are counted.** A computed color in a notation that the program cannot read (for example `oklch()` or `color-mix()`) counts under "not measured" for the colors measure, with that sentence in the note.
+7. **Partly transparent colors are listed** apart from the deviations, as information, each distinct value once.
+8. **A `data:` address is left out in any letter case.**
+9. **More ways to name another site are read:** `formaction` on a button or input, `poster` on a video, `ping` on a link, `<meta http-equiv="refresh">` with an address, and `href` on an SVG `image` or `use`.
+10. **The same address appears once** in "Not shipped with the page", with all its kinds on that one line.
+11. **The content check runs at each window width.** A required text that is missing at either width is a deviation, and the line names the width. A required text that is empty in the Mockup is counted under "not measured".
+- Not changed, and recorded as open: the browser runs without its own sandbox when the program runs as the root user (finding X7-09); a page that makes the program wait takes up to about 30 seconds and is then reported as not measured (finding X7-11).
+- How to test it end to end: browser tests with a page that replaces the browser's own functions (the receipt must equal the receipt of the same page without that replacement); a local listener that counts every connection while a page tries a WebSocket, a popup, a prefetch link, a preconnect link, and a script fetch, with scripts off and with scripts on (the listener must count none); a page that tries to put a heading and a bullet into the receipt; class names of tag characters and of one million characters; a symbolic link in the result folder; each new way of naming another site; the content check at 375 pixels with a text hidden there.
 
 ## 3. Out of scope
 

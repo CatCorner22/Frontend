@@ -63,7 +63,9 @@ describe('Build trial 002: the comparison', () => {
   it('gives the second helper no file: its instruction names none of the seven files as something to read', () => {
     const instruction = readIn('002', 'INSTRUCTION.md');
     expect(instruction).toContain('without the Prescription');
-    for (const name of PRESCRIPTION_FILES) expect(instruction.split('---\n')[1] ?? '', name).not.toContain(name);
+    const parts = instruction.split('---\n');
+    expect(parts.length, 'the instruction has a header and a body').toBeGreaterThan(1);
+    for (const name of PRESCRIPTION_FILES) expect(parts.slice(1).join('---\n'), name).not.toContain(name);
   });
 
   it('carries every text of the sample content and all six chosen Options in the instruction, so that the project is the same', () => {

@@ -8,6 +8,10 @@ The helper received the text in `INSTRUCTION.md`, word for word, and a folder th
 
 The helper was a general-purpose helper agent of this session. It ran on the session's model at that time; the builder did not read which model served the turn, and the record does not claim one. The helper ran for about 71 seconds and used 9 tool calls.
 
+## Update of 2026-11-16 (decision D67): the receipt was measured again
+
+When the run was first measured, the "requests" measure counted every reference to a place other than the page's own file, and it listed three deviations on this page: two font files at `/fonts/…`, which `FONTS.md` tells the builder to ship, and a form that posts to `/appointment-request`. That was a fault of the measure (finding R25-01). The owner deferred the choice to the builder, and the builder repaired the measure: a deviation is now a request or a reference to another site; a file at the site's own address is listed as "Not shipped with the page", as information. The stored page is the same, and the stored receipt is measured again with the repaired program: **no deviation in any of the six measured things.** The three references stand in the receipt as information. The paragraphs below are the record as first written; where they say "three deviations", read "three references at the site's own address, now information".
+
 ## What the run shows
 
 What the program measured on the helper's page (`RECEIPT.md` has the full receipt):
@@ -30,10 +34,14 @@ What the helper said about itself (its report, which is a claim and not a measur
 - **Whether the page looks right.** No person looked at it, and the program does not look.
 - **How often a tool obeys.** One run; one helper; one project. The Prescription may have been easy or hard for this project in ways that the run cannot tell.
 - **Whether the helper stayed in its rules.** The helper cannot be held to the rule "read no other file": it ran in the same environment as this repository, and the harness does not limit what it can read. Its report lists the seven files only; the builder did not read its tool calls. The record names the folder that it received and nothing more.
-- **Whether the Prescription caused the result.** No run without the Prescription was made, so the record cannot say that the files made the page better than a plain instruction would have.
+- **Whether the Prescription caused the result.** When this record was first written, no run without the Prescription had been made, so it could not say that the files made the page better than a plain instruction would have. Trial 002 is that run; see its record for what the two together do and do not show.
 - **The craft rules.** The program does not check them on another page's style sheet.
 
 ## Two problems that the run found in the Fit check itself
 
-1. **The "requests" measure flags what `FONTS.md` asks for.** `FONTS.md` tells the builder to ship each font file from the site's own address, at an address such as `/fonts/…`. The measure, as `SPEC.md` section 2.10 states it, counts every reference to a place other than the page's own file. The helper did what `FONTS.md` says, and the program lists two deviations. Either the measure must tell a file at the site's own address from a request to another site, or the Prescription must say something else. The builder has changed neither: a measure that changes after one sees a result needs the owner's word. Finding R25-01.
+1. **The "requests" measure flags what `FONTS.md` asks for.** `FONTS.md` tells the builder to ship each font file from the site's own address, at an address such as `/fonts/…`. The measure, as `SPEC.md` section 2.10 states it, counts every reference to a place other than the page's own file. The helper did what `FONTS.md` says, and the program lists two deviations. Either the measure must tell a file at the site's own address from a request to another site, or the Prescription must say something else. As first written, the builder had changed neither (the repair came later, under decision D67): a measure that changes after one sees a result needs the owner's word. Finding R25-01.
 2. **The helper loosened the page's security policy**, and the program does not look at it. A policy that allows only the site's own address is the right policy for a page that ships its own fonts; the program neither approves nor refuses it.
+
+## Second update of 2026-11-16 (decision D68, section 2.15)
+
+The receipt was measured again after the seventh review's repairs of the program (it now runs none of the page's scripts by default, and its window has no network). The page holds no script, so the counts did not change; the receipt now also says that the program did not run the page's scripts.

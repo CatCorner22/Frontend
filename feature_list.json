@@ -304,6 +304,41 @@
         "The record's table gives, for each measure, the deviation counts of both receipts exactly as the receipts state them, and the record says what the comparison does not show"
       ],
       "passes": true
+    },
+    {
+      "id": "F027",
+      "description": "The owner reads a receipt in which a font file at the site's own address is listed as not shipped with the page, and only a request to another site is a deviation.",
+      "spec_section": "SPEC.md section 2.13",
+      "steps": [
+        "Measure a page that names a font file at its own address, a root-relative style sheet, and a relative form action: the receipt lists each under \"Not shipped with the page\", reports no deviation in requests, and ends with status 0",
+        "Measure a page with an absolute font link, a link that begins with two slashes, and a mailto form action: each is a deviation in requests",
+        "Open the records of trials 001 and 002: their receipts are measured again with the repaired program, and the records say what changed and why"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F028",
+      "description": "The owner writes a reason from the Summary, sees every quiet button with an edge, and reads beside the Undo button what the next Undo takes back.",
+      "spec_section": "SPEC.md section 2.14",
+      "steps": [
+        "Open the Summary of a project with a Decision: that Step's row offers \"Add a reason\"; a Step without a Decision offers nothing; type a reason, and the row's \"Why:\" line shows it",
+        "Look at \"Copy PRESCRIPTION.md\", \"Rename\", and \"Remove\": each has a visible edge, in the light and in the dark theme",
+        "Read the line beside Undo: \"Nothing to undo.\" at the start, the Step's name after a reason, and the texts of the page after a change on \"Your content\"; press Undo, and read the message"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F029",
+      "description": "The owner measures a hostile page with the Fit check and gets an honest receipt: the page's scripts do not run by default, the window has no network, and no text of the page can stand in the receipt as an instruction.",
+      "spec_section": "SPEC.md section 2.15",
+      "steps": [
+        "Measure a page that replaces the browser's own functions to hide a red box and a wrong typeface: the receipt equals the receipt of the same page without the replacement, and it says that the page's scripts did not run",
+        "Measure pages that try a WebSocket, a popup, a prefetch link, and a preconnect link, with scripts off and on: a local listener counts no connection",
+        "Measure a page that tries to put a heading and a bullet into the receipt, and a page with tag characters and a one-million-character class name: the receipt holds the standard headings only, no invisible sign, and lines of at most 200 characters",
+        "Run the command line with a symbolic link as the receipt file: the program refuses and writes nothing",
+        "Measure pages with an oklch color, a DATA: address, a formaction, a poster, a meta refresh, and a text hidden at 375 pixels: each is read as the requirement says"
+      ],
+      "passes": true
     }
   ]
 }

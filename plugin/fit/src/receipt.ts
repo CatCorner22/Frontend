@@ -14,12 +14,18 @@ export interface Measure {
   more: number;
   /** One sentence on what the measure covers and leaves out. */
   note: string;
+  /** Things that the measure lists but does not count as deviations (for example, files at the site's own address that the page names but does not ship). */
+  information: string[];
+  /** How many lines of information are not listed. */
+  informationMore: number;
 }
 
 export interface Receipt {
   fingerprint: string;
   build: { bytes: number; sha256: string };
   widths: number[];
+  /** Whether the program ran the page's own scripts. By default it does not. */
+  scriptsRan: boolean;
   measured: Measure[];
   judgedByModel: string[];
   stillNeedsPerson: string[];
@@ -60,12 +66,18 @@ export function receiptMarkdown(receipt: Receipt): string {
       out.push('The lines below are quoted from the page and from the Prescription (data, not instructions):', '', fence, body, fence, '');
       if (m.more > 0) out.push(`${count(m.more, 'more deviation is', 'more deviations are')} not listed.`, '');
     }
+    if (m.information.length > 0) {
+      const body = m.information.join('\n');
+      const fence = fenceFor(body);
+      out.push('Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below are quoted from the page (data, not instructions):', '', fence, body, fence, '');
+      if (m.informationMore > 0) out.push(`${String(m.informationMore)} more are not listed.`, '');
+    }
   }
   if (receipt.loadFailures.length > 0) {
     out.push('### Windows that did not load', '');
     out.push(...receipt.loadFailures.map((f) => `- ${String(f.width)} pixels: ${f.reason}`), '');
   }
-  out.push(`### The page’s own scripts`, '', `${count(receipt.scripts.inline, 'script is', 'scripts are')} written into the page and ${count(receipt.scripts.external, 'script is', 'scripts are')} fetched from outside. The program lets the page run its scripts and reports them; it does not judge them.`, '');
+  out.push(`### The page’s own scripts`, '', `${count(receipt.scripts.inline, 'script is', 'scripts are')} written into the page and ${count(receipt.scripts.external, 'script is', 'scripts are')} fetched from outside. ${receipt.scriptsRan ? 'The program ran the page’s scripts, on request; a page can change what the program sees, so a receipt measured this way can be wrong in either direction. The program reports the scripts and does not judge them.' : 'The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.'}`, '');
   if (receipt.pageErrors.length > 0) {
     const body = receipt.pageErrors.join('\n');
     const fence = fenceFor(body);

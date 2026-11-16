@@ -5,6 +5,7 @@ import {
   type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type OwnDirection, type Project, type Skin, type Step,
 } from '@refraction/core';
 import { create } from 'zustand';
+import { undoWords } from './undo';
 import {
   adoptStoredCopy, dropLeavingCopy, endRunningCopy, keepBackup, keepLeavingCopy, keepRunningCopy, keptAlready, leaveKeptNote, loadOwnDirections, loadPrefs, settleLeavingCopies, storedProjectText, loadSaved, retryPageRead, saveBrowserNow, saveFile, savePrefs, saveProject, storeOwnDirections, storedCopyChangedElsewhere, takeKeptNote, watchOtherTabs,
   type LoadResult, type RawCopy, type StoredOwnDirections,
@@ -133,6 +134,8 @@ export interface StudioState {
   requestImport(data: unknown, fileName: string): string | null;
   requestStartOver(): void;
   undo(): void;
+  /** What the next Undo takes back, in words (finding U6-23). */
+  undoPreview(): string;
   dismissNotice(): void;
   answerConfirmation(yes: boolean): void;
   flush(): void;
@@ -1193,26 +1196,10 @@ export const useStudio = create<StudioState>((set, get) => {
       if (!previous) return;
       lastBurst = null;
       // Say what came back and where, so that an Undo of an earlier Step is not invisible (finding U2-07).
-      const now = get().project;
-      const differs = (a: unknown, b: unknown): boolean => JSON.stringify(a ?? null) !== JSON.stringify(b ?? null);
-      const touched = STEPS.filter((st) => differs(now.decisions[st.id], previous.decisions[st.id]) || differs(ownedValues(st, now.params), ownedValues(st, previous.params)));
-      const wholeProject = now.direction !== previous.direction || touched.length > 3;
-      const first = touched[0];
-      // A change that touched no Step: the name, the Contrast checks setting, or the Overlays. Saying "your earlier project is
-      // back" for a changed name or for one Overlay would overstate what Undo did.
-      const small = !wholeProject && !first
-        ? now.name !== previous.name ? `Undone: the project’s name is “${plainName(previous.name)}” again.`
-          : now.a11y !== previous.a11y ? 'Undone: the Contrast checks setting is back to how it was.'
-            : differs(overlaysOf(now), overlaysOf(previous)) ? 'Undone: the Overlays are back to how they were.'
-              : null
-        : null;
-      const text = small
-        ?? (wholeProject || !first
-        ? `Undone: your earlier project is back, the one that started from ${directionName(previous, get())}.`
-        : touched.length === 1
-          ? `Undone: the Step “${first.name}” is back to how it was.`
-          : `Undone: the Steps ${touched.map((st) => `“${st.name}”`).join(' and ')} are back to how they were.`);
-      const elsewhere = !wholeProject && first && first.id !== stepId ? first : null;
+      const words = undoWords(get().project, previous, directionName(previous, get()));
+      const text = words.done;
+      const first = words.steps[0];
+      const elsewhere = !words.whole && first && first.id !== stepId ? first : null;
       set({
         project: previous, history: history.slice(0, -1), variations: null, shownId: appliedCardId(previous, stepOf(stepId)),
         notice: { text, ...(elsewhere ? { actions: [{ label: `Go to “${elsewhere.name}”`, run: () => get().go('steps', elsewhere.id) }] } : {}) },
@@ -1224,6 +1211,12 @@ export const useStudio = create<StudioState>((set, get) => {
         const at = document.activeElement;
         if (!at || at === document.body || (at as HTMLButtonElement).disabled) refocus();
       }, 0);
+    },
+
+    undoPreview() {
+      const { history, project } = get();
+      const previous = history[history.length - 1];
+      return previous ? undoWords(project, previous, directionName(previous, get())).preview : 'Nothing to undo.';
     },
 
     dismissNotice() {

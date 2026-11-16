@@ -62,14 +62,15 @@ main:focus { outline: none; }
   transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 .btn.primary { background: var(--btn-bg); color: var(--btn-color); border-color: var(--btn-border); box-shadow: var(--btn-shadow); }
-.btn.quiet { border-color: transparent; background: transparent; color: var(--text-muted); font-weight: 500; }
+/* A quiet button has no fill, and it keeps the edge of every other button, so that it does not read as plain text (finding U6-22). */
+.btn.quiet { background: transparent; color: var(--text-muted); font-weight: 500; }
 .btn.danger { border-color: transparent; background: #b42318; color: #ffffff; }
 .btn.small { min-height: 2rem; padding: 0 0.625rem; font-size: 0.8125rem; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 @media (hover: hover) {
   .btn:not(:disabled):hover { border-color: var(--text); }
   .btn.primary:not(:disabled):hover { background: var(--btn-bg-hover); box-shadow: var(--btn-shadow-hover); border-color: var(--btn-border); }
-  .btn.quiet:hover { color: var(--text); border-color: transparent; background: var(--surface-2); }
+  .btn.quiet:hover { color: var(--text); border-color: var(--text); background: var(--surface-2); }
 }
 .btn:not(:disabled):active { transform: scale(var(--press-scale)); }
 
@@ -278,6 +279,11 @@ select, .name, .project-text {
 .summary-side { position: sticky; top: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 0.625rem; min-width: 0; height: min(44rem, calc(100vh - 9rem)); }
 .decision-list { display: grid; }
 .decision-list a { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.5rem 0.25rem; border-bottom: 1px solid var(--border); color: var(--text); text-decoration: none; font-size: 0.875rem; }
+.reason-edit { padding: 0.25rem 0.25rem 0.5rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.8125rem; }
+.reason-edit summary { cursor: pointer; color: var(--accent-text); font-weight: 600; min-height: 1.75rem; display: flex; align-items: center; }
+.reason-edit .reason { margin-top: 0.25rem; }
+.undo-group { display: flex; align-items: center; gap: 0.5rem; }
+.undo-says { font-size: 0.75rem; color: var(--text-muted); max-width: 20rem; overflow-wrap: anywhere; }
 .decision-list .change { margin-left: auto; color: var(--accent-text); font-size: 0.8125rem; font-weight: 600; }
 .project-text { width: 100%; min-height: 10rem; font-family: var(--font-mono); font-size: 0.75rem; resize: vertical; }
 
