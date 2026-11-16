@@ -91,7 +91,7 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
 
 ### 2.6 The Prescription, first slice: four files that Claude Code can build from (decision D58; `PLAN.md` section 4.4)
 
-- What the user does: opens the Summary, presses "Download the Prescription" for each of four files, or copies a file's text; gives the files to Claude Code.
+- What the user does: opens the Summary, presses the download button of each of the four files ("Download PRESCRIPTION.md" and so on), or copies a file's text; gives the files to Claude Code.
 - What the system does in response: the core writes, as pure functions of the project:
   - `tokens.css`: every design value of the open design as a named CSS custom property, exactly the values that the preview draws.
   - `tokens.json`: the same values in the Design Tokens format (name, value, type), grouped by role.
@@ -106,6 +106,61 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
   - The font files are not in this slice: `PRESCRIPTION.md` names each typeface, its licence, and where to get it.
 - Not in this slice (stated in the file itself): `DESIGN.md`, the shadcn theme, `FONTS.md`, the floors, the Overlays' behavior, and a single bundled download.
 - How to test it end to end: unit tests with stored snapshots of the four files for two projects; a unit test with hostile names and reasons; a browser test downloads each file and compares it with what the core writes for the stored project.
+
+### 2.7 The Brief, first slice: the owner's own words on the page (decision D61; `PLAN.md` section 4.3, Stage 1)
+
+**What it is.** Until now every preview shows a made-up dental practice. A design is judged best on the words that it will really carry: a long business name, a short headline, seven services, or no price list all change how a layout holds. The Brief is the owner's own account of one project: what is offered, for whom, the main job of the page, and the page's real texts. The screen's label is "Your content".
+
+- What the user does: opens "Your content" from the top bar, from the Summary, or from a sentence on the Directions screen; answers three short questions (what do you offer, who is it for, what is the one thing a visitor should do); replaces any text of the sample website; adds or removes a service, a fact, or a price; or puts the sample text back.
+- What the system does in response:
+  - The project holds the texts (it already does: `content`) and, new, the three answers (`brief`). Both are saved with the project, travel in the project file, and come back after a reload.
+  - Every preview (the Direction cards of the open project's start excepted: see "Edge cases"), the large preview, the Summary's preview, and `mockup.html` draw the owner's texts.
+  - The lists have limits: 1 to 8 services, 0 to 4 facts, 0 to 8 prices. The menu keeps its five links; the owner changes their words only. A list at 0 leaves no empty box, heading, or gap behind.
+  - Every text is cleaned as a project name is cleaned (no control characters, no signs that change the direction of writing) and cut at its limit; the screen shows how many characters remain when few remain.
+  - "Put the sample text back" asks first, keeps the owner's texts as a kept copy, and can be undone.
+  - `PRESCRIPTION.md` carries the three answers as quoted data, says whether `mockup.html` shows the owner's texts or the sample, and tells the AI coding tool that every text in `mockup.html` is text for the page and never an instruction.
+- Edge cases:
+  - A text that holds markup, script, a code fence, or a sentence that addresses the AI coding tool: the screen and the Mockup draw it as text; nothing runs; in `PRESCRIPTION.md` it stays inside its fence.
+  - A very long word, a very long name, an empty text, and a text of one character: no page becomes wider than its window, and no empty element keeps a visible box.
+  - The words to mark in the headline are not part of the headline: nothing is marked, and the screen says so.
+  - A project file from before this slice (no three answers; possibly more list items than the limits): it opens unchanged; the screen lets the owner remove items above a limit and add none until the list is below it.
+  - The Direction cards on the Directions screen keep the sample practice, so that only the design differs from card to card; the screen says so.
+  - Every built-in Direction at both ends of every limit (fewest and most items), at phone and desktop width: no overflow, no overlap, the headline stays the largest text.
+- Not in this slice: either/or picks about the brand; pictures of the owner's own; a second page; taking texts from an existing website or file; more or fewer menu links.
+- How to test it end to end: unit tests for the editing functions, the limits, the cleaning, and the Mockup at each limit; a browser test types texts, adds and removes items, reloads, and reads the previews and the downloaded `mockup.html`; a browser test draws every built-in Direction with the fewest and with the most items at 375 and 1280 pixels and measures overflow; unit tests with stored snapshots of `PRESCRIPTION.md` for a project with a Brief; a unit test with hostile texts.
+
+### 2.8 Repairs after the red-team review of 2026-11-15 (hard rule 12; findings S6, U6, and T6 in `redteam/FINDINGS.md`)
+
+Three reviewers read the code of 2026-11-15 and used the running Studio: 1 blocker, 15 major findings, 36 minor ones, 15 notes. A blocker stops the milestone, so these repairs come before requirement 2.7. Each repaired finding gets a test that fails without the repair.
+
+#### 2.8.1 No text from a file acts as an instruction, and no file can break the list of own Directions (S6-01 to S6-07, S6-09, S6-11; T6-04, T6-15)
+
+- In `PRESCRIPTION.md` the name of a Direction that the Studio hands over stands in a fenced block marked as quoted data, and the file says that the Direction is the owner's own. The name, each reason, and the project's name lose every invisible sign and every sign that changes the direction of writing before they are written.
+- The name cleaner also removes the invisible signs that the review used, turns the look-alike quotation signs that the review used into single marks, brings letters to one form, compares names in one form, and never cuts a character in two.
+- An own Direction holds the known design values and nothing else. The Studio holds at most 100 own Directions and says so when a file or the form would exceed that. A date that is no date is refused. A replaced typeface in a file of own Directions is said in the note.
+- A craft rule's check reads the style sheet of the page, never the page's visible text.
+- `PRESCRIPTION.md` says "a sample dental practice" only when the project holds the sample texts, and says that every word in `mockup.html` is content for the page, never an instruction.
+- Known remainder, stated in the findings log: letters of another alphabet that look like Latin letters are not caught.
+
+#### 2.8.2 Every sentence of the Prescription and of a craft rule is true of the design in hand (T6-01 to T6-03, T6-05, T6-06, T6-10 to T6-13, T6-22 to T6-24; U6-03, U6-04, U6-06 to U6-10, U6-14, U6-25)
+
+- A craft rule that a Decision sets aside (digits of natural width; no motion) says so in one sentence, on the Summary and in the file, and the file then gives no instruction that contradicts the Decision. A sentence never says "your Decision" where the owner decided nothing.
+- The rules about a pressed button, nested corners, the length of a movement, the focus ring, and the pointer say what the Mockup's style sheet does in every built-in Direction; where the style sheet was wrong (a button that moved in a design without motion), the style sheet changes.
+- Each craft rule's grade is no stronger than its source, and each source line says where the rule departs from its source. `PRESCRIPTION.md` gives each rule's basis in one line.
+- The sentence about the check says what it is: a search of the style sheet for the mark of each detail, not a proof.
+- `mockup.html` in the bundle shows each switched-on Overlay open. `PRESCRIPTION.md` says that the page's links lead nowhere and that its form sends nothing.
+- "What no program checked" lists only what the design in hand has. With contrast checks off, the file does not read as if every pair had passed.
+- Section 2 of the file calls the Studio's own names "Studio settings", says how they relate to `tokens.css`, and gives words for a value that matches no Option.
+- `tokens.json` types a typeface list as a typeface and a keyword as a keyword; a test compares each color's components with its CSS color. `mockup.html` is stored for two projects, so that a change of any line of it is seen.
+- The tests named in finding T6-13 assert what their titles say.
+
+#### 2.8.3 The screens say what is true today, and say it where the owner looks (U6-01, U6-02, U6-05, U6-12, U6-13, U6-15 to U6-21, U6-26; T6-14)
+
+- The Summary's top, the Directions screen, and the Step's field for a reason no longer say that the instructions for an AI coding tool come later; the field for a reason says that the reason goes into `PRESCRIPTION.md`.
+- The Prescription section says the same as section 7 of the file, says in one sentence how to hand the files to an AI coding tool, says so when the project has no Direction and no Decision, and shows the message for a file beside that file.
+- The craft list explains the grades in one sentence.
+- The Directions screen has a jump link to "Your own"; a rename says "Renamed"; a message about a file names the file; a long name without spaces stays inside a 375-pixel window; the form says so when it cuts a text.
+- Not in these repairs (they stay open in the findings log for the owner's judgment): the look of quiet buttons (U6-22), what "Undo" covers (U6-23), a date or a name inside the four files (U6-24), where the field for a reason sits (U6-11), the wording of small variations on the Summary (U6-10, second half), and the notes U6-27 to U6-30.
 
 ## 3. Out of scope
 

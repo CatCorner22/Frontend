@@ -130,6 +130,46 @@
         "The section says what the files are for, what this slice leaves out, and what a person must still check"
       ],
       "passes": true
+    },
+    {
+      "id": "F012",
+      "description": "Repairs after the red-team review, part 1: no text from a file acts as an instruction in PRESCRIPTION.md, and no file can break or bloat the list of the owner's own Directions.",
+      "spec_section": "SPEC.md section 2.8.1",
+      "steps": [
+        "Run the unit tests: the name of an own Direction stands in PRESCRIPTION.md inside a fenced block marked as quoted data, and the file says that the Direction is the owner's own",
+        "A name, a reason, and a project name with invisible signs or signs that change the direction of writing reach PRESCRIPTION.md without them",
+        "The name cleaner refuses the look-alike names and quotation signs of findings S6-04 and S6-05, and never cuts a character in two",
+        "An own Direction read from a file holds the known design values and nothing else; the Studio holds at most 100 and says so; a date that is no date is refused; a replaced typeface is said in the note",
+        "Content that holds the words ':hover' or 'transition: all' does not change what PRESCRIPTION.md says about the craft rules",
+        "In the browser: open a file of 101 own Directions; the Studio adds 100, says that 1 was left out, and shows them again after a reload"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F013",
+      "description": "Repairs after the red-team review, part 2: every sentence of the Prescription and of a craft rule is true of the design in hand, and the tests assert what their titles say.",
+      "spec_section": "SPEC.md section 2.8.2",
+      "steps": [
+        "Run the unit tests: for every built-in Direction and every Option, no craft rule's sentence contradicts the design (digits of natural width, no motion, a button with a hard shadow)",
+        "Each craft rule's grade is no stronger than its source, and PRESCRIPTION.md gives each rule's basis",
+        "Switch on an Overlay and download mockup.html: the page shows the Overlay open",
+        "PRESCRIPTION.md lists under 'what no program checked' only what the design has, and with contrast checks off it does not read as if every pair had passed",
+        "tokens.json types a typeface list as a typeface and a keyword as a keyword; each color's components equal its CSS color; mockup.html is stored for two projects"
+      ],
+      "passes": false
+    },
+    {
+      "id": "F014",
+      "description": "Repairs after the red-team review, part 3: the screens say what is true today, and say it where the owner looks.",
+      "spec_section": "SPEC.md section 2.8.3",
+      "steps": [
+        "Open the Directions screen and the Summary: no sentence says that the instructions for an AI coding tool come in a later version",
+        "Decide a Step and read the field for a reason: it says that the reason goes into PRESCRIPTION.md",
+        "Open the Summary of a new project: the Prescription section says that no Direction and no Decision is picked yet",
+        "Download a file: the message appears beside that file; the section's closing sentence lists what section 7 of PRESCRIPTION.md lists",
+        "Rename an own Direction: the Studio says 'Renamed'; keep a 60-character name without spaces at 375 pixels: nothing leaves the window; the Directions screen has a jump link to 'Your own'"
+      ],
+      "passes": false
     }
   ]
 }

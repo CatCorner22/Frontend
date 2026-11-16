@@ -71,6 +71,15 @@ export function createProject(name = 'Untitled project'): Project {
   return { schemaVersion: SCHEMA_VERSION, name, template: 'small-business', a11y: 'advise', direction: null, base: { ...DEFAULT_PARAMS }, params: { ...DEFAULT_PARAMS }, decisions: {}, content: structuredCopy(SAMPLE_CONTENT) };
 }
 
+/** True while a project still holds the sample texts, word for word. */
+export function isSampleContent(content: SiteContent): boolean {
+  const same = (a: unknown, b: unknown): boolean =>
+    typeof a === 'object' && a !== null && typeof b === 'object' && b !== null
+      ? Object.keys(a).length === Object.keys(b).length && Object.keys(a).every((key) => same((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]))
+      : a === b;
+  return same(content, SAMPLE_CONTENT);
+}
+
 function structuredCopy(content: SiteContent): SiteContent {
   return { ...content, nav: [...content.nav], services: content.services.map((s) => ({ ...s })), facts: content.facts.map((f) => ({ ...f })), fees: content.fees.map((f) => ({ ...f })) };
 }

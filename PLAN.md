@@ -162,7 +162,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Work is lost between tabs, at closing, or when storage is full | The saving table (`docs/reference/saving-table.md`): every situation and event, with a test for each cell | built; no judge has retested the newest repairs |
 | A compromised package | Few dependencies; exact pins; install scripts off; Dependabot | built |
 | Third-party tracking | No CDN scripts, remote fonts, or analytics | built |
-| Pasted content manipulates the LLM that reads the Prescription | The exporter fences your content as quoted data | M6 |
+| Pasted content manipulates the LLM that reads the Prescription | The exporter fences your content as quoted data | built for the project's name, each reason, and the name of a Direction of your own (the last after finding S6-01 of 2026-11-15); the Brief's texts follow with requirement 2.7 |
 
 **Codebase rules.**
 - Strict TypeScript; lint with zero warnings; the core imports no React and no browser API (a tool enforces it).
@@ -190,7 +190,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M9–M11 | Templates 2, 3, 4 | Same tests as M5–M7 per Template | not started |
 | M12 | Taste ledger; `/fit-suggest` | The repeat-combination warning works across two projects | not started |
 
-**Progress on 2026-11-15.** You settled 24 open decisions (D55). Repaired, checks pending or passed as `PROGRESS.md` states: the status line after an Undo (F-23), a kept Decision stays "kept" (F-24), the "Control Room" sentence (U5-16), Dependabot's 7-day wait (S2-06). Approved and next: the repair for C4-F18, and the typefaces Playfair and Literata in place of Playfair Display and Source Serif 4.
+**Progress on 2026-11-15.** You settled 24 open decisions (D55). Repaired, checks pending or passed as `PROGRESS.md` states: the status line after an Undo (F-23), a kept Decision stays "kept" (F-24), the "Control Room" sentence (U5-16), Dependabot's 7-day wait (S2-06). Built since (features F001 to F011, see `PROGRESS.md`, "Build log"): the repair for C4-F18; the typefaces Playfair and Literata; the Direction Creator; the hardening; twelve craft rules; a first slice of the Prescription. The sixth red-team review (67 findings, 1 blocker) followed; its repairs are requirement 2.8 of `SPEC.md`.
 
 **The verified build loop (your skill, loaded on 2026-11-15, decision D56).** From its set-up on, hooks (small programs that Claude Code runs by itself) stop the builder from ending a turn while `npm run check` fails, and run `npm run e2e` when a feature is marked as passing. `SPEC.md` states the requirements of the work in hand and points to this plan; `feature_list.json` lists the features, each marked as passing or not. This plan stays the one plan.
 
@@ -262,7 +262,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 ## 13. Next actions
 
-1. **Now (this unit of work):** commit the repairs F-23, F-24, and U5-16; set up the verified build loop; then, one feature at a time, the C4-F18 repair and the two typefaces.
+1. **Done on 2026-11-15:** the repairs F-23, F-24, and U5-16; the verified build loop; the C4-F18 repair and the two typefaces. **Now:** the repairs after the sixth red-team review (`SPEC.md` section 2.8), then the Brief (section 2.7, decision D61).
 2. **You:** the trial (`docs/trial-guide.md`). You settled the open decisions on 2026-11-15 (decision D55).
 3. **Now, by your decision of 2026-11-15 (D58):** the hardening (features F006 to F008); then the craft layer (the invisible details of M5, drawn in the Mockup); then a first slice of the Prescription (M6). After that slice a design from the Studio can reach Claude Code for the first time. **All three are built (features F006 to F011).**
 4. **Then the rest of M5:** your own content in every preview; the floors; an inner page.

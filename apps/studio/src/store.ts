@@ -1,6 +1,6 @@
 // The Studio's state. Every change to the design goes through the engine in @refraction/core.
 import {
-  DIRECTIONS, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName, readOwnDirections,
+  DIRECTIONS, OWN_MAX, STEPS, activeTunables, applyDirection, closerOptions, createProject, findDirection, findSkin, findStep, firstOpenStepId, generateDirections, heldOptionId, isOwnDirectionId, keep, makeOwnDirection, matchingOptionId, plainName, readOwnDirections,
   nextStepId, overlaysOf, ownedValues, parseProject, pick, pickValues, prevStepId, previewParams, revert, setOverlay, setReason, startPlain, tune,
   type A11yProfile, type DesignParams, type Direction, type GeneratedOption, type MockupFocus, type OwnDirection, type Project, type Skin, type Step,
 } from '@refraction/core';
@@ -1001,6 +1001,7 @@ export const useStudio = create<StudioState>((set, get) => {
     keepOwnDirection(texts) {
       let name = '';
       const error = changeOwn((list) => {
+        if (list.length >= OWN_MAX) return `The Studio holds at most ${String(OWN_MAX)} Directions of your own. Remove one before you keep another.`;
         const id = `own-${Date.now().toString(36)}${Math.floor(Math.random() * 36 ** 4).toString(36).padStart(4, '0')}`;
         const made = makeOwnDirection({ id, ...texts, params: get().project.params, madeAt: new Date().toISOString() }, list.map((d) => d.name));
         if (!made.ok) return made.error;

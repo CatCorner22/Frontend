@@ -374,7 +374,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 <!-- index: outside request | network; tracking; remote font -->
 
 - **Rule.** On the Directions, on every Step, and on the Summary, the Studio requests nothing from any outside address. [S3]
-- **Test.** "shows no trade word outside round brackets and no vague phrase on the Directions, on every Step, and on the Summary, with no error and no outside request".
+- **Test.** "shows no trade word outside round brackets and no vague phrase on the Directions, on every Step, on the Overlays, and on the Summary, with no error and no outside request".
 - **Policy.** Hard rule 7: no CDN scripts, no remote fonts, no analytics. [S10 at hard rule 7]
 - **Exceptions.** On the private page, the page's own database receives the project (§10.01); that request goes to the page's host, not to a third party.
 - Last verified: 2026-11-13
@@ -471,7 +471,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 <!-- index: Direction | starting look; generated Direction -->
 
 - **Rule.** Each of the 18 curated Directions, and each generated Direction, is complete, valid, and free of the conflicts that the Catalog knows. [S8; S9]
-- **Test.** "has 18 curated Directions, each a complete, valid, conflict-free design with record fields"; "keeps the curated Directions clearly different from each other"; "never offers a generated Direction whose own choices pull against each other, over 60 seeds (decision D23)".
+- **Test.** "has 38 curated Directions, each a complete, valid, conflict-free design with record fields"; "keeps the curated Directions clearly different from each other"; "never offers a generated Direction whose own choices pull against each other, over 60 seeds (decision D23)".
 - Last verified: 2026-11-13
 
 ### [50.04] A card shows exactly the design that picking it gives

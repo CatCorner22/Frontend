@@ -26,7 +26,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 **What does not travel to a new chat.**
 - The earlier chat's memory and its scratch folder are gone. Everything needed is in this repository.
 - The reviewers' own test scripts lived in that scratch folder and are gone. Their reports are in `redteam/reports/2026-11-14-*`, and every finding has a row in `redteam/FINDINGS.md`.
-- No background job is running, and no pull request is open.
+- No background job is running. One pull request is open: the draft CatCorner22/Frontend#10 (see "Where the work is").
 - The private page keeps its address. A new chat republishes to it by passing that address; the address and the version number are in `WAYPOINTS.md`.
 - The cloud environment is named "engine" (see "Environment notes" at the end of this file). Another environment may block hosts that this one allows.
 - If a new chat is given a branch of its own, it starts from `claude/brave-mayer-sawqz9` and opens a draft pull request into it.
@@ -47,13 +47,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 | M1 | Met late. CI was red when M2 work began (finding M-02). No session setup script (decision D32). |
 | M2 | Met: 190 unit tests (2026-11-14); the core imports no React and no browser API. |
 | M3 | Exit test met in CI since 2026-11-13 (pixel-difference tests, stored-picture gate). One part still open: nobody has confirmed that the private page shows the embedded pictures. |
-| M4 | In progress. |
+| M4 | In progress: it waits for the owner's trial. |
+| M4D | Built on 2026-11-15 (features F003 to F006); its exit test waits for the owner to make one Direction on the private page. |
+| M5 | Started early by the owner's decisions D52 and D58: Overlays, research rules, and the first twelve craft rules are built. Not built: the Brief (requirement 2.7 is approved, decision D61), the floors, an inner page. |
+| M6 | Started early by decision D58: a first slice of four files. Its exit test is not met (three files are missing; no validator has read `tokens.json`). |
 
 ## What exists
 
-- **Core** (`packages/core`): 23 Steps (6 Layout, 17 Look and feel), 38 Directions in four groups and a Direction generator, 12 Skins, 6 Overlays, 5 research rules, 12 conflict rules and 11 harmony rules as Catalog records, token derivation with 29 measured contrast pairs, the Mockup for Template 1 (one page), saved-project format version 2 with a migration from version 1.
+- **Core** (`packages/core`): 23 Steps (6 Layout, 17 Look and feel), 38 Directions in four groups and a Direction generator, 12 Skins, 6 Overlays, 5 research rules, 12 craft rules, the writer of the Prescription's first four files, the record of a Direction of the owner's own, 12 conflict rules and 11 harmony rules as Catalog records, token derivation with 29 measured contrast pairs, the Mockup for Template 1 (one page), saved-project format version 2 with a migration from version 1.
 - **Studio** (`apps/studio`): Directions, Steps, Overlays, Summary, and Licences screens; storage that reads both saved copies and never overwrites what it cannot read; Undo; confirmations before work is replaced.
-- **Checks in CI:** type check, lint, boundary rule, 190 unit tests, licence-notices check, 265 browser tests (on the Studio and on the Mockup; among them one stored-picture comparison per Direction and page part), bundle-size budget, dependency audit. After each Studio browser test, a check fails the test if the page met an error.
+- **Checks in CI:** type check, lint, boundary rule, the unit tests (226 on 2026-11-15, after feature F011), licence-notices check, the browser tests (294 on the same day; on the Studio and on the Mockup; among them one stored-picture comparison per Direction and page part), bundle-size budget, dependency audit. After each Studio browser test, a check fails the test if the page met an error.
 - **Red team:** first review on 2026-11-13: 137 findings (6 blockers, 55 major, 56 minor, 20 notes). Every finding has a status in `redteam/FINDINGS.md`. `redteam/tools/plant-defects.py` plants 39 defects; the unit suite catches 38.
 - **Private page:** https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc (the version number is in `WAYPOINTS.md`).
 - **Literal names (2026-11-13).** Every Step, Option, and slider in the Catalog now carries a name that says what a person sees (for example "Ring and whisper" became "Thin outline with a faint shadow"; "Accent color" became "Main color"). The "Contrast checks" choices read "Off", "Warn me", "Fix for me". Identifiers did not change, so saved projects open as before. No red-team review covered this change (D33).
@@ -100,11 +103,21 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+- Date: 2026-11-16
+- Feature worked on (ID): F012 (repairs after the sixth red-team review, part 1: no text from a file acts as an instruction; no file can break the list of own Directions)
+- Result: passes
+- Commits: the commit "F012: ..." that holds this entry
+- Evidence: `npm run check`: 238 unit tests passed (12 new). `npm run e2e`: 296 browser tests passed (2 new, 1 changed; 1,260 seconds). Tests first: the 8 new tests of own Directions failed before the repair, each for its own missing part; the 3 browser tests failed on the build from before the repair and pass on the new build. The 4 new tests of the Prescription were written before the code but were not run in the failing state: they call functions that did not exist yet. Findings repaired: S6-01 (the blocker), S6-02, S6-03, S6-05 to S6-07, S6-09, S6-11, T6-04, T6-15; in part S6-04 and S6-08.
+- What went wrong on the way: the first full run failed in one older test ("lets no project name or file name end the quotation ..."). The builder's change to the name cleaner had removed a space at the end of a cut name, and that test pins the Studio's sentence letter for letter. The cleaner now gives the Studio's sentences what it gave before, and only a stored name of an own Direction is trimmed. The older test is unchanged. A second full run passed.
+- Open problems for the next session: a letter of another alphabet that looks like a Latin letter still passes as a new name (stated in the code and in row S6-04). The limit of 100 own Directions and the grade change are the builder's choices (decision D61, points 5 and 6), open to the owner's veto. Whether an AI coding tool obeys a fence is not tested. Findings S6-10 and S6-12 stay open.
+- Next feature to build (ID): F013
+
 - Date: 2026-11-15
 - Feature worked on (ID): F011 (the owner downloads each of the four Prescription files from the Summary, or copies its text)
 - Result: passes
 - Commits: the commit "F009 to F011: ..." that holds this entry
 - Evidence: `npm run check`: 226 unit tests passed. `npm run e2e`: 294 browser tests passed (1,254 seconds). Two new browser tests: every downloaded file, `mockup.html` included, equals letter for letter what the core writes for the stored project; a new Decision reaches the files; a project that started from a Direction of the owner's own names it. The plain-words browser test caught two faults of the new section before the full run (findings P9-01 and P9-02).
+- A departure from the build loop, named by the sixth review (finding T6-18): features F009, F010, and F011 were built in one stretch and entered the feature list in one commit, already marked as passing; the history does not show them as failing first, and only F010's tests were written before its code.
 - Open problems for the next session: the "Copy" buttons have no automatic test. The two file names `tokens.css` and `tokens.json` are set aside from the plain-words rule as names (decision D60, point 6, open to the owner's veto). The private page shows all of this since Version 16 (waypoint W11). No second reader has seen this unit (finding P9-05).
 - Next feature to build (ID): none in the list. `PLAN.md` section 13 names what follows: the rest of M5 (the Brief, the floors, an inner page), then the rest of M6.
 
@@ -192,7 +205,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 1. **The owner tries the Studio** with `docs/trial-guide.md` and sends the ten answers. M4 closes on the owner's word (hard rule 1).
 2. **Repair what the trial names as serious, and decide the open findings of 2026-11-14** (rows "Open" and "Fixed in part" among S5, DT, U5, and C4-F18 to C4-F25 in `redteam/FINDINGS.md`). The first to weigh: the rare loss when several tabs close in the same instant (C4-F18). Then have a reviewer look at the repairs of this unit, which no reviewer has seen (hard rule 12).
-3. **M4D:** the Direction Creator (`PLAN.md` section 4.7).
+3. **M4D:** the Direction Creator (`PLAN.md` section 4.7) is built (features F003 to F006). Its exit test waits for the owner to make one Direction on the private page.
 3a. **M5**, in this order: the Brief (the owner's product, audience, and real content, so that every preview shows the owner's words); the floors from the knowledge base (the craft layer's first twelve craft rules are built, feature F009); the rest of the behavior Steps; an inner page for Template 1. A Skin's name stored in the project, and a change of Skin inside a project, belong here too.
 4. **M6**: the rest of the export bundle (the Prescription): `DESIGN.md`, the shadcn theme, `FONTS.md`, the floors, and a validator for `tokens.json`. Its first slice of four files is built (features F010 and F011). **M7**: the Fitter.
 
@@ -202,7 +215,7 @@ The owner settled the earlier list on 2026-11-15 (decision D55 holds every answe
 
 1. **The trial** (`docs/trial-guide.md`), and with it: do the pictures appear on the private page? (M3's last open part; the owner has not opened the page yet.)
 2. (Done on 2026-11-15: you approved the typefaces Playfair and Literata and the repair for finding C4-F18; both are built, features F002 and F001.)
-3. **Research sites for the network:** the builder asks with an exact list of hosts before M5's craft layer.
+3. **Research sites for the network.** The owner decided on 2026-11-15 to settle this "before M5's craft layer" (D55). The builder built the craft layer's first twelve craft rules on the same day from research record 04 alone and did not ask first (finding T6-08). The question is still open: the builder asks with an exact list of hosts before any further craft rule or floor is written.
 4. **Helper agents:** before each use the builder states the purpose and an estimated cost and waits for the owner's yes (D55).
 
 Earlier cost reports, for the record (no decision needed): third review about 595,000 tokens; nine-reviewer code review about 1.84 million; retest round about 0.74 million; round 3 about 0.75 million (0.33 million measured); the unit of 2026-11-14 about 3.2 million in helpers.
@@ -237,10 +250,10 @@ Earlier cost reports, for the record (no decision needed): third review about 59
 - axe runs on the Studio's own screens only, and reports serious and critical findings only. No axe run on the Mockup yet.
 - Tests ran in Chromium only. No screen reader was used.
 - The dependency audit shows 9 moderate advisories, all one advisory in a package inside the lint tools; nothing ships to the browser.
-- Drive backups (D26): the upload has failed on every attempt so far (connector errors).
+- Drive backups: retired by the owner on 2026-11-15 (decision D55); no backup outside GitHub and the private page exists.
 - **One unexplained test failure.** The browser test "dresses the Studio in the project’s design when asked, and remembers the choice" failed once in 5 local runs on 2026-11-13 (the checkbox read as unchecked after a reload). The Studio writes the preference at once and reads it first at start; no cause was found. The test is unchanged. If it fails again, investigate before anything else.
 - **Second review, U2-08, fixed in part:** 12 pairs of cards still differ only in the large preview; each such Step says so in words on the card.
-- **Second review, still open (minor, selected):** no leave-page warning while saving is paused (S2-03); the local test file shares its browser storage with every other local HTML file, so use it for testing only (S2-05); "Warn me" does not measure a headline filled with a gradient (T2-03). The full list is in `redteam/FINDINGS.md`.
+- **Second review, still open (minor, selected):** no leave-page warning while saving is paused (S2-03); the local test file shares its browser storage with every other local HTML file, so use it for testing only (S2-05). (The gradient headline, T2-03, was closed on 2026-11-15: row L8-03.) The full list is in `redteam/FINDINGS.md`.
 - **Third review, still open (selected):** the values that sliders announce to a screen reader are bare numbers (U3-11); two tabs that keep a copy at the same moment could lose one, which the reviewer inferred and did not reproduce (S3-06); the drawn-color measurement runs in Chromium only (T3-01).
 - **After round 3 (2026-11-14).** The repairs for F-16 to F-25 have no retest by a judge. The entry of its own that a closing page writes needs room in storage; with none, two pages that close in the same instant can still lose one change. A downloaded kept copy is named by its place in the list (`refraction-kept-copy-1.json`), not by its project; a project name without Latin letters gives the file name `project.refraction.json`. The message after a download says that the file "was handed to your browser"; the Studio cannot know whether the browser saved it. The first opening of the Studio holds the page for 50 to 120 ms once or twice.
 - **After the new Directions (2026-11-14).** "Steady Steps" shows a look for a program app on the sample website only; a true app Mockup is a later Template. Twelve of the 17 new Directions had no reviewer. Whether each look matches what the owner had in mind is for the owner to judge.

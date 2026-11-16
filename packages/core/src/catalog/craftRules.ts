@@ -251,6 +251,17 @@ export interface CraftLine {
   now: string | null;
 }
 
+/**
+ * The part of a page that a craft rule's check may read: its style sheets, and the tag that tells the browser whether the
+ * page is light or dark. The page's visible text stays out: words such as ":hover" in a business name once made a check
+ * report a missing detail (finding S6-06). Text from a project cannot stand in this part: the Mockup writes "<" in a text
+ * as "&lt;", so a text cannot open a style sheet.
+ */
+export function craftSheet(page: string): string {
+  const scheme = /<meta name="color-scheme"[^>]*>/.exec(page)?.[0] ?? '';
+  return [scheme, ...[...page.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((sheet) => sheet[1]!)].join('\n');
+}
+
 /** Every craft rule with what the open design gives. `tokens` is the design's worked-out values (the `css` part of `deriveTokens`). */
 export function craftReport(params: DesignParams, tokens: Readonly<Record<string, string>>): CraftLine[] {
   return CRAFT_RULES.map((rule) => ({ rule, now: rule.now(params, tokens) }));
