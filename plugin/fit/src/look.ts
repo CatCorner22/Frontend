@@ -1,5 +1,5 @@
-// The look (PLAN.md section 4.3: "Claude receives the measured failures and the screenshots"; step 13a: "Read what is drawn, not only
-// what the styles say"). The Fit check reads the styles that the browser computes. It never sees the page, and neither does the
+// The look (PLAN.md section 4.5: "Claude receives the measured failures and the screenshots"; section 13.5, step 13a: "Read what is
+// drawn, not only what the styles say"; SPEC.md section 2.23 lists both as not built). The Fit check reads the styles that the browser computes. It never sees the page, and neither does the
 // model that built the page. This file draws the build and the Vision's Mockup in a real browser at the Fit check's three window
 // widths, saves the pictures so that a model or a person can look at them, and reads three things from what was drawn:
 //   1. how much of the build's picture differs from the Mockup's picture, and where;
