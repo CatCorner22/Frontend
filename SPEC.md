@@ -359,7 +359,7 @@ The three red-team reviewers read commit `adcf06b` on 2026-11-16 and found no bl
 - **Cross-references and decided questions:** section 3 points to section 8 for what is left out; section 8 states that structured data stays out (D70) instead of "the owner decides". (U8-07, T8-12)
 - **Stored copies:** `PRESCRIPTION.md` is also stored under "Fix for me" and under "Off", so that a change of any Floor's text fails a test. (T8-16; a stored copy fails only after a change, so no test failed before this point.)
 - **The closing tab with no room in storage** has a test of its own, as guarantee 10.13 says. (T8-14; the behavior was already right, and the new test passed on its first run.)
-- **Records:** the counts, the M6 condition, the stale lines of `PLAN.md`, `PROGRESS.md`, and `DECISIONS.md`, the package-check rows, and three guarantees now state today's facts. The move of step 12 from M6 to M7 (T8-03) and the defined term "Floor" (T8-17) wait for the owner (hard rule 2).
+- **Records:** the counts, the M6 condition, the stale lines of `PLAN.md`, `PROGRESS.md`, and `DECISIONS.md`, the package-check rows, and three guarantees now state today's facts. The owner decided the move of step 12 to M7 (T8-03) and the five names of the defined term "Floor" (T8-17): decision D74.
 
 ## 3. Out of scope
 
