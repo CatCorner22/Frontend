@@ -184,7 +184,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
 | M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | built on 2026-11-15 (features F003 to F006); its exit test waits for you to make one Direction on the private page. You asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
 | M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52); the craft layer's first twelve craft rules are built (2026-11-15, decisions D58 and D60); the first slice of the Brief is built (2026-11-16, decisions D61 and D62); the floors and an inner page are not started |
-| M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `PRESCRIPTION.md` carries 56 requirements in five Floors, each with its source (36 under “Off” and “Warn me”, because the 20 requirements for people with disabilities are written only under “Fix for me”, decision D13). Milestone M6 counts as complete only when GitHub's check passes on the commit that holds them (hard rule 3) and the M6 gate review (the three red-team reviewers, hard rule 12) finds no blocker; the review of 2026-11-16 found none, and its 43 findings are rows S8, U8, and T8 of `redteam/FINDINGS.md` |
+| M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `PRESCRIPTION.md` carries 56 requirements in five Floors, each with its source (36 under “Off” and “Warn me”, because the 20 requirements for people with disabilities are written only under “Fix for me”, decision D13). Milestone M6 counts as complete only when GitHub's check passes on the commit that holds them (hard rule 3) and the M6 gate review (the three red-team reviewers, hard rule 12) finds no blocker; the review of 2026-11-16 found none, and its 43 findings are rows S8, U8, and T8 of `redteam/FINDINGS.md`. **Complete on 2026-11-17**: GitHub's check passed on `c6128c2` on 2026-11-17 (both runs: "check" and "Outside validators", finished 11:16 and 11:17 UTC) |
 | M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | started: the Fit check's first slice (features F024 to F029), hardened by campaign A2 (decision D71, on the audit branch); `/fit-build`, `/fit-repair`, the width of 768 pixels, and the plugin's packaging are not built |
 | M8 | **Your first real project, end to end**; hardening | You judge the result; red-team blockers at zero | not started |
 | M9–M11 | Templates 2, 3, 4 | Same tests as M5–M7 per Template | not started |
@@ -293,13 +293,13 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 |---|---|---|
 | 8 | 88 rows of `redteam/FINDINGS.md` are open on the main line, most of them minor. Repair every blocker and major one; repair or state each minor one | 8 to 15 hours |
 
-### 13.4 Milestone M6: the Floors (builder: 2 to 3 hours left; your time: none until you name a host)
+### 13.4 Milestone M6: the Floors (complete on 2026-11-17)
 
 The Floors are written (feature F032, decisions D69 and D70): `PRESCRIPTION.md` carries 56 requirements in five Floors, each with its source (36 under “Off” and “Warn me”, because the 20 requirements for people with disabilities are written only under “Fix for me”, decision D13). Steps 9 to 11 of version 3.5 (check the research, your decisions, write the Floors) are done; you deferred the questions to the builder (D70), and the host waits until you name one.
 
 | Step | What | Who | Estimate |
 |---|---|---|---|
-| 9 | GitHub's check passes on the commit that holds the Floors, and the M6 gate review (the three red-team reviewers, hard rule 12) finds no blocker | builder | 2 to 3 hours |
+| 9 | GitHub's check passes on the commit that holds the Floors, and the M6 gate review (the three red-team reviewers, hard rule 12) finds no blocker | builder | **done on 2026-11-17** (`c6128c2`) |
 
 ### 13.5 Milestone M7: the rest of the Fitter (builder: 21 to 36 hours)
 

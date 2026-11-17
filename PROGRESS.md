@@ -35,7 +35,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 **What the next session should do first.** Check GitHub's result for the newest commit of pull request 14 (GitHub's check passed on its first two pushes, 2026-11-16). Read "Next" and "Waiting on the owner" below. If the owner has sent the ten trial answers, turn each named problem into a row in `redteam/FINDINGS.md` and repair the serious ones; M4 then closes on the owner's word.
 
-## Current milestone: M4 (Step screen). Not complete. Work in hand: the M6 gate's repairs (M6 closes first) and M7's Fit check, by the owner's approved order (D58, D63, D65)
+## Current milestone: M4 (Step screen). Not complete. M6 is complete (2026-11-17); work in hand: M7's Fit check, by the owner's approved order (D58, D63, D65)
 
 **Why M4 is not complete.** Its exit test has three parts: the owner uses the Studio on the private page; a keyboard-only pass; the owner picks the Studio's own look. The keyboard pass runs as an automated test. The owner's trial has not happened; `docs/trial-guide.md` walks the owner through it in about 25 minutes and asks ten questions. The three major ease-of-use findings that stood in the way were repaired on 2026-11-14 (U2-06 and U3-05 fixed; U2-08 fixed in part, with the rest stated on screen in words). Overlays and research rules belong to M5 in the plan; the owner asked for them early (decision D52), and they were built before M4's exit test.
 
@@ -50,7 +50,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 | M4 | In progress: it waits for the owner's trial. |
 | M4D | Built on 2026-11-15 (features F003 to F006); its exit test waits for the owner to make one Direction on the private page. |
 | M5 | Started early by the owner's decisions D52 and D58: Overlays, research rules, the first twelve craft rules, and the first slice of the Brief (the screen "Your content", features F015 to F018) are built. Not built: the Floors on screen (the Prescription holds them, feature F032), an inner page, the rest of the behavior Steps, either/or picks about the brand. |
-| M6 | Started early by decision D58. Built: all seven files, a fingerprint, one archive download, outside validators for `DESIGN.md` and `tokens.json` (features F010, F011, F019 to F023), and the Floors in `PRESCRIPTION.md` (feature F032). Its exit test (snapshot tests; the token and design files pass their validators) is met on GitHub. The gate review of 2026-11-16 found no blocker; M6 closes when GitHub's check passes on the commit that holds the gate's repairs (`PLAN.md` 13.4, step 9). |
+| M6 | Started early by decision D58. Built: all seven files, a fingerprint, one archive download, outside validators for `DESIGN.md` and `tokens.json` (features F010, F011, F019 to F023), and the Floors in `PRESCRIPTION.md` (feature F032). Its exit test (snapshot tests; the token and design files pass their validators) is met on GitHub. The gate review of 2026-11-16 found no blocker, and its repairs are in. **Complete on 2026-11-17**: GitHub's check passed on `c6128c2` on 2026-11-17 (both runs: "check" and "Outside validators", finished 11:16 and 11:17 UTC), the commit that holds the gate's repairs (`PLAN.md` 13.4, step 9; waypoint W15). |
 
 ## What exists
 
@@ -102,6 +102,12 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **A code review that the owner started with `/code-review` was stopped by the owner before it reported.** No review of the repairs of 2026-11-15 exists yet.
 
 ## Build log (verified build loop; newest entry first)
+
+- Date: 2026-11-17
+- Feature worked on (ID): none in the list. **Milestone M6 complete**, on the owner's "Approved".
+- Result: passes. Evidence: GitHub's check passed on `c6128c2` on 2026-11-17 (both runs: "check" and "Outside validators", finished 11:16 and 11:17 UTC). The gate review of 2026-11-16 found no blocker. Pull request 14 has no conflict (GitHub: "clean"), and it is the only open pull request. Waypoint W15.
+- Not done: the two review threads of Codex on pull request 14 stay open on GitHub; the builder repaired both (CX-01, CX-02) and wrote no comment there (no rule asks for one). The private page still shows Version 24, without the join and the gate's repairs.
+- Next: M7, by `PLAN.md` 13.5 (step 12: the Fit check measures what the Floors require).
 
 - Date: 2026-11-17
 - Feature worked on (ID): none in the list. The owner asked to fix the conflicts of pull request 14, and Codex reviewed it.
