@@ -129,13 +129,15 @@ describe('PRESCRIPTION.md: section 7, Floors', () => {
     for (const rule of FLOOR_RULES) expect(part, rule.id).toContain(`- **${rule.id}.** ${rule.text}`);
   });
 
-  it('writes, for each requirement, what a person must still check and its source, and says that no program checks any of them yet and that the file carries no date', () => {
+  it('writes, for each requirement, what a person must still check and its source, says which program checks some of them, and that the file carries no date', () => {
     const part = section7(prescriptionMd(withSetting('enforce')));
     for (const rule of FLOOR_RULES) {
       expect(part, rule.id).toContain(`  - A person must still check: ${rule.person}`);
       expect(part, rule.id).toContain(`  - Source: ${rule.source.url} (“${rule.source.text}”;`);
     }
-    expect(part).toContain('No program checks any requirement of this section yet.');
+    // Since feature F034 the Fit check measures some of them (reviewer, F034, gap 3): the file says so, and claims no more.
+    expect(part).toContain('The Fit check (a program that measures a built page) checks each of these requirements that a program can check');
+    expect(part).not.toContain('No program checks any requirement of this section yet.');
     expect(part).toContain('this file carries no date');
     expect(part).not.toMatch(/\b20\d\d-\d\d-\d\d\b/);
     expect(part).not.toMatch(/\baccessible\b|\bcompliant\b/i);

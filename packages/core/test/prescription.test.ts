@@ -131,7 +131,7 @@ describe('The Prescription, first slice (SPEC.md section 2.6)', () => {
     expect(md).not.toMatch(/reference picture|this slice|this bundle|the Mockup/);
     expect(md).toContain('## 7. Floors');
     expect(md).toContain('## 8. What this file leaves out');
-    for (const part of ['A program that checks the Floors', 'How an Overlay opens', 'Every page but the home page']) expect(md, part).toContain(part);
+    for (const part of ['A program that checks every Floor', 'How an Overlay opens', 'Every page but the home page']) expect(md, part).toContain(part);
     // The three files that this part once left out are now named as files to read, and the reader is told to count seven.
     for (const part of ['`DESIGN.md` in the DESIGN.md format', '`theme.css`', '`FONTS.md`', 'check that you have all seven files']) expect(md, part).toContain(part);
     // The file states what was measured; it claims no standard (hard rule 8).

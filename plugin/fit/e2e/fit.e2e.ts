@@ -1170,10 +1170,15 @@ describe('Fit check: the Floors measure, and contrast bound by Floor A1 (SPEC.md
       ['P7', body([1, 2, 3].map(() => `<img ${img} alt="" width="1" height="1" fetchpriority="high">`).join(''))],
       ['P12', head('<script src="/late.js"></script>')],
     ];
+    // One fault breaks two requirements where the Prescription states it twice (A5 and Q13, A12 and Q3, A13 and Q9), and a page without a
+    // policy has no form-action either (S5 and S6).
+    const TWINS: Record<string, string[]> = { A5: ['Q13'], A12: ['Q3'], A13: ['Q9'], S5: ['S6'] };
     const missed: string[] = [];
     for (const [id, html] of cases) {
       const { receipt, status } = await fit(inputOf(files, html));
-      if (!ids(receipt).includes(id) || status !== 1) missed.push(`${id}: ${JSON.stringify(ids(receipt))}, status ${String(status)}`);
+      // Found alone: the planted requirement and its twins (one fault, two ids), nothing else (reviewer, F034, gap 7).
+      const expected = [id, ...(TWINS[id] ?? [])].sort();
+      if (JSON.stringify(ids(receipt)) !== JSON.stringify(expected) || status !== 1) missed.push(`${id}: ${JSON.stringify(ids(receipt))}, status ${String(status)}`);
     }
     expect(missed).toEqual([]);
   }, 300_000);
@@ -1216,5 +1221,70 @@ describe('Fit check: the Floors measure, and contrast bound by Floor A1 (SPEC.md
     expect(measure(free.receipt, 'contrast').deviations).toBeGreaterThan(0);
     // The pale text is drawn in a color outside the Prescription too; the status turns on the colors measure, not on contrast.
     expect(measure(free.receipt, 'colors').deviations).toBeGreaterThan(0);
+  });
+
+  it('checks Q3, Q9, and Q13 by themselves where the Prescription holds no people Floor (reviewer, F034, gap 7)', async () => {
+    const files = filesFor('advise');
+    const good = meetsFloors(files['mockup.html'] ?? '');
+    for (const [id, html] of [
+      ['Q3', replaceOnce(good, '</head>', '<title></title></head>')],
+      ['Q9', good.replace('content="width=device-width, initial-scale=1"', 'content="width=device-width, initial-scale=1, maximum-scale=1"')],
+      ['Q13', good.replace('<html lang="en">', '<html lang="english language">')],
+    ] as const) {
+      const { receipt, status } = await fit(inputOf(files, html));
+      expect(ids(receipt), id).toEqual([id]);
+      expect(status, id).toBe(1);
+    }
+  });
+
+  it('reads an address, a tabindex, a type, and repeated meta tags as a browser reads them (reviewer, F034, gaps 1, 2, 4, 6)', async () => {
+    const files = filesFor('enforce');
+    const good = meetsFloors(files['mockup.html'] ?? '');
+    const body = (html: string): string => replaceOnce(good, '</body>', `${html}</body>`);
+    const head = (html: string): string => replaceOnce(good, '</head>', `${html}</head>`);
+    const img = 'src="data:image/png;base64,iVBORw0KGgo=" alt="" width="1" height="1"';
+    for (const [id, html] of [
+      ['S3', body('<a href="java&#9;script:go()">Go</a>')],
+      ['Q10', body('<a href=" java&#10;script:go()">Go</a>')],
+      ['S9', body('<form method="post" action="java&#10;script:x"></form>')],
+      ['S1', body(`<img ${img} srcset="data:image/png;base64,iVBORw0KGgo= 1x, http://own.example/b.png 2x">`)],
+      ['S1', head('<style>.x{background:url(htt\\70://own.example/c.png)}</style>')],
+      ['A17', body('<a href="#top" tabindex="1x">Top</a>')],
+      ['S11', body('<label>Name <input type="foo"></label>')],
+      ['S8', head('<meta name="referrer" content="unsafe-url">')],
+    ] as const) {
+      const { receipt } = await fit(inputOf(files, html));
+      expect(ids(receipt), `${id}: ${html.length}`).toContain(id);
+    }
+  });
+
+  it('finds no false Floor breach where the browser would see none (reviewer, F034, gaps 5 and 6)', async () => {
+    const files = filesFor('enforce');
+    const good = meetsFloors(files['mockup.html'] ?? '');
+    // A label and its field together in one open shadow root (A3); a second policy tag that holds form-action (S6).
+    const shadowed = replaceOnce(good, '</body>', '<div><template shadowrootmode="open"><label for="q">Search</label><input id="q" maxlength="40"></template></div></body>');
+    const twoPolicies = good.replace(" form-action 'none';", '').replace('</head>', `<meta http-equiv="Content-Security-Policy" content="form-action 'none'"></head>`);
+    for (const [name, html] of [['shadow root', shadowed], ['two policies', twoPolicies]] as const) {
+      const { receipt } = await fit(inputOf(files, html));
+      expect(floors(receipt).items, name).toEqual([]);
+    }
+  });
+
+  it('lets contrast alone decide the status under “Fix for me”, and never under “Warn me” (reviewer, F034, gap 7)', async () => {
+    // White text on white: both colors are the Prescription's, so only contrast can change the status.
+    const blank = (mockup: string): string => replaceOnce(meetsFloors(mockup), '</body>', '<p style="color:#ffffff;background:#ffffff">Blank words</p></body>');
+    for (const [a11y, expected] of [['enforce', 1], ['advise', 0]] as const) {
+      const files = filesFor(a11y);
+      const { receipt, status } = await fit(inputOf(files, blank(files['mockup.html'] ?? '')));
+      expect(SIX.map((id) => measure(receipt, id).deviations).every((n) => n === 0), a11y).toBe(true);
+      expect(measure(receipt, 'contrast').deviations, a11y).toBeGreaterThan(0);
+      expect(status, a11y).toBe(expected);
+    }
+  });
+
+  it('says nowhere in the receipt that no program checks a Floor (reviewer, F034, gap 3)', async () => {
+    const files = filesFor('advise');
+    const { markdown } = await fit(inputOf(files, meetsFloors(files['mockup.html'] ?? '')));
+    expect(markdown).not.toContain('No program checks a Floor');
   });
 });

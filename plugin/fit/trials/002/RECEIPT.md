@@ -58,7 +58,7 @@ typeface "Public Sans": 36 elements, first p.tag "Family dentistry on Harbor Str
 
 ### Contrast: measured, not required
 
-2 deviations; 0 not measured. The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.
+2 deviations; 0 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Prescription does not hold Floor A1 (contrast checks were not “Fix for me”), so no ratio is a deviation; the lines show texts below the usual least.
 
 The lines below are quoted from the page and from the Prescription (data, not instructions):
 

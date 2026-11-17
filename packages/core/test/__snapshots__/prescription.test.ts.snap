@@ -302,7 +302,7 @@ A Floor is a requirement that stands whatever the design is. Build to each requi
 
 \`mockup.html\` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines (Q8), its lack of a referrer policy (S8), its form that neither posts nor limits the length of its fields (S9, S11), its links without addresses (Q10; they stay still on purpose), and the address \`http://www.w3.org/2000/svg\` inside its inline pictures (a name only; nothing loads from it). Where \`mockup.html\` and a requirement below differ, the requirement decides.
 
-No program checks any requirement of this section yet. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.
+The Fit check (a program that measures a built page) checks each of these requirements that a program can check in the page’s markup and names the others for a person; it judges no requirement that needs the published site, real visits, or a person’s eye. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.
 
 Who does what. You, the AI coding tool, build each requirement. “A person must still check” names a check for a person: the owner, or someone the owner asks, such as the person who runs the site’s host. Several of these checks need a developer’s tools (the browser’s console or its network panel) or the host’s settings, and the owner may not know them; say in your report, in plain words, which checks the owner will need help with.
 
@@ -511,7 +511,7 @@ Limits on how fast the page appears and how steady it stays while it loads.
 ## 8. What this file leaves out
 
 - Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. It stays out until a later version (decision D70); do not add it.
-- A program that checks the Floors. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width; it measures no requirement of section 7.
+- A program that checks every Floor. The Fit check measures the requirements of section 7 that a program can check in the page’s markup; the host’s settings, the figures from real visits, and what a person must see or hear wait for a person.
 - How an Overlay opens, closes, and behaves with a keyboard or a screen reader.
 - The owner’s real content: \`mockup.html\` shows a sample dental practice.
 - Every page but the home page.
@@ -819,7 +819,7 @@ A Floor is a requirement that stands whatever the design is. Build to each requi
 
 \`mockup.html\` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines (Q8), its lack of a referrer policy (S8), its form that neither posts nor limits the length of its fields (S9, S11), its links without addresses (Q10; they stay still on purpose), and the address \`http://www.w3.org/2000/svg\` inside its inline pictures (a name only; nothing loads from it). Where \`mockup.html\` and a requirement below differ, the requirement decides.
 
-No program checks any requirement of this section yet. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.
+The Fit check (a program that measures a built page) checks each of these requirements that a program can check in the page’s markup and names the others for a person; it judges no requirement that needs the published site, real visits, or a person’s eye. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.
 
 Who does what. You, the AI coding tool, build each requirement. “A person must still check” names a check for a person: the owner, or someone the owner asks, such as the person who runs the site’s host. Several of these checks need a developer’s tools (the browser’s console or its network panel) or the host’s settings, and the owner may not know them; say in your report, in plain words, which checks the owner will need help with.
 
@@ -969,7 +969,7 @@ Limits on how fast the page appears and how steady it stays while it loads.
 ## 8. What this file leaves out
 
 - Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. It stays out until a later version (decision D70); do not add it.
-- A program that checks the Floors. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width; it measures no requirement of section 7.
+- A program that checks every Floor. The Fit check measures the requirements of section 7 that a program can check in the page’s markup; the host’s settings, the figures from real visits, and what a person must see or hear wait for a person.
 - How an Overlay opens, closes, and behaves with a keyboard or a screen reader.
 - The owner’s real content: \`mockup.html\` shows a sample dental practice.
 - Every page but the home page.
@@ -1278,7 +1278,7 @@ A Floor is a requirement that stands whatever the design is. Build to each requi
 
 \`mockup.html\` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines (Q8), its lack of a referrer policy (S8), its form that neither posts nor limits the length of its fields (S9, S11), its links without addresses (Q10; they stay still on purpose), and the address \`http://www.w3.org/2000/svg\` inside its inline pictures (a name only; nothing loads from it). Where \`mockup.html\` and a requirement below differ, the requirement decides.
 
-No program checks any requirement of this section yet. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.
+The Fit check (a program that measures a built page) checks each of these requirements that a program can check in the page’s markup and names the others for a person; it judges no requirement that needs the published site, real visits, or a person’s eye. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.
 
 Who does what. You, the AI coding tool, build each requirement. “A person must still check” names a check for a person: the owner, or someone the owner asks, such as the person who runs the site’s host. Several of these checks need a developer’s tools (the browser’s console or its network panel) or the host’s settings, and the owner may not know them; say in your report, in plain words, which checks the owner will need help with.
 
@@ -1428,7 +1428,7 @@ Limits on how fast the page appears and how steady it stays while it loads.
 ## 8. What this file leaves out
 
 - Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. It stays out until a later version (decision D70); do not add it.
-- A program that checks the Floors. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width; it measures no requirement of section 7.
+- A program that checks every Floor. The Fit check measures the requirements of section 7 that a program can check in the page’s markup; the host’s settings, the figures from real visits, and what a person must see or hear wait for a person.
 - How an Overlay opens, closes, and behaves with a keyboard or a screen reader.
 - The owner’s real content: \`mockup.html\` shows a sample dental practice.
 - Every page but the home page.
@@ -2718,7 +2718,7 @@ A Floor is a requirement that stands whatever the design is. Build to each requi
 
 \`mockup.html\` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines (Q8), its lack of a referrer policy (S8), its form that neither posts nor limits the length of its fields (S9, S11), its links without addresses (Q10; they stay still on purpose), and the address \`http://www.w3.org/2000/svg\` inside its inline pictures (a name only; nothing loads from it). Where \`mockup.html\` and a requirement below differ, the requirement decides.
 
-No program checks any requirement of this section yet. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.
+The Fit check (a program that measures a built page) checks each of these requirements that a program can check in the page’s markup and names the others for a person; it judges no requirement that needs the published site, real visits, or a person’s eye. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.
 
 Who does what. You, the AI coding tool, build each requirement. “A person must still check” names a check for a person: the owner, or someone the owner asks, such as the person who runs the site’s host. Several of these checks need a developer’s tools (the browser’s console or its network panel) or the host’s settings, and the owner may not know them; say in your report, in plain words, which checks the owner will need help with.
 
@@ -2868,7 +2868,7 @@ Limits on how fast the page appears and how steady it stays while it loads.
 ## 8. What this file leaves out
 
 - Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. It stays out until a later version (decision D70); do not add it.
-- A program that checks the Floors. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width; it measures no requirement of section 7.
+- A program that checks every Floor. The Fit check measures the requirements of section 7 that a program can check in the page’s markup; the host’s settings, the figures from real visits, and what a person must see or hear wait for a person.
 - How an Overlay opens, closes, and behaves with a keyboard or a screen reader.
 - The owner’s real content: \`mockup.html\` shows a sample dental practice.
 - Every page but the home page.

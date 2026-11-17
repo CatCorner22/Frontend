@@ -104,6 +104,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-17
+- Feature worked on (ID): F034, after the reviewer helper (owner's "Approved"; report `redteam/reports/2026-11-17-f034-reviewer.md`).
+- Result: passes. Evidence: `npm run check` (373 unit tests). Fit and trial browser tests: 122 of 122 (after the trial receipts were measured again). `npm run e2e` (15:38 to 16:13 UTC): 446 of 447 passed; the one failure was a Studio test that asserted the very sentence RV-04 found false ("No program checks a Floor yet"). The test now asserts the true sentence and forbids the false one; it and its sibling passed alone (2 of 2) on the rebuilt page. The full suite was not run again after that one test change.
+- The review: no blocker. Its first run stopped at a container restart, while it read the command line's summary; there the builder found RV-01 (status 1 printed as "0 deviations, 0 windows not measured" when contrast under Floor A1 or a contrast reading not measured decided it). The rerun confirmed the repair and named seven gaps (RV-02 to RV-08): addresses, tabindex, input types, labels in a shadow root, and repeated meta tags not read as a browser reads them; a stale sentence, "no program checks a Floor", in the receipt, `PRESCRIPTION.md`, the Summary, the guarantees, and the Catalog; and tests that could pass while their requirement broke. All repaired, each with a test that failed first.
+- Records changed: trials 001 and 002 measured again (the contrast note's wording only; no count changed); `PRESCRIPTION.md`'s sections 7 and 8 changed one sentence each (stored copies: those two lines); trial 003's test names that section 8 line as its second known change.
+- Not added, with the reason in row RV-08: tests for a repeated id and for a policy added by a script, and the reference build under "Fix for me" for all 38 Directions.
+
+- Date: 2026-11-17
 - Feature worked on (ID): F034 (the Fit check measures the Floors, and contrast becomes binding; requirement 2.22; M7, step 12)
 - Result: passes. Evidence: `npm run check` passed (type check, lint with no warning, the boundary rule, 373 unit tests). The Fit and trial browser tests: 115 of 115. `npm run e2e` (12:26 to 13:00 UTC on 2026-11-17): 440 of 440 browser tests passed.
 - Not done: the reviewer helper has not compared the change with `SPEC.md` (decision D55: a helper needs the owner's yes; the builder asks).

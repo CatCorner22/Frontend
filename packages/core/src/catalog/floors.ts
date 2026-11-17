@@ -5,7 +5,8 @@
 // `docs/research/12a` to `12d`, whose quotations an independent helper compared with the pages on 2026-11-16 (decision D68). The
 // records omit some rows of those research records on purpose; decision D69 lists each omission and its reason.
 //
-// What this file does not say. No program checks a Floor yet; the Fit check measures none of them. A requirement states what to
+// What this file does not say. Since feature F034 the Fit check measures 25 of these requirements in a page's markup (SPEC.md
+// section 2.22); the `program` field records how a program could check each one. A requirement states what to
 // build and what to check, never that a page meets a standard (hard rule 8). The Catalog grades are "measured", "convention", and
 // "expert-opinion"; a requirement that a published standard states is graded "convention" and carries `standard: true`, because the
 // three grades do not name a standard and a new grade would change a defined idea without the owner's word.

@@ -365,10 +365,20 @@ export function collect(): Collected {
   const breach = (ids: string[], whereText: string): void => { for (const id of ids) floorBreaches.push({ id, where: whereText }); };
   const firstOf = (list: Element[], ids: string[]): void => { if (list[0]) breach(ids, where(list[0])); };
   const attr = (el: Element, name: string): string => el.getAttribute(name) ?? '';
+  // An address as a browser reads it: tabs and line breaks removed, control signs and spaces trimmed (reviewer, F034, gap 1).
+  const asRead = (value: string): string => value.replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '');
+  const scriptAddress = (value: string): boolean => /^javascript:/i.test(asRead(value));
+  // Every address of a srcset, not only its first (gap 2).
+  const srcsetAddresses = (value: string): string[] => value.split(',').map((part) => part.trim().split(/\s+/)[0] ?? '').filter((part) => part !== '');
+  // A label for a field may stand in the field's own root: the document or an open shadow root (gap 5).
+  const labelled = (el: Element): boolean => {
+    const root = el.getRootNode();
+    return el.id !== '' && (root instanceof Document || root instanceof ShadowRoot) && root.querySelector(`label[for="${CSS.escape(el.id)}"]`) !== null;
+  };
   const nameOf = (el: Element): string => collapse([el.textContent ?? '', attr(el, 'aria-label'), attr(el, 'aria-labelledby') === '' ? '' : 'labelled', attr(el, 'title'), ...[...el.querySelectorAll('img[alt]')].map((img) => attr(img, 'alt'))].join(' '));
   firstOf(every('img').filter((el) => !el.hasAttribute('alt')), ['A2']);
   const fields = every('input, select, textarea').filter((el) => !(el.tagName === 'INPUT' && ['hidden', 'button', 'image', 'reset', 'submit'].includes(attr(el, 'type').toLowerCase())));
-  firstOf(fields.filter((el) => !attr(el, 'aria-label').trim() && !attr(el, 'aria-labelledby').trim() && !(el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`)) && !el.closest('label')), ['A3']);
+  firstOf(fields.filter((el) => !attr(el, 'aria-label').trim() && !attr(el, 'aria-labelledby').trim() && !labelled(el) && !el.closest('label')), ['A3']);
   firstOf(every('a[href], button').filter((el) => nameOf(el) === ''), ['A4']);
   if (!/^[a-z]{2,3}(-[a-z0-9]{1,8})*$/i.test(attr(document.documentElement, 'lang'))) breach(['A5', 'Q13'], 'html');
   const titles = [...document.querySelectorAll('head > title')];
@@ -376,30 +386,35 @@ export function collect(): Collected {
   const viewport = attr(document.querySelector('meta[name="viewport" i]') ?? document.createElement('meta'), 'content').toLowerCase();
   const maxScale = /maximum-scale\s*=\s*([\d.]+)/.exec(viewport);
   if (!/width\s*=\s*device-width/.test(viewport) || /user-scalable\s*=\s*(no|0)\b/.test(viewport) || (maxScale !== null && Number(maxScale[1]) < 2)) breach(['A13', 'Q9'], 'meta viewport');
-  firstOf(every('[tabindex]').filter((el) => Number(attr(el, 'tabindex')) > 0), ['A17']);
+  // The browser's own reading of tabindex: "1x" is 1 (gap 4).
+  firstOf(every('[tabindex]').filter((el) => el instanceof HTMLElement && el.tabIndex > 0), ['A17']);
   const addressed = every('[src], [href], [action], [formaction], [poster], [srcset]');
   const styleText = [...every('style').map((el) => el.textContent ?? ''), ...every('[style]').map((el) => attr(el, 'style'))].join('\n');
-  firstOf(addressed.filter((el) => ['src', 'href', 'action', 'formaction', 'poster', 'srcset'].some((name) => /^\s*http:\/\//i.test(attr(el, name)))), ['S1']);
-  if (!floorBreaches.some((b) => b.id === 'S1') && /url\(\s*['"]?\s*http:\/\//i.test(styleText)) breach(['S1'], 'a style sheet');
+  const plainHttp = (value: string): boolean => /^http:\/\//i.test(asRead(value));
+  firstOf(addressed.filter((el) => ['src', 'href', 'action', 'formaction', 'poster'].some((name) => plainHttp(attr(el, name))) || srcsetAddresses(attr(el, 'srcset')).some(plainHttp)), ['S1']);
+  if (!floorBreaches.some((b) => b.id === 'S1') && /url\(\s*['"]?\s*http:\/\//i.test(unescapeCss(styleText))) breach(['S1'], 'a style sheet');
   const handlers = every('*').filter((el) => [...el.attributes].some((a) => /^on/i.test(a.name)));
-  const scripted = addressed.filter((el) => ['src', 'href', 'action', 'formaction'].some((name) => /^\s*javascript:/i.test(attr(el, name))));
+  const scripted = addressed.filter((el) => ['src', 'href', 'action', 'formaction'].some((name) => scriptAddress(attr(el, name))));
   firstOf([...handlers, ...scripted], ['S3']);
-  const policyTag = document.querySelector('head > meta[http-equiv="Content-Security-Policy" i]');
-  if (!policyTag) breach(['S5'], 'head');
-  const formAction = /(?:^|;)\s*form-action\s+([^;]*)/i.exec(attr(policyTag ?? document.createElement('meta'), 'content'));
-  if (!formAction || /\*/.test(formAction[1] ?? '')) breach(['S6'], policyTag ? 'meta Content-Security-Policy' : 'head');
+  // The browser enforces every policy tag; one with a form-action without * meets S6 (gap 6).
+  const policyTags = [...document.querySelectorAll('head > meta[http-equiv="Content-Security-Policy" i]')];
+  if (policyTags.length === 0) breach(['S5'], 'head');
+  const formActions = policyTags.map((el) => /(?:^|;)\s*form-action\s+([^;]*)/i.exec(attr(el, 'content'))?.[1]).filter((v): v is string => v !== undefined);
+  if (formActions.length === 0 || formActions.every((v) => /\*/.test(v))) breach(['S6'], policyTags.length > 0 ? 'meta Content-Security-Policy' : 'head');
   firstOf(every('[target="_blank" i]').filter((el) => !/\b(noopener|noreferrer)\b/i.test(attr(el, 'rel'))), ['S7']);
-  const referrer = attr(document.querySelector('meta[name="referrer" i]') ?? document.createElement('meta'), 'content').trim().toLowerCase();
+  // The browser uses the last referrer tag (gap 6).
+  const referrer = attr([...document.querySelectorAll('meta[name="referrer" i]')].pop() ?? document.createElement('meta'), 'content').trim().toLowerCase();
   if (!['no-referrer', 'same-origin', 'strict-origin', 'strict-origin-when-cross-origin'].includes(referrer)) breach(['S8'], 'head');
-  firstOf(every('form').filter((el) => attr(el, 'method').toLowerCase() !== 'post' || /^\s*(http:|javascript:)/i.test(attr(el, 'action'))), ['S9']);
-  firstOf(every('input, textarea').filter((el) => (el.tagName === 'TEXTAREA' || ['', 'text', 'email', 'tel', 'search', 'url'].includes(attr(el, 'type').toLowerCase())) && !el.hasAttribute('maxlength')), ['S11']);
+  firstOf(every('form').filter((el) => attr(el, 'method').toLowerCase() !== 'post' || /^(http:|javascript:)/i.test(asRead(attr(el, 'action')))), ['S9']);
+  // The browser's own reading of the type: an unknown type is a text field (gap 6).
+  firstOf(every('input, textarea').filter((el) => (el.tagName === 'TEXTAREA' || (el instanceof HTMLInputElement && ['text', 'email', 'tel', 'search', 'url'].includes(el.type))) && !el.hasAttribute('maxlength')), ['S11']);
   if ([...document.querySelectorAll('meta[name="robots" i], meta[name="googlebot" i]')].some((el) => /\b(noindex|none|nosnippet)\b/i.test(attr(el, 'content')))) breach(['Q2'], 'meta robots');
   const headings = every('h1');
   if (headings.length !== 1 || headings[0]?.getClientRects().length === 0 || collapse(headings[0]?.textContent ?? '') === '') breach(['Q7'], `the page (${String(headings.length)} h1)`);
   const descriptions = [...document.querySelectorAll('meta[name="description" i]')];
   const description = collapse(attr(descriptions[0] ?? document.createElement('meta'), 'content'));
   if (descriptions.length !== 1 || description === '' || description === collapse(titles[0]?.textContent ?? '')) breach(['Q8'], `head (${String(descriptions.length)} descriptions)`);
-  firstOf(every('a').filter((el) => attr(el, 'href').trim() === '' || /^\s*javascript:/i.test(attr(el, 'href'))), ['Q10']);
+  firstOf(every('a').filter((el) => asRead(attr(el, 'href')) === '' || scriptAddress(attr(el, 'href'))), ['Q10']);
   firstOf(every('img, video, iframe').filter((el) => !(el.hasAttribute('width') && el.hasAttribute('height')) && getComputedStyle(el).aspectRatio === 'auto'), ['P4']);
   if (every('img[fetchpriority="high" i]').length > 2) breach(['P7'], `the page (${String(every('img[fetchpriority="high" i]').length)} images)`);
   firstOf([...document.querySelectorAll('head script[src]')].filter((el) => !el.hasAttribute('async') && !el.hasAttribute('defer') && attr(el, 'type').toLowerCase() !== 'module'), ['P12']);

@@ -3544,7 +3544,7 @@ describe('Studio: the screens say what is true today, where the owner looks (SPE
     expect(md).toContain('### 7.2 Security of the page');
     expect(md).toContain('Not written for this project: Contrast checks is “Warn me”');
     expect(md).not.toContain('- **A1.**');
-    expect(md).toContain('No program checks any requirement of this section yet.');
+    expect(md).toContain('The Fit check (a program that measures a built page) checks each of these requirements that a program can check');
     expect(warn.errors).toEqual([]);
     await warn.context.close();
     const fix = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope({ ...worked('Floors fix'), a11y: 'enforce' }) } });
@@ -3567,7 +3567,9 @@ describe('Studio: the screens say what is true today, where the owner looks (SPE
     await page.waitForSelector('#prescription');
     const words = await page.locator('#prescription').innerText();
     expect(words).not.toContain('You have not picked a Direction');
-    for (const part of ['The Prescription has all seven of its files', 'security', 'found by search', 'speed', 'people with disabilities', 'No program checks a Floor yet', 'structured data for your business', 'how an Overlay opens and closes', 'every page but the home page', 'section 7', 'section 8', 'section 6', 'Put the seven files into one folder']) expect(words, part).toContain(part);
+    for (const part of ['The Prescription has all seven of its files', 'security', 'found by search', 'speed', 'people with disabilities', 'measures those of them that a program can check', 'structured data for your business', 'how an Overlay opens and closes', 'every page but the home page', 'section 7', 'section 8', 'section 6', 'Put the seven files into one folder']) expect(words, part).toContain(part);
+    // Since feature F034 the Fit check measures some Floors; the Summary no longer says that no program checks one (finding RV-04).
+    expect(words).not.toContain('No program checks a Floor yet');
     expect(words).not.toMatch(/the font files themselves|says the same|two more files|one download that holds/);
     // The message for a file stands in that file's own entry, not under the last one.
     const entry = (name: string) => page.locator('#prescription .prescription-files > li', { has: page.getByRole('button', { name: `Download ${name}`, exact: true }) });
