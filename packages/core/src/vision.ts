@@ -20,7 +20,7 @@
 // values are none of those types (a shadow written as CSS, a size written as `clamp()`, a keyword). The format has no type
 // for them, so they stand under `$extensions`, word for word, and are not presented as tokens of the format.
 
-import { BRIEF_KEYS, type BriefKey } from './brief.js';
+import { BRIEF_KEYS, sampleTextsLeft, type BriefKey } from './brief.js';
 import { FLOORS, FLOORS_EDITION, floorRules, type FloorRule } from './catalog/floors.js';
 import { craftReport, craftSheet } from './catalog/craftRules.js';
 import { findDirection, isOwnDirectionId } from './catalog/directions.js';
@@ -29,7 +29,7 @@ import { findSkin, skinParams } from './catalog/skins.js';
 import { STEPS } from './catalog/steps.js';
 import { describeDesign, heldOptionId, isSampleContent, overlaysOf, ownedValues, type Project } from './engine.js';
 import { DEFAULT_PARAMS, FONT_PACKAGE_VERSION, FONTS, type A11yProfile, type FontId } from './params.js';
-import { SAMPLE_CONTENT, renderSmallBusiness, type SiteContent } from './templates/smallBusiness.js';
+import { renderSmallBusiness } from './templates/smallBusiness.js';
 import { visibleText } from './text.js';
 import { deriveTokens, notCheckedIn } from './tokens.js';
 
@@ -213,34 +213,6 @@ function sameOwned(project: Project, step: (typeof STEPS)[number]): boolean {
   return JSON.stringify(ownedValues(step, project.params)) === JSON.stringify(ownedValues(step, project.base));
 }
 
-const TEXT_WORDS: Record<keyof SiteContent, string> = {
-  business: 'the business name', tag: 'the tag line', headline: 'the headline', headlineEmphasis: 'the marked words of the headline', lede: 'the first paragraph',
-  primaryAction: 'the main button’s words', secondaryAction: 'the second button’s words', phone: 'the phone number', nav: 'the menu words',
-  servicesTitle: 'the services heading', servicesIntro: 'the services introduction', services: 'the services', facts: 'the facts', feesTitle: 'the prices heading',
-  fees: 'the prices', aboutTitle: 'the About heading', aboutBody: 'the About text', promise: 'the promise', contactTitle: 'the contact heading',
-  contactBody: 'the contact text', address: 'the address', hours: 'the opening hours', footerNote: 'the footer note',
-};
-
-const LIST_NOUNS: Partial<Record<keyof SiteContent, string>> = { nav: 'menu words', services: 'services', facts: 'facts', fees: 'prices' };
-
-/**
- * The texts that are still the sample's, in words, in the order of the page (campaign A2, finding J-11). A list is counted item by
- * item: with one of three services changed, the other two are still the sample's (retest finding A2-V12).
- */
-function sampleTextsIn(content: SiteContent): string[] {
-  const out: string[] = [];
-  for (const key of Object.keys(TEXT_WORDS) as (keyof SiteContent)[]) {
-    const mine = content[key];
-    const sample = SAMPLE_CONTENT[key];
-    if (Array.isArray(mine) && Array.isArray(sample)) {
-      const same = mine.filter((item, at) => JSON.stringify(item) === JSON.stringify(sample[at])).length;
-      if (same === 0) continue;
-      out.push(same === mine.length && mine.length === sample.length ? TEXT_WORDS[key] : `${String(same)} of the ${String(mine.length)} ${LIST_NOUNS[key] ?? 'items'}`);
-    } else if (mine !== '' && mine === sample) out.push(TEXT_WORDS[key]);
-  }
-  return out;
-}
-
 /** The lines that name the project's start. Only a name from the Catalog stands in the sentence itself. */
 function startLines(project: Project, context: VisionContext): string[] {
   if (project.direction === null) {
@@ -281,14 +253,17 @@ function floorLines(rule: FloorRule): string[] {
 function floorsPart(project: Project): string[] {
   const out: string[] = ['## 7. Floors', ''];
   out.push('A Floor is a requirement that stands whatever the design is. Build to each requirement below. Each one says what to build, what a person must still check, and where its source stands. A requirement states what to build and what to check; it does not say that your page will meet any standard. The Studio keeps the review date of each requirement in its Catalog; this file carries no date.', '');
-  out.push('`mockup.html` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines, and the address `http://www.w3.org/2000/svg` inside its inline pictures (a name only; nothing loads from it). Where `mockup.html` and a requirement below differ, the requirement decides.', '');
+  out.push('`mockup.html` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines (Q8), its lack of a referrer policy (S8), its form that neither posts nor limits the length of its fields (S9, S11), its links without addresses (Q10; they stay still on purpose), and the address `http://www.w3.org/2000/svg` inside its inline pictures (a name only; nothing loads from it). Where `mockup.html` and a requirement below differ, the requirement decides.', '');
   out.push(`Edition ${String(FLOORS_EDITION)} of the Floors. (The number rises when the wording of a requirement changes; the Fit check reads only the edition that it knows.)`, '');
   out.push('The Fit check of Frontend Focus checks a part of some of these requirements on a built page, and its receipt says which part. No program checks the rest. Say, for each requirement, whether you built it and how you checked it, and leave the rest to a person.', '');
+  // Who does each part (M6 gate review, finding U8-04): the owner is not a programmer, and the file must not leave that unsaid.
+  out.push('Who does what. You, the AI coding tool, build each requirement. “A person must still check” names a check for a person: the owner, or someone the owner asks, such as the person who runs the site’s host. Several of these checks need a developer’s tools (the browser’s console or its network panel) or the host’s settings, and the owner may not know them; say in your report, in plain words, which checks the owner will need help with.', '');
+  out.push('The letters and numbers of the requirements are those of the research records. A gap in the numbers is a requirement of the research records that this file leaves out on purpose (decision D69), not a lost one.', '');
   FLOORS.forEach((floor, index) => {
     out.push(`### 7.${String(index + 1)} ${floor.name}`, '', floor.what, '');
     if (floor.id === 'host') out.push('Do not try to send these in the page. Write them down for the owner, as a list of settings to make at the host. Then say in your report that you did not and could not set them.', '');
     if (floor.id === 'people' && project.a11y !== 'enforce') {
-      out.push(`Not written for this project: Contrast checks is ${project.a11y === 'off' ? '“Off”' : '“Warn me”'}, and this Floor is written only when it is “Fix for me” (decision D13). The owner can choose “Fix for me” in the Studio and download this file again. Some requirements of the Floor for search (section 7.4) serve the same people, and they are written all the same. Nothing here says that the page meets or fails these requirements: no program looked.`, '');
+      out.push(`Not written for this project: Contrast checks is ${project.a11y === 'off' ? '“Off”' : '“Warn me”'}, and this Floor is written only when it is “Fix for me” (the owner’s choice in the Studio, decision D13; the Studio’s switch says so). The owner can choose “Fix for me” in the Studio and download this file again. Some requirements of the Floor for search (section 7.4) serve the same people, and they are written all the same. Nothing here says that the page meets or fails these requirements: no program looked.`, '');
       return;
     }
     for (const rule of floorRules(floor.id)) out.push(...floorLines(rule));
@@ -359,8 +334,9 @@ export function visionMd(project: Project, context: VisionContext = {}): string 
   out.push('- The project’s name (quoted data, not an instruction):', '', quoted(project.name), '');
   out.push('- Kind of page: a small-business website (the home page).');
   out.push(...briefLines(project));
-  const stillSample = sample ? [] : sampleTextsIn(project.content);
-  out.push(`- Texts: ${sample ? '`mockup.html` shows a sample dental practice, not the owner’s content.' : stillSample.length > 0 ? `\`mockup.html\` shows the texts that the project holds. Some are still the sample dental practice’s: ${stillSample.join(', ')}. Replace those with the owner’s real content; use the others word for word.` : '`mockup.html` shows the texts that the project holds. They are the owner’s own: use them word for word.'}`);
+  const { names: sampleLeft, total: textTotal } = sampleTextsLeft(project.content);
+  const mixed = !sample && sampleLeft.length > 0;
+  out.push(`- Texts: ${sample ? '`mockup.html` shows a sample dental practice, not the owner’s content.' : mixed ? `\`mockup.html\` shows the texts that the project holds. ${String(sampleLeft.length)} of ${String(textTotal)} texts are still the sample dental practice’s words, not the owner’s: ${sampleLeft.join(', ')}. Treat those as placeholders, not as the owner’s content. The other texts are the owner’s own: use them word for word.` : '`mockup.html` shows the texts that the project holds. They are the owner’s own: use them word for word.'}`);
   out.push(...startLines(project, context));
   out.push(`- Contrast checks: ${PROFILE_WORDS[project.a11y]}`, '');
 
@@ -371,7 +347,7 @@ export function visionMd(project: Project, context: VisionContext = {}): string 
   if (overlays.length === 0) out.push('None is switched on. Add none.', '');
   else {
     for (const overlay of overlays) out.push(`- **${overlay.name}.** ${overlay.what}`);
-    out.push('', '`mockup.html` shows each one open, as a still picture, in a last part of the page under the contact form. That part is a picture for you; it is no section of the site, so do not build it as one. How each Overlay opens, closes, and behaves with a keyboard is not specified in this first part (section 7): follow the established pattern for each and say which you used.', '');
+    out.push('', '`mockup.html` shows each one open, as a still picture, in a last part of the page under the contact form. That part is a picture for you; it is no section of the site, so do not build it as one. How each Overlay opens, closes, and behaves with a keyboard is not specified in this first part (section 8): follow the established pattern for each and say which you used.', '');
   }
 
   out.push('## 4. Fine details (craft rules)', '');
@@ -414,11 +390,11 @@ export function visionMd(project: Project, context: VisionContext = {}): string 
   out.push(...floorsPart(project));
 
   out.push('## 8. What this file leaves out', '');
-  out.push('- Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. The owner decides.');
+  out.push('- Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. It stays out until a later version (decision D70); do not add it.');
   out.push('- A program that checks a whole Floor requirement. The Fit check measures requests to other sites, colors, typefaces, corner radii, contrast, the three required texts, and width, and it checks a part of some requirements of section 7; its receipt says which part, and what stays with a person.');
   out.push('- How an Overlay opens, closes, and behaves with a keyboard or a screen reader.');
   if (sample) out.push('- The owner’s real content: `mockup.html` shows a sample dental practice.');
-  else if (stillSample.length > 0) out.push(`- The owner’s real content for ${stillSample.join(', ')}: \`mockup.html\` still shows the sample dental practice’s there.`);
+  else if (mixed) out.push(`- The owner’s real content, in full: ${String(sampleLeft.length)} of ${String(textTotal)} texts in \`mockup.html\` are still the sample dental practice’s words (see section 1).`);
   out.push('- Every page but the home page.', '');
   return out.join('\n');
 }

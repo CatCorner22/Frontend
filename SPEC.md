@@ -264,7 +264,7 @@ The owner left these three to the builder (decision D63). Each follows the findi
 
 The seventh review found two blockers in the Fit check: a page that runs its own script can change what the program sees (it made the receipt say "No deviation" for a page with a red box, a wrong typeface, and a wrong radius), and a page can send data over channels that the program did not stop (a WebSocket, a window that it opens, a prefetch or preconnect link), while the receipt said that every request was stopped. This section repairs both and the smaller faults around them.
 
-1. **The page's scripts run by default, and the program reads the page from a world of its own; the receipt says which.** (Decision D73 joined the two designs of 2026-11-16: the seventh review's repair let no script run, campaign A2's repair read the page from an isolated world; both stand.) By default the window runs the page's scripts, as a visitor's browser does, and the program reads the page from a world of its own that those scripts cannot reach (section 2.19). The call option `runScripts: false` (command line: `--no-scripts`) runs none: the program then reads the markup as it stands, before any script, and the receipt states "The program did not run the page's scripts." With scripts run, the receipt states that they ran and that the program read the page from a world of its own. Page errors are recorded only when scripts run.
+1. **The program does not run the page's own scripts, and it says so.** By default the browser window runs no script of the page. The receipt states "The program did not run the page's scripts." The call option `runScripts` (command line: `--run-scripts`) runs them. The receipt then states that the page's scripts ran and that a page can change what the program sees. Page errors are recorded only when scripts run.
 2. **The window is offline.** The browser window has no network at all, so no WebSocket, popup, prefetch, preconnect, or other channel can send anything. The program still writes down each request that it sees and each address that the page names.
 3. **Page text never stands in the receipt outside a fence, and never carries invisible signs.** Every text that comes from the page and enters the receipt (an element's label, a color value, a family, an address, an error message) is first cleaned: control characters, line breaks, and invisible format characters (the default-ignorable code points and the other format characters, among them the tag characters and the direction signs) are removed, and the line is cut at 200 characters. The reasons that a contrast reading could not be taken, and the reasons that a window did not load, are fixed sentences that the program chooses; no page text and no browser message enters them.
 4. **The receipt has a bounded size.** At most 20 deviations and 50 lines of information for each measure, each line at most 200 characters, at most 5 page errors.
@@ -323,7 +323,7 @@ A Floor is a requirement that the Vision writes whatever the design is. This sec
 - Not in this slice, and recorded: structured data (JSON-LD) for the business, which needs a data script element that the "no script" rule and the strict content security policy exclude (decision D70 point a: it waits for milestone M7); a program that checks the Floors (milestone M7); the choice of host (decision D70 point c: it waits for the owner to name a host).
 - How to test it end to end: unit tests of every record (fields, address host, quotation length, no claim words, unique ids); of the section for each of the three contrast settings; the stored copies of `VISION.md` are updated, and the diff is only the section and the changed lines; a browser test that the Summary says what the Vision now holds.
 
-### 2.19 Repairs after red-team campaign A2 (decision D71)
+### 2.19 Repairs after red-team campaign A2 (decision D71; numbered 2.14 on the audit branch before the join, D72)
 
 Campaign A2 (`redteam/campaign-a2/`) confirmed fifteen findings against sections 2.7 to 2.10 and 2.13. The owner deferred every choice to the builder. Each point below says what the program and the core now do; a test that failed before its repair stands behind each one.
 
@@ -342,7 +342,8 @@ Campaign A2 (`redteam/campaign-a2/`) confirmed fifteen findings against sections
 - **The owner's words.** The cleaning removes every control sign, every format sign, and every sign that Unicode says draws nothing (by property, not by list), and cuts a long name before it cleans it. (A2-J12, A2-J16)
 - **Own Directions.** A repeat inside one file is named as a repeat. (A2-J15)
 - **Accepted as stated:** two designs can share the 32-bit fingerprint; it is a mark to compare, not a seal. (A2-J14)
-- **After the retest's variants (A2-V1 to A2-V14).** Only a box that scrolls excuses text cut off at the window's edge; style sheets that `@import` brings in and open shadow roots are read; the color that paints the letters, `::first-letter`, and `::first-line` are compared; a required text in a transparent color is not counted as present, and one under a clip-path or a mask is not measured; `tokens.css` colors written as `rgb(r g b / a)` must agree with `tokens.json` too; a blob address's random part and a long run of spaces become visible marks; a plain start that records other values says so; a list of the sample is counted item by item. "Still needs a person" names dark mode, touch screens, other window heights, and closed shadow roots.
+- **After the retest's variants (A2-V1 to A2-V14).** Only a box that scrolls excuses text cut off at the window's edge; style sheets that `@import` brings in and open shadow roots are read; the color that paints the letters, `::first-letter`, and `::first-line` are compared; a required text in a transparent color is not counted as present, and one under a clip-path or a mask is not measured; `tokens.css` colors written as `rgb(r g b / a)` must agree with `tokens.json` too; a blob address's random part and a long run of spaces become visible marks; a plain start that records other values says so; a list of the sample is counted item by item, and an item counts as the sample's wherever it stands in its list (row JN-01). "Still needs a person" names dark mode, touch screens, other window heights, and closed shadow roots.
+- **After the join of the branches (decision D72).** Where this section and section 2.15 differ, section 2.15 governs: by default the program runs none of the page's scripts, and its window has no network. The defences above that act against a script (the WebRTC stub, a page that replaces itself, the hidden mark of automation) work when the owner asks for the page's scripts with `--run-scripts`. A `mockup.html` that lacks a required text is counted under "not measured" (section 2.15, point 11), not refused. A required text that is missing gives one line for each window width. A text whose contrast cannot be measured counts once for each window width, however many readings of that width found it, as the measure's note says. A size that `tokens.json` states in `rem` and `tokens.css` in pixels, or the other way round, agrees when the two are equal at 16 pixels to the rem. A color that the browser reports in `lab()` or another newer form is turned into sRGB and compared, so it is no longer "could not be read".
 
 ### 2.20 The book of Directions (decision D74)
 
@@ -402,6 +403,74 @@ Three reviewers examined the Vision and the Fitter (`redteam/reports/2026-11-17-
 12. **Inline SVG** (G-S08): the fill and stroke of shapes are compared with the Vision's colors.
 - Stated and not repaired: a page can still differ on a high-density screen, in print, after about five seconds, or when a person acts (G-S04 in part, G-S05); a Vision folder from elsewhere can state other texts (G-S11); the corner radius of an SVG shape; nobody has run the commands in Claude Code (G-T08).
 - How to test it end to end: `plugin/fit/e2e/exit.e2e.ts`, the group "the gate review of 2026-11-17", and the 26 further planted defects.
+
+> **Read this first (decision D77).** Sections 2.26 and 2.27 are the audit branch’s text, renumbered at the join of 2026-11-17 (they were its 2.21 and 2.22). Section 2.26 stands, with two exceptions in the Fit check: a gradient or a pattern as an SVG fill is skipped, not counted as “not measured”, and the cut at 20,000 entries (CX-01) does not exist, because the joined program reads every entry. Section 2.27 describes a program that the join did not keep; sections 2.22 and 2.28 say how the Floors are measured today.
+
+### 2.26 The audit branch’s repairs after its M6 gate review (hard rule 12; rows S8, U8, and T8 of `redteam/FINDINGS.md`; numbered 2.20 until the book of Directions took that number on the main line)
+
+The three red-team reviewers read commit `adcf06b` on 2026-11-16 and found no blocker. The owner approved the repairs ("Approved", 2026-11-17). Each point says what the program, the Studio, or the Vision now does; a test that failed before its repair stands behind each point, except where the point says otherwise.
+
+- **The Fit check's colors measure** compares the fill and the stroke of every SVG shape, underline colors, column rules, list markers, placeholders, and caret and accent colors. A gradient or a pattern fill is counted as not measured. "Still needs a person" names the color of selected text, which the program does not read. (S8-01, S8-02)
+- **After the code review of pull request 14 (Codex, rows CX-01 and CX-02):** a reading that holds more than 20,000 entries of a kind counts as not measured for the measures of that kind, and its note says so; an SVG paint's own opacity joins its color's alpha, so a half-transparent fill is listed as partly transparent.
+- **The page fragment** starts with its character set, so that a browser that opens it bare reads it as UTF-8. (U8-01)
+- **No Catalog text quotes the sample's words**: an Overlay names "the page's main button", not "Book a visit". (U8-02)
+- **The contrast switch** says what it decides for the Vision: under "Off" and "Warn me" the requirements for people with disabilities are left out, and under "Fix for me" they are included. `VISION.md` explains that gap in plain words, not by a decision number alone. (U8-03)
+- **A long field of "Your content"** (100 characters or more) shows how much of it is used before the limit cuts. (U8-05)
+- **Section 7 of `VISION.md`** says who does what: the AI coding tool builds; a person (the owner, or someone the owner asks) checks; the tool says which checks the owner will need help with. It explains the gaps in the requirement numbers. S6 names no endpoint field that the Studio lacks. S4 and H1 say where they go beyond their source. S10 and S11 carry no research commentary. Only a requirement whose source is a W3C standard is marked "a published standard states it". (U8-04, U8-06, U8-08, T8-10, T8-11, T8-19)
+- **The Summary** says that the contact form sends nothing until someone sets up a place that receives its messages, names the Fit check without a programmer's command, counts the craft rules that rest on the assistant's own judgment, and lists what the Studio does not check one item per line, as written. (U8-04, U8-09, U8-14, U8-15)
+- **The Undo line** names the plain start in the words of its button: "the plain start, without a Direction". (U8-11)
+- **Cross-references and decided questions:** section 3 points to section 8 for what is left out; section 8 states that structured data stays out (D70) instead of "the owner decides". (U8-07, T8-12)
+- **Stored copies:** `VISION.md` is also stored under "Fix for me" and under "Off", so that a change of any Floor's text fails a test. (T8-16; a stored copy fails only after a change, so no test failed before this point.)
+- **The closing tab with no room in storage** has a test of its own, as guarantee 10.13 says. (T8-14; the behavior was already right, and the new test passed on its first run.)
+- **Records:** the counts, the M6 condition, the stale lines of `PLAN.md`, `PROGRESS.md`, and `DECISIONS.md`, the package-check rows, and three guarantees now state today's facts. The owner decided the move of step 12 to M7 (T8-03) and the five names of the defined term "Floor" (T8-17): decision D75.
+
+### 2.27 The audit branch’s own measuring of the Floors (not carried into the joined program, decision D77; decisions D69 and D78)
+
+The Vision's section 7 holds the Floors (section 2.18). Until now no program checked any of them. This requirement makes the Fit check measure every Floor requirement that a program can check on one page file, and makes contrast a requirement wherever the Vision holds the Floor for people with disabilities.
+
+- **Which requirements.** The program reads the ids of the requirements that `VISION.md` holds in its section 7 (a line `- **A1.**`, `- **S7.**`, and so on; the file is data, and only ids of the form letter and number count). It checks a held requirement only if it is on this list: A2, A3, A4, A5, A12, A13, A17 (people); S1, S3, S5, S6, S7, S8, S9, S11 (page); Q2, Q3, Q7, Q8, Q9, Q10, Q13 (search); P4, P7, P12 (speed). Each check reads the page's markup in the program's own world, in every reading (section 2.19).
+- **What each check asks** (one line each; the Vision's own text is the requirement):
+  - A2: every `img` has an `alt` attribute.
+  - A3: every visible form field (`input` that is not hidden, a button, an image, a reset, or a submit; `select`; `textarea`) has a `label`, an `aria-label`, or an `aria-labelledby`.
+  - A4: every link with an `href` and every button has a name: text, `aria-label`, `aria-labelledby`, `title`, or an image with a non-empty `alt`.
+  - A5 and Q13: `<html lang>` matches a language tag (`^[a-z]{2,3}(-[A-Za-z0-9]{1,8})*$`, any letter case).
+  - A12 and Q3: the head holds exactly one `<title>`, and its text is not empty.
+  - A13 and Q9: a viewport tag exists, holds `width=device-width`, and neither sets `user-scalable=no` (or `0`) nor a `maximum-scale` under 2.
+  - A17: no element has a `tabindex` greater than 0.
+  - S1: no `src`, `href`, `action`, `formaction`, `poster`, or `srcset` address, and no style sheet `url(...)`, starts with `http://`.
+  - S3: no element carries an attribute whose name starts with `on`, and no address starts with `javascript:`.
+  - S5: the head holds a `<meta http-equiv="Content-Security-Policy">`.
+  - S6: that policy has a `form-action` directive, and the directive holds no `*`.
+  - S7: every element with `target="_blank"` has a `rel` that holds `noopener` (or `noreferrer`, which implies it).
+  - S8: a `<meta name="referrer">` holds one of `no-referrer`, `same-origin`, `strict-origin`, `strict-origin-when-cross-origin`.
+  - S9: every form has `method="post"`, and its `action`, if any, does not start with `http:` or `javascript:`.
+  - S11: every text field (`input` of type text, email, tel, search, or url, and `textarea`) has a `maxlength`.
+  - Q2: no robots or googlebot meta tag holds `noindex`, `none`, or `nosnippet`.
+  - Q7: exactly one `h1`, drawn and with text.
+  - Q8: exactly one `<meta name="description">`, not empty, and not equal to the title.
+  - Q10: every `a` has an `href` that is not empty and does not start with `javascript:`.
+  - P4: every `img`, `video`, and `iframe` has both `width` and `height`, or a CSS `aspect-ratio` other than `auto`.
+  - P7: at most two images carry `fetchpriority="high"`.
+  - P12: no `script` with a `src` in the head lacks `async`, `defer`, or `type="module"`.
+- **The receipt.** A seventh measured thing, "Floors: the page meets the requirements of section 7 that a program can check on one page". Each failing requirement is one deviation line that starts with its id and names the first element (for example `S7: a link that opens a new tab has no rel="noopener", first a.cta`). A requirement that the Vision holds and that the program does not check is named, by id, in the measure's note and counted neither as a deviation nor as not measured: a person must check it, and "Still needs a person" says so. A Vision without a section 7 (one made before the Floors) gives "0 deviations" with the note "The Vision holds no Floors".
+- **Contrast becomes binding.** When the Vision holds requirement A1 (the Floor for people with disabilities is written only under "Fix for me", decision D13), the contrast measure's title becomes "Contrast: required by Floor A1", its deviations and its "not measured" count toward the status, and its note says so. Without A1, the contrast measure stays "measured, not required" and never changes the status.
+- **Status.** Status 1 when any of the six design measures, the Floors measure, or (when A1 is held) the contrast measure has a deviation or a "not measured", or a window did not load; otherwise 0. The refusals (status 2) do not change.
+- **The Mockup.** `mockup.html` is a reference for the design only (section 7 of the Vision says so: its own policy blocks forms, and it has no description for search engines). Measured as a build, it has Floor deviations. The test of the reference build keeps its promise for the six design measures, and it names each Floor that the Mockup fails, with the reason the Vision gives.
+- **Edge cases.** Each check reads the page as a browser does (reviewer findings RV-02 to RV-07): an address with its tabs and line breaks removed, every address of a `srcset`, a style sheet's escapes decoded, the browser's own `tabIndex` and input `type`, a label in the field's own root, every policy tag, and the last referrer tag. The command line's summary counts exactly the measures that decide the status (RV-01). A page that adds its policy or a meta tag with a script is measured as it stands when the program reads it (scripts off by default). An id that the Vision repeats counts once. A requirement whose check fails in one reading and passes in another is a deviation, and its line names the readings.
+- **How to test it end to end:** browser tests that plant one breach of each checked requirement in a page that meets all of them, and find each one alone; a test that a Vision without A1 keeps contrast out of the status and one with A1 brings it in; a test that the Mockup's Floor lines are exactly the named ones; the trial receipts measured again.
+
+### 2.28 The join of the three lines of work (2026-11-17; decision D77)
+
+- What the owner does: nothing new. The owner asked that every pending pull request be merged, and chose the Fit check's script default.
+- What the system does in response:
+  1. **One Fit check.** The program of sections 2.22 to 2.25 is the base. Where this section and an earlier one differ, this section governs.
+  2. **Scripts are off by default.** The Fit check and the look run none of the page's scripts unless the command line holds `--run-scripts` (in code, `runScripts: true`). The receipt says which. A page that draws its text or its style with a script reads as its markup stands until the option is given. The option `--no-scripts` no longer exists.
+  3. **More paint is compared.** The colors measure also compares the color of an underline, a column rule, a list marker, a placeholder text, a caret, and an accent color; the opacity of an SVG shape's fill or stroke joins its color. Each address of a `ping` attribute is read.
+  4. **The Floors are edition 3.** The join changed the wording of requirements S6, S7, S10, S11, and H1, so the edition number rose; a Vision of edition 2 or of no edition is checked for none of its Floors, and the receipt says so.
+  5. **The look** (`plugin/fit/src/look.ts`, the command `/fit-look`; pull request 17) draws the build and the Mockup at three widths and reads four things from the pixels. It is advice: no reading is a deviation, and it changes no status of the Fit check.
+- Not carried over from the audit branch, and why: its own measuring of the Floors (section 2.27) and its count of readings cut short (the base program's reading has no cut).
+- How to test it end to end: `npm run check`; `npm run e2e` (the Fit check's tests ask for scripts where a test needs them; the stored trial receipts are measured again and say "The program did not run the page’s scripts").
+
 
 ## 3. Out of scope
 

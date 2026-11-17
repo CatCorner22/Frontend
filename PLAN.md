@@ -1,6 +1,6 @@
 # Plan: "Frontend Focus" — your personal design studio and fitter for LLM-built frontends
 
-**Version 3.7, 2026-11-17.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. The app is named "Frontend Focus" (your name for it, decision D75).
+**Version 3.8, 2026-11-17.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. The app is named "Frontend Focus" (your name for it, decision D75).
 
 **How to read this plan.** Sections 1 to 3 say why the tool exists. Section 4 is the map of the forest: every part of the tool and its state today. Sections 5 to 7 say what it is built from. Section 8 holds the milestones. Section 9 lists what can go wrong. Each statement about the present says "built", "being built", or "not built".
 
@@ -32,7 +32,7 @@
 | You need no knowledge of optics | Each Step teaches its concept in plain words | built |
 | Coatings and extras: anti-glare, a case | An **Overlay**: a small helper over the page (a tooltip, an "Are you sure?" question) | built (first set of six) |
 | No lens that harms you is offered | Contrast checks warn or repair, as you choose | built |
-| The written vision | The **Vision**: a Markdown prompt plus token files | built: seven files and one archive (2026-11-16); the floors are missing |
+| The written vision | The **Vision**: a Markdown prompt plus token files | built: seven files and one archive, and the Floors in `VISION.md` (2026-11-16) |
 | The optician fits the glasses and has you read the chart again | The **Fitter** renders the build, measures it, and repairs | built (M7, 2026-11-17): the Fit check, and the commands for building, checking, and repairing; nobody has run the commands in Claude Code yet |
 
 In your forest terms: a Step is a tree, a design dimension is a species, section 4 maps the forest, and section 9 lists what can go wrong.
@@ -68,7 +68,7 @@ A rule graded C or D is shown as opinion or folklore, never as science.
 | 2 | Steps | 23 Steps in two stages (6 for layout, in gray; 17 for look and feel). On each: compare cards, pick one, fine-tune with sliders, ask for small variations, write a reason, decide later, undo, or put the Step back | built |
 | 3 | Overlays | Switch small helpers on or off; the preview draws each one open, in your design | built |
 | 4 | Summary | Read every Decision back; see the contrast notes and the research rules; download or open a project file; manage kept copies | built |
-| 5 | Export | Receive the Vision | built: the Summary hands over seven files, singly or as one archive (2026-11-16); the floors are missing |
+| 5 | Export | Receive the Vision | built: the Summary hands over seven files, singly or as one archive, and `VISION.md` holds the Floors (2026-11-16) |
 
 ### 4.2 Rules that hold at every Step
 1. One variable per Step. Apples to apples.
@@ -184,7 +184,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
 | M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | built on 2026-11-15 (features F003 to F006); its exit test waits for you to make one Direction on the private page. You asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
 | M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52); the craft layer's first twelve craft rules are built (2026-11-15, decisions D58 and D60); the first slice of the Brief is built (2026-11-16, decisions D61 and D62); the floors and an inner page are not started |
-| M6 | Export bundle (the Vision) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `VISION.md` carries 56 requirements in five Floors, each with its source. The gate review of 2026-11-17 found no blocker in the Vision; its major findings are repaired (F038) |
+| M6 | Export bundle (the Vision) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `VISION.md` carries 56 requirements in five Floors, each with its source (36 under “Off” and “Warn me”, because the 20 requirements for people with disabilities are written only under “Fix for me”, decision D13). Milestone M6 counts as complete only when GitHub's check passes on the commit that holds them (hard rule 3) and the M6 gate review (the three red-team reviewers, hard rule 12) finds no blocker; the review of 2026-11-16 found none, and its 43 findings are rows S8, U8, and T8 of `redteam/FINDINGS.md`. **Complete on 2026-11-17**: GitHub's check passed on `c6128c2` on 2026-11-17 (both runs: "check" and "Outside validators", finished 11:16 and 11:17 UTC) |
 | M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | built on 2026-11-17 (features F024 to F029 and F035 to F038; decisions D68, D71, D73, D76): the exit test plants 61 defects in a reference build and the program finds each, and it reports none on the reference build of the plain start and of all 38 Directions with every Floor written. The gate review of 2026-11-17 found 7 blockers; all are repaired (F038). Open, and yours to judge: the test runs the program, not the command inside Claude Code, which nobody has run yet; the comparison of pixels (step 13a) is not built |
 | M8 | **Your first real project, end to end**; hardening | You judge the result; red-team blockers at zero | not started |
 | M9–M11 | Templates 2, 3, 4 | Same tests as M5–M7 per Template | not started |
@@ -202,7 +202,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 - *Code review swarms* for code quality: reviewers per area, a second set that tries to refute each finding, repairs only for what survives.
 - *What these cost:* rounds 1 and 2 of the campaign used about 1.0 and 0.7 million tokens (measured); round 3 about 0.75 million (0.33 million measured after a restart, the rest estimated); the nine-reviewer code review about 1.8 million (measured). Reviewers and judges are AI agents; their grades are judgments, not measurements.
 
-**Waypoints.** After every unit of work: commit and push to `claude/brave-mayer-sawqz9`. At every milestone: a row in `WAYPOINTS.md`. You retired the Drive backup (D26) on 2026-11-15: GitHub is the only backup (decision D55).
+**Waypoints.** After every unit of work: commit and push to the working branch that the session names (on 2026-11-16 and 2026-11-17: `claude/eloquent-curie-hnhykj`; decisions D72 and D73). At every milestone: a row in `WAYPOINTS.md`. You retired the Drive backup (D26) on 2026-11-15: GitHub is the only backup (decision D55).
 
 ## 9. What can go wrong, and the response
 
@@ -244,6 +244,8 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Version 3.5: the audit and red-team campaign A2 and their repairs (on the audit branch); the two branches must be joined first; section 13 gives the remaining work with time estimates | Your request of 2026-11-16 ("Please redo the plan with timeline estimates for remaining work") and your deferral ("I defer to you") | D71 |
 | Version 3.6: the audit branch and the main line are joined (pull requests 12 and 13); the Floors are built; the code review of pull request 13 | Your request of 2026-11-16 ("Please review the code and debug. Please also clean up all pending PRs") | D73 |
 | Version 3.7: the app is "Frontend Focus" and the Prescription is the "Vision"; milestone M7 is built | Your request of 2026-11-17 ("Please rebrand this app is 'Frontend Focus,' and then change 'Prescription' to 'Vision.' Please do test M6. Finish M7.") | D75, D76 |
+| Version 3.6, as the audit branch recorded it: the two branches joined, one building session at a time; step 12 ("the Fit check measures what the Floors require") moved from M6 to M7 (you approved the move on 2026-11-17, decision D78); the totals of 13.9 no longer count the finished join (2026-11-17) | Your approval of one building session at a time, and your choice of this session's join | D72, D73 |
+| Version 3.8: the three lines of work are one (pull requests 14, 16, and 17); the Fit check runs no script of the page unless asked; the Floors are edition 3; the look is merged | Your answers of 2026-11-17 (decision D77) | this version's rows of sections 2, 8, and 13 |
 
 ## 11. File and research status
 
@@ -276,8 +278,8 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Step | What | Who | Estimate | Depends on |
 |---|---|---|---|---|
 | 1 | Close campaign A2: read the retest judge and the variant lane, repair what fails its retest, record each finding as "retested-pass" or reopened. **Done on 2026-11-16:** all 18 findings retested-pass; the variant lane found 12 more ways around the repairs, all repaired or stated (rows A2-V1 to A2-V14) | builder | done |
-| 2 | **Your decision:** how sessions work from now on: one session at a time, or one area each (for example, the Fitter in one session and the Studio in another). Today two sessions repaired the same faults in different ways; joining their work is step 3 | you | 5 minutes | nothing |
-| 3 | **Done on 2026-11-16 (decision D73):** join the audit branch (`claude/eloquent-curie-hnhykj`, pull request 12) with the main line: 18 files disagree. For each overlap, keep one design (the largest: whether the Fit check runs the page's scripts, as campaign A2's repairs do, or not by default, as feature F029 does); one test suite; every check twice; one retest of the joined Fit check | builder | 4 to 8 hours | steps 1 and 2 |
+| 2 | **Your decision:** how sessions work from now on. **Decided on 2026-11-16: one building session at a time (D72)** | you | done | nothing |
+| 3 | Join the audit branch (`claude/eloquent-curie-hnhykj`, pull request 12) with the main line, by this session while the other session stops building (D72). The main line's own design for the Fit check (the page's scripts off by default, the window offline) stays, and the audit's repairs that need no script, its tests, and its defences for `--run-scripts` are carried over | builder | 4 to 8 hours; **done on 2026-11-16** with the main line at `8de8153` (D73: the owner kept this join; the main line's session began a second join, which nobody merges) | step 2 |
 
 ### 13.2 Your part of milestones M4 and M4D (your time: about 45 minutes; can happen at any time)
 
@@ -294,19 +296,19 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 |---|---|---|
 | 8 | 88 rows of `redteam/FINDINGS.md` are open on the main line, most of them minor. Repair every blocker and major one; repair or state each minor one | 8 to 15 hours |
 
-### 13.4 Milestone M6: the Floors (builder: 11 to 19 hours; your time: 30 to 60 minutes)
+### 13.4 Milestone M6: the Floors (complete on 2026-11-17)
+
+The Floors are written (feature F032, decisions D69 and D70): `VISION.md` carries 56 requirements in five Floors, each with its source (36 under “Off” and “Warn me”, because the 20 requirements for people with disabilities are written only under “Fix for me”, decision D13). Steps 9 to 11 of version 3.5 (check the research, your decisions, write the Floors) are done; you deferred the questions to the builder (D70), and the host waits until you name one.
 
 | Step | What | Who | Estimate |
 |---|---|---|---|
-| 9 | Check research records 12a to 12d against their own sources (each host needs your approval in the environment's prompt, decision D63) | builder | 3 to 5 hours |
-| 10 | **Your decisions:** what each Floor requires (security, being found by search, speed; and the accessibility Floor, which you choose per project, decision D13) | you | 30 to 60 minutes |
-| 11 | Write the Floors into the Vision as testable requirements (about six to ten features) | builder | 6 to 10 hours |
-| 12 | The Fit check measures what the Floors require; contrast becomes binding | builder | 2 to 4 hours |
+| 9 | GitHub's check passes on the commit that holds the Floors, and the M6 gate review (the three red-team reviewers, hard rule 12) finds no blocker | builder | **done on 2026-11-17** (`c6128c2`) |
 
-### 13.5 Milestone M7: the rest of the Fitter (builder: 19 to 32 hours)
+### 13.5 Milestone M7: the rest of the Fitter (builder: 21 to 36 hours)
 
 | Step | What | Estimate |
 |---|---|---|
+| 12 | The Fit check measures what the Floors require; contrast becomes binding (moved here from M6) | 2 to 4 hours |
 | 13 | The third window width (768 pixels) and the exit test: a build with planted defects, every one found and no false blocker | 3 to 5 hours |
 | 13a | **Read what is drawn, not only what the styles say.** Campaign A2 showed that a check that reads computed styles can always be led around by one more route (a shadow root, a clip, a fill color, an import); each round closed the routes it found. The lasting answer: compare the pixels of a screenshot with the Vision's colors, and find the three required texts in the drawn page, beside the style reading. | 6 to 10 hours |
 | 14 | `/fit-build` and `/fit-repair` as commands of a Claude Code plugin: packaging, at most three rounds of repair, and the receipt's part "Judged by the model" | 8 to 14 hours |
@@ -338,12 +340,12 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 ### 13.9 Totals, and what they mean in days
 
-| Point reached | Builder hours | Your time | At about 10 building hours a day | At about 20 a day (two sessions, one area each) |
+| Point reached | Builder hours | Your time | At about 10 building hours a day | At about 20 a day (two building sessions; not used since D72) |
 |---|---|---|---|---|
-| Today's work closed and the branches joined (13.1; step 1 done) | 4 to 8 | 5 minutes | 1 day | under 1 day |
-| **M8: the tool does its job on a real project** (13.1 to 13.7) | **70 to 129** | about 3 to 5 hours, in five short sittings | **7 to 13 working days** | **4 to 7 days** |
-| Everything in this plan (to M12) | 153 to 278 | about 3 to 6 hours | 16 to 28 working days | 8 to 14 days |
+| Today's work closed and the branches joined (13.1) | done on 2026-11-16 | done | done | done |
+| **M8: the tool does its job on a real project** (13.2 to 13.7; 13.1 done) | **59 to 109** | about 2 to 4 hours, in three short sittings (the trial, choosing the first project, judging its result) | **6 to 11 working days** (the column that decision D72 sets) | (not used: D72) |
+| Everything in this plan (to M12) | 142 to 258 | about 2.5 to 4.5 hours | 15 to 26 working days | (not used: D72) |
 
 **What these totals do not hold.** Your steps set the pace as much as the builder's: the trial, the Floors, and the real project each wait for you, and each can stop the line while it waits. Red-team rounds beyond those named cost about 2 hours and 1.3 million tokens each. Any new request of yours adds its own estimate. "Completing the app today" is not within reach: today closes step 1, and possibly steps 2 and 3.
 
-**What you have already, without waiting for any of this.** The Studio does its main job now: you pick a Direction and the Steps, and download the seven files of the Vision for an AI coding tool. The Fit check can measure a page built from them. What is missing is the Floors, the rest of the Fitter, and the proof on a real project.
+**What you have already, without waiting for any of this.** The Studio does its main job now: you pick a Direction and the Steps, and download the seven files of the Vision for an AI coding tool. The Fit check can measure a page built from them. What is missing is the proof on a real project, and the parts of the Fitter that decision D76 left for later.

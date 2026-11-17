@@ -9,7 +9,7 @@ export interface Reference {
   address: string;
 }
 export interface Drawn {
-  kind: 'text' | 'text fill' | 'background' | 'border' | 'outline' | 'text stroke';
+  kind: 'text' | 'text fill' | 'background' | 'border' | 'outline' | 'text stroke' | 'underline' | 'column rule' | 'marker' | 'placeholder' | 'caret' | 'accent';
   css: string;
   where: string;
 }
@@ -79,6 +79,14 @@ export function collect(): Collected {
     const [r = 0, g = 0, b = 0, a = 0] = pen.getImageData(0, 0, 1, 1).data;
     return a === 255 ? `rgb(${String(r)}, ${String(g)}, ${String(b)})` : `rgba(${String(r)}, ${String(g)}, ${String(b)}, ${String(a / 255)})`;
   };
+  /** A color in `rgb()` or `rgba()` with its alpha multiplied by `factor`; any other form passes unchanged. */
+  const withAlpha = (css: string, factor: number): string => {
+    if (!(factor < 1)) return css;
+    const m = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:\s*[,/]\s*([\d.]+)(%?))?\s*\)$/.exec(css.trim());
+    if (!m) return css;
+    const alpha = m[4] === undefined ? 1 : m[5] === '%' ? Number(m[4]) / 100 : Number(m[4]);
+    return `rgba(${m[1] ?? '0'}, ${m[2] ?? '0'}, ${m[3] ?? '0'}, ${String(Math.round(alpha * factor * 1000) / 1000)})`;
+  };
   const alphaOf = (css: string): number => {
     const m = /^rgba?\(\s*[\d.]+[\s,]+[\d.]+[\s,]+[\d.]+(?:\s*[,/]\s*([\d.]+%?))?\s*\)$/.exec(css.trim());
     if (!m) return 1;
@@ -103,13 +111,15 @@ export function collect(): Collected {
     const code = Number.parseInt(hex, 16);
     return code > 0 && code <= 0x10ffff && (code < 0xd800 || code > 0xdfff) ? String.fromCodePoint(code) : '\ufffd';
   });
-  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['video', 'poster'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['form', 'action'], ['button', 'formaction'], ['input', 'formaction'], ['a', 'ping'], ['area', 'ping'], ['image', 'href'], ['image', 'xlink:href'], ['use', 'href'], ['use', 'xlink:href'], ['base', 'href']];
+  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['video', 'poster'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['form', 'action'], ['button', 'formaction'], ['input', 'formaction'], ['image', 'href'], ['image', 'xlink:href'], ['use', 'href'], ['use', 'xlink:href'], ['base', 'href']];
   for (const [tag, attribute] of holders) {
     for (const el of every(tag)) {
       const value = el.getAttribute(attribute) ?? '';
       if (outside(value)) references.push({ kind: `${tag} ${attribute}`, value: collapse(value), address: value });
     }
   }
+  // A ping holds several addresses, separated by spaces.
+  for (const el of every('a[ping], area[ping]')) for (const value of (el.getAttribute('ping') ?? '').split(/\s+/)) if (outside(value)) references.push({ kind: `${el.tagName.toLowerCase()} ping`, value: collapse(value), address: value });
   for (const el of every('meta[http-equiv]')) {
     if ((el.getAttribute('http-equiv') ?? '').toLowerCase() !== 'refresh') continue;
     const target = /url\s*=\s*['"]?([^'";]+)/i.exec(el.getAttribute('content') ?? '')?.[1] ?? '';
@@ -245,11 +255,19 @@ export function collect(): Collected {
     const recolored = isFiltered(el);
     // A shape or a text of an inline SVG picture paints with `fill` and `stroke` (finding G-S08).
     if (el instanceof SVGGeometryElement || el instanceof SVGTextContentElement) {
-      if (cs.fill !== 'none' && !cs.fill.startsWith('url(')) add('background', rgbOf(cs.fill), label, recolored);
-      if (cs.stroke !== 'none' && !cs.stroke.startsWith('url(') && Number.parseFloat(cs.strokeWidth) > 0) add('border', rgbOf(cs.stroke), label, recolored);
+      // The paint's own opacity joins the color's alpha, so a half-transparent fill is listed as partly transparent (audit branch, finding CX-02).
+      if (cs.fill !== 'none' && !cs.fill.startsWith('url(') && Number.parseFloat(cs.fillOpacity) > 0) add('background', withAlpha(rgbOf(cs.fill), Number.parseFloat(cs.fillOpacity)), label, recolored);
+      if (cs.stroke !== 'none' && !cs.stroke.startsWith('url(') && Number.parseFloat(cs.strokeWidth) > 0 && Number.parseFloat(cs.strokeOpacity) > 0) add('border', withAlpha(rgbOf(cs.stroke), Number.parseFloat(cs.strokeOpacity)), label, recolored);
       continue;
     }
     box(cs, label, hasText, recolored, el.tagName === 'IMG' || el.tagName === 'VIDEO' || el.tagName === 'CANVAS');
+    // Other paint that the page draws (audit branch, M6 gate review, finding S8-02).
+    if (cs.textDecorationLine !== 'none' && (el.textContent ?? '').trim() !== '') add('underline', rgbOf(cs.textDecorationColor), label, recolored);
+    if (cs.columnRuleStyle !== 'none' && cs.columnRuleStyle !== 'hidden' && Number.parseFloat(cs.columnRuleWidth) > 0 && (cs.columnCount !== 'auto' || cs.columnWidth !== 'auto')) add('column rule', rgbOf(cs.columnRuleColor), label, recolored);
+    if (cs.display === 'list-item' && cs.listStyleType !== 'none') add('marker', rgbOf(getComputedStyle(el, '::marker').color), label, recolored);
+    if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && (el.getAttribute('placeholder') ?? '') !== '') add('placeholder', rgbOf(getComputedStyle(el, '::placeholder').color), label, recolored);
+    if (cs.caretColor !== 'auto' && (['INPUT', 'TEXTAREA'].includes(el.tagName) || (el as HTMLElement).isContentEditable)) add('caret', rgbOf(cs.caretColor), label, recolored);
+    if (cs.accentColor !== 'auto' && ['INPUT', 'PROGRESS', 'METER'].includes(el.tagName)) add('accent', rgbOf(cs.accentColor), label, recolored);
     // Pseudo-elements draw too: a decoration, or words that stand in for the page's own (finding J-6).
     for (const pseudo of ['::before', '::after'] as const) {
       const ps = getComputedStyle(el, pseudo);

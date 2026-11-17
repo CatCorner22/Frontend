@@ -174,7 +174,7 @@ export function writtenFloorIds(visionMd: string): string[] {
 }
 
 /** The edition of the Floors whose wording this program reads. The Studio's core writes the same number into `VISION.md` section 7. */
-export const FLOORS_EDITION = 2;
+export const FLOORS_EDITION = 3;
 
 /** The edition that a Vision states, or null (a Vision from before the editions were numbered, or one without Floors). */
 export function statedEdition(visionMd: string): number | null {

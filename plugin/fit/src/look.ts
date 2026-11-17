@@ -1149,7 +1149,7 @@ export async function look(input: LookInput): Promise<LookResult> {
   if (input.html.trim() === '') throw new FitError('The build is empty.');
   if (!/<(?:!doctype|html|body)\b/i.test(input.html)) throw new FitError('The build is not an HTML page.');
   const ms = input.loadTimeoutMs ?? 10_000;
-  const runScripts = input.runScripts !== false;
+  const runScripts = input.runScripts === true;
   const fonts = input.fonts ?? {};
   const fontsGiven = Object.keys(fonts).length > 0;
   // The names as tokens.json writes them (the design values keep them in lower case; the report shows them as written).

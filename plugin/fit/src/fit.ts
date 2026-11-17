@@ -414,7 +414,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
 
   // A frame draws a page of its own that the program does not read (finding G-S06).
   const frames = Math.max(0, ...good.map((p) => p.collected.frames));
-  const colorNote = `A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too.${frames > 0 ? ` The page holds ${String(frames)} ${frames === 1 ? 'frame or embedded object' : 'frames or embedded objects'}; the program does not read what ${frames === 1 ? 'it draws' : 'they draw'}, and counts ${frames === 1 ? 'it' : 'each'} as not measured.` : ''}${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${translucent.size > 0 ? ' Partly transparent colors are listed as information and not compared.' : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
+  const colorNote = `A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, underlines, column rules, list markers, placeholder text, carets, accent colors, and the fill and stroke of inline SVG shapes are compared too.${frames > 0 ? ` The page holds ${String(frames)} ${frames === 1 ? 'frame or embedded object' : 'frames or embedded objects'}; the program does not read what ${frames === 1 ? 'it draws' : 'they draw'}, and counts ${frames === 1 ? 'it' : 'each'} as not measured.` : ''}${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${translucent.size > 0 ? ' Partly transparent colors are listed as information and not compared.' : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
   const whyUnread = [...reasons].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([why, n]) => `${String(n)} because ${why}`).join('; ');
   // The Floors (SPEC.md section 2.22): the part of each written requirement that a program can check on this page.
   const binding = written.includes('A1');
@@ -465,7 +465,7 @@ export async function fit(input: FitInput): Promise<FitResult> {
   if (input.html.trim() === '') throw new FitError('The build is empty.');
   if (!/<(?:!doctype|html|body)\b/i.test(input.html)) throw new FitError('The build is not an HTML page.');
   const ms = input.loadTimeoutMs ?? 10_000;
-  const runScripts = input.runScripts !== false;
+  const runScripts = input.runScripts === true;
   const browser = input.browser ?? (await chromium.launch({ ...input.launch, args: [...(input.launch?.args ?? []), ...LAUNCH_ARGS] }));
   try {
     // The six windows (three widths, each with reduced motion and with motion allowed) are read side by side; their order in the receipt is fixed, so the same inputs give the same receipt.

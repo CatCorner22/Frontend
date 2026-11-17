@@ -237,15 +237,6 @@ describe('saved projects: references to the Catalog are recomputed, never truste
   it('keeps hostile text as plain data', () => {
     const hostile = '"><script>alert(1)</script><img src=x onerror=alert(1)>';
     const project = { ...createProject(hostile.slice(0, 100)), content: { ...SAMPLE_CONTENT, headline: hostile, business: hostile, nav: [hostile], services: [{ title: hostile, body: hostile }], facts: [{ value: hostile, label: hostile }], fees: [{ item: hostile, price: hostile }] } };
-    const loaded = ok(roundTrip(project)).project;
-    // Hostile text stays inert text. A text longer than the page allows is cut at its limit, as typed text is (SPEC.md section 2.16, point 3).
-    expect(loaded.name).toBe(project.name);
-    expect(loaded.content.business).toBe(hostile);
-    expect(loaded.content.headline).toBe(hostile);
-    expect(loaded.content.services).toEqual([{ title: hostile, body: hostile }]);
-    expect(loaded.content.fees).toEqual([{ item: hostile, price: hostile.slice(0, 16) }]);
-    expect(loaded.content.nav).toEqual([hostile.slice(0, 24)]);
-    expect(loaded.content.facts).toEqual([{ value: hostile.slice(0, 12), label: hostile.slice(0, 40) }]);
     // The markup stays as plain characters, never escaped and never taken out. A text longer than its own limit is cut there, as a
     // typed text is (guarantee 55.01; audit finding A1-04): the hostile text has 55 characters, and a figure holds 12, a label 40,
     // a price 16, and a menu word 24.

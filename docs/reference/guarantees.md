@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.25. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Vision, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Vision); it does not cover design advice or the plan.
+Version 1.26. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Vision, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Vision); it does not cover design advice or the plan.
 
 Stale-after: 90
 
@@ -118,9 +118,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [60.08 A double click does not record the next Step's default](#6008-a-double-click-does-not-record-the-next-steps-default)
 - [65 The craft rules and the Vision](#65-the-craft-rules-and-the-vision)
   - [65.01 Every craft rule carries its mark on the sample website of every built-in Direction, and says so when a design sets it aside](#6501-every-craft-rule-carries-its-mark-on-the-sample-website-of-every-built-in-direction-and-says-so-when-a-design-sets-it-aside)
-  - [65.02 The four files of the Vision hold the same design values, value by value](#6502-the-four-files-of-the-vision-hold-the-same-design-values-value-by-value)
+  - [65.02 tokens.css, tokens.json, and mockup.html hold the same design values, value by value](#6502-tokenscss-tokensjson-and-mockuphtml-hold-the-same-design-values-value-by-value)
   - [65.03 Words that the owner typed, or that came from a file, stand in the Vision as quoted data, inside a fence that they cannot close](#6503-words-that-the-owner-typed-or-that-came-from-a-file-stand-in-the-vision-as-quoted-data-inside-a-fence-that-they-cannot-close)
-  - [65.04 The same project always gives the same four files, and a change of any line is seen](#6504-the-same-project-always-gives-the-same-four-files-and-a-change-of-any-line-is-seen)
+  - [65.04 The same project always gives the same seven files, and a change of any stored line is seen](#6504-the-same-project-always-gives-the-same-seven-files-and-a-change-of-any-stored-line-is-seen)
   - [65.05 The Vision names the start, every Decision, every craft rule, and what a person must still check, and claims no standard](#6505-the-vision-names-the-start-every-decision-every-craft-rule-and-what-a-person-must-still-check-and-claims-no-standard)
   - [65.06 A file that the Summary hands over equals what the core writes for the stored project](#6506-a-file-that-the-summary-hands-over-equals-what-the-core-writes-for-the-stored-project)
   - [65.07 Every file of the Vision carries one fingerprint of the design values, and no date](#6507-every-file-of-the-vision-carries-one-fingerprint-of-the-design-values-and-no-date)
@@ -138,7 +138,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [66.03 The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs](#6603-the-receipt-keeps-measuring-judging-and-asking-apart-and-holds-nothing-that-changes-between-two-runs)
   - [66.04 The first build trial is stored whole, belongs to today's files, and measures to its own receipt](#6604-the-first-build-trial-is-stored-whole-belongs-to-todays-files-and-measures-to-its-own-receipt)
   - [66.05 The comparison run sets two pages side by side with numbers that come from the receipts](#6605-the-comparison-run-sets-two-pages-side-by-side-with-numbers-that-come-from-the-receipts)
-  - [66.06 A page's scripts run by default but cannot reach what the program reads, they can be switched off, and the window has no network](#6606-a-pages-scripts-run-by-default-but-cannot-reach-what-the-program-reads-they-can-be-switched-off-and-the-window-has-no-network)
+  - [66.06 A page's scripts do not run by default, and the window has no network](#6606-a-pages-scripts-do-not-run-by-default-and-the-window-has-no-network)
   - [66.07 Every line that comes from the page is cleaned, short, and bounded](#6607-every-line-that-comes-from-the-page-is-cleaned-short-and-bounded)
   - [66.08 The command line does not write through a link](#6608-the-command-line-does-not-write-through-a-link)
   - [66.09 The Fit check checks a part of some Floor requirements, names each by its id, and never says that a page meets one](#6609-the-fit-check-checks-a-part-of-some-floor-requirements-names-each-by-its-id-and-never-says-that-a-page-meets-one)
@@ -584,7 +584,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 <!-- index: your content | Brief; own words; texts of the page; limit of a text -->
 
-- **Rule.** Each text of the page and each of the three answers is stored on one line (typed or loaded from a file: §55.07), without invisible signs and without signs that change the direction of writing, and cut at its own limit by whole characters. Quotation marks and apostrophes stay. The page's name, its headline, and the words on its main button cannot be emptied: an empty one changes nothing, and the screen says so. A service, a fact, and a price are added and removed within 1 to 8, 0 to 4, and 0 to 8; the menu keeps its five links. A project file that opens is held to the same cleaning and the same limits: each of its texts and answers is cleaned and cut as a typed one, a text that the page needs and that holds nothing visible becomes the sample text, a menu word that holds nothing visible becomes the sample word at its place (review finding A1-15), and a note says that the Studio changed texts (audit finding A1-04; before, a file could carry a hidden sentence into `mockup.html`). [S15; S1 at D61; S1 at D62]
+- **Rule.** Each text of the page and each of the three answers is stored on one line (typed or loaded from a file: §55.07), without invisible signs and without signs that change the direction of writing, and cut at its own limit by whole characters. Quotation marks and apostrophes stay. The page's name, its headline, and the words on its main button cannot be emptied: an empty one changes nothing, and the screen says so. A service, a fact, and a price are added and removed within 1 to 8, 0 to 4, and 0 to 8; the menu keeps its five links. [S15; S1 at D61; S1 at D62]
 - **Test.** "sets a text of the page, cleaned like any text that the Studio keeps, and cut at that text’s limit"; "never leaves the page without a name or a headline: an empty one changes nothing"; "adds and removes a service, a fact, and a price within the limits, and changes nothing beyond them"; "keeps the menu at its five links and changes their words only"; "lets a project from before this slice keep a list that is longer than the limit, and add nothing to it"; "holds the three answers with the project, cleaned and cut, and holds nothing where the owner wrote nothing"; "writes the texts and the answers into the project file and reads them back unchanged"; "cleans and cuts the texts that a file brings, as it does typed text, says so, and keeps a long list (audit finding A1-04)". [S15]
 - **Test.** In the browser: "opens from the top bar, takes the owner’s words into the project and the previews, keeps them over a reload, and hands them over in mockup.html"; "stops each list at its limit and says why"; "draws markup in a text as text, never leaves the page without a name, and says when the words to mark are not in the headline". [S3]
 - **Exceptions.** The limits are the builder's choice (decision D62). The words of the contact form are fixed. A project file from before may hold a longer list; the Studio then adds nothing to it.
@@ -734,14 +734,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Exceptions.** A check is a search of the style sheet for text. It does not look at drawn pixels, and a style sheet can hold a fault that no check looks for; the sixth review showed five such cases, now repaired. Nine rules rest on practitioners' published rule sets, which the research record itself calls opinion; three rest on the builder's judgment alone. No person has reviewed a craft rule.
 - Last verified: 2026-11-16
 
-### [65.02] The four files of the Vision hold the same design values, value by value
+### [65.02] tokens.css, tokens.json, and mockup.html hold the same design values, value by value
 
 <!-- index: Vision | export; files to build from; design values; see also: craft rule -->
 
 - **Rule.** `tokens.css` holds every design value of the project and nothing else; `tokens.json` holds each of those values, either as a typed entry that stands for exactly the CSS value or as the CSS value word for word; `mockup.html` draws with each value under its name and holds no script. [S13]
 - **Test.** "holds every design value in tokens.css, and the same value in tokens.json and in mockup.html"; "writes typed tokens only in the types of the Design Tokens format, each with a value of that type’s form"; "types a list of typefaces as a typeface and a keyword as a keyword, and gives each color’s parts as its six digits say (findings T6-10, T6-11)"; "writes tokens.css as one block of named values and nothing else". [S13]
-- **Exceptions.** The builder read the Design Tokens format in the specification's own repository on 2026-11-15 and wrote the test from that reading. No validator program of the format has checked `tokens.json` (decision D60).
-- Last verified: 2026-11-15
+- **Exceptions.** The builder read the Design Tokens format in the specification's own repository on 2026-11-15 and wrote the test from that reading. Since decision D64 an outside parser of the format reads `tokens.json` on GitHub for the plain start and every Direction (§65.09); before that, no validator program of the format had checked it (decision D60).
+- Last verified: 2026-11-17
 
 ### [65.03] Words that the owner typed, or that came from a file, stand in the Vision as quoted data, inside a fence that they cannot close
 
@@ -755,14 +755,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Open.** A fence marks text as data; it cannot force a reader to treat it so. Whether an AI coding tool obeys the mark is not tested here; the Fitter (M7) will test builds.
 - Last verified: 2026-11-16
 
-### [65.04] The same project always gives the same four files, and a change of any line is seen
+### [65.04] The same project always gives the same seven files, and a change of any stored line is seen
 
 <!-- index: stored copy of the files | snapshot; same files again -->
 
-- **Rule.** The core writes the seven files from the project alone: the same project gives the same files, and the files for two projects are stored word for word, so that a change of any line fails a test until someone decides it. [S13]
-- **Test.** "writes seven files, and writes the same files again for the same project"; "keeps the four files as stored for two projects, so that a change of any line is seen and decided". [S13]
+- **Rule.** The core writes the seven files from the project alone: the same project gives the same files. `VISION.md`, `tokens.css`, `tokens.json`, and `mockup.html` are stored word for word for two projects, and `VISION.md` also under “Fix for me” and under “Off” (so that the text of every Floor is stored), so that a change of any stored line fails a test until someone decides it. `DESIGN.md`, `FONTS.md`, and `theme.css` are stored for one project only (row T7-10). [S13]
+- **Test.** "writes seven files, and writes the same files again for the same project"; "keeps the four files as stored for two projects, so that a change of any line is seen and decided"; "keeps VISION.md as stored under “Fix for me” and under “Off”, so that a change of any Floor’s text is seen and decided (M6 gate, T8-16)". [S13]
 - **Elements.** `VISION.md`, `tokens.css`, and `tokens.json` are stored in one file of the test; `mockup.html` is stored for the same two projects as a page of its own, which a person can open in a browser.
-- Last verified: 2026-11-15
+- Last verified: 2026-11-17
 
 ### [65.05] The Vision names the start, every Decision, every craft rule, and what a person must still check, and claims no standard
 
@@ -836,10 +836,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 <!-- index: Floors section | section 7; contrast setting; no date -->
 
-- **Rule.** `VISION.md` has a section "7. Floors" with one part for each Floor. Security of the page, the host's settings, search, and speed are always written. Use by people with disabilities is written only when Contrast checks is "Fix for me" (decision D13); with "Warn me" or "Off" the section says that it is not written, why, and how to change that. The section states the edition of the Floors and says that the Fit check checks a part of some requirements and that no program checks the rest; the file carries no date. The old section 7 is section 8. The other six files and the fingerprint do not change. [S20; S13; S1 at D13 and D69]
+- **Rule.** `VISION.md` has a section "7. Floors" with one part for each Floor. Security of the page, the host's settings, search, and speed are always written. Use by people with disabilities is written only when Contrast checks is "Fix for me" (decision D13); with "Warn me" or "Off" the section says that it is not written, why, and how to change that. The section says which program checks some of the requirements (the Fit check, since feature F034: those that a program can check in the page's markup), and the file carries no date. The old section 7 is section 8. The other six files and the fingerprint do not change. [S20; S13; S1 at D13 and D69]
 - **Test.** The tests of "VISION.md: section 7, Floors"; in the browser: "hands over a VISION.md whose section 7 holds the Floors, and writes the Floor for people with disabilities only with “Fix for me”". [S20; S3]
-- **Exceptions.** The stored copies of build trials 001 and 002 were made before the Floors; their test checks that the six other files are equal and that today's `VISION.md` holds every stored line in order, except three lines that the Floors replaced. Trial 003's helper received the first draft of the Floors, not today's.
-- Last verified: 2026-11-16
+- **Exceptions.** The stored copies of build trials 001 and 002 were made before the Floors; their test checks that the six other files are equal and that today's `VISION.md`, before its section 7, equals the stored file line for line, except the introduction's one line that the Floors changed (finding CR-01). Trial 003's helper received the first draft of the Floors, not today's; its test checks that the two files are equal outside section 7, except the one sentence on structured data that finding T8-12 corrected.
+- Last verified: 2026-11-17
 
 ### [65.15] The book of Directions matches the Catalog, and no built-in Direction leaves it
 
@@ -869,7 +869,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [66] The Fit check (measuring a build against the Vision)
 
-### [66.01] The program measures six things and one more, and the Mockup passes its own measure
+### [66.01] The program measures six design things, contrast, and the Floors, and the Mockup passes its design measures
 
 <!-- index: fit check | measures a build; receipt; reference build -->
 
@@ -884,8 +884,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 <!-- index: self-test | planted damage; refusals; status -->
 
-- **Rule.** The program reports each of eight damages of the reference build: one color changed, one typeface changed, one radius changed, a remote font link, a remote script, the headline removed, the page widened, and the text color made equal to the background. It refuses, with status 2 and no receipt, a missing file, files with different fingerprints, an empty build, a build that is not an HTML page, and a `mockup.html` that holds no business name, headline, or primary action (review finding A1-14: the content measure would otherwise compare nothing and report no deviation; open to the owner's veto). It reads `mockup.html` from a world of its own, as it reads the build. A page that never finishes loading is recorded, every measure of that window width is marked "not measured", and the status is 1. A page's error while it loads is recorded, and the measurements still run. [S18]
-- **Test.** The eight tests of "eight damages, each reported", the tests of "refusals and faults of the build", and "refuses a Mockup that lacks a required text, and reads the Mockup in a world of its own (A1-14)". [S18]
+- **Rule.** The program reports each of eight damages of the reference build: one color changed, one typeface changed, one radius changed, a remote font link, a remote script, the headline removed, the page widened, and the text color made equal to the background. It refuses, with status 2 and no receipt, a missing file, files with different fingerprints, an empty build, and a build that is not an HTML page. A `mockup.html` that holds no business name, headline, or primary action is not refused since the branches joined (decision D72): the content measure counts each such text as not measured, so the status is 1 and the receipt never says "0 deviations; 0 not measured" for it (review finding A1-14; the audit branch had refused it). The program reads `mockup.html` from a world of its own, as it reads the build. A page that never finishes loading is recorded, every measure of that window width is marked "not measured", and the status is 1. A page's error while it loads is recorded, and the measurements still run. [S18]
+- **Test.** The eight tests of "eight damages, each reported", the tests of "refusals and faults of the build", and "counts a required text that the Mockup lacks as not measured, and reads the Mockup in a world of its own (A1-14)". [S18]
 - **Exceptions.** A damage that the program has no measure for is not found: the self-test names eight, not every possible fault.
 - **Campaign A2 (decision D71).** A page that replaces itself (another address, or a new document written over it) is marked not measured, and the status is 1 (A2-J4). "Not measured" in any of the measures that count gives status 1 (A1-07). The program refuses a folder whose `tokens.css` does not give its stated fingerprint, or whose `tokens.json` disagrees with `tokens.css` (A2-J20).
 - Last verified: 2026-11-17
@@ -919,11 +919,11 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Open.** Trial 001's helper received `mockup.html` and `tokens.css`, so a zero there partly reflects copied values. The helpers may have had the repository's `CLAUDE.md` in their context (finding R26-01).
 - Last verified: 2026-11-17
 
-### [66.06] A page's scripts run by default but cannot reach what the program reads, they can be switched off, and the window has no network
+### [66.06] A page's scripts do not run by default, and the window has no network
 
 <!-- index: hostile page | scripts off; offline; dead proxy -->
 
-- **Rule.** By default the browser window runs the page's scripts, as a visitor's browser does, and the program reads the page from a world of its own that those scripts cannot reach; the receipt says so. With `--no-scripts` (option `runScripts: false`) no script runs, and the receipt says so. In both cases the window has no network: it is offline, it sends every address, this machine's own included, to a proxy at a port where nothing listens, it blocks service workers, and it stops each request that it sees. No WebSocket, popup, prefetch link, preconnect link, script, image, beacon, form, or move of the page to another address reaches any host. [S18; S1 at D68]
+- **Rule.** By default the browser window runs none of the page's scripts, and the receipt says so. On request (`--run-scripts`) the scripts run, and the receipt says that a page can then change what the program sees. In both cases the window has no network: it sends every address, this machine's own included, to a proxy at a port where nothing listens, it blocks service workers, and it stops each request that it sees. No WebSocket, popup, prefetch link, preconnect link, script, image, beacon, form, or move of the page to another address reaches any host. [S18; S1 at D68]
 - **Test.** "gives the same measures for a page that replaces the browser’s own functions as for the same page without that replacement, with the page’s scripts run and not run"; "says, with the default, that the page’s scripts ran and that the program read the page from a world of its own"; "lets no connection through: a WebSocket, a popup, a prefetch link, a preconnect link, a script, an image, a beacon, and a form, with scripts off and on" (a local listener counts the connections). [S18]
 - **Exceptions.** With scripts on, a page can still show another design to the program than to a visitor (it may recognize the check): the receipt's "Still needs a person" says so. Chromium runs without its own sandbox when the program runs as the root user (finding X7-09, open). A page that makes the program wait takes up to about 30 seconds and is then reported as not measured (finding X7-11).
 - Last verified: 2026-11-17
@@ -983,6 +983,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - Last verified: 2026-11-17
 
 ## [70] How the Studio is built
+
+### [66.09] The program measures the Floors that it can check on one page, and contrast binds where the Prescription holds Floor A1
+
+<!-- index: Floors measure | section 7; requirement ids; contrast required -->
+
+- **Rule.** The program reads the ids of the requirements that section 7 of `PRESCRIPTION.md` holds and checks the 25 that a program can check on one page's markup (A2, A3, A4, A5, A12, A13, A17, S1, S3, S5, S6, S7, S8, S9, S11, Q2, Q3, Q7, Q8, Q9, Q10, Q13, P4, P7, P12). Each failing requirement is one deviation line that starts with its id; the Floors measure counts toward the status. Every other requirement that the Prescription holds is named by id in the measure's note, for a person to check, and counts neither as a deviation nor as not measured. A Prescription without a section 7 gives "The Prescription holds no Floors". Where the Prescription holds A1 ("Fix for me"), the contrast measure is "required by Floor A1", and its deviations and its "not measured" count toward the status; otherwise it never changes the status. [SPEC.md section 2.22; S1 at D69 and D75]
+- **Test.** The eleven tests of "the Floors measure, and contrast bound by Floor A1" (among them each breach found alone, addresses read as a browser reads them, and contrast alone deciding the status only under “Fix for me”); the two command-line tests of its summary line (finding RV-01); "finds no deviation in the Mockup of the plain start or of any of the 38 Directions" (its Floors measure names exactly S8, S9, S11, Q8, Q10, and the Prescription names each as not to copy). [S18]
+- **Exceptions.** The checks read the markup, not what a person sees or hears; each requirement's text in the Prescription is the requirement. The host's settings (H1 to H5) need the published site, and the field figures (P1, P2) need real visits; no program here checks them.
+- Last verified: 2026-11-17
 
 ### [70.01] The shared core holds no React import and no browser API
 
@@ -1049,11 +1058,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-17 v1.26: after the join of the three lines of work (decision D77): §66.06 states the default again (no script of the page runs; `--run-scripts` runs them); §66.01 names the paints that the colors measure compares; §65.02, §65.04, and §65.14 take the audit branch's wording; the Floors are edition 3.
 - 2026-11-17 v1.25: after the gate review of M6 and M7 (feature F038): added §66.12; §66.09 to §66.11 moved to their place and state the edition of the Floors, 61 planted defects, and what the commands pre-approve; §66.01, §66.03, §66.04, and §65.14 follow the program of today. 89 guarantees.
 - 2026-11-17 v1.24: after the new names (decision D75: the app is "Frontend Focus", the Prescription is the "Vision") and after the Fitter's milestone M7 (decision D76): added §66.09 to §66.11; §66.01 names three window widths. 88 guarantees.
 - 2026-11-17 v1.23: after the book of Directions (feature F033, decision D74): added §65.15. 85 guarantees.
 - 2026-11-16 v1.22: after the join of the two branches (decision D73): §66.06 states the new default (scripts run, the page is read from a world of its own, `--no-scripts` stops them); §55.01 follows the cleaning of loaded files of both sides. 84 guarantees.
 - 2026-11-16 v1.21: after the reviewer's findings on the Floors (feature F032): §65.13 states 56 requirements (20, 11, 5, 10, 10); the section says where to set a host requirement and that `mockup.html` is a reference only; §66.04 covers the third build trial; the receipt's contrast note no longer says that the Vision holds no Floors. 84 guarantees.
+- 2026-11-17, the audit branch's v1.25 (its Floors measure was not kept at the join, decision D77): after the Floors measure (feature F034, SPEC.md section 2.22): added §66.09; §66.01 renamed and says when contrast binds. 86 guarantees.
+- 2026-11-17, the audit branch's v1.24: after the M6 gate review (rows S8, U8, T8): §65.02 and §65.04 renamed (they no longer say "four files"), and their texts, §65.14's exceptions, and §65.04's tests brought up to date (finding T8-15); §10.13's last test now exists (finding T8-14).
 - 2026-11-16 v1.20: after the Floors (feature F032, decision D69): added §65.13 and §65.14. 84 guarantees.
 - 2026-11-16 v1.19: after the small repairs of feature F031 (decision D68): added §65.12; §55.07 states what stays open. 82 guarantees.
 - 2026-11-16 v1.18: after the four repairs of feature F030 (decision D68): added §55.06, §55.07, §60.08, and §65.11; the wording of §65.04, §65.06, §65.07, §66.04 follows the seven files. 81 guarantees.

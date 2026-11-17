@@ -101,7 +101,7 @@ describe('Campaign A2: invisible signs, long names, and own Directions (J-12, J-
     expect(writeVision(createProject('Plain'))['VISION.md']).not.toContain('differ from the plain start');
     const base = createProject('V12');
     const one = { ...base, content: { ...base.content, services: base.content.services.map((item, i) => (i === 0 ? { ...item, title: 'Wills' } : item)) } };
-    expect(writeVision(one)['VISION.md']).toMatch(new RegExp(`still the sample dental practice’s: [^\\n]*${String(base.content.services.length - 1)} of the ${String(base.content.services.length)} services`));
+    expect(writeVision(one)['VISION.md']).toMatch(new RegExp(`still the sample dental practice’s words, not the owner’s: [^\\n]*${String(base.content.services.length - 1)} of the ${String(base.content.services.length)} services`));
   });
 
   it('writes a long run of spaces in the owner’s words as one space (A2-V14)', () => {
@@ -112,7 +112,7 @@ describe('Campaign A2: invisible signs, long names, and own Directions (J-12, J-
   it('takes the invisible signs out of the project’s name when a file opens, and says so (retest finding A2-R3)', () => {
     const read = opened(fileOf(createProject(`Harbor\u200b Street${String.fromCodePoint(0xe0041)}`)));
     expect(read.project.name).toBe('Harbor  Street');
-    expect(read.notes.join(' ')).toMatch(/signs that do not show/);
+    expect(read.notes.join(' ')).toMatch(/text in the file held hidden signs/);
   });
 
   it('cleans a very long name in a short time, because it cuts before it cleans (J-16)', () => {

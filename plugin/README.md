@@ -48,11 +48,11 @@ The receipt keeps three things apart: what the program measured, what the model 
 
 ## Running the program without Claude Code
 
-`node fit/src/cli.ts [--no-scripts] [--round <0 to 3>] [--judged <file>] <build.html> <folder of the Vision> <result folder>`
+`node fit/src/cli.ts [--run-scripts] [--round <0 to 3>] [--judged <file>] <build.html> <folder of the Vision> <result folder>`
 
 | Option | What it does |
 |---|---|
-| `--no-scripts` | The page's own scripts do not run; the program reads the page as its markup stands. Without the option the scripts run, as in a visitor's browser, and the program reads the page from a place that the page's scripts cannot reach |
+| `--run-scripts` | The page's own scripts run, as in a visitor's browser, and the program reads the page from a place that those scripts cannot reach. Without the option no script of the page runs: the program reads the page as its markup stands, so a page that draws its text or its style with a script reads as empty until you pass the option |
 | `--round <n>` | The round of repair after which this check runs: 0 for a first check (the default), 1 to 3 after a repair. The program refuses 4 and above |
 | `--judged <file>` | A text file in which the model wrote one judgment on each line. The receipt shows at most 20 of them, apart from what the program measured |
 

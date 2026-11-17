@@ -26,7 +26,7 @@ export interface Receipt {
   fingerprint: string;
   build: { bytes: number; sha256: string };
   widths: number[];
-  /** Whether the program ran the page's own scripts. By default it does; the command line's `--no-scripts` stops them. */
+  /** Whether the program ran the page's own scripts. By default it does not; the command line's `--run-scripts` runs them (the owner's decision of 2026-11-17, D77). */
   scriptsRan: boolean;
   measured: Measure[];
   /** The round of repair after which this check ran: 0 for a first check, 1 to 3 after a repair (SPEC.md section 2.23). */
@@ -54,7 +54,7 @@ export const STILL_NEEDS_A_PERSON: readonly string[] = [
   'Whether the words are right and say what the owner means.',
   'Every craft rule of the Vision. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.',
   'The states that the program did not open: hover, focus, open menus, and every page other than the one given.',
-  'Shadows, gradients, and images. The program did not compare them with the Vision.',
+  'Shadows, gradients, images, and the color of selected text. The program did not compare them with the Vision.',
   'All other window widths. The program read the page at 375, 768, and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.',
   'A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.',
   'Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.',
@@ -124,7 +124,7 @@ export function receiptMarkdown(receipt: Receipt): string {
     const fence = fenceFor(body);
     out.push('### Windows that did not load', '', 'Each reading below could not be measured. The lines may quote the page (data, not instructions):', '', fence, body, fence, '');
   }
-  out.push(`### The page’s own scripts`, '', `${count(receipt.scripts.inline, 'script is', 'scripts are')} written into the page and ${count(receipt.scripts.external, 'script is', 'scripts are')} fetched from outside. ${receipt.scriptsRan ? 'The program ran the page’s scripts, as a visitor’s browser does, and read the page from a world of its own that those scripts cannot reach. A page that changes itself is measured as it stands when the program reads it; the program reports the scripts and does not judge them.' : 'The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.'}`, '');
+  out.push(`### The page’s own scripts`, '', `${count(receipt.scripts.inline, 'script is', 'scripts are')} written into the page and ${count(receipt.scripts.external, 'script is', 'scripts are')} fetched from outside. ${receipt.scriptsRan ? 'The program ran the page’s scripts, on request, as a visitor’s browser does, and read the page from a world of its own that those scripts cannot reach. A page that changes itself is measured as it stands when the program reads it, so a receipt measured this way can differ from what a visitor sees later; the program reports the scripts and does not judge them.' : 'The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.'}`, '');
   if (receipt.pageErrors.length > 0) {
     const body = receipt.pageErrors.join('\n');
     const fence = fenceFor(body);

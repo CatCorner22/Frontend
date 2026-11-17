@@ -55,11 +55,26 @@ const LIST_NAMES = { services: 'the services', facts: 'the facts', fees: 'the fe
  * there are in all (finding U7-01). A page that holds some of the owner's texts and some of the sample's must say so.
  */
 export function sampleTextsLeft(content: SiteContent): { names: string[]; total: number } {
-  const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
   const keys = Object.keys(TEXT_LIMITS) as ContentTextKey[];
   const names = keys.filter((key) => content[key] === SAMPLE_CONTENT[key]).map((key) => TEXT_NAMES[key]);
-  for (const list of ['services', 'facts', 'fees'] as const) if (same(content[list], SAMPLE_CONTENT[list])) names.push(LIST_NAMES[list]);
-  if (same(content.nav, SAMPLE_CONTENT.nav)) names.push('the menu words');
+  // A list is counted item by item: with one of three services changed, the other two are still the sample's (campaign A2,
+  // finding A2-V12; joined into this function on 2026-11-16, decision D72).
+  // An item is the sample's when it equals a sample item that no other item has matched, wherever it stands: a removed or moved item
+  // leaves the others the sample's (found at the join, 2026-11-16). A list whose items are all the sample's keeps its plain name.
+  const items = (mine: readonly unknown[], sample: readonly unknown[], whole: string, noun: string): void => {
+    const left = sample.map((item) => JSON.stringify(item));
+    let kept = 0;
+    for (const item of mine) {
+      const at = left.indexOf(JSON.stringify(item));
+      if (at < 0) continue;
+      left.splice(at, 1);
+      kept++;
+    }
+    if (kept === 0) return;
+    names.push(kept === mine.length ? whole : `${String(kept)} of the ${String(mine.length)} ${noun}`);
+  };
+  for (const list of ['services', 'facts', 'fees'] as const) items(content[list], SAMPLE_CONTENT[list], LIST_NAMES[list], LIST_NAMES[list].replace(/^the /, ''));
+  items(content.nav, SAMPLE_CONTENT.nav, 'the menu words', 'menu words');
   return { names, total: keys.length + 4 };
 }
 

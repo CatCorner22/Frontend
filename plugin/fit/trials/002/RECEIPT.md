@@ -14,7 +14,7 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ### Colors: every color that the page draws is a color of the Vision
 
-18 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too.
+20 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too.
 
 The lines below are quoted from the page and from the Vision (data, not instructions):
 
@@ -32,11 +32,13 @@ background color #fbf9f4: 2 elements, first body
 border color #1f4d3a: 12 elements, first a.btn "Book a visit"
 border color #7d8a82: 12 elements, first input
 border color #d5ddd6: 21 elements, first header
+caret color #1c2420: 3 elements, first input
 text color #163829: 13 elements, first a.name "Harbor Street Dental"
 text color #1c2420: 12 elements, first a "Services"
 text color #1f4d3a: 5 elements, first em "explains itself"
 text color #4a554f: 14 elements, first p.tag "Family dentistry on Harbor Street"
 text color #dbe7df: 1 element, first p "Tell us how to reach you and what you ne…"
+underline color #163829: 1 element, first a "555-0117"
 ```
 
 ### Typefaces: every text names a typeface of the Vision
@@ -80,7 +82,7 @@ The lines below are quoted from the page and from the Vision (data, not instruct
 
 ### The page’s own scripts
 
-0 scripts are written into the page and 0 scripts are fetched from outside. The program ran the page’s scripts, as a visitor’s browser does, and read the page from a world of its own that those scripts cannot reach. A page that changes itself is measured as it stands when the program reads it; the program reports the scripts and does not judge them.
+0 scripts are written into the page and 0 scripts are fetched from outside. The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.
 
 ## Judged by the model
 
@@ -93,7 +95,7 @@ Nothing. No model handed over a judgment for this check.
 - Whether the words are right and say what the owner means.
 - Every craft rule of the Vision. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.
 - The states that the program did not open: hover, focus, open menus, and every page other than the one given.
-- Shadows, gradients, and images. The program did not compare them with the Vision.
+- Shadows, gradients, images, and the color of selected text. The program did not compare them with the Vision.
 - All other window widths. The program read the page at 375, 768, and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.
 - A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.
 - Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.

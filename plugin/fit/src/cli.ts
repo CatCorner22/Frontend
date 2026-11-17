@@ -6,7 +6,7 @@ import { join, resolve } from 'node:path';
 import { FitError, bounded, fit } from './fit.ts';
 import { READ_FILES } from './vision.ts';
 
-const USAGE = 'Usage: node plugin/fit/src/cli.ts [--no-scripts] [--round <0 to 3>] [--judged <file>] <build.html> <folder of the Vision files> <result folder>';
+const USAGE = 'Usage: node plugin/fit/src/cli.ts [--run-scripts] [--round <0 to 3>] [--judged <file>] <build.html> <folder of the Vision files> <result folder>';
 const RESULT_FILES = ['receipt.json', 'RECEIPT.md'] as const;
 
 /** The program never writes through a symbolic link: a result folder from another place could point a link at a file that it must not replace. */
@@ -64,13 +64,13 @@ function readText(path: string, what: string): string {
 
 async function main(args: string[]): Promise<number> {
   const rest: string[] = [];
-  let runScripts = true;
+  let runScripts = false;
   let repairRound = 0;
   let roundGiven = false;
   let judgedPath: string | undefined;
   for (let at = 0; at < args.length; at++) {
     const arg = args[at] ?? '';
-    if (arg === '--no-scripts') runScripts = false;
+    if (arg === '--run-scripts') runScripts = true;
     else if (arg === '--round') {
       if (roundGiven) throw new FitError(USAGE);
       roundGiven = true;
