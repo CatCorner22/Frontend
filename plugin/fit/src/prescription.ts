@@ -15,6 +15,23 @@ export interface DesignValues {
   typefaces: ReadonlySet<string>;
   /** Corner radii in pixels. */
   radii: ReadonlySet<number>;
+  /**
+   * The ids of the Floor requirements that `PRESCRIPTION.md` holds in its section 7 (SPEC.md section 2.22); empty for a
+   * Prescription made before the Floors. The file is data: only a line that starts `- **X1.**` counts, and nothing else of it is read.
+   */
+  floorIds: ReadonlySet<string>;
+  /** Whether `PRESCRIPTION.md` has a section 7, "Floors", at all. */
+  hasFloors: boolean;
+}
+
+/** The ids of the Floor requirements in section 7 of `PRESCRIPTION.md`, and whether that section exists. */
+export function floorsHeld(prescription: string): { ids: Set<string>; hasFloors: boolean } {
+  const start = prescription.search(/^## 7\. Floors\s*$/m);
+  if (start < 0) return { ids: new Set(), hasFloors: false };
+  const rest = prescription.slice(start + 1);
+  const end = rest.search(/^## \d+\. /m);
+  const section = end < 0 ? rest : rest.slice(0, end);
+  return { ids: new Set([...section.matchAll(/^- \*\*([ASHQP]\d{1,2})\.\*\*/gm)].map((m) => m[1] ?? '')), hasFloors: true };
 }
 
 interface JsonToken {
@@ -130,5 +147,6 @@ export function readDesignValues(files: Readonly<Record<string, string | undefin
     const first = Array.isArray(token.$value) ? token.$value[0] : undefined;
     if (typeof first === 'string') typefaces.add(first.toLowerCase());
   }
-  return { fingerprint: [...distinct][0] as string, colors, typefaces, radii };
+  const held = floorsHeld(files['PRESCRIPTION.md'] ?? '');
+  return { fingerprint: [...distinct][0] as string, colors, typefaces, radii, floorIds: held.ids, hasFloors: held.hasFloors };
 }

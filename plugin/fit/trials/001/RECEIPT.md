@@ -51,6 +51,10 @@ partly transparent color rgba(9, 18, 29, 0.45098039215686275)
 
 0 deviations; 0 not measured. Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.
 
+### Floors: the page meets the requirements of section 7 that a program can check on one page
+
+0 deviations; 0 not measured. The Prescription holds no Floors (it was made before them), so there was nothing to check.
+
 ### The page’s own scripts
 
 0 scripts are written into the page and 0 scripts are fetched from outside. The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.
@@ -72,4 +76,5 @@ Nothing. In this slice no model judged anything.
 - Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.
 - Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.
 - Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.
+- The Floors that no program checks yet. The Floors measure names, by id, each requirement of section 7 that it did not check; a person must check each one, and the host’s settings need the published site.
 - Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.

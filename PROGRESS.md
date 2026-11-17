@@ -104,6 +104,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-17
+- Feature worked on (ID): F034 (the Fit check measures the Floors, and contrast becomes binding; requirement 2.22; M7, step 12)
+- Result: passes. Evidence: `npm run check` passed (type check, lint with no warning, the boundary rule, 373 unit tests). The Fit and trial browser tests: 115 of 115. `npm run e2e` (12:26 to 13:00 UTC on 2026-11-17): 440 of 440 browser tests passed.
+- Not done: the reviewer helper has not compared the change with `SPEC.md` (decision D55: a helper needs the owner's yes; the builder asks).
+- What it does: the receipt gains a seventh measure, "Floors". It reads which requirements `PRESCRIPTION.md` holds in section 7 and checks the 25 that a program can check on one page's markup; each failing one is a line that starts with its id. Every other held requirement is named in the note for a person. Where the Prescription holds A1 ("Fix for me"), contrast is "required by Floor A1" and counts toward the status.
+- Tests first: the six tests of "the Floors measure, and contrast bound by Floor A1" failed because the measure did not exist. They pass now, among them one breach of each of the 25 checked requirements, found alone.
+- Tests adapted, each with its reason: the reference-build test keeps its promise for the six design measures and now checks that the Mockup's Floors measure names exactly S8, S9, S11, Q8, and Q10, the five gaps that the Prescription now names as not to copy. Five tests whose promise is not about the Floors (contrast never decides the status under "Warn me"; own-address files are information; a refusal leaves no old receipt; the command line ends with status 0; the A1-14 Mockup) now build on the Mockup with those five gaps put right. The list of receipt headings gained the Floors title.
+- Trial receipts measured again: no count changed. Trials 001 and 002 hold no Floors. Trial 003's page meets every checked Floor of its Prescription; its status is now 1, because its Prescription holds A1 and 6 text readings could not be measured. Each record has a dated note; trial 002's table has a Floors row.
+- The Prescription's sentence on the Mockup now names its five Floor gaps (stored copies: that one sentence changed, four times).
+
+- Date: 2026-11-17
 - Feature worked on (ID): none in the list. **Milestone M6 complete**, on the owner's "Approved".
 - Result: passes. Evidence: GitHub's check passed on `c6128c2` on 2026-11-17 (both runs: "check" and "Outside validators", finished 11:16 and 11:17 UTC). The gate review of 2026-11-16 found no blocker. Pull request 14 has no conflict (GitHub: "clean"), and it is the only open pull request. Waypoint W15.
 - Not done: the two review threads of Codex on pull request 14 stay open on GitHub; the builder repaired both (CX-01, CX-02) and wrote no comment there (no rule asks for one). The private page was republished afterwards as Version 25 (the build of `aacb588`), on the owner's "Approved".

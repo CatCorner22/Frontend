@@ -37,11 +37,23 @@ const measure = (receipt: Receipt, id: string) => {
 };
 const deviationsOf = (receipt: Receipt): Record<string, number> => Object.fromEntries(SIX.map((id) => [id, measure(receipt, id).deviations]));
 const NONE = { requests: 0, colors: 0, typefaces: 0, radii: 0, content: 0, width: 0 };
-const measureTitles = ['Requests: the page asks for nothing from another site', 'Colors: every color that the page draws is a color of the Prescription', 'Typefaces: every text names a typeface of the Prescription', 'Corner radii: every drawn box uses a radius of the Prescription', 'Contrast: measured, not required', 'Content: the three required texts of the Brief are where a person can read them', 'Width: the page is not wider than its window'];
+const measureTitles = ['Requests: the page asks for nothing from another site', 'Colors: every color that the page draws is a color of the Prescription', 'Typefaces: every text names a typeface of the Prescription', 'Corner radii: every drawn box uses a radius of the Prescription', 'Contrast: measured, not required', 'Content: the three required texts of the Brief are where a person can read them', 'Width: the page is not wider than its window', 'Floors: the page meets the requirements of section 7 that a program can check on one page'];
 const replaceOnce = (text: string, from: string, to: string): string => {
   expect(text.split(from).length - 1, `"${from}" must stand in the page at least once to be damaged`).toBeGreaterThanOrEqual(1);
   return text.replace(from, to);
 };
+
+/**
+ * The Mockup with the five Floors that it lacks put right (SPEC.md section 2.22): a referrer policy (S8), a description (Q8), a form that
+ * posts (S9), fields with a length limit (S11), and links with addresses (Q10; the Mockup's links are inert on purpose, so that the
+ * reference page stays still). A test whose promise is not about the Floors builds on this page, so that the Floors do not decide it.
+ */
+const meetsFloors = (mockup: string): string =>
+  replaceOnce(replaceOnce(mockup, '<meta charset="utf-8">', '<meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="description" content="A dental practice on Harbor Street.">'), '<form class="form card">', '<form class="form card" method="post">')
+    .replace(/<input id="m-(name|phone)"/g, '<input maxlength="80" id="m-$1"').replace('<textarea id="m-note"', '<textarea maxlength="800" id="m-note"')
+    .replace(/role="link" tabindex="0"/g, 'href="#main"');
+/** The five Floors that the plain Mockup does not meet, each named in section 7 of the Prescription as a thing not to copy. */
+const MOCKUP_FLOOR_GAPS = ['S8', 'S9', 'S11', 'Q8', 'Q10'];
 
 describe('Fit check: the reference build', () => {
   it('finds no deviation in the Mockup of the plain start or of any of the 38 Directions', async () => {
@@ -52,7 +64,12 @@ describe('Fit check: the reference build', () => {
       const files = filesOf(project);
       const { receipt, status } = await fit(inputOf(files, files['mockup.html'] ?? ''));
       const seen = deviationsOf(receipt);
-      if (status !== 0 || JSON.stringify(seen) !== JSON.stringify(NONE)) faults.push(`${name}: status ${String(status)}, ${JSON.stringify(seen)}, ${SIX.flatMap((id) => measure(receipt, id).items.slice(0, 2)).join(' | ')}`);
+      // The six design measures find nothing. The Mockup is a reference for the design only, so its status is 1 for one reason alone: the
+      // Floors measure names exactly the five Floors that the Prescription tells the builder not to copy from it (SPEC.md section 2.22).
+      const gaps = measure(receipt, 'floors').items.map((line) => line.split(':')[0] ?? '').sort();
+      if (status !== 1 || JSON.stringify(seen) !== JSON.stringify(NONE) || JSON.stringify(gaps) !== JSON.stringify([...MOCKUP_FLOOR_GAPS].sort())) faults.push(`${name}: status ${String(status)}, ${JSON.stringify(seen)}, Floors ${JSON.stringify(gaps)}, ${SIX.flatMap((id) => measure(receipt, id).items.slice(0, 2)).join(' | ')}`);
+      const mockupSentence = /`mockup\.html` is a reference for the design only[^\n]*/.exec(files['PRESCRIPTION.md'] ?? '')?.[0] ?? '';
+      for (const id of MOCKUP_FLOOR_GAPS) if (!new RegExp(`\\b${id}\\b`).test(mockupSentence)) faults.push(`${name}: the Prescription does not name ${id} as a thing not to copy from the Mockup`);
       if (receipt.measured.some((m) => m.notMeasured > 0 && m.id !== 'contrast')) faults.push(`${name}: something was not measured`);
       if (measure(receipt, 'requests').information.length > 0) faults.push(`${name}: the Mockup names something that it does not ship`);
     }
@@ -122,7 +139,8 @@ describe('Fit check: eight damages, each reported', () => {
   });
 
   it('the text color changed to the background color (reported as a contrast measurement, never as a status)', async () => {
-    const { receipt, status } = await run(replaceOnce(mockup, '</head>', `<style>main p{color:${bgHex} !important}</style></head>`));
+    // On a page that meets the Floors, so that only contrast could change the status (SPEC.md section 2.22).
+    const { receipt, status } = await run(replaceOnce(meetsFloors(mockup), '</head>', `<style>main p{color:${bgHex} !important}</style></head>`));
     const contrast = measure(receipt, 'contrast');
     expect(contrast.deviations).toBeGreaterThan(0);
     expect(contrast.items.join('\n')).toMatch(/\b1\.0\d to 1\b/);
@@ -213,10 +231,11 @@ describe('Fit check: refusals and faults of the build', () => {
 describe('Fit check: a file at the site’s own address is information, a request to another site is a deviation (SPEC.md section 2.13)', () => {
   const files = filesOf(createProject('Own address'));
   const mockup = files['mockup.html'] ?? '';
-  const run = (extra: string, where: '</head>' | '</body>' = '</body>') => fit(inputOf(files, replaceOnce(mockup, where, `${extra}${where}`)));
+  // On a page that meets the Floors, so that a Floor does not decide the status of a test about requests (SPEC.md section 2.22).
+  const run = (extra: string, where: '</head>' | '</body>' = '</body>') => fit(inputOf(files, replaceOnce(meetsFloors(mockup), where, `${extra}${where}`)));
 
   it('lists a font file, a style sheet, and a form action at the site’s own address as "Not shipped with the page", with no deviation and status 0', async () => {
-    const { receipt, markdown, status } = await run('<style>@font-face{font-family:"Own";src:url(/fonts/own.woff2) format("woff2")}</style><link rel="stylesheet" href="/site.css"><form action="/send"></form><img src="pictures/a.png" alt="">');
+    const { receipt, markdown, status } = await run('<style>@font-face{font-family:"Own";src:url(/fonts/own.woff2) format("woff2")}</style><link rel="stylesheet" href="/site.css"><form action="/send" method="post"></form><img src="pictures/a.png" alt="" width="10" height="10">');
     const requests = measure(receipt, 'requests');
     expect(requests.deviations).toBe(0);
     expect(status).toBe(0);
@@ -492,7 +511,8 @@ describe('Fit check: the retest of campaign A2 (findings A2-R1 and A2-R2)', () =
     for (const [name, text] of Object.entries(files)) writeFileSync(join(folder, name), text);
     const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
     const out = join(folder, 'out');
-    expect(spawnSync(process.execPath, [cli, join(folder, 'mockup.html'), folder, out], { encoding: 'utf8', env: process.env }).status).toBe(0);
+    writeFileSync(join(folder, 'build.html'), meetsFloors(files['mockup.html'] ?? ''));
+    expect(spawnSync(process.execPath, [cli, join(folder, 'build.html'), folder, out], { encoding: 'utf8', env: process.env }).status).toBe(0);
     expect(existsSync(join(out, 'RECEIPT.md'))).toBe(true);
     expect(spawnSync(process.execPath, [cli, join(folder, 'missing.html'), folder, out], { encoding: 'utf8', env: process.env }).status).toBe(2);
     expect(existsSync(join(out, 'RECEIPT.md'))).toBe(false);
@@ -543,7 +563,8 @@ describe('Fit check: an address read as a browser reads it, and a damaged Mockup
     expect(lacking.status).toBe(1);
     // A Mockup whose script makes every text read as empty: read from a world of its own, it still holds its three texts.
     const blanking = { ...files, 'mockup.html': open.replace('</body>', '<script>Object.defineProperty(HTMLElement.prototype, "innerText", { get: () => "" });</script></body>') };
-    const { receipt, status } = await fit(inputOf(blanking, mockup));
+    // The build meets the Floors, so that only the content measure could change the status (SPEC.md section 2.22).
+    const { receipt, status } = await fit(inputOf(blanking, meetsFloors(mockup)));
     expect(measure(receipt, 'content').deviations).toBe(0);
     expect(status).toBe(0);
   });
@@ -968,7 +989,9 @@ describe('Fit check: the command line', () => {
   const folder = mkdtempSync(join(tmpdir(), 'fit-files-'));
   const files = filesOf(createProject('Command line'));
   for (const [name, text] of Object.entries(files)) writeFileSync(join(folder, name), text);
-  const build = join(folder, 'mockup.html');
+  // The build is the Mockup with its five Floor gaps put right, so that "nothing deviates" holds (SPEC.md section 2.22).
+  const build = join(folder, 'build.html');
+  writeFileSync(build, meetsFloors(files['mockup.html'] ?? ''));
   const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
   const run = (args: string[]) => spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8', env: process.env });
 
@@ -1069,5 +1092,99 @@ describe('Fit check: no reading cut short in silence, and SVG paint opacity (cod
     expect(colors.items.join('\n')).not.toContain('#00ff00');
     expect(colors.information.join('\n')).toMatch(/rgba\(255, 0, 0, 0\.5\)/);
     expect(colors.information.join('\n')).toMatch(/rgba\(0, 255, 0, 0\.4\)/);
+  });
+});
+
+describe('Fit check: the Floors measure, and contrast bound by Floor A1 (SPEC.md section 2.22, feature F034)', () => {
+  const project = (a11y: 'off' | 'advise' | 'enforce'): Project => ({ ...createProject('Floors'), a11y });
+  const filesFor = (a11y: 'off' | 'advise' | 'enforce'): Files => filesOf(project(a11y));
+  const floors = (receipt: Receipt) => measure(receipt, 'floors');
+  const ids = (receipt: Receipt): string[] => [...new Set(floors(receipt).items.map((line) => line.split(':')[0] ?? ''))].sort();
+
+  it('finds no Floor deviation in a page that meets every checked Floor', async () => {
+    for (const a11y of ['advise', 'enforce'] as const) {
+      const files = filesFor(a11y);
+      const { receipt } = await fit(inputOf(files, meetsFloors(files['mockup.html'] ?? '')));
+      expect(floors(receipt).items, a11y).toEqual([]);
+      expect(floors(receipt).deviations, a11y).toBe(0);
+    }
+  });
+
+  it('names each checked requirement by its id when the page breaks it alone, and gives status 1', async () => {
+    const files = filesFor('enforce');
+    const good = meetsFloors(files['mockup.html'] ?? '');
+    const body = (html: string): string => replaceOnce(good, '</body>', `${html}</body>`);
+    const head = (html: string): string => replaceOnce(good, '</head>', `${html}</head>`);
+    const img = 'src="data:image/png;base64,iVBORw0KGgo="';
+    const cases: [string, string][] = [
+      ['A2', body(`<img ${img} width="1" height="1">`)],
+      ['A3', body('<input type="checkbox">')],
+      ['A4', body('<a href="#top"></a>')],
+      ['A5', good.replace('<html lang="en">', '<html lang="">')],
+      ['A12', head('<title></title>')],
+      ['A13', good.replace('content="width=device-width, initial-scale=1"', 'content="width=device-width, initial-scale=1, user-scalable=no"')],
+      ['A17', body('<a href="#top" tabindex="3">Top</a>')],
+      ['S1', body(`<img src="http://own.example/a.png" alt="" width="1" height="1">`)],
+      ['S3', body('<button type="button" onclick="go()">Go</button>')],
+      ['S5', good.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '')],
+      ['S6', good.replace(" form-action 'none';", '')],
+      ['S7', body('<a href="#top" target="_blank">Top</a>')],
+      ['S8', good.replace('<meta name="referrer" content="strict-origin-when-cross-origin">', '')],
+      ['S9', good.replace('<form class="form card" method="post">', '<form class="form card">')],
+      ['S11', body('<label>Mail <input type="email"></label>')],
+      ['Q2', head('<meta name="robots" content="noindex">')],
+      ['Q7', body('<h1>A second headline</h1>')],
+      ['Q8', good.replace('<meta name="description" content="A dental practice on Harbor Street.">', '')],
+      ['Q10', body('<a>Nowhere</a>')],
+      ['P4', body(`<img ${img} alt="">`)],
+      ['P7', body([1, 2, 3].map(() => `<img ${img} alt="" width="1" height="1" fetchpriority="high">`).join(''))],
+      ['P12', head('<script src="/late.js"></script>')],
+    ];
+    const missed: string[] = [];
+    for (const [id, html] of cases) {
+      const { receipt, status } = await fit(inputOf(files, html));
+      if (!ids(receipt).includes(id) || status !== 1) missed.push(`${id}: ${JSON.stringify(ids(receipt))}, status ${String(status)}`);
+    }
+    expect(missed).toEqual([]);
+  }, 300_000);
+
+  it('checks only the requirements that the Prescription holds: no people Floor without “Fix for me”', async () => {
+    const files = filesFor('advise');
+    const html = replaceOnce(meetsFloors(files['mockup.html'] ?? ''), '</body>', '<img src="data:image/png;base64,iVBORw0KGgo=" width="1" height="1"></body>');
+    const { receipt, status } = await fit(inputOf(files, html));
+    expect(ids(receipt)).not.toContain('A2');
+    expect(floors(receipt).deviations).toBe(0);
+    expect(status).toBe(0);
+  });
+
+  it('names in its note the requirements that the Prescription holds and that no program checks, and counts them as neither', async () => {
+    const files = filesFor('enforce');
+    const { receipt } = await fit(inputOf(files, meetsFloors(files['mockup.html'] ?? '')));
+    expect(floors(receipt).note).toMatch(/not checked by this program: [^.]*\bS10\b/);
+    expect(floors(receipt).note).toMatch(/\bH1\b/);
+    expect(floors(receipt).notMeasured).toBe(0);
+  });
+
+  it('says that a Prescription without a section 7 holds no Floors', async () => {
+    const files = filesFor('advise');
+    const old = { ...files, 'PRESCRIPTION.md': (files['PRESCRIPTION.md'] ?? '').replace(/## 7\. Floors[\s\S]*?(?=## 8\. )/, '') };
+    const { receipt } = await fit(inputOf(old, files['mockup.html'] ?? ''));
+    expect(floors(receipt).deviations).toBe(0);
+    expect(floors(receipt).note).toContain('The Prescription holds no Floors');
+  });
+
+  it('makes contrast a requirement where the Prescription holds Floor A1, and only there', async () => {
+    const pale = (mockup: string): string => replaceOnce(meetsFloors(mockup), '</body>', '<p style="color:#bbbbbb;background:#ffffff">Pale words</p></body>');
+    const enforce = filesFor('enforce');
+    const bound = await fit(inputOf(enforce, pale(enforce['mockup.html'] ?? '')));
+    expect(measure(bound.receipt, 'contrast').title).toBe('Contrast: required by Floor A1');
+    expect(measure(bound.receipt, 'contrast').deviations).toBeGreaterThan(0);
+    expect(bound.status).toBe(1);
+    const advise = filesFor('advise');
+    const free = await fit(inputOf(advise, pale(advise['mockup.html'] ?? '')));
+    expect(measure(free.receipt, 'contrast').title).toBe('Contrast: measured, not required');
+    expect(measure(free.receipt, 'contrast').deviations).toBeGreaterThan(0);
+    // The pale text is drawn in a color outside the Prescription too; the status turns on the colors measure, not on contrast.
+    expect(measure(free.receipt, 'colors').deviations).toBeGreaterThan(0);
   });
 });

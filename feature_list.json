@@ -398,7 +398,7 @@
         "Measure a page with a low-contrast text against a Prescription made with \"Fix for me\": the contrast measure is required by Floor A1 and the status is 1; against one made with \"Warn me\", contrast stays measured, not required",
         "Measure the Mockup as a build: the design measures show no deviation, and the Floors measure names only the Floors that the Prescription says the Mockup does not meet"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

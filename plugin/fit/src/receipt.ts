@@ -46,6 +46,7 @@ export const STILL_NEEDS_A_PERSON: readonly string[] = [
   'Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.',
   'Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.',
   'Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.',
+  'The Floors that no program checks yet. The Floors measure names, by id, each requirement of section 7 that it did not check; a person must check each one, and the host’s settings need the published site.',
   'Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.',
 ];
 

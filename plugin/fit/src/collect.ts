@@ -53,6 +53,8 @@ export interface Collected {
    * How many entries of each kind the program dropped because the page held more than it reads (20,000 of each kind). The program
    * fills this in when it checks a reading; the page cannot set it (code review of pull request 14, Codex).
    */
+  /** Each breach of a Floor that a program can check on one page, with the first element that breaks it (SPEC.md section 2.22). */
+  floorBreaches: { id: string; where: string }[];
   beyond?: Partial<Record<'references' | 'drawn' | 'families' | 'radii' | 'texts' | 'lines' | 'cutOff' | 'fontFaces', number>>;
 }
 
@@ -356,7 +358,53 @@ export function collect(): Collected {
   }
 
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
+
+  // The Floors that a program can check on one page (SPEC.md section 2.22): each breach names its requirement and the first element.
+  // The program keeps only the requirements that the Prescription holds; here every check runs, on the page as it stands.
+  const floorBreaches: { id: string; where: string }[] = [];
+  const breach = (ids: string[], whereText: string): void => { for (const id of ids) floorBreaches.push({ id, where: whereText }); };
+  const firstOf = (list: Element[], ids: string[]): void => { if (list[0]) breach(ids, where(list[0])); };
+  const attr = (el: Element, name: string): string => el.getAttribute(name) ?? '';
+  const nameOf = (el: Element): string => collapse([el.textContent ?? '', attr(el, 'aria-label'), attr(el, 'aria-labelledby') === '' ? '' : 'labelled', attr(el, 'title'), ...[...el.querySelectorAll('img[alt]')].map((img) => attr(img, 'alt'))].join(' '));
+  firstOf(every('img').filter((el) => !el.hasAttribute('alt')), ['A2']);
+  const fields = every('input, select, textarea').filter((el) => !(el.tagName === 'INPUT' && ['hidden', 'button', 'image', 'reset', 'submit'].includes(attr(el, 'type').toLowerCase())));
+  firstOf(fields.filter((el) => !attr(el, 'aria-label').trim() && !attr(el, 'aria-labelledby').trim() && !(el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`)) && !el.closest('label')), ['A3']);
+  firstOf(every('a[href], button').filter((el) => nameOf(el) === ''), ['A4']);
+  if (!/^[a-z]{2,3}(-[a-z0-9]{1,8})*$/i.test(attr(document.documentElement, 'lang'))) breach(['A5', 'Q13'], 'html');
+  const titles = [...document.querySelectorAll('head > title')];
+  if (titles.length !== 1 || collapse(titles[0]?.textContent ?? '') === '') breach(['A12', 'Q3'], `head (${String(titles.length)} titles)`);
+  const viewport = attr(document.querySelector('meta[name="viewport" i]') ?? document.createElement('meta'), 'content').toLowerCase();
+  const maxScale = /maximum-scale\s*=\s*([\d.]+)/.exec(viewport);
+  if (!/width\s*=\s*device-width/.test(viewport) || /user-scalable\s*=\s*(no|0)\b/.test(viewport) || (maxScale !== null && Number(maxScale[1]) < 2)) breach(['A13', 'Q9'], 'meta viewport');
+  firstOf(every('[tabindex]').filter((el) => Number(attr(el, 'tabindex')) > 0), ['A17']);
+  const addressed = every('[src], [href], [action], [formaction], [poster], [srcset]');
+  const styleText = [...every('style').map((el) => el.textContent ?? ''), ...every('[style]').map((el) => attr(el, 'style'))].join('\n');
+  firstOf(addressed.filter((el) => ['src', 'href', 'action', 'formaction', 'poster', 'srcset'].some((name) => /^\s*http:\/\//i.test(attr(el, name)))), ['S1']);
+  if (!floorBreaches.some((b) => b.id === 'S1') && /url\(\s*['"]?\s*http:\/\//i.test(styleText)) breach(['S1'], 'a style sheet');
+  const handlers = every('*').filter((el) => [...el.attributes].some((a) => /^on/i.test(a.name)));
+  const scripted = addressed.filter((el) => ['src', 'href', 'action', 'formaction'].some((name) => /^\s*javascript:/i.test(attr(el, name))));
+  firstOf([...handlers, ...scripted], ['S3']);
+  const policyTag = document.querySelector('head > meta[http-equiv="Content-Security-Policy" i]');
+  if (!policyTag) breach(['S5'], 'head');
+  const formAction = /(?:^|;)\s*form-action\s+([^;]*)/i.exec(attr(policyTag ?? document.createElement('meta'), 'content'));
+  if (!formAction || /\*/.test(formAction[1] ?? '')) breach(['S6'], policyTag ? 'meta Content-Security-Policy' : 'head');
+  firstOf(every('[target="_blank" i]').filter((el) => !/\b(noopener|noreferrer)\b/i.test(attr(el, 'rel'))), ['S7']);
+  const referrer = attr(document.querySelector('meta[name="referrer" i]') ?? document.createElement('meta'), 'content').trim().toLowerCase();
+  if (!['no-referrer', 'same-origin', 'strict-origin', 'strict-origin-when-cross-origin'].includes(referrer)) breach(['S8'], 'head');
+  firstOf(every('form').filter((el) => attr(el, 'method').toLowerCase() !== 'post' || /^\s*(http:|javascript:)/i.test(attr(el, 'action'))), ['S9']);
+  firstOf(every('input, textarea').filter((el) => (el.tagName === 'TEXTAREA' || ['', 'text', 'email', 'tel', 'search', 'url'].includes(attr(el, 'type').toLowerCase())) && !el.hasAttribute('maxlength')), ['S11']);
+  if ([...document.querySelectorAll('meta[name="robots" i], meta[name="googlebot" i]')].some((el) => /\b(noindex|none|nosnippet)\b/i.test(attr(el, 'content')))) breach(['Q2'], 'meta robots');
+  const headings = every('h1');
+  if (headings.length !== 1 || headings[0]?.getClientRects().length === 0 || collapse(headings[0]?.textContent ?? '') === '') breach(['Q7'], `the page (${String(headings.length)} h1)`);
+  const descriptions = [...document.querySelectorAll('meta[name="description" i]')];
+  const description = collapse(attr(descriptions[0] ?? document.createElement('meta'), 'content'));
+  if (descriptions.length !== 1 || description === '' || description === collapse(titles[0]?.textContent ?? '')) breach(['Q8'], `head (${String(descriptions.length)} descriptions)`);
+  firstOf(every('a').filter((el) => attr(el, 'href').trim() === '' || /^\s*javascript:/i.test(attr(el, 'href'))), ['Q10']);
+  firstOf(every('img, video, iframe').filter((el) => !(el.hasAttribute('width') && el.hasAttribute('height')) && getComputedStyle(el).aspectRatio === 'auto'), ['P4']);
+  if (every('img[fetchpriority="high" i]').length > 2) breach(['P7'], `the page (${String(every('img[fetchpriority="high" i]').length)} images)`);
+  firstOf([...document.querySelectorAll('head script[src]')].filter((el) => !el.hasAttribute('async') && !el.hasAttribute('defer') && attr(el, 'type').toLowerCase() !== 'module'), ['P12']);
+
+  return { floorBreaches, references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */

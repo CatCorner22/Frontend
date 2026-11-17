@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.24. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Prescription); it does not cover design advice or the plan.
+Version 1.25. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Prescription); it does not cover design advice or the plan.
 
 Stale-after: 90
 
@@ -133,7 +133,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [65.12 FONTS.md states each font file's real weight range](#6512-fontsmd-states-each-font-files-real-weight-range)
   - [65.11 DESIGN.md claims no measurement that did not happen](#6511-designmd-claims-no-measurement-that-did-not-happen)
 - [66 The Fit check (measuring a build against the Prescription)](#66-the-fit-check-measuring-a-build-against-the-prescription)
-  - [66.01 The program measures six things and one more, and the Mockup passes its own measure](#6601-the-program-measures-six-things-and-one-more-and-the-mockup-passes-its-own-measure)
+  - [66.01 The program measures six design things, contrast, and the Floors, and the Mockup passes its design measures](#6601-the-program-measures-six-design-things-contrast-and-the-floors-and-the-mockup-passes-its-design-measures)
   - [66.02 Each deviation that the program claims to find, it finds; each fault of its own inputs, it names](#6602-each-deviation-that-the-program-claims-to-find-it-finds-each-fault-of-its-own-inputs-it-names)
   - [66.03 The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs](#6603-the-receipt-keeps-measuring-judging-and-asking-apart-and-holds-nothing-that-changes-between-two-runs)
   - [66.04 The first build trial is stored whole, belongs to today's files, and measures to its own receipt](#6604-the-first-build-trial-is-stored-whole-belongs-to-todays-files-and-measures-to-its-own-receipt)
@@ -141,6 +141,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [66.06 A page's scripts do not run by default, and the window has no network](#6606-a-pages-scripts-do-not-run-by-default-and-the-window-has-no-network)
   - [66.07 Every line that comes from the page is cleaned, short, and bounded](#6607-every-line-that-comes-from-the-page-is-cleaned-short-and-bounded)
   - [66.08 The command line does not write through a link](#6608-the-command-line-does-not-write-through-a-link)
+  - [66.09 The program measures the Floors that it can check on one page, and contrast binds where the Prescription holds Floor A1](#6609-the-program-measures-the-floors-that-it-can-check-on-one-page-and-contrast-binds-where-the-prescription-holds-floor-a1)
 - [70 How the Studio is built](#70-how-the-studio-is-built)
   - [70.01 The shared core holds no React import and no browser API](#7001-the-shared-core-holds-no-react-import-and-no-browser-api)
   - [70.02 No look changes by accident](#7002-no-look-changes-by-accident)
@@ -865,11 +866,11 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [66] The Fit check (measuring a build against the Prescription)
 
-### [66.01] The program measures six things and one more, and the Mockup passes its own measure
+### [66.01] The program measures six design things, contrast, and the Floors, and the Mockup passes its design measures
 
 <!-- index: fit check | measures a build; receipt; reference build -->
 
-- **Rule.** `npm run fit -- <build.html> <folder> <result folder>` opens the build in a real browser at 375 and 1280 pixels, and measures: every request to another site and every reference to another site (a reference at the page's own address is listed as "Not shipped with the page" and is not a deviation, decision D67), of the page, of each of its frames, and of each window that it opens, and every WebSocket, each stopped before it reaches a server; an address that names a scheme is another site, with or without two slashes, and otherwise the address parser of the URL standard decides, as a browser reads it (a backslash for a slash, a tab inside the address, an escape in a style sheet, the page's own `<base href>`); style sheets are read in any letter case, inside `image-set()`, and in the rules that a script adds; a button's `formaction` and a `<base href>` count as references; every color that a visible element draws, in whatever form the browser reports it (`rgb()`, `oklch()`, `lab()`, `color-mix()`, and the others), with a color that it cannot read counted as not measured; the typeface of every text; the radius of every drawn box; the contrast of every text; the three required texts of the Brief; and the page's width. It reports each deviation with its element. The Mockup of a project is the reference build, and it must show no deviation in requests, colors, typefaces, radii, content, and width. Contrast is reported as a measurement and never changes the status, because the Prescription holds no Floors yet. [S18; S1 at D65]
+- **Rule.** `npm run fit -- <build.html> <folder> <result folder>` opens the build in a real browser at 375 and 1280 pixels, and measures: every request to another site and every reference to another site (a reference at the page's own address is listed as "Not shipped with the page" and is not a deviation, decision D67), of the page, of each of its frames, and of each window that it opens, and every WebSocket, each stopped before it reaches a server; an address that names a scheme is another site, with or without two slashes, and otherwise the address parser of the URL standard decides, as a browser reads it (a backslash for a slash, a tab inside the address, an escape in a style sheet, the page's own `<base href>`); style sheets are read in any letter case, inside `image-set()`, and in the rules that a script adds; a button's `formaction` and a `<base href>` count as references; every color that a visible element draws, in whatever form the browser reports it (`rgb()`, `oklch()`, `lab()`, `color-mix()`, and the others), with a color that it cannot read counted as not measured; the typeface of every text; the radius of every drawn box; the contrast of every text; the three required texts of the Brief; and the page's width. It reports each deviation with its element. The Mockup of a project is the reference build, and it must show no deviation in requests, colors, typefaces, radii, content, and width. Since feature F034 (2026-11-17, §66.09) the program also measures the Floors, and contrast changes the status only where the Prescription holds Floor A1; the Mockup's status is then 1 for one reason alone, the five Floors that the Prescription names as not to copy from it. [S18; S1 at D65]
 - **Test.** "finds no deviation in the Mockup of the plain start or of any of the 38 Directions" (and the Mockup names nothing that it does not ship); the three tests of "a file at the site’s own address is information, a request to another site is a deviation", and "counts an address that a browser reads as another site, however the page writes it (audit finding A1-08)"; "stops a WebSocket, a window that the page opens, and a navigation away, and lists each one"; "keeps the requests of a window width that could not be read"; "compares a color written as oklch(), lab(), or color-mix() instead of skipping it" (audit findings A1-01 to A1-03); the four tests of "an address read as a browser reads it, and a damaged Mockup" (review findings A1-10 to A1-13). [S18]
 - **Elements.** Playwright and a Chromium browser are on the machine. The four files of the Prescription (`PRESCRIPTION.md`, `tokens.css`, `tokens.json`, `mockup.html`) are in one folder.
 - **Exceptions.** Hover, focus, shadows, gradients, images, and every page other than the one given are not measured. A text on an image or a gradient, and a text drawn partly transparent, have no contrast reading; the receipt counts them and names the reason.
@@ -943,6 +944,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [70] How the Studio is built
 
+### [66.09] The program measures the Floors that it can check on one page, and contrast binds where the Prescription holds Floor A1
+
+<!-- index: Floors measure | section 7; requirement ids; contrast required -->
+
+- **Rule.** The program reads the ids of the requirements that section 7 of `PRESCRIPTION.md` holds and checks the 25 that a program can check on one page's markup (A2, A3, A4, A5, A12, A13, A17, S1, S3, S5, S6, S7, S8, S9, S11, Q2, Q3, Q7, Q8, Q9, Q10, Q13, P4, P7, P12). Each failing requirement is one deviation line that starts with its id; the Floors measure counts toward the status. Every other requirement that the Prescription holds is named by id in the measure's note, for a person to check, and counts neither as a deviation nor as not measured. A Prescription without a section 7 gives "The Prescription holds no Floors". Where the Prescription holds A1 ("Fix for me"), the contrast measure is "required by Floor A1", and its deviations and its "not measured" count toward the status; otherwise it never changes the status. [SPEC.md section 2.22; S1 at D69 and D75]
+- **Test.** The six tests of "the Floors measure, and contrast bound by Floor A1"; "finds no deviation in the Mockup of the plain start or of any of the 38 Directions" (its Floors measure names exactly S8, S9, S11, Q8, Q10, and the Prescription names each as not to copy). [S18]
+- **Exceptions.** The checks read the markup, not what a person sees or hears; each requirement's text in the Prescription is the requirement. The host's settings (H1 to H5) need the published site, and the field figures (P1, P2) need real visits; no program here checks them.
+- Last verified: 2026-11-17
+
 ### [70.01] The shared core holds no React import and no browser API
 
 <!-- index: core | packages/core; boundary -->
@@ -1008,6 +1018,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-17 v1.25: after the Floors measure (feature F034, SPEC.md section 2.22): added §66.09; §66.01 renamed and says when contrast binds. 86 guarantees.
 - 2026-11-17 v1.24: after the M6 gate review (rows S8, U8, T8): §65.02 and §65.04 renamed (they no longer say "four files"), and their texts, §65.14's exceptions, and §65.04's tests brought up to date (finding T8-15); §10.13's last test now exists (finding T8-14).
 - 2026-11-17 v1.23: after the book of Directions (feature F033, decision D74): added §65.15. 85 guarantees.
 - 2026-11-16 v1.21: after the reviewer's findings on the Floors (feature F032): §65.13 states 56 requirements (20, 11, 5, 10, 10); the section says where to set a host requirement and that `mockup.html` is a reference only; §66.04 covers the third build trial; the receipt's contrast note no longer says that the Prescription holds no Floors. 84 guarantees.

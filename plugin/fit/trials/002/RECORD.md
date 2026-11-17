@@ -19,8 +19,9 @@ Deviations that the program counted on each page. Trial 001's helper had the sev
 | Contrast | 0 | 2 |
 | Content | 0 | 0 |
 | Width | 0 | 0 |
+| Floors | 0 | 0 |
 
-The colors count of trial 002 was 12 when the run was first measured; since 2026-11-17 the program also compares SVG paint and other drawn colors, and the count is 22 (see the note at the end).
+The row "Floors" joined on 2026-11-17 (feature F034): neither Prescription holds Floors, so both counts are 0. The colors count of trial 002 was 12 when the run was first measured; since 2026-11-17 the program also compares SVG paint and other drawn colors, and the count is 22 (see the note at the end).
 
 - **Colors: 12 deviations on the plain-words page (22 since the program of 2026-11-17 also compares SVG paint).** The helper chose its own dark green (`#1f4d3a`), its own tints and grays, and its own page color; none is a value of the Prescription. The Prescription's green is another green.
 - **Typefaces: 2 deviations, which are a difference of name.** The helper wrote "Fraunces" and "Public Sans", as the owner's words name them. The Prescription's names are "Fraunces Variable" and "Public Sans Variable". The program compares names; it does not compare what the browser draws. Neither font was loaded on the page, so a viewer sees fallback fonts unless the fonts are installed.
@@ -55,3 +56,7 @@ The two branches of this repository were joined (decision D72), and the stored r
 ## A later change to the program (2026-11-17, M6 gate review, findings S8-01 and S8-02)
 
 The program now also compares the paint of SVG shapes (`fill` and `stroke`), underline colors, column rules, list markers, placeholders, and caret and accent colors. The stored receipt was measured again with that program. The colors measure now counts 22 deviations where it counted 12: the plain-words page draws its pictures as SVG shapes in ten colors that are not the Prescription's (for example `#163829` and `#6b9a7f`), and its form fields set a caret color of their own. The first program did not see these colors. No other count changed. The row "Colors" of the table above gives both numbers.
+
+## A later change to the program (2026-11-17, feature F034)
+
+The program now also measures the Floors (feature F034, `SPEC.md` section 2.22). The stored receipt was measured again. No count of the table above changed. The receipt gained a seventh measure, "Floors", which says that this Prescription holds no Floors (it was made before them), and "Still needs a person" gained one line.

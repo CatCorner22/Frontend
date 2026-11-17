@@ -63,3 +63,7 @@ The two branches of this repository were joined (decision D72), and the stored r
 ## A later change to the program (2026-11-17, M6 gate review, findings S8-01 and S8-02)
 
 The program now also compares the paint of SVG shapes, underline colors, column rules, list markers, placeholders, and caret and accent colors. The stored receipt was measured again with that program. No count changed. The colors measure lists two more partly transparent colors as information, the colors of the page's underlines, and its note names the newly compared kinds; "Still needs a person" now names the color of selected text.
+
+## A later change to the program (2026-11-17, feature F034)
+
+The program now also measures the Floors (feature F034, `SPEC.md` section 2.22). The stored receipt was measured again. No count changed. The receipt gained a seventh measure, "Floors", which says that this Prescription holds no Floors (it was made before them), and "Still needs a person" gained one line on the Floors that no program checks.
