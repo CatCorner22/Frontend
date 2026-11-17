@@ -524,7 +524,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
       measureOf('colors', 'Colors: every color that the page draws is a color of the Prescription', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered, [...translucent]),
       measureOf('typefaces', 'Typefaces: every text names a typeface of the Prescription', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Prescription typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Prescription', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
-      measureOf('contrast', bound ? 'Contrast: required by Floor A1' : 'Contrast: measured, not required', bound ? contrastNote.replace('No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.', 'The Prescription holds Floor A1, so each text below the usual least is a deviation, and a text that could not be measured counts toward the status.') : contrastNote, contrastLines.map((c) => c.line), unreadAt.size + failed),
+      measureOf('contrast', bound ? BOUND_CONTRAST_TITLE : 'Contrast: measured, not required', bound ? contrastNote.replace('No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.', 'The Prescription holds Floor A1, so each text below the usual least is a deviation, and a text that could not be measured counts toward the status.') : contrastNote, contrastLines.map((c) => c.line), unreadAt.size + failed),
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own, inside one block of text. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask, and a text that is empty in the Mockup, are counted as not measured.', contentLines, failed + contentUnsure + emptyRequired),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
       measureOf('floors', 'Floors: the page meets the requirements of section 7 that a program can check on one page', floorNote, floorLines, design.hasFloors && heldChecked.length > 0 ? failed : 0),
@@ -559,13 +559,22 @@ export async function fit(input: FitInput): Promise<FitResult> {
       loadFailures,
     };
     // "Not measured" is never "no deviation": anything not measured in a measure that counts gives status 1 (decision D71, A1-07).
-    // Contrast counts only where the Prescription holds Floor A1 (SPEC.md section 2.22); the Floors measure always counts.
-    const counts = measured.filter((m) => m.id !== 'contrast' || design.floorIds.has('A1'));
-    const status = counts.some((m) => m.deviations > 0 || m.notMeasured > 0) || loadFailures.length > 0 ? 1 : 0;
+    const status = countedMeasures(receipt).some((m) => m.deviations > 0 || m.notMeasured > 0) || loadFailures.length > 0 ? 1 : 0;
     return { receipt, markdown: receiptMarkdown(receipt), status };
   } finally {
     if (!input.browser) await browser.close();
   }
+}
+
+/** The title of the contrast measure where the Prescription holds Floor A1; then, and only then, contrast counts (SPEC.md section 2.22). */
+export const BOUND_CONTRAST_TITLE = 'Contrast: required by Floor A1';
+
+/**
+ * The measures of a receipt that decide its status: every measure but contrast, and contrast too where it is required by Floor A1.
+ * The status and the command line's summary both use this one rule (reviewer finding RV-01).
+ */
+export function countedMeasures(receipt: Receipt): Measure[] {
+  return receipt.measured.filter((m) => m.id !== 'contrast' || m.title === BOUND_CONTRAST_TITLE);
 }
 
 async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief>> {

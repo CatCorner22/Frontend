@@ -1,9 +1,10 @@
 // The command line of the Fit check:  node plugin/fit/src/cli.ts <build.html> <folder of the Prescription's files> <result folder>
-// Status 0: no deviation in the six measured things. Status 1: at least one deviation, or a window that could not be measured.
+// Status 0: no deviation and nothing not measured in the measures that count (the six design measures, the Floors, and contrast where
+// the Prescription holds Floor A1). Status 1: at least one, or a window that could not be measured.
 // Status 2: the program refused, and it wrote no receipt.
 import { closeSync, constants, lstatSync, mkdirSync, openSync, readFileSync, rmSync, writeSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { FitError, fit } from './fit.ts';
+import { FitError, countedMeasures, fit } from './fit.ts';
 import { READ_FILES } from './prescription.ts';
 
 const USAGE = 'Usage: node plugin/fit/src/cli.ts [--run-scripts] <build.html> <folder of the Prescription files> <result folder>';
@@ -64,11 +65,13 @@ async function main(args: string[]): Promise<number> {
   refuseLinks(resolve(outFolder));
   writeNoFollow(join(resolve(outFolder), 'receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);
   writeNoFollow(join(resolve(outFolder), 'RECEIPT.md'), markdown);
-  const six = receipt.measured.filter((m) => m.id !== 'contrast');
-  const deviations = six.reduce((sum, m) => sum + m.deviations, 0);
+  // The same measures that decide the status (reviewer finding RV-01): status 1 never reads as "0 deviations" and nothing else.
+  const counted = countedMeasures(receipt);
+  const deviations = counted.reduce((sum, m) => sum + m.deviations, 0);
   // "Not measured" is never "no deviation": the line names it whenever the receipt holds it.
-  const unmeasured = six.reduce((sum, m) => sum + m.notMeasured, 0);
-  process.stdout.write(`${status === 0 ? `No deviation${unmeasured > 0 ? `, but ${String(unmeasured)} things not measured` : ''}` : `${String(deviations)} deviations, ${String(receipt.loadFailures.length)} windows not measured`}. Receipt: ${join(resolve(outFolder), 'RECEIPT.md')}\n`);
+  const unmeasured = counted.reduce((sum, m) => sum + m.notMeasured, 0);
+  const notMeasured = unmeasured > 0 ? `, ${String(unmeasured)} things not measured` : '';
+  process.stdout.write(`${status === 0 ? 'No deviation' : `${String(deviations)} deviations${notMeasured}, ${String(receipt.loadFailures.length)} windows not measured`}. Receipt: ${join(resolve(outFolder), 'RECEIPT.md')}\n`);
   return status;
 }
 

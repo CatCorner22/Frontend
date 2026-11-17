@@ -1018,6 +1018,36 @@ describe('Fit check: the command line', () => {
     expect(refused.stderr).toMatch(/nope\.html/);
     expect(() => execFileSync('test', ['-e', join(folder, 'out-none', 'RECEIPT.md')])).toThrow();
   });
+
+  it('counts contrast in its summary line where the Prescription holds Floor A1, so that status 1 never reads as "0 deviations"', () => {
+    // Found while the reviewer helper read F034 (row RV-01): the summary left contrast out even where it decides the status.
+    const enforced = mkdtempSync(join(tmpdir(), 'fit-a1-'));
+    const a1 = filesOf({ ...createProject('Command line A1'), a11y: 'enforce' });
+    for (const [name, text] of Object.entries(a1)) writeFileSync(join(enforced, name), text);
+    const pale = join(enforced, 'pale.html');
+    writeFileSync(pale, meetsFloors(a1['mockup.html'] ?? '').replace('</body>', '<p style="color:#ffffff;background:#ffffff">Pale</p></body>'));
+    const result = run([pale, enforced, join(enforced, 'out')]);
+    expect(result.status).toBe(1);
+    const json = JSON.parse(readFileSync(join(enforced, 'out', 'receipt.json'), 'utf8')) as Receipt;
+    const contrast = json.measured.find((m) => m.id === 'contrast');
+    expect(contrast?.title).toBe('Contrast: required by Floor A1');
+    const counted = json.measured.filter((m) => m.id !== 'contrast' || m.title === 'Contrast: required by Floor A1');
+    const deviations = counted.reduce((sum, m) => sum + m.deviations, 0);
+    expect(deviations).toBeGreaterThan(0);
+    expect(result.stdout).toContain(`${String(deviations)} deviations`);
+    expect(result.stdout).not.toMatch(/^0 deviations, 0 windows/);
+  });
+
+  it('names the things not measured in its summary line when they alone give status 1', () => {
+    const folder2 = mkdtempSync(join(tmpdir(), 'fit-unmeasured-'));
+    const a1 = filesOf({ ...createProject('Command line unmeasured'), a11y: 'enforce' });
+    for (const [name, text] of Object.entries(a1)) writeFileSync(join(folder2, name), text);
+    const faded = join(folder2, 'faded.html');
+    writeFileSync(faded, meetsFloors(a1['mockup.html'] ?? '').replace('</body>', '<p style="opacity:0.5">Faded</p></body>'));
+    const result = run([faded, folder2, join(folder2, 'out')]);
+    expect(result.status).toBe(1);
+    expect(result.stdout).toMatch(/\d+ things not measured/);
+  });
 });
 
 describe('Fit check: every color that the page draws, SVG paint included (M6 gate review, findings S8-01 and S8-02)', () => {
