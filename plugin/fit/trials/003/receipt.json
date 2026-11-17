@@ -6,6 +6,7 @@
   },
   "widths": [
     375,
+    768,
     1280
   ],
   "measured": [
@@ -67,10 +68,10 @@
       "id": "contrast",
       "title": "Contrast: required by Floor A1",
       "deviations": 0,
-      "notMeasured": 6,
+      "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds Floor A1, so each text below the usual least is a deviation, and a text that could not be measured counts toward the status. 6 text readings (one for each text and window width) could not be measured: 6 because the text or a box around it is drawn partly transparent.",
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Prescription holds Floor A1, so each text below the usual least is a deviation, and a text that could not be measured counts toward the status.",
       "information": [],
       "informationMore": 0
     },
@@ -116,7 +117,7 @@
     "Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.",
     "The states that the program did not open: hover, focus, open menus, and every page other than the one given.",
     "Shadows, gradients, images, and the color of selected text. The program did not compare them with the Prescription.",
-    "All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.",
+    "All other window widths. The program read the page at 375, 768, and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.",
     "A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.",
     "Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.",
     "Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.",

@@ -16,10 +16,10 @@ export interface Drawn {
 export interface TextRead {
   where: string;
   foreground: string;
-  /** Background layers, from the outermost to the one under the text, as computed CSS colors; null when the background cannot be read. */
+  /** From the text outward: each background as a computed CSS color, and "opacity N" where a box is drawn partly transparent; null when the background cannot be read. */
   layers: string[] | null;
   /** Why the contrast of this text cannot be measured, as a fixed code; empty when it can. The program turns a code into a sentence; page text never stands here (main line, finding X7). */
-  unmeasured: '' | 'fill' | 'opacity' | 'image' | 'filter';
+  unmeasured: '' | 'fill' | 'image' | 'filter';
   sizePx: number;
   weight: number;
 }
@@ -301,14 +301,18 @@ export function collect(): Collected {
     const layers: string[] = [];
     if (alphaOf(textColor) === 0 || alphaOf(rgbOf(cs.webkitTextFillColor)) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') unmeasured = 'fill';
     if (unmeasured === '' && recolored) unmeasured = 'filter';
+    // From the text outward: each box's background, then its opacity, which scales the box and all inside it as one group before it is
+    // laid over what lies behind, as a browser draws it (SPEC.md section 2.23). The walk stops where nothing behind can show through.
+    let cover = 0;
     for (let up: Element | null = el; up && unmeasured === ''; up = up.parentElement) {
       const style = getComputedStyle(up);
-      if (Number.parseFloat(style.opacity) < 1) { unmeasured = 'opacity'; break; }
       if (style.backgroundImage !== 'none') { unmeasured = 'image'; break; }
       const behind = rgbOf(style.backgroundColor);
       const a = alphaOf(behind);
-      if (a > 0) layers.unshift(behind);
-      if (a === 1) break;
+      if (a > 0) { layers.push(behind); cover = cover + a * (1 - cover); }
+      const opacity = Number.parseFloat(style.opacity);
+      if (opacity < 1) { layers.push(`opacity ${String(opacity)}`); cover *= opacity; }
+      if (cover >= 0.9995) break;
     }
     texts.push({ where: label, foreground: textColor, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400 });
   }

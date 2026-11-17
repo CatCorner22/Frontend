@@ -55,6 +55,14 @@ export function over(top: Rgba, under: Rgba): Rgba {
   return { r: top.r * a + under.r * (1 - a), g: top.g * a + under.g * (1 - a), b: top.b * a + under.b * (1 - a), a: 1 };
 }
 
+/** `top` laid over `under`, either of them partly transparent (the "source over" rule of compositing); the result may be partly transparent. */
+export function overAny(top: Rgba, under: Rgba): Rgba {
+  const a = top.a + under.a * (1 - top.a);
+  if (a === 0) return { r: 0, g: 0, b: 0, a: 0 };
+  const mix = (t: number, u: number): number => (t * top.a + u * under.a * (1 - top.a)) / a;
+  return { r: mix(top.r, under.r), g: mix(top.g, under.g), b: mix(top.b, under.b), a };
+}
+
 const linear = (channel: number): number => {
   const c = channel / 255;
   return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;

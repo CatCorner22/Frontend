@@ -2,7 +2,7 @@
 // Prescription's design values, and write an Honest receipt. The program builds nothing and judges nothing.
 import { createHash } from 'node:crypto';
 import { chromium, type Browser, type LaunchOptions, type Page } from 'playwright';
-import { contrastRatio, hexOf, over, parseRgba, type Rgba } from './color.ts';
+import { contrastRatio, hexOf, over, overAny, parseRgba, type Rgba } from './color.ts';
 import { collect, readBrief, type Collected, type TextRead } from './collect.ts';
 import { FitError, readDesignValues, type DesignValues } from './prescription.ts';
 import { STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt } from './receipt.ts';
@@ -31,7 +31,8 @@ export interface FitResult {
   status: 0 | 1;
 }
 
-export const WIDTHS = [375, 1280] as const;
+/** A phone, a tablet, and a desktop (SPEC.md section 2.23). */
+export const WIDTHS = [375, 768, 1280] as const;
 /** How long after the page has loaded the program reads a window with motion allowed a second time (campaign A2, finding J-3). */
 export const LATER_MS = 2000;
 /**
@@ -61,7 +62,6 @@ export function clean(text: unknown, max = LINE_MAX): string {
 
 const UNMEASURED_WHY: Record<string, string> = {
   fill: 'the text is filled by an image or a gradient',
-  opacity: 'the text or a box around it is drawn partly transparent',
   image: 'an image or a gradient lies behind the text',
   filter: 'a filter changes how the text is drawn',
 };
@@ -123,7 +123,7 @@ function checked(raw: unknown): Collected {
     texts: list(r['texts'], isObject).map((x): TextRead => ({
       where: str(x['where']), foreground: str(x['foreground']),
       layers: Array.isArray(x['layers']) ? x['layers'].slice(0, 200).map(str) : null,
-      unmeasured: x['unmeasured'] === 'fill' || x['unmeasured'] === 'opacity' || x['unmeasured'] === 'image' || x['unmeasured'] === 'filter' ? x['unmeasured'] : '',
+      unmeasured: x['unmeasured'] === 'fill' || x['unmeasured'] === 'image' || x['unmeasured'] === 'filter' ? x['unmeasured'] : '',
       sizePx: num(x['sizePx'], 16), weight: num(x['weight'], 400),
     })),
     shownLines: strings(r['shownLines']),
@@ -343,14 +343,27 @@ export function isOtherSite(address: string, base = ''): boolean {
 }
 
 /** One line for each different value, with how many elements show it and the first one. The count is the largest over the window widths. */
-function grouped(rows: { key: string; where: string; width: string }[], describe: (key: string, elements: number, first: string) => string): string[] {
+/**
+ * One line for each finding, with the count of elements in the reading where there are most. A finding that is not in every reading
+ * says where it is: "(only at 768 pixels)", or the readings by name where it holds in some readings of a width (SPEC.md section 2.23).
+ */
+function grouped(rows: { key: string; where: string; width: string }[], readingsAt: ReadonlyMap<number, ReadonlySet<string>>, describe: (key: string, elements: number, first: string) => string): string[] {
   const byKey = new Map<string, { perWidth: Map<string, number>; first: string }>();
   for (const row of rows) {
     const entry = byKey.get(row.key) ?? { perWidth: new Map<string, number>(), first: row.where };
     entry.perWidth.set(row.width, (entry.perWidth.get(row.width) ?? 0) + 1);
     byKey.set(row.key, entry);
   }
-  return [...byKey].map(([key, entry]) => describe(key, Math.max(...entry.perWidth.values()), entry.first));
+  return [...byKey].map(([key, entry]) => {
+    const seen = new Set(entry.perWidth.keys());
+    const parts = [...readingsAt].flatMap(([width, labels]) => {
+      const here = [...labels].filter((label) => seen.has(label));
+      if (here.length === 0) return [];
+      return here.length === labels.size ? [`${String(width)} pixels`] : here;
+    });
+    const everywhere = [...readingsAt.values()].every((labels) => [...labels].every((label) => seen.has(label)));
+    return `${describe(key, Math.max(...entry.perWidth.values()), entry.first)}${everywhere ? '' : ` (only at ${parts.join('; ')})`}`;
+  });
 }
 
 /**
@@ -374,13 +387,24 @@ function atWidths(rows: { key: string; width: number; label: string }[], reading
 function contrastOf(text: Collected['texts'][number]): number | null {
   const fg = parseRgba(text.foreground);
   if (!fg || text.layers === null) return null;
-  let behind = WHITE;
+  // Two pixels: one under a letter and one beside it. Each starts inside the innermost box and is laid outward, layer by layer; an
+  // opacity scales everything gathered so far, as a group, before the next layer (SPEC.md section 2.23). White lies behind the page.
+  let letter: Rgba = fg;
+  let beside: Rgba = { r: 0, g: 0, b: 0, a: 0 };
   for (const layer of text.layers) {
+    const opacity = /^opacity ([\d.]+)$/.exec(layer);
+    if (opacity) {
+      const o = Number(opacity[1]);
+      letter = { ...letter, a: letter.a * o };
+      beside = { ...beside, a: beside.a * o };
+      continue;
+    }
     const parsed = parseRgba(layer);
     if (!parsed) return null;
-    behind = over(parsed, behind);
+    letter = overAny(letter, parsed);
+    beside = overAny(beside, parsed);
   }
-  return contrastRatio(fg.a < 1 ? over(fg, behind) : fg, behind);
+  return contrastRatio(over(letter, WHITE), over(beside, WHITE));
 }
 
 function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures'] } {
@@ -521,9 +545,9 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     scripts: { inline: Math.max(source.inline, most((c) => c.scripts.inline)), external: Math.max(source.external, most((c) => c.scripts.external)) },
     measured: [
       measureOf('requests', 'Requests: the page asks for nothing from another site', 'Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page\u2019s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.', [...requests], failed, ownAddress),
-      measureOf('colors', 'Colors: every color that the page draws is a color of the Prescription', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered, [...translucent]),
-      measureOf('typefaces', 'Typefaces: every text names a typeface of the Prescription', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Prescription typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
-      measureOf('radii', 'Corner radii: every drawn box uses a radius of the Prescription', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
+      measureOf('colors', 'Colors: every color that the page draws is a color of the Prescription', colorNote, grouped(colorRows, readingsAt, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered, [...translucent]),
+      measureOf('typefaces', 'Typefaces: every text names a typeface of the Prescription', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Prescription typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, readingsAt, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
+      measureOf('radii', 'Corner radii: every drawn box uses a radius of the Prescription', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, readingsAt, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
       measureOf('contrast', bound ? BOUND_CONTRAST_TITLE : 'Contrast: measured, not required', bound ? contrastNote.replace('The Prescription does not hold Floor A1 (contrast checks were not “Fix for me”), so no ratio is a deviation; the lines show texts below the usual least.', 'The Prescription holds Floor A1, so each text below the usual least is a deviation, and a text that could not be measured counts toward the status.') : contrastNote, contrastLines.map((c) => c.line), unreadAt.size + failed),
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own, inside one block of text. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask, and a text that is empty in the Mockup, are counted as not measured.', contentLines, failed + contentUnsure + emptyRequired),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),

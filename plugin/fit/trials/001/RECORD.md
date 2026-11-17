@@ -67,3 +67,7 @@ The program now also compares the paint of SVG shapes, underline colors, column 
 ## A later change to the program (2026-11-17, feature F034)
 
 The program now also measures the Floors (feature F034, `SPEC.md` section 2.22). The stored receipt was measured again. No count changed. The receipt gained a seventh measure, "Floors", which says that this Prescription holds no Floors (it was made before them), and "Still needs a person" gained one line on the Floors that no program checks.
+
+## A later change to the program (2026-11-17, feature F035)
+
+The program now reads every page at a third width, 768 pixels, and measures contrast through opacity as a browser blends it. The stored receipt was measured again. The contrast measure counts 0 not measured where it counted 6: the six readings of texts drawn partly transparent are now measured, and none is below the usual least. No other count changed.

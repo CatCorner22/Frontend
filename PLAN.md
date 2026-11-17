@@ -305,8 +305,8 @@ The Floors are written (feature F032, decisions D69 and D70): `PRESCRIPTION.md` 
 
 | Step | What | Estimate |
 |---|---|---|
-| 12 | The Fit check measures what the Floors require; contrast becomes binding (moved here from M6) | 2 to 4 hours |
-| 13 | The third window width (768 pixels) and the exit test: a build with planted defects, every one found and no false blocker | 3 to 5 hours |
+| 12 | The Fit check measures what the Floors require; contrast becomes binding (moved here from M6; **done on 2026-11-17**, feature F034) | 2 to 4 hours |
+| 13 | The third window width (768 pixels) and the exit test: a build with planted defects, every one found and no false blocker (**done on 2026-11-17**, feature F035; the `/fit-check` command of step 14 must still run it) | 3 to 5 hours |
 | 13a | **Read what is drawn, not only what the styles say.** Campaign A2 showed that a check that reads computed styles can always be led around by one more route (a shadow root, a clip, a fill color, an import); each round closed the routes it found. The lasting answer: compare the pixels of a screenshot with the Prescription's colors, and find the three required texts in the drawn page, beside the style reading. | 6 to 10 hours |
 | 14 | `/fit-build` and `/fit-repair` as commands of a Claude Code plugin: packaging, at most three rounds of repair, and the receipt's part "Judged by the model" | 8 to 14 hours |
 | 15 | One red-team round on the whole Fitter, and its retest | 2 to 3 hours |

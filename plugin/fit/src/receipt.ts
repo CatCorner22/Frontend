@@ -34,6 +34,9 @@ export interface Receipt {
   loadFailures: { width: number; reason: string }[];
 }
 
+/** "a", "a and b", or "a, b, and c". */
+const listed = (items: string[]): string => (items.length <= 2 ? items.join(' and ') : `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1] ?? ''}`);
+
 export const STILL_NEEDS_A_PERSON: readonly string[] = [
   'What the page looks like. The program measured colors, typefaces, corner radii, contrast, and widths; it did not look at the page.',
   'Whether the page works with the keyboard alone, and with a screen reader.',
@@ -41,7 +44,7 @@ export const STILL_NEEDS_A_PERSON: readonly string[] = [
   'Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.',
   'The states that the program did not open: hover, focus, open menus, and every page other than the one given.',
   'Shadows, gradients, images, and the color of selected text. The program did not compare them with the Prescription.',
-  'All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.',
+  'All other window widths. The program read the page at 375, 768, and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.',
   'A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.',
   'Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.',
   'Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.',
@@ -81,7 +84,7 @@ const count = (n: number, one: string, many: string): string => `${String(n)} ${
 export function receiptMarkdown(receipt: Receipt): string {
   const out: string[] = [];
   out.push('# Fit check receipt', '');
-  out.push(`Fingerprint of the Prescription that this receipt measured against: \`${receipt.fingerprint}\`. The build: ${String(receipt.build.bytes)} bytes, SHA-256 \`${receipt.build.sha256}\`. Window widths: ${receipt.widths.join(' and ')} pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.`, '');
+  out.push(`Fingerprint of the Prescription that this receipt measured against: \`${receipt.fingerprint}\`. The build: ${String(receipt.build.bytes)} bytes, SHA-256 \`${receipt.build.sha256}\`. Window widths: ${listed(receipt.widths.map(String))} pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.`, '');
   out.push('This receipt keeps three things apart: what a program measured, what a model judged, and what still needs a person. It states what was checked. It does not say that the page is good, finished, or fit for any rule.', '');
   out.push('## Measured', '');
   for (const m of receipt.measured) {

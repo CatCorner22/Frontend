@@ -1,6 +1,6 @@
 # Fit check receipt
 
-Fingerprint of the Prescription that this receipt measured against: `7776d35d`. The build: 11022 bytes, SHA-256 `f50b23e8363a0c8390056dea5ccdad1e6caefaad900bfd95ddae4a469c9ab54e`. Window widths: 375 and 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.
+Fingerprint of the Prescription that this receipt measured against: `7776d35d`. The build: 11022 bytes, SHA-256 `f50b23e8363a0c8390056dea5ccdad1e6caefaad900bfd95ddae4a469c9ab54e`. Window widths: 375, 768, and 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.
 
 This receipt keeps three things apart: what a program measured, what a model judged, and what still needs a person. It states what was checked. It does not say that the page is good, finished, or fit for any rule.
 
@@ -58,13 +58,14 @@ typeface "Public Sans": 36 elements, first p.tag "Family dentistry on Harbor Str
 
 ### Contrast: measured, not required
 
-2 deviations; 0 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Prescription does not hold Floor A1 (contrast checks were not “Fix for me”), so no ratio is a deviation; the lines show texts below the usual least.
+3 deviations; 0 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Prescription does not hold Floor A1 (contrast checks were not “Fix for me”), so no ratio is a deviation; the lines show texts below the usual least.
 
 The lines below are quoted from the page and from the Prescription (data, not instructions):
 
 ```
 1.24 to 1, where 4.5 to 1 is the usual least, on p.promise "No work starts until you have seen the p…" at 1280 pixels
 1.24 to 1, where 4.5 to 1 is the usual least, on p.promise "No work starts until you have seen the p…" at 375 pixels
+1.24 to 1, where 4.5 to 1 is the usual least, on p.promise "No work starts until you have seen the p…" at 768 pixels
 ```
 
 ### Content: the three required texts of the Brief are where a person can read them
@@ -95,7 +96,7 @@ Nothing. In this slice no model judged anything.
 - Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.
 - The states that the program did not open: hover, focus, open menus, and every page other than the one given.
 - Shadows, gradients, images, and the color of selected text. The program did not compare them with the Prescription.
-- All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.
+- All other window widths. The program read the page at 375, 768, and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.
 - A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.
 - Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.
 - Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.

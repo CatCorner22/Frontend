@@ -12,7 +12,7 @@ import { chromium, type Browser } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { DIRECTIONS, applyDirection, createProject, writePrescription, type Project } from '@refraction/core';
 import { contrastRatio, parseRgba } from '../src/color.ts';
-import { FitError, fit, type FitInput, type Receipt } from '../src/fit.ts';
+import { FitError, WIDTHS, fit, type FitInput, type Receipt } from '../src/fit.ts';
 import { readDesignValues } from '../src/prescription.ts';
 
 const LOCAL_BROWSER = process.env['PW_CHROMIUM'] ? { executablePath: process.env['PW_CHROMIUM'] } : {};
@@ -127,8 +127,8 @@ describe('Fit check: eight damages, each reported', () => {
 
   it('the headline removed', async () => {
     const { receipt } = await run(mockup.replace(/<h1>[\s\S]*?<\/h1>/, '<h1></h1>'));
-    // One deviation for each window width (SPEC.md section 2.15, point 11).
-    expect(measure(receipt, 'content').deviations).toBe(2);
+    // One deviation for each window width (SPEC.md section 2.15, point 11; three widths since section 2.23).
+    expect(measure(receipt, 'content').deviations).toBe(WIDTHS.length);
     expect(measure(receipt, 'content').items.join('\n')).toContain('headline');
   });
 
@@ -172,11 +172,11 @@ describe('Fit check: refusals and faults of the build', () => {
     await refuse(inputOf(files, 'Just some words, no page.'), /HTML/);
   });
 
-  it('records a page that never finishes loading, marks both window widths "not measured", and ends with status 1', async () => {
+  it('records a page that never finishes loading, marks every window width "not measured", and ends with status 1', async () => {
     const { receipt, status } = await fit(inputOf(files, '<!doctype html><html><body><script>for(;;){}</script></body></html>', { loadTimeoutMs: 1500, runScripts: true }));
     expect(status).toBe(1);
     // Each width is read with reduced motion and with motion allowed (campaign A2, decision D71): all four readings fail, two per width.
-    expect(receipt.loadFailures.map((f) => f.width).sort((a, b) => a - b)).toEqual([375, 375, 1280, 1280]);
+    expect(receipt.loadFailures.map((f) => f.width).sort((a, b) => a - b)).toEqual(WIDTHS.flatMap((w) => [w, w]));
     // "Not measured" is never "no deviation": every measure says that both windows were not measured, and the status is 1.
     for (const m of receipt.measured) expect(m.notMeasured, m.id).toBeGreaterThanOrEqual(2);
   }, 60_000);
@@ -835,12 +835,14 @@ describe('Fit check: faults that no test caught (the seventh review’s test aud
     for (const id of ['requests', 'colors', 'typefaces', 'radii', 'content', 'width']) expect(measure(receipt, id).items).toEqual([...measure(receipt, id).items].sort());
   });
 
-  it('counts a text under a partly transparent box and a text on a gradient as not measured, and says why', async () => {
+  it('counts a text on a gradient as not measured, and says why; a text under a partly transparent box is now measured (SPEC.md 2.23)', async () => {
+    // Until feature F035 a partly transparent box made a text "not measured" too; the program now blends it as a browser does, and the
+    // tests of "contrast through opacity" check the blended figure. The gradient stays not measured: once for each window width.
     const base = await put('');
     const odd = await put('<p style="opacity:0.5">Faded</p><p style="background:linear-gradient(#000000,#ffffff)">Gradient</p>');
-    expect(measure(odd.receipt, 'contrast').notMeasured - measure(base.receipt, 'contrast').notMeasured).toBe(4);
-    expect(measure(odd.receipt, 'contrast').note).toContain('partly transparent');
+    expect(measure(odd.receipt, 'contrast').notMeasured - measure(base.receipt, 'contrast').notMeasured).toBe(WIDTHS.length);
     expect(measure(odd.receipt, 'contrast').note).toContain('gradient');
+    expect(measure(odd.receipt, 'contrast').note).not.toContain('partly transparent');
   });
 
   it('leaves out an element that is not shown', async () => {
@@ -874,7 +876,7 @@ describe('Fit check: faults that no test caught (the seventh review’s test aud
     expect(lines(wide.receipt, 'width')).toContain('1280');
     expect(lines(wide.receipt, 'width')).not.toContain('375 pixels');
     const slight = await put('<div style="width:calc(100vw + 5px);height:1px"></div>');
-    expect(measure(slight.receipt, 'width').deviations).toBe(2);
+    expect(measure(slight.receipt, 'width').deviations).toBe(WIDTHS.length);
   });
 
   it('counts the elements at the window width where there are most', async () => {
@@ -884,8 +886,8 @@ describe('Fit check: faults that no test caught (the seventh review’s test aud
 
   it('names the windows, the widths, and the six lines of "Still needs a person" in every receipt', async () => {
     const { receipt, markdown } = await put('');
-    expect(receipt.widths).toEqual([375, 1280]);
-    expect(markdown).toContain('375 and 1280 pixels');
+    expect(receipt.widths).toEqual([375, 768, 1280]);
+    expect(markdown).toContain('375, 768, and 1280 pixels');
     expect(receipt.stillNeedsPerson.length).toBeGreaterThanOrEqual(6);
     for (const line of receipt.stillNeedsPerson) expect(markdown).toContain(line);
   });
@@ -1043,7 +1045,8 @@ describe('Fit check: the command line', () => {
     const a1 = filesOf({ ...createProject('Command line unmeasured'), a11y: 'enforce' });
     for (const [name, text] of Object.entries(a1)) writeFileSync(join(folder2, name), text);
     const faded = join(folder2, 'faded.html');
-    writeFileSync(faded, meetsFloors(a1['mockup.html'] ?? '').replace('</body>', '<p style="opacity:0.5">Faded</p></body>'));
+    // A text on a gradient: its contrast cannot be measured (a text at half opacity can, since SPEC.md section 2.23).
+    writeFileSync(faded, meetsFloors(a1['mockup.html'] ?? '').replace('</body>', '<p style="background:linear-gradient(#000000,#ffffff)">Faded</p></body>'));
     const result = run([faded, folder2, join(folder2, 'out')]);
     expect(result.status).toBe(1);
     expect(result.stdout).toMatch(/\d+ things not measured/);
@@ -1288,3 +1291,25 @@ describe('Fit check: the Floors measure, and contrast bound by Floor A1 (SPEC.md
     expect(markdown).not.toContain('No program checks a Floor');
   });
 });
+
+describe('Fit check: contrast through opacity, as a browser blends it (SPEC.md section 2.23, feature F035)', () => {
+  const files = filesOf({ ...createProject('Opacity'), a11y: 'enforce' });
+  const page = (body: string): string => replaceOnce(meetsFloors(files['mockup.html'] ?? ''), '</body>', `${body}</body>`);
+  const ratios = (receipt: Receipt, words: string): string[] => measure(receipt, 'contrast').items.filter((line) => line.includes(words));
+
+  it('measures black text at half opacity on white as the gray that a person sees (about 3.95 to 1)', async () => {
+    const { receipt } = await fit(inputOf(files, page('<div style="background:#ffffff"><p style="color:#000000;opacity:0.5;font-size:16px">Half black</p></div>')));
+    expect(ratios(receipt, 'Half black').join('\n')).toMatch(/\b3\.9\d to 1\b/);
+  });
+
+  it('blends a whole group: white text on a half-opacity black box over white is about 3.95 to 1, not 21 to 1', async () => {
+    const { receipt } = await fit(inputOf(files, page('<div style="background:#ffffff"><div style="opacity:0.5;background:#000000"><p style="color:#ffffff;font-size:16px">Group white</p></div></div>')));
+    expect(ratios(receipt, 'Group white').join('\n')).toMatch(/\b3\.9\d to 1\b/);
+  });
+
+  it('multiplies nested opacities, and finds no deviation where the blended pair still meets the least', async () => {
+    const { receipt } = await fit(inputOf(files, page('<div style="background:#ffffff;opacity:0.98"><p style="color:#000000;opacity:0.98;font-size:16px">Nearly black</p></div>')));
+    expect(ratios(receipt, 'Nearly black')).toEqual([]);
+  });
+});
+
