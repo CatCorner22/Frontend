@@ -387,6 +387,18 @@
         "Remove one of the 38 Directions from the Catalog: npm run check fails and names it"
       ],
       "passes": true
+    },
+    {
+      "id": "F034",
+      "description": "The Fit check measures every Floor requirement of the Prescription's section 7 that a program can check on one page, as a seventh measured thing that names each failing requirement by its id; and where the Prescription holds Floor A1, contrast below the usual least becomes a deviation that changes the status.",
+      "spec_section": "SPEC.md section 2.22",
+      "steps": [
+        "Run the Fit check on a page that meets every checked Floor: the Floors measure shows 0 deviations",
+        "Plant one breach of each checked requirement (for example a link with target=\"_blank\" and no rel=\"noopener\"): the Floors measure names that requirement's id, and the status is 1",
+        "Measure a page with a low-contrast text against a Prescription made with \"Fix for me\": the contrast measure is required by Floor A1 and the status is 1; against one made with \"Warn me\", contrast stays measured, not required",
+        "Measure the Mockup as a build: the design measures show no deviation, and the Floors measure names only the Floors that the Prescription says the Mockup does not meet"
+      ],
+      "passes": false
     }
   ]
 }

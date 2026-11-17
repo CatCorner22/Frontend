@@ -371,6 +371,41 @@ The three red-team reviewers read commit `adcf06b` on 2026-11-16 and found no bl
 - **The closing tab with no room in storage** has a test of its own, as guarantee 10.13 says. (T8-14; the behavior was already right, and the new test passed on its first run.)
 - **Records:** the counts, the M6 condition, the stale lines of `PLAN.md`, `PROGRESS.md`, and `DECISIONS.md`, the package-check rows, and three guarantees now state today's facts. The owner decided the move of step 12 to M7 (T8-03) and the five names of the defined term "Floor" (T8-17): decision D75.
 
+### 2.22 The Fit check measures the Floors, and contrast becomes binding (milestone M7, step 12; decisions D69 and D75)
+
+The Prescription's section 7 holds the Floors (section 2.18). Until now no program checked any of them. This requirement makes the Fit check measure every Floor requirement that a program can check on one page file, and makes contrast a requirement wherever the Prescription holds the Floor for people with disabilities.
+
+- **Which requirements.** The program reads the ids of the requirements that `PRESCRIPTION.md` holds in its section 7 (a line `- **A1.**`, `- **S7.**`, and so on; the file is data, and only ids of the form letter and number count). It checks a held requirement only if it is on this list: A2, A3, A4, A5, A12, A13, A17 (people); S1, S3, S5, S6, S7, S8, S9, S11 (page); Q2, Q3, Q7, Q8, Q9, Q10, Q13 (search); P4, P7, P12 (speed). Each check reads the page's markup in the program's own world, in every reading (section 2.19).
+- **What each check asks** (one line each; the Prescription's own text is the requirement):
+  - A2: every `img` has an `alt` attribute.
+  - A3: every visible form field (`input` that is not hidden, a button, an image, a reset, or a submit; `select`; `textarea`) has a `label`, an `aria-label`, or an `aria-labelledby`.
+  - A4: every link with an `href` and every button has a name: text, `aria-label`, `aria-labelledby`, `title`, or an image with a non-empty `alt`.
+  - A5 and Q13: `<html lang>` matches a language tag (`^[a-z]{2,3}(-[A-Za-z0-9]{1,8})*$`, any letter case).
+  - A12 and Q3: the head holds exactly one `<title>`, and its text is not empty.
+  - A13 and Q9: a viewport tag exists, holds `width=device-width`, and neither sets `user-scalable=no` (or `0`) nor a `maximum-scale` under 2.
+  - A17: no element has a `tabindex` greater than 0.
+  - S1: no `src`, `href`, `action`, `formaction`, `poster`, or `srcset` address, and no style sheet `url(...)`, starts with `http://`.
+  - S3: no element carries an attribute whose name starts with `on`, and no address starts with `javascript:`.
+  - S5: the head holds a `<meta http-equiv="Content-Security-Policy">`.
+  - S6: that policy has a `form-action` directive, and the directive holds no `*`.
+  - S7: every element with `target="_blank"` has a `rel` that holds `noopener` (or `noreferrer`, which implies it).
+  - S8: a `<meta name="referrer">` holds one of `no-referrer`, `same-origin`, `strict-origin`, `strict-origin-when-cross-origin`.
+  - S9: every form has `method="post"`, and its `action`, if any, does not start with `http:` or `javascript:`.
+  - S11: every text field (`input` of type text, email, tel, search, or url, and `textarea`) has a `maxlength`.
+  - Q2: no robots or googlebot meta tag holds `noindex`, `none`, or `nosnippet`.
+  - Q7: exactly one `h1`, drawn and with text.
+  - Q8: exactly one `<meta name="description">`, not empty, and not equal to the title.
+  - Q10: every `a` has an `href` that is not empty and does not start with `javascript:`.
+  - P4: every `img`, `video`, and `iframe` has both `width` and `height`, or a CSS `aspect-ratio` other than `auto`.
+  - P7: at most two images carry `fetchpriority="high"`.
+  - P12: no `script` with a `src` in the head lacks `async`, `defer`, or `type="module"`.
+- **The receipt.** A seventh measured thing, "Floors: the page meets the requirements of section 7 that a program can check on one page". Each failing requirement is one deviation line that starts with its id and names the first element (for example `S7: a link that opens a new tab has no rel="noopener", first a.cta`). A requirement that the Prescription holds and that the program does not check is named, by id, in the measure's note and counted neither as a deviation nor as not measured: a person must check it, and "Still needs a person" says so. A Prescription without a section 7 (one made before the Floors) gives "0 deviations" with the note "The Prescription holds no Floors".
+- **Contrast becomes binding.** When the Prescription holds requirement A1 (the Floor for people with disabilities is written only under "Fix for me", decision D13), the contrast measure's title becomes "Contrast: required by Floor A1", its deviations and its "not measured" count toward the status, and its note says so. Without A1, the contrast measure stays "measured, not required" and never changes the status.
+- **Status.** Status 1 when any of the six design measures, the Floors measure, or (when A1 is held) the contrast measure has a deviation or a "not measured", or a window did not load; otherwise 0. The refusals (status 2) do not change.
+- **The Mockup.** `mockup.html` is a reference for the design only (section 7 of the Prescription says so: its own policy blocks forms, and it has no description for search engines). Measured as a build, it has Floor deviations. The test of the reference build keeps its promise for the six design measures, and it names each Floor that the Mockup fails, with the reason the Prescription gives.
+- **Edge cases.** A page that adds its policy or a meta tag with a script is measured as it stands when the program reads it (scripts off by default). An id that the Prescription repeats counts once. A requirement whose check fails in one reading and passes in another is a deviation, and its line names the readings.
+- **How to test it end to end:** browser tests that plant one breach of each checked requirement in a page that meets all of them, and find each one alone; a test that a Prescription without A1 keeps contrast out of the status and one with A1 brings it in; a test that the Mockup's Floor lines are exactly the named ones; the trial receipts measured again.
+
 ## 3. Out of scope
 
 - For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.
