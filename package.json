@@ -23,6 +23,7 @@
     "e2e": "npm run build:page && npm run size && vitest run --config vitest.e2e.config.ts",
     "fit": "node plugin/fit/src/cli.ts",
     "notices": "node scripts/make-notices.mjs",
+    "directions": "vitest run packages/core/test/directionsBook.test.ts -u",
     "visual:update": "UPDATE_BASELINES=1 vitest run --config vitest.e2e.config.ts apps/studio/e2e/visual.e2e.ts"
   },
   "devDependencies": {

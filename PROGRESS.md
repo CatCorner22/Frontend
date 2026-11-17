@@ -104,14 +104,23 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-17
-- Feature worked on (ID): none in the list. The M6 gate review (hard rule 12) and its repairs (`SPEC.md` section 2.20).
+- Feature worked on (ID): F033 (the book of Directions; requirement 2.20; decision D74)
+- Result: passes
+- Commits: the commit "F033: ..." that holds this entry
+- What it does: `docs/reference/directions.md` describes every built-in Direction in code (design settings as JSON, the full `tokens.css`, and the main colors of each Skin), written by the core from the Catalog (`directionsBook`). `npm run directions` writes it again. Two tests keep it: the stored file must equal what the core writes, and each of the 38 built-in Directions must stay in the Catalog.
+- Evidence: tests first (the new test file failed because `directionsBook` did not exist). `npm run check`: 365 unit tests passed (8 new). Checked by hand: a changed corner radius in Galactic Goth failed the stored-file test, and removing Galactic Goth failed the keep test and named it; the Catalog was restored and `git diff` showed no change. `npm run e2e`: 423 browser tests passed (1,652 seconds).
+- Not done: the reviewer helper did not run (decision D55: a helper needs the owner's yes; D68 covered one earlier round only). The owner's own Directions are in the browser and cannot be in the file.
+- Open problems for the next session: the script default of the Fit check (two joins differ; the owner decides); the M6 gate review; the owner's trial of the Studio (M4); the choice of host.
+
+- Date: 2026-11-17
+- Feature worked on (ID): none in the list. The M6 gate review (hard rule 12) and its repairs (`SPEC.md` section 2.21; it was 2.20 before the merge with the book of Directions).
 - Result: passes. Evidence: `npm run check` passed (type check, lint with no warning, the boundary rule, 365 unit tests). `npm run e2e` (00:55 to 01:26 UTC on 2026-11-17): 432 of 432 browser tests passed. The run before it failed one test (axe's target-size rule on the Overlays screen), a side effect of a repair; row JN-02 says what it was and how it was repaired. Fit and trial tests: 107 of 107 passed after the colors repair.
 - The review: three helper agents read commit `adcf06b` on 2026-11-16, with the owner's approval ("Approved"): a security attacker (the code), a confused first-time user (the running page and its downloads only), and a drift and truth auditor (the code and the records). Their reports are `redteam/reports/2026-11-16-i-*.md`, word for word. **No blocker.** 43 findings: 9 major, 23 minor, 11 notes (rows S8, U8, T8).
 - Repaired (41 rows): the Fit check compares SVG paint and the other drawn colors (S8-01, S8-02; trial 002 now counts 22 color deviations where it counted 12, because its SVG drawings use colors outside the Prescription); the page fragment reads as UTF-8 when opened bare; no Overlay quotes the sample's words; the contrast switch says what it decides for the Prescription; long fields show their count; section 7 says who does what and corrects five records; the Summary speaks plainly; the records state today's facts (counts, the M6 condition, branches, package rows, three guarantees, D11, D63). Ten rows are recorded with a reason and not repaired; two rows (T8-03, T8-17) wait for the owner. Every repair has a test that failed before it, except T8-14 (a missing test whose behavior was already right) and T8-16 (new stored copies).
 - A side effect of a repair, found by the full browser run (row JN-02): the longer text at the contrast switch made the header one line taller, which moved a 20-pixel checkbox of the Overlays screen under the column's sticky button, under axe's target-size rule. Every checkbox of the Studio is now 24 by 24 pixels.
 - One finding was partly wrong: U8-05 said that "Your content" cut a long text with no notice. The notice "This field is full" exists and appears (the builder measured it); the repair adds a count before the cut.
 - A test changed its expectation, with the reason: the list of Floor rows marked "a published standard states it" lost S7 and S10 (T8-10), and a new check requires a W3C source for that mark. Trial 003's test names one changed sentence as its only exception outside section 7 (T8-12).
-- Next: GitHub's check on this commit; then M6 closes (`PLAN.md` 13.4, step 9). The owner answered the two questions (T8-03, T8-17) on 2026-11-17: decision D74.
+- Next: GitHub's check on this commit; then M6 closes (`PLAN.md` 13.4, step 9). The owner answered the two questions (T8-03, T8-17) on 2026-11-17: decision D75 (numbered D74 before the merge with the book of Directions).
 
 - Date: 2026-11-16
 - Feature worked on (ID): none in the list. The join of the audit branch (`claude/eloquent-curie-hnhykj`, pull request 12: audit A1 and red-team campaign A2) with the main line (`claude/festive-mendel-lfnahh` at `8de8153`, pull request 13), by one session (decisions D72 and D73).
@@ -496,7 +505,7 @@ The owner settled the earlier list on 2026-11-15 (decision D55 holds every answe
 4. **Helper agents:** before each use the builder states the purpose and an estimated cost and waits for the owner's yes (D55). The sixth red-team review ran with the owner's yes of 2026-11-15 (D61); its three reviewers used about 0.9 million tokens.
 5. **Choices of the builder that are open to the owner's veto:** the limit of 100 own Directions and the grade "expert opinion" for every craft rule (D61, points 5 and 6); the Brief's limits, its three texts that cannot be emptied, and the other points of D62.
 6. **Open findings that need the owner's judgment:** the four notes of the Brief's layout look (B17-03). (The other five that this item listed until 2026-11-16, U6-11, U6-22, U6-23, U6-24, and T6-09, were settled by decision D63 and built in features F028 and F019; finding T8-04.)
-7. (Answered on 2026-11-17, decision D74: step 12 stays in M7; the defined term "Floor" names the five Floors.)
+7. (Answered on 2026-11-17, decision D75: step 12 stays in M7; the defined term "Floor" names the five Floors.)
 
 Earlier cost reports, for the record (no decision needed): third review about 595,000 tokens; nine-reviewer code review about 1.84 million; retest round about 0.74 million; round 3 about 0.75 million (0.33 million measured); the unit of 2026-11-14 about 3.2 million in helpers.
 
