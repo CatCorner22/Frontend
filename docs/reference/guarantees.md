@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.22. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Prescription); it does not cover design advice or the plan.
+Version 1.23. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Prescription, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Prescription); it does not cover design advice or the plan.
 
 Stale-after: 90
 
@@ -129,6 +129,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [65.10 One archive file holds the seven files, each letter for letter](#6510-one-archive-file-holds-the-seven-files-each-letter-for-letter)
   - [65.13 Every Floor requirement is a complete, sourced, honest record](#6513-every-floor-requirement-is-a-complete-sourced-honest-record)
   - [65.14 PRESCRIPTION.md writes the Floors, and the one for people with disabilities only with "Fix for me"](#6514-prescriptionmd-writes-the-floors-and-the-one-for-people-with-disabilities-only-with-fix-for-me)
+  - [65.15 The book of Directions matches the Catalog, and no built-in Direction leaves it](#6515-the-book-of-directions-matches-the-catalog-and-no-built-in-direction-leaves-it)
   - [65.12 FONTS.md states each font file's real weight range](#6512-fontsmd-states-each-font-files-real-weight-range)
   - [65.11 DESIGN.md claims no measurement that did not happen](#6511-designmd-claims-no-measurement-that-did-not-happen)
 - [66 The Fit check (measuring a build against the Prescription)](#66-the-fit-check-measuring-a-build-against-the-prescription)
@@ -836,6 +837,15 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Exceptions.** The stored copies of build trials 001 and 002 were made before the Floors; their test checks that the six other files are equal and that today's `PRESCRIPTION.md` holds every stored line in order, except three lines that the Floors replaced. Trial 003's helper received the first draft of the Floors, not today's.
 - Last verified: 2026-11-16
 
+### [65.15] The book of Directions matches the Catalog, and no built-in Direction leaves it
+
+<!-- index: book of Directions | directions.md; design settings; tokens.css; Skins; kept Directions -->
+
+- **Rule.** `docs/reference/directions.md` describes each built-in Direction in code: its mood, best uses, risk, and sources; its design settings as JSON; the full `tokens.css` that a new project from it gets; and the main colors of each of its Skins. The core writes it from the Catalog, and the stored file equals what the core writes today. Each of the 38 built-in Directions of 2026-11-17 stays in the Catalog. The file says that the owner's own Directions are not in it and names the buttons that save and reopen them. [S21; S1 at D74]
+- **Test.** The eight tests of "the book of Directions". Checked by hand on 2026-11-17: a changed corner radius in Galactic Goth fails the stored-file test, and removing Galactic Goth fails the keep test and names it. [S21]
+- **Exceptions.** The owner's own Directions live in the browser and are not in the file. A new built-in Direction joins the file when `npm run directions` writes it again; the keep test names only the 38.
+- Last verified: 2026-11-17
+
 ### [65.12] FONTS.md states each font file's real weight range
 
 <!-- index: font weight range | FONTS.md @font-face -->
@@ -998,6 +1008,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-17 v1.23: after the book of Directions (feature F033, decision D74): added §65.15. 85 guarantees.
 - 2026-11-16 v1.22: after the join of the two branches (decision D73): §66.06 states the new default (scripts run, the page is read from a world of its own, `--no-scripts` stops them); §55.01 follows the cleaning of loaded files of both sides. 84 guarantees.
 - 2026-11-16 v1.21: after the reviewer's findings on the Floors (feature F032): §65.13 states 56 requirements (20, 11, 5, 10, 10); the section says where to set a host requirement and that `mockup.html` is a reference only; §66.04 covers the third build trial; the receipt's contrast note no longer says that the Prescription holds no Floors. 84 guarantees.
 - 2026-11-16 v1.20: after the Floors (feature F032, decision D69): added §65.13 and §65.14. 84 guarantees.
@@ -1043,11 +1054,12 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 - [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
 - [S20] The builder, *Unit tests of the Floors*, file `packages/core/test/floors.test.ts` (2026-11-16). Accessed 2026-11-16. Grade: A.
+- [S21] The builder, *Unit tests of the book of Directions*, file `packages/core/test/directionsBook.test.ts` (2026-11-17). Accessed 2026-11-17. Grade: A.
 
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §55.06, §55.07, §60.01, §60.03, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.07, §65.09, §65.13, §65.14, §65.12, §65.11, §66.01, §66.04, §66.05, §66.06, §66.07, §66.08, §70.02, §70.03
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §55.06, §55.07, §60.01, §60.03, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.07, §65.09, §65.13, §65.14, §65.15, §65.12, §65.11, §66.01, §66.04, §66.05, §66.06, §66.07, §66.08, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08, §55.07
 - [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §55.06, §60.01, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.06, §65.10, §65.14, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
@@ -1066,6 +1078,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S18] The builder, *Browser tests of the Fit check*, file `plugin/fit/e2e/fit.e2e.ts` (2026-11-16) — §66.01, §66.02, §66.03, §66.06, §66.07, §66.08
 - [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16) — §66.04, §66.05
 - [S20] The builder, *Unit tests of the Floors*, file `packages/core/test/floors.test.ts` (2026-11-16) — §65.13, §65.14
+- [S21] The builder, *Unit tests of the book of Directions*, file `packages/core/test/directionsBook.test.ts`… — §65.15
 <!-- authorities:end -->
 
 ## [92] Index
@@ -1090,6 +1103,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - backup — *see* kept copy
 - baseline — *see* stored picture
 - bloated project — *see* unknown values in a file of own Directions
+- **book of Directions** — §65.15
 - boundary — *see* core
 - bounded size — *see* receipt lines
 - Brief — *see* your content
@@ -1127,10 +1141,12 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - dead proxy — *see* hostile page
 - **Decision** — §50.01; *see also* project file
 - **dependency** — §70.03
+- design settings — *see* book of Directions
 - design values — *see* Prescription
 - DESIGN.md — *see* FONTS.md
 - **DESIGN.md button pair** — §65.11
 - **Direction** — §50.03
+- directions.md — *see* book of Directions
 - does not hold — *see* research rule
 - **double click** — §60.08
 - download — *see* project file
@@ -1207,6 +1223,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **K**
 
 - **kept copy** — §10.02, §10.03; *see also* saving
+- kept Directions — *see* book of Directions
 
 **L**
 
@@ -1358,6 +1375,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - set aside — *see* craft rule
 - side by side — *see* comparison run
 - **Skin** — §50.07; *see also* Direction
+- Skins — *see* book of Directions
 - slider end — *see* rejected Options
 - slow opening — *see* opening while another tab saves
 - slow page database — *see* opening
@@ -1390,6 +1408,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - theme.css — *see* FONTS.md
 - **three answers** — §55.04
 - three parts — *see* honest receipt
+- tokens.css — *see* book of Directions
 - tooltip — *see* Overlay
 - tracking — *see* outside request
 - trade word — *see* plain words
@@ -1440,7 +1459,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_104 sections, 19 sources, 82 index terms. Cadence: 90 days. Generated content last changed 2026-11-16._
+_105 sections, 20 sources, 83 index terms. Cadence: 90 days. Generated content last changed 2026-11-17._
 
 - No findings.
 <!-- health:end -->

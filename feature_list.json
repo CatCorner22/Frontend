@@ -375,6 +375,18 @@
         "The Summary says what the Prescription holds and no longer says that the Floors are missing"
       ],
       "passes": true
+    },
+    {
+      "id": "F033",
+      "description": "The owner opens docs/reference/directions.md and reads every built-in Direction in code: its mood, its design settings, every design value of its tokens.css, and the main colors of each of its Skins; the file always matches the Studio, and no Direction can leave the Catalog without a test failing.",
+      "spec_section": "SPEC.md section 2.20",
+      "steps": [
+        "Open docs/reference/directions.md: it lists the 38 built-in Directions under their four groups, with Galactic Goth under \"Dark and dramatic\"",
+        "Under Galactic Goth, read its design settings as JSON and its colors, typefaces, sizes, and spacing as the CSS custom properties of tokens.css, and a table of the main colors of each of its five Skins",
+        "Change a Direction's value in the Catalog without running npm run directions: npm run check fails, because the stored file no longer matches",
+        "Remove one of the 38 Directions from the Catalog: npm run check fails and names it"
+      ],
+      "passes": true
     }
   ]
 }
