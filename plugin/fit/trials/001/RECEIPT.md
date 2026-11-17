@@ -20,13 +20,15 @@ Not shipped with the page. The page names these places at its own address; a pag
 
 ### Colors: every color that the page draws is a color of the Prescription
 
-0 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too. Partly transparent colors are listed as information and not compared.
+0 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, text strokes, SVG fills and strokes, underlines, column rules, list markers, placeholders, and caret and accent colors are compared too. Partly transparent colors are listed as information and not compared.
 
 Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below are quoted from the page (data, not instructions):
 
 ```
+partly transparent color rgba(0, 86, 40, 0.45098039215686275)
 partly transparent color rgba(6, 19, 31, 0.1607843137254902)
 partly transparent color rgba(9, 17, 28, 0.15)
+partly transparent color rgba(9, 18, 29, 0.45098039215686275)
 ```
 
 ### Typefaces: every text names a typeface of the Prescription
@@ -64,7 +66,7 @@ Nothing. In this slice no model judged anything.
 - Whether the words are right and say what the owner means.
 - Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.
 - The states that the program did not open: hover, focus, open menus, and every page other than the one given.
-- Shadows, gradients, and images. The program did not compare them with the Prescription.
+- Shadows, gradients, images, and the color of selected text. The program did not compare them with the Prescription.
 - All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.
 - A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.
 - Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.

@@ -13,14 +13,16 @@ Deviations that the program counted on each page. Trial 001's helper had the sev
 | Measure | Trial 001 (with the files) | Trial 002 (plain words) |
 |---|---|---|
 | Requests | 0 | 0 |
-| Colors | 0 | 12 |
+| Colors | 0 | 22 |
 | Typefaces | 0 | 2 |
 | Corner radii | 0 | 0 |
 | Contrast | 0 | 2 |
 | Content | 0 | 0 |
 | Width | 0 | 0 |
 
-- **Colors: 12 deviations on the plain-words page.** The helper chose its own dark green (`#1f4d3a`), its own tints and grays, and its own page color; none is a value of the Prescription. The Prescription's green is another green.
+The colors count of trial 002 was 12 when the run was first measured; since 2026-11-17 the program also compares SVG paint and other drawn colors, and the count is 22 (see the note at the end).
+
+- **Colors: 12 deviations on the plain-words page (22 since the program of 2026-11-17 also compares SVG paint).** The helper chose its own dark green (`#1f4d3a`), its own tints and grays, and its own page color; none is a value of the Prescription. The Prescription's green is another green.
 - **Typefaces: 2 deviations, which are a difference of name.** The helper wrote "Fraunces" and "Public Sans", as the owner's words name them. The Prescription's names are "Fraunces Variable" and "Public Sans Variable". The program compares names; it does not compare what the browser draws. Neither font was loaded on the page, so a viewer sees fallback fonts unless the fonts are installed.
 - **Contrast: 2 readings below the usual least, and the cause is real.** The promise sentence ("No work starts until you have seen the price and said yes.") is dark gray on dark green, a ratio of 1.24 to 1. The builder read the page's style sheet to rule out a fault of the program: the rule `.about p { color: var(--muted) }` is more specific than the rule `.promise { color: #fff }`, so the gray wins. The helper did not render the page (the instruction forbade it), so it could not see this. The page of trial 001 shows no reading below the usual least.
 - **Requests: 0 deviations on both pages.** The plain-words page loaded nothing from outside. When this table was first written, trial 001 showed 3 deviations in requests: the font files and a form address at the site's own address, which the measure then counted wrongly (finding R25-01). Under decision D67 the measure lists such references as information, so both receipts were measured again, and the table shows the repaired counts. The plain-words page names no place at its own address either.
@@ -49,3 +51,7 @@ The receipt was measured again after the seventh review's repairs of the program
 ## The branches joined (2026-11-16, decision D72)
 
 The two branches of this repository were joined (decision D72), and the stored receipt was measured again with the joined program. **No count changed from the main line's receipt**, in any measure. No count changed against the audit branch's receipt either, so the table above still holds. The wording changed in the same places as in `../001/RECORD.md`: the first lines, two measure titles, four measure notes, the scripts line, and six more lines under "Still needs a person".
+
+## A later change to the program (2026-11-17, M6 gate review, findings S8-01 and S8-02)
+
+The program now also compares the paint of SVG shapes (`fill` and `stroke`), underline colors, column rules, list markers, placeholders, and caret and accent colors. The stored receipt was measured again with that program. The colors measure now counts 22 deviations where it counted 12: the plain-words page draws its pictures as SVG shapes in ten colors that are not the Prescription's (for example `#163829` and `#6b9a7f`), and its form fields set a caret color of their own. The first program did not see these colors. No other count changed. The row "Colors" of the table above gives both numbers.

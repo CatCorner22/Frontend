@@ -78,7 +78,7 @@ const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'obj
 const str = (v: unknown): string => (typeof v === 'string' ? v : '');
 const num = (v: unknown, fallback = 0): number => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
 const strings = (v: unknown, max = ELEMENTS_MAX): string[] => (Array.isArray(v) ? v.slice(0, max).map((x) => str(x).slice(0, 5000)) : []);
-const DRAWN_KINDS = new Set(['text', 'text fill', 'background', 'border', 'outline', 'text stroke']);
+const DRAWN_KINDS = new Set(['text', 'text fill', 'background', 'border', 'outline', 'text stroke', 'svg fill', 'svg stroke', 'underline', 'column rule', 'marker', 'placeholder', 'caret', 'accent']);
 
 /** What the page returned, checked for type and size: the reading runs in a world of its own, and this is a second guard (main line, finding X7). */
 function checked(raw: unknown): Collected {
@@ -452,7 +452,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     ...(p.collected.cutOff.length > 0 ? [{ key: `${count(p.collected.cutOff.length)} reach past the window's edge and are cut off, first ${clean(p.collected.cutOff[0] ?? '')}`, width: p.width, label: p.label }] : []),
   ]), readingsAt).map((line) => line.text);
 
-  const colorNote = `A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'is' : 'are'} counted as not measured.` : ''} Partly transparent colors are listed as information and not compared.`;
+  const colorNote = `A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, text strokes, SVG fills and strokes, underlines, column rules, list markers, placeholders, and caret and accent colors are compared too.${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'is' : 'are'} counted as not measured.` : ''} Partly transparent colors are listed as information and not compared.`;
   const whyUnread = [...reasons].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([why, n]) => `${String(n)} because ${why}`).join('; ');
   const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.${unreadAt.size > 0 ? ` ${String(unreadAt.size)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => clean(e))))].sort().slice(0, ERRORS_LISTED);

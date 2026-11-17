@@ -9,7 +9,7 @@ export interface Reference {
   address: string;
 }
 export interface Drawn {
-  kind: 'text' | 'text fill' | 'background' | 'border' | 'outline' | 'text stroke';
+  kind: 'text' | 'text fill' | 'background' | 'border' | 'outline' | 'text stroke' | 'svg fill' | 'svg stroke' | 'underline' | 'column rule' | 'marker' | 'placeholder' | 'caret' | 'accent';
   css: string;
   where: string;
 }
@@ -176,6 +176,7 @@ export function collect(): Collected {
   const radii: Collected['radii'] = [];
   const texts: TextRead[] = [];
   const skip = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT', 'HEAD', 'TITLE', 'META', 'LINK', 'BASE']);
+  const SHAPES = new Set(['rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path', 'text', 'tspan', 'textPath']);
   const corners = ['borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius'] as const;
   const sides = [['borderTopWidth', 'borderTopStyle', 'borderTopColor'], ['borderRightWidth', 'borderRightStyle', 'borderRightColor'], ['borderBottomWidth', 'borderBottomStyle', 'borderBottomColor'], ['borderLeftWidth', 'borderLeftStyle', 'borderLeftColor']] as const;
 
@@ -261,6 +262,18 @@ export function collect(): Collected {
         if (ps.color !== cs.color || ps.webkitTextFillColor !== cs.webkitTextFillColor || ps.fontFamily !== cs.fontFamily || ps.backgroundColor !== 'rgba(0, 0, 0, 0)' || ps.borderTopStyle !== 'none') box(ps, `${label}${pseudo}`, true, recolored, false);
       }
     }
+    // Other paint that the page draws (M6 gate review, findings S8-01 and S8-02). An SVG shape paints with fill and stroke, not with
+    // color; a fill of "url(...)" (a gradient or a pattern) is passed on unconverted, so the receipt counts it as not measured.
+    if (el.namespaceURI === 'http://www.w3.org/2000/svg' && SHAPES.has(el.localName)) {
+      if (el.localName !== 'line' && cs.fill !== 'none' && Number.parseFloat(cs.fillOpacity) > 0) add('svg fill', rgbOf(cs.fill), label, recolored);
+      if (cs.stroke !== 'none' && Number.parseFloat(cs.strokeWidth) > 0 && Number.parseFloat(cs.strokeOpacity) > 0) add('svg stroke', rgbOf(cs.stroke), label, recolored);
+    }
+    if (cs.textDecorationLine !== 'none' && (el.textContent ?? '').trim() !== '') add('underline', rgbOf(cs.textDecorationColor), label, recolored);
+    if (cs.columnRuleStyle !== 'none' && cs.columnRuleStyle !== 'hidden' && Number.parseFloat(cs.columnRuleWidth) > 0 && (cs.columnCount !== 'auto' || cs.columnWidth !== 'auto')) add('column rule', rgbOf(cs.columnRuleColor), label, recolored);
+    if (cs.display === 'list-item' && cs.listStyleType !== 'none') add('marker', rgbOf(getComputedStyle(el, '::marker').color), label, recolored);
+    if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && (el.getAttribute('placeholder') ?? '') !== '') add('placeholder', rgbOf(getComputedStyle(el, '::placeholder').color), label, recolored);
+    if (cs.caretColor !== 'auto' && (['INPUT', 'TEXTAREA'].includes(el.tagName) || (el as HTMLElement).isContentEditable)) add('caret', rgbOf(cs.caretColor), label, recolored);
+    if (cs.accentColor !== 'auto' && ['INPUT', 'PROGRESS', 'METER'].includes(el.tagName)) add('accent', rgbOf(cs.accentColor), label, recolored);
     if (hasText || ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'IMG'].includes(el.tagName)) {
       const r = el.getBoundingClientRect();
       if (r.width > 0 && (r.right > viewWidth + 1 || (r.left < -1 && r.right > 1)) && !clippedOnPurpose(el)) cutOff.push(label);

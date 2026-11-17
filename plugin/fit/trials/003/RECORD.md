@@ -45,3 +45,7 @@ What the helper said about itself (its report, which is a claim and not a measur
 ## The branches joined (2026-11-16, decision D72)
 
 The two branches of this repository were joined (decision D72), and the stored receipt was measured again with the joined program. **No count changed from the main line's receipt**, in any measure. The wording changed in the same places as in `../001/RECORD.md`: the first lines, two measure titles, four measure notes, and six more lines under "Still needs a person"; the page's two font files at `/page/fonts/…` are now listed as requests to the site's own address (stopped, information, not deviations).
+
+## A later change to the program (2026-11-17, M6 gate review, findings S8-01 and S8-02)
+
+The program now also compares the paint of SVG shapes, underline colors, column rules, list markers, placeholders, and caret and accent colors. The stored receipt was measured again with that program. No count changed. The colors measure lists two more partly transparent colors as information, the colors of the page's underlines, and its note names the newly compared kinds; "Still needs a person" now names the color of selected text.

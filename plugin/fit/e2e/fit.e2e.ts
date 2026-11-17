@@ -996,3 +996,52 @@ describe('Fit check: the command line', () => {
     expect(() => execFileSync('test', ['-e', join(folder, 'out-none', 'RECEIPT.md')])).toThrow();
   });
 });
+
+describe('Fit check: every color that the page draws, SVG paint included (M6 gate review, findings S8-01 and S8-02)', () => {
+  const files = filesOf(createProject('Drawn colors'));
+  const mockup = files['mockup.html'] ?? '';
+  const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
+  const withBody = (html: string): string => replaceOnce(open, '</body>', `${html}</body>`);
+  const run = (html: string) => fit(inputOf(files, html));
+
+  it('compares the fill and the stroke of an inline SVG, and counts a gradient fill as not measured (S8-01)', async () => {
+    for (const [name, html, color] of [
+      ['fill', '<svg width="40" height="40"><rect width="40" height="40" fill="#ff0000"/></svg>', '#ff0000'],
+      ['stroke', '<svg width="40" height="40"><circle cx="20" cy="20" r="10" fill="none" stroke="#00ff00" stroke-width="4"/></svg>', '#00ff00'],
+      ['style sheet', '<style>.mark path { fill: #0000ff; }</style><svg class="mark" width="40" height="40"><path d="M0 0H40V40H0Z"/></svg>', '#0000ff'],
+    ] as const) {
+      const { receipt, status } = await run(withBody(html));
+      expect(measure(receipt, 'colors').items.join('\n'), name).toContain(color);
+      expect(status, name).toBe(1);
+    }
+    const gradient = await run(withBody('<svg width="40" height="40"><defs><linearGradient id="g"><stop offset="0" stop-color="#ff0000"/></linearGradient></defs><rect width="40" height="40" fill="url(#g)"/></svg>'));
+    expect(measure(gradient.receipt, 'colors').notMeasured).toBeGreaterThan(0);
+    expect(gradient.status).toBe(1);
+  });
+
+  it('leaves out an SVG shape that paints nothing: no fill, no stroke, or a fill of opacity 0', async () => {
+    const { receipt } = await run(withBody('<svg width="40" height="40"><rect width="40" height="40" fill="none"/><rect width="40" height="40" fill="#ff0000" fill-opacity="0"/><line x1="0" y1="0" x2="40" y2="40"/></svg>'));
+    expect(measure(receipt, 'colors').items.join('\n')).not.toContain('#ff0000');
+    expect(measure(receipt, 'colors').items.join('\n')).not.toMatch(/svg (fill|stroke) #000000/);
+  });
+
+  it('compares an underline color, a column rule, a list marker, a placeholder, and caret and accent colors (S8-02)', async () => {
+    for (const [name, html, color] of [
+      ['underline', '<p><a href="#a" style="text-decoration: underline; text-decoration-color: #ff0000">Link</a></p>', '#ff0000'],
+      ['column rule', '<div style="columns: 2; column-rule: 2px solid #ff0001"><p>One</p><p>Two</p></div>', '#ff0001'],
+      ['marker', '<style>li::marker { color: #ff0002; }</style><ul><li>Item</li></ul>', '#ff0002'],
+      ['placeholder', '<style>input::placeholder { color: #ff0003; }</style><input placeholder="Your name">', '#ff0003'],
+      ['caret', '<input style="caret-color: #ff0004">', '#ff0004'],
+      ['accent', '<input type="checkbox" style="accent-color: #ff0005">', '#ff0005'],
+    ] as const) {
+      const { receipt, status } = await run(withBody(html));
+      expect(measure(receipt, 'colors').items.join('\n'), name).toContain(color);
+      expect(status, name).toBe(1);
+    }
+  });
+
+  it('names in the receipt the colors that it does not compare: shadows, gradients, images, and the color of selected text', async () => {
+    const { markdown } = await run(open);
+    expect(markdown).toMatch(/selected text/);
+  });
+});

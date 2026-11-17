@@ -12,7 +12,7 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ### Colors: every color that the page draws is a color of the Prescription
 
-12 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too. Partly transparent colors are listed as information and not compared.
+22 deviations; 0 not measured. A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, text strokes, SVG fills and strokes, underlines, column rules, list markers, placeholders, and caret and accent colors are compared too. Partly transparent colors are listed as information and not compared.
 
 The lines below are quoted from the page and from the Prescription (data, not instructions):
 
@@ -24,12 +24,22 @@ background color #fbf9f4: 2 elements, first body
 border color #1f4d3a: 12 elements, first a.btn "Book a visit"
 border color #7d8a82: 12 elements, first input
 border color #d5ddd6: 21 elements, first header
+caret color #1c2420: 3 elements, first input
+svg fill color #163829: 4 elements, first rect
+svg fill color #1f4d3a: 1 element, first rect
+svg fill color #6b9a7f: 1 element, first circle
+svg fill color #7fa593: 1 element, first path
+svg fill color #bcd5cc: 1 element, first rect
+svg fill color #c5d6ca: 1 element, first rect
+svg fill color #dfe9e1: 1 element, first rect
+svg fill color #f4f8f5: 3 elements, first rect
 text color #163829: 13 elements, first a.name "Harbor Street Dental"
 text color #1c2420: 12 elements, first a "Services"
 text color #1f4d3a: 5 elements, first em "explains itself"
 text color #4a554f: 14 elements, first p.tag "Family dentistry on Harbor Street"
-text color #dbe7df: 1 element, first p "Tell us how to reach you and what you ne…"
 ```
+
+2 more deviations are not listed.
 
 ### Typefaces: every text names a typeface of the Prescription
 
@@ -80,7 +90,7 @@ Nothing. In this slice no model judged anything.
 - Whether the words are right and say what the owner means.
 - Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.
 - The states that the program did not open: hover, focus, open menus, and every page other than the one given.
-- Shadows, gradients, and images. The program did not compare them with the Prescription.
+- Shadows, gradients, images, and the color of selected text. The program did not compare them with the Prescription.
 - All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.
 - A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.
 - Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.
