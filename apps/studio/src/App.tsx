@@ -45,9 +45,11 @@ const SAVE_LABEL: Record<StudioState['saved'], string> = {
   held: 'Not saving: see the notice at the top of the page',
 };
 const PROFILE_MEANING: Record<A11yProfile, string> = {
-  off: 'Off: no contrast notes are shown.',
-  advise: 'Warn me: the Studio notes colors that are hard to tell apart, and changes nothing.',
-  enforce: 'Fix for me: the Studio adjusts colors that are hard to tell apart, and lists each change.',
+  // The setting also decides whether the Prescription holds the requirements for people with disabilities (D13), and the
+  // switch says so where the owner chooses (M6 gate review, finding U8-03).
+  off: 'Off: no contrast notes are shown, and the Prescription leaves out the requirements for people with disabilities.',
+  advise: 'Warn me: the Studio notes colors that are hard to tell apart, and changes nothing. The Prescription leaves out the requirements for people with disabilities; choose “Fix for me” to include them.',
+  enforce: 'Fix for me: the Studio adjusts colors that are hard to tell apart, and lists each change. The Prescription includes the requirements for people with disabilities.',
 };
 const HUE_NAMES: [number, string][] = [[25, 'red'], [55, 'orange'], [95, 'yellow'], [140, 'green'], [195, 'teal'], [258, 'blue'], [298, 'violet'], [345, 'pink']];
 const hueName = (hue: number): string => HUE_NAMES.reduce((best, entry) => (Math.min(Math.abs(hue - entry[0]), 360 - Math.abs(hue - entry[0])) < Math.min(Math.abs(hue - best[0]), 360 - Math.abs(hue - best[0])) ? entry : best))[1];
@@ -761,7 +763,8 @@ function StepsView(): React.JSX.Element {
                 <p>Contrast is how far apart two colors are in lightness, as a ratio. 1 to 1 means no difference; 21 to 1 is black on white. Reading text is usually easy to read from 4.5 to 1 upward.</p>
                 <ul>{large.issues.map((i) => <li key={i.id}>{describeIssue(i)}</li>)}</ul>
                 {s.project.a11y === 'advise' && <p>To fix a note, pick a darker or lighter color on the Step that sets it, or set “Contrast checks” to “Fix for me”.</p>}
-                <p>The Studio does not check: {NOT_CHECKED.map((line) => line.replace(/\.$/, '')).join('; ').toLowerCase()}.</p>
+                <p>The Studio does not check:</p>
+                <ul>{NOT_CHECKED.map((line) => <li key={line}>{line}</li>)}</ul>
               </details>
             )}
           </div>
@@ -981,6 +984,9 @@ const LIST_WORDS: Record<ContentList, { one: string; many: string; region: Mocku
  * signs, cut at the limit). When the owner leaves the field, or when the project changes from elsewhere (Undo, an opened
  * file, "Put the sample text back"), the field shows what the project holds.
  */
+/** A field this long or longer shows how much of it is used, so that the owner sees the limit before the cut (M6 gate, U8-05). */
+const LONG_FIELD = 100;
+
 function ContentField({ id, label, value, max, required = false, onSave, onFocus }: { id: string; label: string; value: string; max: number; required?: boolean; onSave: (text: string) => void; onFocus?: () => void }): React.JSX.Element {
   const [text, setText] = useState(value);
   const field = useRef<HTMLInputElement | null>(null);
@@ -992,7 +998,8 @@ function ContentField({ id, label, value, max, required = false, onSave, onFocus
       <label htmlFor={id}>{label}</label>
       <input ref={field} id={id} className="name" type="text" value={text} maxLength={max} autoComplete="off" onFocus={onFocus} onChange={(e) => { setText(e.target.value); onSave(e.target.value); }} onBlur={() => setText(value)} />
       {required && text.trim() === '' && <p className="note" role="status">The page needs this text. The last one stays in place until you type a new one.</p>}
-      {text.length >= max && <p className="note field-full" role="status">This field is full: it holds {max} characters, and anything beyond that was left out.</p>}
+      {text.length >= max ? <p className="note field-full" role="status">This field is full: it holds {max} characters, and anything beyond that was left out.</p>
+        : max >= LONG_FIELD && <p className="hint field-count">{text.length} of {max} characters</p>}
     </div>
   );
 }
@@ -1390,7 +1397,7 @@ function SummaryView(): React.JSX.Element {
           You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s)}; a Step you have not decided keeps the value it started with.
         </p>
         <p className="teach">
-          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Prescription: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Prescription” lists as left out. A program that measures a built page against the Prescription exists as a command in the repository (`npm run fit`); it is not part of this Studio yet.
+          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Prescription: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Prescription” lists as left out. A program that measures a built page against the Prescription (the Fit check) exists, but only as a tool for someone who works in this Studio’s code; it is not part of these screens yet, and you need not do anything about it. <strong>Before you build:</strong> the page’s contact form sends nothing by itself. A page of files cannot receive messages, so someone must set up a place that receives them (a form service, or a small program at your host) before the form works; the Prescription tells the AI coding tool to say so in its report.
         </p>
         <p><button type="button" className="btn small" onClick={() => document.getElementById('prescription')?.scrollIntoView({ block: 'start' })}>Show me the Prescription</button></p>
         <p className="teach">{contentStatus(s.project.content, false)} To change the texts and your three answers about the project, open <a href="#content">Your content</a>.</p>
@@ -1474,7 +1481,7 @@ function SummaryView(): React.JSX.Element {
         </section>
         <section id="craft" aria-labelledby="craft-heading">
           <h2 id="craft-heading">Fine details the Studio adds by itself</h2>
-          <p className="hint">A page made with care differs from an ordinary one in small things that nobody asks for. You do not choose these: every design has them, except where one of your Steps sets a detail aside (the list then says so). The preview already draws them, and the Prescription asks the AI coding tool that builds your page for each one. Open a detail to read what it is and how strong the guidance behind it is. The Studio knows three strengths, from strong to weak: measured in studies that were read; long-standing convention; expert opinion. Every detail in this list is expert opinion.</p>
+          <p className="hint">A page made with care differs from an ordinary one in small things that nobody asks for. You do not choose these: every design has them, except where one of your Steps sets a detail aside (the list then says so). The preview already draws them, and the Prescription asks the AI coding tool that builds your page for each one. Open a detail to read what it is and how strong the guidance behind it is. The Studio knows three strengths, from strong to weak: measured in studies that were read; long-standing convention; expert opinion. Every detail in this list is expert opinion at best{craft.some((line) => line.ownJudgment) ? `; ${String(craft.filter((line) => line.ownJudgment).length)} of them rest only on the judgment of the assistant that wrote this Studio, and each of those says so when you open it` : ''}.</p>
           <ul className="craft-list">
             {craft.map(({ rule, now, aside, ownJudgment }) => (
               <li key={rule.id}>
@@ -1528,7 +1535,8 @@ function SummaryView(): React.JSX.Element {
               <>
                 <p>Contrast notes ({s.project.a11y === 'enforce' ? 'adjusted for you' : 'advice; nothing was changed'}). Contrast is how far apart two colors are in lightness, as a ratio; reading text is usually easy to read from 4.5 to 1 upward.</p>
                 <ul>{html.issues.map((i) => <li key={i.id}>{describeIssue(i)}</li>)}</ul>
-                <p>The Studio does not check: {NOT_CHECKED.map((line) => line.replace(/\.$/, '')).join('; ').toLowerCase()}.</p>
+                <p>The Studio does not check:</p>
+                <ul>{NOT_CHECKED.map((line) => <li key={line}>{line}</li>)}</ul>
               </>
             )}
           </section>

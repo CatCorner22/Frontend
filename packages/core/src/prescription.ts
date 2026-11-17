@@ -255,11 +255,14 @@ function floorsPart(project: Project): string[] {
   out.push('A Floor is a requirement that stands whatever the design is. Build to each requirement below. Each one says what to build, what a person must still check, and where its source stands. A requirement states what to build and what to check; it does not say that your page will meet any standard. The Studio keeps the review date of each requirement in its Catalog; this file carries no date.', '');
   out.push('`mockup.html` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines, and the address `http://www.w3.org/2000/svg` inside its inline pictures (a name only; nothing loads from it). Where `mockup.html` and a requirement below differ, the requirement decides.', '');
   out.push('No program checks any requirement of this section yet. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.', '');
+  // Who does each part (M6 gate review, finding U8-04): the owner is not a programmer, and the file must not leave that unsaid.
+  out.push('Who does what. You, the AI coding tool, build each requirement. “A person must still check” names a check for a person: the owner, or someone the owner asks, such as the person who runs the site’s host. Several of these checks need a developer’s tools (the browser’s console or its network panel) or the host’s settings, and the owner may not know them; say in your report, in plain words, which checks the owner will need help with.', '');
+  out.push('The letters and numbers of the requirements are those of the research records. A gap in the numbers is a requirement of the research records that this file leaves out on purpose (decision D69), not a lost one.', '');
   FLOORS.forEach((floor, index) => {
     out.push(`### 7.${String(index + 1)} ${floor.name}`, '', floor.what, '');
     if (floor.id === 'host') out.push('Do not try to send these in the page. Write them down for the owner, as a list of settings to make at the host. Then say in your report that you did not and could not set them.', '');
     if (floor.id === 'people' && project.a11y !== 'enforce') {
-      out.push(`Not written for this project: Contrast checks is ${project.a11y === 'off' ? '“Off”' : '“Warn me”'}, and this Floor is written only when it is “Fix for me” (decision D13). The owner can choose “Fix for me” in the Studio and download this file again. Some requirements of the Floor for search (section 7.4) serve the same people, and they are written all the same. Nothing here says that the page meets or fails these requirements: no program looked.`, '');
+      out.push(`Not written for this project: Contrast checks is ${project.a11y === 'off' ? '“Off”' : '“Warn me”'}, and this Floor is written only when it is “Fix for me” (the owner’s choice in the Studio, decision D13; the Studio’s switch says so). The owner can choose “Fix for me” in the Studio and download this file again. Some requirements of the Floor for search (section 7.4) serve the same people, and they are written all the same. Nothing here says that the page meets or fails these requirements: no program looked.`, '');
       return;
     }
     for (const rule of floorRules(floor.id)) out.push(...floorLines(rule));
@@ -343,7 +346,7 @@ export function prescriptionMd(project: Project, context: PrescriptionContext = 
   if (overlays.length === 0) out.push('None is switched on. Add none.', '');
   else {
     for (const overlay of overlays) out.push(`- **${overlay.name}.** ${overlay.what}`);
-    out.push('', '`mockup.html` shows each one open, as a still picture, in a last part of the page under the contact form. That part is a picture for you; it is no section of the site, so do not build it as one. How each Overlay opens, closes, and behaves with a keyboard is not specified in this first part (section 7): follow the established pattern for each and say which you used.', '');
+    out.push('', '`mockup.html` shows each one open, as a still picture, in a last part of the page under the contact form. That part is a picture for you; it is no section of the site, so do not build it as one. How each Overlay opens, closes, and behaves with a keyboard is not specified in this first part (section 8): follow the established pattern for each and say which you used.', '');
   }
 
   out.push('## 4. Fine details (craft rules)', '');
@@ -386,7 +389,7 @@ export function prescriptionMd(project: Project, context: PrescriptionContext = 
   out.push(...floorsPart(project));
 
   out.push('## 8. What this file leaves out', '');
-  out.push('- Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. The owner decides.');
+  out.push('- Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. It stays out until a later version (decision D70); do not add it.');
   out.push('- A program that checks the Floors. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width; it measures no requirement of section 7.');
   out.push('- How an Overlay opens, closes, and behaves with a keyboard or a screen reader.');
   if (sample) out.push('- The owner’s real content: `mockup.html` shows a sample dental practice.');

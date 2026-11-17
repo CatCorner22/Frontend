@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ITEM_LIMITS, SAMPLE_CONTENT, TEXT_LIMITS, applyDirection, createProject, designMd, parseProject, prescriptionMd, sampleTextsLeft, setBriefAnswer,
-  setContentItem, setContentText, setNavWord, type ContentTextKey, type Project,
+  setContentItem, setContentText, setNavWord, setOverlay, OVERLAYS, type ContentTextKey, type Project,
 } from '../src/index.js';
 
 const own = (project: Project): Project => {
@@ -149,3 +149,14 @@ describe('the Brief’s answers keep their own cleaning', () => {
     expect(setBriefAnswer(createProject('x'), 'offer', 'a‮b').brief?.offer).toBe('a b');
   });
 });
+
+describe('the Overlays name no sample text (M6 gate review, finding U8-02)', () => {
+  it('quotes none of the sample’s words in an Overlay, so that the owner’s own button words stand alone', () => {
+    const sample = Object.values(SAMPLE_CONTENT).filter((v): v is string => typeof v === 'string' && v.length > 3);
+    for (const overlay of OVERLAYS) for (const words of sample) expect(overlay.what, `${overlay.id}: ${words}`).not.toContain(words);
+    const own = setOverlay(setContentText(createProject('x'), 'primaryAction', 'Order a cake'), 'sticky-call', true);
+    // PRESCRIPTION.md does not quote the page's texts (mockup.html holds them), so the sample's words must not appear in it at all.
+    expect(prescriptionMd(own)).not.toContain('Book a visit');
+  });
+});
+

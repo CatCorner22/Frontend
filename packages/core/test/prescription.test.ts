@@ -43,6 +43,11 @@ describe('The Prescription, first slice (SPEC.md section 2.6)', () => {
     }
   });
 
+  it('keeps PRESCRIPTION.md as stored under “Fix for me” and under “Off”, so that a change of any Floor’s text is seen and decided (M6 gate, T8-16)', () => {
+    // Under "Fix for me" the file holds all 56 requirements, the 20 of the people Floor among them; under "Off" it holds the other wording.
+    for (const a11y of ['enforce', 'off'] as const) expect(prescriptionMd({ ...worked(), a11y })).toMatchSnapshot(`a worked project, contrast checks ${a11y}: PRESCRIPTION.md`);
+  });
+
   it('holds every design value in tokens.css, and the same value in tokens.json and in mockup.html', () => {
     for (const project of [worked(), plain(), applyDirection(createProject('Dark'), 'midnight-aurora')]) {
       const tokens = deriveTokens(project.params, project.a11y).css;

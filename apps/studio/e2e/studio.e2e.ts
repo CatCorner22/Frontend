@@ -275,6 +275,33 @@ describe('Studio: first screen', () => {
     await context.close();
   });
 
+  it('reads its own text as UTF-8 when the page fragment is opened bare, without the host’s wrapper (M6 gate, finding U8-01)', async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto(new URL('../dist/artifact/refraction-studio.html', import.meta.url).href);
+    await page.waitForSelector('.intro');
+    expect(await page.evaluate(() => document.characterSet)).toBe('UTF-8');
+    expect(await page.locator('.intro').innerText()).not.toMatch(/â€|âœ/);
+    await context.close();
+  });
+
+  it('says at the contrast switch what it decides for the Prescription, and speaks plainly on the Summary (M6 gate, U8-03, U8-04, U8-09, U8-14, U8-15)', async () => {
+    // Sticker Pop starts with contrast notes, so the Summary shows the list of what the Studio does not check.
+    const { context, page } = await open({ hash: '#summary', storage: { [LOCAL_KEY]: envelope(applyDirection(createProject('Plain words'), 'sticker-pop')) } });
+    await page.waitForSelector('.summary');
+    // The switch says, for the default "Warn me", that the Prescription leaves out the requirements for people with disabilities.
+    expect(await page.locator('#a11y-meaning').innerText()).toContain('leaves out the requirements for people with disabilities');
+    const summary = await page.locator('.summary').innerText();
+    expect(summary).not.toContain('npm run fit');
+    expect(summary).toContain('the page’s contact form sends nothing by itself');
+    expect(summary).not.toContain('Every detail in this list is expert opinion.');
+    // Each line of "The Studio does not check" keeps its capital letters: no sentence starts with a small letter.
+    const lines = await page.locator('.summary li').allInnerTexts();
+    expect(lines.some((line) => line.startsWith('Anything a person must judge'))).toBe(true);
+    expect(summary).not.toMatch(/\. [a-z]/);
+    await context.close();
+  });
+
   it('keeps generated Directions while the person moves around, and describes each one in a sentence', async () => {
     const { context, page } = await open();
     await page.getByRole('button', { name: 'Show me six more Directions' }).click();
@@ -2788,6 +2815,18 @@ describe('Studio: a save that another tab replaces in the same moment (finding F
     expect((await stored(page))?.name).toBe('No room');
     await context.close();
   });
+
+  it('saved a moment ago, with no room in storage for the entry of its own: the tab closes as before, and nothing fails', async () => {
+    // The closing case of the test above, which guarantee 10.13 names (M6 gate review, finding T8-14).
+    const { context, page } = await justSaved('No room, closed');
+    expect(await fillStorage(page, 0)).toBe(true);
+    await page.close({ runBeforeUnload: true });
+    const look = await context.newPage();
+    await look.goto(blankUrl.href);
+    expect(await leftEntries(look)).toEqual([]);
+    expect((await stored(look))?.name).toBe('No room, closed');
+    await context.close();
+  });
 });
 
 describe('Studio: the typefaces Playfair and Literata (SPEC.md section 2.2)', () => {
@@ -3598,6 +3637,20 @@ describe('Studio: the screen “Your content” (the Brief; SPEC.md section 2.7)
     await settle(page);
   };
 
+  it('shows how much of a long field is used before the limit cuts, and says so when it is full (M6 gate, finding U8-05)', async () => {
+    const { context, page } = await open({ hash: '#content' });
+    await page.waitForSelector('#content-lede');
+    await type(page, '#content-lede', 'y'.repeat(290));
+    const field = page.locator('.content-field', { has: page.locator('#content-lede') });
+    expect(await field.locator('.field-count').innerText()).toBe('290 of 300 characters');
+    await type(page, '#content-lede', 'y'.repeat(348));
+    expect(await field.locator('.field-full').innerText()).toContain('holds 300 characters');
+    expect(await field.locator('.field-count').count()).toBe(0);
+    // A short field shows no count.
+    expect(await page.locator('.content-field', { has: page.locator('#content-business') }).locator('.field-count').count()).toBe(0);
+    await context.close();
+  });
+
   it('opens from the top bar, takes the owner’s words into the project and the previews, keeps them over a reload, and hands them over in mockup.html', async () => {
     const { context, page, errors, requests } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(worked('My practice')) } });
     await page.waitForSelector('.directions');
@@ -3894,6 +3947,17 @@ describe('Studio: three repairs of taste (SPEC.md section 2.14; findings U6-11, 
     const says = await page.locator('#undo-says').innerText();
     expect(says).toMatch(/^Undo takes back: the whole project goes back to the earlier one, which started from .+\.$/);
     expect(errors).toEqual([]);
+    await context.close();
+  });
+
+  it('names the plain start in the words of its button when the earlier project had no Direction (M6 gate, finding U8-11)', async () => {
+    const { context, page } = await open({ hash: '#directions', storage: { [LOCAL_KEY]: envelope(pick(createProject('Plain'), 'nav', 'side-rail', '2026-11-13T09:00:00.000Z')) } });
+    await page.waitForSelector('.directions');
+    await page.getByRole('button', { name: /Start from/ }).first().click();
+    const confirm = page.getByRole('button', { name: /Start again|Replace|Yes/ }).first();
+    if (await confirm.count()) await confirm.click();
+    await settle(page);
+    expect(await page.locator('#undo-says').innerText()).toBe('Undo takes back: the whole project goes back to the earlier one, which started from the plain start, without a Direction.');
     await context.close();
   });
 });

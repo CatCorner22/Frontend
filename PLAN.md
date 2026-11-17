@@ -32,7 +32,7 @@
 | You need no knowledge of optics | Each Step teaches its concept in plain words | built |
 | Coatings and extras: anti-glare, a case | An **Overlay**: a small helper over the page (a tooltip, an "Are you sure?" question) | built (first set of six) |
 | No lens that harms you is offered | Contrast checks warn or repair, as you choose | built |
-| The written prescription | The **Prescription**: a Markdown prompt plus token files | built: seven files and one archive (2026-11-16); the floors are missing |
+| The written prescription | The **Prescription**: a Markdown prompt plus token files | built: seven files and one archive, and the Floors in `PRESCRIPTION.md` (2026-11-16) |
 | The optician fits the glasses and has you read the chart again | The **Fitter** renders the build, measures it, and repairs | first part built, the Fit check (2026-11-16); the rest not built (M7) |
 
 In your forest terms: a Step is a tree, a design dimension is a species, section 4 maps the forest, and section 9 lists what can go wrong.
@@ -68,7 +68,7 @@ A rule graded C or D is shown as opinion or folklore, never as science.
 | 2 | Steps | 23 Steps in two stages (6 for layout, in gray; 17 for look and feel). On each: compare cards, pick one, fine-tune with sliders, ask for small variations, write a reason, decide later, undo, or put the Step back | built |
 | 3 | Overlays | Switch small helpers on or off; the preview draws each one open, in your design | built |
 | 4 | Summary | Read every Decision back; see the contrast notes and the research rules; download or open a project file; manage kept copies | built |
-| 5 | Export | Receive the Prescription | built: the Summary hands over seven files, singly or as one archive (2026-11-16); the floors are missing |
+| 5 | Export | Receive the Prescription | built: the Summary hands over seven files, singly or as one archive, and `PRESCRIPTION.md` holds the Floors (2026-11-16) |
 
 ### 4.2 Rules that hold at every Step
 1. One variable per Step. Apples to apples.
@@ -184,7 +184,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
 | M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | built on 2026-11-15 (features F003 to F006); its exit test waits for you to make one Direction on the private page. You asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
 | M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52); the craft layer's first twelve craft rules are built (2026-11-15, decisions D58 and D60); the first slice of the Brief is built (2026-11-16, decisions D61 and D62); the floors and an inner page are not started |
-| M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `PRESCRIPTION.md` carries 48 requirements in five Floors, each with its source. Milestone M6 counts as complete only when GitHub's check passes on the commit that holds them (hard rule 3) |
+| M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `PRESCRIPTION.md` carries 56 requirements in five Floors, each with its source (36 under “Off” and “Warn me”, because the 20 requirements for people with disabilities are written only under “Fix for me”, decision D13). Milestone M6 counts as complete only when GitHub's check passes on the commit that holds them (hard rule 3) and the M6 gate review (the three red-team reviewers, hard rule 12) finds no blocker; the review of 2026-11-16 found none, and its 43 findings are rows S8, U8, and T8 of `redteam/FINDINGS.md` |
 | M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | started: the Fit check's first slice (features F024 to F029), hardened by campaign A2 (decision D71, on the audit branch); `/fit-build`, `/fit-repair`, the width of 768 pixels, and the plugin's packaging are not built |
 | M8 | **Your first real project, end to end**; hardening | You judge the result; red-team blockers at zero | not started |
 | M9–M11 | Templates 2, 3, 4 | Same tests as M5–M7 per Template | not started |
@@ -202,7 +202,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 - *Code review swarms* for code quality: reviewers per area, a second set that tries to refute each finding, repairs only for what survives.
 - *What these cost:* rounds 1 and 2 of the campaign used about 1.0 and 0.7 million tokens (measured); round 3 about 0.75 million (0.33 million measured after a restart, the rest estimated); the nine-reviewer code review about 1.8 million (measured). Reviewers and judges are AI agents; their grades are judgments, not measurements.
 
-**Waypoints.** After every unit of work: commit and push to `claude/brave-mayer-sawqz9`. At every milestone: a row in `WAYPOINTS.md`. You retired the Drive backup (D26) on 2026-11-15: GitHub is the only backup (decision D55).
+**Waypoints.** After every unit of work: commit and push to the working branch that the session names (on 2026-11-16 and 2026-11-17: `claude/eloquent-curie-hnhykj`; decisions D72 and D73). At every milestone: a row in `WAYPOINTS.md`. You retired the Drive backup (D26) on 2026-11-15: GitHub is the only backup (decision D55).
 
 ## 9. What can go wrong, and the response
 
@@ -242,6 +242,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Version 3.3: the sixth red-team review and its repairs; the first slice of the Brief (the screen "Your content") | Hard rule 12 and your "Yes regarding the red team"; your four answers on the Brief | D61, D62 |
 | Version 3.4: the Prescription has seven files and one archive file; the Fit check's first slice (milestone M7 started) and two build trials; the seventh red-team round and its repairs; the Floors wait for checked research | Your deferrals of 2026-11-16 ("I defer to you"), your "yes" to the build trial and the comparison run, and your approval of helper agents without a limit and of five research hosts | D63 to D68 |
 | Version 3.5: the audit and red-team campaign A2 and their repairs (on the audit branch); the two branches must be joined first; section 13 gives the remaining work with time estimates | Your request of 2026-11-16 ("Please redo the plan with timeline estimates for remaining work") and your deferral ("I defer to you") | D71 |
+| Version 3.6: the two branches joined, one building session at a time; step 12 ("the Fit check measures what the Floors require") moved from M6 to M7 (that move waits for your word: finding T8-03); the totals of 13.9 no longer count the finished join (2026-11-17) | Your approval of one building session at a time, and your choice of this session's join | D72, D73 |
 
 ## 11. File and research status
 
@@ -294,7 +295,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 ### 13.4 Milestone M6: the Floors (builder: 2 to 3 hours left; your time: none until you name a host)
 
-The Floors are written (feature F032, decisions D69 and D70): `PRESCRIPTION.md` carries 48 requirements in five Floors, each with its source. Steps 9 to 11 of version 3.5 (check the research, your decisions, write the Floors) are done; you deferred the questions to the builder (D70), and the host waits until you name one.
+The Floors are written (feature F032, decisions D69 and D70): `PRESCRIPTION.md` carries 56 requirements in five Floors, each with its source (36 under “Off” and “Warn me”, because the 20 requirements for people with disabilities are written only under “Fix for me”, decision D13). Steps 9 to 11 of version 3.5 (check the research, your decisions, write the Floors) are done; you deferred the questions to the builder (D70), and the host waits until you name one.
 
 | Step | What | Who | Estimate |
 |---|---|---|---|
@@ -338,10 +339,10 @@ The Floors are written (feature F032, decisions D69 and D70): `PRESCRIPTION.md` 
 
 | Point reached | Builder hours | Your time | At about 10 building hours a day | At about 20 a day (two building sessions; not used since D72) |
 |---|---|---|---|---|
-| Today's work closed and the branches joined (13.1; step 1 done) | 4 to 8 | 5 minutes | 1 day | under 1 day |
-| **M8: the tool does its job on a real project** (13.1 to 13.7) | **63 to 117** | about 2 to 4 hours, in three short sittings (the trial, choosing the first project, judging its result) | **7 to 12 working days** (the column that decision D72 sets) | (not used: D72) |
-| Everything in this plan (to M12) | 146 to 266 | about 2.5 to 4.5 hours | 15 to 27 working days | (not used: D72) |
+| Today's work closed and the branches joined (13.1) | done on 2026-11-16 | done | done | done |
+| **M8: the tool does its job on a real project** (13.2 to 13.7; 13.1 done) | **59 to 109** | about 2 to 4 hours, in three short sittings (the trial, choosing the first project, judging its result) | **6 to 11 working days** (the column that decision D72 sets) | (not used: D72) |
+| Everything in this plan (to M12) | 142 to 258 | about 2.5 to 4.5 hours | 15 to 26 working days | (not used: D72) |
 
 **What these totals do not hold.** Your steps set the pace as much as the builder's: the trial, the Floors, and the real project each wait for you, and each can stop the line while it waits. Red-team rounds beyond those named cost about 2 hours and 1.3 million tokens each. Any new request of yours adds its own estimate. "Completing the app today" is not within reach: today closes step 1, and possibly steps 2 and 3.
 
-**What you have already, without waiting for any of this.** The Studio does its main job now: you pick a Direction and the Steps, and download the seven files of the Prescription for an AI coding tool. The Fit check can measure a page built from them. What is missing is the Floors, the rest of the Fitter, and the proof on a real project.
+**What you have already, without waiting for any of this.** The Studio does its main job now: you pick a Direction and the Steps, and download the seven files of the Prescription for an AI coding tool. The Fit check can measure a page built from them. What is missing is the rest of the Fitter and the proof on a real project.

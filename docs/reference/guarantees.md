@@ -118,9 +118,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [60.08 A double click does not record the next Step's default](#6008-a-double-click-does-not-record-the-next-steps-default)
 - [65 The craft rules and the Prescription](#65-the-craft-rules-and-the-prescription)
   - [65.01 Every craft rule carries its mark on the sample website of every built-in Direction, and says so when a design sets it aside](#6501-every-craft-rule-carries-its-mark-on-the-sample-website-of-every-built-in-direction-and-says-so-when-a-design-sets-it-aside)
-  - [65.02 The four files of the Prescription hold the same design values, value by value](#6502-the-four-files-of-the-prescription-hold-the-same-design-values-value-by-value)
+  - [65.02 tokens.css, tokens.json, and mockup.html hold the same design values, value by value](#6502-tokenscss-tokensjson-and-mockuphtml-hold-the-same-design-values-value-by-value)
   - [65.03 Words that the owner typed, or that came from a file, stand in the Prescription as quoted data, inside a fence that they cannot close](#6503-words-that-the-owner-typed-or-that-came-from-a-file-stand-in-the-prescription-as-quoted-data-inside-a-fence-that-they-cannot-close)
-  - [65.04 The same project always gives the same four files, and a change of any line is seen](#6504-the-same-project-always-gives-the-same-four-files-and-a-change-of-any-line-is-seen)
+  - [65.04 The same project always gives the same seven files, and a change of any stored line is seen](#6504-the-same-project-always-gives-the-same-seven-files-and-a-change-of-any-stored-line-is-seen)
   - [65.05 The Prescription names the start, every Decision, every craft rule, and what a person must still check, and claims no standard](#6505-the-prescription-names-the-start-every-decision-every-craft-rule-and-what-a-person-must-still-check-and-claims-no-standard)
   - [65.06 A file that the Summary hands over equals what the core writes for the stored project](#6506-a-file-that-the-summary-hands-over-equals-what-the-core-writes-for-the-stored-project)
   - [65.07 Every file of the Prescription carries one fingerprint of the design values, and no date](#6507-every-file-of-the-prescription-carries-one-fingerprint-of-the-design-values-and-no-date)
@@ -729,14 +729,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Exceptions.** A check is a search of the style sheet for text. It does not look at drawn pixels, and a style sheet can hold a fault that no check looks for; the sixth review showed five such cases, now repaired. Nine rules rest on practitioners' published rule sets, which the research record itself calls opinion; three rest on the builder's judgment alone. No person has reviewed a craft rule.
 - Last verified: 2026-11-16
 
-### [65.02] The four files of the Prescription hold the same design values, value by value
+### [65.02] tokens.css, tokens.json, and mockup.html hold the same design values, value by value
 
 <!-- index: Prescription | export; files to build from; design values; see also: craft rule -->
 
 - **Rule.** `tokens.css` holds every design value of the project and nothing else; `tokens.json` holds each of those values, either as a typed entry that stands for exactly the CSS value or as the CSS value word for word; `mockup.html` draws with each value under its name and holds no script. [S13]
 - **Test.** "holds every design value in tokens.css, and the same value in tokens.json and in mockup.html"; "writes typed tokens only in the types of the Design Tokens format, each with a value of that type’s form"; "types a list of typefaces as a typeface and a keyword as a keyword, and gives each color’s parts as its six digits say (findings T6-10, T6-11)"; "writes tokens.css as one block of named values and nothing else". [S13]
-- **Exceptions.** The builder read the Design Tokens format in the specification's own repository on 2026-11-15 and wrote the test from that reading. No validator program of the format has checked `tokens.json` (decision D60).
-- Last verified: 2026-11-15
+- **Exceptions.** The builder read the Design Tokens format in the specification's own repository on 2026-11-15 and wrote the test from that reading. Since decision D64 an outside parser of the format reads `tokens.json` on GitHub for the plain start and every Direction (§65.09); before that, no validator program of the format had checked it (decision D60).
+- Last verified: 2026-11-17
 
 ### [65.03] Words that the owner typed, or that came from a file, stand in the Prescription as quoted data, inside a fence that they cannot close
 
@@ -750,14 +750,14 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Open.** A fence marks text as data; it cannot force a reader to treat it so. Whether an AI coding tool obeys the mark is not tested here; the Fitter (M7) will test builds.
 - Last verified: 2026-11-16
 
-### [65.04] The same project always gives the same four files, and a change of any line is seen
+### [65.04] The same project always gives the same seven files, and a change of any stored line is seen
 
 <!-- index: stored copy of the files | snapshot; same files again -->
 
-- **Rule.** The core writes the seven files from the project alone: the same project gives the same files, and the files for two projects are stored word for word, so that a change of any line fails a test until someone decides it. [S13]
-- **Test.** "writes seven files, and writes the same files again for the same project"; "keeps the four files as stored for two projects, so that a change of any line is seen and decided". [S13]
+- **Rule.** The core writes the seven files from the project alone: the same project gives the same files. `PRESCRIPTION.md`, `tokens.css`, `tokens.json`, and `mockup.html` are stored word for word for two projects, and `PRESCRIPTION.md` also under “Fix for me” and under “Off” (so that the text of every Floor is stored), so that a change of any stored line fails a test until someone decides it. `DESIGN.md`, `FONTS.md`, and `theme.css` are stored for one project only (row T7-10). [S13]
+- **Test.** "writes seven files, and writes the same files again for the same project"; "keeps the four files as stored for two projects, so that a change of any line is seen and decided"; "keeps PRESCRIPTION.md as stored under “Fix for me” and under “Off”, so that a change of any Floor’s text is seen and decided (M6 gate, T8-16)". [S13]
 - **Elements.** `PRESCRIPTION.md`, `tokens.css`, and `tokens.json` are stored in one file of the test; `mockup.html` is stored for the same two projects as a page of its own, which a person can open in a browser.
-- Last verified: 2026-11-15
+- Last verified: 2026-11-17
 
 ### [65.05] The Prescription names the start, every Decision, every craft rule, and what a person must still check, and claims no standard
 
@@ -833,8 +833,8 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **Rule.** `PRESCRIPTION.md` has a section "7. Floors" with one part for each Floor. Security of the page, the host's settings, search, and speed are always written. Use by people with disabilities is written only when Contrast checks is "Fix for me" (decision D13); with "Warn me" or "Off" the section says that it is not written, why, and how to change that. The section says that no program checks any requirement yet, and the file carries no date. The old section 7 is section 8. The other six files and the fingerprint do not change. [S20; S13; S1 at D13 and D69]
 - **Test.** The tests of "PRESCRIPTION.md: section 7, Floors"; in the browser: "hands over a PRESCRIPTION.md whose section 7 holds the Floors, and writes the Floor for people with disabilities only with “Fix for me”". [S20; S3]
-- **Exceptions.** The stored copies of build trials 001 and 002 were made before the Floors; their test checks that the six other files are equal and that today's `PRESCRIPTION.md` holds every stored line in order, except three lines that the Floors replaced. Trial 003's helper received the first draft of the Floors, not today's.
-- Last verified: 2026-11-16
+- **Exceptions.** The stored copies of build trials 001 and 002 were made before the Floors; their test checks that the six other files are equal and that today's `PRESCRIPTION.md`, before its section 7, equals the stored file line for line, except the introduction's one line that the Floors changed (finding CR-01). Trial 003's helper received the first draft of the Floors, not today's; its test checks that the two files are equal outside section 7, except the one sentence on structured data that finding T8-12 corrected.
+- Last verified: 2026-11-17
 
 ### [65.12] FONTS.md states each font file's real weight range
 
@@ -998,6 +998,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 ## [85] Changelog
 
+- 2026-11-17 v1.22: after the M6 gate review (rows S8, U8, T8): §65.02 and §65.04 renamed (they no longer say "four files"), and their texts, §65.14's exceptions, and §65.04's tests brought up to date (finding T8-15); §10.13's last test now exists (finding T8-14).
 - 2026-11-16 v1.21: after the reviewer's findings on the Floors (feature F032): §65.13 states 56 requirements (20, 11, 5, 10, 10); the section says where to set a host requirement and that `mockup.html` is a reference only; §66.04 covers the third build trial; the receipt's contrast note no longer says that the Prescription holds no Floors. 84 guarantees.
 - 2026-11-16 v1.20: after the Floors (feature F032, decision D69): added §65.13 and §65.14. 84 guarantees.
 - 2026-11-16 v1.19: after the small repairs of feature F031 (decision D68): added §65.12; §55.07 states what stays open. 82 guarantees.
