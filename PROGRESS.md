@@ -104,6 +104,12 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-17
+- Feature worked on (ID): none in the list. The owner asked to fix the conflicts of pull request 14, and Codex reviewed it.
+- Result: passes. Evidence: `npm run check` passed (373 unit tests). The Fit and trial browser tests: 109 of 109 passed; the stored trial receipts did not change.
+- Conflicts: the main line (`claude/brave-mayer-sawqz9`, where the owner merged pull requests 13 and 15) had moved to the book of Directions (feature F033). Merge commit `9825362` brings it in; its tree adds only F033. The main line's D74 and `SPEC.md` 2.20 stand; this branch's became D75 and 2.21. Pull request 14 now goes into `claude/brave-mayer-sawqz9`.
+- Codex's two findings were checked and are true (rows CX-01 and CX-02): readings cut at 20,000 entries are now counted as not measured, and SVG paint opacity joins the color's alpha. Each has a test that failed first.
+
+- Date: 2026-11-17
 - Feature worked on (ID): F033 (the book of Directions; requirement 2.20; decision D74)
 - Result: passes
 - Commits: the commit "F033: ..." that holds this entry

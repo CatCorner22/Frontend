@@ -84,7 +84,14 @@ const DRAWN_KINDS = new Set(['text', 'text fill', 'background', 'border', 'outli
 function checked(raw: unknown): Collected {
   const r = isObject(raw) ? raw : {};
   const scripts = isObject(r['scripts']) ? r['scripts'] : {};
+  // What the program does not read is counted, never dropped in silence (code review of pull request 14, Codex).
+  const past = (v: unknown): number => (Array.isArray(v) ? Math.max(0, v.length - ELEMENTS_MAX) : 0);
+  const beyond = {
+    references: past(r['references']), drawn: past(r['drawn']), families: past(r['families']), radii: past(r['radii']), texts: past(r['texts']),
+    lines: past(r['shownLines']) + past(r['clippedLines']), cutOff: past(r['cutOff']), fontFaces: past(r['fontFaces']),
+  };
   return {
+    beyond,
     references: list(r['references'], isObject).map((x) => ({ kind: str(x['kind']), value: str(x['value']), address: str(x['address']) })),
     scripts: { inline: num(scripts['inline']), external: num(scripts['external']) },
     drawn: list(r['drawn'], isObject).flatMap((x) => (DRAWN_KINDS.has(str(x['kind'])) ? [{ kind: str(x['kind']) as Collected['drawn'][number]['kind'], css: str(x['css']), where: str(x['where']) }] : [])),
@@ -457,6 +464,13 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.${unreadAt.size > 0 ? ` ${String(unreadAt.size)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => clean(e))))].sort().slice(0, ERRORS_LISTED);
   const most = (pick: (c: Collected) => number): number => Math.max(0, ...good.map((p) => pick(p.collected)));
+  // A reading that held more entries of a kind than the program reads makes each measure of that kind "not measured", once per reading.
+  const BEYOND: Record<string, readonly (keyof NonNullable<Collected['beyond']>)[]> = { requests: ['references'], colors: ['drawn'], typefaces: ['families', 'fontFaces'], radii: ['radii'], contrast: ['texts'], content: ['lines'], width: ['cutOff'] };
+  const cutShort = (id: string): number => good.filter((p) => (BEYOND[id] ?? []).some((kind) => (p.collected.beyond?.[kind] ?? 0) > 0)).length;
+  const counted = (m: Measure): Measure => {
+    const n = cutShort(m.id);
+    return n === 0 ? m : { ...m, notMeasured: m.notMeasured + n, note: `${m.note} In ${n === 1 ? '1 reading' : `${String(n)} readings`} the page held more entries than the program reads (${ELEMENTS_MAX.toLocaleString('en-US')} of each kind); the rest were not compared, and each such reading counts as not measured.` };
+  };
   return {
     loadFailures,
     pageErrors,
@@ -469,7 +483,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
       measureOf('contrast', 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadAt.size + failed),
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own, inside one block of text. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask, and a text that is empty in the Mockup, are counted as not measured.', contentLines, failed + contentUnsure + emptyRequired),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
-    ],
+    ].map(counted),
   };
 }
 

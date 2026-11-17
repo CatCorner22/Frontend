@@ -49,6 +49,11 @@ export interface Collected {
   clientWidth: number;
   /** The address of the page's first `<base href>`, against which a browser reads every other address; empty without one (finding A1-10). */
   baseHref: string;
+  /**
+   * How many entries of each kind the program dropped because the page held more than it reads (20,000 of each kind). The program
+   * fills this in when it checks a reading; the page cannot set it (code review of pull request 14, Codex).
+   */
+  beyond?: Partial<Record<'references' | 'drawn' | 'families' | 'radii' | 'texts' | 'lines' | 'cutOff' | 'fontFaces', number>>;
 }
 
 export function collect(): Collected {
@@ -79,6 +84,14 @@ export function collect(): Collected {
     pen.fillRect(0, 0, 1, 1);
     const [r = 0, g = 0, b = 0, a = 0] = pen.getImageData(0, 0, 1, 1).data;
     return a === 255 ? `rgb(${String(r)}, ${String(g)}, ${String(b)})` : `rgba(${String(r)}, ${String(g)}, ${String(b)}, ${String(a / 255)})`;
+  };
+  /** A color in `rgb()` or `rgba()` with its alpha multiplied by `factor`; any other form (a gradient's `url(...)`) passes unchanged. */
+  const withAlpha = (css: string, factor: number): string => {
+    if (!(factor < 1)) return css;
+    const m = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:\s*[,/]\s*([\d.]+)(%?))?\s*\)$/.exec(css.trim());
+    if (!m) return css;
+    const alpha = m[4] === undefined ? 1 : m[5] === '%' ? Number(m[4]) / 100 : Number(m[4]);
+    return `rgba(${m[1] ?? '0'}, ${m[2] ?? '0'}, ${m[3] ?? '0'}, ${String(Math.round(alpha * factor * 1000) / 1000)})`;
   };
   const alphaOf = (css: string): number => {
     const m = /^rgba?\(\s*[\d.]+[\s,]+[\d.]+[\s,]+[\d.]+(?:\s*[,/]\s*([\d.]+%?))?\s*\)$/.exec(css.trim());
@@ -265,8 +278,9 @@ export function collect(): Collected {
     // Other paint that the page draws (M6 gate review, findings S8-01 and S8-02). An SVG shape paints with fill and stroke, not with
     // color; a fill of "url(...)" (a gradient or a pattern) is passed on unconverted, so the receipt counts it as not measured.
     if (el.namespaceURI === 'http://www.w3.org/2000/svg' && SHAPES.has(el.localName)) {
-      if (el.localName !== 'line' && cs.fill !== 'none' && Number.parseFloat(cs.fillOpacity) > 0) add('svg fill', rgbOf(cs.fill), label, recolored);
-      if (cs.stroke !== 'none' && Number.parseFloat(cs.strokeWidth) > 0 && Number.parseFloat(cs.strokeOpacity) > 0) add('svg stroke', rgbOf(cs.stroke), label, recolored);
+      // The paint's own opacity joins the color's alpha, so a half-transparent fill is listed as partly transparent (code review, Codex).
+      if (el.localName !== 'line' && cs.fill !== 'none' && Number.parseFloat(cs.fillOpacity) > 0) add('svg fill', withAlpha(rgbOf(cs.fill), Number.parseFloat(cs.fillOpacity)), label, recolored);
+      if (cs.stroke !== 'none' && Number.parseFloat(cs.strokeWidth) > 0 && Number.parseFloat(cs.strokeOpacity) > 0) add('svg stroke', withAlpha(rgbOf(cs.stroke), Number.parseFloat(cs.strokeOpacity)), label, recolored);
     }
     if (cs.textDecorationLine !== 'none' && (el.textContent ?? '').trim() !== '') add('underline', rgbOf(cs.textDecorationColor), label, recolored);
     if (cs.columnRuleStyle !== 'none' && cs.columnRuleStyle !== 'hidden' && Number.parseFloat(cs.columnRuleWidth) > 0 && (cs.columnCount !== 'auto' || cs.columnWidth !== 'auto')) add('column rule', rgbOf(cs.columnRuleColor), label, recolored);

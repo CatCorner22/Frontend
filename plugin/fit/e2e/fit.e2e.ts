@@ -1045,3 +1045,29 @@ describe('Fit check: every color that the page draws, SVG paint included (M6 gat
     expect(markdown).toMatch(/selected text/);
   });
 });
+
+describe('Fit check: no reading cut short in silence, and SVG paint opacity (code review of pull request 14, Codex)', () => {
+  const files = filesOf(createProject('Codex review'));
+  const mockup = files['mockup.html'] ?? '';
+  const withBody = (html: string): string => replaceOnce(mockup, '</body>', `${html}</body>`);
+  const run = (html: string) => fit(inputOf(files, html));
+
+  it('counts a measure as not measured when the page holds more entries than the program reads, instead of passing them unread', async () => {
+    // 20,050 one-pixel boxes in a color of the Prescription, then one box in a color outside it: more entries than the program keeps.
+    const many = `<div style="display:flex;flex-wrap:wrap;width:300px">${'<i style="display:block;width:1px;height:1px;background:var(--surface)"></i>'.repeat(20_050)}<i style="display:block;width:1px;height:1px;background:#ff0000"></i></div>`;
+    const { receipt, status } = await fit(inputOf(files, withBody(many), { loadTimeoutMs: 60_000 }));
+    const colors = measure(receipt, 'colors');
+    expect(colors.deviations + colors.notMeasured).toBeGreaterThan(0);
+    expect(colors.note).toMatch(/more entries than the program reads/);
+    expect(status).toBe(1);
+  }, 240_000);
+
+  it('lists an SVG fill or stroke with an opacity under 1 as partly transparent, not as an opaque deviation', async () => {
+    const { receipt } = await run(withBody('<svg width="40" height="40"><rect width="40" height="40" fill="#ff0000" fill-opacity="0.5"/><circle cx="20" cy="20" r="10" fill="none" stroke="#00ff00" stroke-width="4" stroke-opacity="0.4"/></svg>'));
+    const colors = measure(receipt, 'colors');
+    expect(colors.items.join('\n')).not.toContain('#ff0000');
+    expect(colors.items.join('\n')).not.toContain('#00ff00');
+    expect(colors.information.join('\n')).toMatch(/rgba\(255, 0, 0, 0\.5\)/);
+    expect(colors.information.join('\n')).toMatch(/rgba\(0, 255, 0, 0\.4\)/);
+  });
+});
