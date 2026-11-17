@@ -313,7 +313,7 @@ describe('The look: the three required texts', () => {
     const covered = await look(inputOf(inHead(reference, `${fade} h1 { position: relative } h1::after { content: ""; position: absolute; inset: -4px; background: var(--hero-bg); }`)));
     for (const read of headlineOf(covered)) expect(read.state).toBe('not drawn');
     const tree = `<script>(() => { const h = document.querySelector('h1'); const host = document.createElement('div'); h.replaceWith(host); const root = host.attachShadow({ mode: 'open' }); root.innerHTML = '<style>h1 { font-size: 40px; background: linear-gradient(90deg, #0b1320, #8a96a8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent }</style><p>before</p><h1>' + h.textContent + '</h1>'; })();</script>`;
-    const inTree = await look(inputOf(insertOnce(withScripts(), /<\/body>/, tree)));
+    const inTree = await look(inputOf(insertOnce(withScripts(), /<\/body>/, tree), { runScripts: true }));
     for (const read of headlineOf(inTree)) {
       expect(read.state).toBe('drawn');
       expect(read.least).toBeLessThan(4.5);
@@ -353,7 +353,7 @@ describe('The look: the three required texts', () => {
       new ResizeObserver(tick).observe(document.body);
       new MutationObserver(tick).observe(document, { subtree: true, childList: true, attributes: true, characterData: true });
     </script>`;
-    const result = await look(inputOf(insertOnce(withScripts(), /<\/body>/, watcher)));
+    const result = await look(inputOf(insertOnce(withScripts(), /<\/body>/, watcher), { runScripts: true }));
     expect(result.look.scriptsRan).toBe(true);
     for (const read of headlineOf(result)) expect(read).toMatchObject({ state: 'not drawn', why: 'hiding its letters changed nothing in the picture, so no visitor sees them' });
     expect(othersDrawn(result, 'headline')).toBe(true);
@@ -433,7 +433,7 @@ describe('The look: an untrusted page', () => {
 
   it('reports a width that could not be pictured, with a fixed sentence, and status 1', async () => {
     const stuck = insertOnce(reference.replace(/<meta http-equiv="Content-Security-Policy" content="[^"]*">/, ''), /<\/head>/, '<script>document.title = "## Injected"; for (;;) {}</script>');
-    const result = await look(inputOf(stuck, { loadTimeoutMs: 1000 }));
+    const result = await look(inputOf(stuck, { loadTimeoutMs: 1000, runScripts: true }));
     expect(result.status).toBe(1);
     expect(result.look.failures).toEqual(WIDTHS.map((width) => ({ width, reason: 'the page did not finish loading or did not answer within 1000 milliseconds' })));
     expect(result.pictures).toEqual([]);

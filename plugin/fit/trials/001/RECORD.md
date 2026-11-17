@@ -71,3 +71,7 @@ The program now reads the page at 768 pixels as well, and it checks a part of th
 ## After the gate review (2026-11-17, feature F038)
 
 The receipt was measured again with the repaired program. No deviation count changed; the status is 0. The receipt now holds its status, lists the texts whose contrast could not be read, and prints each list under its own heading.
+
+## After the join of the three lines of work (2026-11-17, decision D77)
+
+The receipt was measured again with the joined program. It now runs none of the page's scripts unless asked (this page has none), and the colors measure also compares underlines, list markers, placeholders, carets, and accent colors. No count of deviations changed; two more partly transparent colors are listed as information (the underline of links).

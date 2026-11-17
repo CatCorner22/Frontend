@@ -133,7 +133,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [65.12 FONTS.md states each font file's real weight range](#6512-fontsmd-states-each-font-files-real-weight-range)
   - [65.11 DESIGN.md claims no measurement that did not happen](#6511-designmd-claims-no-measurement-that-did-not-happen)
 - [66 The Fit check (measuring a build against the Vision)](#66-the-fit-check-measuring-a-build-against-the-vision)
-  - [66.01 The program measures six things and one more, and the Mockup passes its own measure](#6601-the-program-measures-six-things-and-one-more-and-the-mockup-passes-its-own-measure)
+  - [66.01 The program measures six design things, contrast, and the Floors, and the Mockup passes its design measures](#6601-the-program-measures-six-design-things-contrast-and-the-floors-and-the-mockup-passes-its-design-measures)
   - [66.02 Each deviation that the program claims to find, it finds; each fault of its own inputs, it names](#6602-each-deviation-that-the-program-claims-to-find-it-finds-each-fault-of-its-own-inputs-it-names)
   - [66.03 The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs](#6603-the-receipt-keeps-measuring-judging-and-asking-apart-and-holds-nothing-that-changes-between-two-runs)
   - [66.04 The first build trial is stored whole, belongs to today's files, and measures to its own receipt](#6604-the-first-build-trial-is-stored-whole-belongs-to-todays-files-and-measures-to-its-own-receipt)
@@ -924,7 +924,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 <!-- index: hostile page | scripts off; offline; dead proxy -->
 
 - **Rule.** By default the browser window runs none of the page's scripts, and the receipt says so. On request (`--run-scripts`) the scripts run, and the receipt says that a page can then change what the program sees. In both cases the window has no network: it sends every address, this machine's own included, to a proxy at a port where nothing listens, it blocks service workers, and it stops each request that it sees. No WebSocket, popup, prefetch link, preconnect link, script, image, beacon, form, or move of the page to another address reaches any host. [S18; S1 at D68]
-- **Test.** "gives the same measures for a page that replaces the browser’s own functions as for the same page without that replacement, with the page’s scripts run and not run"; "says, with the default, that the page’s scripts ran and that the program read the page from a world of its own"; "lets no connection through: a WebSocket, a popup, a prefetch link, a preconnect link, a script, an image, a beacon, and a form, with scripts off and on" (a local listener counts the connections). [S18]
+- **Test.** "gives the same measures for a page that replaces the browser’s own functions as for the same page without that replacement, with the page’s scripts run and not run"; "says, with the default, that the page’s scripts did not run; and, when asked to run them, that they ran and that the program read the page from a world of its own"; "lets no connection through: a WebSocket, a popup, a prefetch link, a preconnect link, a script, an image, a beacon, and a form, with scripts off and on" (a local listener counts the connections). [S18]
 - **Exceptions.** With scripts on, a page can still show another design to the program than to a visitor (it may recognize the check): the receipt's "Still needs a person" says so. Chromium runs without its own sandbox when the program runs as the root user (finding X7-09, open). A page that makes the program wait takes up to about 30 seconds and is then reported as not measured (finding X7-11).
 - Last verified: 2026-11-17
 
@@ -983,15 +983,6 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - Last verified: 2026-11-17
 
 ## [70] How the Studio is built
-
-### [66.09] The program measures the Floors that it can check on one page, and contrast binds where the Prescription holds Floor A1
-
-<!-- index: Floors measure | section 7; requirement ids; contrast required -->
-
-- **Rule.** The program reads the ids of the requirements that section 7 of `PRESCRIPTION.md` holds and checks the 25 that a program can check on one page's markup (A2, A3, A4, A5, A12, A13, A17, S1, S3, S5, S6, S7, S8, S9, S11, Q2, Q3, Q7, Q8, Q9, Q10, Q13, P4, P7, P12). Each failing requirement is one deviation line that starts with its id; the Floors measure counts toward the status. Every other requirement that the Prescription holds is named by id in the measure's note, for a person to check, and counts neither as a deviation nor as not measured. A Prescription without a section 7 gives "The Prescription holds no Floors". Where the Prescription holds A1 ("Fix for me"), the contrast measure is "required by Floor A1", and its deviations and its "not measured" count toward the status; otherwise it never changes the status. [SPEC.md section 2.22; S1 at D69 and D75]
-- **Test.** The eleven tests of "the Floors measure, and contrast bound by Floor A1" (among them each breach found alone, addresses read as a browser reads them, and contrast alone deciding the status only under “Fix for me”); the two command-line tests of its summary line (finding RV-01); "finds no deviation in the Mockup of the plain start or of any of the 38 Directions" (its Floors measure names exactly S8, S9, S11, Q8, Q10, and the Prescription names each as not to copy). [S18]
-- **Exceptions.** The checks read the markup, not what a person sees or hears; each requirement's text in the Prescription is the requirement. The host's settings (H1 to H5) need the published site, and the field figures (P1, P2) need real visits; no program here checks them.
-- Last verified: 2026-11-17
 
 ### [70.01] The shared core holds no React import and no browser API
 

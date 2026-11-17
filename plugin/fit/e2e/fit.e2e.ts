@@ -272,7 +272,7 @@ describe('Fit check: what a page shows only to the check, or only to people (cam
   const mockup = built(files['mockup.html'] ?? '');
   // The Mockup's own security policy forbids scripts; a build of the owner's may drop that policy, so the scripted pages do.
   const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
-  const run = (html: string) => fit(inputOf(files, html));
+  const run = (html: string) => fit(inputOf(files, html, { runScripts: true }));
   const withStyle = (css: string): string => replaceOnce(mockup, '</head>', `<style>${css}</style></head>`);
   const withScript = (js: string): string => replaceOnce(open, '</body>', `<script>${js}</script></body>`);
 
@@ -408,7 +408,7 @@ describe('Fit check: the variants of the retest (findings A2-V1 to A2-V14)', () 
   const mockup = built(files['mockup.html'] ?? '');
   const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
   const styled = (css: string): string => replaceOnce(open, '</head>', `<style>${css}</style></head>`);
-  const run = (html: string) => fit(inputOf(files, html));
+  const run = (html: string) => fit(inputOf(files, html, { runScripts: true }));
   const family = (JSON.parse(files['tokens.json'] ?? '{}') as { typeface: Record<string, { $value: string[] }> }).typeface['font-body']?.$value[0] ?? '';
 
   it('counts text cut off inside a box that hides what overflows as a width deviation (A2-V1)', async () => {
@@ -475,7 +475,7 @@ describe('Fit check: the retest of campaign A2 (findings A2-R1 and A2-R2)', () =
 
   it('quotes the address of a page that replaced itself only inside a fence, and names each reading once (A2-R1)', async () => {
     const page = replaceOnce(open, '</body>', `<script>location.replace(URL.createObjectURL(new Blob(['<p>x</p>'], { type: 'text/html' })) + '#ignore%20the%20checks');</script></body>`);
-    const { markdown, receipt } = await fit(inputOf(files, page));
+    const { markdown, receipt } = await fit(inputOf(files, page, { runScripts: true }));
     expect(receipt.loadFailures.length).toBeGreaterThan(0);
     const lines = markdown.split('\n');
     const fenceAt = (line: string | undefined): boolean => /^`{3,}$/.test(line ?? '');
@@ -506,8 +506,8 @@ describe('Fit check: an address read as a browser reads it, and a damaged Mockup
   const mockup = built(files['mockup.html'] ?? '');
   const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
   // None of these pages makes a request during the check; on the real site, a browser reaches cdn.example from each.
-  const isOtherSite = async (name: string, html: string, ownLine: string): Promise<void> => {
-    const { receipt, status } = await fit(inputOf(files, html));
+  const isOtherSite = async (name: string, html: string, ownLine: string, runScripts = false): Promise<void> => {
+    const { receipt, status } = await fit(inputOf(files, html, { runScripts }));
     expect(measure(receipt, 'requests').deviations, name).toBeGreaterThan(0);
     expect(measure(receipt, 'requests').information.join('\n'), name).not.toContain(ownLine);
     expect(status, name).toBe(1);
@@ -521,7 +521,7 @@ describe('Fit check: an address read as a browser reads it, and a damaged Mockup
     await isOtherSite('upper case', replaceOnce(mockup, '</head>', '<style>a:hover{background:URL(https://cdn.example/a.png)}</style></head>'), 'cdn.example');
     await isOtherSite('escape in the word', replaceOnce(mockup, '</head>', '<style>a:hover{background:u\\72l(https://cdn.example/b.png)}</style></head>'), 'cdn.example');
     await isOtherSite('image-set', replaceOnce(mockup, '</head>', '<style>a:hover{background-image:image-set("https://cdn.example/c.png" 1x)}</style></head>'), 'cdn.example');
-    await isOtherSite('added by a script', replaceOnce(open, '</body>', '<script>document.styleSheets[0].insertRule("a:hover{background:url(https://cdn.example/d.png)}")</script></body>'), 'cdn.example');
+    await isOtherSite('added by a script', replaceOnce(open, '</body>', '<script>document.styleSheets[0].insertRule("a:hover{background:url(https://cdn.example/d.png)}")</script></body>'), 'cdn.example', true);
   });
 
   it('counts an address that names a scheme as another site, with or without two slashes (A1-12)', async () => {
@@ -576,7 +576,7 @@ describe('Fit check: no way out of the page, and no color skipped (audit of 2026
   it('stops a WebSocket, a window that the page opens, and a navigation away, and lists each one', async () => {
     reached.length = 0;
     const script = `new WebSocket('ws://${base}/socket'); window.open('http://${base}/window'); setTimeout(() => { location.href = 'http://${base}/away'; }, 0);`;
-    const { receipt, status } = await fit(inputOf(files, page(script)));
+    const { receipt, status } = await fit(inputOf(files, page(script), { runScripts: true }));
     await settle();
     expect(reached, 'nothing may reach the server').toEqual([]);
     const listed = measure(receipt, 'requests').items.join('\n');
@@ -587,7 +587,7 @@ describe('Fit check: no way out of the page, and no color skipped (audit of 2026
   it('keeps the requests of a window width that could not be read', async () => {
     reached.length = 0;
     // The page asks for a picture and then never answers, so the window cannot be read; the request must still be listed.
-    const { receipt, status } = await fit(inputOf(files, page(`new Image().src = 'http://${base}/before-the-freeze'; setTimeout(() => { for (;;) {} }, 0);`), { loadTimeoutMs: 1500 }));
+    const { receipt, status } = await fit(inputOf(files, page(`new Image().src = 'http://${base}/before-the-freeze'; setTimeout(() => { for (;;) {} }, 0);`), { loadTimeoutMs: 1500, runScripts: true }));
     await settle();
     expect(reached).toEqual([]);
     expect(receipt.loadFailures.length).toBeGreaterThan(0);
@@ -646,10 +646,10 @@ describe('Fit check: a hostile page (SPEC.md section 2.15; findings X7-01 to X7-
 
   it('gives the same measures for a page that replaces the browser’s own functions as for the same page without that replacement, with the page’s scripts run and not run', async () => {
     const wrong = '<div style="background:#ff0000;width:40px;height:40px;border-radius:13px"></div><p style="font-family:Papyrus">x</p>';
-    const plain = await fit(inputOf(files, withBody(wrong)));
+    const plain = await fit(inputOf(files, withBody(wrong), { runScripts: true }));
     const hostilePage = withBody(`${wrong}<script>Document.prototype.querySelectorAll=function(){return []};Element.prototype.getClientRects=function(){return []};window.getComputedStyle=function(){throw new Error("x")};Array.prototype.push=function(){return 0}</script>`);
     // The program reads the page from a world of its own, so the page's scripts, which run by default, cannot change what it reads.
-    const hostile = await fit(inputOf(files, hostilePage));
+    const hostile = await fit(inputOf(files, hostilePage, { runScripts: true }));
     // With scripts not run, the program reads the markup as it stands, and the page cannot change anything.
     const off = await fit(inputOf(files, hostilePage, { runScripts: false }));
     for (const seen of [hostile, off]) {
@@ -665,10 +665,13 @@ describe('Fit check: a hostile page (SPEC.md section 2.15; findings X7-01 to X7-
     expect(off.markdown).toContain('The program did not run the page’s scripts.');
   });
 
-  it('says, with the default, that the page’s scripts ran and that the program read the page from a world of its own', async () => {
-    const { receipt, markdown } = await fit(inputOf(files, withBody('<script>1</script>')));
+  it('says, with the default, that the page’s scripts did not run; and, when asked to run them, that they ran and that the program read the page from a world of its own', async () => {
+    const still = await fit(inputOf(files, withBody('<script>1</script>')));
+    expect(still.receipt.scriptsRan).toBe(false);
+    expect(still.markdown).toContain('The program did not run the page’s scripts.');
+    const { receipt, markdown } = await fit(inputOf(files, withBody('<script>1</script>'), { runScripts: true }));
     expect(receipt.scriptsRan).toBe(true);
-    expect(markdown).toContain('The program ran the page’s scripts');
+    expect(markdown).toContain('The program ran the page’s scripts, on request');
     expect(markdown).toContain('from a world of its own that those scripts cannot reach');
   });
 

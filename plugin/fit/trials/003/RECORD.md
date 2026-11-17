@@ -55,3 +55,7 @@ The program now reads the page at 768 pixels as well, and it checks a part of th
 ## After the gate review (2026-11-17, feature F038)
 
 The receipt was measured again with the repaired program. The program now reads the Floors in a numbered edition. This trial's `VISION.md` is the first draft and states no edition, so the program checks none of its Floor requirements: the measure "Floors" shows 0 deviations and 1 thing not measured, and the status is 1 for that reason. The line about S5 of the note above no longer appears: the program does not hold a first-draft page to today's wording.
+
+## After the join of the three lines of work (2026-11-17, decision D77)
+
+The receipt was measured again with the joined program. It runs none of the page's scripts unless asked (this page has none). The Floors are now edition 3; this trial's `VISION.md` still states no edition, so the program still checks none of its Floor requirements, and the status stays 1. One more line of section 8 differs from today's file: the line on structured data (it said "The owner decides"; today it says that the data stays out, decision D70).

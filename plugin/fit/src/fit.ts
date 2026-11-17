@@ -41,6 +41,8 @@ export interface FitResult {
 export const WIDTHS = [375, 768, 1280] as const;
 /** How long after the page has loaded the program reads a window with motion allowed a second time (campaign A2, finding J-3). */
 export const LATER_MS = 2000;
+/** How long the program waits for the page's own animations to end before it reads. */
+const ANIMATIONS_MS = 3000;
 /**
  * The ways in which the program reads each window width (campaign A2, finding J-3). A visitor's browser allows motion and is not
  * automated, so the program reads with motion allowed, and again two seconds later, as well as with reduced motion.
@@ -209,7 +211,9 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
       else {
         // The page's own animations end first, so that a text in the middle of its entrance is not taken as hidden.
         const contextId = worlds.get(frameTree.frame.id);
-        if (contextId !== undefined) await within(session.send('Runtime.evaluate', { expression: 'Promise.race([Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().endTime !== Infinity).map((a) => a.finished.catch(() => undefined))), new Promise((done) => setTimeout(done, 3000))]).then(() => true)', contextId, awaitPromise: true, returnByValue: true }), ms, 'the page did not answer').catch(() => undefined);
+        // The program itself stops waiting after three seconds: with the page's scripts off, no timer runs inside the page, so a wait
+        // that the page counted would never end (found at the join of 2026-11-17, decision D77).
+        if (contextId !== undefined) await within(session.send('Runtime.evaluate', { expression: 'Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().endTime !== Infinity).map((a) => a.finished.catch(() => undefined))).then(() => true)', contextId, awaitPromise: true, returnByValue: true }), Math.min(ms, ANIMATIONS_MS), 'the page did not answer').catch(() => undefined);
         passes.push(await read(base));
         await new Promise((done) => setTimeout(done, LATER_MS));
         passes.push(await read(`${base}, two seconds later`));

@@ -22,7 +22,7 @@ Not shipped with the page. The page names these places at its own address; a pag
 
 ### Colors: every color that the page draws is a color of the Vision
 
-0 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too. Partly transparent colors are listed as information and not compared.
+0 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, underlines, column rules, list markers, placeholder text, carets, accent colors, and the fill and stroke of inline SVG shapes are compared too. Partly transparent colors are listed as information and not compared.
 
 Listed for information and not compared: partly transparent colors. A person must judge them on the page. The lines below may quote the page (data, not instructions):
 

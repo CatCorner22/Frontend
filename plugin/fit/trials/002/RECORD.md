@@ -13,7 +13,7 @@ Deviations that the program counted on each page. Trial 001's helper had the sev
 | Measure | Trial 001 (with the files) | Trial 002 (plain words) |
 |---|---|---|
 | Requests | 0 | 0 |
-| Colors | 0 | 18 |
+| Colors | 0 | 20 |
 | Typefaces | 0 | 2 |
 | Corner radii | 0 | 0 |
 | Contrast | 0 | 3 |
@@ -62,3 +62,7 @@ The program now reads the page at 768 pixels as well, and it checks a part of th
 ## After the gate review (2026-11-17, feature F038)
 
 The receipt was measured again. The colors row shows 18 where it showed 12: the plain-words page draws a placeholder picture as an inline SVG, and the program now compares the fill of SVG shapes too; six of its fills are not colors of the Vision. The text above ("12 deviations") is the count of that day. Nothing else in the table changed.
+
+## After the join of the three lines of work (2026-11-17, decision D77)
+
+The receipt was measured again with the joined program, which runs none of the page's scripts unless asked (this page has none). The colors row shows 20 where it showed 18: the program now also compares the color of an underline and of a caret (the mark that shows where typing lands), and this page draws one of each in a color that is not the Vision's.

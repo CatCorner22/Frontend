@@ -43,10 +43,13 @@ for (const id of ['001', '002', '003']) {
       if (id === '003') {
         // One line of section 8 also changed since the helper's file: on 2026-11-17 the Fit check began to check a part of some Floor
         // requirements, and the line that said "it measures no requirement of section 7" says so now (decision D76). That line is left out.
-        const program = (line: string): boolean => line.startsWith('- A program that checks ');
+        // A second line of section 8 changed at the join of 2026-11-17 (decision D77): the line on structured data no longer says "The
+        // owner decides"; it says that the data stays out (decision D70). The stored file keeps what the helper received, so that line
+        // is left out too; each file must still hold exactly one such line.
+        const program = (line: string): boolean => line.startsWith('- A program that checks ') || line.startsWith('- Structured data for the business (JSON-LD)');
         const outside = (text: string): string => (text.slice(0, text.indexOf('## 7. Floors')) + text.slice(text.indexOf('## 8. '))).split('\n').filter((line) => !program(line)).join('\n');
-        expect(stored.split('\n').filter(program)).toHaveLength(1);
-        expect(current.split('\n').filter(program)).toHaveLength(1);
+        expect(stored.split('\n').filter(program)).toHaveLength(2);
+        expect(current.split('\n').filter(program)).toHaveLength(2);
         expect(outside(stored)).toBe(outside(current));
         expect(stored.match(/^- \*\*[ASHQP]\d+\.\*\*/gm)).toHaveLength(48);
         return;

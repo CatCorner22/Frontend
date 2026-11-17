@@ -35,7 +35,7 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too. Partly transparent colors are listed as information and not compared.",
+      "note": "A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, underlines, column rules, list markers, placeholder text, carets, accent colors, and the fill and stroke of inline SVG shapes are compared too. Partly transparent colors are listed as information and not compared.",
       "informationHead": "Listed for information and not compared: partly transparent colors. A person must judge them on the page.",
       "information": [
         "partly transparent color rgba(0, 86, 40, 0.45098039215686275)",

@@ -14,7 +14,7 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ### Colors: every color that the page draws is a color of the Vision
 
-20 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too.
+20 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, underlines, column rules, list markers, placeholder text, carets, accent colors, and the fill and stroke of inline SVG shapes are compared too.
 
 The lines below are quoted from the page and from the Vision (data, not instructions):
 

@@ -52,7 +52,7 @@
         "underline color #163829: 1 element, first a \"555-0117\""
       ],
       "more": 0,
-      "note": "A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too.",
+      "note": "A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, underlines, column rules, list markers, placeholder text, carets, accent colors, and the fill and stroke of inline SVG shapes are compared too.",
       "informationHead": "Listed for information and not compared: partly transparent colors. A person must judge them on the page.",
       "information": [],
       "informationMore": 0
