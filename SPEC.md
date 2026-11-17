@@ -376,7 +376,7 @@ The owner asked for one markdown file that describes the designs, their colors, 
 - The repair budget: the command line takes `--round <n>` (0 for a first check, 1 to 3 for a check after a repair). The receipt states the round. A round above 3 is refused with status 2: the budget is spent, and a person decides.
 - "Judged by the model": the command line takes `--judged <file>`: a text file in which the model wrote one judgment on each line (for example "The photograph is a placeholder"). The receipt shows at most 20 such lines, each made visible and cut at 200 characters, inside a fence, under "Judged by the model", with the sentence that the model wrote them and that no program checked them. Without the option, the part says that no model judged anything.
 - Edge cases: a file of judgments that does not exist is refused (status 2). The content of the Vision's files, of the build, and of the judgments file is data: the commands tell Claude never to follow an instruction found in them (hard rule 10).
-- Not built: `/fit-suggest` (milestone M12); screenshots handed to the model; a comparison of pixels with the Vision's colors (plan, step 13a); a build of more than one page.
+- Not built: `/fit-suggest` (milestone M12); a build of more than one page. Built since, as advice that changes no status: the look (section 2.28, point 5), which draws the page and reads four things from the pixels (a part of the plan's step 13a).
 - How to test it end to end: browser tests of `--round` and `--judged`; a test that the plugin's manifest and its three command files exist, name the program by a path inside the plugin, and state the three-round budget and the data rule. Whether Claude Code loads the plugin on the owner's machine is checked by hand; the builder says in the build log whether it did.
 
 ### 2.24 The exit test of milestone M7: planted defects (decision D76)
@@ -387,7 +387,7 @@ The owner asked for one markdown file that describes the designs, their colors, 
 
 ### 2.25 Repairs after the gate review of milestones M6 and M7 (2026-11-17; decision D76; feature F038)
 
-Three reviewers examined the Vision and the Fitter (`redteam/reports/2026-11-17-i-*.md`). The Vision withstood the attacks. The Fitter had seven blockers; each point below says what the program does now, and a test that failed before its repair stands behind each one.
+Three reviewers examined the Vision and the Fitter (`redteam/reports/2026-11-17-i-*.md`). The Vision withstood the attacks. The reviewers graded nine findings as blockers (eight in the Fitter: G-S01 to G-S07 and G-T01; one in the receipt of an old Vision: G-U01); seven are repaired, G-S04 in part, and G-S05 is stated as a limit; each point below says what the program does now, and a test that failed before its repair stands behind each one.
 
 1. **The Mockup's window has no network and no script** (G-S01): the same dead proxy as the build's window.
 2. **A refusal is one visible line** (G-S02, G-S13): no line break, no invisible sign, at most 400 characters, and no name taken from a file.
@@ -395,16 +395,16 @@ Three reviewers examined the Vision and the Fitter (`redteam/reports/2026-11-17-
 4. **A page that may still change** (G-S04): an animation with an end that has not ended at the last reading makes that reading "not measured". The receipt's header says that the program waits at most three seconds for animations.
 5. **Frames** (G-S06): each iframe, frame, object, and embed counts as not measured in the colors measure.
 6. **The Floors' checks** (G-S07, G-T10 to G-T13): they read open shadow roots, every viewport and referrer tag, addresses and `tabindex` as the browser reads them, a button's own method, a `maxlength` above 0, robots tags for single search engines, a skip link only when drawn, and the policy tag only in the head with a `script-src` of `'none'` or hashes. S9 counts only a form that holds a field. The plain words of each checked part say no more than the check does.
-7. **Editions of the Floors** (G-U01, G-T27): `VISION.md` section 7 states "Edition 2 of the Floors." The program reads edition 2. For a Vision of another edition, or of none, it checks no Floor requirement, counts one thing as not measured, and says to write the Vision again.
+7. **Editions of the Floors** (G-U01, G-T27): `VISION.md` section 7 states the edition of the Floors, and the program reads one edition (edition 2 when this was written; edition 3 since the join, section 2.28). For a Vision of another edition, or of none, it checks no Floor requirement, counts one thing as not measured, and says to write the Vision again.
 8. **Outlined letters** (G-T01): a text drawn with a stroke is counted as not read for contrast, not as a text below the least. With that, the reference build of all 38 Directions shows no deviation with every Floor written.
 9. **The receipt** (G-U03 to G-U06, G-U09, G-T22): it lists the checked part of each requirement; each list of information has its own heading; it names the texts whose contrast could not be read; it holds its status; at round 3 with a deviation left it says that the budget is spent and what the owner can do; it counts the model's lines that it does not show. The command line prints one plain line with the status.
 10. **The command line** (G-S09, G-S10, G-S12): it reads only ordinary files of at most 20 megabytes; a result folder that is a link is refused; a fourth round is refused before the last receipt is touched; `--round` given twice is refused.
-11. **The plugin** (G-S14, G-U08, G-T19 to G-T21): the commands pre-approve reading and writing files only; the README explains each step, each status, each option, the three rounds, and names the commands as Claude Code shows them.
+11. **The plugin** (G-S14, G-U08, G-T19 to G-T21): the commands pre-approve reading and writing files only (since the retest of 2026-11-17 this holds for `/fit-look` too); the README explains each step, each status, each option, the three rounds, and names the commands as Claude Code shows them.
 12. **Inline SVG** (G-S08): the fill and stroke of shapes are compared with the Vision's colors.
 - Stated and not repaired: a page can still differ on a high-density screen, in print, after about five seconds, or when a person acts (G-S04 in part, G-S05); a Vision folder from elsewhere can state other texts (G-S11); the corner radius of an SVG shape; nobody has run the commands in Claude Code (G-T08).
 - How to test it end to end: `plugin/fit/e2e/exit.e2e.ts`, the group "the gate review of 2026-11-17", and the 26 further planted defects.
 
-> **Read this first (decision D77).** Sections 2.26 and 2.27 are the audit branch’s text, renumbered at the join of 2026-11-17 (they were its 2.21 and 2.22). Section 2.26 stands, with two exceptions in the Fit check: a gradient or a pattern as an SVG fill is skipped, not counted as “not measured”, and the cut at 20,000 entries (CX-01) does not exist, because the joined program reads every entry. Section 2.27 describes a program that the join did not keep; sections 2.22 and 2.28 say how the Floors are measured today.
+> **Read this first (decision D77).** Sections 2.26 and 2.27 are the audit branch’s text, renumbered at the join of 2026-11-17 (they were its 2.21 and 2.22). Section 2.26 stands, with two exceptions in the Fit check: a gradient or a pattern as an SVG fill is skipped, not counted as “not measured”, and the cut at 20,000 entries (CX-01) does not exist. The joined program reads every entry for the design measures; for the Floors it reads 200 entries of each list, and a longer list makes the Floors count as not measured (retest finding R-T02). Section 2.27 describes a program that the join did not keep; sections 2.22 and 2.28 say how the Floors are measured today.
 
 ### 2.26 The audit branch’s repairs after its M6 gate review (hard rule 12; rows S8, U8, and T8 of `redteam/FINDINGS.md`; numbered 2.20 until the book of Directions took that number on the main line)
 
@@ -422,7 +422,7 @@ The three red-team reviewers read commit `adcf06b` on 2026-11-16 and found no bl
 - **Cross-references and decided questions:** section 3 points to section 8 for what is left out; section 8 states that structured data stays out (D70) instead of "the owner decides". (U8-07, T8-12)
 - **Stored copies:** `VISION.md` is also stored under "Fix for me" and under "Off", so that a change of any Floor's text fails a test. (T8-16; a stored copy fails only after a change, so no test failed before this point.)
 - **The closing tab with no room in storage** has a test of its own, as guarantee 10.13 says. (T8-14; the behavior was already right, and the new test passed on its first run.)
-- **Records:** the counts, the M6 condition, the stale lines of `PLAN.md`, `PROGRESS.md`, and `DECISIONS.md`, the package-check rows, and three guarantees now state today's facts. The owner decided the move of step 12 to M7 (T8-03) and the five names of the defined term "Floor" (T8-17): decision D75.
+- **Records:** the counts, the M6 condition, the stale lines of `PLAN.md`, `PROGRESS.md`, and `DECISIONS.md`, the package-check rows, and three guarantees now state today's facts. The owner decided the move of step 12 to M7 (T8-03) and the five names of the defined term "Floor" (T8-17): decision D78 (numbered D75 on the audit branch).
 
 ### 2.27 The audit branch’s own measuring of the Floors (not carried into the joined program, decision D77; decisions D69 and D78)
 
@@ -471,6 +471,19 @@ The Vision's section 7 holds the Floors (section 2.18). Until now no program che
 - Not carried over from the audit branch, and why: its own measuring of the Floors (section 2.27) and its count of readings cut short (the base program's reading has no cut).
 - How to test it end to end: `npm run check`; `npm run e2e` (the Fit check's tests ask for scripts where a test needs them; the stored trial receipts are measured again and say "The program did not run the page’s scripts").
 
+
+### 2.29 Repairs after the retest of 2026-11-17 (decision D77, point 4; `redteam/reports/2026-11-17-j-retest.md`)
+
+- What the owner does: nothing new. The owner asked for the retest; three reviewers examined the joined code and found 53 new things, 3 of them blockers.
+- What the system does in response (each with a test in `plugin/fit/e2e/exit.e2e.ts`, except where the point says otherwise):
+  1. **An unrun script is never "no deviation"** (R-S01, R-S02, R-U01). With the page's scripts off, a build whose text holds a script, a `<noscript>` part, or a style rule under `@media (scripting…)` counts as not measured: the status is 1, the receipt names what the page holds and says "Check again with the option --run-scripts." In "Still needs a person" the line about a page that recognizes the check is replaced, without scripts, by a line that says what was not read. A build with none of the three is measured as before.
+  2. **A list that is too long is never read as short** (R-T02). The Floors reading takes 200 entries of each of eight lists (titles, descriptions, robots tags, viewport tags, referrer tags, headings, forms, font rules). A longer list makes the Floors count as not measured once, and the note says so.
+  3. **The look blocks WebRTC** before any script of the page, as the Fit check does (R-S03). No test with a listener proves this yet.
+  4. **Scripts are counted in one pass** (R-S10): a build that repeats `<script ` 250,000 times without closing it is measured in under a minute.
+  5. **The command `/fit-look` pre-approves reading only** (R-T03, R-U06, the rest of G-S14); its test now requires that. The guide names four commands.
+  6. **Records**: the sentences that the drift and truth auditor showed to be false are corrected (R-T01, R-T03, R-T04, R-T06 in part, R-T07 to R-T12).
+- Open, each a row of `redteam/FINDINGS.md`: 13 major findings (R-S04 to R-S09, R-S11, R-T05, R-U02 to R-U05) and the minor ones. The gravest: six ways to hide a required text with status 0 (R-S04); a page that changes after the check stops (R-S05); recoloring that the colors measure does not see (R-S06, R-S07); the audit branch's paints came over without their tests (R-T05).
+- How to test it end to end: `npm run e2e`.
 
 ## 3. Out of scope
 

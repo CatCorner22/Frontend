@@ -1,7 +1,7 @@
 ---
 description: Draw a built page and the Vision's Mockup, and look at the pictures
 argument-hint: <build.html> <folder of the Vision> <result folder> [folder of font files]
-allowed-tools: Bash(node:*), Read
+allowed-tools: Read
 ---
 
 Look at a built page. The Fit check reads the styles that the browser computes; it never sees the page, and neither have you. This command draws the build and the Vision's Mockup in a real browser at 375, 768, and 1280 pixels, saves the pictures, and has you read them.
@@ -23,4 +23,4 @@ Rules:
 - When `LOOK.md` says that a typeface is not drawn, the letters in the pictures are a fallback's. Do not judge the letter style from such pictures; say that the font files were not given.
 - A required text that is "not read" is not a fault of the page: the program could not tell. Say so, and look for the text in the pictures yourself.
 - A difference from the Mockup is not a deviation by itself. The Mockup shows one page with sample content; a page with other content, or another page of the site, must differ. Name the difference and leave the decision to the owner.
-- Do not say that the page looks good, is finished, or meets any standard. Do not change the page in this command. To repair it, use `/fit-repair`; a line that you judged by eye goes into `judged.txt` there, one line each.
+- Do not say that the page looks good, is finished, or meets any standard. Do not change the page in this command. To repair it, use `/frontend-focus-fitter:fit-repair`; a line that you judged by eye goes into `judged.txt` there, one line each.

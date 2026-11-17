@@ -12,7 +12,7 @@ What can go wrong: if Node is older, the program stops with a syntax error at it
 
 ## How to load the plugin
 
-Start Claude Code with `claude --plugin-dir <path to this folder>`. Claude Code then shows three commands. It names a plugin's command with the plugin's name in front: `/frontend-focus-fitter:fit-build`, `/frontend-focus-fitter:fit-check`, and `/frontend-focus-fitter:fit-repair`. (Nobody has yet run these three commands in a Claude Code session; the folder passed Claude Code's own check of a plugin's form, `claude plugin validate`, with one remark: it has no install line for a marketplace.)
+Start Claude Code with `claude --plugin-dir <path to this folder>`. Claude Code then shows four commands. It names a plugin's command with the plugin's name in front: `/frontend-focus-fitter:fit-build`, `/frontend-focus-fitter:fit-check`, `/frontend-focus-fitter:fit-repair`, and `/frontend-focus-fitter:fit-look`. (Nobody has yet run these four commands in a Claude Code session; the folder passed Claude Code's own check of a plugin's form, `claude plugin validate`, with one remark: it has no install line for a marketplace.)
 
 Claude Code asks you each time before it runs the program. That is intended: the commands pre-approve reading and writing files, not running programs.
 
@@ -23,6 +23,7 @@ Claude Code asks you each time before it runs the program. That is intended: the
 | `fit-build <folder of the Vision> <output file>` | Claude reads the seven files, builds one page, writes down what it judged by eye, and runs the Fit check |
 | `fit-check <build.html> <folder of the Vision> <result folder>` | The program measures the page and writes `RECEIPT.md` (for you) and `receipt.json` (for programs) into the result folder |
 | `fit-repair <build.html> <folder of the Vision> <result folder>` | Claude repairs the smallest thing for each deviation and checks again, at most three rounds |
+| `fit-look <build.html> <folder of the Vision> <result folder> [folder of font files]` | A second program (the look) draws the page and the Vision's Mockup at three window widths and saves the pictures and a report, `look/LOOK.md`, into the result folder; Claude reads them and says what differs. Use it after `fit-check`: the Fit check reads style values and never sees the page. The look is advice: nothing in it is a deviation, and it changes no status |
 
 An example: `/frontend-focus-fitter:fit-check build/index.html vision/ result/`, then open `result/RECEIPT.md`.
 

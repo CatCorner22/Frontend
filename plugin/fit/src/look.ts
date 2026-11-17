@@ -1,5 +1,5 @@
 // The look (PLAN.md section 4.5: "Claude receives the measured failures and the screenshots"; section 13.5, step 13a: "Read what is
-// drawn, not only what the styles say"; SPEC.md section 2.23 lists both as not built). The Fit check reads the styles that the
+// drawn, not only what the styles say"; SPEC.md section 2.23 listed both as not built before this file; section 2.28 describes it). The Fit check reads the styles that the
 // browser computes. It never sees the page, and neither does the model that built the page. This file draws the build and the
 // Vision's Mockup in a real browser at the Fit check's three window widths, saves the pictures so that a model or a person can look
 // at them, and reads four things from what was drawn:
@@ -582,9 +582,18 @@ const fileNameOf = (url: string): string => decodeURIComponent(new URL(url).path
  * With `texts.brief`, it also reads the three required texts (from the Mockup); with `texts.wanted`, it also takes the pictures that
  * show whether those texts are drawn (in the build).
  */
+/** Runs before any script of the page, in every frame: WebRTC is replaced by a stub that refuses. */
+const NO_WEBRTC = `(() => {
+  const blocked = function () { throw new DOMException('WebRTC is not available during the look.', 'NotSupportedError'); };
+  for (const name of ['RTCPeerConnection', 'webkitRTCPeerConnection']) { try { Object.defineProperty(globalThis, name, { value: blocked, writable: false, configurable: false }); } catch (e) {} }
+})();`;
+
 async function draw(browser: Browser, html: string, width: number, ms: number, runScripts: boolean, families: readonly string[], fonts: Readonly<Record<string, Uint8Array>>, texts: { brief?: boolean; wanted?: readonly string[] } = {}): Promise<Drawn> {
   const context = await browser.newContext({ viewport: { width, height: 800 }, deviceScaleFactor: 1, reducedMotion: 'reduce', javaScriptEnabled: runScripts, serviceWorkers: 'block', proxy: DEAD_PROXY });
   try {
+    // WebRTC sends over UDP, which no route and no proxy of the browser sees; the Fit check replaces it, and so does the look
+    // (retest finding R-S03: with --run-scripts a page sent a packet).
+    await context.addInitScript(NO_WEBRTC);
     const site = new URL(OWN_SITE).origin;
     let served = false;
     await context.route('**/*', async (route) => {

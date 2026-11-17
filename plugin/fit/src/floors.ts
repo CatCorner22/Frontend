@@ -5,6 +5,8 @@
 
 /** What the page function reads. Plain values only; every list is cut at 200 entries. */
 export interface FloorFacts {
+  /** The lists that held more entries than the program reads (200 of each); a later entry of such a list was not read (retest finding R-T02). */
+  cutLists: string[];
   lang: string;
   titles: string[];
   descriptions: string[];
@@ -43,6 +45,10 @@ export interface FloorFacts {
 /** Runs inside the page, in the program's own world. It stands alone: it uses nothing from this file. */
 export function collectFloorFacts(): FloorFacts {
   const MAX = 200;
+  // A list that is read whole and holds more than MAX entries is named, so that the receipt counts it as not measured: an entry
+  // after the cut could change the finding (200 harmless robots tags before one that hides the page; retest finding R-T02).
+  const cutLists: string[] = [];
+  const capped = <T>(name: string, list: T[]): T[] => { if (list.length > MAX) cutLists.push(name); return list.slice(0, MAX); };
   const collapse = (text: string): string => text.replace(/\s+/g, ' ').trim();
   const label = (el: Element): string => {
     const cls = typeof el.className === 'string' && el.className.trim() !== '' ? `.${el.className.trim().split(/\s+/)[0] ?? ''}` : '';
@@ -131,12 +137,13 @@ export function collectFloorFacts(): FloorFacts {
   }
 
   return {
+    cutLists,
     lang: attr(document.documentElement, 'lang'),
-    titles: all('head title').map((t) => collapse(t.textContent ?? '')).slice(0, MAX),
-    descriptions: meta('description').slice(0, MAX),
-    robots: all('meta[name]').filter((m) => /^robots$|bot$/i.test(attr(m, 'name'))).map((m) => attr(m, 'content')).slice(0, MAX),
-    viewports: meta('viewport').slice(0, MAX),
-    referrers: meta('referrer').slice(0, MAX),
+    titles: capped('titles', all('head title').map((t) => collapse(t.textContent ?? ''))),
+    descriptions: capped('descriptions', meta('description')),
+    robots: capped('robots', all('meta[name]').filter((m) => /^robots$|bot$/i.test(attr(m, 'name'))).map((m) => attr(m, 'content'))),
+    viewports: capped('viewports', meta('viewport')),
+    referrers: capped('referrers', meta('referrer')),
     csp: policyTag ? attr(policyTag, 'content') : null,
     cspAfterCharset: policyTag !== null && charsetTag !== null && before(charsetTag, policyTag),
     cspBeforeLoaders: policyTag !== null && (firstLoader === null || before(policyTag, firstLoader)),
@@ -147,19 +154,19 @@ export function collectFloorFacts(): FloorFacts {
     genericLinks: all('a[href]').filter((a) => GENERIC.has(words(a))).map(label).slice(0, MAX),
     mainCount: all('main, [role="main"]').length,
     h1Count: all('h1').length,
-    headingLevels: all('h1, h2, h3, h4, h5, h6').map((h) => Number(h.tagName.slice(1))).slice(0, MAX),
+    headingLevels: capped('headingLevels', all('h1, h2, h3, h4, h5, h6').map((h) => Number(h.tagName.slice(1)))),
     skipLink,
     positiveTabindex: all('[tabindex]').filter((t) => (t as HTMLElement).tabIndex > 0).map(label).slice(0, MAX),
     inlineHandlers: handlers.slice(0, MAX),
     // The browser's own reading of the address decides: it drops tabs and line breaks inside a scheme.
     javascriptLinks: all('a[href], area[href], form[action], iframe[src], button[formaction], input[formaction]').filter((l) => ['href', 'action', 'src', 'formaction'].some((name) => l.hasAttribute(name) && scheme(l, name) === 'javascript:')).map(label).slice(0, MAX),
     blankWithoutNoopener: all('a[target], area[target], form[target]').filter((l) => attr(l, 'target').toLowerCase() === '_blank' && !/\bnoopener\b/i.test(attr(l, 'rel'))).map(label).slice(0, MAX),
-    forms: all('form').filter((f) => f.querySelector('input:not([type="hidden" i]), select, textarea') !== null).map((f) => ({ label: label(f).slice(0, 60), method: (f as HTMLFormElement).method.toLowerCase(), action: attr(f, 'action'), otherMethod: [...f.querySelectorAll('[formmethod]')].some((b) => attr(b, 'formmethod').toLowerCase() !== 'post') })).slice(0, MAX),
+    forms: capped('forms', all('form').filter((f) => f.querySelector('input:not([type="hidden" i]), select, textarea') !== null).map((f) => ({ label: label(f).slice(0, 60), method: (f as HTMLFormElement).method.toLowerCase(), action: attr(f, 'action'), otherMethod: [...f.querySelectorAll('[formmethod]')].some((b) => attr(b, 'formmethod').toLowerCase() !== 'post') }))),
     fieldsWithoutMaxlength: all('textarea, input').filter((f) => (f.tagName === 'TEXTAREA' || ['', 'text', 'search', 'email', 'tel', 'url', 'password'].includes(attr(f, 'type').toLowerCase())) && !((f as HTMLInputElement).maxLength > 0)).map(label).slice(0, MAX),
     anchorsWithoutHref: all('a').filter((a) => !a.hasAttribute('href')).map(label).slice(0, MAX),
     unsized: all('img, video, iframe').filter((m) => !sized(m)).map(label).slice(0, MAX),
     highPriorityImages: all('img').filter((i) => attr(i, 'fetchpriority').toLowerCase() === 'high').length,
-    fontFaces: fontFaces.slice(0, MAX),
+    fontFaces: capped('fontFaces', fontFaces),
     blockingHeadScripts: all('head script[src]').filter((s) => !s.hasAttribute('defer') && !s.hasAttribute('async') && attr(s, 'type').toLowerCase() !== 'module').length,
   };
 }
@@ -312,6 +319,7 @@ const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v)
 export function checkedFacts(raw: unknown): FloorFacts {
   const r = isObject(raw) ? raw : {};
   return {
+    cutLists: strs(r['cutLists']).slice(0, 20).filter((name) => /^[A-Za-z]{1,30}$/.test(name)),
     lang: str(r['lang']), titles: strs(r['titles']), descriptions: strs(r['descriptions']), robots: strs(r['robots']),
     viewports: strs(r['viewports']), referrers: strs(r['referrers']),
     csp: typeof r['csp'] === 'string' ? str(r['csp']) : null, cspAfterCharset: r['cspAfterCharset'] === true, cspBeforeLoaders: r['cspBeforeLoaders'] === true, cspInHead: r['cspInHead'] === true,

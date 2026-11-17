@@ -41,6 +41,8 @@ export interface FitResult {
 export const WIDTHS = [375, 768, 1280] as const;
 /** How long after the page has loaded the program reads a window with motion allowed a second time (campaign A2, finding J-3). */
 export const LATER_MS = 2000;
+/** In "Still needs a person", when the program ran no script of the page (retest finding R-U01). */
+const UNRUN_LINE = 'A page that behaves differently for a visitor. The program ran no script of the page, so it did not read anything that a script draws or changes; a visitor’s browser runs scripts. If the page holds a script, check again with the option --run-scripts.';
 /** How long the program waits for the page's own animations to end before it reads. */
 const ANIMATIONS_MS = 3000;
 /**
@@ -84,12 +86,35 @@ const WATCH = `(() => {
   new MutationObserver((records) => { for (const record of records) for (const node of record.removedNodes) if (node.nodeType === 1) state.replaced = true; }).observe(document, { childList: true });
 })();`;
 
+/**
+ * With the page's scripts off, the program reads a page as a browser without scripts shows it. A page can show a visitor, whose browser
+ * runs scripts, something else in three ways: a script, a `<noscript>` part (shown only without scripts), and a style rule under
+ * `@media (scripting…)`. The program names each that the build's text holds, so that the check counts as not measured and the owner
+ * runs it again with scripts on (retest findings R-S01 and R-S02). Empty when the build holds none of them.
+ */
+function unrunParts(html: string): string {
+  const scripts = scriptsInSource(html);
+  const parts: string[] = [];
+  const n = scripts.inline + scripts.external;
+  if (n > 0) parts.push(n === 1 ? '1 script' : `${String(n)} scripts`);
+  if (/<noscript[\s>/]/i.test(html)) parts.push('a part for browsers without scripts (noscript)');
+  if (/\(\s*scripting\b/i.test(html)) parts.push('a style rule that depends on scripts (@media scripting)');
+  if (parts.length === 0) return '';
+  return `The page holds ${parts.join(', ')}, and the program ran no script of the page. A visitor’s browser runs scripts, so a visitor may see another page than the one measured. Check again with the option --run-scripts.`;
+}
+
 /** Scripts as the build's own text holds them; a page that replaces itself cannot hide them (campaign A2, finding J-4). */
 function scriptsInSource(html: string): { inline: number; external: number } {
   let inline = 0;
   let external = 0;
-  for (const match of html.matchAll(/<script\b([^>]*)>/gi)) {
-    if (/\bsrc\s*=/i.test(match[1] ?? '')) external++;
+  // Read tag by tag, in one pass: a pattern that looks for the closing sign after every "<script" takes hours on a hostile build that
+  // repeats the word without closing it (retest finding R-S10).
+  const lower = html.toLowerCase();
+  for (let at = lower.indexOf('<script'); at !== -1; at = lower.indexOf('<script', at + 7)) {
+    if (/[a-z0-9_]/.test(lower[at + 7] ?? '')) continue;
+    const end = lower.indexOf('>', at + 7);
+    if (end === -1) break;
+    if (/\bsrc\s*=/i.test(html.slice(at + 7, end))) external++;
     else inline++;
   }
   return { inline, external };
@@ -318,11 +343,13 @@ function contrastOf(text: Collected['texts'][number]): number | null {
   return contrastRatio(fg.a < 1 ? over(fg, behind) : fg, behind);
 }
 
-function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[], edition: number | null): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
+function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[], edition: number | null, unrun = ''): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
   const good = passes.filter((p): p is Extract<Pass, { collected: Collected }> => 'collected' in p);
   const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: bounded(`${p.label}: ${p.failure}`) }] : []));
   // An animation with an end that has not ended at the last reading: the page may still change after the program stops (finding G-S04).
   for (const p of passes) if ('collected' in p && p.label.endsWith('two seconds later') && p.collected.pendingAnimations > 0) loadFailures.push({ width: p.width, reason: bounded(`${p.label}: ${String(p.collected.pendingAnimations)} of the page’s animations had not ended when the program stopped reading, so the page may still change`) });
+  // What the page holds for a browser with scripts, when the program ran none: not measured, never "no deviation" (R-S01, R-S02).
+  if (unrun !== '') loadFailures.push({ width: 0, reason: unrun });
   const failed = loadFailures.length;
 
   // Another site is a deviation. A reference at the page's own address is information: the page names it but, being one file, cannot ship it.
@@ -427,6 +454,8 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     const http = p.collected.references.map((ref) => ref.address.replace(/[\t\n\r]/g, '').trim()).filter((address) => /^http:/i.test(address));
     for (const line of floorFindings(p.floors, written, http)) floorLines.add(line);
   }
+  // A reading in which a list held more entries than the program reads: the Floors count as not measured once (retest finding R-T02).
+  const floorsCut = good.some((p) => p.floors.cutLists.length > 0) ? 1 : 0;
   // The program reads the Floors as one edition words them. A Vision of another edition may word a requirement another way (the first
   // draft of S5 asked for the opposite order of two tags), so the program checks none of its requirements and says so (findings G-U01, G-T27).
   const otherEdition = written.length > 0 && edition !== FLOORS_EDITION;
@@ -453,7 +482,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
       measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadTexts], 'Texts whose contrast the program could not read. A person must judge these by eye:'),
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.', contentLines, failed + contentUnsure),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
-      measureOf('floors', 'Floors: the part of each requirement that a program can check', floorsNote, [...floorLines], failed + (otherEdition ? 1 : 0), partly.map((id) => `${id}: ${CHECKED_PART[id] ?? ''}`), 'What the program checked of each requirement, and no more than this:'),
+      measureOf('floors', 'Floors: the part of each requirement that a program can check', `${floorsNote}${!otherEdition && written.length > 0 && floorsCut > 0 ? ' The page held more entries than the program reads in at least one list (200 of each: titles, descriptions, robots tags, viewport tags, referrer tags, headings, forms, font rules); an entry after the first 200 was not read, so the Floors count as not measured once.' : ''}`, [...floorLines], failed + (otherEdition ? 1 : written.length > 0 ? floorsCut : 0), partly.map((id) => `${id}: ${CHECKED_PART[id] ?? ''}`), 'What the program checked of each requirement, and no more than this:'),
     ],
     floorsNotChecked,
   };
@@ -477,7 +506,7 @@ export async function fit(input: FitInput): Promise<FitResult> {
     const brief = await readMockupBrief(browser, input.files['mockup.html'] ?? '', ms);
     const visionMd = input.files['VISION.md'] ?? '';
     const written = writtenFloorIds(visionMd);
-    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written, statedEdition(visionMd));
+    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written, statedEdition(visionMd), runScripts ? '' : unrunParts(input.html));
     // "Not measured" is never "no deviation": anything not measured in a measure that counts gives status 1 (decision D71, A1-07).
     // Contrast counts when the Vision writes Floor A1: a ratio below its least is then a deviation. A text whose contrast could not
     // be read does not change the status (the Mockup itself holds such texts); the receipt and the command line name the count.
@@ -495,7 +524,7 @@ export async function fit(input: FitInput): Promise<FitResult> {
       repairRound,
       judgedByModel: judged.slice(0, JUDGED_MAX),
       judgedMore: Math.max(0, judged.length - JUDGED_MAX),
-      stillNeedsPerson: [...STILL_NEEDS_A_PERSON, ...(written.length > 0 ? [`The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of ${floorsNotChecked.join(', ')}; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.`] : [])],
+      stillNeedsPerson: [...STILL_NEEDS_A_PERSON.map((line) => (!runScripts && line.startsWith('A page that recognizes the check.') ? UNRUN_LINE : line)), ...(written.length > 0 ? [`The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of ${floorsNotChecked.join(', ')}; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.`] : [])],
       pageErrors,
       scripts,
       loadFailures,

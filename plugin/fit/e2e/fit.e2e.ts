@@ -648,7 +648,7 @@ describe('Fit check: a hostile page (SPEC.md section 2.15; findings X7-01 to X7-
     const wrong = '<div style="background:#ff0000;width:40px;height:40px;border-radius:13px"></div><p style="font-family:Papyrus">x</p>';
     const plain = await fit(inputOf(files, withBody(wrong), { runScripts: true }));
     const hostilePage = withBody(`${wrong}<script>Document.prototype.querySelectorAll=function(){return []};Element.prototype.getClientRects=function(){return []};window.getComputedStyle=function(){throw new Error("x")};Array.prototype.push=function(){return 0}</script>`);
-    // The program reads the page from a world of its own, so the page's scripts, which run by default, cannot change what it reads.
+    // The program reads the page from a world of its own, so the page's scripts, which run here on request, cannot change what it reads.
     const hostile = await fit(inputOf(files, hostilePage, { runScripts: true }));
     // With scripts not run, the program reads the markup as it stands, and the page cannot change anything.
     const off = await fit(inputOf(files, hostilePage, { runScripts: false }));

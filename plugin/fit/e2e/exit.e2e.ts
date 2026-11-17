@@ -300,6 +300,48 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(status).toBe(1);
   });
 
+  it('does not say “no deviation” when the page holds a script, a noscript part, or a scripting rule and the program ran no script (retest findings R-S01, R-S02, R-U01)', async () => {
+    const pages = {
+      'a noscript part': inHead('<noscript><style>.late{display:none}</style></noscript>'),
+      'a scripting rule': inHead('<style>@media (scripting: enabled){h1{display:none}}</style>'),
+      'a script': once(reference, '</body>', '<script type="application/json">{}</script></body>'),
+    };
+    for (const [name, html] of Object.entries(pages)) {
+      const { receipt, status, markdown } = await fit({ files, html, browser });
+      expect(status, name).toBe(1);
+      expect(receipt.loadFailures.map((f) => f.reason).join('\n'), name).toContain('Check again with the option --run-scripts.');
+      expect(markdown, name).toContain('A page that behaves differently for a visitor. The program ran no script of the page');
+      expect(markdown, name).not.toContain('The program reads the page as a visitor’s browser would');
+    }
+    // The reference build holds none of the three: status 0, and no such line.
+    const clean = await fit({ files, html: reference, browser });
+    expect(clean.status).toBe(0);
+    expect(clean.receipt.loadFailures).toEqual([]);
+    // With scripts on, the sentence about a visitor's browser stands, and the scripting rule is measured: the headline is gone.
+    const on = await fit({ files, html: pages['a scripting rule'], browser, runScripts: true });
+    expect(on.markdown).toContain('The program reads the page as a visitor’s browser would');
+    expect(measure(on.receipt, 'content').deviations).toBeGreaterThan(0);
+  });
+
+  it('counts the scripts of a build in one pass, so that a build that repeats “<script” without closing it does not hold the program for minutes (retest finding R-S10)', async () => {
+    const started = Date.now();
+    const { receipt } = await fit({ files, html: `${reference}${'<script '.repeat(250_000)}`, browser });
+    expect(Date.now() - started).toBeLessThan(60_000);
+    expect(receipt.scripts.inline).toBe(0);
+  }, 120_000);
+
+  it('counts the Floors as not measured when a list that it reads holds more entries than it reads, so that a late entry cannot hide (retest finding R-T02)', async () => {
+    // 200 harmless robots tags, then one that hides the page from search: the program reads 200 entries of each list.
+    const hidden = await fit({ files, html: inHead(`${'<meta name="robots" content="all">'.repeat(200)}<meta name="robots" content="noindex">`), browser });
+    expect(measure(hidden.receipt, 'floors').notMeasured).toBeGreaterThan(0);
+    expect(measure(hidden.receipt, 'floors').note).toContain('more entries than the program reads');
+    expect(hidden.status).toBe(1);
+    // With three harmless tags before it, the same tag is read and named.
+    const seen = await fit({ files, html: inHead(`${'<meta name="robots" content="all">'.repeat(3)}<meta name="robots" content="noindex">`), browser });
+    expect(measure(seen.receipt, 'floors').items.join('\n')).toContain('Q2:');
+    expect(measure(seen.receipt, 'floors').notMeasured).toBe(0);
+  });
+
   it('counts a frame as not measured, because it does not read what a frame draws (finding G-S06)', async () => {
     const { receipt, status } = await fit({ files, html: inBody('<iframe width="300" height="200" title="Planted" srcdoc="<body style=&quot;background:#ff0000&quot;>x</body>"></iframe>'), browser });
     expect(measure(receipt, 'colors').notMeasured).toBe(1);
