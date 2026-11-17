@@ -1,7 +1,7 @@
 // The Floors (SPEC.md section 2.18; decisions D13 and D69): every record is complete and honest, and the Prescription writes them as the
 // requirement says, in each of the three contrast settings.
 import { describe, expect, it } from 'vitest';
-import { FLOORS, FLOOR_RULES, applyDirection, createProject, floorRules, prescriptionMd, writePrescription, type FloorId, type Project } from '../src/index.js';
+import { FLOORS, FLOOR_RULES, applyDirection, createProject, floorRules, prescriptionMd, setOverlay, writePrescription, type FloorId, type Project } from '../src/index.js';
 
 const HOSTS = new Set(['www.w3.org', 'developer.mozilla.org', 'web.dev', 'developers.google.com', 'cheatsheetseries.owasp.org']);
 const withSetting = (a11y: 'off' | 'advise' | 'enforce'): Project => ({ ...applyDirection(createProject('Floors'), 'paper-and-ink'), a11y });
@@ -43,10 +43,12 @@ describe('the Floor records', () => {
 });
 
 describe('the Floor records: truth of each record (the seventh review, findings F7-04 to F7-16)', () => {
-  const STANDARD = new Set(['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'A13', 'A14', 'A15', 'A16', 'A17', 'A18', 'A19', 'A20', 'S7', 'S10']);
+  const STANDARD = new Set(['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12', 'A13', 'A14', 'A15', 'A16', 'A17', 'A18', 'A19', 'A20']);
 
   it('marks a requirement as stated by a published standard only where one states it (a guide or a recommendation is not a standard)', () => {
     expect(FLOOR_RULES.filter((r) => r.standard).map((r) => r.id).sort()).toEqual([...STANDARD].sort());
+    // A reference page about a standard is not the standard (M6 gate review, finding T8-10): S7 and S10 cite MDN.
+    for (const rule of FLOOR_RULES.filter((r) => r.standard)) expect(rule.source.url, rule.id).toMatch(/^https:\/\/www\.w3\.org\/TR\//);
   });
 
   it('gives each requirement of the people Floor the success criterion where the standard states it, and no other requirement a place', () => {
@@ -127,13 +129,15 @@ describe('PRESCRIPTION.md: section 7, Floors', () => {
     for (const rule of FLOOR_RULES) expect(part, rule.id).toContain(`- **${rule.id}.** ${rule.text}`);
   });
 
-  it('writes, for each requirement, what a person must still check and its source, and says that no program checks any of them yet and that the file carries no date', () => {
+  it('writes, for each requirement, what a person must still check and its source, says which program checks some of them, and that the file carries no date', () => {
     const part = section7(prescriptionMd(withSetting('enforce')));
     for (const rule of FLOOR_RULES) {
       expect(part, rule.id).toContain(`  - A person must still check: ${rule.person}`);
       expect(part, rule.id).toContain(`  - Source: ${rule.source.url} (“${rule.source.text}”;`);
     }
-    expect(part).toContain('No program checks any requirement of this section yet.');
+    // Since feature F034 the Fit check measures some of them (reviewer, F034, gap 3): the file says so, and claims no more.
+    expect(part).toContain('The Fit check (a program that measures a built page) checks each of these requirements that a program can check');
+    expect(part).not.toContain('No program checks any requirement of this section yet.');
     expect(part).toContain('this file carries no date');
     expect(part).not.toMatch(/\b20\d\d-\d\d-\d\d\b/);
     expect(part).not.toMatch(/\baccessible\b|\bcompliant\b/i);
@@ -145,3 +149,39 @@ describe('PRESCRIPTION.md: section 7, Floors', () => {
     expect(files['PRESCRIPTION.md']).toContain('## 8. What this file leaves out');
   });
 });
+
+describe('section 7 after the M6 gate review (findings U8-04, U8-06 to U8-08, T8-11, T8-12, T8-19)', () => {
+  const md = prescriptionMd(withSetting('advise'));
+  const seven = section7(md);
+
+  it('says who does what: the AI coding tool builds, and a person (the owner, or someone the owner asks) checks', () => {
+    expect(seven).toContain('Who does what.');
+    expect(seven).toMatch(/the owner, or someone the owner asks/);
+    expect(seven).toMatch(/say in your report, in plain words, which checks the owner will need help with/);
+  });
+
+  it('explains the gaps in the numbers of the requirements', () => {
+    expect(seven).toMatch(/A gap in the numbers is a requirement of the research records that this file leaves out on purpose/);
+  });
+
+  it('names no form endpoint field that the Studio does not have', () => {
+    expect(seven).not.toContain('When the owner named one endpoint');
+    expect(seven).toContain('the Studio has no field for one');
+  });
+
+  it('says where a requirement goes beyond its source (S4, H1), and carries no research commentary (S10, S11)', () => {
+    expect(seven).toMatch(/S4\.\*\*[^\n]*\n  - A person must still check:[^\n]*The source names only `innerHTML`/);
+    expect(seven).toMatch(/H1\.\*\*[\s\S]*?The source names status 301; accepting 308 as well is this file’s choice\./);
+    expect(seven).not.toContain('(This row is about correct form markup');
+    expect(seven).not.toContain('The Prescription also states, in words');
+  });
+
+  it('points to the section that lists what is left out, and states no owner decision that was already taken', () => {
+    // The sentence stands only where an Overlay is on.
+    const withOverlay = prescriptionMd(setOverlay(withSetting('advise'), 'sticky-call', true));
+    expect(withOverlay).not.toContain('is not specified in this first part (section 7)');
+    expect(withOverlay).toContain('is not specified in this first part (section 8)');
+    expect(md).not.toMatch(/JSON-LD\)[^\n]*The owner decides\./);
+  });
+});
+

@@ -146,7 +146,7 @@ export const stepOf = (id: string): Step => findStep(id) ?? STEPS[0]!;
 /** The name to show for where a project started. */
 export function directionName(project: Project, known: Pick<StudioState, 'generated' | 'own'>): string {
   const id = project.direction;
-  if (id === null) return 'the plain start';
+  if (id === null) return 'the plain start, without a Direction';
   // A Direction of the owner's own lives in the browser, not in the project; the owner may have removed it since.
   if (isOwnDirectionId(id)) return known.own.find((d) => d.id === id)?.name ?? 'a Direction of your own that you removed';
   const name = findDirection(id)?.name ?? known.generated.find((d) => d.id === id)?.name ?? 'a generated Direction';

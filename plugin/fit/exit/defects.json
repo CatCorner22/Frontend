@@ -1,0 +1,137 @@
+[
+  {
+    "name": "a style sheet from another site",
+    "find": "</head>",
+    "replace": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/site.css\"></head>",
+    "lines": [
+      {
+        "measure": "requests",
+        "words": "cdn.example.com/site.css"
+      }
+    ]
+  },
+  {
+    "name": "a script from another site",
+    "find": "</body>",
+    "replace": "<script src=\"https://cdn.example.com/track.js\"></script></body>",
+    "lines": [
+      {
+        "measure": "requests",
+        "words": "cdn.example.com/track.js"
+      }
+    ]
+  },
+  {
+    "name": "a color outside the Prescription",
+    "find": "</body>",
+    "replace": "<p style=\"color:#123456\">Off color</p></body>",
+    "lines": [
+      {
+        "measure": "colors",
+        "words": "text color #123456"
+      }
+    ]
+  },
+  {
+    "name": "a typeface outside the Prescription",
+    "find": "</body>",
+    "replace": "<p style=\"font-family:Papyrus\">Other letters</p></body>",
+    "lines": [
+      {
+        "measure": "typefaces",
+        "words": "typeface \"Papyrus\""
+      }
+    ]
+  },
+  {
+    "name": "a corner radius outside the Prescription",
+    "find": "</body>",
+    "replace": "<div style=\"width:20px;height:20px;background:var(--surface);border:1px solid var(--border-strong);border-radius:13px\"></div></body>",
+    "lines": [
+      {
+        "measure": "radii",
+        "words": "radius 13px"
+      }
+    ]
+  },
+  {
+    "name": "a text in the color of its background",
+    "find": "</body>",
+    "replace": "<p style=\"color:var(--bg);background:var(--bg)\">Blank words</p></body>",
+    "lines": [
+      {
+        "measure": "contrast",
+        "words": "Blank words"
+      }
+    ]
+  },
+  {
+    "name": "another headline",
+    "find": "<h1>Dental care that <mark>explains itself</mark> before it begins.</h1>",
+    "replace": "<h1>Teeth, done.</h1>",
+    "lines": [
+      {
+        "measure": "content",
+        "words": "the headline"
+      }
+    ]
+  },
+  {
+    "name": "a page wider than its window",
+    "find": "</body>",
+    "replace": "<div style=\"width:1500px;height:1px\"></div></body>",
+    "lines": [
+      {
+        "measure": "width",
+        "words": "wider than its window"
+      }
+    ]
+  },
+  {
+    "name": "a link to a new tab without rel=\"noopener\"",
+    "find": "</body>",
+    "replace": "<a href=\"#main\" target=\"_blank\">New tab</a></body>",
+    "lines": [
+      {
+        "measure": "floors",
+        "words": "S7:"
+      }
+    ]
+  },
+  {
+    "name": "no description for search engines",
+    "find": "<meta name=\"description\" content=\"A dental practice on Harbor Street.\">",
+    "replace": "",
+    "lines": [
+      {
+        "measure": "floors",
+        "words": "Q8:"
+      }
+    ]
+  },
+  {
+    "name": "an image without a size",
+    "find": "</body>",
+    "replace": "<img src=\"data:image/png;base64,iVBORw0KGgo=\" alt=\"\"></body>",
+    "lines": [
+      {
+        "measure": "floors",
+        "words": "P4:"
+      }
+    ]
+  },
+  {
+    "name": "a color that only a tablet shows",
+    "find": "</body>",
+    "replace": "<style>.only-tablet{display:none}@media (min-width:600px) and (max-width:1000px){.only-tablet{display:block}}</style><p class=\"only-tablet\" style=\"color:#654321\">Tablet only</p></body>",
+    "lines": [
+      {
+        "measure": "colors",
+        "words": "text color #654321"
+      }
+    ],
+    "widths": [
+      768
+    ]
+  }
+]

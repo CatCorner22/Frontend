@@ -18,7 +18,7 @@ What the program measured on the helper's page (`RECEIPT.md` has the full receip
 
 - **Colors, typefaces, corner radii, content, width: no deviation.** Every color that a visible element draws is a color of the Prescription; every text uses a typeface that the Prescription names; every drawn box uses a radius of the Prescription; the business name, the headline, and the primary action are on the page; the page is not wider than its window at 375 or 1280 pixels.
 - **Requests: three deviations.** Two are the font files at `/fonts/…`, and one is a form that posts to `/appointment-request`. See the first problem below: the first two are not the helper's fault.
-- **Contrast: 18 text readings could not be taken** (three texts drawn partly transparent, each read at two widths and, since the program joined campaign A2's three readings of each width, three times at each; the program counted 6 readings before the join), the same count as on the Mockup. No reading below the usual least was found among the others.
+- **Contrast: 6 text readings could not be taken** (a text drawn partly transparent), the same count as on the Mockup. No reading below the usual least was found among the others.
 - **No script**, written into the page or fetched.
 
 What the helper said about itself (its report, which is a claim and not a measurement), and what the builder checked:
@@ -54,8 +54,20 @@ Later the same day (the retest's variant findings A2-V1 to A2-V14): the receipt 
 
 ## Second update of 2026-11-16 (decision D68, section 2.15)
 
-The receipt was measured again after the seventh review's repairs of the program (its window has no network, and what the page returns is checked). The page holds no script, so the counts did not change; the receipt says how many scripts the page holds.
+The receipt was measured again after the seventh review's repairs of the program (it now runs none of the page's scripts by default, and its window has no network). The page holds no script, so the counts did not change; the receipt now also says that the program did not run the page's scripts.
 
-## After the join of the two branches (2026-11-16, decision D73)
+## The branches joined (2026-11-16, decision D72)
 
-The program that measures this page is now the joined program: campaign A2's reading (three readings of each width, from a world of its own) and feature F029's protections of the window. The stored receipt was measured again. No deviation count changed. Three things in the receipt changed: the page's scripts are run (the page holds none), the count of texts that could not be taken is 18 (it was 6: each text is now read three times at each width), and the sentence about Floors in the contrast note says that no program checks a Floor yet.
+The two branches of this repository were joined (decision D72), and the stored receipt was measured again with the joined program. **No count changed from the main line's receipt**, in any measure. Against the audit branch's receipt, one count changed back: the contrast measure's "not measured" count is 6 again where the audit branch said 18, because the joined program counts a text that it cannot measure once for each window width, however many readings of that width found it (the note of the measure says "one for each text and window width", and the count now agrees with it). The wording changed in these places: the first lines name the readings at each width; the page's two font files at `/fonts/…` are listed once each, with all the ways the page names them ("css url, request"); the two partly transparent colors are listed as information, as `rgba()` values; two measure titles and four measure notes say what the joined program measures; the scripts line says that the program did not run the page's scripts; and "Still needs a person" holds six more lines (other widths, a page that recognizes the check, typefaces compared by name, dark mode and other window heights, closed shadow roots, and contrast against what lies under a text).
+
+## A later change to the program (2026-11-17, M6 gate review, findings S8-01 and S8-02)
+
+The program now also compares the paint of SVG shapes, underline colors, column rules, list markers, placeholders, and caret and accent colors. The stored receipt was measured again with that program. No count changed. The colors measure lists two more partly transparent colors as information, the colors of the page's underlines, and its note names the newly compared kinds; "Still needs a person" now names the color of selected text.
+
+## A later change to the program (2026-11-17, feature F034)
+
+The program now also measures the Floors (feature F034, `SPEC.md` section 2.22). The stored receipt was measured again. No count changed. The receipt gained a seventh measure, "Floors", which says that this Prescription holds no Floors (it was made before them), and "Still needs a person" gained one line on the Floors that no program checks.
+
+## A later change to the program (2026-11-17, feature F035)
+
+The program now reads every page at a third width, 768 pixels, and measures contrast through opacity as a browser blends it. The stored receipt was measured again. The contrast measure counts 0 not measured where it counted 6: the six readings of texts drawn partly transparent are now measured, and none is below the usual least. No other count changed.

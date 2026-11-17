@@ -387,6 +387,30 @@
         "Remove one of the 38 Directions from the Catalog: npm run check fails and names it"
       ],
       "passes": true
+    },
+    {
+      "id": "F034",
+      "description": "The Fit check measures every Floor requirement of the Prescription's section 7 that a program can check on one page, as a seventh measured thing that names each failing requirement by its id; and where the Prescription holds Floor A1, contrast below the usual least becomes a deviation that changes the status.",
+      "spec_section": "SPEC.md section 2.22",
+      "steps": [
+        "Run the Fit check on a page that meets every checked Floor: the Floors measure shows 0 deviations",
+        "Plant one breach of each checked requirement (for example a link with target=\"_blank\" and no rel=\"noopener\"): the Floors measure names that requirement's id, and the status is 1",
+        "Measure a page with a low-contrast text against a Prescription made with \"Fix for me\": the contrast measure is required by Floor A1 and the status is 1; against one made with \"Warn me\", contrast stays measured, not required",
+        "Measure the Mockup as a build: the design measures show no deviation, and the Floors measure names only the Floors that the Prescription says the Mockup does not meet"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F035",
+      "description": "The Fit check reads every page at a third window width, 768 pixels; and a stored flawed build, made from a clean build and a list of planted defects, is the exit test of milestone M7: every planted defect is found, and no line of the receipt is a false blocker.",
+      "spec_section": "SPEC.md section 2.23",
+      "steps": [
+        "Run the Fit check on any page: the receipt names the widths 375, 768, and 1280 pixels",
+        "Run it on plugin/fit/exit/clean.html against the folder's Prescription: status 0",
+        "Run it on each planted defect of plugin/fit/exit/defects.json alone: status 1, and a line of the named measure holds the defect's words; the defect that shows only between 600 and 1000 pixels is found at 768 pixels",
+        "Run it on the build that holds every defect at once: every defect is found, and every deviation line is explained by a defect"
+      ],
+      "passes": true
     }
   ]
 }

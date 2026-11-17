@@ -41,8 +41,14 @@ for (const id of ['001', '002', '003']) {
       const stored = read('files', 'PRESCRIPTION.md');
       const current = today['PRESCRIPTION.md'] ?? '';
       if (id === '003') {
-        const outside = (text: string): string => text.slice(0, text.indexOf('## 7. Floors')) + text.slice(text.indexOf('## 8. '));
-        expect(outside(stored)).toBe(outside(current));
+        // Two lines of section 8 changed after the run, and only those: the sentence on structured data (JSON-LD) now states decision D70
+        // instead of "The owner decides" (M6 gate review, finding T8-12), and the sentence on a program for the Floors says what the Fit
+        // check measures since feature F034 (reviewer finding RV-04). Every other line outside section 7 must still be equal.
+        const jsonLd = (line: string): boolean => line.startsWith('- Structured data for the business (JSON-LD)') || line.startsWith('- A program that checks');
+        const outside = (text: string): string[] => (text.slice(0, text.indexOf('## 7. Floors')) + text.slice(text.indexOf('## 8. '))).split('\n').filter((line) => !jsonLd(line));
+        expect(outside(stored)).toEqual(outside(current));
+        expect(stored.split('\n').filter(jsonLd)).toHaveLength(2);
+        expect(current.split('\n').filter(jsonLd)).toHaveLength(2);
         expect(stored.match(/^- \*\*[ASHQP]\d+\.\*\*/gm)).toHaveLength(48);
         return;
       }

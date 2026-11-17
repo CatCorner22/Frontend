@@ -15,6 +15,23 @@ export interface DesignValues {
   typefaces: ReadonlySet<string>;
   /** Corner radii in pixels. */
   radii: ReadonlySet<number>;
+  /**
+   * The ids of the Floor requirements that `PRESCRIPTION.md` holds in its section 7 (SPEC.md section 2.22); empty for a
+   * Prescription made before the Floors. The file is data: only a line that starts `- **X1.**` counts, and nothing else of it is read.
+   */
+  floorIds: ReadonlySet<string>;
+  /** Whether `PRESCRIPTION.md` has a section 7, "Floors", at all. */
+  hasFloors: boolean;
+}
+
+/** The ids of the Floor requirements in section 7 of `PRESCRIPTION.md`, and whether that section exists. */
+export function floorsHeld(prescription: string): { ids: Set<string>; hasFloors: boolean } {
+  const start = prescription.search(/^## 7\. Floors\s*$/m);
+  if (start < 0) return { ids: new Set(), hasFloors: false };
+  const rest = prescription.slice(start + 1);
+  const end = rest.search(/^## \d+\. /m);
+  const section = end < 0 ? rest : rest.slice(0, end);
+  return { ids: new Set([...section.matchAll(/^- \*\*([ASHQP]\d{1,2})\.\*\*/gm)].map((m) => m[1] ?? '')), hasFloors: true };
 }
 
 interface JsonToken {
@@ -42,12 +59,12 @@ function fingerprintsOf(files: Readonly<Record<string, string | undefined>>, tok
 }
 
 /** The named values of `tokens.css`, in their order, as the Studio writes them: one `  --name: value;` line each. */
-export function cssValues(text: string): [string, string][] {
+function cssValues(text: string): [string, string][] {
   return [...text.matchAll(/^ {2}(--[\w-]+): (.*);$/gm)].map((m) => [m[1] ?? '', m[2] ?? '']);
 }
 
 /** The fingerprint of the design values, worked out as the Studio works it out (FNV-1a over "name:value;" of every value, in order). */
-export function fingerprintOf(values: readonly [string, string][]): string {
+function fingerprintOf(values: readonly [string, string][]): string {
   let sum = 0x811c9dc5;
   for (const [name, value] of values) {
     for (const unit of `${name}:${value};`) {
@@ -78,7 +95,12 @@ function disagreements(tokens: TokensJson, css: readonly [string, string][]): st
         else if (rgb) same = `#${[rgb[1], rgb[2], rgb[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('')}` === value.hex.toLowerCase() && Math.abs(Number(rgb[4]) - alpha) < 0.0005;
         else same = false;
       }
-      else if (group === 'dimension' && value && !Array.isArray(value) && typeof value.value === 'number') same = there === `${String(value.value)}${value.unit ?? ''}`;
+      else if (group === 'dimension' && value && !Array.isArray(value) && typeof value.value === 'number') {
+        // A size may stand in rem in one file and in pixels in the other: 16 pixels to the rem, as the program reads radii (joined, D72).
+        const px = (n: number, unit: string): number => (unit === 'rem' ? n * 16 : n);
+        const css = /^(-?[\d.]+)(px|rem)$/.exec(there);
+        same = there === `${String(value.value)}${value.unit ?? ''}` || (css !== null && (value.unit === 'px' || value.unit === 'rem') && Math.abs(px(Number(css[1]), css[2] ?? '') - px(value.value, value.unit)) < 0.001);
+      }
       else if (group === 'typeface' && Array.isArray(value)) same = there.split(',')[0]?.trim().replace(/^"|"$/g, '') === value[0];
       if (!same) out.push(`--${name}`);
     }
@@ -125,5 +147,6 @@ export function readDesignValues(files: Readonly<Record<string, string | undefin
     const first = Array.isArray(token.$value) ? token.$value[0] : undefined;
     if (typeof first === 'string') typefaces.add(first.toLowerCase());
   }
-  return { fingerprint: [...distinct][0] as string, colors, typefaces, radii };
+  const held = floorsHeld(files['PRESCRIPTION.md'] ?? '');
+  return { fingerprint: [...distinct][0] as string, colors, typefaces, radii, floorIds: held.ids, hasFloors: held.hasFloors };
 }

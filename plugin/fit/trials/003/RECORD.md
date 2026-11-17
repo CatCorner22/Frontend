@@ -12,11 +12,11 @@ The helper was a general-purpose helper agent of this session. The builder did n
 
 ## What the run shows
 
-What the program measured on the helper's page (`RECEIPT.md` has the full receipt; the program's status was 0, no deviation):
+What the program measured on the helper's page (`RECEIPT.md` has the full receipt; the program's status was 0, no deviation, when the run was first measured; it was 1 for part of 2026-11-17 and is 0 again, for the reasons in the last two sections):
 
 - **Requests, colors, typefaces, corner radii, content, width: no deviation.** The page asks for nothing from another site; every color that a visible element draws is a color of the Prescription; every text uses a typeface that the Prescription names; every drawn box uses a radius of the Prescription; the business name, the headline, and the primary action are on the page; the page is not wider than its window at 375 and 1280 pixels.
 - **Not shipped with the page (information, not deviations):** two font files and the form's address, `/appointment-request`, all at the page's own address.
-- **Contrast: 18 text readings could not be taken** (three texts drawn partly transparent, each read at two widths and in three readings of each width), the same count as in trial 001. No reading below the usual least was found among the others.
+- **Contrast: 6 text readings could not be taken** (a text drawn partly transparent), the same count as in trial 001. No reading below the usual least was found among the others.
 - **No script**, written into the page or fetched.
 
 What the builder read in the page, by searching its text. This is the builder's reading of a few points; it is not a program, and the Fit check measures no Floor:
@@ -41,3 +41,19 @@ What the helper said about itself (its report, which is a claim and not a measur
 - **Whether the helper stayed in its rules.** The helper cannot be held to the rule “read no other file”: it ran in the same environment as this repository, and the harness does not limit what it can read. Its report lists the seven files only.
 - **Today's Floors.** The helper read the first draft. A run with today's 56 requirements has not been made.
 - **Whether the page looks right**, and whether the page works with the keyboard alone and with a screen reader. No person looked, and the program does not look.
+
+## The branches joined (2026-11-16, decision D72)
+
+The two branches of this repository were joined (decision D72), and the stored receipt was measured again with the joined program. **No count changed from the main line's receipt**, in any measure. The wording changed in the same places as in `../001/RECORD.md`: the first lines, two measure titles, four measure notes, and six more lines under "Still needs a person"; the page's two font files at `/page/fonts/…` are now listed as requests to the site's own address (stopped, information, not deviations).
+
+## A later change to the program (2026-11-17, M6 gate review, findings S8-01 and S8-02)
+
+The program now also compares the paint of SVG shapes, underline colors, column rules, list markers, placeholders, and caret and accent colors. The stored receipt was measured again with that program. No count changed. The colors measure lists two more partly transparent colors as information, the colors of the page's underlines, and its note names the newly compared kinds; "Still needs a person" now names the color of selected text.
+
+## A later change to the program (2026-11-17, feature F034)
+
+The program now also measures the Floors (feature F034, `SPEC.md` section 2.22). The stored receipt was measured again. **The page meets every Floor that its Prescription holds and that the program checks: the Floors measure finds 0 deviations** (23 requirements checked; the others are named in its note for a person to check). No other count changed. **The status of this receipt is now 1, where it was 0**: the Prescription holds Floor A1 (it was made with "Fix for me"), so contrast is now a requirement, and 6 text readings could not be measured (each text or a box around it is drawn partly transparent). "Not measured" is never "no deviation" (decision D71), so a person must look at those six.
+
+## A later change to the program (2026-11-17, feature F035)
+
+The program now reads every page at a third width, 768 pixels, and measures contrast through opacity as a browser blends it. The stored receipt was measured again. **The status is 0 again**: the six contrast readings that could not be measured (texts drawn partly transparent) are now measured, and none is below the usual least, so the page meets contrast as Floor A1 requires. No other count changed.

@@ -9,17 +9,17 @@ export interface Reference {
   address: string;
 }
 export interface Drawn {
-  kind: 'text' | 'text fill' | 'background' | 'border' | 'outline' | 'text stroke';
+  kind: 'text' | 'text fill' | 'background' | 'border' | 'outline' | 'text stroke' | 'svg fill' | 'svg stroke' | 'underline' | 'column rule' | 'marker' | 'placeholder' | 'caret' | 'accent';
   css: string;
   where: string;
 }
 export interface TextRead {
   where: string;
   foreground: string;
-  /** Background layers, from the outermost to the one under the text, as computed CSS colors; null when the background cannot be read. */
+  /** From the text outward: each background as a computed CSS color, and "opacity N" where a box is drawn partly transparent; null when the background cannot be read. */
   layers: string[] | null;
-  /** Why the contrast of this text cannot be measured; empty when it can. */
-  unmeasured: string;
+  /** Why the contrast of this text cannot be measured, as a fixed code; empty when it can. The program turns a code into a sentence; page text never stands here (main line, finding X7). */
+  unmeasured: '' | 'fill' | 'image' | 'filter';
   sizePx: number;
   weight: number;
 }
@@ -30,9 +30,14 @@ export interface Collected {
   families: { family: string; where: string }[];
   radii: { value: string; where: string }[];
   texts: TextRead[];
-  /** The text that a person can read in the window, one entry for each block of text: drawn at 6 pixels or more, not (nearly) transparent, and inside the window's width (campaign A2, finding J-7). A required text must stand inside one block. */
+  /**
+   * The text that a person can read in the window, one entry for each block of text: drawn at 6 pixels or more, not (nearly)
+   * transparent, in a color that is not transparent, and inside the window's width (campaign A2, findings J-7 and A2-V6). A required
+   * text must stand inside one block, so that it cannot be pieced together from the end of one block and the start of the next
+   * (the main line's rule, finding X7). Joined on 2026-11-16 (decision D72).
+   */
   shownLines: string[];
-  /** Text that a `clip-path` or a mask may hide, one entry for each block; whether a person sees it, the program cannot tell (retest finding A2-V7). */
+  /** Text that a `clip-path` or a mask may hide, by block; whether a person sees it, the program cannot tell (retest finding A2-V7). */
   clippedLines: string[];
   /** Elements with text, or form controls and pictures, that reach past an edge of the window where nothing lets a person scroll to them (finding J-18). */
   cutOff: string[];
@@ -44,6 +49,13 @@ export interface Collected {
   clientWidth: number;
   /** The address of the page's first `<base href>`, against which a browser reads every other address; empty without one (finding A1-10). */
   baseHref: string;
+  /**
+   * How many entries of each kind the program dropped because the page held more than it reads (20,000 of each kind). The program
+   * fills this in when it checks a reading; the page cannot set it (code review of pull request 14, Codex).
+   */
+  /** Each breach of a Floor that a program can check on one page, with the first element that breaks it (SPEC.md section 2.22). */
+  floorBreaches: { id: string; where: string }[];
+  beyond?: Partial<Record<'references' | 'drawn' | 'families' | 'radii' | 'texts' | 'lines' | 'cutOff' | 'fontFaces', number>>;
 }
 
 export function collect(): Collected {
@@ -75,6 +87,14 @@ export function collect(): Collected {
     const [r = 0, g = 0, b = 0, a = 0] = pen.getImageData(0, 0, 1, 1).data;
     return a === 255 ? `rgb(${String(r)}, ${String(g)}, ${String(b)})` : `rgba(${String(r)}, ${String(g)}, ${String(b)}, ${String(a / 255)})`;
   };
+  /** A color in `rgb()` or `rgba()` with its alpha multiplied by `factor`; any other form (a gradient's `url(...)`) passes unchanged. */
+  const withAlpha = (css: string, factor: number): string => {
+    if (!(factor < 1)) return css;
+    const m = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:\s*[,/]\s*([\d.]+)(%?))?\s*\)$/.exec(css.trim());
+    if (!m) return css;
+    const alpha = m[4] === undefined ? 1 : m[5] === '%' ? Number(m[4]) / 100 : Number(m[4]);
+    return `rgba(${m[1] ?? '0'}, ${m[2] ?? '0'}, ${m[3] ?? '0'}, ${String(Math.round(alpha * factor * 1000) / 1000)})`;
+  };
   const alphaOf = (css: string): number => {
     const m = /^rgba?\(\s*[\d.]+[\s,]+[\d.]+[\s,]+[\d.]+(?:\s*[,/]\s*([\d.]+%?))?\s*\)$/.exec(css.trim());
     if (!m) return 1;
@@ -99,13 +119,15 @@ export function collect(): Collected {
     const code = Number.parseInt(hex, 16);
     return code > 0 && code <= 0x10ffff && (code < 0xd800 || code > 0xdfff) ? String.fromCodePoint(code) : '\ufffd';
   });
-  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['video', 'poster'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['form', 'action'], ['button', 'formaction'], ['input', 'formaction'], ['a', 'ping'], ['area', 'ping'], ['image', 'href'], ['image', 'xlink:href'], ['use', 'href'], ['use', 'xlink:href'], ['base', 'href']];
+  const holders: [string, string][] = [['link', 'href'], ['script', 'src'], ['img', 'src'], ['source', 'src'], ['iframe', 'src'], ['video', 'src'], ['audio', 'src'], ['track', 'src'], ['embed', 'src'], ['object', 'data'], ['input', 'src'], ['video', 'poster'], ['form', 'action'], ['button', 'formaction'], ['input', 'formaction'], ['base', 'href'], ['image', 'href'], ['image', 'xlink:href'], ['use', 'href'], ['use', 'xlink:href']];
   for (const [tag, attribute] of holders) {
     for (const el of every(tag)) {
       const value = el.getAttribute(attribute) ?? '';
       if (outside(value)) references.push({ kind: `${tag} ${attribute}`, value: collapse(value), address: value });
     }
   }
+  // A ping holds several addresses, separated by spaces; a meta refresh names the address that the page moves to (main line, finding X7).
+  for (const el of every('a[ping], area[ping]')) for (const value of (el.getAttribute('ping') ?? '').split(/\s+/)) if (outside(value)) references.push({ kind: `${el.tagName.toLowerCase()} ping`, value: collapse(value), address: value });
   for (const el of every('meta[http-equiv]')) {
     if ((el.getAttribute('http-equiv') ?? '').toLowerCase() !== 'refresh') continue;
     const target = /url\s*=\s*['"]?([^'";]+)/i.exec(el.getAttribute('content') ?? '')?.[1] ?? '';
@@ -169,6 +191,7 @@ export function collect(): Collected {
   const radii: Collected['radii'] = [];
   const texts: TextRead[] = [];
   const skip = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT', 'HEAD', 'TITLE', 'META', 'LINK', 'BASE']);
+  const SHAPES = new Set(['rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path', 'text', 'tspan', 'textPath']);
   const corners = ['borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius'] as const;
   const sides = [['borderTopWidth', 'borderTopStyle', 'borderTopColor'], ['borderRightWidth', 'borderRightStyle', 'borderRightColor'], ['borderBottomWidth', 'borderBottomStyle', 'borderBottomColor'], ['borderLeftWidth', 'borderLeftStyle', 'borderLeftColor']] as const;
 
@@ -254,6 +277,19 @@ export function collect(): Collected {
         if (ps.color !== cs.color || ps.webkitTextFillColor !== cs.webkitTextFillColor || ps.fontFamily !== cs.fontFamily || ps.backgroundColor !== 'rgba(0, 0, 0, 0)' || ps.borderTopStyle !== 'none') box(ps, `${label}${pseudo}`, true, recolored, false);
       }
     }
+    // Other paint that the page draws (M6 gate review, findings S8-01 and S8-02). An SVG shape paints with fill and stroke, not with
+    // color; a fill of "url(...)" (a gradient or a pattern) is passed on unconverted, so the receipt counts it as not measured.
+    if (el.namespaceURI === 'http://www.w3.org/2000/svg' && SHAPES.has(el.localName)) {
+      // The paint's own opacity joins the color's alpha, so a half-transparent fill is listed as partly transparent (code review, Codex).
+      if (el.localName !== 'line' && cs.fill !== 'none' && Number.parseFloat(cs.fillOpacity) > 0) add('svg fill', withAlpha(rgbOf(cs.fill), Number.parseFloat(cs.fillOpacity)), label, recolored);
+      if (cs.stroke !== 'none' && Number.parseFloat(cs.strokeWidth) > 0 && Number.parseFloat(cs.strokeOpacity) > 0) add('svg stroke', withAlpha(rgbOf(cs.stroke), Number.parseFloat(cs.strokeOpacity)), label, recolored);
+    }
+    if (cs.textDecorationLine !== 'none' && (el.textContent ?? '').trim() !== '') add('underline', rgbOf(cs.textDecorationColor), label, recolored);
+    if (cs.columnRuleStyle !== 'none' && cs.columnRuleStyle !== 'hidden' && Number.parseFloat(cs.columnRuleWidth) > 0 && (cs.columnCount !== 'auto' || cs.columnWidth !== 'auto')) add('column rule', rgbOf(cs.columnRuleColor), label, recolored);
+    if (cs.display === 'list-item' && cs.listStyleType !== 'none') add('marker', rgbOf(getComputedStyle(el, '::marker').color), label, recolored);
+    if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && (el.getAttribute('placeholder') ?? '') !== '') add('placeholder', rgbOf(getComputedStyle(el, '::placeholder').color), label, recolored);
+    if (cs.caretColor !== 'auto' && (['INPUT', 'TEXTAREA'].includes(el.tagName) || (el as HTMLElement).isContentEditable)) add('caret', rgbOf(cs.caretColor), label, recolored);
+    if (cs.accentColor !== 'auto' && ['INPUT', 'PROGRESS', 'METER'].includes(el.tagName)) add('accent', rgbOf(cs.accentColor), label, recolored);
     if (hasText || ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'IMG'].includes(el.tagName)) {
       const r = el.getBoundingClientRect();
       if (r.width > 0 && (r.right > viewWidth + 1 || (r.left < -1 && r.right > 1)) && !clippedOnPurpose(el)) cutOff.push(label);
@@ -261,31 +297,34 @@ export function collect(): Collected {
 
     if (!hasText) continue;
     const textColor = rgbOf(cs.color);
-    let unmeasured = '';
+    let unmeasured: TextRead['unmeasured'] = '';
     const layers: string[] = [];
-    if (alphaOf(textColor) === 0 || alphaOf(rgbOf(cs.webkitTextFillColor)) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') unmeasured = 'the text is filled by an image or a gradient';
-    if (unmeasured === '' && recolored) unmeasured = 'a filter changes how the text is drawn';
+    if (alphaOf(textColor) === 0 || alphaOf(rgbOf(cs.webkitTextFillColor)) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') unmeasured = 'fill';
+    if (unmeasured === '' && recolored) unmeasured = 'filter';
+    // From the text outward: each box's background, then its opacity, which scales the box and all inside it as one group before it is
+    // laid over what lies behind, as a browser draws it (SPEC.md section 2.23). The walk stops where nothing behind can show through.
+    let cover = 0;
     for (let up: Element | null = el; up && unmeasured === ''; up = up.parentElement) {
       const style = getComputedStyle(up);
-      if (Number.parseFloat(style.opacity) < 1) { unmeasured = 'the text or a box around it is drawn partly transparent'; break; }
-      if (style.backgroundImage !== 'none') { unmeasured = 'an image or a gradient lies behind the text'; break; }
+      if (style.backgroundImage !== 'none') { unmeasured = 'image'; break; }
       const behind = rgbOf(style.backgroundColor);
       const a = alphaOf(behind);
-      if (a > 0) layers.unshift(behind);
-      if (a === 1) break;
+      if (a > 0) { layers.push(behind); cover = cover + a * (1 - cover); }
+      const opacity = Number.parseFloat(style.opacity);
+      if (opacity < 1) { layers.push(`opacity ${String(opacity)}`); cover *= opacity; }
+      if (cover >= 0.9995) break;
     }
     texts.push({ where: label, foreground: textColor, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400 });
   }
 
   // The text that a person can read in this window (finding J-7). innerText counts text at size 0, at opacity 0, and outside the window.
-  // The text nodes of one block (the nearest box that is not inline) make one line: a headline with a marked word inside it is one line, and
-  // the end of a tag line and the start of the headline are two.
+  // Text is gathered by block: the nearest box around it that is not drawn inline, as a browser breaks the visible text into lines.
   const shown = new Map<Element, string[]>();
   const clipped = new Map<Element, string[]>();
   const blockOf = (el: Element): Element => {
-    let up = el;
-    while (up.parentElement && getComputedStyle(up).display.startsWith('inline') && !getComputedStyle(up).display.startsWith('inline-')) up = up.parentElement;
-    return up;
+    let at = el;
+    while (at.parentElement && /^(inline|contents)$/.test(getComputedStyle(at).display)) at = at.parentElement;
+    return at;
   };
   // Letters drawn in a transparent color are not read, unless a gradient fills them through the text (retest finding A2-V6).
   const fillsThroughText = (el: Element | null): boolean => {
@@ -323,7 +362,68 @@ export function collect(): Collected {
   }
 
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
+
+  // The Floors that a program can check on one page (SPEC.md section 2.22): each breach names its requirement and the first element.
+  // The program keeps only the requirements that the Prescription holds; here every check runs, on the page as it stands.
+  const floorBreaches: { id: string; where: string }[] = [];
+  const breach = (ids: string[], whereText: string): void => { for (const id of ids) floorBreaches.push({ id, where: whereText }); };
+  const firstOf = (list: Element[], ids: string[]): void => { if (list[0]) breach(ids, where(list[0])); };
+  const attr = (el: Element, name: string): string => el.getAttribute(name) ?? '';
+  // An address as a browser reads it: tabs and line breaks removed, control signs and spaces trimmed (reviewer, F034, gap 1).
+  const asRead = (value: string): string => value.replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '');
+  const scriptAddress = (value: string): boolean => /^javascript:/i.test(asRead(value));
+  // Every address of a srcset, not only its first (gap 2).
+  const srcsetAddresses = (value: string): string[] => value.split(',').map((part) => part.trim().split(/\s+/)[0] ?? '').filter((part) => part !== '');
+  // A label for a field may stand in the field's own root: the document or an open shadow root (gap 5).
+  const labelled = (el: Element): boolean => {
+    const root = el.getRootNode();
+    return el.id !== '' && (root instanceof Document || root instanceof ShadowRoot) && root.querySelector(`label[for="${CSS.escape(el.id)}"]`) !== null;
+  };
+  const nameOf = (el: Element): string => collapse([el.textContent ?? '', attr(el, 'aria-label'), attr(el, 'aria-labelledby') === '' ? '' : 'labelled', attr(el, 'title'), ...[...el.querySelectorAll('img[alt]')].map((img) => attr(img, 'alt'))].join(' '));
+  firstOf(every('img').filter((el) => !el.hasAttribute('alt')), ['A2']);
+  const fields = every('input, select, textarea').filter((el) => !(el.tagName === 'INPUT' && ['hidden', 'button', 'image', 'reset', 'submit'].includes(attr(el, 'type').toLowerCase())));
+  firstOf(fields.filter((el) => !attr(el, 'aria-label').trim() && !attr(el, 'aria-labelledby').trim() && !labelled(el) && !el.closest('label')), ['A3']);
+  firstOf(every('a[href], button').filter((el) => nameOf(el) === ''), ['A4']);
+  if (!/^[a-z]{2,3}(-[a-z0-9]{1,8})*$/i.test(attr(document.documentElement, 'lang'))) breach(['A5', 'Q13'], 'html');
+  const titles = [...document.querySelectorAll('head > title')];
+  if (titles.length !== 1 || collapse(titles[0]?.textContent ?? '') === '') breach(['A12', 'Q3'], `head (${String(titles.length)} titles)`);
+  const viewport = attr(document.querySelector('meta[name="viewport" i]') ?? document.createElement('meta'), 'content').toLowerCase();
+  const maxScale = /maximum-scale\s*=\s*([\d.]+)/.exec(viewport);
+  if (!/width\s*=\s*device-width/.test(viewport) || /user-scalable\s*=\s*(no|0)\b/.test(viewport) || (maxScale !== null && Number(maxScale[1]) < 2)) breach(['A13', 'Q9'], 'meta viewport');
+  // The browser's own reading of tabindex: "1x" is 1 (gap 4).
+  firstOf(every('[tabindex]').filter((el) => el instanceof HTMLElement && el.tabIndex > 0), ['A17']);
+  const addressed = every('[src], [href], [action], [formaction], [poster], [srcset]');
+  const styleText = [...every('style').map((el) => el.textContent ?? ''), ...every('[style]').map((el) => attr(el, 'style'))].join('\n');
+  const plainHttp = (value: string): boolean => /^http:\/\//i.test(asRead(value));
+  firstOf(addressed.filter((el) => ['src', 'href', 'action', 'formaction', 'poster'].some((name) => plainHttp(attr(el, name))) || srcsetAddresses(attr(el, 'srcset')).some(plainHttp)), ['S1']);
+  if (!floorBreaches.some((b) => b.id === 'S1') && /url\(\s*['"]?\s*http:\/\//i.test(unescapeCss(styleText))) breach(['S1'], 'a style sheet');
+  const handlers = every('*').filter((el) => [...el.attributes].some((a) => /^on/i.test(a.name)));
+  const scripted = addressed.filter((el) => ['src', 'href', 'action', 'formaction'].some((name) => scriptAddress(attr(el, name))));
+  firstOf([...handlers, ...scripted], ['S3']);
+  // The browser enforces every policy tag; one with a form-action without * meets S6 (gap 6).
+  const policyTags = [...document.querySelectorAll('head > meta[http-equiv="Content-Security-Policy" i]')];
+  if (policyTags.length === 0) breach(['S5'], 'head');
+  const formActions = policyTags.map((el) => /(?:^|;)\s*form-action\s+([^;]*)/i.exec(attr(el, 'content'))?.[1]).filter((v): v is string => v !== undefined);
+  if (formActions.length === 0 || formActions.every((v) => /\*/.test(v))) breach(['S6'], policyTags.length > 0 ? 'meta Content-Security-Policy' : 'head');
+  firstOf(every('[target="_blank" i]').filter((el) => !/\b(noopener|noreferrer)\b/i.test(attr(el, 'rel'))), ['S7']);
+  // The browser uses the last referrer tag (gap 6).
+  const referrer = attr([...document.querySelectorAll('meta[name="referrer" i]')].pop() ?? document.createElement('meta'), 'content').trim().toLowerCase();
+  if (!['no-referrer', 'same-origin', 'strict-origin', 'strict-origin-when-cross-origin'].includes(referrer)) breach(['S8'], 'head');
+  firstOf(every('form').filter((el) => attr(el, 'method').toLowerCase() !== 'post' || /^(http:|javascript:)/i.test(asRead(attr(el, 'action')))), ['S9']);
+  // The browser's own reading of the type: an unknown type is a text field (gap 6).
+  firstOf(every('input, textarea').filter((el) => (el.tagName === 'TEXTAREA' || (el instanceof HTMLInputElement && ['text', 'email', 'tel', 'search', 'url'].includes(el.type))) && !el.hasAttribute('maxlength')), ['S11']);
+  if ([...document.querySelectorAll('meta[name="robots" i], meta[name="googlebot" i]')].some((el) => /\b(noindex|none|nosnippet)\b/i.test(attr(el, 'content')))) breach(['Q2'], 'meta robots');
+  const headings = every('h1');
+  if (headings.length !== 1 || headings[0]?.getClientRects().length === 0 || collapse(headings[0]?.textContent ?? '') === '') breach(['Q7'], `the page (${String(headings.length)} h1)`);
+  const descriptions = [...document.querySelectorAll('meta[name="description" i]')];
+  const description = collapse(attr(descriptions[0] ?? document.createElement('meta'), 'content'));
+  if (descriptions.length !== 1 || description === '' || description === collapse(titles[0]?.textContent ?? '')) breach(['Q8'], `head (${String(descriptions.length)} descriptions)`);
+  firstOf(every('a').filter((el) => asRead(attr(el, 'href')) === '' || scriptAddress(attr(el, 'href'))), ['Q10']);
+  firstOf(every('img, video, iframe').filter((el) => !(el.hasAttribute('width') && el.hasAttribute('height')) && getComputedStyle(el).aspectRatio === 'auto'), ['P4']);
+  if (every('img[fetchpriority="high" i]').length > 2) breach(['P7'], `the page (${String(every('img[fetchpriority="high" i]').length)} images)`);
+  firstOf([...document.querySelectorAll('head script[src]')].filter((el) => !el.hasAttribute('async') && !el.hasAttribute('defer') && attr(el, 'type').toLowerCase() !== 'module'), ['P12']);
+
+  return { floorBreaches, references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */
