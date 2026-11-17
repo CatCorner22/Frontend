@@ -1,4 +1,4 @@
-// The look (plugin/fit/src/look.ts): pictures of the build and of the Mockup, and three readings from the pixels.
+// The look (plugin/fit/src/look.ts): pictures of the build and of the Mockup, and four readings from the pixels.
 // The reference build is the Mockup of the same project; its picture must not differ from the Mockup's. Every other test plants
 // one thing and expects the pictures or the readings to show it.
 import { spawnSync } from 'node:child_process';
@@ -10,7 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { applyDirection, createProject, findDirection, pickValues, writeVision } from '@refraction/core';
 import { built } from './built.ts';
 import { trialProject } from './trial-project.ts';
-import { FitError, LOOK_LAUNCH_ARGS, MAX_HEIGHT, PART_HEIGHT, fontFilesOf, look, lookMarkdown, type LookInput, type LookResult } from '../src/look.ts';
+import { FitError, LOOK_LAUNCH_ARGS, MAX_HEIGHT, PART_HEIGHT, REQUIRED_TEXTS, fontFilesOf, look, lookMarkdown, type LookInput, type LookResult, type LookText } from '../src/look.ts';
 
 const LOCAL_BROWSER = process.env['PW_CHROMIUM'] ? { executablePath: process.env['PW_CHROMIUM'] } : {};
 let browser: Browser;
@@ -45,6 +45,15 @@ const insertOnce = (text: string, before: RegExp, addition: string): string => {
 const afterBodyTag = (text: string, addition: string): string => {
   expect(/<body[^>]*>/.test(text)).toBe(true);
   return text.replace(/<body[^>]*>/, (match) => `${match}${addition}`);
+};
+const inHead = (text: string, rule: string): string => insertOnce(text, /<\/head>/, `<style>${rule}</style>`);
+/** The reading of one required text at each window width. */
+const textOf = (result: LookResult, text: LookText['text']): LookText[] => result.look.widths.map((at) => at.texts.find((t) => t.text === text) as LookText);
+/** The reference build without its Content-Security-Policy, so that a planted script runs. */
+const withScripts = (): string => {
+  const open = reference.replace(/<meta http-equiv="Content-Security-Policy" content="[^"]*">/, '');
+  expect(open).not.toBe(reference);
+  return open;
 };
 /** The site's font files for the trial project, from the packages that the Studio itself ships. */
 function trialFonts(): Record<string, Uint8Array> {
@@ -106,6 +115,46 @@ describe('The look: the reference build', () => {
     expect(JSON.stringify(again.look)).toBe(JSON.stringify(result.look));
   });
 
+  it('reads each of the three required texts as drawn at every width, with the ratio of its letters to their ground', () => {
+    for (const at of result.look.widths) {
+      expect(at.texts.map((t) => t.text)).toEqual([...REQUIRED_TEXTS]);
+      for (const text of at.texts) expect(text, `the ${text.text} at ${String(at.width)} pixels`).toMatchObject({ state: 'drawn', why: '' });
+    }
+    // The business name stands in four places: dark in the header, gray in the footers. The lowest ratio is the gray one's.
+    for (const name of textOf(result, 'business name')) {
+      expect(name).toMatchObject({ places: 4, drawn: 4 });
+      expect(name.contrast).toBeGreaterThan(15);
+      expect(name.least).toBeGreaterThan(4.5);
+      expect(name.least).toBeLessThan(7);
+    }
+    // One color on one ground: the lowest ratio along the text is near the highest.
+    for (const headline of textOf(result, 'headline')) {
+      expect(headline).toMatchObject({ places: 1, drawn: 1 });
+      expect(headline.contrast).toBeGreaterThan(15);
+      expect(headline.least).toBeGreaterThan((headline.contrast ?? 0) * 0.9);
+    }
+    // The button: its label on its fill, not on the page's ground.
+    for (const action of textOf(result, 'primary action')) {
+      expect(action.contrast).toBeGreaterThan(7);
+      expect(action.contrast).toBeLessThan(9.5);
+    }
+    expect(result.markdown).toContain('### The three required texts: drawn or not');
+    expect(result.markdown).toMatch(/\| The headline \| 1280 pixels \| drawn \| \d+\.\d\d to 1 \|/);
+    expect(result.markdown).toMatch(/\| The business name \| 375 pixels \| drawn in 4 of 4 places \| between \d+\.\d\d and \d+\.\d\d to 1 \|/);
+    // The report says where the words stand and how they are drawn, and never the words themselves.
+    for (const words of ['Harbor Street', 'Book a visit', 'explains itself']) {
+      expect(mockup).toContain(words);
+      expect(result.markdown).not.toContain(words);
+      expect(JSON.stringify(result.look)).not.toContain(words);
+    }
+  });
+
+  it('reads the same with the page’s scripts off', async () => {
+    const still = await look(inputOf(reference, { runScripts: false }));
+    expect(still.look.scriptsRan).toBe(false);
+    expect(JSON.stringify(still.look.widths)).toBe(JSON.stringify(result.look.widths));
+  });
+
   it('says that a typeface is named but not drawn when the font files are not there', () => {
     const faces = result.look.widths[0]?.typefaces ?? [];
     const heading = faces.find((f) => f.family === 'Fraunces Variable');
@@ -120,11 +169,12 @@ describe('The look: the reference build', () => {
 });
 
 describe('The look: other designs', () => {
-  it('reads no difference and no foreign color on the reference build of four Directions that draw in very different ways', async () => {
-    // A dark page with stars, a page of hard edges, a newspaper, and a page of color fades. The whole Catalog of 38 was run by hand
-    // on 2026-11-17 with the same result (107 seconds); four keep the browser tests short.
+  it('reads no difference, no foreign color, and three drawn texts on the reference build of five Directions that draw in very different ways', async () => {
+    // A dark page with stars, a page of hard edges, a newspaper, a page of color fades, and a page whose headline is filled by a
+    // fade. The whole Catalog of 38 was run by hand on 2026-11-17 with the same result (about 200 seconds); five keep the browser
+    // tests short.
     const faults: string[] = [];
-    for (const id of ['galactic-goth', 'control-room', 'frontier-gazette', 'malibu-sunset']) {
+    for (const id of ['galactic-goth', 'control-room', 'frontier-gazette', 'malibu-sunset', 'graphite-precision']) {
       const direction = findDirection(id);
       expect(direction, id).toBeDefined();
       if (!direction) continue;
@@ -133,10 +183,12 @@ describe('The look: other designs', () => {
       if (result.status !== 0) faults.push(`${id}: status ${String(result.status)}`);
       for (const at of result.look.widths) {
         if (at.differs !== 0 || at.colors.length > 0 || at.buildHeight !== at.mockupHeight) faults.push(`${id} at ${String(at.width)} pixels: differs ${String(at.differs)}, colors ${at.colors.map((c) => c.hex).join(' ')}`);
+        // The Catalog's own pages draw the three required texts, also where a fade of colors fills the headline's letters.
+        for (const text of at.texts) if (text.state !== 'drawn' || text.drawn !== Math.min(text.places, 8)) faults.push(`${id} at ${String(at.width)} pixels: the ${text.text} is ${text.state} in ${String(text.drawn)} of ${String(text.places)} places (${text.why})`);
       }
     }
     expect(faults).toEqual([]);
-  }, 120_000);
+  }, 180_000);
 });
 
 describe('The look: what the pixels show', () => {
@@ -190,6 +242,121 @@ describe('The look: what the pixels show', () => {
       expect(strips).toHaveLength(at.width === 375 ? 4 : 12);
     }
     expect(result.markdown).toContain(`The build is longer than ${String(MAX_HEIGHT)} pixels; the rest is not pictured and was not read.`);
+  });
+});
+
+describe('The look: the three required texts', () => {
+  const headlineOf = (result: LookResult): LookText[] => textOf(result, 'headline');
+  const othersDrawn = (result: LookResult, but: LookText['text']): boolean => result.look.widths.every((at) => at.texts.every((t) => t.text === but || t.state === 'drawn'));
+
+  it('reads a headline as not drawn when no visitor sees its letters, whatever way the page hides them', async () => {
+    // Every page here holds the headline as text, shown and with a size, and the styles name a color with enough contrast.
+    const ways: [string, string, RegExp][] = [
+      ['a box of a style rule over it, which no pointer meets', 'h1 { position: relative } h1::after { content: ""; position: absolute; inset: -4px; background: var(--hero-bg); pointer-events: none }', /changed nothing/],
+      ['its own ground drawn as an image in the color of its letters', 'h1 { background-image: linear-gradient(currentColor, currentColor) }', /changed nothing/],
+      ['its letters mixed into the ground', 'h1 { mix-blend-mode: lighten }', /changed nothing/],
+      ['its letters in the color of the ground', 'h1, h1 * { color: var(--hero-bg) !important; background: none !important }', /changed nothing/],
+      ['its box without height, so that a sliver of the letters shows', 'h1 { line-height: 0; overflow: hidden; height: 0 }', /only a small part of the room/],
+      ['its place far above the page', 'h1 { position: absolute; top: -9999px }', /outside the page/],
+    ];
+    const faults: string[] = [];
+    for (const [way, rule, why] of ways) {
+      const result = await look(inputOf(inHead(reference, rule)));
+      for (const read of headlineOf(result)) if (read.state !== 'not drawn' || !why.test(read.why) || read.contrast !== null || read.drawn !== 0 || read.places !== 1) faults.push(`${way}: ${read.state} (${read.why})`);
+      if (!othersDrawn(result, 'headline')) faults.push(`${way}: another text is not drawn`);
+      if (!/\| The headline \| 375 pixels \| not drawn: [a-z]/.test(result.markdown)) faults.push(`${way}: the report does not say so`);
+    }
+    expect(faults).toEqual([]);
+  }, 180_000);
+
+  it('reads a button whose label has the color of its fill as not drawn', async () => {
+    const result = await look(inputOf(inHead(reference, '.btn-primary { color: var(--btn-fill) !important; background: var(--btn-fill) !important }')));
+    for (const read of textOf(result, 'primary action')) expect(read).toMatchObject({ state: 'not drawn', why: 'hiding its letters changed nothing in the picture, so no visitor sees them' });
+    expect(othersDrawn(result, 'primary action')).toBe(true);
+  });
+
+  it('says "not found", and not "not drawn", where a visitor may see the words but the page holds no such text', async () => {
+    // The headline's words are written by a style rule. A visitor sees them; the page holds no text of them, and the Fit check
+    // finds none either. The program does not claim that nobody sees them.
+    const ruled = inHead(reference.replace(/<h1>[\s\S]*?<\/h1>/, '<h1></h1>'), 'h1::before { content: "Dental care that explains itself before it begins." }');
+    expect(ruled).toContain('<h1></h1>');
+    const result = await look(inputOf(ruled));
+    for (const read of headlineOf(result)) {
+      expect(read).toMatchObject({ state: 'not found', places: 0, drawn: 0, contrast: null, least: null });
+      expect(read.why).toContain('words in a picture, in a closed part of the page, or written by a style rule are not text that the program finds');
+    }
+    expect(result.markdown).toContain('| The headline | 1280 pixels | not found: the page holds no such text that takes up room;');
+    expect(othersDrawn(result, 'headline')).toBe(true);
+  });
+
+  it('reads faint letters as drawn, with their low ratio', async () => {
+    const result = await look(inputOf(inHead(reference, 'h1 { opacity: 0.5 }')));
+    for (const read of headlineOf(result)) {
+      expect(read.state).toBe('drawn');
+      expect(read.contrast).toBeGreaterThan(3);
+      expect(read.contrast).toBeLessThan(4.5);
+    }
+  });
+
+  it('reads letters that a fade of colors fills: drawn, and how weak their weakest part is', async () => {
+    const fade = 'h1, h1 mark { background: linear-gradient(90deg, #0b1320, #8a96a8); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }';
+    const result = await look(inputOf(inHead(reference, fade)));
+    for (const read of headlineOf(result)) {
+      expect(read.state).toBe('drawn');
+      // #0b1320 on the page's ground is above 13 to 1, and #8a96a8 near 3 to 1.
+      expect(read.contrast).toBeGreaterThan(12);
+      expect(read.least).toBeGreaterThan(2.5);
+      expect(read.least).toBeLessThan(4.5);
+    }
+    expect(result.markdown).toMatch(/\| The headline \| 1280 pixels \| drawn \| between \d\.\d\d and \d\d\.\d\d to 1 \|/);
+    // The same letters under a box are not drawn, and in a shadow tree they are read as well.
+    const covered = await look(inputOf(inHead(reference, `${fade} h1 { position: relative } h1::after { content: ""; position: absolute; inset: -4px; background: var(--hero-bg); }`)));
+    for (const read of headlineOf(covered)) expect(read.state).toBe('not drawn');
+    const tree = `<script>(() => { const h = document.querySelector('h1'); const host = document.createElement('div'); h.replaceWith(host); const root = host.attachShadow({ mode: 'open' }); root.innerHTML = '<style>h1 { font-size: 40px; background: linear-gradient(90deg, #0b1320, #8a96a8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent }</style><p>before</p><h1>' + h.textContent + '</h1>'; })();</script>`;
+    const inTree = await look(inputOf(insertOnce(withScripts(), /<\/body>/, tree)));
+    for (const read of headlineOf(inTree)) {
+      expect(read.state).toBe('drawn');
+      expect(read.least).toBeLessThan(4.5);
+    }
+  }, 60_000);
+
+  it('says "not read" where it cannot hide the letters, and never guesses', async () => {
+    // A declaration in the element's own style attribute, marked important, is stronger than any rule of the program.
+    const fixed = reference.replace('<h1>', '<h1 style="background: linear-gradient(90deg, #0b1320, #8a96a8) text !important; -webkit-text-fill-color: transparent !important">').replace('<mark>', '<mark style="background: none; -webkit-text-fill-color: transparent">');
+    expect(fixed).not.toBe(reference);
+    const result = await look(inputOf(fixed));
+    for (const read of headlineOf(result)) {
+      expect(read).toMatchObject({ state: 'not read', contrast: null, least: null });
+      expect(read.why).toContain('the program could not hide them');
+    }
+    expect(result.status).toBe(0);
+  });
+
+  it('counts the places: a headline that stands twice, hidden once, is drawn in 1 of 2 places', async () => {
+    const twice = inHead(reference.replace(/<h1>([\s\S]*?)<\/h1>/, (whole, inner: string) => `${whole}<h1>${inner}</h1>`), 'h1:first-of-type, h1:first-of-type mark { color: var(--hero-bg); background: none }');
+    const result = await look(inputOf(twice));
+    for (const read of headlineOf(result)) expect(read).toMatchObject({ state: 'drawn', places: 2, drawn: 1 });
+    expect(result.markdown).toMatch(/\| The headline \| 768 pixels \| drawn in 1 of 2 places \|/);
+  });
+
+  it('holds the page’s scripts still, so that a script cannot answer the hiding of the letters', async () => {
+    // The headline has the color of the ground. The script watches for the program's hiding in every way that a page has, and
+    // draws a black frame into the headline's place while it lasts: the two pictures would differ, as for letters that are drawn.
+    const watcher = `<script>
+      document.head.insertAdjacentHTML('beforeend', '<style>h1, h1 * { color: var(--hero-bg) !important; background: none !important }</style>');
+      const h = document.querySelector('h1');
+      h.style.outlineOffset = '-40px';
+      const tick = () => { h.style.outline = CSS.highlights.size > 0 || document.adoptedStyleSheets.length > 0 ? '40px solid #000' : ''; };
+      setInterval(tick, 1);
+      const loop = () => { tick(); requestAnimationFrame(loop); };
+      loop();
+      new ResizeObserver(tick).observe(document.body);
+      new MutationObserver(tick).observe(document, { subtree: true, childList: true, attributes: true, characterData: true });
+    </script>`;
+    const result = await look(inputOf(insertOnce(withScripts(), /<\/body>/, watcher)));
+    expect(result.look.scriptsRan).toBe(true);
+    for (const read of headlineOf(result)) expect(read).toMatchObject({ state: 'not drawn', why: 'hiding its letters changed nothing in the picture, so no visitor sees them' });
+    expect(othersDrawn(result, 'headline')).toBe(true);
   });
 });
 
@@ -312,13 +479,15 @@ describe('The look: the command line', () => {
     expect(written).toContain('build-1280-1.png');
     expect(written).not.toContain('build-1280-99.png');
     expect(readFileSync(join(out, 'look', 'notes.txt'), 'utf8')).toBe('the owner’s own file');
-    const stored = JSON.parse(readFileSync(join(out, 'look', 'look.json'), 'utf8')) as { pictures: { name: string }[]; fontsGiven: boolean };
+    const stored = JSON.parse(readFileSync(join(out, 'look', 'look.json'), 'utf8')) as { pictures: { name: string }[]; fontsGiven: boolean; widths: { texts: { text: string; state: string }[] }[] };
     expect(stored.fontsGiven).toBe(true);
+    for (const at of stored.widths) expect(at.texts).toMatchObject(REQUIRED_TEXTS.map((text) => ({ text, state: 'drawn' })));
     expect([...stored.pictures.map((p) => p.name), 'LOOK.md', 'look.json', 'notes.txt'].sort()).toEqual(written);
     // The reference build has no @font-face rule, as the Mockup has none: it asks for no font file, and the report says what follows.
     const report = readFileSync(join(out, 'look', 'LOOK.md'), 'utf8');
     expect(report).toContain('The program was given font files');
     expect(report).toContain('“Fraunces Variable”: 20 texts name it first; not drawn');
+    expect(report).toContain('| The primary action | 1280 pixels | drawn | ');
   });
 
   it('has a command that runs the program by a path inside the plugin, may not write, and treats what it reads as data', () => {

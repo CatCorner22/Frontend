@@ -2,19 +2,25 @@
 // drawn, not only what the styles say"; SPEC.md section 2.23 lists both as not built). The Fit check reads the styles that the
 // browser computes. It never sees the page, and neither does the model that built the page. This file draws the build and the
 // Vision's Mockup in a real browser at the Fit check's three window widths, saves the pictures so that a model or a person can look
-// at them, and reads three things from what was drawn:
+// at them, and reads four things from what was drawn:
 //   1. how much of the build's picture differs from the Mockup's picture, and where;
 //   2. large areas of one color that is neither a color of the Vision nor a color that the Mockup draws;
-//   3. whether each typeface of the Vision is drawn, or only named while a fallback draws the letters.
+//   3. whether each typeface of the Vision is drawn, or only named while a fallback draws the letters;
+//   4. whether each of the three texts that the Brief requires is drawn in the picture, and how strongly its letters stand against
+//      what is behind them. The Fit check finds those texts in the page and reads their styles; styles can say that a text is
+//      shown while a box covers it, or while its ground has the color of its letters. The program hides the letters of one text,
+//      draws the page again, and compares the two pictures: letters that no visitor sees change nothing.
 // The program judges nothing. No reading here is a deviation, and none changes the status of the Fit check: a picture can differ
 // from the Mockup for a good reason (another page, other content). The readings say where to look.
 //
 // The page is untrusted, as in the Fit check: it is served at the stand-in address of the site, every other request is stopped, and
 // the typefaces are read from a world of the program's own. The pixels are read in a blank page of the program's own, which the
-// build never enters. Nothing that the page writes enters the report: the report holds numbers, color values, and the Vision's own
-// typeface names.
-import { createHash } from 'node:crypto';
-import { chromium, type Browser, type BrowserContext, type LaunchOptions, type Page } from 'playwright';
+// build never enters. Nothing that the page writes enters the report: the report holds numbers, color values, the Vision's own
+// typeface names, and fixed sentences.
+import { createHash, randomBytes } from 'node:crypto';
+import { chromium, type Browser, type BrowserContext, type CDPSession, type LaunchOptions, type Page } from 'playwright';
+import { readBrief } from './collect.ts';
+import { contrastRatio } from './color.ts';
 import { LAUNCH_ARGS, WIDTHS } from './fit.ts';
 import { FitError, readDesignValues } from './vision.ts';
 
@@ -77,6 +83,36 @@ export interface LookTypeface {
   file: boolean;
 }
 
+/** The three texts that the Brief requires (SPEC.md section 2.10, point 6), in the order of every report. */
+export const REQUIRED_TEXTS = ['business name', 'headline', 'primary action'] as const;
+
+export interface LookText {
+  text: (typeof REQUIRED_TEXTS)[number];
+  /**
+   * `drawn`: hiding the letters of this text alone changed the picture, so the letters are in it. `not drawn`: the page holds the
+   * text, and it has no place in the page or hiding its letters changed nothing. `not found`: the program found no such text in the
+   * page, as the Fit check finds none; whether a visitor sees the words some other way, the program does not know. `not read`: the
+   * program could not tell.
+   */
+  state: 'drawn' | 'not drawn' | 'not found' | 'not read';
+  /** For every state but `drawn`: one fixed part of a sentence that says why. Empty for `drawn`. */
+  why: string;
+  /** In how many places the page holds the text. At most `PLACES_MAX` of them are read. */
+  places: number;
+  /** In how many of the places that were read the letters are drawn. */
+  drawn: number;
+  /**
+   * For `drawn`: the ratio of the color of the letters to the color that stands in their place without them (WCAG 2.x formula), read
+   * from the pixels, where it is highest. Otherwise null.
+   */
+  contrast: number | null;
+  /**
+   * For `drawn`: the same ratio where it is lowest, over every place that draws the text and along each of them. It is far below
+   * `contrast` when one place is weaker than another, or when the letters or their ground change color along the text. Otherwise null.
+   */
+  least: number | null;
+}
+
 export interface LookWidth {
   width: number;
   /** The height of the build's page in pixels, and of the Mockup's. */
@@ -90,6 +126,8 @@ export interface LookWidth {
   parts: number[];
   colors: LookColor[];
   typefaces: LookTypeface[];
+  /** Whether each of the three required texts is drawn, in the order of `REQUIRED_TEXTS`. */
+  texts: LookText[];
 }
 
 export interface Look {
@@ -125,6 +163,23 @@ export const AREA_PERCENT = 0.5;
 /** A color is one of the Vision's, or one that the Mockup draws, when each of its channels is this near (0 to 255). */
 export const COLOR_TOLERANCE = 10;
 const COLORS_LISTED = 8;
+/** How many places of one required text the program reads. A page holds a business name or a button's words in a few places, not in many. */
+export const PLACES_MAX = 8;
+/** A pixel counts as changed by the hidden letters when one of its channels changes by at least this much (0 to 255). */
+export const INK_LEAST = 3;
+/** A text counts as drawn when hiding it changes at least this many pixels for each of its letters. One letter at 6 pixels changes more. */
+export const INK_PER_LETTER = 2;
+/**
+ * A text counts as drawn when hiding it changes at least this share of the room that its letters take up, line by line, in
+ * percent. Letters of an ordinary weight change 16 to 55 percent of their room; a line of which only a sliver shows changes 2.
+ */
+export const INK_PERCENT = 4;
+/** How far around a text's place the program reads, in pixels: slanted letters and letters with tails reach past their line. */
+const INK_MARGIN = 3;
+/** The side of the squares, in pixels, in which the program reads the ratio place by place along a text, to find where it is lowest. */
+const INK_CELL = 24;
+/** The report gives two ratios for a text when the lowest is below this share of the highest. */
+const RANGE_FROM = 0.75;
 
 /**
  * The launch settings of the look: those of the Fit check, and letters smoothed in gray only. On some machines a browser smooths
@@ -147,15 +202,29 @@ async function within<T>(work: Promise<T>, ms: number, what: string): Promise<T>
   }
 }
 
-/** Runs an expression in a world of the program's own inside the page; no script of the page can reach it or change what it reads. */
-async function inOwnWorld<T>(page: Page, expression: string, ms: number): Promise<T> {
+/** A world of the program's own inside the page; no script of the page can reach it or change what it reads. What one call keeps there, the next call finds. */
+async function openWorld(page: Page): Promise<{ session: CDPSession; run: <T>(expression: string, ms: number) => Promise<T> }> {
   const session = await page.context().newCDPSession(page);
   try {
     const { frameTree } = await session.send('Page.getFrameTree');
     const { executionContextId } = await session.send('Page.createIsolatedWorld', { frameId: frameTree.frame.id, worldName: WORLD });
-    const { result, exceptionDetails } = await within(session.send('Runtime.evaluate', { expression, contextId: executionContextId, returnByValue: true, awaitPromise: true }), ms, 'the page did not answer');
-    if (exceptionDetails) throw new Error('the program could not read the page');
-    return result.value as T;
+    const run = async <T>(expression: string, ms: number): Promise<T> => {
+      const { result, exceptionDetails } = await within(session.send('Runtime.evaluate', { expression, contextId: executionContextId, returnByValue: true, awaitPromise: true }), ms, 'the page did not answer');
+      if (exceptionDetails) throw new Error('the program could not read the page');
+      return result.value as T;
+    };
+    return { session, run };
+  } catch (error) {
+    await session.detach().catch(() => undefined);
+    throw error;
+  }
+}
+
+/** Runs one expression in a world of the program's own inside the page. */
+async function inOwnWorld<T>(page: Page, expression: string, ms: number): Promise<T> {
+  const { session, run } = await openWorld(page);
+  try {
+    return await run<T>(expression, ms);
   } finally {
     await session.detach().catch(() => undefined);
   }
@@ -208,7 +277,297 @@ function readPage(families: string[]): PageFacts {
   return { height: Math.max(root.scrollHeight, document.body ? document.body.scrollHeight : 0), typefaces };
 }
 
-type Drawn = { png: Buffer; height: number; cut: boolean; typefaces: Omit<LookTypeface, 'file'>[] };
+interface Place {
+  /** The box around the letters, in pixels of the page from its top left corner. */
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /**
+   * True when a highlight cannot hide the letters: an image fills them (`background-clip: text`), a shadow alone draws them, or they
+   * are part of an SVG picture. The program then hides them by a rule of its own for their element; when that cannot be done either,
+   * this stays true and the text is "not read".
+   */
+  special: boolean;
+  /** How many pixels the boxes of the letters take up, line by line: the room in which the letters are drawn when nothing hides them. */
+  room: number;
+}
+
+/**
+ * Runs inside the page, in the program's own world. It stands alone: it uses nothing from this file. It finds every place where the
+ * page holds one of the wanted texts, as the Fit check's content measure does (the text of one block, without regard to letter case
+ * or runs of white space), and keeps the exact letters of each place under `key` for `hideText`.
+ */
+function locateTexts(wanted: string[], key: string, max: number): { found: number[]; places: Place[][] } {
+  // The folded text, and for each of its characters the place of the character that it came from.
+  const fold = (text: string): { text: string; from: number[] } => {
+    let out = '';
+    const from: number[] = [];
+    for (let at = 0; at < text.length; at++) {
+      const ch = text.charAt(at);
+      if (/\s/.test(ch)) {
+        if (out !== '' && !out.endsWith(' ')) {
+          out += ' ';
+          from.push(at);
+        }
+        continue;
+      }
+      const low = ch.toLowerCase();
+      for (let k = 0; k < low.length; k++) {
+        out += low.charAt(k);
+        from.push(at);
+      }
+    }
+    return { text: out, from };
+  };
+  const roots: (Document | ShadowRoot)[] = [document];
+  for (let at = 0; at < roots.length && at < 500; at++) for (const el of (roots[at] as Document | ShadowRoot).querySelectorAll('*')) if (el.shadowRoot) roots.push(el.shadowRoot);
+  const blockOf = (el: Element): Element => {
+    let up = el;
+    while (up.parentElement && getComputedStyle(up).display.startsWith('inline') && !getComputedStyle(up).display.startsWith('inline-')) up = up.parentElement;
+    return up;
+  };
+  // The text nodes of one block make one line, as in the Fit check. A node that takes up no room (in a box that is not shown, or in
+  // a closed <details>) and a node that is set to be invisible draw nothing and are left out, so that a helper text between two
+  // words does not break the line.
+  const blocks = new Map<Element, Text[]>();
+  let seen = 0;
+  for (const root of [document.body ?? document.documentElement, ...roots.slice(1)]) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node && seen < 20000; node = walker.nextNode()) {
+      seen++;
+      const host = node.parentElement;
+      if ((node.nodeValue ?? '').trim() === '' || host === null || host.closest('script, style, template, noscript, title') !== null) continue;
+      if (getComputedStyle(host).visibility !== 'visible') continue;
+      const all = document.createRange();
+      all.selectNodeContents(node);
+      if (all.getClientRects().length === 0) continue;
+      const block = blockOf(host);
+      const nodes = blocks.get(block) ?? [];
+      nodes.push(node as Text);
+      blocks.set(block, nodes);
+    }
+  }
+  const noAlpha = (color: string): boolean => color === 'transparent' || /[,/]\s*0(?:\.0+)?%?\s*\)$/.test(color);
+  // Letters that a highlight cannot hide: `fills` are the elements whose image fills the letters, and `own` says that the letters'
+  // own element draws them in another way (an SVG picture, or a shadow alone).
+  const hardOf = (host: Element): { fills: Element[]; own: boolean } => {
+    const fills: Element[] = [];
+    for (let up: Element | null = host; up; ) {
+      const style = getComputedStyle(up);
+      if (/\btext\b/.test(`${style.backgroundClip} ${style.webkitBackgroundClip}`)) fills.push(up);
+      const root: Node = up.getRootNode();
+      up = up.parentElement ?? (root instanceof ShadowRoot ? root.host : null);
+    }
+    const own = getComputedStyle(host);
+    return { fills, own: host instanceof SVGElement || (noAlpha(own.webkitTextFillColor) && own.textShadow !== 'none') };
+  };
+  const found = wanted.map(() => 0);
+  const places: Place[][] = wanted.map(() => []);
+  const ranges: Range[][] = wanted.map(() => []);
+  const targets: { el: Element; fill: boolean }[][] = wanted.map(() => []);
+  const stuck = wanted.map(() => false);
+  const folded = wanted.map((text) => fold(text).text.trim());
+  for (const nodes of blocks.values()) {
+    const starts: number[] = [];
+    let raw = '';
+    for (const node of nodes) {
+      starts.push(raw.length);
+      raw += node.nodeValue ?? '';
+    }
+    const line = fold(raw);
+    folded.forEach((text, index) => {
+      if (text === '') return;
+      for (let at = line.text.indexOf(text); at !== -1; at = line.text.indexOf(text, at + text.length)) {
+        found[index] = (found[index] ?? 0) + 1;
+        if ((places[index] ?? []).length >= max) continue;
+        const from = line.from[at] ?? 0;
+        const to = (line.from[at + text.length - 1] ?? 0) + 1;
+        // A rule for an element hides every letter of the element, so the program uses one only where the text is the whole line.
+        const whole = at === 0 && line.text.trimEnd().length === text.length;
+        let left = Infinity;
+        let top = Infinity;
+        let right = -Infinity;
+        let bottom = -Infinity;
+        let special = false;
+        let room = 0;
+        nodes.forEach((node, n) => {
+          const start = starts[n] ?? 0;
+          const a = Math.max(from, start);
+          const b = Math.min(to, start + (node.nodeValue ?? '').length);
+          if (b <= a) return;
+          const range = document.createRange();
+          range.setStart(node, a - start);
+          range.setEnd(node, b - start);
+          (ranges[index] as Range[]).push(range);
+          const hard = node.parentElement ? hardOf(node.parentElement) : { fills: [], own: false };
+          if (hard.fills.length > 0 || hard.own) {
+            special = true;
+            if (!whole) stuck[index] = true;
+            for (const el of whole ? hard.fills : []) (targets[index] as { el: Element; fill: boolean }[]).push({ el, fill: true });
+            if (whole && hard.own && node.parentElement) (targets[index] as { el: Element; fill: boolean }[]).push({ el: node.parentElement, fill: false });
+          }
+          for (const r of range.getClientRects()) {
+            if (r.width <= 0 || r.height <= 0) continue;
+            room += r.width * r.height;
+            left = Math.min(left, r.left);
+            top = Math.min(top, r.top);
+            right = Math.max(right, r.right);
+            bottom = Math.max(bottom, r.bottom);
+          }
+        });
+        const none = left === Infinity;
+        (places[index] as Place[]).push({ x: none ? 0 : left + window.scrollX, y: none ? 0 : top + window.scrollY, width: none ? 0 : right - left, height: none ? 0 : bottom - top, special, room });
+      }
+    });
+  }
+  (globalThis as unknown as Record<string, unknown>)[key] = { ranges, targets, stuck };
+  return { found, places };
+}
+
+/**
+ * Runs inside the page, in the program's own world, after `locateTexts`. It hides the letters of one wanted text and nothing else:
+ * a highlight paints the letters in no color. No element is added, moved, or changed, so nothing in the page moves, and no rule
+ * of the page can tell that the letters are hidden. The highlight's name is `key`, a name that the page cannot know. Letters that
+ * a highlight cannot hide get a rule of the program's own, which names their element by its place in the page and takes away what
+ * draws them. It answers 0 when there is nothing to hide, 1 when every letter is hidden, and 2 when some letters could not be
+ * hidden (a declaration of the page is stronger than the program's rule, or the text is only a part of its line).
+ */
+function hideText(key: string, index: number): number {
+  const kept = (globalThis as unknown as Record<string, { ranges?: Range[][]; targets?: { el: Element; fill: boolean }[][]; stuck?: boolean[]; undo?: () => void } | undefined>)[key];
+  const ranges = kept?.ranges?.[index];
+  if (!kept || !ranges || ranges.length === 0) return 0;
+  const sheets = new Map<Document | ShadowRoot, string[]>([[document, []]]);
+  const rulesOf = (scope: Document | ShadowRoot): string[] => {
+    const rules = sheets.get(scope) ?? [];
+    sheets.set(scope, rules);
+    return rules;
+  };
+  for (const range of ranges) {
+    const root = range.startContainer.getRootNode();
+    if (root instanceof ShadowRoot) rulesOf(root);
+  }
+  const placeOf = (el: Element): number => Array.prototype.indexOf.call(el.parentNode?.children ?? [], el) + 1;
+  // The rule must win over the page's own rules, also over those marked important: it comes last and counts as many identifiers.
+  const strong = `:is(${`#${key}`.repeat(40)}, *)`;
+  const noAlpha = (color: string): boolean => color === 'transparent' || /[,/]\s*0(?:\.0+)?%?\s*\)$/.test(color);
+  const checks: (() => boolean)[] = [];
+  let hard = kept.stuck?.[index] === true;
+  const done = new Set<Element>();
+  const filled = new Set<Element>();
+  for (const { el, fill } of kept.targets?.[index] ?? []) {
+    if ((fill ? filled : done).has(el)) continue;
+    (fill ? filled : done).add(el);
+    const steps: string[] = [];
+    let at = el;
+    while (at.parentElement) {
+      steps.unshift(`:nth-child(${String(placeOf(at))})`);
+      at = at.parentElement;
+    }
+    const root = at.getRootNode();
+    if (root instanceof ShadowRoot) steps.unshift(`:host > :nth-child(${String(placeOf(at))})`);
+    else if (at === document.documentElement) steps.unshift(':root');
+    else {
+      hard = true;
+      continue;
+    }
+    const scope = root instanceof ShadowRoot ? root : document;
+    if (fill) {
+      rulesOf(scope).push(`${steps.join(' > ')}${strong} { background-image: none !important; background-color: transparent !important; transition: none !important; }`);
+      checks.push(() => getComputedStyle(el).backgroundImage === 'none' && noAlpha(getComputedStyle(el).backgroundColor));
+    } else {
+      rulesOf(scope).push(`${steps.join(' > ')}${strong} { -webkit-text-fill-color: transparent !important; -webkit-text-stroke-color: transparent !important; text-decoration-color: transparent !important; text-shadow: none !important; fill: transparent !important; stroke: transparent !important; transition: none !important; }`);
+      checks.push(() => {
+        const style = getComputedStyle(el);
+        return noAlpha(style.webkitTextFillColor) && style.textShadow === 'none' && (!(el instanceof SVGElement) || (noAlpha(style.fill) && noAlpha(style.stroke)));
+      });
+    }
+  }
+  const added: [Document | ShadowRoot, CSSStyleSheet][] = [];
+  for (const [scope, rules] of sheets) {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync([`::highlight(${key}) { color: transparent !important; -webkit-text-fill-color: transparent !important; -webkit-text-stroke-color: transparent !important; text-decoration-color: transparent !important; background-color: transparent !important; text-shadow: none !important; }`, ...rules].join('\n'));
+    scope.adoptedStyleSheets = [...scope.adoptedStyleSheets, sheet];
+    added.push([scope, sheet]);
+  }
+  CSS.highlights.set(key, new Highlight(...ranges));
+  kept.undo = () => {
+    CSS.highlights.delete(key);
+    for (const [scope, sheet] of added) scope.adoptedStyleSheets = scope.adoptedStyleSheets.filter((other) => other !== sheet);
+  };
+  for (const check of checks) if (!check()) hard = true;
+  return hard ? 2 : 1;
+}
+
+/** Runs inside the page, in the program's own world: shows again what `hideText` hid. */
+function showText(key: string): boolean {
+  const kept = (globalThis as unknown as Record<string, { undo?: () => void } | undefined>)[key];
+  if (!kept?.undo) return false;
+  kept.undo();
+  delete kept.undo;
+  return true;
+}
+
+/** The pictures from which the program reads whether the required texts are drawn. */
+interface TextShots {
+  found: number[];
+  places: Place[][];
+  /** The page with the letters of one required text hidden; null when the text has no place with a size. */
+  hidden: (Buffer | null)[];
+  /** The page once more, with nothing hidden: it must be the first picture again. Null when nothing was hidden. */
+  after: Buffer | null;
+}
+
+type Drawn = { png: Buffer; height: number; cut: boolean; typefaces: Omit<LookTypeface, 'file'>[]; brief?: string[]; shots?: TextShots | null };
+
+const finite = (value: unknown): number => (typeof value === 'number' && Number.isFinite(value) ? value : 0);
+
+/**
+ * Takes the picture of the page, then one picture for each required text with the letters of that text hidden, then the page once
+ * more. The page's scripts stand still meanwhile (`pause`): a script could otherwise notice that letters are hidden and redraw the
+ * page. When the reading fails after the first picture, the picture stands and the texts are "not read".
+ */
+async function shootTexts(page: Page, wanted: readonly string[], shoot: () => Promise<Buffer>, ms: number, pause: boolean): Promise<{ png: Buffer; shots: TextShots | null }> {
+  const { session, run } = await openWorld(page);
+  const key = `look${randomBytes(8).toString('hex')}`;
+  try {
+    if (pause) await session.send('Emulation.setScriptExecutionDisabled', { value: true });
+    const png = await shoot();
+    try {
+      const located = await run<{ found?: unknown; places?: unknown }>(`(${locateTexts.toString()})(${JSON.stringify(wanted)}, ${JSON.stringify(key)}, ${String(PLACES_MAX)})`, ms);
+      const found = wanted.map((_, at) => Math.max(0, Math.round(finite(Array.isArray(located.found) ? (located.found as unknown[])[at] : 0))));
+      const places = wanted.map((_, at): Place[] => {
+        const list = Array.isArray(located.places) ? (located.places as unknown[])[at] : undefined;
+        return (Array.isArray(list) ? list : []).slice(0, PLACES_MAX).map((raw) => {
+          const place = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
+          return { x: finite(place['x']), y: finite(place['y']), width: Math.max(0, finite(place['width'])), height: Math.max(0, finite(place['height'])), special: place['special'] === true, room: Math.max(0, finite(place['room'])) };
+        });
+      });
+      const hidden: (Buffer | null)[] = [];
+      for (let at = 0; at < wanted.length; at++) {
+        const how = (places[at] ?? []).some((place) => place.width > 0 && place.height > 0) ? await run<number>(`(${hideText.toString()})(${JSON.stringify(key)}, ${String(at)})`, ms) : 0;
+        if (how !== 1 && how !== 2) {
+          hidden.push(null);
+          continue;
+        }
+        // Every letter is hidden: a place of letters that a highlight cannot hide reads like any other.
+        if (how === 1) for (const place of places[at] ?? []) place.special = false;
+        try {
+          hidden.push(await shoot());
+        } finally {
+          await run<boolean>(`(${showText.toString()})(${JSON.stringify(key)})`, ms);
+        }
+      }
+      const after = hidden.some((picture) => picture !== null) ? await shoot() : null;
+      return { png, shots: { found, places, hidden, after } };
+    } catch {
+      return { png, shots: null };
+    }
+  } finally {
+    if (pause) await session.send('Emulation.setScriptExecutionDisabled', { value: false }).catch(() => undefined);
+    await session.detach().catch(() => undefined);
+  }
+}
 
 /** A fixed sentence for a window that could not be pictured. The browser's own message is never used: a page can shape it. */
 function failureSentence(error: unknown, ms: number): string {
@@ -218,8 +577,12 @@ function failureSentence(error: unknown, ms: number): string {
 
 const fileNameOf = (url: string): string => decodeURIComponent(new URL(url).pathname.split('/').pop() ?? '');
 
-/** Opens one page in a window of its own, with no network, and draws it. `fonts` are served at the site's own address by file name. */
-async function draw(browser: Browser, html: string, width: number, ms: number, runScripts: boolean, families: readonly string[], fonts: Readonly<Record<string, Uint8Array>>): Promise<Drawn> {
+/**
+ * Opens one page in a window of its own, with no network, and draws it. `fonts` are served at the site's own address by file name.
+ * With `texts.brief`, it also reads the three required texts (from the Mockup); with `texts.wanted`, it also takes the pictures that
+ * show whether those texts are drawn (in the build).
+ */
+async function draw(browser: Browser, html: string, width: number, ms: number, runScripts: boolean, families: readonly string[], fonts: Readonly<Record<string, Uint8Array>>, texts: { brief?: boolean; wanted?: readonly string[] } = {}): Promise<Drawn> {
   const context = await browser.newContext({ viewport: { width, height: 800 }, deviceScaleFactor: 1, reducedMotion: 'reduce', javaScriptEnabled: runScripts, serviceWorkers: 'block', proxy: DEAD_PROXY });
   try {
     const site = new URL(OWN_SITE).origin;
@@ -248,9 +611,16 @@ async function draw(browser: Browser, html: string, width: number, ms: number, r
     const facts = await inOwnWorld<PageFacts>(page, `(${readPage.toString()})(${JSON.stringify(families)})`, ms);
     const height = Math.max(1, Math.round(Number(facts.height) || 0));
     const cut = height > MAX_HEIGHT;
-    const png = await within(page.screenshot({ fullPage: true, animations: 'disabled', caret: 'hide', clip: { x: 0, y: 0, width, height: Math.min(height, MAX_HEIGHT) }, timeout: ms }), ms + 1000, 'the page did not answer');
+    const shoot = (): Promise<Buffer> => within(page.screenshot({ fullPage: true, animations: 'disabled', caret: 'hide', clip: { x: 0, y: 0, width, height: Math.min(height, MAX_HEIGHT) }, timeout: ms }), ms + 1000, 'the page did not answer');
+    let brief: string[] | undefined;
+    if (texts.brief) {
+      const read = await inOwnWorld<Record<string, unknown>>(page, `(${readBrief.toString()})()`, ms);
+      brief = [read['business'], read['headline'], read['primaryAction']].map((text) => (typeof text === 'string' ? text.slice(0, 2000) : ''));
+    }
+    // Where scripts do not run at all, there is nothing to hold still (and the browser's setting must not be changed back).
+    const { png, shots } = texts.wanted ? await shootTexts(page, texts.wanted, shoot, ms, runScripts) : { png: await shoot(), shots: undefined };
     const typefaces = (Array.isArray(facts.typefaces) ? facts.typefaces : []).map((t, at) => ({ family: families[at] ?? '', texts: Math.max(0, Math.round(Number(t.texts) || 0)), drawn: typeof t.drawn === 'boolean' ? t.drawn : null, fromFile: t.fromFile === true, device: t.device === true }));
-    return { png, height, cut, typefaces };
+    return { png, height, cut, typefaces, ...(brief ? { brief } : {}), ...(shots !== undefined ? { shots } : {}) };
   } finally {
     await within(context.close(), 5000, 'close').catch(() => undefined);
   }
@@ -461,6 +831,187 @@ async function readPixels(input: PixelInput): Promise<PixelOutput> {
   };
 }
 
+interface DrawnInput {
+  before: string;
+  hidden: (string | null)[];
+  after: string | null;
+  places: { x: number; y: number; width: number; height: number }[][];
+  margin: number;
+  least: number;
+  cell: number;
+}
+
+interface DrawnPlace {
+  /** How many pixels of the place lie in the picture; 0 when the place has no size or lies outside the picture. */
+  area: number;
+  /** How many of them changed when the letters were hidden. */
+  changed: number;
+  /** How many of them differ between the first picture and the last, in which nothing is hidden: the page changed by itself. */
+  noise: number;
+  /** The color of the letters, and the color that stands in their place without them, where the change is strongest. */
+  ink: [number, number, number] | null;
+  ground: [number, number, number] | null;
+  /** The same two colors (letters, then ground) for each square of the place that holds enough of the letters. */
+  cells: [number, number, number, number, number, number][];
+}
+
+/**
+ * Runs in a blank page of the program's own. For each place of each required text, it compares the picture of the page with the
+ * picture in which the letters of that text are hidden. It stands alone: it uses nothing from this file.
+ */
+async function readDrawn(input: DrawnInput): Promise<DrawnPlace[][]> {
+  const load = async (base64: string) => {
+    const image = new Image();
+    image.src = `data:image/png;base64,${base64}`;
+    await image.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const pen = canvas.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D;
+    pen.drawImage(image, 0, 0);
+    return { pen, width: canvas.width, height: canvas.height };
+  };
+  const before = await load(input.before);
+  const after = input.after === null ? null : await load(input.after);
+  const out: DrawnPlace[][] = [];
+  for (let index = 0; index < input.places.length; index++) {
+    const shot = input.hidden[index] ?? null;
+    const hidden = shot === null ? null : await load(shot);
+    out.push((input.places[index] ?? []).map((place): DrawnPlace => {
+      const x0 = Math.max(0, Math.floor(place.x - input.margin));
+      const y0 = Math.max(0, Math.floor(place.y - input.margin));
+      const x1 = Math.min(before.width, Math.ceil(place.x + place.width + input.margin));
+      const y1 = Math.min(before.height, Math.ceil(place.y + place.height + input.margin), y0 + 4000);
+      if (place.width <= 0 || place.height <= 0 || x1 <= x0 || y1 <= y0 || hidden === null || after === null) return { area: 0, changed: 0, noise: 0, ink: null, ground: null, cells: [] };
+      const width = x1 - x0;
+      const height = y1 - y0;
+      // Three pictures of one page have one size; if they do not, the page changed.
+      if (hidden.width !== before.width || hidden.height !== before.height || after.width !== before.width || after.height !== before.height) return { area: width * height, changed: 0, noise: width * height, ink: null, ground: null, cells: [] };
+      const a = before.pen.getImageData(x0, y0, width, height).data;
+      const b = hidden.pen.getImageData(x0, y0, width, height).data;
+      const c = after.pen.getImageData(x0, y0, width, height).data;
+      const deltas = new Uint8Array(width * height);
+      let changed = 0;
+      let noise = 0;
+      let most = 0;
+      for (let at = 0, pixel = 0; at < a.length; at += 4, pixel++) {
+        const delta = Math.max(Math.abs((a[at] ?? 0) - (b[at] ?? 0)), Math.abs((a[at + 1] ?? 0) - (b[at + 1] ?? 0)), Math.abs((a[at + 2] ?? 0) - (b[at + 2] ?? 0)));
+        deltas[pixel] = delta;
+        if (delta >= input.least) changed++;
+        if (delta > most) most = delta;
+        if (Math.max(Math.abs((a[at] ?? 0) - (c[at] ?? 0)), Math.abs((a[at + 1] ?? 0) - (c[at + 1] ?? 0)), Math.abs((a[at + 2] ?? 0) - (c[at + 2] ?? 0))) >= input.least) noise++;
+      }
+      if (changed === 0) return { area: width * height, changed, noise, ink: null, ground: null, cells: [] };
+      // The middle of a stroke changes most; its smoothed edge mixes letter and ground and is left out. `colorsOf` reads the two
+      // colors in one part of the place, from the pixels that changed at least 0.8 times as much as the most changed one there.
+      const colorsOf = (left: number, top: number, right: number, bottom: number, most: number): [number, number, number, number, number, number] => {
+        const sums: [number, number, number, number, number, number] = [0, 0, 0, 0, 0, 0];
+        let strong = 0;
+        for (let y = top; y < bottom; y++) {
+          for (let x = left; x < right; x++) {
+            if ((deltas[y * width + x] ?? 0) < most * 0.8) continue;
+            strong++;
+            const at = (y * width + x) * 4;
+            for (let k = 0; k < 3; k++) {
+              sums[k] = (sums[k] ?? 0) + (a[at + k] ?? 0);
+              sums[k + 3] = (sums[k + 3] ?? 0) + (b[at + k] ?? 0);
+            }
+          }
+        }
+        return sums.map((sum) => Math.round(sum / Math.max(1, strong))) as [number, number, number, number, number, number];
+      };
+      const all = colorsOf(0, 0, width, height, most);
+      // The same in squares, to find where the ratio is lowest. The place is cut into equal parts of about `cell` pixels, so that
+      // no part is a thin rest at an edge. A part that holds only the tip of a letter is left out: it holds no middle of a stroke.
+      const cells: [number, number, number, number, number, number][] = [];
+      const rows = Math.max(1, Math.floor(height / input.cell));
+      const columns = Math.max(1, Math.floor(width / input.cell));
+      for (let row = 0; row < rows; row++) {
+        for (let column = 0; column < columns; column++) {
+          const top = Math.floor((row * height) / rows);
+          const bottom = Math.floor(((row + 1) * height) / rows);
+          const left = Math.floor((column * width) / columns);
+          const right = Math.floor(((column + 1) * width) / columns);
+          let count = 0;
+          let mostHere = 0;
+          for (let y = top; y < bottom; y++) {
+            for (let x = left; x < right; x++) {
+              const delta = deltas[y * width + x] ?? 0;
+              if (delta >= input.least) count++;
+              if (delta > mostHere) mostHere = delta;
+            }
+          }
+          if (count * 10 >= (right - left) * (bottom - top)) cells.push(colorsOf(left, top, right, bottom, mostHere));
+        }
+      }
+      return { area: width * height, changed, noise, ink: [all[0], all[1], all[2]], ground: [all[3], all[4], all[5]], cells };
+    }));
+  }
+  return out;
+}
+
+const WHY = {
+  noMockup: 'the Mockup holds no such text',
+  unread: 'the program could not read the page for it',
+  absent: 'the page holds no such text that takes up room; words in a picture, in a closed part of the page, or written by a style rule are not text that the program finds',
+  nowhere: 'the text stands outside the page, where no person can scroll, or its letters have no size',
+  nothing: 'hiding its letters changed nothing in the picture, so no visitor sees them',
+  few: 'hiding its letters changed only a small part of the room that they take up, too little for letters that a person can read',
+  changed: 'the page changed by itself between two pictures',
+  special: 'an image fills its letters, a shadow alone draws them, or they are part of an SVG picture, and the program could not hide them',
+  pictures: 'the text holds no letters, only picture signs, and the program cannot hide those',
+  below: `the text stands below the ${String(MAX_HEIGHT)} pixels that the program pictures`,
+} as const;
+
+/** Whether each required text is drawn, from what the pictures showed for each of its places. `pictured` is the height of the picture. */
+function textsOf(wanted: readonly string[], shots: TextShots | null | undefined, read: DrawnPlace[][] | null, pictured: number): LookText[] {
+  const ratioOf = (c: readonly number[]): number => contrastRatio({ r: c[0] ?? 0, g: c[1] ?? 0, b: c[2] ?? 0, a: 1 }, { r: c[3] ?? 0, g: c[4] ?? 0, b: c[5] ?? 0, a: 1 });
+  const twoDecimals = (n: number): number => Math.round(n * 100) / 100;
+  return REQUIRED_TEXTS.map((text, index): LookText => {
+    const not = (state: 'not drawn' | 'not found' | 'not read', why: string, places = 0): LookText => ({ text, state, why, places, drawn: 0, contrast: null, least: null });
+    const signs = (wanted[index] ?? '').replace(/\s+/g, '');
+    // A picture sign (an emoji) keeps its colors when its text is painted in no color, so it is no letter that the program can hide.
+    const letters = signs.replace(/\p{Extended_Pictographic}|\p{Regional_Indicator}|[\u200d\ufe0f]/gu, '').length;
+    if (signs.length === 0) return not('not read', WHY.noMockup);
+    if (!shots || !read) return not('not read', WHY.unread);
+    const found = shots.found[index] ?? 0;
+    const places = shots.places[index] ?? [];
+    if (found === 0 || places.length === 0) return not('not found', WHY.absent);
+    if (letters === 0) return not('not read', WHY.pictures, found);
+    let best: number | null = null;
+    let least: number | null = null;
+    let drawn = 0;
+    const unsure: string[] = [];
+    const hidden: string[] = [];
+    places.forEach((place, at) => {
+      const seen = read[index]?.[at];
+      const needed = Math.max(letters * INK_PER_LETTER, (place.room * INK_PERCENT) / 100);
+      if (!seen) unsure.push(WHY.unread);
+      else if (seen.area === 0) {
+        if (place.width > 0 && place.height > 0 && place.y >= pictured) unsure.push(WHY.below);
+        else hidden.push(WHY.nowhere);
+      } else if (seen.changed >= needed && seen.ink && seen.ground) {
+        // What the page changed by itself must be far less than what the hidden letters changed.
+        if (seen.noise * 10 > seen.changed) {
+          unsure.push(WHY.changed);
+          return;
+        }
+        drawn++;
+        const ratio = ratioOf([...seen.ink, ...seen.ground]);
+        const weakest = Math.min(ratio, ...seen.cells.map(ratioOf));
+        if (best === null || ratio > best) best = ratio;
+        if (least === null || weakest < least) least = weakest;
+      } else if (seen.noise >= needed) unsure.push(WHY.changed);
+      else if (place.special) unsure.push(WHY.special);
+      else hidden.push(seen.changed > 0 ? WHY.few : WHY.nothing);
+    });
+    if (best !== null && least !== null) return { text, state: 'drawn', why: '', places: found, drawn, contrast: twoDecimals(best), least: twoDecimals(least) };
+    if (unsure.length > 0) return not('not read', unsure[0] ?? WHY.unread, found);
+    // Where one place is in the page and hidden, that says more than a place outside the page.
+    return not('not drawn', hidden.find((why) => why !== WHY.nowhere) ?? WHY.nowhere, found);
+  });
+}
+
 const hexOf = (rgb: readonly number[]): string => `#${rgb.map((n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0')).join('')}`;
 const oneDecimal = (n: number): number => Math.round(n * 10) / 10;
 
@@ -550,6 +1101,30 @@ export function lookMarkdown(look: Look): string {
     if (look.fontsGiven) out.push('The program was given font files and answered the page’s requests for them at the site’s own address.', '');
     else if (needsFiles) out.push('The program was given no font files. A built page is one file and ships no font, so a typeface that the page loads from the site’s own address is not drawn here; give the files (`--fonts`) to see the letters that visitors will see.', '');
   }
+  out.push('### The three required texts: drawn or not', '');
+  if (look.widths.length === 0) out.push('Not read.', '');
+  else {
+    out.push('| Text | Window width | Reading | Letters against what stands behind them |', '|---|---|---|---|');
+    REQUIRED_TEXTS.forEach((text, index) => {
+      for (const at of look.widths) {
+        const read = at.texts[index];
+        let reading = 'not read';
+        let ratio = 'none';
+        if (read && read.state !== 'drawn') reading = `${read.state}: ${read.why}`;
+        else if (read) {
+          const of = Math.min(read.places, PLACES_MAX);
+          reading = of > 1 ? `drawn in ${String(read.drawn)} of ${String(of)} places` : 'drawn';
+          const best = read.contrast ?? 0;
+          const least = read.least ?? best;
+          // Smoothed edges alone make the lowest ratio read a little under the highest; two numbers are for a real difference.
+          ratio = least < best * RANGE_FROM ? `between ${least.toFixed(2)} and ${best.toFixed(2)} to 1` : `${best.toFixed(2)} to 1`;
+        }
+        out.push(`| The ${text} | ${String(at.width)} pixels | ${reading} | ${ratio} |`);
+      }
+    });
+    out.push('', `The Brief requires three texts: the business name, the headline, and the primary action, as the Mockup shows them. The program finds each in the page as the Fit check does. It takes a picture, hides the letters of that text alone, and takes a second picture; nothing else in the page changes, and the page’s scripts stand still meanwhile. Where the two pictures are the same, no visitor saw the letters, whatever way the page hides them: under a box, cut away, moved off the page, shrunk, or in the color of the ground. A place draws the text when hiding it changes at least ${String(INK_PER_LETTER)} pixels for each letter and at least ${String(INK_PERCENT)} percent of the room that the letters take up; letters of which only a sliver shows change less.`, '');
+    out.push(`The ratio compares the color of the letters with the color that stands in their place without them, by the WCAG 2.x formula; the usual least is 4.5 to 1, and 3 to 1 for large text. One number is the ratio where the letters stand out most. Two numbers say that the ratio is much lower somewhere: in another place of the same text, or along the text where the letters or their ground change color. Smoothed edges make thin letters read a little lower than their style values say. The program reads at most ${String(PLACES_MAX)} places of a text. It does not read how large the letters are: very small letters count as drawn.`, '');
+  }
   out.push('## What the pictures do not show', '');
   out.push('- A page in use: nothing is pointed at, pressed, focused, typed, or sent, and no motion is shown. The pictures are still, with reduced motion.');
   out.push('- Any window width other than the three, and any other browser.');
@@ -590,23 +1165,32 @@ export async function look(input: LookInput): Promise<LookResult> {
     const { context, page } = await ownPage(browser);
     try {
       // One width after another: the pictures are large, and the order of the report is fixed.
+      // The Mockup first, at every width: the build is read for the three texts that the Mockup shows (the Fit check reads them at
+      // the widest window too).
+      const references = new Map<number, Drawn>();
+      const widest = Math.max(...WIDTHS);
       for (const width of WIDTHS) {
-        let reference: Drawn;
         try {
           // The Mockup holds no script; it is drawn with scripts off whatever the build does.
-          reference = await draw(browser, mockup, width, ms, false, [], {});
+          references.set(width, await draw(browser, mockup, width, ms, false, [], {}, { brief: width === widest }));
         } catch {
           throw new FitError('The file "mockup.html" could not be drawn.');
         }
+      }
+      const wanted = references.get(widest)?.brief ?? REQUIRED_TEXTS.map(() => '');
+      for (const width of WIDTHS) {
+        const reference = references.get(width) as Drawn;
         let built: Drawn;
         try {
-          built = await draw(browser, input.html, width, ms, runScripts, families, fonts);
+          built = await draw(browser, input.html, width, ms, runScripts, families, fonts, { wanted });
         } catch (error) {
           failures.push({ width, reason: failureSentence(error, ms) });
           continue;
         }
         const columns = width <= 400 ? 3 : 1;
         const read = await page.evaluate(readPixels, { build: built.png.toString('base64'), mockup: reference.png.toString('base64'), width, partHeight: PART_HEIGHT, pixelTolerance: PIXEL_TOLERANCE, shift: PIXEL_SHIFT, areaPercent: AREA_PERCENT, colorTolerance: COLOR_TOLERANCE, palette, columns });
+        const shots = built.shots;
+        const drawn = shots ? await page.evaluate(readDrawn, { before: built.png.toString('base64'), hidden: shots.hidden.map((picture) => picture?.toString('base64') ?? null), after: shots.after?.toString('base64') ?? null, places: shots.places.map((list) => list.map(({ x, y, width: w, height: h }) => ({ x, y, width: w, height: h }))), margin: INK_MARGIN, least: INK_LEAST, cell: INK_CELL }) : null;
         widths.push({
           width,
           buildHeight: built.height,
@@ -616,6 +1200,7 @@ export async function look(input: LookInput): Promise<LookResult> {
           parts: read.parts.map(oneDecimal),
           colors: read.colors.map((color) => ({ hex: hexOf(color.rgb), percent: oneDecimal(color.share), nearest: color.nearest ? hexOf(color.nearest) : '' })),
           typefaces: built.typefaces.map((face) => ({ ...face, file: withFile.has(face.family.toLowerCase()) })),
+          texts: textsOf(wanted, built.shots, drawn, Math.min(built.height, MAX_HEIGHT)),
         });
         pictures.push({ name: `compare-${String(width)}.png`, width, kind: 'compare', what: 'The whole Mockup, the whole build, and the places where their pictures differ (marked in pink on a pale build), side by side and made small', png: Buffer.from(read.compare, 'base64') });
         read.strips.forEach((strip, at) => {
