@@ -1390,7 +1390,7 @@ function SummaryView(): React.JSX.Element {
           You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s)}; a Step you have not decided keeps the value it started with.
         </p>
         <p className="teach">
-          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Vision: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Vision” lists as left out. A program that measures a built page against the Vision exists as a command in the repository (`npm run fit`); it is not part of this Studio yet.
+          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Vision: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Vision” lists as left out. A second tool, the Fitter, measures a built page against the Vision; that measurement is called the Fit check. It is not part of this Studio: it runs inside Claude Code, and the file `plugin/README.md` says how to set it up.
         </p>
         <p><button type="button" className="btn small" onClick={() => document.getElementById('vision')?.scrollIntoView({ block: 'start' })}>Show me the Vision</button></p>
         <p className="teach">{contentStatus(s.project.content, false)} To change the texts and your three answers about the project, open <a href="#content">Your content</a>.</p>

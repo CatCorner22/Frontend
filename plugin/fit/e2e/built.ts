@@ -8,7 +8,9 @@ export function built(mockup: string): string {
     if (next === text) throw new Error(`The Mockup has changed: the reference build could not replace ${String(from)}.`);
     return next;
   };
-  let html = mockup.replaceAll('role="link" tabindex="0"', 'href="#main"');
+  // The skip link leads to the main content; every other link leads to the site's start (a real page has real addresses there).
+  let html = once(mockup, 'class="skip" role="link" tabindex="0"', 'class="skip" href="#main"');
+  html = html.replaceAll('role="link" tabindex="0"', 'href="/"');
   html = once(html, /<meta http-equiv="Content-Security-Policy" content="[^"]*">/, `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; object-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; form-action 'self'; base-uri 'none'">`);
   html = once(html, '</title>', '</title>\n<meta name="description" content="A small practice that explains each step before it begins.">\n<meta name="referrer" content="strict-origin-when-cross-origin">');
   html = once(html, '<form class="form card">', '<form class="form card" method="post" action="#contact">');

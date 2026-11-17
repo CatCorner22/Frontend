@@ -431,6 +431,19 @@
         "The reference build without a defect shows no deviation and status 0"
       ],
       "passes": true
+    },
+    {
+      "id": "F038",
+      "description": "The owner can rely on the Fit check after the gate review of M6 and M7: a hidden required text is not counted as found, what the program cannot read counts as not measured, the Floors are read only in the edition that the program knows, and the receipt and the plugin's README say in plain words what was checked and what to do next.",
+      "spec_section": "SPEC.md section 2.25",
+      "steps": [
+        "Run the exit test: 61 planted defects are each found, among them the ways around a check that the gate review found",
+        "Hide the headline in a box of height 0, or cover the page with a box: the receipt does not count the headline as found, and the status is 1",
+        "Run the program on trial 003 (a Vision of the first draft): the Floors measure checks nothing, counts one thing as not measured, and says to write the Vision again",
+        "Make the program refuse with a hostile name in tokens.json: the refusal is one visible line without that name",
+        "Read plugin/README.md: it explains each step, each status, each option, and what happens after round 3"
+      ],
+      "passes": true
     }
   ]
 }

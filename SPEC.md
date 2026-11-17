@@ -162,7 +162,7 @@ Three reviewers read the code of 2026-11-15 and used the running Studio: 1 block
 - The Directions screen has a jump link to "Your own"; a rename says "Renamed"; a message about a file names the file; a long name without spaces stays inside a 375-pixel window; the form says so when it cuts a text.
 - Not in these repairs (they stay open in the findings log for the owner's judgment): the look of quiet buttons (U6-22), what "Undo" covers (U6-23), a date or a name inside the four files (U6-24), where the field for a reason sits (U6-11), the wording of small variations on the Summary (U6-10, second half), and the notes U6-27 to U6-30.
 
-### 2.9 The rest of the Vision's files, each checked by a validator (milestone M6; decision D63, point 5)
+### 2.9 The rest of the Vision's files, two of them checked by outside validators (milestone M6; decision D63, point 5)
 
 **What it is.** The Vision is seven files. Four exist. This requirement adds the other three, a mark that tells two sets of files apart, one download for all of them, and a check of each machine-read file by a program that the builder did not write. The floors are not part of this requirement: each floor is a Catalog record that needs a source read in full (decision D63, point 3), so the floors get a requirement of their own.
 
@@ -312,7 +312,7 @@ A Floor is a requirement that the Vision writes whatever the design is. This sec
   3. **Security settings of the host** (H1 and on): always written, as settings that a person must make at the host, because a page of one file cannot send headers; each requirement says where to set it, and the section tells the builder not to send them in the page.
   4. **Being found by search** (Q1 and on): always written.
   5. **Speed** (P1 and on): always written.
-  `VISION.md` has a section "7. Floors" that lists, for the project, each applicable requirement with its id, its text, what a person must still check, and its source. The section says that no program checks any Floor yet, and that a requirement states what to build and what to check, not that the page meets a standard.
+  `VISION.md` has a section "7. Floors" that lists, for the project, each applicable requirement with its id, its text, what a person must still check, and its source. The section states the edition of the Floors (a number that rises when a requirement's wording changes), says that the Fit check checks a part of some requirements and that no program checks the rest, and that a requirement states what to build and what to check, not that the page meets a standard.
 - Edge cases:
   - Contrast checks "Off" or "Warn me": section 7 says that the Floor for people with disabilities is not written, why, and that the owner can choose "Fix for me"; the other Floors stand.
   - No file says that a page is "accessible" or "compliant" (hard rule 8); the Floor for people with disabilities is not named with those words.
@@ -383,6 +383,25 @@ The owner asked for one markdown file that describes the designs, their colors, 
 - What the system does: a test plants defects in the reference build, one at a time, and runs the Fit check on each. Every planted defect must appear under its measure (and, for a Floor, with its id), and the reference build without a defect must show none: "every planted defect found, and no false blocker".
 - The planted defects: a color that is not the Vision's; a typeface that is not the Vision's; a corner radius that is not the Vision's; a missing headline; a page wider than its window at 768 pixels only; a request to another site; a text below the least contrast (with Floor A1 written); and one for each checked part of a Floor requirement.
 - How to test it end to end: `plugin/fit/e2e/exit.e2e.ts`.
+
+### 2.25 Repairs after the gate review of milestones M6 and M7 (2026-11-17; decision D76; feature F038)
+
+Three reviewers examined the Vision and the Fitter (`redteam/reports/2026-11-17-i-*.md`). The Vision withstood the attacks. The Fitter had seven blockers; each point below says what the program does now, and a test that failed before its repair stands behind each one.
+
+1. **The Mockup's window has no network and no script** (G-S01): the same dead proxy as the build's window.
+2. **A refusal is one visible line** (G-S02, G-S13): no line break, no invisible sign, at most 400 characters, and no name taken from a file.
+3. **A required text counts only where a person can read it** (G-S03): above the page or cut away by a box that hides what overflows: missing. Drawn below half strength, or covered by another box: not measured, status 1.
+4. **A page that may still change** (G-S04): an animation with an end that has not ended at the last reading makes that reading "not measured". The receipt's header says that the program waits at most three seconds for animations.
+5. **Frames** (G-S06): each iframe, frame, object, and embed counts as not measured in the colors measure.
+6. **The Floors' checks** (G-S07, G-T10 to G-T13): they read open shadow roots, every viewport and referrer tag, addresses and `tabindex` as the browser reads them, a button's own method, a `maxlength` above 0, robots tags for single search engines, a skip link only when drawn, and the policy tag only in the head with a `script-src` of `'none'` or hashes. S9 counts only a form that holds a field. The plain words of each checked part say no more than the check does.
+7. **Editions of the Floors** (G-U01, G-T27): `VISION.md` section 7 states "Edition 2 of the Floors." The program reads edition 2. For a Vision of another edition, or of none, it checks no Floor requirement, counts one thing as not measured, and says to write the Vision again.
+8. **Outlined letters** (G-T01): a text drawn with a stroke is counted as not read for contrast, not as a text below the least. With that, the reference build of all 38 Directions shows no deviation with every Floor written.
+9. **The receipt** (G-U03 to G-U06, G-U09, G-T22): it lists the checked part of each requirement; each list of information has its own heading; it names the texts whose contrast could not be read; it holds its status; at round 3 with a deviation left it says that the budget is spent and what the owner can do; it counts the model's lines that it does not show. The command line prints one plain line with the status.
+10. **The command line** (G-S09, G-S10, G-S12): it reads only ordinary files of at most 20 megabytes; a result folder that is a link is refused; a fourth round is refused before the last receipt is touched; `--round` given twice is refused.
+11. **The plugin** (G-S14, G-U08, G-T19 to G-T21): the commands pre-approve reading and writing files only; the README explains each step, each status, each option, the three rounds, and names the commands as Claude Code shows them.
+12. **Inline SVG** (G-S08): the fill and stroke of shapes are compared with the Vision's colors.
+- Stated and not repaired: a page can still differ on a high-density screen, in print, after about five seconds, or when a person acts (G-S04 in part, G-S05); a Vision folder from elsewhere can state other texts (G-S11); the corner radius of an SVG shape; nobody has run the commands in Claude Code (G-T08).
+- How to test it end to end: `plugin/fit/e2e/exit.e2e.ts`, the group "the gate review of 2026-11-17", and the 26 further planted defects.
 
 ## 3. Out of scope
 

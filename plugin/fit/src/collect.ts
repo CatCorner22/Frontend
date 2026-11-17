@@ -36,6 +36,10 @@ export interface Collected {
   clippedLines: string[];
   /** Elements with text, or form controls and pictures, that reach past an edge of the window where nothing lets a person scroll to them (finding J-18). */
   cutOff: string[];
+  /** Frames and embedded objects (iframe, frame, object, embed). The program does not read what they draw (gate review, finding G-S06). */
+  frames: number;
+  /** Animations with an end that had not ended when the program read the page: the page may still change (finding G-S04). */
+  pendingAnimations: number;
   /** Drawn colors that a CSS filter changes before they reach the screen; they are counted as not measured (finding J-6). */
   filtered: number;
   /** Every `@font-face` rule of the page: the family that it names and where its letters come from (finding J-19). */
@@ -239,6 +243,12 @@ export function collect(): Collected {
     const label = where(el);
     const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== '');
     const recolored = isFiltered(el);
+    // A shape or a text of an inline SVG picture paints with `fill` and `stroke` (finding G-S08).
+    if (el instanceof SVGGeometryElement || el instanceof SVGTextContentElement) {
+      if (cs.fill !== 'none' && !cs.fill.startsWith('url(')) add('background', rgbOf(cs.fill), label, recolored);
+      if (cs.stroke !== 'none' && !cs.stroke.startsWith('url(') && Number.parseFloat(cs.strokeWidth) > 0) add('border', rgbOf(cs.stroke), label, recolored);
+      continue;
+    }
     box(cs, label, hasText, recolored, el.tagName === 'IMG' || el.tagName === 'VIDEO' || el.tagName === 'CANVAS');
     // Pseudo-elements draw too: a decoration, or words that stand in for the page's own (finding J-6).
     for (const pseudo of ['::before', '::after'] as const) {
@@ -263,7 +273,9 @@ export function collect(): Collected {
     const textColor = rgbOf(cs.color);
     let unmeasured = '';
     const layers: string[] = [];
-    if (alphaOf(textColor) === 0 || alphaOf(rgbOf(cs.webkitTextFillColor)) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') unmeasured = 'the text is filled by an image or a gradient';
+    // Letters drawn as an outline: the stroke paints them, and the fill may be the background's own color (finding G-T01).
+    if (Number.parseFloat(cs.webkitTextStrokeWidth) > 0) unmeasured = 'the letters are drawn as an outline';
+    if (unmeasured === '' && (alphaOf(textColor) === 0 || alphaOf(rgbOf(cs.webkitTextFillColor)) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text')) unmeasured = 'the text is filled by an image or a gradient';
     if (unmeasured === '' && recolored) unmeasured = 'a filter changes how the text is drawn';
     for (let up: Element | null = el; up && unmeasured === ''; up = up.parentElement) {
       const style = getComputedStyle(up);
@@ -303,6 +315,33 @@ export function collect(): Collected {
     }
     return false;
   };
+  // True when a box around the text hides what overflows it and leaves nothing of the text inside.
+  const cutAway = (host: Element, r: DOMRect): boolean => {
+    let left = r.left;
+    let right = r.right;
+    let top = r.top;
+    let bottom = r.bottom;
+    for (let up: Element | null = host; up && up !== document.documentElement; up = up.parentElement) {
+      const style = getComputedStyle(up);
+      if (style.overflowX === 'visible' && style.overflowY === 'visible') continue;
+      const box = up.getBoundingClientRect();
+      if (style.overflowX !== 'visible') { left = Math.max(left, box.left); right = Math.min(right, box.right); }
+      if (style.overflowY !== 'visible') { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
+      if (right - left < 1 || bottom - top < 1) return true;
+    }
+    return false;
+  };
+  // True when, with the text scrolled into the window, the box on top at the text's middle is neither the text's own box nor one around or inside it.
+  const covered = (host: Element, range: Range): boolean => {
+    const before = range.getBoundingClientRect();
+    window.scrollTo(0, Math.max(0, before.top + window.scrollY - 300));
+    const r = range.getBoundingClientRect();
+    const x = Math.min(Math.max(r.left + r.width / 2, 0), document.documentElement.clientWidth - 1);
+    const y = r.top + r.height / 2;
+    if (y < 0 || y >= window.innerHeight) return false;
+    const top = document.elementFromPoint(x, y);
+    return top !== null && top !== host && !host.contains(top) && !top.contains(host);
+  };
   for (const root of [document.body ?? document.documentElement, ...roots.slice(1)]) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
@@ -310,20 +349,27 @@ export function collect(): Collected {
       const host = node.parentElement;
       if (value.trim() === '' || host === null || host.closest('script, style, template, noscript, title') !== null) continue;
       const hs = getComputedStyle(host);
-      if (hs.visibility !== 'visible' || Number.parseFloat(hs.fontSize) < 6 || seenOpacity(host) < 0.1) continue;
+      const opacity = seenOpacity(host);
+      if (hs.visibility !== 'visible' || Number.parseFloat(hs.fontSize) < 6 || opacity < 0.1) continue;
       if (alphaOf(rgbOf(hs.webkitTextFillColor)) === 0 && !fillsThroughText(host)) continue;
       const range = document.createRange();
       range.selectNodeContents(node);
       const r = range.getBoundingClientRect();
       if (r.width <= 0 || r.height <= 0 || r.right <= 0 || r.left >= viewWidth) continue;
-      const into = underClip(host) ? clipped : shown;
+      // Above the top of the page, where no person can scroll, or cut away by a box that hides what overflows it (finding G-S03).
+      if (r.bottom + window.scrollY <= 0 || cutAway(host, r)) continue;
+      // A faint text, and a text that another box covers, may not be readable: not measured, never "found" (finding G-S03).
+      const unsure = underClip(host) || opacity < 0.5 || (root === (document.body ?? document.documentElement) && covered(host, range));
+      const into = unsure ? clipped : shown;
       const block = blockOf(host);
       into.set(block, [...(into.get(block) ?? []), value]);
     }
   }
 
+  window.scrollTo(0, 0);
+  const pendingAnimations = document.getAnimations().filter((a) => a.effect !== null && a.effect.getComputedTiming().endTime !== Infinity && a.playState !== 'finished' && a.playState !== 'idle').length;
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
+  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, frames: every('iframe, frame, object, embed').length, pendingAnimations, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */

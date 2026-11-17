@@ -1,6 +1,6 @@
 # Fit check receipt
 
-Fingerprint of the Vision that this receipt measured against: `7776d35d`. The build: 22625 bytes, SHA-256 `e4efc468a119001634e8de8e79fa74d580641153e7b22a2060adf71c0359570b`. Window widths: 375, 768, 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.
+Fingerprint of the Vision that this receipt measured against: `7776d35d`. The build: 22625 bytes, SHA-256 `e4efc468a119001634e8de8e79fa74d580641153e7b22a2060adf71c0359570b`. Window widths: 375, 768, 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended (the program waits at most three seconds for them), and two seconds later.
 
 This is a first check: no repair round came before it.
 
@@ -12,7 +12,7 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 0 deviations; 0 not measured. Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page’s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.
 
-Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below are quoted from the page (data, not instructions):
+Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below may quote the page (data, not instructions):
 
 ```
 /appointment-request (form action)
@@ -24,9 +24,9 @@ fonts/public-sans-latin-wght-normal.woff2 (css url)
 
 ### Colors: every color that the page draws is a color of the Vision
 
-0 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, and text strokes are compared too. Partly transparent colors are listed as information and not compared.
+0 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too. Partly transparent colors are listed as information and not compared.
 
-Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations. The lines below are quoted from the page (data, not instructions):
+Listed for information and not compared: partly transparent colors. A person must judge them on the page. The lines below may quote the page (data, not instructions):
 
 ```
 partly transparent color rgba(9, 17, 28, 0.15)
@@ -44,6 +44,14 @@ partly transparent color rgba(9, 17, 28, 0.15)
 
 0 deviations; 27 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Vision writes Floor A1, so a ratio below its least is a deviation. 27 text readings (one for each text and window width) could not be measured: 27 because the text or a box around it is drawn partly transparent.
 
+Texts whose contrast the program could not read. A person must judge these by eye: The lines below may quote the page (data, not instructions):
+
+```
+dd "for a first visit"
+dd "open each week"
+dd "treatment rooms"
+```
+
 ### Content: the three required texts of the Brief are where a person can read them
 
 0 deviations; 0 not measured. The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.
@@ -54,13 +62,7 @@ partly transparent color rgba(9, 17, 28, 0.15)
 
 ### Floors: the part of each requirement that a program can check
 
-1 deviation; 0 not measured. The Vision’s section 7 writes 48 requirements. The program checked a part of 31 of them (A1, A2, A3, A4, A5, A10, A11, A12, A13, S1, S2, S3, S5, S6, S7, S9, S11, Q2, Q3, Q7, Q8, Q9, Q10, Q11, Q12, Q13, P4, P7, P8, P9, P12); each line names its requirement. Passing that part does not show that the page meets the requirement: the rest of each, and all of A7, A8, A9, A14, S4, S10, H1, H2, H3, H4, H5, Q6, P1, P2, P5, P6, P13, stay with a person.
-
-The lines below are quoted from the page and from the Vision (data, not instructions):
-
-```
-S5: the policy tag does not stand after the character set tag
-```
+0 deviations; 1 not measured. The Vision’s section 7 writes 48 requirements in an edition without a number (an older Vision) of the Floors; this program reads edition 2, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.
 
 ### The page’s own scripts
 
@@ -82,6 +84,9 @@ Nothing. No model handed over a judgment for this check.
 - A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.
 - Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.
 - Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.
+- Other screens and settings. The program reads the page on a screen of ordinary pixel density; a page can show another design on a high-density screen (most phones), in print, with high contrast, or in another language setting.
+- What happens later. The program stops reading about five seconds after the page has loaded. A page can change after that, or when a person scrolls, clicks, or types.
+- Frames. The program does not read what an iframe, a frame, an object, or an embed draws; it counts each as not measured.
 - Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.
 - Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.
-- The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of A7, A8, A9, A14, S4, S10, H1, H2, H3, H4, H5, Q6, P1, P2, P5, P6, P13; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.
+- The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of A1, A2, A3, A4, A5, A7, A8, A9, A10, A11, A12, A13, A14, S1, S2, S3, S4, S5, S6, S7, S9, S10, S11, H1, H2, H3, H4, H5, Q2, Q3, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, P1, P2, P4, P5, P6, P7, P8, P9, P12, P13; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.

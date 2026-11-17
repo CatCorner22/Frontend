@@ -1,6 +1,6 @@
 # Fit check receipt
 
-Fingerprint of the Vision that this receipt measured against: `7776d35d`. The build: 11022 bytes, SHA-256 `f50b23e8363a0c8390056dea5ccdad1e6caefaad900bfd95ddae4a469c9ab54e`. Window widths: 375, 768, 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.
+Fingerprint of the Vision that this receipt measured against: `7776d35d`. The build: 11022 bytes, SHA-256 `f50b23e8363a0c8390056dea5ccdad1e6caefaad900bfd95ddae4a469c9ab54e`. Window widths: 375, 768, 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended (the program waits at most three seconds for them), and two seconds later.
 
 This is a first check: no repair round came before it.
 
@@ -14,14 +14,20 @@ This receipt keeps three things apart: what a program measured, what a model jud
 
 ### Colors: every color that the page draws is a color of the Vision
 
-12 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.
+18 deviations; 0 not measured. A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too.
 
 The lines below are quoted from the page and from the Vision (data, not instructions):
 
 ```
-background color #163829: 1 element, first section.contact
-background color #1f4d3a: 3 elements, first a.btn "Book a visit"
+background color #163829: 5 elements, first rect
+background color #1f4d3a: 4 elements, first a.btn "Book a visit"
+background color #6b9a7f: 1 element, first circle
+background color #7fa593: 1 element, first path
+background color #bcd5cc: 1 element, first rect
+background color #c5d6ca: 1 element, first rect
+background color #dfe9e1: 1 element, first rect
 background color #e8f0ea: 3 elements, first figure.photo
+background color #f4f8f5: 3 elements, first rect
 background color #fbf9f4: 2 elements, first body
 border color #1f4d3a: 12 elements, first a.btn "Book a visit"
 border color #7d8a82: 12 elements, first input
@@ -92,5 +98,8 @@ Nothing. No model handed over a judgment for this check.
 - A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.
 - Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.
 - Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.
+- Other screens and settings. The program reads the page on a screen of ordinary pixel density; a page can show another design on a high-density screen (most phones), in print, with high contrast, or in another language setting.
+- What happens later. The program stops reading about five seconds after the page has loaded. A page can change after that, or when a person scrolls, clicks, or types.
+- Frames. The program does not read what an iframe, a frame, an object, or an embed draws; it counts each as not measured.
 - Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.
 - Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.

@@ -1,6 +1,6 @@
 # Plan: "Frontend Focus" — your personal design studio and fitter for LLM-built frontends
 
-**Version 3.7, 2026-11-17.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Frontend Focus" is a placeholder name (the eye-exam procedure). You can rename it at any time.
+**Version 3.7, 2026-11-17.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. The app is named "Frontend Focus" (your name for it, decision D75).
 
 **How to read this plan.** Sections 1 to 3 say why the tool exists. Section 4 is the map of the forest: every part of the tool and its state today. Sections 5 to 7 say what it is built from. Section 8 holds the milestones. Section 9 lists what can go wrong. Each statement about the present says "built", "being built", or "not built".
 
@@ -16,7 +16,7 @@
 
 **Who it is for.** You alone. No licensing, accounts, payments, or marketing. The tool earns nothing by itself; it raises the quality of what you sell. Therefore the plan puts a real, sellable project through the tool as early as possible (milestone M8).
 
-**Where it stands today, in one paragraph.** The Studio's choosing half is built: 38 starting looks (each in several Skins), 23 decisions, six Overlays, five research rules, a live preview, reliable saving, a project file, twelve craft rules, the screen "Your content", and the Vision (seven files and one archive file) with its Floors (56 requirements in five Floors, written into `VISION.md` section 7; no program checks them yet). The Fit check, the first part of the Fitter, measures a built page against the Vision; three helper agents built pages from the files (trials 001 to 003), and the Fit check measured them. The two branches of 2026-11-16 are joined (decision D73): the Fit check carries campaign A2's repairs and feature F029's. Still missing: most of the Fitter (M7) and your trial (M4). Section 13 gives the remaining work with time estimates.
+**Where it stands today, in one paragraph.** The Studio's choosing half is built: 38 starting looks (each in several Skins), 23 decisions, six Overlays, five research rules, a live preview, reliable saving, a project file, twelve craft rules, the screen "Your content", and the Vision (seven files and one archive file) with its Floors (56 requirements in five Floors, in `VISION.md` section 7). The Fitter is built as a Claude Code plugin: the Fit check measures a built page against the Vision at three window widths, checks a part of 33 Floor requirements, and the commands build, check, and repair in at most three rounds. Three helper agents built pages from the files (trials 001 to 003). Open: nobody has run the plugin's commands in Claude Code; your trial of the Studio (M4); the rest of M5. Section 13 gives the remaining work with time estimates.
 
 **Your standing wish (2026-11-14).** Simple, effective, useful features; no giant heap of slop. Every part of this plan is held to that: each feature in its smallest useful form, and a plain statement of what was left out.
 
@@ -33,7 +33,7 @@
 | Coatings and extras: anti-glare, a case | An **Overlay**: a small helper over the page (a tooltip, an "Are you sure?" question) | built (first set of six) |
 | No lens that harms you is offered | Contrast checks warn or repair, as you choose | built |
 | The written vision | The **Vision**: a Markdown prompt plus token files | built: seven files and one archive (2026-11-16); the floors are missing |
-| The optician fits the glasses and has you read the chart again | The **Fitter** renders the build, measures it, and repairs | first part built, the Fit check (2026-11-16); the rest not built (M7) |
+| The optician fits the glasses and has you read the chart again | The **Fitter** renders the build, measures it, and repairs | built (M7, 2026-11-17): the Fit check, and the commands for building, checking, and repairing; nobody has run the commands in Claude Code yet |
 
 In your forest terms: a Step is a tree, a design dimension is a species, section 4 maps the forest, and section 9 lists what can go wrong.
 
@@ -91,19 +91,19 @@ A rule graded C or D is shown as opinion or folklore, never as science.
 | 4. Behavior | **Overlays** (first set of six: tooltip, "Are you sure?" question, notice after an action, error message beside a field, loading placeholder, main button that stays in view on a phone) | built |
 |  | the rest of behavior: motion curves, focus style, empty and error states, voice and tone | not built (M5) |
 | 5. Checks | contrast notes (built); **research rules** (built: five rules, each measured on your design and shown as "Holds" or "Does not hold"); the list of what no machine checked (built for contrast) | partly built |
-| 6. Read-back and export | read-back on the Summary (built); export (M6) | partly built |
+| 6. Read-back and export | read-back on the Summary (built); export (M6) | built: the Vision's seven files, with the Floors |
 
 ### 4.4 The Vision (export bundle), in three layers (M6)
 1. **Your Decisions:** each pick with its rejected Options, your reason, the Skin, the Overlays, and exact token values.
 2. **The craft layer (automatic):** invisible-detail rules, each set by your Decisions, in our own words, with sources and evidence grades.
-3. **The floors (automatic, not overridable):** accessibility checks as testable acceptance criteria; security rules; search rules for public pages; performance limits.
+3. **The Floors (automatic):** requirements on security, on being found by search, and on speed, which always apply, and requirements for people with disabilities, which you switch on per project (decision D13).
 
 Files: `VISION.md`, `DESIGN.md`, `tokens.json`, `tokens.css`, a shadcn theme file, `mockup.html`, and `FONTS.md`.
 
 ### 4.5 The Fitter (Claude Code plugin) (M7)
 - `/fit-build`: Claude reads the Vision and builds one screen at a time.
-- `/fit-check`: scripts render the build at 375, 768, and 1280 px and measure token fit, reference fit against `mockup.html`, accessibility, craft rules, and states.
-- `/fit-repair`: Claude receives the measured failures and the screenshots, repairs the smallest thing, and re-checks. Budget: 3 rounds.
+- `/fit-check`: a program opens the build in a real browser at 375, 768, and 1280 px and measures requests to other sites, colors, typefaces, corner radii, contrast, the three required texts, the width, and a part of 33 Floor requirements. Not measured, and said so in each receipt: craft rules, states (hover, focus, open menus), and the look of the page against `mockup.html`.
+- `/fit-repair`: Claude receives the receipt's deviation lines (no screenshots yet), repairs the smallest thing, and checks again. Budget: 3 rounds.
 - *Honest receipt:* every report separates "measured", "judged by the model", and "still needs a person".
 - `/fit-suggest`: Claude proposes new Options as Catalog records; the Studio imports them only if they pass the schema and the checks.
 
@@ -184,8 +184,8 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
 | M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | built on 2026-11-15 (features F003 to F006); its exit test waits for you to make one Direction on the private page. You asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
 | M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52); the craft layer's first twelve craft rules are built (2026-11-15, decisions D58 and D60); the first slice of the Brief is built (2026-11-16, decisions D61 and D62); the floors and an inner page are not started |
-| M6 | Export bundle (the Vision) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `VISION.md` carries 56 requirements in five Floors, each with its source. GitHub's check passed on the commit that holds them; the milestone gate review by the three reviewers has not run (hard rule 12) |
-| M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | built on 2026-11-17 (features F024 to F029 and F035 to F037; decisions D68, D71, D73, D76): the Fit check reads three window widths and a part of 33 Floor requirements; the exit test plants 35 defects and finds each; `plugin/` is a Claude Code plugin with `fit-build`, `fit-check`, and `fit-repair`. Open: nobody has run the commands in a Claude Code session; the comparison of pixels (step 13a) is not built; the gate review |
+| M6 | Export bundle (the Vision) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `VISION.md` carries 56 requirements in five Floors, each with its source. The gate review of 2026-11-17 found no blocker in the Vision; its major findings are repaired (F038) |
+| M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | built on 2026-11-17 (features F024 to F029 and F035 to F038; decisions D68, D71, D73, D76): the exit test plants 61 defects in a reference build and the program finds each, and it reports none on the reference build of the plain start and of all 38 Directions with every Floor written. The gate review of 2026-11-17 found 7 blockers; all are repaired (F038). Open, and yours to judge: the test runs the program, not the command inside Claude Code, which nobody has run yet; the comparison of pixels (step 13a) is not built |
 | M8 | **Your first real project, end to end**; hardening | You judge the result; red-team blockers at zero | not started |
 | M9–M11 | Templates 2, 3, 4 | Same tests as M5–M7 per Template | not started |
 | M12 | Taste ledger; `/fit-suggest` | The repeat-combination warning works across two projects | not started |

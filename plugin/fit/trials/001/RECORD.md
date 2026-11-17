@@ -67,3 +67,7 @@ The owner renamed the app to "Frontend Focus" and the Prescription to the "Visio
 ## The program reads the Floors and a third width (2026-11-17, decision D76)
 
 The program now reads the page at 768 pixels as well, and it checks a part of the Floor requirements that a Vision writes. The receipt was measured again. No deviation count changed. The Vision of this trial was written before the Floors and writes none, so the new measure "Floors" checked nothing. The texts whose contrast could not be read now count 27 (three texts, three widths, three readings of each).
+
+## After the gate review (2026-11-17, feature F038)
+
+The receipt was measured again with the repaired program. No deviation count changed; the status is 0. The receipt now holds its status, lists the texts whose contrast could not be read, and prints each list under its own heading.

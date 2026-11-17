@@ -259,6 +259,9 @@ describe('Studio: first screen', () => {
     const { context, page, errors, requests } = await open();
     await page.waitForSelector('.direction iframe');
     expect(await page.locator('.direction').count()).toBe(38);
+    // The app's name, on the page's tab and in the top bar (decision D75; gate review, finding G-T24).
+    expect(await page.title()).toBe('Frontend Focus Studio');
+    expect((await page.locator('a.logo').innerText()).trim()).toBe('Frontend Focus Studio');
     const sandboxes = await page.locator('iframe').evaluateAll((frames) => frames.map((f) => f.getAttribute('sandbox')));
     // An empty sandbox attribute applies every restriction: no scripts, no same-origin access, no forms, no popups.
     expect(sandboxes.length).toBeGreaterThan(0);

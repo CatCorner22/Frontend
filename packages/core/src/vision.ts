@@ -21,7 +21,7 @@
 // for them, so they stand under `$extensions`, word for word, and are not presented as tokens of the format.
 
 import { BRIEF_KEYS, type BriefKey } from './brief.js';
-import { FLOORS, floorRules, type FloorRule } from './catalog/floors.js';
+import { FLOORS, FLOORS_EDITION, floorRules, type FloorRule } from './catalog/floors.js';
 import { craftReport, craftSheet } from './catalog/craftRules.js';
 import { findDirection, isOwnDirectionId } from './catalog/directions.js';
 import { findOverlay } from './catalog/overlays.js';
@@ -282,6 +282,7 @@ function floorsPart(project: Project): string[] {
   const out: string[] = ['## 7. Floors', ''];
   out.push('A Floor is a requirement that stands whatever the design is. Build to each requirement below. Each one says what to build, what a person must still check, and where its source stands. A requirement states what to build and what to check; it does not say that your page will meet any standard. The Studio keeps the review date of each requirement in its Catalog; this file carries no date.', '');
   out.push('`mockup.html` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines, and the address `http://www.w3.org/2000/svg` inside its inline pictures (a name only; nothing loads from it). Where `mockup.html` and a requirement below differ, the requirement decides.', '');
+  out.push(`Edition ${String(FLOORS_EDITION)} of the Floors. (The number rises when the wording of a requirement changes; the Fit check reads only the edition that it knows.)`, '');
   out.push('The Fit check of Frontend Focus checks a part of some of these requirements on a built page, and its receipt says which part. No program checks the rest. Say, for each requirement, whether you built it and how you checked it, and leave the rest to a person.', '');
   FLOORS.forEach((floor, index) => {
     out.push(`### 7.${String(index + 1)} ${floor.name}`, '', floor.what, '');
@@ -414,7 +415,7 @@ export function visionMd(project: Project, context: VisionContext = {}): string 
 
   out.push('## 8. What this file leaves out', '');
   out.push('- Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. The owner decides.');
-  out.push('- A program that checks a whole Floor requirement. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width, and it checks a part of some requirements of section 7; its receipt says which part, and what stays with a person.');
+  out.push('- A program that checks a whole Floor requirement. The Fit check measures requests to other sites, colors, typefaces, corner radii, contrast, the three required texts, and width, and it checks a part of some requirements of section 7; its receipt says which part, and what stays with a person.');
   out.push('- How an Overlay opens, closes, and behaves with a keyboard or a screen reader.');
   if (sample) out.push('- The owner’s real content: `mockup.html` shows a sample dental practice.');
   else if (stillSample.length > 0) out.push(`- The owner’s real content for ${stillSample.join(', ')}: \`mockup.html\` still shows the sample dental practice’s there.`);

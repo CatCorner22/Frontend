@@ -1,5 +1,7 @@
 # The third build trial (with the Floors): record
 
+> **Read this first (2026-11-17).** Three things changed after this run: the names (the Prescription is now the "Vision"), a third window width (768 pixels), and the Fit check now reads the Floors in a numbered edition. The files in `files/` are the first draft of the Floors, which has no edition number, so today's program checks none of its Floor requirements and says so; the receipt's status is 1 for that reason. Today's figures are in `RECEIPT.md`. The text below is the record as it was written at each date; read its dated parts in order, and where an earlier part and a later part differ, the later part is today's state.
+
 Date of the run: 2026-11-16. This is one run: one helper agent, one project, one page. It is a first measurement, not a rate. Nobody can say from it how often a tool obeys the Floors.
 
 ## Instruction
@@ -49,3 +51,7 @@ The owner renamed the app to "Frontend Focus" and the Prescription to the "Visio
 ## The program reads the Floors and a third width (2026-11-17, decision D76)
 
 The program now reads the page at 768 pixels as well, and it checks a part of the Floor requirements that a Vision writes. The receipt was measured again. One thing changed: the new measure "Floors" shows one deviation, and the status is now 1. The line is "S5: the policy tag does not stand after the character set tag". The helper followed the first draft of requirement S5, which asked for the policy tag "first among the `<meta>` tags"; today's S5 asks for it after the character set. So the deviation comes from the change of the requirement, not from a fault of the helper. Every other count is as before; the texts whose contrast could not be read now count 27.
+
+## After the gate review (2026-11-17, feature F038)
+
+The receipt was measured again with the repaired program. The program now reads the Floors in a numbered edition. This trial's `VISION.md` is the first draft and states no edition, so the program checks none of its Floor requirements: the measure "Floors" shows 0 deviations and 1 thing not measured, and the status is 1 for that reason. The line about S5 of the note above no longer appears: the program does not hold a first-draft page to today's wording.

@@ -64,7 +64,7 @@ Active voice. One term per concept (see the table). Plain words; explain each te
 
 ## Stack (versions verified 2026-11-13; Playwright and Vite as merged by the owner on 2026-11-14; re-verify before upgrading)
 
-TypeScript 6.0 (D16) · React 19.3 · Vite 8.3 · native HTML controls (D22) · Zustand 5 · Zod 4 · own color math (D17) · Vitest 5 · Playwright 1.65 (D53; the owner merged the update on 2026-11-14) · axe-core 4.14. Node 22. A version is pinned only 7 days or more after its release (D27).
+TypeScript 6.0 (D16) · React 19.3 · Vite 8.3 · native HTML controls (D22) · Zustand 5 · Zod 4 · own color math (D17) · Vitest 5 · Playwright 1.65 (D53; the owner merged the update on 2026-11-14) · axe-core 4.14. Node 22.18 or newer (the Fit check is TypeScript that Node runs directly). A version is pinned only 7 days or more after its release (D27).
 
 ## Layout
 

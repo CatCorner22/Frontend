@@ -302,6 +302,8 @@ A Floor is a requirement that stands whatever the design is. Build to each requi
 
 \`mockup.html\` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines, and the address \`http://www.w3.org/2000/svg\` inside its inline pictures (a name only; nothing loads from it). Where \`mockup.html\` and a requirement below differ, the requirement decides.
 
+Edition 2 of the Floors. (The number rises when the wording of a requirement changes; the Fit check reads only the edition that it knows.)
+
 The Fit check of Frontend Focus checks a part of some of these requirements on a built page, and its receipt says which part. No program checks the rest. Say, for each requirement, whether you built it and how you checked it, and leave the rest to a person.
 
 ### 7.1 Use by people with disabilities
@@ -333,10 +335,10 @@ What the page itself must and must not contain, so that nothing on it can be use
   - A person must still check: Whether the named form endpoint, if any, is the owner's own service and handles the data as the owner expects; and that the owner has created the address that the form posts to.
   - Source: https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html (“form-action restricts the URLs which the forms can submit to.”; long-standing convention)
 - **S7.** Every link that opens a new tab (\`target="_blank"\`) also carries \`rel="noopener noreferrer"\`.
-  - A person must still check: Until a program checks it, read every link that opens a new tab and confirm that it carries the attribute. The source states the \`noopener\` behavior; adding \`noreferrer\`, which also withholds the page's address from the target, is this file's choice.
+  - A person must still check: The Fit check looks for the attribute on each link that opens a new tab; a person confirms that each such link should open a new tab at all. The source states the \`noopener\` behavior; adding \`noreferrer\`, which also withholds the page's address from the target, is this file's choice.
   - Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/noopener (“Setting target="_blank" on <a>, <area> and <form> elements implicitly provides the same rel behavior as setting rel="noopener"”; a published standard states it; long-standing convention)
 - **S8.** The page sets a referrer policy of \`strict-origin-when-cross-origin\` or stricter, explicitly, with a \`<meta name="referrer">\` tag (or a header where the host allows).
-  - A person must still check: Until a program checks it, read the page and confirm the requirement.
+  - A person must still check: The Fit check looks for the tag and its value; a person confirms that the host does not send a weaker policy in a header.
   - Source: https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html (“Set the header explicitly rather than relying on browser defaults.”; long-standing convention)
 - **S9.** Each form that collects personal data uses \`method="post"\` and an \`action\` that is a same-origin relative URL or an \`https://\` URL.
   - A person must still check: Whether the receiving endpoint really runs over HTTPS and stores or forwards the data safely. The source speaks of password pages; this file applies the same rule to every form that collects personal data.
@@ -448,7 +450,7 @@ Limits on how fast the page appears and how steady it stays while it loads.
 ## 8. What this file leaves out
 
 - Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. The owner decides.
-- A program that checks a whole Floor requirement. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width, and it checks a part of some requirements of section 7; its receipt says which part, and what stays with a person.
+- A program that checks a whole Floor requirement. The Fit check measures requests to other sites, colors, typefaces, corner radii, contrast, the three required texts, and width, and it checks a part of some requirements of section 7; its receipt says which part, and what stays with a person.
 - How an Overlay opens, closes, and behaves with a keyboard or a screen reader.
 - The owner’s real content: \`mockup.html\` shows a sample dental practice.
 - Every page but the home page.
@@ -1738,6 +1740,8 @@ A Floor is a requirement that stands whatever the design is. Build to each requi
 
 \`mockup.html\` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines, and the address \`http://www.w3.org/2000/svg\` inside its inline pictures (a name only; nothing loads from it). Where \`mockup.html\` and a requirement below differ, the requirement decides.
 
+Edition 2 of the Floors. (The number rises when the wording of a requirement changes; the Fit check reads only the edition that it knows.)
+
 The Fit check of Frontend Focus checks a part of some of these requirements on a built page, and its receipt says which part. No program checks the rest. Say, for each requirement, whether you built it and how you checked it, and leave the rest to a person.
 
 ### 7.1 Use by people with disabilities
@@ -1769,10 +1773,10 @@ What the page itself must and must not contain, so that nothing on it can be use
   - A person must still check: Whether the named form endpoint, if any, is the owner's own service and handles the data as the owner expects; and that the owner has created the address that the form posts to.
   - Source: https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html (“form-action restricts the URLs which the forms can submit to.”; long-standing convention)
 - **S7.** Every link that opens a new tab (\`target="_blank"\`) also carries \`rel="noopener noreferrer"\`.
-  - A person must still check: Until a program checks it, read every link that opens a new tab and confirm that it carries the attribute. The source states the \`noopener\` behavior; adding \`noreferrer\`, which also withholds the page's address from the target, is this file's choice.
+  - A person must still check: The Fit check looks for the attribute on each link that opens a new tab; a person confirms that each such link should open a new tab at all. The source states the \`noopener\` behavior; adding \`noreferrer\`, which also withholds the page's address from the target, is this file's choice.
   - Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel/noopener (“Setting target="_blank" on <a>, <area> and <form> elements implicitly provides the same rel behavior as setting rel="noopener"”; a published standard states it; long-standing convention)
 - **S8.** The page sets a referrer policy of \`strict-origin-when-cross-origin\` or stricter, explicitly, with a \`<meta name="referrer">\` tag (or a header where the host allows).
-  - A person must still check: Until a program checks it, read the page and confirm the requirement.
+  - A person must still check: The Fit check looks for the tag and its value; a person confirms that the host does not send a weaker policy in a header.
   - Source: https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html (“Set the header explicitly rather than relying on browser defaults.”; long-standing convention)
 - **S9.** Each form that collects personal data uses \`method="post"\` and an \`action\` that is a same-origin relative URL or an \`https://\` URL.
   - A person must still check: Whether the receiving endpoint really runs over HTTPS and stores or forwards the data safely. The source speaks of password pages; this file applies the same rule to every form that collects personal data.
@@ -1884,7 +1888,7 @@ Limits on how fast the page appears and how steady it stays while it loads.
 ## 8. What this file leaves out
 
 - Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. The owner decides.
-- A program that checks a whole Floor requirement. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width, and it checks a part of some requirements of section 7; its receipt says which part, and what stays with a person.
+- A program that checks a whole Floor requirement. The Fit check measures requests to other sites, colors, typefaces, corner radii, contrast, the three required texts, and width, and it checks a part of some requirements of section 7; its receipt says which part, and what stays with a person.
 - How an Overlay opens, closes, and behaves with a keyboard or a screen reader.
 - The owner’s real content: \`mockup.html\` shows a sample dental practice.
 - Every page but the home page.

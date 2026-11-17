@@ -13,7 +13,7 @@ Deviations that the program counted on each page. Trial 001's helper had the sev
 | Measure | Trial 001 (with the files) | Trial 002 (plain words) |
 |---|---|---|
 | Requests | 0 | 0 |
-| Colors | 0 | 12 |
+| Colors | 0 | 18 |
 | Typefaces | 0 | 2 |
 | Corner radii | 0 | 0 |
 | Contrast | 0 | 3 |
@@ -58,3 +58,7 @@ The owner renamed the app to "Frontend Focus" and the Prescription to the "Visio
 ## The program reads the Floors and a third width (2026-11-17, decision D76)
 
 The program now reads the page at 768 pixels as well, and it checks a part of the Floor requirements that a Vision writes. The receipt was measured again. The contrast row shows 3 where it showed 2: the same pale text is now also read at 768 pixels. The row "Floors" is new and shows 0 for both pages, because the Vision of trials 001 and 002 was written before the Floors and writes none; the program checked nothing there. The count of contrast lines in the text above ("2 readings") is the count of that day.
+
+## After the gate review (2026-11-17, feature F038)
+
+The receipt was measured again. The colors row shows 18 where it showed 12: the plain-words page draws a placeholder picture as an inline SVG, and the program now compares the fill of SVG shapes too; six of its fills are not colors of the Vision. The text above ("12 deviations") is the count of that day. Nothing else in the table changed.

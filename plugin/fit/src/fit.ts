@@ -1,4 +1,4 @@
-// The Fit check (SPEC.md sections 2.10, 2.13, 2.14, and 2.15): open a build in a real browser at two window widths, measure it against the
+// The Fit check (SPEC.md sections 2.10, 2.13, 2.14, and 2.15): open a build in a real browser at three window widths, measure it against the
 // Vision's design values, and write an Honest receipt. The program builds nothing and judges nothing.
 // The page is untrusted. The program reads it from a world of its own, which no script of the page can reach; the window has no
 // network; and every text that comes from the page is made visible and bounded before it enters the receipt.
@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { chromium, type Browser, type LaunchOptions, type Page } from 'playwright';
 import { contrastRatio, hexOf, over, parseRgba, type Rgba } from './color.ts';
 import { collect, readBrief, type Collected } from './collect.ts';
-import { CHECKED_PART, checkedFacts, collectFloorFacts, floorFindings, writtenFloorIds, type FloorFacts } from './floors.ts';
+import { CHECKED_PART, FLOORS_EDITION, checkedFacts, collectFloorFacts, floorFindings, statedEdition, writtenFloorIds, type FloorFacts } from './floors.ts';
 import { FitError, readDesignValues, type DesignValues } from './vision.ts';
 import { JUDGED_MAX, MAX_REPAIR_ROUNDS, STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt } from './receipt.ts';
 
@@ -34,7 +34,7 @@ export interface FitInput {
 export interface FitResult {
   receipt: Receipt;
   markdown: string;
-  /** 0: no deviation in the six measured things. 1: at least one deviation, or a window that could not be measured. */
+  /** 0: no deviation in the measures that count. 1: at least one deviation, or something that could not be measured in them. */
   status: 0 | 1;
 }
 
@@ -239,11 +239,11 @@ export function bounded(text: string, max = LINE_MAX): string {
   return points.length > max || text.length > head.length ? `${points.slice(0, max - 1).join('')}…` : seen;
 }
 
-function measureOf(id: string, title: string, note: string, deviations: string[], notMeasured: number, information: string[] = []): Measure {
+function measureOf(id: string, title: string, note: string, deviations: string[], notMeasured: number, information: string[] = [], informationHead = ''): Measure {
   // Every line may quote the page: an invisible sign becomes a visible mark before it enters the receipt (campaign A2, finding J-5).
   const sorted = [...new Set(deviations.map((d) => bounded(d)))].sort();
   const info = [...new Set(information.map((d) => bounded(d)))].sort();
-  return { id, title, deviations: sorted.length, notMeasured, items: sorted.slice(0, LISTED), more: Math.max(0, sorted.length - LISTED), note, information: info.slice(0, INFORMATION_LISTED), informationMore: Math.max(0, info.length - INFORMATION_LISTED) };
+  return { id, title, deviations: sorted.length, notMeasured, items: sorted.slice(0, LISTED), more: Math.max(0, sorted.length - LISTED), note, informationHead, information: info.slice(0, INFORMATION_LISTED), informationMore: Math.max(0, info.length - INFORMATION_LISTED) };
 }
 
 /** A stand-in for the address of the site that will serve the page. The name ends in `.invalid`, which no real site can have. */
@@ -314,9 +314,11 @@ function contrastOf(text: Collected['texts'][number]): number | null {
   return contrastRatio(fg.a < 1 ? over(fg, behind) : fg, behind);
 }
 
-function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[]): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
+function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[], edition: number | null): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
   const good = passes.filter((p): p is Extract<Pass, { collected: Collected }> => 'collected' in p);
   const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: bounded(`${p.label}: ${p.failure}`) }] : []));
+  // An animation with an end that has not ended at the last reading: the page may still change after the program stops (finding G-S04).
+  for (const p of passes) if ('collected' in p && p.label.endsWith('two seconds later') && p.collected.pendingAnimations > 0) loadFailures.push({ width: p.width, reason: bounded(`${p.label}: ${String(p.collected.pendingAnimations)} of the page’s animations had not ended when the program stopped reading, so the page may still change`) });
   const failed = loadFailures.length;
 
   // Another site is a deviation. A reference at the page's own address is information: the page names it but, being one file, cannot ship it.
@@ -366,11 +368,13 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   for (const p of good) readingsAt.set(p.width, (readingsAt.get(p.width) ?? new Set<string>()).add(p.label));
   let unreadable = 0;
   const reasons = new Map<string, number>();
+  const unreadTexts = new Set<string>();
   for (const p of good) {
     for (const text of p.collected.texts) {
       const ratio = contrastOf(text);
       if (ratio === null) {
         unreadable++;
+        unreadTexts.add(text.where);
         const why = text.unmeasured === '' ? 'a color could not be read' : text.unmeasured;
         reasons.set(why, (reasons.get(why) ?? 0) + 1);
         continue;
@@ -408,7 +412,9 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     ...(p.collected.cutOff.length > 0 ? [{ key: `${count(p.collected.cutOff.length)} reach past the window's edge and are cut off, first ${p.collected.cutOff[0] ?? ''}`, width: p.width, label: p.label }] : []),
   ]), readingsAt).map((line) => line.text);
 
-  const colorNote = `A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${translucent.size > 0 ? ' Partly transparent colors are listed as information and not compared.' : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
+  // A frame draws a page of its own that the program does not read (finding G-S06).
+  const frames = Math.max(0, ...good.map((p) => p.collected.frames));
+  const colorNote = `A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, and the fill and stroke of inline SVG shapes are compared too.${frames > 0 ? ` The page holds ${String(frames)} ${frames === 1 ? 'frame or embedded object' : 'frames or embedded objects'}; the program does not read what ${frames === 1 ? 'it draws' : 'they draw'}, and counts ${frames === 1 ? 'it' : 'each'} as not measured.` : ''}${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${translucent.size > 0 ? ' Partly transparent colors are listed as information and not compared.' : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
   const whyUnread = [...reasons].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([why, n]) => `${String(n)} because ${why}`).join('; ');
   // The Floors (SPEC.md section 2.22): the part of each written requirement that a program can check on this page.
   const binding = written.includes('A1');
@@ -417,11 +423,17 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     const http = p.collected.references.map((ref) => ref.address.replace(/[\t\n\r]/g, '').trim()).filter((address) => /^http:/i.test(address));
     for (const line of floorFindings(p.floors, written, http)) floorLines.add(line);
   }
-  const partly = written.filter((id) => CHECKED_PART[id] !== undefined);
-  const floorsNotChecked = written.filter((id) => CHECKED_PART[id] === undefined);
+  // The program reads the Floors as one edition words them. A Vision of another edition may word a requirement another way (the first
+  // draft of S5 asked for the opposite order of two tags), so the program checks none of its requirements and says so (findings G-U01, G-T27).
+  const otherEdition = written.length > 0 && edition !== FLOORS_EDITION;
+  if (otherEdition) floorLines.clear();
+  const partly = otherEdition ? [] : written.filter((id) => CHECKED_PART[id] !== undefined);
+  const floorsNotChecked = otherEdition ? [...written] : written.filter((id) => CHECKED_PART[id] === undefined);
   const floorsNote = written.length === 0
     ? 'The Vision’s section 7 writes no requirement that this program reads, so nothing was checked here.'
-    : `The Vision’s section 7 writes ${String(written.length)} requirements. The program checked a part of ${String(partly.length)} of them (${partly.join(', ')}); each line names its requirement. Passing that part does not show that the page meets the requirement: the rest of each, and all of ${floorsNotChecked.join(', ')}, stay with a person.`;
+    : otherEdition
+    ? `The Vision’s section 7 writes ${String(written.length)} requirements in ${edition === null ? 'an edition without a number (an older Vision)' : `edition ${String(edition)}`} of the Floors; this program reads edition ${String(FLOORS_EDITION)}, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.`
+    : `The Vision’s section 7 writes ${String(written.length)} requirements. The program checked a part of ${String(partly.length)} of them (${partly.join(', ')}); each deviation line names its requirement, and the list below says which part of each the program checked. Passing that part does not show that the page meets the requirement: the rest of each, and all of ${floorsNotChecked.join(', ')}, stay with a person.`;
   const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${String(unreadable)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => [...shown(e)].slice(0, 200).join(''))))].sort().slice(0, 5);
   const most = (pick: (c: Collected) => number): number => Math.max(0, ...good.map((p) => pick(p.collected)));
@@ -430,14 +442,14 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     pageErrors,
     scripts: { inline: Math.max(source.inline, most((c) => c.scripts.inline)), external: Math.max(source.external, most((c) => c.scripts.external)) },
     measured: [
-      measureOf('requests', 'Requests: the page asks for nothing from another site', 'Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page\u2019s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.', [...requests], failed, ownAddress),
-      measureOf('colors', 'Colors: every color that the page draws is a color of the Vision', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered, [...translucent]),
+      measureOf('requests', 'Requests: the page asks for nothing from another site', 'Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page\u2019s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.', [...requests], failed, ownAddress, 'Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations.'),
+      measureOf('colors', 'Colors: every color that the page draws is a color of the Vision', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered + frames, [...translucent], 'Listed for information and not compared: partly transparent colors. A person must judge them on the page.'),
       measureOf('typefaces', 'Typefaces: every text names a typeface of the Vision', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Vision typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Vision', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
-      measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed),
+      measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadTexts], 'Texts whose contrast the program could not read. A person must judge these by eye:'),
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.', contentLines, failed + contentUnsure),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
-      measureOf('floors', 'Floors: the part of each requirement that a program can check', floorsNote, [...floorLines], failed),
+      measureOf('floors', 'Floors: the part of each requirement that a program can check', floorsNote, [...floorLines], failed + (otherEdition ? 1 : 0), partly.map((id) => `${id}: ${CHECKED_PART[id] ?? ''}`), 'What the program checked of each requirement, and no more than this:'),
     ],
     floorsNotChecked,
   };
@@ -456,30 +468,34 @@ export async function fit(input: FitInput): Promise<FitResult> {
   const runScripts = input.runScripts !== false;
   const browser = input.browser ?? (await chromium.launch({ ...input.launch, args: [...(input.launch?.args ?? []), ...LAUNCH_ARGS] }));
   try {
-    // The four windows are read side by side; their order in the receipt is fixed, so the same inputs give the same receipt.
+    // The six windows (three widths, each with reduced motion and with motion allowed) are read side by side; their order in the receipt is fixed, so the same inputs give the same receipt.
     const passes: Pass[] = (await Promise.all(READINGS.map((reading) => readAt(browser, input.html, reading, ms, runScripts)))).flat();
     const brief = await readMockupBrief(browser, input.files['mockup.html'] ?? '', ms);
-    const written = writtenFloorIds(input.files['VISION.md'] ?? '');
-    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written);
-    const receipt: Receipt = {
-      fingerprint: design.fingerprint,
-      build: { bytes: Buffer.byteLength(input.html, 'utf8'), sha256: createHash('sha256').update(input.html, 'utf8').digest('hex') },
-      widths: [...WIDTHS],
-      scriptsRan: runScripts,
-      measured,
-      repairRound,
-      judgedByModel: (input.judged ?? []).map((line) => bounded(line.replace(/\s+/g, ' ').trim())).filter((line) => line !== '').slice(0, JUDGED_MAX),
-      stillNeedsPerson: [...STILL_NEEDS_A_PERSON, ...(written.length > 0 ? [`The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of ${floorsNotChecked.join(', ')}; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.`] : [])],
-      pageErrors,
-      scripts,
-      loadFailures,
-    };
-    // "Not measured" is never "no deviation": anything not measured in the six measured things gives status 1 (decision D71, A1-07).
+    const visionMd = input.files['VISION.md'] ?? '';
+    const written = writtenFloorIds(visionMd);
+    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written, statedEdition(visionMd));
+    // "Not measured" is never "no deviation": anything not measured in a measure that counts gives status 1 (decision D71, A1-07).
     // Contrast counts when the Vision writes Floor A1: a ratio below its least is then a deviation. A text whose contrast could not
     // be read does not change the status (the Mockup itself holds such texts); the receipt and the command line name the count.
     const counted = measured.filter((m) => m.id !== 'contrast');
     const contrast = measured.find((m) => m.id === 'contrast');
     const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || (written.includes('A1') && (contrast?.deviations ?? 0) > 0) || loadFailures.length > 0 ? 1 : 0;
+    const judged = (input.judged ?? []).map((line) => bounded(line.replace(/\s+/g, ' ').trim())).filter((line) => line !== '');
+    const receipt: Receipt = {
+      fingerprint: design.fingerprint,
+      build: { bytes: Buffer.byteLength(input.html, 'utf8'), sha256: createHash('sha256').update(input.html, 'utf8').digest('hex') },
+      widths: [...WIDTHS],
+      scriptsRan: runScripts,
+      status,
+      measured,
+      repairRound,
+      judgedByModel: judged.slice(0, JUDGED_MAX),
+      judgedMore: Math.max(0, judged.length - JUDGED_MAX),
+      stillNeedsPerson: [...STILL_NEEDS_A_PERSON, ...(written.length > 0 ? [`The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of ${floorsNotChecked.join(', ')}; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.`] : [])],
+      pageErrors,
+      scripts,
+      loadFailures,
+    };
     return { receipt, markdown: receiptMarkdown(receipt), status };
   } finally {
     if (!input.browser) await browser.close();
@@ -487,7 +503,9 @@ export async function fit(input: FitInput): Promise<FitResult> {
 }
 
 async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief>> {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  // The Mockup comes from the Vision folder, which may come from anywhere: its window has no script, no network, and the same dead
+  // proxy as the build's window, so that not even a prefetch or a preconnect link reaches a host (gate review, finding G-S01).
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, offline: true, javaScriptEnabled: false, serviceWorkers: 'block', proxy: DEAD_PROXY });
   let brief: ReturnType<typeof readBrief>;
   try {
     const page = await context.newPage();

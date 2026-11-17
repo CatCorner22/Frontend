@@ -1,6 +1,6 @@
 # [00] Studio guarantees: living reference
 
-Version 1.24. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Vision, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Vision); it does not cover design advice or the plan.
+Version 1.25. Owner: the owner of this repository. Scope: this file states each guarantee that the Studio makes about saved work, project files, the preview, colors, Decisions, its own words, the owner's content (the Brief), the craft rules, and the Vision, and names the test or decision that backs each one; it also covers the Fit check (the program that measures a built page against the Vision); it does not cover design advice or the plan.
 
 Stale-after: 90
 
@@ -141,6 +141,10 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [66.06 A page's scripts run by default but cannot reach what the program reads, they can be switched off, and the window has no network](#6606-a-pages-scripts-run-by-default-but-cannot-reach-what-the-program-reads-they-can-be-switched-off-and-the-window-has-no-network)
   - [66.07 Every line that comes from the page is cleaned, short, and bounded](#6607-every-line-that-comes-from-the-page-is-cleaned-short-and-bounded)
   - [66.08 The command line does not write through a link](#6608-the-command-line-does-not-write-through-a-link)
+  - [66.09 The Fit check checks a part of some Floor requirements, names each by its id, and never says that a page meets one](#6609-the-fit-check-checks-a-part-of-some-floor-requirements-names-each-by-its-id-and-never-says-that-a-page-meets-one)
+  - [66.10 A repair has three rounds, and what the model judged stands apart in the receipt](#6610-a-repair-has-three-rounds-and-what-the-model-judged-stands-apart-in-the-receipt)
+  - [66.11 On a reference build with one defect planted at a time, the Fit check finds every planted defect, and none on the build without a defect](#6611-on-a-reference-build-with-one-defect-planted-at-a-time-the-fit-check-finds-every-planted-defect-and-none-on-the-build-without-a-defect)
+  - [66.12 A required text that no visitor can read is not counted as found, and what the program cannot read is counted as not measured](#6612-a-required-text-that-no-visitor-can-read-is-not-counted-as-found-and-what-the-program-cannot-read-is-counted-as-not-measured)
 - [70 How the Studio is built](#70-how-the-studio-is-built)
   - [70.01 The shared core holds no React import and no browser API](#7001-the-shared-core-holds-no-react-import-and-no-browser-api)
   - [70.02 No look changes by accident](#7002-no-look-changes-by-accident)
@@ -148,9 +152,6 @@ The lines used most often. Each line ends with the ID of the section that suppor
   - [70.04 Every browser test fails when the page meets an error](#7004-every-browser-test-fails-when-the-page-meets-an-error)
   - [70.05 No source file uses a way to turn text into markup](#7005-no-source-file-uses-a-way-to-turn-text-into-markup)
 - [80 Glossary](#80-glossary)
-  - [66.09 The Fit check checks a part of some Floor requirements, names each by its id, and never says that a page meets one](#6609-the-fit-check-checks-a-part-of-some-floor-requirements-names-each-by-its-id-and-never-says-that-a-page-meets-one)
-  - [66.10 A repair has three rounds, and what the model judged stands apart in the receipt](#6610-a-repair-has-three-rounds-and-what-the-model-judged-stands-apart-in-the-receipt)
-  - [66.11 On a reference build with one defect planted at a time, the Fit check finds every planted defect, and none on the build without a defect](#6611-on-a-reference-build-with-one-defect-planted-at-a-time-the-fit-check-finds-every-planted-defect-and-none-on-the-build-without-a-defect)
 - [85 Changelog](#85-changelog)
 - [90 Sources](#90-sources)
 - [91 Cite index](#91-cite-index)
@@ -835,7 +836,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 <!-- index: Floors section | section 7; contrast setting; no date -->
 
-- **Rule.** `VISION.md` has a section "7. Floors" with one part for each Floor. Security of the page, the host's settings, search, and speed are always written. Use by people with disabilities is written only when Contrast checks is "Fix for me" (decision D13); with "Warn me" or "Off" the section says that it is not written, why, and how to change that. The section says that no program checks any requirement yet, and the file carries no date. The old section 7 is section 8. The other six files and the fingerprint do not change. [S20; S13; S1 at D13 and D69]
+- **Rule.** `VISION.md` has a section "7. Floors" with one part for each Floor. Security of the page, the host's settings, search, and speed are always written. Use by people with disabilities is written only when Contrast checks is "Fix for me" (decision D13); with "Warn me" or "Off" the section says that it is not written, why, and how to change that. The section states the edition of the Floors and says that the Fit check checks a part of some requirements and that no program checks the rest; the file carries no date. The old section 7 is section 8. The other six files and the fingerprint do not change. [S20; S13; S1 at D13 and D69]
 - **Test.** The tests of "VISION.md: section 7, Floors"; in the browser: "hands over a VISION.md whose section 7 holds the Floors, and writes the Floor for people with disabilities only with “Fix for me”". [S20; S3]
 - **Exceptions.** The stored copies of build trials 001 and 002 were made before the Floors; their test checks that the six other files are equal and that today's `VISION.md` holds every stored line in order, except three lines that the Floors replaced. Trial 003's helper received the first draft of the Floors, not today's.
 - Last verified: 2026-11-16
@@ -872,12 +873,12 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 <!-- index: fit check | measures a build; receipt; reference build -->
 
-- **Rule.** `npm run fit -- <build.html> <folder> <result folder>` opens the build in a real browser at 375, 768, and 1280 pixels, and measures: every request to another site and every reference to another site (a reference at the page's own address is listed as "Not shipped with the page" and is not a deviation, decision D67), of the page, of each of its frames, and of each window that it opens, and every WebSocket, each stopped before it reaches a server; an address that names a scheme is another site, with or without two slashes, and otherwise the address parser of the URL standard decides, as a browser reads it (a backslash for a slash, a tab inside the address, an escape in a style sheet, the page's own `<base href>`); style sheets are read in any letter case, inside `image-set()`, and in the rules that a script adds; a button's `formaction` and a `<base href>` count as references; every color that a visible element draws, in whatever form the browser reports it (`rgb()`, `oklch()`, `lab()`, `color-mix()`, and the others), with a color that it cannot read counted as not measured; the typeface of every text; the radius of every drawn box; the contrast of every text; the three required texts of the Brief; and the page's width. It reports each deviation with its element. The Mockup of a project is the reference build, and it must show no deviation in requests, colors, typefaces, radii, content, and width. Contrast is reported as a measurement and never changes the status, because the Vision holds no Floors yet. [S18; S1 at D65]
+- **Rule.** `npm run fit -- <build.html> <folder> <result folder>` opens the build in a real browser at 375, 768, and 1280 pixels, and measures: every request to another site and every reference to another site (a reference at the page's own address is listed as "Not shipped with the page" and is not a deviation, decision D67), of the page, of each of its frames, and of each window that it opens, and every WebSocket, each stopped before it reaches a server; an address that names a scheme is another site, with or without two slashes, and otherwise the address parser of the URL standard decides, as a browser reads it (a backslash for a slash, a tab inside the address, an escape in a style sheet, the page's own `<base href>`); style sheets are read in any letter case, inside `image-set()`, and in the rules that a script adds; a button's `formaction` and a `<base href>` count as references; every color that a visible element draws, in whatever form the browser reports it (`rgb()`, `oklch()`, `lab()`, `color-mix()`, and the others), with a color that it cannot read counted as not measured; the typeface of every text; the radius of every drawn box; the contrast of every text; the three required texts of the Brief; and the page's width. It reports each deviation with its element. The Mockup of a project is the reference build, and it must show no deviation in requests, colors, typefaces, radii, content, and width. Contrast is a measurement unless the Vision writes Floor A1; then a text below A1's least ratio is a deviation (§66.09). [S18; S1 at D65]
 - **Test.** "finds no deviation in the Mockup of the plain start or of any of the 38 Directions" (and the Mockup names nothing that it does not ship); the three tests of "a file at the site’s own address is information, a request to another site is a deviation", and "counts an address that a browser reads as another site, however the page writes it (audit finding A1-08)"; "stops a WebSocket, a window that the page opens, and a navigation away, and lists each one"; "keeps the requests of a window width that could not be read"; "compares a color written as oklch(), lab(), or color-mix() instead of skipping it" (audit findings A1-01 to A1-03); the four tests of "an address read as a browser reads it, and a damaged Mockup" (review findings A1-10 to A1-13). [S18]
 - **Elements.** Playwright and a Chromium browser are on the machine. The four files of the Vision (`VISION.md`, `tokens.css`, `tokens.json`, `mockup.html`) are in one folder.
 - **Exceptions.** Hover, focus, shadows, gradients, images, and every page other than the one given are not measured. A text on an image or a gradient, and a text drawn partly transparent, have no contrast reading; the receipt counts them and names the reason.
 - **Campaign A2 (decision D71).** The build is served at a stand-in address of the site and read three times at each width (reduced motion; motion allowed after the animations have ended, and two seconds later), without the browser's mark of automation (A2-J3). WebRTC is stopped and listed (A2-J1). Pseudo-elements, outlines, and text strokes are compared, and a color behind a CSS filter is not measured (A2-J6). A required text counts only where a person can read it, in each reading (A2-J7). Text cut off at the window's edge is a width deviation (A2-J18). A Vision typeface name given to an installed font is a deviation (A2-J19). Tests: the ten tests of "what a page shows only to the check, or only to people".
-- Last verified: 2026-11-16
+- Last verified: 2026-11-17
 
 ### [66.02] Each deviation that the program claims to find, it finds; each fault of its own inputs, it names
 
@@ -886,18 +887,18 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Rule.** The program reports each of eight damages of the reference build: one color changed, one typeface changed, one radius changed, a remote font link, a remote script, the headline removed, the page widened, and the text color made equal to the background. It refuses, with status 2 and no receipt, a missing file, files with different fingerprints, an empty build, a build that is not an HTML page, and a `mockup.html` that holds no business name, headline, or primary action (review finding A1-14: the content measure would otherwise compare nothing and report no deviation; open to the owner's veto). It reads `mockup.html` from a world of its own, as it reads the build. A page that never finishes loading is recorded, every measure of that window width is marked "not measured", and the status is 1. A page's error while it loads is recorded, and the measurements still run. [S18]
 - **Test.** The eight tests of "eight damages, each reported", the tests of "refusals and faults of the build", and "refuses a Mockup that lacks a required text, and reads the Mockup in a world of its own (A1-14)". [S18]
 - **Exceptions.** A damage that the program has no measure for is not found: the self-test names eight, not every possible fault.
-- **Campaign A2 (decision D71).** A page that replaces itself (another address, or a new document written over it) is marked not measured, and the status is 1 (A2-J4). "Not measured" in any of the six measured things gives status 1 (A1-07). The program refuses a folder whose `tokens.css` does not give its stated fingerprint, or whose `tokens.json` disagrees with `tokens.css` (A2-J20).
-- Last verified: 2026-11-16
+- **Campaign A2 (decision D71).** A page that replaces itself (another address, or a new document written over it) is marked not measured, and the status is 1 (A2-J4). "Not measured" in any of the measures that count gives status 1 (A1-07). The program refuses a folder whose `tokens.css` does not give its stated fingerprint, or whose `tokens.json` disagrees with `tokens.css` (A2-J20).
+- Last verified: 2026-11-17
 
 ### [66.03] The receipt keeps measuring, judging, and asking apart, and holds nothing that changes between two runs
 
 <!-- index: honest receipt | three parts; fenced quotes; same receipt -->
 
-- **Rule.** The receipt has three parts: "Measured", "Judged by the model" (empty in this slice), and "Still needs a person". Text that comes from the page stands only inside a fence of backticks longer than any run in the text, and the receipt marks it as quoted data. The receipt holds no date and no time, so the same page and the same files give the same receipt, byte for byte. It never calls a page accessible or compliant (hard rule 8). [S18; S10 at hard rule 8]
+- **Rule.** The receipt has three parts: "Measured", "Judged by the model" (the model's own lines, when it handed some over: §66.10), and "Still needs a person". Text that comes from the page stands only inside a fence of backticks longer than any run in the text, and the receipt marks it as quoted data. The receipt holds no date and no time, so the same page and the same files give the same receipt, byte for byte. It never calls a page accessible or compliant (hard rule 8). [S18; S10 at hard rule 8]
 - **Test.** "shows page text only inside a fence that no backtick of the page can close, and treats it as data"; "gives byte-for-byte the same receipt for the same inputs, and never claims that a page is accessible or compliant". [S18]
 - **Exceptions.** The program reads the page's text only through the browser's own engine; a page that attacks the browser itself is outside what this slice defends against (the program blocks every network request, but the page runs its own scripts). The program reads the page from a world of its own inside the browser, which shares the page's elements but none of its scripts, so a page script that replaces a function of the browser cannot change a reading (audit finding A1-05; test "reads the page in a world of its own, so that a page script that replaces the browser’s functions cannot hide a deviation (finding A1-05)"). A page script can still change the page itself while the program reads it.
 - **Campaign A2 (decision D71).** Every sign that draws nothing in page text becomes a visible mark before it enters the receipt, and a quoted label is cut by whole characters (A2-J5). "Still needs a person" also names every other window width, a page that recognizes the check, the letters that the typefaces draw, and contrast against what lies under a text (A2-J17, A1-06).
-- Last verified: 2026-11-16
+- Last verified: 2026-11-17
 
 ### [66.04] The first build trial is stored whole, belongs to today's files, and measures to its own receipt
 
@@ -905,9 +906,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **Rule.** `plugin/fit/trials/001/` holds the instruction, the seven files that the helper received, the helper's page, the receipt in two forms, and a record that says what the run shows and what it does not show. The seven files equal what the core writes today for the fixed project of `plugin/fit/e2e/trial-project.ts`, and the receipt names their fingerprint. Run again on the stored page, the program gives the stored receipt byte for byte. The record states that it is one run and not a rate, and that the helper cannot be held to the rule of reading no other file. [S19; S1 at D65]
 - **Test.** The five tests of "Build trial 001: the stored record" (the same five run on trials 002 and 003 as well). [S19]
-- **Trial 003.** `plugin/fit/trials/003/` holds a third run, with Contrast checks "Fix for me", so that `VISION.md` carries the Floors. The helper received the first draft of the Floors (48 requirements); the test checks that the stored `VISION.md` equals today's file outside section 7, and that it holds 48 requirements. The program measured no deviation. The record names what the builder read in the page by searching its text (which is not a measure of any Floor) and says that no program checks a Floor yet.
+- **Trial 003.** `plugin/fit/trials/003/` holds a third run, with Contrast checks "Fix for me", so that `VISION.md` carries the Floors. The helper received the first draft of the Floors (48 requirements); the test checks that the stored `VISION.md` equals today's file outside section 7, and that it holds 48 requirements. The program measured no deviation at the time. Today the program checks none of this Vision's Floors, because the stored files are the first draft and state no edition; the receipt counts that as not measured, and the status is 1. The record names what the builder read in the page by searching its text (which is not a measure of any Floor) and says that no program checks a Floor yet.
 - **Open.** The run found that the "requests" measure counted the font files that `FONTS.md` tells the builder to ship (finding R25-01); this is repaired (decision D67), and the stored receipt is measured again. No run without the Vision exists, so the record cannot say that the files improved the page.
-- Last verified: 2026-11-16
+- Last verified: 2026-11-17
 
 ### [66.05] The comparison run sets two pages side by side with numbers that come from the receipts
 
@@ -916,7 +917,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Rule.** `plugin/fit/trials/002/` holds a second run: the same project in plain words, no file, and the page that a helper built. The program measured it against the same values as trial 001. The record's table gives each measure's two deviation counts exactly as the receipts state them, and the record says that it does not say which page looks better and that it holds two measurements, not a rate. [S19; S1 at D66]
 - **Test.** "gives the second helper no file"; "carries every text of the sample content and all six chosen Options in the instruction"; "has a table in its record that gives, for each measure, the deviation counts of both receipts exactly as the receipts state them". [S19]
 - **Open.** Trial 001's helper received `mockup.html` and `tokens.css`, so a zero there partly reflects copied values. The helpers may have had the repository's `CLAUDE.md` in their context (finding R26-01).
-- Last verified: 2026-11-16
+- Last verified: 2026-11-17
 
 ### [66.06] A page's scripts run by default but cannot reach what the program reads, they can be switched off, and the window has no network
 
@@ -925,7 +926,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Rule.** By default the browser window runs the page's scripts, as a visitor's browser does, and the program reads the page from a world of its own that those scripts cannot reach; the receipt says so. With `--no-scripts` (option `runScripts: false`) no script runs, and the receipt says so. In both cases the window has no network: it is offline, it sends every address, this machine's own included, to a proxy at a port where nothing listens, it blocks service workers, and it stops each request that it sees. No WebSocket, popup, prefetch link, preconnect link, script, image, beacon, form, or move of the page to another address reaches any host. [S18; S1 at D68]
 - **Test.** "gives the same measures for a page that replaces the browser’s own functions as for the same page without that replacement, with the page’s scripts run and not run"; "says, with the default, that the page’s scripts ran and that the program read the page from a world of its own"; "lets no connection through: a WebSocket, a popup, a prefetch link, a preconnect link, a script, an image, a beacon, and a form, with scripts off and on" (a local listener counts the connections). [S18]
 - **Exceptions.** With scripts on, a page can still show another design to the program than to a visitor (it may recognize the check): the receipt's "Still needs a person" says so. Chromium runs without its own sandbox when the program runs as the root user (finding X7-09, open). A page that makes the program wait takes up to about 30 seconds and is then reported as not measured (finding X7-11).
-- Last verified: 2026-11-16
+- Last verified: 2026-11-17
 
 ### [66.07] Every line that comes from the page is cleaned, short, and bounded
 
@@ -934,7 +935,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Rule.** Every text from the page that enters the receipt is cleaned first (line breaks become spaces; control characters and invisible format characters, among them the tag characters and the direction signs, are removed) and cut at 200 characters. The reasons that a contrast reading or a window could not be taken are fixed sentences that the program chooses. A page cannot put a heading or a bullet into the receipt. Each measure lists at most 20 deviations and 50 lines of information; at most 5 page errors are listed. What a page that runs scripts returns is checked for type and size before use. [S18; S1 at D68]
 - **Test.** "never lets a page put a heading or a bullet into the receipt, with scripts on or off"; "cleans every line that comes from the page: no invisible sign, at most 200 characters, and a receipt of a bounded size"; "keeps every receipt line short when a page names very many things". [S18]
 - **Exceptions.** A page's words still appear in the receipt, inside fences and cleaned; an AI tool that reads the receipt reads them as data only if it obeys the receipt's own words.
-- Last verified: 2026-11-16
+- Last verified: 2026-11-17
 
 ### [66.08] The command line does not write through a link
 
@@ -942,7 +943,44 @@ The lines used most often. Each line ends with the ID of the section that suppor
 
 - **Rule.** If `receipt.json` or `RECEIPT.md` exists in the result folder as a symbolic link, the program refuses (status 2) and writes nothing; the write itself refuses a link that appears after the check. [S18; S1 at D68]
 - **Test.** "refuses, and leaves the target of the link and the folder as they were". [S18]
-- Last verified: 2026-11-16
+- Last verified: 2026-11-17
+
+### [66.09] The Fit check checks a part of some Floor requirements, names each by its id, and never says that a page meets one
+
+<!-- index: Floors in the Fit check | checked part; requirement id; contrast required; three widths -->
+
+- **Rule.** The Fit check reads from `VISION.md` section 7 which requirements the Vision writes. For 33 of the 56 it checks a part on the built page; each deviation line begins with the requirement's id, a deviation gives status 1, and the receipt lists, for each of the 33, the part that was checked. The program reads the Floors in one numbered edition, which `VISION.md` states: for a Vision of another edition, or of none, it checks no requirement, counts one thing as not measured, and says so. The measure's note says that passing that part does not show that the page meets the requirement, and "Still needs a person" names every written requirement of which the program checked nothing. When the Vision writes Floor A1, a text below its least contrast is a deviation; otherwise contrast is a measurement. A requirement that the Vision does not write gets no line. The program reads the page at 375, 768, and 1280 pixels. [S22; S1 at D76]
+- **Test.** "shows no deviation in any measure, with every Floor written, and status 0"; "reads from VISION.md which requirements are written"; "names a checked part only for requirements that the Catalog holds"; "writes no line for a requirement that the Vision does not write"; "reads the Floors only in the edition that it knows"; "shows no deviation and status 0 for the reference build of the plain start and of each of the 38 Directions, with every Floor written and contrast required"; and the planted defects of §66.11. [S22]
+- **Gate review of 2026-11-17 (feature F038).** The checks read open shadow roots; every viewport tag and every referrer tag; an address as the browser reads it; a `tabindex` as the browser reads it; a button that sends a form another way; a `maxlength` above 0; a robots tag for one search engine; a skip link only when it is drawn; a policy tag only in the head, with a `script-src` of `'none'` or hashes.
+- **Exceptions.** A text whose contrast cannot be read does not change the status. Letters drawn as an outline count as not read. The Mockup itself is a still page and shows Floor deviations; the tests use a reference build made from it (`plugin/fit/e2e/built.ts`). The host's settings cannot be read from a page.
+- Last verified: 2026-11-17
+
+### [66.10] A repair has three rounds, and what the model judged stands apart in the receipt
+
+<!-- index: repair rounds | budget; judged by the model; plugin commands -->
+
+- **Rule.** The receipt states the repair round (0 for a first check, 1 to 3 after a repair). The program refuses a round above 3, writes no new receipt, and leaves the last one in place. The model counts the rounds; the program records the number that it is given. The receipt of round 3 says that the budget is spent when the page still deviates. The receipt holds its own status. Lines that a model wrote about its own work enter the receipt under "Judged by the model": at most 20 (the receipt counts the rest), each made visible and cut at 200 characters, inside a fence, with the sentence that no program checked them. The folder `plugin/` is a Claude Code plugin with the commands `fit-build`, `fit-check`, and `fit-repair`; each runs the program by a path inside the plugin and tells Claude to treat what it reads as data. The commands pre-approve reading and writing files only, so Claude Code asks the owner before each run of the program. [S22; S1 at D76]
+- **Test.** The three tests of "the repair round and the model's judgments" and the three tests of "the plugin's files". [S22]
+- **Exceptions.** A command is an instruction to a model: no test can show that Claude obeys it. `claude plugin validate plugin` passed with one remark (no install line for a marketplace) on the builder's machine on 2026-11-17; nobody has yet run the three commands in a Claude Code session.
+- Last verified: 2026-11-17
+
+### [66.11] On a reference build with one defect planted at a time, the Fit check finds every planted defect, and none on the build without a defect
+
+<!-- index: exit test of M7 | planted defects; no false blocker -->
+
+- **Rule.** For each of 61 planted defects (a color, a typeface, a corner radius, a missing headline, a width at 768 pixels only, a request to another site, a text below the least contrast, and at least one for each Floor requirement of which the program checks a part, among them the ways around a check that the gate review found), the receipt names the defect under its measure and the status is 1. The reference build of the plain start and of each of the 38 Directions, without a defect, shows no deviation and status 0, with the Floor for people with disabilities written and without it. [S22; S18]
+- **Test.** The tests of "M7 exit test: every planted defect is found"; "finds no deviation in the Mockup of the plain start or of any of the 38 Directions" (on the reference build). [S22; S18]
+- **Exceptions.** The defects are the builder's own list: a defect of a kind that is not on it may pass. The reference build is the Mockup with five kinds of places changed; no person built it.
+- Last verified: 2026-11-17
+
+### [66.12] A required text that no visitor can read is not counted as found, and what the program cannot read is counted as not measured
+
+<!-- index: hidden text | covered; cut away; frames; late animation; Mockup window -->
+
+- **Rule.** A required text counts only where a person can read it. A text above the top of the page, or cut away by a box that hides what overflows it, is missing. A faint text (drawn below half strength) and a text that another box covers are not measured, and the status is 1. A frame or an embedded object is counted as not measured, because the program does not read what it draws. When an animation with an end has not ended at the last reading, the reading says that the page may still change, and the status is 1. The fill and the stroke of an inline SVG shape are compared with the Vision's colors. The window in which the program reads `mockup.html` has no script and no network. A refusal is one line, made visible and cut, with no word taken from a name in a file. [S22; S1 at D76]
+- **Test.** The tests of "the gate review of 2026-11-17: what a hostile page or folder can no longer do". [S22]
+- **Exceptions.** A page can still show another design on a high-density screen, in print, at another width, after about five seconds, or when a person acts; "Still needs a person" says so. The corner radius of an SVG shape is not compared. The Vision folder is trusted as the owner's own: a folder from elsewhere can state other texts and values (finding G-S11, stated, not repaired).
+- Last verified: 2026-11-17
 
 ## [70] How the Studio is built
 
@@ -1009,35 +1047,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **Standing notice** (UF: hold): a notice that needs the owner's answer; it has its own row and stays until the owner answers. The word avoids "decision", because a Decision is the recorded result of a Step. §10.07
 - **Step**: one screen of the Studio that asks for one design decision. §50.02
 
-### [66.09] The Fit check checks a part of some Floor requirements, names each by its id, and never says that a page meets one
-
-<!-- index: Floors in the Fit check | checked part; requirement id; contrast required; three widths -->
-
-- **Rule.** The Fit check reads from `VISION.md` section 7 which requirements the Vision writes. For 33 of the 56 it checks a part on the built page; each deviation line begins with the requirement's id, and a deviation gives status 1. The measure's note says that passing that part does not show that the page meets the requirement, and "Still needs a person" names every written requirement of which the program checked nothing. When the Vision writes Floor A1, a text below its least contrast is a deviation; otherwise contrast is a measurement. A requirement that the Vision does not write gets no line. The program reads the page at 375, 768, and 1280 pixels. [S22; S1 at D76]
-- **Test.** "shows no deviation in any measure, with every Floor written, and status 0"; "reads from VISION.md which requirements are written"; "names a checked part only for requirements that the Catalog holds"; "writes no line for a requirement that the Vision does not write"; and the planted defects of §66.11. [S22]
-- **Exceptions.** A text whose contrast cannot be read does not change the status. The Mockup itself is a still page and shows Floor deviations; the tests use a reference build made from it (`plugin/fit/e2e/built.ts`). The host's settings cannot be read from a page.
-- Last verified: 2026-11-17
-
-### [66.10] A repair has three rounds, and what the model judged stands apart in the receipt
-
-<!-- index: repair rounds | budget; judged by the model; plugin commands -->
-
-- **Rule.** The receipt states the repair round (0 for a first check, 1 to 3 after a repair). The program refuses a round above 3 and writes no receipt. Lines that a model wrote about its own work enter the receipt under "Judged by the model": at most 20, each made visible and cut at 200 characters, inside a fence, with the sentence that no program checked them. The folder `plugin/` is a Claude Code plugin with the commands `fit-build`, `fit-check`, and `fit-repair`; each runs the program by a path inside the plugin and tells Claude to treat what it reads as data. [S22; S1 at D76]
-- **Test.** The three tests of "the repair round and the model's judgments" and the three tests of "the plugin's files". [S22]
-- **Exceptions.** A command is an instruction to a model: no test can show that Claude obeys it. `claude plugin validate plugin` passed on the builder's machine on 2026-11-17; nobody has yet run the three commands in a Claude Code session.
-- Last verified: 2026-11-17
-
-### [66.11] On a reference build with one defect planted at a time, the Fit check finds every planted defect, and none on the build without a defect
-
-<!-- index: exit test of M7 | planted defects; no false blocker -->
-
-- **Rule.** For each of 35 planted defects (a color, a typeface, a corner radius, a missing headline, a width at 768 pixels only, a request to another site, a text below the least contrast, and one for each checked part of a Floor requirement), the receipt names the defect under its measure and the status is 1. The reference build of the plain start and of each of the 38 Directions, without a defect, shows no deviation and status 0. [S22; S18]
-- **Test.** The tests of "M7 exit test: every planted defect is found"; "finds no deviation in the Mockup of the plain start or of any of the 38 Directions" (on the reference build). [S22; S18]
-- **Exceptions.** The defects are the builder's own list: a defect of a kind that is not on it may pass. The reference build is the Mockup with five kinds of places changed; no person built it.
-- Last verified: 2026-11-17
-
 ## [85] Changelog
 
+- 2026-11-17 v1.25: after the gate review of M6 and M7 (feature F038): added §66.12; §66.09 to §66.11 moved to their place and state the edition of the Floors, 61 planted defects, and what the commands pre-approve; §66.01, §66.03, §66.04, and §65.14 follow the program of today. 89 guarantees.
 - 2026-11-17 v1.24: after the new names (decision D75: the app is "Frontend Focus", the Prescription is the "Vision") and after the Fitter's milestone M7 (decision D76): added §66.09 to §66.11; §66.01 names three window widths. 88 guarantees.
 - 2026-11-17 v1.23: after the book of Directions (feature F033, decision D74): added §65.15. 85 guarantees.
 - 2026-11-16 v1.22: after the join of the two branches (decision D73): §66.06 states the new default (scripts run, the page is read from a world of its own, `--no-scripts` stops them); §55.01 follows the cleaning of loaded files of both sides. 84 guarantees.
@@ -1091,7 +1103,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [91] Cite index
 
 <!-- authorities:start -->
-- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §55.06, §55.07, §60.01, §60.03, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.07, §65.09, §65.13, §65.14, §65.15, §65.12, §65.11, §66.01, §66.04, §66.05, §66.06, §66.07, §66.08, §70.02, §70.03, §66.09, §66.10
+- [S1] The builder and the owner, *DECISIONS.md*, repository `catcorner22/frontend`, file `DECISIONS.md` (2026-11-13) — §10.02, §10.03, §10.05, §10.07, §10.08, §10.09, §10.12, §10.13, §20.05, §20.06, §20.07, §30.06, §40.01, §50.05, §50.06, §50.07, §50.08, §50.09, §55.01, §55.06, §55.07, §60.01, §60.03, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.07, §65.09, §65.13, §65.14, §65.15, §65.12, §65.11, §66.01, §66.04, §66.05, §66.06, §66.07, §66.08, §66.09, §66.10, §66.12, §70.02, §70.03
 - [S2] The builder, *Unit tests of the project file*, file `packages/core/test/project-file.test.ts` (2026-11-13) — §20.01, §20.02, §20.03, §20.04, §20.05, §20.07, §50.08, §55.07
 - [S3] The builder, *Browser tests of the Studio*, file `apps/studio/e2e/studio.e2e.ts` (2026-11-13) — §10.01, §10.02, §10.03, §10.04, §10.05, §10.06, §10.07, §10.08, §10.09, §10.10, §10.11, §10.12, §10.13, §10.14, §20.02, §20.03, §20.05, §20.06, §20.07, §30.02, §30.03, §30.04, §50.06, §50.07, §50.08, §50.09, §55.01, §55.04, §55.05, §55.06, §60.01, §60.04, §60.05, §60.06, §60.07, §60.08, §65.01, §65.03, §65.06, §65.10, §65.14, §70.04
 - [S4] The builder, *Browser tests of the Mockup and of drawn colors*, file `apps/studio/e2e/visual.e2e.ts`… — §30.05, §40.02, §55.03, §70.02
@@ -1111,7 +1123,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - [S19] The builder, *Tests of the stored build trial*, file `plugin/fit/e2e/trial.e2e.ts` (2026-11-16) — §66.04, §66.05
 - [S20] The builder, *Unit tests of the Floors*, file `packages/core/test/floors.test.ts` (2026-11-16) — §65.13, §65.14
 - [S21] The builder, *Unit tests of the book of Directions*, file `packages/core/test/directionsBook.test.ts`… — §65.15
-- [S22] The builder, *The exit test of milestone M7*, file `plugin/fit/e2e/exit.e2e.ts` (2026-11-17) — §66.09, §66.10, §66.11
+- [S22] The builder, *The exit test of milestone M7*, file `plugin/fit/e2e/exit.e2e.ts` (2026-11-17) — §66.09, §66.10, §66.11, §66.12
 <!-- authorities:end -->
 
 ## [92] Index
@@ -1169,7 +1181,9 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - **core** — §70.01
 - corrected file — *see* changed Decision
 - corrupt — *see* unreadable project
+- covered — *see* hidden text
 - **craft rule** — §65.01; *see also* Vision
+- cut away — *see* hidden text
 
 **D**
 
@@ -1224,6 +1238,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - FONTS.md @font-face — *see* font weight range
 - foreign data — *see* unknown values in a file of own Directions
 - forged sentence — *see* quotation marks
+- frames — *see* hidden text
 
 **G**
 
@@ -1238,6 +1253,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - helper agent — *see* build trial
 - hex — *see* written color
 - hidden signs in a file — *see* loading a file; cleaned texts
+- **hidden text** — §66.12
 - hold — *see* standing notice
 - holds — *see* research rule
 - **honest receipt** — §66.03
@@ -1267,6 +1283,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 **L**
 
 - **lasting copy** — §10.12; *see also* kept copy
+- late animation — *see* hidden text
 - **late copy** — §10.11; *see also* kept copy
 - later version — *see* unknown Overlay
 - leaving copy — *see* closing in the same instant
@@ -1293,6 +1310,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 - measures a build — *see* fit check
 - mixed page — *see* sample texts left
 - **Mockup** — §30.01; *see also* locked frame
+- Mockup window — *see* hidden text
 
 **N**
 
@@ -1504,7 +1522,7 @@ The lines used most often. Each line ends with the ID of the section that suppor
 ## [99] Health
 
 <!-- health:start -->
-_108 sections, 21 sources, 86 index terms. Cadence: 90 days. Generated content last changed 2026-11-17._
+_109 sections, 21 sources, 87 index terms. Cadence: 90 days. Generated content last changed 2026-11-17._
 
 - No findings.
 <!-- health:end -->
