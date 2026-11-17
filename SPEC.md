@@ -344,6 +344,15 @@ Campaign A2 (`redteam/campaign-a2/`) confirmed fifteen findings against sections
 - **Accepted as stated:** two designs can share the 32-bit fingerprint; it is a mark to compare, not a seal. (A2-J14)
 - **After the retest's variants (A2-V1 to A2-V14).** Only a box that scrolls excuses text cut off at the window's edge; style sheets that `@import` brings in and open shadow roots are read; the color that paints the letters, `::first-letter`, and `::first-line` are compared; a required text in a transparent color is not counted as present, and one under a clip-path or a mask is not measured; `tokens.css` colors written as `rgb(r g b / a)` must agree with `tokens.json` too; a blob address's random part and a long run of spaces become visible marks; a plain start that records other values says so; a list of the sample is counted item by item. "Still needs a person" names dark mode, touch screens, other window heights, and closed shadow roots.
 
+### 2.20 The book of Directions (decision D74)
+
+The owner asked for one markdown file that describes the designs, their colors, and the rest in the language of code ("such as the Gothic one that we made"), and asked that these looks always stay in the app.
+
+- What the system does: the core function `directionsBook()` writes `docs/reference/directions.md` from the Catalog. The file lists the built-in Directions under their four groups. For each Direction it gives its name and id, its mood, its best uses, its risk ("Watch out"), its sources, any research rule it departs from on purpose, its design settings as JSON (`DesignParams`), the full `:root` block of the `tokens.css` that a new project from it gets, and a table of the main colors (`--bg`, `--surface`, `--text`, `--accent`, `--accent-2`, `--btn-fill`) of each of its Skins. `npm run directions` writes the file again.
+- Keeping them: a unit test compares the stored file with what the core writes today, so the file never drifts from the Studio. A second test names the 38 built-in Directions of 2026-11-17; a Direction that leaves the Catalog makes it fail. A new Direction may join without changing that test.
+- Edge cases: the owner's own Directions live in the browser, not in the repository, so the file says that they are not in it and names the Studio's buttons that download and reopen them. The file carries no date, says that it is written by a program, and makes no claim that a page meets a standard (hard rule 8).
+- How to test it end to end: the unit tests of `packages/core/test/directionsBook.test.ts`; a hand check that changing one value of the Catalog, or removing one Direction, makes `npm run check` fail.
+
 ## 3. Out of scope
 
 - For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.

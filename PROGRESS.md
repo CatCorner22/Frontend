@@ -103,6 +103,15 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+- Date: 2026-11-17
+- Feature worked on (ID): F033 (the book of Directions; requirement 2.20; decision D74)
+- Result: passes
+- Commits: the commit "F033: ..." that holds this entry
+- What it does: `docs/reference/directions.md` describes every built-in Direction in code (design settings as JSON, the full `tokens.css`, and the main colors of each Skin), written by the core from the Catalog (`directionsBook`). `npm run directions` writes it again. Two tests keep it: the stored file must equal what the core writes, and each of the 38 built-in Directions must stay in the Catalog.
+- Evidence: tests first (the new test file failed because `directionsBook` did not exist). `npm run check`: 365 unit tests passed (8 new). Checked by hand: a changed corner radius in Galactic Goth failed the stored-file test, and removing Galactic Goth failed the keep test and named it; the Catalog was restored and `git diff` showed no change. `npm run e2e`: 423 browser tests passed (1,652 seconds).
+- Not done: the reviewer helper did not run (decision D55: a helper needs the owner's yes; D68 covered one earlier round only). The owner's own Directions are in the browser and cannot be in the file.
+- Open problems for the next session: the script default of the Fit check (two joins differ; the owner decides); the M6 gate review; the owner's trial of the Studio (M4); the choice of host.
+
 - Date: 2026-11-16
 - Feature worked on (ID): the join of pull request 12 (audit A1 and red-team campaign A2) with the branch of pull request 13 (decision D73; no new feature)
 - Result: passes
