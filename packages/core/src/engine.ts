@@ -768,7 +768,7 @@ export type ParseResult =
   | { ok: false; error: string };
 
 // Every message is fixed text. A message never repeats content from the file.
-const NOT_A_PROJECT = 'This is not a Refraction project file.';
+const NOT_A_PROJECT = 'This is not a Frontend Focus project file.';
 const NEWER_VERSION = 'A newer version of the Studio made this file, and this version cannot read it.';
 const SECTIONS = ['name', 'template', 'a11y', 'direction', 'base', 'params', 'decisions', 'content', 'brief', 'overlays', 'skin'] as const;
 /** What each part of a project file holds, in plain words, for the message that refuses a damaged file (finding U2-21). The words are fixed; nothing from the file is repeated. */
@@ -858,7 +858,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   const reachable = withinReach(data.params as unknown as DesignParams);
   const params = reachable.params;
   // The file's own record of where the project started is kept, also where it differs from today's Catalog: a project saved under
-  // an older Catalog keeps its start (the typefaces' test). PRESCRIPTION.md says so where the two differ (campaign A2, J-9).
+  // an older Catalog keeps its start (the typefaces' test). VISION.md says so where the two differ (campaign A2, J-9).
   const base = withinReach(data.base as unknown as DesignParams).params;
   const notes: string[] = [];
   if (reachable.moved > 0) notes.push(reachable.moved === 1 ? 'One design value in the file lay outside what the Studio can set. The Studio brought it to the nearest value that it can set, and the design changed with it.' : `${reachable.moved} design values in the file lay outside what the Studio can set. The Studio brought each to the nearest value that it can set, and the design changed with them.`);

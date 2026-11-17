@@ -1,0 +1,9 @@
+{
+  "name": "frontend-focus-fitter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Fit check's own dependencies, for a machine where this folder stands alone as a Claude Code plugin.",
+  "engines": { "node": ">=22.18" },
+  "dependencies": { "playwright": "1.65.0" }
+}

@@ -40,7 +40,7 @@ describe('saved projects: the current version', () => {
   });
 
   it('refuses anything that is not a project, in fixed words', () => {
-    for (const input of [null, undefined, 42, 'text', [], [1, 2], {}, { schemaVersion: '2' }, { schemaVersion: 0 }, { schemaVersion: 1.5 }]) expect(refusal(input)).toBe('This is not a Refraction project file.');
+    for (const input of [null, undefined, 42, 'text', [], [1, 2], {}, { schemaVersion: '2' }, { schemaVersion: 0 }, { schemaVersion: 1.5 }]) expect(refusal(input)).toBe('This is not a Frontend Focus project file.');
     expect(refusal({ ...(roundTrip(busyProject()) as object), schemaVersion: SCHEMA_VERSION + 1 })).toBe('A newer version of the Studio made this file, and this version cannot read it.');
   });
 

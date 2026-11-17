@@ -1,5 +1,7 @@
 # Progress
 
+> **Names (decision D75, 2026-11-17).** The app is "Frontend Focus" (it was "Refraction"), and the Prescription is the "Vision" (`PRESCRIPTION.md` is `VISION.md`). Entries written before that date keep the old names.
+
 A fresh session reads this file to learn where the project stands. Update it after every unit of work.
 
 ## Start here (written 2026-11-14, checked on 2026-11-15, for the next session)
@@ -102,6 +104,20 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **A code review that the owner started with `/code-review` was stopped by the owner before it reported.** No review of the repairs of 2026-11-15 exists yet.
 
 ## Build log (verified build loop; newest entry first)
+
+- Date: 2026-11-17
+- Feature worked on (ID): F034 (the new names), F035 (the Fit check reads the Floors; a third window width), F036 (the Fitter as a Claude Code plugin; repair rounds; "Judged by the model"), F037 (the exit test of milestone M7). Requirements 2.21 to 2.24; decisions D75 and D76.
+- Result: passes
+- Commits: the commit "F034 to F037: ..." that holds this entry
+- The names (F034): the app is "Frontend Focus" and the Prescription is the "Vision" (`VISION.md`). Decision D75 lists what changed and what did not (the names under which the browser stores work, the package names, and the records of earlier days did not). The fingerprints did not change.
+- The Fit check (F035): it reads from `VISION.md` which Floor requirements are written, checks a part of 33 of the 56 on the built page, and names each line by the requirement's id. Contrast is a requirement when the Vision writes Floor A1. It reads three window widths: 375, 768, and 1280 pixels. It never says that a page meets a requirement.
+- The plugin (F036): `plugin/` holds a manifest and the commands `fit-build`, `fit-check`, and `fit-repair`. The program takes `--round` (it refuses a fourth round) and `--judged` (the model's own lines, shown apart in a fence). `claude plugin validate plugin` passed here. **Nobody has run the three commands in a Claude Code session yet**; a command is an instruction to a model, and no test can show that the model obeys it.
+- The exit test (F037): 35 planted defects, each found under its measure; the reference build of the plain start and of all 38 Directions shows no deviation. The reference build is the Mockup with five kinds of places changed (`plugin/fit/e2e/built.ts`), because the Mockup is a still page.
+- Evidence: `npm run check`: 366 unit tests passed. `npm run e2e`: 468 of 469 browser tests passed (2,079 seconds); the one that failed compared trial 003's stored file with today's, and one sentence of section 8 had changed on purpose (it now says that the Fit check checks a part of the Floors). The test now leaves that one line out and says why; the trial tests then passed (18 of 18). I wrote the Floors module before its tests, against the rule "tests first"; the exit test then failed on four of its own cases, which were faults of my planted defects, not of the program.
+- Tests changed, and why: the Fit check's tests now use the reference build where they used the Mockup as a build (the Mockup shows Floor deviations by design); counts follow three widths (18 unmeasured readings where 12; 3 width lines where 2); the headline's line names a width once when the text is missing in every reading of it.
+- What the stored trials show now: trial 003's page has one Floor deviation (S5: its policy tag stands before the character-set tag, as the first draft of S5 asked). Its record says so. Trials 001 and 002 have no Floors in their Vision, so nothing was checked there.
+- Not built, and said so: a comparison of the pixels of a screenshot with the Vision's colors (plan step 13a); `/fit-suggest` (M12); a build of more than one page.
+- Next: the gate review of M6 and M7 by the three reviewers (the owner asked for it), then their findings.
 
 - Date: 2026-11-17
 - Feature worked on (ID): F033 (the book of Directions; requirement 2.20; decision D74)

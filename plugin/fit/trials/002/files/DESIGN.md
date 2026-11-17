@@ -1,7 +1,7 @@
 ---
 version: alpha
-name: "Refraction design 7776d35d"
-description: "One design from Refraction Studio. PRESCRIPTION.md is the instruction; tokens.css holds every value."
+name: "Frontend Focus design 7776d35d"
+description: "One design from Frontend Focus Studio. VISION.md is the instruction; tokens.css holds every value."
 colors:
   primary: "#005729"
   on-primary: "#f9fdfa"
@@ -111,9 +111,9 @@ components:
 
 ## Overview
 
-A light page with one main color and a plain background. This file is one file of a Prescription from Refraction Studio. `PRESCRIPTION.md` is the instruction and decides where two files differ; `tokens.css` holds every value of the design, also those that this format has no place for; `mockup.html` is the reference page.
+A light page with one main color and a plain background. This file is one file of a Vision from Frontend Focus Studio. `VISION.md` is the instruction and decides where two files differ; `tokens.css` holds every value of the design, also those that this format has no place for; `mockup.html` is the reference page.
 
-Fingerprint of the design values: `7776d35d`. Every file of this Prescription carries the same eight characters; where one differs, the files do not belong together.
+Fingerprint of the design values: `7776d35d`. Every file of this Vision carries the same eight characters; where one differs, the files do not belong together.
 
 ## Colors
 
@@ -147,7 +147,7 @@ Buttons and fields are rounded by 14px, boxes by 21px, small marks by 7px. A fie
 
 ## Components
 
-- **Main button:** the button color with its label color, 2.75rem tall at least, rounded as above. On press and on focus it behaves as section 4 of `PRESCRIPTION.md` says.
+- **Main button:** the button color with its label color, 2.75rem tall at least, rounded as above. On press and on focus it behaves as section 4 of `VISION.md` says.
 - **Field:** the surface color, the strong border, the same rounding and least height as the button.
 - **Card:** the card color, rounded as a box.
 

@@ -6,6 +6,7 @@
   },
   "widths": [
     375,
+    768,
     1280
   ],
   "scriptsRan": true,
@@ -23,7 +24,7 @@
     },
     {
       "id": "colors",
-      "title": "Colors: every color that the page draws is a color of the Prescription",
+      "title": "Colors: every color that the page draws is a color of the Vision",
       "deviations": 12,
       "notMeasured": 0,
       "items": [
@@ -41,13 +42,13 @@
         "text color #dbe7df: 1 element, first p \"Tell us how to reach you and what you ne…\""
       ],
       "more": 0,
-      "note": "A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.",
+      "note": "A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.",
       "information": [],
       "informationMore": 0
     },
     {
       "id": "typefaces",
-      "title": "Typefaces: every text names a typeface of the Prescription",
+      "title": "Typefaces: every text names a typeface of the Vision",
       "deviations": 2,
       "notMeasured": 0,
       "items": [
@@ -55,13 +56,13 @@
         "typeface \"Public Sans\": 36 elements, first p.tag \"Family dentistry on Harbor Street\""
       ],
       "more": 0,
-      "note": "The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Prescription typeface’s name to a font installed on the machine is a deviation.",
+      "note": "The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Vision typeface’s name to a font installed on the machine is a deviation.",
       "information": [],
       "informationMore": 0
     },
     {
       "id": "radii",
-      "title": "Corner radii: every drawn box uses a radius of the Prescription",
+      "title": "Corner radii: every drawn box uses a radius of the Vision",
       "deviations": 0,
       "notMeasured": 0,
       "items": [],
@@ -73,14 +74,15 @@
     {
       "id": "contrast",
       "title": "Contrast: measured, not required",
-      "deviations": 2,
+      "deviations": 3,
       "notMeasured": 0,
       "items": [
         "1.24 to 1, where 4.5 to 1 is the usual least, on p.promise \"No work starts until you have seen the p…\" at 1280 pixels",
-        "1.24 to 1, where 4.5 to 1 is the usual least, on p.promise \"No work starts until you have seen the p…\" at 375 pixels"
+        "1.24 to 1, where 4.5 to 1 is the usual least, on p.promise \"No work starts until you have seen the p…\" at 375 pixels",
+        "1.24 to 1, where 4.5 to 1 is the usual least, on p.promise \"No work starts until you have seen the p…\" at 768 pixels"
       ],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.",
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.",
       "information": [],
       "informationMore": 0
     },
@@ -105,19 +107,31 @@
       "note": "Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.",
       "information": [],
       "informationMore": 0
+    },
+    {
+      "id": "floors",
+      "title": "Floors: the part of each requirement that a program can check",
+      "deviations": 0,
+      "notMeasured": 0,
+      "items": [],
+      "more": 0,
+      "note": "The Vision’s section 7 writes no requirement that this program reads, so nothing was checked here.",
+      "information": [],
+      "informationMore": 0
     }
   ],
+  "repairRound": 0,
   "judgedByModel": [],
   "stillNeedsPerson": [
     "What the page looks like. The program measured colors, typefaces, corner radii, contrast, and widths; it did not look at the page.",
     "Whether the page works with the keyboard alone, and with a screen reader.",
     "Whether the words are right and say what the owner means.",
-    "Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.",
+    "Every craft rule of the Vision. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.",
     "The states that the program did not open: hover, focus, open menus, and every page other than the one given.",
-    "Shadows, gradients, and images. The program did not compare them with the Prescription.",
-    "All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.",
+    "Shadows, gradients, and images. The program did not compare them with the Vision.",
+    "All other window widths. The program read the page at 375, 768, and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.",
     "A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.",
-    "Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.",
+    "Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.",
     "Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.",
     "Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.",
     "Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast."

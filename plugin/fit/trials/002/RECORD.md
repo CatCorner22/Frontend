@@ -16,9 +16,10 @@ Deviations that the program counted on each page. Trial 001's helper had the sev
 | Colors | 0 | 12 |
 | Typefaces | 0 | 2 |
 | Corner radii | 0 | 0 |
-| Contrast | 0 | 2 |
+| Contrast | 0 | 3 |
 | Content | 0 | 0 |
 | Width | 0 | 0 |
+| Floors | 0 | 0 |
 
 - **Colors: 12 deviations on the plain-words page.** The helper chose its own dark green (`#1f4d3a`), its own tints and grays, and its own page color; none is a value of the Prescription. The Prescription's green is another green.
 - **Typefaces: 2 deviations, which are a difference of name.** The helper wrote "Fraunces" and "Public Sans", as the owner's words name them. The Prescription's names are "Fraunces Variable" and "Public Sans Variable". The program compares names; it does not compare what the browser draws. Neither font was loaded on the page, so a viewer sees fallback fonts unless the fonts are installed.
@@ -49,3 +50,11 @@ The receipt was measured again after the seventh review's repairs of the program
 ## After the join of the two branches (2026-11-16, decision D73)
 
 The stored receipt was measured again with the joined program. No count of the table above changed. The receipt now says that the page's scripts were run (the page holds none), and the contrast note says that no program checks a Floor yet.
+
+## The names changed on 2026-11-17 (decision D75)
+
+The owner renamed the app to "Frontend Focus" and the Prescription to the "Vision". The file `PRESCRIPTION.md` is now `VISION.md`. In the folder `files/` the same change of names was made in the stored files, and nothing else in them changed, so that they still equal what the core writes today. `INSTRUCTION.md`, the helper's page, and the text of this record above keep the old names, because they are what was written and built at the time. The receipt was measured again; no count changed.
+
+## The program reads the Floors and a third width (2026-11-17, decision D76)
+
+The program now reads the page at 768 pixels as well, and it checks a part of the Floor requirements that a Vision writes. The receipt was measured again. The contrast row shows 3 where it showed 2: the same pale text is now also read at 768 pixels. The row "Floors" is new and shows 0 for both pages, because the Vision of trials 001 and 002 was written before the Floors and writes none; the program checked nothing there. The count of contrast lines in the text above ("2 readings") is the count of that day.

@@ -1,10 +1,10 @@
-# Refraction (placeholder name)
+# Frontend Focus (placeholder name)
 
 A personal tool that helps one person get LLM-built frontends much closer to careful human work.
 
-**The eye exam.** The **Studio** asks "which is better, 1 or 2?" one design decision at a time, on your own content, and writes a **Prescription** (a Markdown prompt plus token files).
+**The eye exam.** The **Studio** asks "which is better, 1 or 2?" one design decision at a time, on your own content, and writes a **Vision** (a Markdown prompt plus token files).
 
-**The fitting.** The **Fitter** (a Claude Code plugin) makes Claude build from the Prescription, look at the rendered result, measure it against your picks, and repair it.
+**The fitting.** The **Fitter** (a Claude Code plugin) makes Claude build from the Vision, look at the rendered result, measure it against your picks, and repair it.
 
 ## Where to look
 

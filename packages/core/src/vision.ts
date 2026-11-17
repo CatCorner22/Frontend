@@ -1,10 +1,10 @@
-// The Prescription: seven files that an AI coding tool can build from (PLAN.md section 4.4; SPEC.md sections 2.6 and 2.9).
+// The Vision: seven files that an AI coding tool can build from (PLAN.md section 4.4; SPEC.md sections 2.6 and 2.9).
 // The floors are not in it yet.
 //
 //   tokens.css       every design value of the project as a named CSS custom property
 //   tokens.json      the same values in the Design Tokens format
 //   mockup.html      the Mockup of the project as one page without script: the reference picture
-//   PRESCRIPTION.md  the instruction: the Decisions, the craft rules, and what a person must still check
+//   VISION.md  the instruction: the Decisions, the craft rules, and what a person must still check
 //
 // Everything here is a pure function of the project. The files must agree with each other and with what the preview
 // draws; a unit test compares them value by value.
@@ -33,10 +33,10 @@ import { SAMPLE_CONTENT, renderSmallBusiness, type SiteContent } from './templat
 import { visibleText } from './text.js';
 import { deriveTokens, notCheckedIn } from './tokens.js';
 
-export const PRESCRIPTION_FILES = ['PRESCRIPTION.md', 'DESIGN.md', 'tokens.css', 'tokens.json', 'theme.css', 'mockup.html', 'FONTS.md'] as const;
-export type PrescriptionFile = (typeof PRESCRIPTION_FILES)[number];
+export const VISION_FILES = ['VISION.md', 'DESIGN.md', 'tokens.css', 'tokens.json', 'theme.css', 'mockup.html', 'FONTS.md'] as const;
+export type VisionFile = (typeof VISION_FILES)[number];
 
-export interface PrescriptionContext {
+export interface VisionContext {
   /**
    * The name of the project's start where only the Studio knows it: a Direction of the owner's own that the Studio still
    * holds, or one that the Studio composed at random. The owner typed such a name, or it came from a file, so the file
@@ -51,7 +51,7 @@ export interface PrescriptionContext {
 
 /**
  * Eight characters worked out from the design values (SPEC.md section 2.9). The same design always gives the same eight,
- * and a changed value gives others, so that the owner and the AI coding tool can see whether the files of a Prescription
+ * and a changed value gives others, so that the owner and the AI coding tool can see whether the files of a Vision
  * belong together. It is a mark to compare, not a seal: it proves nothing about who wrote a file. (The sum is FNV-1a over
  * the names and values in their order; no file carries a date, because the same project must always give the same files.)
  */
@@ -66,14 +66,14 @@ export function fingerprint(tokens: Readonly<Record<string, string>>): string {
   return sum.toString(16).padStart(8, '0');
 }
 const FINGERPRINT_KEY = 'refraction.fingerprint';
-const fingerprintLine = (tokens: Readonly<Record<string, string>>): string => `Fingerprint of the design values: \`${fingerprint(tokens)}\`. Every file of this Prescription carries the same eight characters; where one differs, the files do not belong together.`;
+const fingerprintLine = (tokens: Readonly<Record<string, string>>): string => `Fingerprint of the design values: \`${fingerprint(tokens)}\`. Every file of this Vision carries the same eight characters; where one differs, the files do not belong together.`;
 
 // ───────── tokens.css ─────────
 
 /** Every design value as a CSS custom property, in the order in which the design works them out. */
 export function tokensCss(tokens: Readonly<Record<string, string>>): string {
   const lines = Object.entries(tokens).map(([name, value]) => `  ${name}: ${value};`);
-  return [`/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: ${fingerprint(tokens)}. */`, ':root {', ...lines, '}', ''].join('\n');
+  return [`/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: ${fingerprint(tokens)}. */`, ':root {', ...lines, '}', ''].join('\n');
 }
 
 // ───────── tokens.json ─────────
@@ -163,7 +163,7 @@ export function tokensJson(tokens: Readonly<Record<string, string>>): string {
     groups[group][name.replace(/^--/, '')] = token;
   }
   const file = {
-    $description: 'Design values of one Refraction project, in the Design Tokens format. tokens.css holds the same values as CSS custom properties; the name there is the name here with two leading dashes.',
+    $description: 'Design values of one Frontend Focus project, in the Design Tokens format. tokens.css holds the same values as CSS custom properties; the name there is the name here with two leading dashes.',
     ...groups,
     $extensions: {
       [FINGERPRINT_KEY]: fingerprint(tokens),
@@ -176,7 +176,7 @@ export function tokensJson(tokens: Readonly<Record<string, string>>): string {
   return `${JSON.stringify(file, null, 2)}\n`;
 }
 
-// ───────── PRESCRIPTION.md ─────────
+// ───────── VISION.md ─────────
 
 /**
  * The owner's own words as quoted data. The fence is longer than any run of fence marks in the text, so the text cannot
@@ -242,7 +242,7 @@ function sampleTextsIn(content: SiteContent): string[] {
 }
 
 /** The lines that name the project's start. Only a name from the Catalog stands in the sentence itself. */
-function startLines(project: Project, context: PrescriptionContext): string[] {
+function startLines(project: Project, context: VisionContext): string[] {
   if (project.direction === null) {
     // A file may name the plain start and record other start values (retest finding A2-V11): the file says so, as for a Direction.
     const differs = STEPS.some((step) => JSON.stringify(ownedValues(step, project.base)) !== JSON.stringify(ownedValues(step, DEFAULT_PARAMS)));
@@ -276,13 +276,13 @@ function floorLines(rule: FloorRule): string[] {
 /**
  * The Floors (SPEC.md section 2.18): requirements that stand whatever the design is. The Floor for people with disabilities is written
  * only when Contrast checks is "Fix for me" (decision D13); the others are always written. No requirement says that a page meets a
- * standard, and no program checks any of them yet.
+ * standard. The Fit check checks a part of some of them (plugin/fit/src/floors.ts); no program checks the rest.
  */
 function floorsPart(project: Project): string[] {
   const out: string[] = ['## 7. Floors', ''];
   out.push('A Floor is a requirement that stands whatever the design is. Build to each requirement below. Each one says what to build, what a person must still check, and where its source stands. A requirement states what to build and what to check; it does not say that your page will meet any standard. The Studio keeps the review date of each requirement in its Catalog; this file carries no date.', '');
   out.push('`mockup.html` is a reference for the design only. It carries things that a built page must not copy: its own Content-Security-Policy (which blocks files and forms so that the sample stays still), its title, its lack of a description for search engines, and the address `http://www.w3.org/2000/svg` inside its inline pictures (a name only; nothing loads from it). Where `mockup.html` and a requirement below differ, the requirement decides.', '');
-  out.push('No program checks any requirement of this section yet. Say, for each one, whether you built it and how you checked it, and leave the rest to a person.', '');
+  out.push('The Fit check of Frontend Focus checks a part of some of these requirements on a built page, and its receipt says which part. No program checks the rest. Say, for each requirement, whether you built it and how you checked it, and leave the rest to a person.', '');
   FLOORS.forEach((floor, index) => {
     out.push(`### 7.${String(index + 1)} ${floor.name}`, '', floor.what, '');
     if (floor.id === 'host') out.push('Do not try to send these in the page. Write them down for the owner, as a list of settings to make at the host. Then say in your report that you did not and could not set them.', '');
@@ -328,13 +328,13 @@ function decisionsPart(project: Project): string[] {
   return out;
 }
 
-/** The Mockup of the project as the Prescription hands it over: at rest, with links that lead nowhere, and with each switched-on Overlay drawn open as a last part of the page. */
-function mockupOf(project: Project, tokens: Readonly<Record<string, string>>, context: PrescriptionContext): string {
+/** The Mockup of the project as the Vision hands it over: at rest, with links that lead nowhere, and with each switched-on Overlay drawn open as a last part of the page. */
+function mockupOf(project: Project, tokens: Readonly<Record<string, string>>, context: VisionContext): string {
   return renderSmallBusiness({ params: project.params, tokens, content: project.content, focus: 'top', still: true, links: 'inert', overlays: overlaysOf(project), overlaysShown: true, fingerprint: fingerprint(tokens), fontFaceCss: context.fontFaceCss ?? '' });
 }
 
 /** The instruction for the builder, written from the project. */
-export function prescriptionMd(project: Project, context: PrescriptionContext = {}): string {
+export function visionMd(project: Project, context: VisionContext = {}): string {
   const derived = deriveTokens(project.params, project.a11y);
   // The file says of each craft rule that `mockup.html` has it. That is said only of a rule whose check held on this very page.
   const mockup = mockupOf(project, derived.css, context);
@@ -343,8 +343,8 @@ export function prescriptionMd(project: Project, context: PrescriptionContext = 
   const absent = craft.filter((line) => !line.rule.holds(sheet, derived.css)).map((line) => line.rule);
   const sample = isSampleContent(project.content);
   const out: string[] = [];
-  out.push('# Prescription: the design of one website', '');
-  out.push('This file is an instruction for an AI coding tool. Refraction Studio wrote it from the Decisions that the owner made, one Step at a time. It is one file of the Prescription; section 8 says what it leaves out.', '');
+  out.push('# Vision: the design of one website', '');
+  out.push('This file is an instruction for an AI coding tool. Frontend Focus Studio wrote it from the Decisions that the owner made, one Step at a time. It is one file of the Vision; section 8 says what it leaves out.', '');
   out.push(fingerprintLine(derived.css), '');
   out.push('## How to read this file', '');
   out.push('1. Everything outside a block marked “quoted data” is an instruction to you.');
@@ -414,7 +414,7 @@ export function prescriptionMd(project: Project, context: PrescriptionContext = 
 
   out.push('## 8. What this file leaves out', '');
   out.push('- Structured data for the business (JSON-LD), because it needs a data script element that the rule “a page without script” and the strict content security policy of section 7 exclude. The owner decides.');
-  out.push('- A program that checks the Floors. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width; it measures no requirement of section 7.');
+  out.push('- A program that checks a whole Floor requirement. The Fit check measures colors, typefaces, corner radii, contrast, the three required texts, and width, and it checks a part of some requirements of section 7; its receipt says which part, and what stays with a person.');
   out.push('- How an Overlay opens, closes, and behaves with a keyboard or a screen reader.');
   if (sample) out.push('- The owner’s real content: `mockup.html` shows a sample dental practice.');
   else if (stillSample.length > 0) out.push(`- The owner’s real content for ${stillSample.join(', ')}: \`mockup.html\` still shows the sample dental practice’s there.`);
@@ -442,7 +442,7 @@ function typefacesOf(project: Project): { id: FontId; jobs: string[] }[] {
 export function fontsMd(project: Project): string {
   const tokens = deriveTokens(project.params, project.a11y).css;
   const out: string[] = ['# Fonts for this design', ''];
-  out.push('This file belongs to a Prescription from Refraction Studio. It tells an AI coding tool, and the owner, which typefaces the design uses and how the built site ships them.', '');
+  out.push('This file belongs to a Vision from Frontend Focus Studio. It tells an AI coding tool, and the owner, which typefaces the design uses and how the built site ships them.', '');
   out.push(fingerprintLine(tokens), '');
   out.push('## Rules', '');
   out.push('1. Ship every font file from the site’s own address. Load no font from another site: no font service, no content delivery network.');
@@ -490,7 +490,7 @@ const SPACING_STEPS = ['1', '2', '3', '4', '6', '8', '12', '16'] as const;
 /**
  * The design in the DESIGN.md format of Google Labs (SPEC.md section 2.9; the specification as read on 2026-11-16, research
  * record 11). The format is read by programs, so the owner's own words stay out of this file altogether: they stand in
- * PRESCRIPTION.md, as quoted data. A value that the format has no place for (a size that grows with the window, a shadow)
+ * VISION.md, as quoted data. A value that the format has no place for (a size that grows with the window, a shadow)
  * is left out here; tokens.css holds it.
  */
 export function designMd(project: Project): string {
@@ -506,7 +506,7 @@ export function designMd(project: Project): string {
   };
   const mark = fingerprint(tokens);
 
-  const yaml: string[] = ['---', 'version: alpha', `name: "Refraction design ${mark}"`, 'description: "One design from Refraction Studio. PRESCRIPTION.md is the instruction; tokens.css holds every value."', 'colors:'];
+  const yaml: string[] = ['---', 'version: alpha', `name: "Frontend Focus design ${mark}"`, 'description: "One design from Frontend Focus Studio. VISION.md is the instruction; tokens.css holds every value."', 'colors:'];
   for (const [name, from] of DESIGN_COLORS) yaml.push(`  ${name}: "${value(from)}"`);
   yaml.push('typography:');
   for (const [name, from, heading] of DESIGN_TYPE) {
@@ -532,7 +532,7 @@ export function designMd(project: Project): string {
   const out: string[] = [...yaml];
   out.push('# The design, in the DESIGN.md format', '');
   out.push('## Overview', '');
-  out.push(`${describeDesign(project.params)} This file is one file of a Prescription from Refraction Studio. \`PRESCRIPTION.md\` is the instruction and decides where two files differ; \`tokens.css\` holds every value of the design, also those that this format has no place for; \`mockup.html\` is the reference page.`, '');
+  out.push(`${describeDesign(project.params)} This file is one file of a Vision from Frontend Focus Studio. \`VISION.md\` is the instruction and decides where two files differ; \`tokens.css\` holds every value of the design, also those that this format has no place for; \`mockup.html\` is the reference page.`, '');
   out.push(fingerprintLine(tokens), '');
   out.push('## Colors', '');
   out.push(`The page is ${project.params.theme}. The colors below are written as the reference page draws them.`, '');
@@ -551,7 +551,7 @@ export function designMd(project: Project): string {
   out.push('## Shapes', '');
   out.push(`Buttons and fields are rounded by ${value('--radius-control')}, boxes by ${value('--radius-surface')}, small marks by ${value('--radius-small')}. A field of several lines inside a box is never rounder than the box.`, '');
   out.push('## Components', '');
-  out.push(`- **Main button:** the button color with its label color, ${value('--target-min')} tall at least, rounded as above. On press and on focus it behaves as section 4 of \`PRESCRIPTION.md\` says.`);
+  out.push(`- **Main button:** the button color with its label color, ${value('--target-min')} tall at least, rounded as above. On press and on focus it behaves as section 4 of \`VISION.md\` says.`);
   out.push('- **Field:** the surface color, the strong border, the same rounding and least height as the button.');
   out.push('- **Card:** the card color, rounded as a box.', '');
   out.push("## Do's and Don'ts", '');
@@ -597,7 +597,7 @@ export function themeCss(project: Project): string {
   const tokens = deriveTokens(project.params, project.a11y).css;
   const lines = THEME_VALUES.map(([name, from]) => `  --${name}: ${tokens[from] ?? ''};`);
   return [
-    `/* The design of one Refraction project, under the names that the shadcn component library reads. Fingerprint: ${fingerprint(tokens)}.`,
+    `/* The design of one Frontend Focus project, under the names that the shadcn component library reads. Fingerprint: ${fingerprint(tokens)}.`,
     '   Put these two blocks where the project keeps the library\'s theme (its main style sheet), in place of the library\'s own values.',
     '   tokens.css holds every value of the design under the design\'s own names; this file holds the part that the library has names for.',
     '',
@@ -614,10 +614,10 @@ export function themeCss(project: Project): string {
 // ───────── the bundle ─────────
 
 /** The seven files, by file name. */
-export function writePrescription(project: Project, context: PrescriptionContext = {}): Record<PrescriptionFile, string> {
+export function writeVision(project: Project, context: VisionContext = {}): Record<VisionFile, string> {
   const tokens = deriveTokens(project.params, project.a11y).css;
   return {
-    'PRESCRIPTION.md': prescriptionMd(project, context),
+    'VISION.md': visionMd(project, context),
     'DESIGN.md': designMd(project),
     'tokens.css': tokensCss(tokens),
     'tokens.json': tokensJson(tokens),

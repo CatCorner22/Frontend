@@ -1,7 +1,7 @@
-// The Floors (SPEC.md section 2.18; decisions D13 and D69): every record is complete and honest, and the Prescription writes them as the
+// The Floors (SPEC.md section 2.18; decisions D13 and D69): every record is complete and honest, and the Vision writes them as the
 // requirement says, in each of the three contrast settings.
 import { describe, expect, it } from 'vitest';
-import { FLOORS, FLOOR_RULES, applyDirection, createProject, floorRules, prescriptionMd, writePrescription, type FloorId, type Project } from '../src/index.js';
+import { FLOORS, FLOOR_RULES, applyDirection, createProject, floorRules, visionMd, writeVision, type FloorId, type Project } from '../src/index.js';
 
 const HOSTS = new Set(['www.w3.org', 'developer.mozilla.org', 'web.dev', 'developers.google.com', 'cheatsheetseries.owasp.org']);
 const withSetting = (a11y: 'off' | 'advise' | 'enforce'): Project => ({ ...applyDirection(createProject('Floors'), 'paper-and-ink'), a11y });
@@ -64,9 +64,9 @@ describe('the Floor records: truth of each record (the seventh review, findings 
     }
   });
 
-  it('records for each requirement how a program could check it, and prints none of it in the Prescription (no program checks any of them yet)', () => {
+  it('records for each requirement how a program could check it, and prints none of it in the Vision (the Fit check holds its own list of what it checks)', () => {
     for (const rule of FLOOR_RULES) expect(rule.program.trim().length, rule.id).toBeGreaterThan(10);
-    const part = section7(prescriptionMd(withSetting('enforce')));
+    const part = section7(visionMd(withSetting('enforce')));
     for (const rule of FLOOR_RULES) expect(part, rule.id).not.toContain(rule.program);
   });
 
@@ -90,7 +90,7 @@ describe('the Floor records: truth of each record (the seventh review, findings 
   });
 
   it('keeps the five requirements of the host out of the page: each says where to set it, and the Floor tells the builder not to send them in the page', () => {
-    const part = section7(prescriptionMd(withSetting('enforce')));
+    const part = section7(visionMd(withSetting('enforce')));
     expect(part).toContain('Do not try to send these in the page.');
     expect(part.match(/Where to set it: at the host/g)).toHaveLength(5);
     expect(part).toContain('`mockup.html` is a reference for the design only.');
@@ -100,20 +100,20 @@ describe('the Floor records: truth of each record (the seventh review, findings 
   it('says in the search Floor that some of its requirements also serve people with disabilities and stand whatever the contrast setting is', () => {
     const what = FLOORS.find((f) => f.id === 'search')?.what ?? '';
     expect(what).toContain('whatever the contrast setting is');
-    for (const setting of ['off', 'advise'] as const) expect(prescriptionMd(withSetting(setting))).toContain('whatever the contrast setting is');
-    expect(prescriptionMd(withSetting('off'))).toContain('inside its inline pictures');
+    for (const setting of ['off', 'advise'] as const) expect(visionMd(withSetting(setting))).toContain('whatever the contrast setting is');
+    expect(visionMd(withSetting('off'))).toContain('inside its inline pictures');
   });
 
   it('writes the criterion in the source line of a requirement for people with disabilities', () => {
-    const part = section7(prescriptionMd(withSetting('enforce')));
+    const part = section7(visionMd(withSetting('enforce')));
     expect(part).toContain('where the standard states it: 1.4.11 Non-text Contrast, AA');
   });
 });
 
-describe('PRESCRIPTION.md: section 7, Floors', () => {
+describe('VISION.md: section 7, Floors', () => {
   it('writes every Floor but the one for people with disabilities, and says why that one is not written, with "Warn me" and with "Off"', () => {
     for (const setting of ['advise', 'off'] as const) {
-      const part = section7(prescriptionMd(withSetting(setting)));
+      const part = section7(visionMd(withSetting(setting)));
       expect(part).toContain('### 7.1 Use by people with disabilities');
       expect(part).toContain(`Not written for this project: Contrast checks is ${setting === 'off' ? '“Off”' : '“Warn me”'}`);
       expect(part).not.toContain('- **A1.**');
@@ -122,26 +122,26 @@ describe('PRESCRIPTION.md: section 7, Floors', () => {
   });
 
   it('writes the requirements for people with disabilities too, with "Fix for me"', () => {
-    const part = section7(prescriptionMd(withSetting('enforce')));
+    const part = section7(visionMd(withSetting('enforce')));
     expect(part).not.toContain('Not written for this project');
     for (const rule of FLOOR_RULES) expect(part, rule.id).toContain(`- **${rule.id}.** ${rule.text}`);
   });
 
-  it('writes, for each requirement, what a person must still check and its source, and says that no program checks any of them yet and that the file carries no date', () => {
-    const part = section7(prescriptionMd(withSetting('enforce')));
+  it('writes, for each requirement, what a person must still check and its source, and says that a program checks only a part of some of them and that the file carries no date', () => {
+    const part = section7(visionMd(withSetting('enforce')));
     for (const rule of FLOOR_RULES) {
       expect(part, rule.id).toContain(`  - A person must still check: ${rule.person}`);
       expect(part, rule.id).toContain(`  - Source: ${rule.source.url} (“${rule.source.text}”;`);
     }
-    expect(part).toContain('No program checks any requirement of this section yet.');
+    expect(part).toContain('The Fit check of Frontend Focus checks a part of some of these requirements on a built page, and its receipt says which part. No program checks the rest.');
     expect(part).toContain('this file carries no date');
     expect(part).not.toMatch(/\b20\d\d-\d\d-\d\d\b/);
     expect(part).not.toMatch(/\baccessible\b|\bcompliant\b/i);
   });
 
-  it('leaves the other six files and the fingerprint as they were: the Floors live in PRESCRIPTION.md only', () => {
-    const files = writePrescription(withSetting('enforce'));
+  it('leaves the other six files and the fingerprint as they were: the Floors live in VISION.md only', () => {
+    const files = writeVision(withSetting('enforce'));
     for (const name of ['DESIGN.md', 'tokens.css', 'tokens.json', 'theme.css', 'mockup.html', 'FONTS.md'] as const) expect(files[name], name).not.toContain('## 7. Floors');
-    expect(files['PRESCRIPTION.md']).toContain('## 8. What this file leaves out');
+    expect(files['VISION.md']).toContain('## 8. What this file leaves out');
   });
 });

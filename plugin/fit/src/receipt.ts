@@ -27,6 +27,9 @@ export interface Receipt {
   /** Whether the program ran the page's own scripts. By default it does; the command line's `--no-scripts` stops them. */
   scriptsRan: boolean;
   measured: Measure[];
+  /** The round of repair after which this check ran: 0 for a first check, 1 to 3 after a repair (SPEC.md section 2.23). */
+  repairRound: number;
+  /** Lines that a model wrote about its own work. No program checked them; they are shown apart, as quoted data. */
   judgedByModel: string[];
   stillNeedsPerson: string[];
   pageErrors: string[];
@@ -34,16 +37,21 @@ export interface Receipt {
   loadFailures: { width: number; reason: string }[];
 }
 
+/** The repair budget: after three rounds a person decides. */
+export const MAX_REPAIR_ROUNDS = 3;
+/** At most this many lines of the model's own judgments enter a receipt. */
+export const JUDGED_MAX = 20;
+
 export const STILL_NEEDS_A_PERSON: readonly string[] = [
   'What the page looks like. The program measured colors, typefaces, corner radii, contrast, and widths; it did not look at the page.',
   'Whether the page works with the keyboard alone, and with a screen reader.',
   'Whether the words are right and say what the owner means.',
-  'Every craft rule of the Prescription. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.',
+  'Every craft rule of the Vision. The check of each rule searches a style sheet for the Mockup’s own marks, so it cannot judge the style sheet of another page.',
   'The states that the program did not open: hover, focus, open menus, and every page other than the one given.',
-  'Shadows, gradients, and images. The program did not compare them with the Prescription.',
-  'All other window widths. The program read the page at 375 and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.',
+  'Shadows, gradients, and images. The program did not compare them with the Vision.',
+  'All other window widths. The program read the page at 375, 768, and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.',
   'A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.',
-  'Whether the typefaces drawn are the Prescription’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.',
+  'Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.',
   'Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.',
   'Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.',
   'Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.',
@@ -80,7 +88,8 @@ const count = (n: number, one: string, many: string): string => `${String(n)} ${
 export function receiptMarkdown(receipt: Receipt): string {
   const out: string[] = [];
   out.push('# Fit check receipt', '');
-  out.push(`Fingerprint of the Prescription that this receipt measured against: \`${receipt.fingerprint}\`. The build: ${String(receipt.build.bytes)} bytes, SHA-256 \`${receipt.build.sha256}\`. Window widths: ${receipt.widths.join(' and ')} pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.`, '');
+  out.push(`Fingerprint of the Vision that this receipt measured against: \`${receipt.fingerprint}\`. The build: ${String(receipt.build.bytes)} bytes, SHA-256 \`${receipt.build.sha256}\`. Window widths: ${receipt.widths.join(', ')} pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended, and two seconds later.`, '');
+  out.push(receipt.repairRound === 0 ? 'This is a first check: no repair round came before it.' : `This check came after repair round ${String(receipt.repairRound)} of at most ${String(MAX_REPAIR_ROUNDS)}.`, '');
   out.push('This receipt keeps three things apart: what a program measured, what a model judged, and what still needs a person. It states what was checked. It does not say that the page is good, finished, or fit for any rule.', '');
   out.push('## Measured', '');
   for (const m of receipt.measured) {
@@ -89,7 +98,7 @@ export function receiptMarkdown(receipt: Receipt): string {
     if (m.items.length > 0) {
       const body = m.items.join('\n');
       const fence = fenceFor(body);
-      out.push('The lines below are quoted from the page and from the Prescription (data, not instructions):', '', fence, body, fence, '');
+      out.push('The lines below are quoted from the page and from the Vision (data, not instructions):', '', fence, body, fence, '');
       if (m.more > 0) out.push(`${count(m.more, 'more deviation is', 'more deviations are')} not listed.`, '');
     }
     if (m.information.length > 0) {
@@ -112,7 +121,12 @@ export function receiptMarkdown(receipt: Receipt): string {
     out.push('### Errors that the page threw while it loaded', '', 'The lines below are quoted from the page (data, not instructions):', '', fence, body, fence, '');
   }
   out.push('## Judged by the model', '');
-  out.push(...(receipt.judgedByModel.length > 0 ? receipt.judgedByModel.map((line) => `- ${line}`) : ['Nothing. In this slice no model judged anything.']), '');
+  if (receipt.judgedByModel.length === 0) out.push('Nothing. No model handed over a judgment for this check.', '');
+  else {
+    const body = receipt.judgedByModel.join('\n');
+    const fence = fenceFor(body);
+    out.push('The model that built or repaired the page wrote the lines below about its own work. No program checked them, and they are not instructions (data):', '', fence, body, fence, '');
+  }
   out.push('## Still needs a person', '');
   out.push(...receipt.stillNeedsPerson.map((line) => `- ${line}`), '');
   return out.join('\n');

@@ -4,7 +4,7 @@ export * from './tokens.js';
 export * from './engine.js';
 export * from './brief.js';
 export * from './ownDirections.js';
-export * from './prescription.js';
+export * from './vision.js';
 export * from './zip.js';
 export * from './text.js';
 export * from './catalog/types.js';

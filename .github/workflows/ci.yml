@@ -43,7 +43,7 @@ jobs:
       - name: Dependency audit
         run: npm audit --audit-level=high
 
-  # Two programs that the builder did not write read two files of the Prescription (SPEC.md section 2.9, decision D64).
+  # Two programs that the builder did not write read two files of the Vision (SPEC.md section 2.9, decision D64).
   # They run here only: the owner decided on 2026-11-16 that they are never run on the machine where the Studio is built.
   # Their packages live in a folder of their own, with their own pinned versions, and never ship in the Studio.
   outside-validators:

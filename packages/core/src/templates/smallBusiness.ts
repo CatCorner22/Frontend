@@ -109,9 +109,9 @@ export interface MockupInput {
   still?: boolean;
   /** The Overlays that are switched on. The region "overlays" draws each one open; a Mockup has no script, so none opens or closes. */
   overlays?: readonly string[];
-  /** Draw the switched-on Overlays, open, as a last part of the whole page too (for the reference page of the Prescription). */
+  /** Draw the switched-on Overlays, open, as a last part of the whole page too (for the reference page of the Vision). */
   overlaysShown?: boolean;
-  /** The fingerprint of the design values, written into the page's head so that the page can be matched with the other files of a Prescription. */
+  /** The fingerprint of the design values, written into the page's head so that the page can be matched with the other files of a Vision. */
   fingerprint?: string;
   /** `@font-face` rules for the fonts in use. The Studio supplies these; exports reference font files instead. */
   fontFaceCss?: string;

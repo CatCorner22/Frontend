@@ -1,6 +1,6 @@
 // One archive file (a "zip" file) that holds several text files (SPEC.md section 2.9).
 //
-// The files are stored as they are, without compression: the Prescription is small, and a stored file needs no
+// The files are stored as they are, without compression: the Vision is small, and a stored file needs no
 // compression code. Every unpacking program reads such an archive. The archive carries one fixed date (1 January 1980,
 // the earliest that the format can hold), so that the same files always give the same archive, byte for byte.
 

@@ -3,7 +3,7 @@
 // It has two parts. The first is the page's real texts, which a project has always held under `content` and which were the
 // sample dental practice until the owner changes them. The second is three short answers about the project: what is
 // offered, for whom, and the one thing a visitor should do. The answers are not drawn on the page; they go into the
-// Prescription, as quoted data.
+// Vision, as quoted data.
 //
 // Every function here returns a new project and leaves its input alone. A change that cannot stand (a text that would leave
 // the page without a name, one item more than a list may hold) returns the very project that came in, so that the caller

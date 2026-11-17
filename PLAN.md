@@ -1,6 +1,6 @@
-# Plan: "Refraction" — your personal design studio and fitter for LLM-built frontends
+# Plan: "Frontend Focus" — your personal design studio and fitter for LLM-built frontends
 
-**Version 3.6, 2026-11-16 (night).** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Refraction" is a placeholder name (the eye-exam procedure). You can rename it at any time.
+**Version 3.7, 2026-11-17.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. "Frontend Focus" is a placeholder name (the eye-exam procedure). You can rename it at any time.
 
 **How to read this plan.** Sections 1 to 3 say why the tool exists. Section 4 is the map of the forest: every part of the tool and its state today. Sections 5 to 7 say what it is built from. Section 8 holds the milestones. Section 9 lists what can go wrong. Each statement about the present says "built", "being built", or "not built".
 
@@ -11,18 +11,18 @@
 **Your idea.** Divide frontend design into tiny steps, each with several concrete options to pick from, so that you and the LLM communicate apples to apples.
 
 **What this plan builds.** Two halves that match the two causes:
-- **The Studio** (a web app) fixes the decision problem. You pick; it writes the **Prescription**.
-- **The Fitter** (a Claude Code plugin) fixes the feedback-loop problem. It makes Claude build from the Prescription, look at the rendered result, measure it, and repair it before reporting.
+- **The Studio** (a web app) fixes the decision problem. You pick; it writes the **Vision**.
+- **The Fitter** (a Claude Code plugin) fixes the feedback-loop problem. It makes Claude build from the Vision, look at the rendered result, measure it, and repair it before reporting.
 
 **Who it is for.** You alone. No licensing, accounts, payments, or marketing. The tool earns nothing by itself; it raises the quality of what you sell. Therefore the plan puts a real, sellable project through the tool as early as possible (milestone M8).
 
-**Where it stands today, in one paragraph.** The Studio's choosing half is built: 38 starting looks (each in several Skins), 23 decisions, six Overlays, five research rules, a live preview, reliable saving, a project file, twelve craft rules, the screen "Your content", and the Prescription (seven files and one archive file) with its Floors (56 requirements in five Floors, written into `PRESCRIPTION.md` section 7; no program checks them yet). The Fit check, the first part of the Fitter, measures a built page against the Prescription; three helper agents built pages from the files (trials 001 to 003), and the Fit check measured them. The two branches of 2026-11-16 are joined (decision D73): the Fit check carries campaign A2's repairs and feature F029's. Still missing: most of the Fitter (M7) and your trial (M4). Section 13 gives the remaining work with time estimates.
+**Where it stands today, in one paragraph.** The Studio's choosing half is built: 38 starting looks (each in several Skins), 23 decisions, six Overlays, five research rules, a live preview, reliable saving, a project file, twelve craft rules, the screen "Your content", and the Vision (seven files and one archive file) with its Floors (56 requirements in five Floors, written into `VISION.md` section 7; no program checks them yet). The Fit check, the first part of the Fitter, measures a built page against the Vision; three helper agents built pages from the files (trials 001 to 003), and the Fit check measured them. The two branches of 2026-11-16 are joined (decision D73): the Fit check carries campaign A2's repairs and feature F029's. Still missing: most of the Fitter (M7) and your trial (M4). Section 13 gives the remaining work with time estimates.
 
 **Your standing wish (2026-11-14).** Simple, effective, useful features; no giant heap of slop. Every part of this plan is held to that: each feature in its smallest useful form, and a plain statement of what was left out.
 
 ## 2. The metaphor: the eye exam and the fitting
 
-| Eye care | Refraction | State |
+| Eye care | Frontend Focus | State |
 |---|---|---|
 | You try on a few finished frames first | A **Direction**: a complete starting look | built (38) |
 | The same frame in another color | A **Skin**: pre-built colors and color fades for a Direction | built (12 Skins; 33 of the 38 Directions offer 1 to 5, the other five paint their main color on small marks only) |
@@ -32,7 +32,7 @@
 | You need no knowledge of optics | Each Step teaches its concept in plain words | built |
 | Coatings and extras: anti-glare, a case | An **Overlay**: a small helper over the page (a tooltip, an "Are you sure?" question) | built (first set of six) |
 | No lens that harms you is offered | Contrast checks warn or repair, as you choose | built |
-| The written prescription | The **Prescription**: a Markdown prompt plus token files | built: seven files and one archive (2026-11-16); the floors are missing |
+| The written vision | The **Vision**: a Markdown prompt plus token files | built: seven files and one archive (2026-11-16); the floors are missing |
 | The optician fits the glasses and has you read the chart again | The **Fitter** renders the build, measures it, and repairs | first part built, the Fit check (2026-11-16); the rest not built (M7) |
 
 In your forest terms: a Step is a tree, a design dimension is a species, section 4 maps the forest, and section 9 lists what can go wrong.
@@ -44,7 +44,7 @@ The pattern across the published rule sets and design systems that were read (GO
 
 1. **A few inputs generate the whole system.** → The Studio derives every color and size from a few picks, in a perceptual color space (OKLCH), with contrast measured on the colors as they are drawn.
 2. **Every value has a job.** → Tokens are named for their role, never raw.
-3. **Bespoke feel lives in details that nobody asks for** (even-width numerals, balanced headings, corner radii that nest, press feedback, short ease-out motion). → The **craft layer** writes such rules into every Prescription automatically (M5).
+3. **Bespoke feel lives in details that nobody asks for** (even-width numerals, balanced headings, corner radii that nest, press feedback, short ease-out motion). → The **craft layer** writes such rules into every Vision automatically (M5).
 4. **Restraint and one signature move.** → One Step for "one special touch"; warnings for looks that many AI-made pages share.
 5. **The exemplars disagree** (dense versus generous; motion versus none). → Those disagreements are exactly the Steps.
 
@@ -68,7 +68,7 @@ A rule graded C or D is shown as opinion or folklore, never as science.
 | 2 | Steps | 23 Steps in two stages (6 for layout, in gray; 17 for look and feel). On each: compare cards, pick one, fine-tune with sliders, ask for small variations, write a reason, decide later, undo, or put the Step back | built |
 | 3 | Overlays | Switch small helpers on or off; the preview draws each one open, in your design | built |
 | 4 | Summary | Read every Decision back; see the contrast notes and the research rules; download or open a project file; manage kept copies | built |
-| 5 | Export | Receive the Prescription | built: the Summary hands over seven files, singly or as one archive (2026-11-16); the floors are missing |
+| 5 | Export | Receive the Vision | built: the Summary hands over seven files, singly or as one archive (2026-11-16); the floors are missing |
 
 ### 4.2 Rules that hold at every Step
 1. One variable per Step. Apples to apples.
@@ -93,15 +93,15 @@ A rule graded C or D is shown as opinion or folklore, never as science.
 | 5. Checks | contrast notes (built); **research rules** (built: five rules, each measured on your design and shown as "Holds" or "Does not hold"); the list of what no machine checked (built for contrast) | partly built |
 | 6. Read-back and export | read-back on the Summary (built); export (M6) | partly built |
 
-### 4.4 The Prescription (export bundle), in three layers (M6)
+### 4.4 The Vision (export bundle), in three layers (M6)
 1. **Your Decisions:** each pick with its rejected Options, your reason, the Skin, the Overlays, and exact token values.
 2. **The craft layer (automatic):** invisible-detail rules, each set by your Decisions, in our own words, with sources and evidence grades.
 3. **The floors (automatic, not overridable):** accessibility checks as testable acceptance criteria; security rules; search rules for public pages; performance limits.
 
-Files: `PRESCRIPTION.md`, `DESIGN.md`, `tokens.json`, `tokens.css`, a shadcn theme file, `mockup.html`, and `FONTS.md`.
+Files: `VISION.md`, `DESIGN.md`, `tokens.json`, `tokens.css`, a shadcn theme file, `mockup.html`, and `FONTS.md`.
 
 ### 4.5 The Fitter (Claude Code plugin) (M7)
-- `/fit-build`: Claude reads the Prescription and builds one screen at a time.
+- `/fit-build`: Claude reads the Vision and builds one screen at a time.
 - `/fit-check`: scripts render the build at 375, 768, and 1280 px and measure token fit, reference fit against `mockup.html`, accessibility, craft rules, and states.
 - `/fit-repair`: Claude receives the measured failures and the screenshots, repairs the smallest thing, and re-checks. Budget: 3 rounds.
 - *Honest receipt:* every report separates "measured", "judged by the model", and "still needs a person".
@@ -162,7 +162,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Work is lost between tabs, at closing, or when storage is full | The saving table (`docs/reference/saving-table.md`): every situation and event, with a test for each cell | built; no judge has retested the newest repairs |
 | A compromised package | Few dependencies; exact pins; install scripts off; Dependabot | built |
 | Third-party tracking | No CDN scripts, remote fonts, or analytics | built |
-| Pasted content manipulates the LLM that reads the Prescription | The exporter fences your content as quoted data | built for the project's name, each reason, and the name of a Direction of your own (the last after finding S6-01 of 2026-11-15); the Brief's texts follow with requirement 2.7 |
+| Pasted content manipulates the LLM that reads the Vision | The exporter fences your content as quoted data | built for the project's name, each reason, and the name of a Direction of your own (the last after finding S6-01 of 2026-11-15); the Brief's texts follow with requirement 2.7 |
 
 **Codebase rules.**
 - Strict TypeScript; lint with zero warnings; the core imports no React and no browser API (a tool enforces it).
@@ -184,13 +184,13 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | M4 | Step screen; Directions; Skins | You use it on the private page; keyboard-only pass; you pick the Studio's own look | **open: waits for your trial** |
 | M4D | **Direction Creator** (section 4.7) | The exit test in section 4.7 | built on 2026-11-15 (features F003 to F006); its exit test waits for you to make one Direction on the private page. You asked for it on 2026-11-15. You set its place on 2026-11-15: straight after M4 (decision D56) |
 | M5 | Full Catalog for Template 1: your own content (Brief), Overlays, research rules, craft layer, floors, an inner page | A test walks every Step; axe finds no serious violation in any Option | Overlays and research rules were started early at your request (decision D52); the craft layer's first twelve craft rules are built (2026-11-15, decisions D58 and D60); the first slice of the Brief is built (2026-11-16, decisions D61 and D62); the floors and an inner page are not started |
-| M6 | Export bundle (the Prescription) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `PRESCRIPTION.md` carries 56 requirements in five Floors, each with its source. GitHub's check passed on the commit that holds them; the milestone gate review by the three reviewers has not run (hard rule 12) |
-| M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | started: the Fit check's first slice (features F024 to F029), hardened by feature F029 and by campaign A2 (decisions D68, D71, D73); `/fit-build`, `/fit-repair`, the width of 768 pixels, and the plugin's packaging are not built |
+| M6 | Export bundle (the Vision) | Snapshot tests; the token and design files pass their validators | all seven files are built, with stored copies, and `DESIGN.md` and `tokens.json` pass outside validators on GitHub (2026-11-16, features F019 to F023, decision D64). The Floors are built (2026-11-16, feature F032, decision D69): `VISION.md` carries 56 requirements in five Floors, each with its source. GitHub's check passed on the commit that holds them; the milestone gate review by the three reviewers has not run (hard rule 12) |
+| M7 | Fitter: build, check, repair | On a deliberately flawed build, `/fit-check` finds every planted defect and no false blocker | built on 2026-11-17 (features F024 to F029 and F035 to F037; decisions D68, D71, D73, D76): the Fit check reads three window widths and a part of 33 Floor requirements; the exit test plants 35 defects and finds each; `plugin/` is a Claude Code plugin with `fit-build`, `fit-check`, and `fit-repair`. Open: nobody has run the commands in a Claude Code session; the comparison of pixels (step 13a) is not built; the gate review |
 | M8 | **Your first real project, end to end**; hardening | You judge the result; red-team blockers at zero | not started |
 | M9–M11 | Templates 2, 3, 4 | Same tests as M5–M7 per Template | not started |
 | M12 | Taste ledger; `/fit-suggest` | The repeat-combination warning works across two projects | not started |
 
-**Progress on 2026-11-15.** You settled 24 open decisions (D55). Repaired, checks pending or passed as `PROGRESS.md` states: the status line after an Undo (F-23), a kept Decision stays "kept" (F-24), the "Control Room" sentence (U5-16), Dependabot's 7-day wait (S2-06). Built since (features F001 to F011, see `PROGRESS.md`, "Build log"): the repair for C4-F18; the typefaces Playfair and Literata; the Direction Creator; the hardening; twelve craft rules; a first slice of the Prescription. The sixth red-team review (67 findings, 1 blocker) followed; its repairs are requirement 2.8 of `SPEC.md`.
+**Progress on 2026-11-15.** You settled 24 open decisions (D55). Repaired, checks pending or passed as `PROGRESS.md` states: the status line after an Undo (F-23), a kept Decision stays "kept" (F-24), the "Control Room" sentence (U5-16), Dependabot's 7-day wait (S2-06). Built since (features F001 to F011, see `PROGRESS.md`, "Build log"): the repair for C4-F18; the typefaces Playfair and Literata; the Direction Creator; the hardening; twelve craft rules; a first slice of the Vision. The sixth red-team review (67 findings, 1 blocker) followed; its repairs are requirement 2.8 of `SPEC.md`.
 
 **The verified build loop (your skill, loaded on 2026-11-15, decision D56).** From its set-up on, hooks (small programs that Claude Code runs by itself) stop the builder from ending a turn while `npm run check` fails, and run `npm run e2e` when a feature is marked as passing. `SPEC.md` states the requirements of the work in hand and points to this plan; `feature_list.json` lists the features, each marked as passing or not. This plan stays the one plan.
 
@@ -208,7 +208,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 | Risk | Response |
 |---|---|
-| The Prescription does not improve Claude's output | M0 tested this before any app code; M8 repeats the comparison with a tool-made Prescription |
+| The Vision does not improve Claude's output | M0 tested this before any app code; M8 repeats the comparison with a tool-made Vision |
 | The tool grows into a heap of features | Each feature in its smallest useful form; the plan states what is left out; your trial decides what stays |
 | Bugs gather in one area and are patched one by one | Design before code: a table of situations and events, a test per cell (section 7) |
 | A test passes on one machine and fails on another | CI runs every push; a red run is read and repaired at its cause before anything else |
@@ -238,11 +238,12 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Skins, Overlays, Japanese minimalism, and research rules enter the plan; Overlays and research rules start before M4's exit test | You asked for them on 2026-11-14 | D52 |
 | Your verification rules | You stated them on 2026-11-14 | D52 |
 | Version 3: the Direction Creator (section 4.7, milestone M4D); the verified build loop; the defined terms "Direction" and "Research rule"; the Drive backup retired | You asked for them on 2026-11-15 | D55, D56 |
-| Version 3.2: the craft layer's first twelve craft rules and a first slice of the Prescription (four files) are built before the rest of M5 | You chose this order on 2026-11-15, and approved requirements 2.5 and 2.6 of `SPEC.md` | D58, D60 |
+| Version 3.2: the craft layer's first twelve craft rules and a first slice of the Vision (four files) are built before the rest of M5 | You chose this order on 2026-11-15, and approved requirements 2.5 and 2.6 of `SPEC.md` | D58, D60 |
 | Version 3.3: the sixth red-team review and its repairs; the first slice of the Brief (the screen "Your content") | Hard rule 12 and your "Yes regarding the red team"; your four answers on the Brief | D61, D62 |
-| Version 3.4: the Prescription has seven files and one archive file; the Fit check's first slice (milestone M7 started) and two build trials; the seventh red-team round and its repairs; the Floors wait for checked research | Your deferrals of 2026-11-16 ("I defer to you"), your "yes" to the build trial and the comparison run, and your approval of helper agents without a limit and of five research hosts | D63 to D68 |
+| Version 3.4: the Vision has seven files and one archive file; the Fit check's first slice (milestone M7 started) and two build trials; the seventh red-team round and its repairs; the Floors wait for checked research | Your deferrals of 2026-11-16 ("I defer to you"), your "yes" to the build trial and the comparison run, and your approval of helper agents without a limit and of five research hosts | D63 to D68 |
 | Version 3.5: the audit and red-team campaign A2 and their repairs (on the audit branch); the two branches must be joined first; section 13 gives the remaining work with time estimates | Your request of 2026-11-16 ("Please redo the plan with timeline estimates for remaining work") and your deferral ("I defer to you") | D71 |
 | Version 3.6: the audit branch and the main line are joined (pull requests 12 and 13); the Floors are built; the code review of pull request 13 | Your request of 2026-11-16 ("Please review the code and debug. Please also clean up all pending PRs") | D73 |
+| Version 3.7: the app is "Frontend Focus" and the Prescription is the "Vision"; milestone M7 is built | Your request of 2026-11-17 ("Please rebrand this app is 'Frontend Focus,' and then change 'Prescription' to 'Vision.' Please do test M6. Finish M7.") | D75, D76 |
 
 ## 11. File and research status
 
@@ -299,7 +300,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 |---|---|---|---|
 | 9 | Check research records 12a to 12d against their own sources (each host needs your approval in the environment's prompt, decision D63) | builder | 3 to 5 hours |
 | 10 | **Your decisions:** what each Floor requires (security, being found by search, speed; and the accessibility Floor, which you choose per project, decision D13) | you | 30 to 60 minutes |
-| 11 | Write the Floors into the Prescription as testable requirements (about six to ten features) | builder | 6 to 10 hours |
+| 11 | Write the Floors into the Vision as testable requirements (about six to ten features) | builder | 6 to 10 hours |
 | 12 | The Fit check measures what the Floors require; contrast becomes binding | builder | 2 to 4 hours |
 
 ### 13.5 Milestone M7: the rest of the Fitter (builder: 19 to 32 hours)
@@ -307,7 +308,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 | Step | What | Estimate |
 |---|---|---|
 | 13 | The third window width (768 pixels) and the exit test: a build with planted defects, every one found and no false blocker | 3 to 5 hours |
-| 13a | **Read what is drawn, not only what the styles say.** Campaign A2 showed that a check that reads computed styles can always be led around by one more route (a shadow root, a clip, a fill color, an import); each round closed the routes it found. The lasting answer: compare the pixels of a screenshot with the Prescription's colors, and find the three required texts in the drawn page, beside the style reading. | 6 to 10 hours |
+| 13a | **Read what is drawn, not only what the styles say.** Campaign A2 showed that a check that reads computed styles can always be led around by one more route (a shadow root, a clip, a fill color, an import); each round closed the routes it found. The lasting answer: compare the pixels of a screenshot with the Vision's colors, and find the three required texts in the drawn page, beside the style reading. | 6 to 10 hours |
 | 14 | `/fit-build` and `/fit-repair` as commands of a Claude Code plugin: packaging, at most three rounds of repair, and the receipt's part "Judged by the model" | 8 to 14 hours |
 | 15 | One red-team round on the whole Fitter, and its retest | 2 to 3 hours |
 
@@ -332,7 +333,7 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 | Step | What | Estimate |
 |---|---|---|
-| 23 | Templates 2, 3, and 4 (M9 to M11): a guided intake flow, a dense operational app, a consumer or SaaS app; each needs its own Mockup, Steps, Prescription, and Fit check | 25 to 45 hours each; 75 to 135 hours in all |
+| 23 | Templates 2, 3, and 4 (M9 to M11): a guided intake flow, a dense operational app, a consumer or SaaS app; each needs its own Mockup, Steps, Vision, and Fit check | 25 to 45 hours each; 75 to 135 hours in all |
 | 24 | M12: the taste ledger and `/fit-suggest` | 8 to 14 hours |
 
 ### 13.9 Totals, and what they mean in days
@@ -345,4 +346,4 @@ A **taste ledger** records the Decisions of every past project. When a new proje
 
 **What these totals do not hold.** Your steps set the pace as much as the builder's: the trial, the Floors, and the real project each wait for you, and each can stop the line while it waits. Red-team rounds beyond those named cost about 2 hours and 1.3 million tokens each. Any new request of yours adds its own estimate. "Completing the app today" is not within reach: today closes step 1, and possibly steps 2 and 3.
 
-**What you have already, without waiting for any of this.** The Studio does its main job now: you pick a Direction and the Steps, and download the seven files of the Prescription for an AI coding tool. The Fit check can measure a page built from them. What is missing is the Floors, the rest of the Fitter, and the proof on a real project.
+**What you have already, without waiting for any of this.** The Studio does its main job now: you pick a Direction and the Steps, and download the seven files of the Vision for an AI coding tool. The Fit check can measure a page built from them. What is missing is the Floors, the rest of the Fitter, and the proof on a real project.

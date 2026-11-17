@@ -1,4 +1,4 @@
-# The Directions of Refraction Studio, in code
+# The Directions of Frontend Focus Studio, in code
 
 A Direction is a complete starting look that the owner picks before the Steps. This file describes each of the Studio’s built-in Directions in code: its mood in plain words, its design settings, every design value that a new project from it gets (colors, typefaces, sizes, spacing, corners, shadows, and motion, as CSS custom properties), and the main colors of each of its Skins.
 
@@ -65,7 +65,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 2ae65e18. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 2ae65e18. */
 :root {
   --bg: #fafafa;
   --surface: #ffffff;
@@ -232,7 +232,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 2237d140. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 2237d140. */
 :root {
   --bg: #f8fafd;
   --surface: #ffffff;
@@ -409,7 +409,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: c99622a0. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: c99622a0. */
 :root {
   --bg: #f4fcfb;
   --surface: #ffffff;
@@ -583,7 +583,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 72f9601a. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 72f9601a. */
 :root {
   --bg: #fcfaf7;
   --surface: #ffffff;
@@ -750,7 +750,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 176179c4. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 176179c4. */
 :root {
   --bg: #ecf3ff;
   --surface: #f9fbff;
@@ -927,7 +927,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 5fbf04d8. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 5fbf04d8. */
 :root {
   --bg: #fdfaf3;
   --surface: #ffffff;
@@ -1104,7 +1104,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 441f303e. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 441f303e. */
 :root {
   --bg: #f8faff;
   --surface: #ffffff;
@@ -1281,7 +1281,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: b80546d2. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: b80546d2. */
 :root {
   --bg: #e0f9f1;
   --surface: #f2fefa;
@@ -1458,7 +1458,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4e085a57. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4e085a57. */
 :root {
   --bg: #fafaf6;
   --surface: #ffffff;
@@ -1636,7 +1636,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4706fbc8. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4706fbc8. */
 :root {
   --bg: #fefaf1;
   --surface: #ffffff;
@@ -1807,7 +1807,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 8160f55b. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 8160f55b. */
 :root {
   --bg: #fffaec;
   --surface: #ffffff;
@@ -1983,7 +1983,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 7eb1ccea. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 7eb1ccea. */
 :root {
   --bg: #fcf9f7;
   --surface: #ffffff;
@@ -2152,7 +2152,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 919ddd7e. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 919ddd7e. */
 :root {
   --bg: #060a13;
   --surface: #0e121d;
@@ -2329,7 +2329,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: c18e6fac. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: c18e6fac. */
 :root {
   --bg: #130e09;
   --surface: #1c1612;
@@ -2506,7 +2506,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 03a701c0. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 03a701c0. */
 :root {
   --bg: #140e16;
   --surface: #1d171f;
@@ -2684,7 +2684,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: a11c5676. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: a11c5676. */
 :root {
   --bg: #050b11;
   --surface: #0d141a;
@@ -2862,7 +2862,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 236b9f90. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 236b9f90. */
 :root {
   --bg: #010a16;
   --surface: #05131f;
@@ -3037,7 +3037,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4d17345e. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4d17345e. */
 :root {
   --bg: #0d0615;
   --surface: #160e1f;
@@ -3214,7 +3214,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: da21164d. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: da21164d. */
 :root {
   --bg: #0d0905;
   --surface: #15120c;
@@ -3391,7 +3391,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 19403a22. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 19403a22. */
 :root {
   --bg: #0b0705;
   --surface: #14100c;
@@ -3568,7 +3568,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: cce1a2f4. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: cce1a2f4. */
 :root {
   --bg: #0e0603;
   --surface: #170e09;
@@ -3745,7 +3745,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 31d97830. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 31d97830. */
 :root {
   --bg: #07080b;
   --surface: #0e1113;
@@ -3924,7 +3924,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 1eb0f7a4. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 1eb0f7a4. */
 :root {
   --bg: #fefaf1;
   --surface: #ffffff;
@@ -4091,7 +4091,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 3b37d042. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 3b37d042. */
 :root {
   --bg: #f5fdf6;
   --surface: #ffffff;
@@ -4269,7 +4269,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f32230ee. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f32230ee. */
 :root {
   --bg: #fff9f1;
   --surface: #ffffff;
@@ -4446,7 +4446,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 9383ab0c. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 9383ab0c. */
 :root {
   --bg: #050617;
   --surface: #0c0f21;
@@ -4623,7 +4623,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 5454835c. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 5454835c. */
 :root {
   --bg: #fff9f2;
   --surface: #ffffff;
@@ -4800,7 +4800,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: e37f3e03. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: e37f3e03. */
 :root {
   --bg: #fff9f1;
   --surface: #ffffff;
@@ -4977,7 +4977,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: a0befd49. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: a0befd49. */
 :root {
   --bg: #fff9f2;
   --surface: #ffffff;
@@ -5154,7 +5154,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 596917e0. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 596917e0. */
 :root {
   --bg: #fff9f3;
   --surface: #ffffff;
@@ -5331,7 +5331,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 0314835b. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 0314835b. */
 :root {
   --bg: #fff9f6;
   --surface: #ffffff;
@@ -5508,7 +5508,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f544f98f. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f544f98f. */
 :root {
   --bg: #fff9f0;
   --surface: #ffffff;
@@ -5681,7 +5681,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: e6d4659e. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: e6d4659e. */
 :root {
   --bg: #fff9f4;
   --surface: #ffffff;
@@ -5860,7 +5860,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: db86d58d. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: db86d58d. */
 :root {
   --bg: #fff9f0;
   --surface: #ffffff;
@@ -6037,7 +6037,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 3e162b7c. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 3e162b7c. */
 :root {
   --bg: #f4fdf7;
   --surface: #ffffff;
@@ -6214,7 +6214,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 0cc93b9c. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 0cc93b9c. */
 :root {
   --bg: #fff8fb;
   --surface: #ffffff;
@@ -6391,7 +6391,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: efb26761. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: efb26761. */
 :root {
   --bg: #0b0418;
   --surface: #140a22;
@@ -6568,7 +6568,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Refraction project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f1e7d4ac. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f1e7d4ac. */
 :root {
   --bg: #fffaee;
   --surface: #ffffff;

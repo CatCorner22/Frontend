@@ -1,0 +1,5 @@
+{
+  "name": "frontend-focus-fitter",
+  "version": "0.1.0",
+  "description": "The Fitter of Frontend Focus: build one page from a Vision, measure it against the Vision in a real browser, and repair it in at most three rounds. Every report is an Honest receipt that keeps apart what a program measured, what the model judged, and what still needs a person."
+}

@@ -387,6 +387,50 @@
         "Remove one of the 38 Directions from the Catalog: npm run check fails and names it"
       ],
       "passes": true
+    },
+    {
+      "id": "F034",
+      "description": "The owner sees the app named \"Frontend Focus\" and the export bundle named the \"Vision\" (its first file is VISION.md) on every screen, in every handed-over file, and in every receipt; saved work still opens.",
+      "spec_section": "SPEC.md section 2.21",
+      "steps": [
+        "Open the Studio: the top bar and the page title say \"Frontend Focus Studio\"",
+        "Download the files from the Summary: the first file is VISION.md, and no file says \"Refraction\" or \"Prescription\"",
+        "A project that the browser stored before the change is still there, and a project file saved before the change still opens"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F035",
+      "description": "The owner runs the Fit check on a built page and reads, in the receipt, which part of each Floor requirement of the Vision a program checked and what it found, at three window widths, with contrast as a requirement when the Vision writes Floor A1.",
+      "spec_section": "SPEC.md section 2.22",
+      "steps": [
+        "Run npm run fit on a reference build: the receipt names the widths 375, 768, and 1280, and its measure \"Floors\" shows no deviation",
+        "Remove the description tag from the page and run again: the measure shows a line that begins with \"Q8:\" and the status is 1",
+        "With Contrast checks \"Fix for me\", make one text too pale: the contrast measure says \"required by Floor A1\" and the status is 1",
+        "\"Still needs a person\" names the requirements of which the program checked nothing"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F036",
+      "description": "The owner installs the folder plugin/ as a Claude Code plugin and has the commands /fit-build, /fit-check, and /fit-repair; a repair stops after three rounds, and what the model judged stands apart in the receipt.",
+      "spec_section": "SPEC.md section 2.23",
+      "steps": [
+        "The plugin folder holds a manifest and three command files that name the program by a path inside the plugin",
+        "Run the program with --round 2: the receipt states the round; with --round 4 it refuses and says that the budget of three rounds is spent",
+        "Run the program with --judged and a file of two lines: the receipt shows both lines in a fence under \"Judged by the model\" and says that no program checked them"
+      ],
+      "passes": true
+    },
+    {
+      "id": "F037",
+      "description": "The owner can trust the Fit check's exit test: on a reference build with one defect planted at a time, the program finds every planted defect, and on the reference build without a defect it reports none.",
+      "spec_section": "SPEC.md section 2.24",
+      "steps": [
+        "Run the exit test: each planted defect appears under its measure, and each Floor defect with its requirement's id",
+        "The reference build without a defect shows no deviation and status 0"
+      ],
+      "passes": true
     }
   ]
 }

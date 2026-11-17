@@ -1,6 +1,6 @@
 // Outside validators (SPEC.md section 2.9; decision D64).
 //
-// Two files of the Prescription are read by programs, so each is checked here by a program that the builder did not write:
+// Two files of the Vision are read by programs, so each is checked here by a program that the builder did not write:
 //   DESIGN.md    by the lint program of the DESIGN.md format (@google/design.md)
 //   tokens.json  by a parser of the Design Tokens format (@terrazzo/parser)
 //

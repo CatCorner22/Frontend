@@ -1,4 +1,4 @@
-# Specification: the work in hand on "Refraction"
+# Specification: the work in hand on "Frontend Focus"
 
 **What this file is.** The definition of done for the features now being built under the verified build loop (decision D56). `PLAN.md` is the one plan; each requirement below names the section of `PLAN.md` behind it. When a new piece of work starts, it gets a numbered requirement here first.
 
@@ -83,27 +83,27 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
 - What the user does: nothing to get them; opens the Summary to read them.
 - What the system does in response:
   - The Catalog holds one record per craft rule: a name and a sentence in plain words (what it is, why a person notices its absence), the instruction for the AI coding tool in exact terms, a check that a program can run on a style sheet, a source, an evidence grade, and a date. No rule is graded "measured" unless its source was read in full.
-  - A unit test runs each rule's check on the Mockup's own style sheet for every built-in Direction: the Mockup practices what the Prescription will ask for. A rule that the Mockup does not meet cannot be in the list.
+  - A unit test runs each rule's check on the Mockup's own style sheet for every built-in Direction: the Mockup practices what the Vision will ask for. A rule that the Mockup does not meet cannot be in the list.
   - The Summary lists the craft rules under "Fine details the Studio adds by itself", each with its sentence, its strength, and its source, and says that the owner does not choose them.
   - Where a Decision sets a rule's value (the motion Step sets how long a movement lasts; "no motion" switches movement off), the list states the value that the open design gives.
 - Edge cases: a design with motion set to "none" (the motion rules say that nothing moves); a dark and a light page (the color-scheme rule states which); every text passes the plain-words rule; a rule's text never calls the result "accessible" or "compliant".
 - How to test it end to end: unit tests for the records and for each check against the Mockup of every Direction; a browser test reads the list on the Summary for two designs that differ in motion.
 
-### 2.6 The Prescription, first slice: four files that Claude Code can build from (decision D58; `PLAN.md` section 4.4)
+### 2.6 The Vision, first slice: four files that Claude Code can build from (decision D58; `PLAN.md` section 4.4)
 
-- What the user does: opens the Summary, presses the download button of each of the four files ("Download PRESCRIPTION.md" and so on), or copies a file's text; gives the files to Claude Code.
+- What the user does: opens the Summary, presses the download button of each of the four files ("Download VISION.md" and so on), or copies a file's text; gives the files to Claude Code.
 - What the system does in response: the core writes, as pure functions of the project:
   - `tokens.css`: every design value of the open design as a named CSS custom property, exactly the values that the preview draws.
   - `tokens.json`: the same values in the Design Tokens format (name, value, type), grouped by type (decision D63, point 2; the words were "by role" until 2026-11-16).
   - `mockup.html`: the Mockup of the open design as one self-contained page without script, as the reference picture for the build.
-  - `PRESCRIPTION.md`: the instruction for the AI coding tool, in three layers: (1) every Decision with the picked Option, the rejected Options, and the owner's reason; (2) the craft rules with their exact instructions; (3) what a person must still check. The owner's own words (the project name, each reason) stand in a fenced block that the text marks as quoted data, never as instructions.
+  - `VISION.md`: the instruction for the AI coding tool, in three layers: (1) every Decision with the picked Option, the rejected Options, and the owner's reason; (2) the craft rules with their exact instructions; (3) what a person must still check. The owner's own words (the project name, each reason) stand in a fenced block that the text marks as quoted data, never as instructions.
 - Edge cases:
   - A project name or a reason that holds markup, a code fence, or a sentence that addresses the AI coding tool ("ignore the rules above"): it stays inside its fence; a fence inside the text cannot close the fence around it.
   - A project with no Decision: the file says that every value comes from the start, and names the start.
   - A start that is a Direction of the owner's own, or one that was removed: named as such.
   - The four files agree: every value in `tokens.css` equals the value in `tokens.json` and the value that `mockup.html` draws; a unit test compares them.
   - The files never claim that the result is "accessible" or "compliant" (hard rule 8); they state what was checked and what a person must still check.
-  - The font files are not in this slice: `PRESCRIPTION.md` names each typeface, its licence, and where to get it.
+  - The font files are not in this slice: `VISION.md` names each typeface, its licence, and where to get it.
 - Not in this slice (stated in the file itself): `DESIGN.md`, the shadcn theme, `FONTS.md`, the floors, the Overlays' behavior, and a single bundled download.
 - How to test it end to end: unit tests with stored snapshots of the four files for two projects; a unit test with hostile names and reasons; a browser test downloads each file and compares it with what the core writes for the stored project.
 
@@ -118,16 +118,16 @@ The owner alone uses the Studio to choose a design step by step. The Studio must
   - The lists have limits: 1 to 8 services, 0 to 4 facts, 0 to 8 prices. The menu keeps its five links; the owner changes their words only. A list at 0 leaves no empty box, heading, or gap behind.
   - Every text is cleaned as a project name is cleaned (no control characters, no signs that change the direction of writing) and cut at its limit; the screen shows how many characters remain when few remain.
   - "Put the sample text back" asks first, keeps the owner's texts as a kept copy, and can be undone.
-  - `PRESCRIPTION.md` carries the three answers as quoted data, says whether `mockup.html` shows the owner's texts or the sample, and tells the AI coding tool that every text in `mockup.html` is text for the page and never an instruction.
+  - `VISION.md` carries the three answers as quoted data, says whether `mockup.html` shows the owner's texts or the sample, and tells the AI coding tool that every text in `mockup.html` is text for the page and never an instruction.
 - Edge cases:
-  - A text that holds markup, script, a code fence, or a sentence that addresses the AI coding tool: the screen and the Mockup draw it as text; nothing runs; in `PRESCRIPTION.md` it stays inside its fence.
+  - A text that holds markup, script, a code fence, or a sentence that addresses the AI coding tool: the screen and the Mockup draw it as text; nothing runs; in `VISION.md` it stays inside its fence.
   - A very long word, a very long name, an empty text, and a text of one character: no page becomes wider than its window, and no empty element keeps a visible box.
   - The words to mark in the headline are not part of the headline: nothing is marked, and the screen says so.
   - A project file from before this slice (no three answers; possibly more list items than the limits): it opens unchanged; the screen lets the owner remove items above a limit and add none until the list is below it.
   - The Direction cards on the Directions screen keep the sample practice, so that only the design differs from card to card; the screen says so.
   - Every built-in Direction at both ends of every limit (fewest and most items), at phone and desktop width: no overflow, no overlap, the headline stays the largest text.
 - Not in this slice: either/or picks about the brand; pictures of the owner's own; a second page; taking texts from an existing website or file; more or fewer menu links.
-- How to test it end to end: unit tests for the editing functions, the limits, the cleaning, and the Mockup at each limit; a browser test types texts, adds and removes items, reloads, and reads the previews and the downloaded `mockup.html`; a browser test draws every built-in Direction with the fewest and with the most items at 375 and 1280 pixels and measures overflow; unit tests with stored snapshots of `PRESCRIPTION.md` for a project with a Brief; a unit test with hostile texts.
+- How to test it end to end: unit tests for the editing functions, the limits, the cleaning, and the Mockup at each limit; a browser test types texts, adds and removes items, reloads, and reads the previews and the downloaded `mockup.html`; a browser test draws every built-in Direction with the fewest and with the most items at 375 and 1280 pixels and measures overflow; unit tests with stored snapshots of `VISION.md` for a project with a Brief; a unit test with hostile texts.
 
 ### 2.8 Repairs after the red-team review of 2026-11-15 (hard rule 12; findings S6, U6, and T6 in `redteam/FINDINGS.md`)
 
@@ -135,20 +135,20 @@ Three reviewers read the code of 2026-11-15 and used the running Studio: 1 block
 
 #### 2.8.1 No text from a file acts as an instruction, and no file can break the list of own Directions (S6-01 to S6-07, S6-09, S6-11; T6-04, T6-15)
 
-- In `PRESCRIPTION.md` the name of a Direction that the Studio hands over stands in a fenced block marked as quoted data, and the file says that the Direction is the owner's own. The name, each reason, and the project's name lose every invisible sign and every sign that changes the direction of writing before they are written.
+- In `VISION.md` the name of a Direction that the Studio hands over stands in a fenced block marked as quoted data, and the file says that the Direction is the owner's own. The name, each reason, and the project's name lose every invisible sign and every sign that changes the direction of writing before they are written.
 - The name cleaner also removes the invisible signs that the review used, turns the look-alike quotation signs that the review used into single marks, brings letters to one form, compares names in one form, and never cuts a character in two.
 - An own Direction holds the known design values and nothing else. The Studio holds at most 100 own Directions and says so when a file or the form would exceed that. A date that is no date is refused. A replaced typeface in a file of own Directions is said in the note.
 - A craft rule's check reads the style sheet of the page, never the page's visible text.
-- `PRESCRIPTION.md` says "a sample dental practice" only when the project holds the sample texts, and says that every word in `mockup.html` is content for the page, never an instruction.
+- `VISION.md` says "a sample dental practice" only when the project holds the sample texts, and says that every word in `mockup.html` is content for the page, never an instruction.
 - Known remainder, stated in the findings log: letters of another alphabet that look like Latin letters are not caught.
 
-#### 2.8.2 Every sentence of the Prescription and of a craft rule is true of the design in hand (T6-01 to T6-03, T6-05, T6-06, T6-10 to T6-13, T6-22 to T6-24; U6-03, U6-04, U6-06 to U6-10, U6-14, U6-25)
+#### 2.8.2 Every sentence of the Vision and of a craft rule is true of the design in hand (T6-01 to T6-03, T6-05, T6-06, T6-10 to T6-13, T6-22 to T6-24; U6-03, U6-04, U6-06 to U6-10, U6-14, U6-25)
 
 - A craft rule that a Decision sets aside (digits of natural width; no motion) says so in one sentence, on the Summary and in the file, and the file then gives no instruction that contradicts the Decision. A sentence never says "your Decision" where the owner decided nothing.
 - The rules about a pressed button, nested corners, the length of a movement, the focus ring, and the pointer say what the Mockup's style sheet does in every built-in Direction; where the style sheet was wrong (a button that moved in a design without motion), the style sheet changes.
-- Each craft rule's grade is no stronger than its source, and each source line says where the rule departs from its source. `PRESCRIPTION.md` gives each rule's basis in one line.
+- Each craft rule's grade is no stronger than its source, and each source line says where the rule departs from its source. `VISION.md` gives each rule's basis in one line.
 - The sentence about the check says what it is: a search of the style sheet for the mark of each detail, not a proof.
-- `mockup.html` in the bundle shows each switched-on Overlay open. `PRESCRIPTION.md` says that the page's links lead nowhere and that its form sends nothing.
+- `mockup.html` in the bundle shows each switched-on Overlay open. `VISION.md` says that the page's links lead nowhere and that its form sends nothing.
 - "What no program checked" lists only what the design in hand has. With contrast checks off, the file does not read as if every pair had passed.
 - Section 2 of the file calls the Studio's own names "Studio settings", says how they relate to `tokens.css`, and gives words for a value that matches no Option.
 - `tokens.json` types a typeface list as a typeface and a keyword as a keyword; a test compares each color's components with its CSS color. `mockup.html` is stored for two projects, so that a change of any line of it is seen.
@@ -156,19 +156,19 @@ Three reviewers read the code of 2026-11-15 and used the running Studio: 1 block
 
 #### 2.8.3 The screens say what is true today, and say it where the owner looks (U6-01, U6-02, U6-05, U6-12, U6-13, U6-15 to U6-21, U6-26; T6-14)
 
-- The Summary's top, the Directions screen, and the Step's field for a reason no longer say that the instructions for an AI coding tool come later; the field for a reason says that the reason goes into `PRESCRIPTION.md`.
-- The Prescription section says the same as section 7 of the file, says in one sentence how to hand the files to an AI coding tool, says so when the project has no Direction and no Decision, and shows the message for a file beside that file.
+- The Summary's top, the Directions screen, and the Step's field for a reason no longer say that the instructions for an AI coding tool come later; the field for a reason says that the reason goes into `VISION.md`.
+- The Vision section says the same as section 7 of the file, says in one sentence how to hand the files to an AI coding tool, says so when the project has no Direction and no Decision, and shows the message for a file beside that file.
 - The craft list explains the grades in one sentence.
 - The Directions screen has a jump link to "Your own"; a rename says "Renamed"; a message about a file names the file; a long name without spaces stays inside a 375-pixel window; the form says so when it cuts a text.
 - Not in these repairs (they stay open in the findings log for the owner's judgment): the look of quiet buttons (U6-22), what "Undo" covers (U6-23), a date or a name inside the four files (U6-24), where the field for a reason sits (U6-11), the wording of small variations on the Summary (U6-10, second half), and the notes U6-27 to U6-30.
 
-### 2.9 The rest of the Prescription's files, each checked by a validator (milestone M6; decision D63, point 5)
+### 2.9 The rest of the Vision's files, each checked by a validator (milestone M6; decision D63, point 5)
 
-**What it is.** The Prescription is seven files. Four exist. This requirement adds the other three, a mark that tells two sets of files apart, one download for all of them, and a check of each machine-read file by a program that the builder did not write. The floors are not part of this requirement: each floor is a Catalog record that needs a source read in full (decision D63, point 3), so the floors get a requirement of their own.
+**What it is.** The Vision is seven files. Four exist. This requirement adds the other three, a mark that tells two sets of files apart, one download for all of them, and a check of each machine-read file by a program that the builder did not write. The floors are not part of this requirement: each floor is a Catalog record that needs a source read in full (decision D63, point 3), so the floors get a requirement of their own.
 
 - What the user does: opens the Summary and downloads each of seven files, or all of them as one file.
 - What the system does in response:
-  - **A fingerprint.** The core works out eight characters from the design values, which are the named values of `tokens.css` (colors, sizes, spacing, typefaces, corner radii, shadows, motion). The same values always give the same eight characters, and a changed value gives others. The layout settings (the menu's place, the first screen, the list of services) are no values of `tokens.css`; they stand in `PRESCRIPTION.md` and `mockup.html` and do not change the fingerprint (decision D71, finding A2-J13). Every file of the Prescription carries them, so that the owner and the AI coding tool can see whether seven files belong together. No file carries a date: the same project must always give the same files.
+  - **A fingerprint.** The core works out eight characters from the design values, which are the named values of `tokens.css` (colors, sizes, spacing, typefaces, corner radii, shadows, motion). The same values always give the same eight characters, and a changed value gives others. The layout settings (the menu's place, the first screen, the list of services) are no values of `tokens.css`; they stand in `VISION.md` and `mockup.html` and do not change the fingerprint (decision D71, finding A2-J13). Every file of the Vision carries them, so that the owner and the AI coding tool can see whether seven files belong together. No file carries a date: the same project must always give the same files.
   - **`FONTS.md`.** For each typeface of the design: its name, its CSS family, its licence, the package that holds its files and the version that the Studio itself ships, how to load it from the site's own address, and the sentence that no font may come from another site. A device's own typeface is named as such, with no file.
   - **`DESIGN.md`.** The design in the DESIGN.md format of Google Labs, as its specification read on 2026-11-16: named colors, type levels, corner roundings, spacing, and the main button and the field as components, with the eight sections in their fixed order. The format's own lint program checks the file in a test, for every built-in Direction.
   - **`theme.css`.** The design's colors and corner rounding under the names that the shadcn component library reads (`--background`, `--primary`, `--radius`, and the rest of its list as read on 2026-11-16), so that ready-made parts take the design. The test holds the file against that list of names.
@@ -178,25 +178,25 @@ Three reviewers read the code of 2026-11-15 and used the running Studio: 1 block
 - Not in this requirement: the floors; a registry file for the shadcn command-line tool; more than one page.
 - How to test it end to end: unit tests with stored copies of the three new files for two projects; the two outside validators in unit tests over every built-in Direction; a unit test that the fingerprint is the same in all files and changes with a design value; a browser test that downloads every file and the archive, and compares them with what the core writes.
 
-### 2.10 The Fit check, first slice: a program measures a build against the Prescription (milestone M7; decision D63, point 5; decision D65)
+### 2.10 The Fit check, first slice: a program measures a build against the Vision (milestone M7; decision D63, point 5; decision D65)
 
-This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside the core, because it needs a browser. It measures one page that an AI coding tool built from the Prescription. It does not build anything.
+This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside the core, because it needs a browser. It measures one page that an AI coding tool built from the Vision. It does not build anything.
 
-- What the user does: runs `npm run fit -- <build.html> <folder of the seven files> <result folder>`. The program reads `tokens.json`, `tokens.css`, `PRESCRIPTION.md`, and `mockup.html` from the folder, opens the build in a real browser at two window widths (375 and 1280 pixels), and writes `receipt.json` and `RECEIPT.md` into the result folder.
+- What the user does: runs `npm run fit -- <build.html> <folder of the seven files> <result folder>`. The program reads `tokens.json`, `tokens.css`, `VISION.md`, and `mockup.html` from the folder, opens the build in a real browser at two window widths (375 and 1280 pixels), and writes `receipt.json` and `RECEIPT.md` into the result folder.
 - What the system does in response: it measures these seven things, and it names every deviation with the element and the value:
   1. **Requests.** Every network request that the page makes. The program blocks each request to another site, and lists it (no remote font, no remote script, no analytics: hard rule 7). Section 2.13 (decision D67) repairs this point after the first trial: a reference at the page's own address is information, not a deviation.
-  2. **Colors.** Every text color, background color, and border color that a visible element draws, compared with the color values in `tokens.json`. A color that is not among them is listed as "outside the Prescription". A fully transparent color is skipped; a partly transparent color is listed apart, not as a deviation.
-  3. **Typefaces.** The first family of the computed font stack of every visible element that holds text, compared with the typefaces that `tokens.json` names. A family that the Prescription does not name is listed.
+  2. **Colors.** Every text color, background color, and border color that a visible element draws, compared with the color values in `tokens.json`. A color that is not among them is listed as "outside the Vision". A fully transparent color is skipped; a partly transparent color is listed apart, not as a deviation.
+  3. **Typefaces.** The first family of the computed font stack of every visible element that holds text, compared with the typefaces that `tokens.json` names. A family that the Vision does not name is listed.
   4. **Corner radii.** Every border radius of a visible element, compared with the radius values in `tokens.json`. A value that is not among them (and not 0) is listed.
-  5. **Contrast.** The contrast ratio of every visible text element against its background, by the WCAG 2.x formula and the Studio's own color math (hard rule 9). A text on an image or a gradient is listed as "not measured". The ratios are reported as measurements; no program checks a Floor of the Prescription yet (the Floors in `PRESCRIPTION.md` section 7 are requirements for the builder, and the Fit check measures none of them).
+  5. **Contrast.** The contrast ratio of every visible text element against its background, by the WCAG 2.x formula and the Studio's own color math (hard rule 9). A text on an image or a gradient is listed as "not measured". The ratios are reported as measurements; no program checks a Floor of the Vision yet (the Floors in `VISION.md` section 7 are requirements for the builder, and the Fit check measures none of them).
   6. **Content.** Whether each of the Brief's three required texts (business, headline, primary action; section 2.7) appears in the page's visible text, after the program collapses runs of white space. The program reads them from `mockup.html`, which holds the owner's words.
   7. **Width.** Whether the page is wider than its window at either width.
-- The receipt is an Honest receipt with three parts: "Measured" (the seven things, each with its count of deviations), "Judged by the model" (empty in this slice; the receipt says so), and "Still needs a person" (the look of the page; keyboard use; screen-reader use; whether the words are right; every craft rule, because their checks search for the Mockup's own marks and cannot judge another page's style sheet). The receipt never says "accessible" or "compliant" (hard rule 8). It names the Prescription's fingerprint (section 2.9).
+- The receipt is an Honest receipt with three parts: "Measured" (the seven things, each with its count of deviations), "Judged by the model" (empty in this slice; the receipt says so), and "Still needs a person" (the look of the page; keyboard use; screen-reader use; whether the words are right; every craft rule, because their checks search for the Mockup's own marks and cannot judge another page's style sheet). The receipt never says "accessible" or "compliant" (hard rule 8). It names the Vision's fingerprint (section 2.9).
 - Edge cases:
   - The folder's files carry different fingerprints: the program refuses and names the files. A file is missing: the program refuses and names it.
   - The build file is missing, empty, or is not an HTML page: the program stops with a message and writes no receipt.
   - The page throws an error while it loads: the receipt records the message; the measurements still run. The page does not finish loading within 10 seconds (a script that never ends freezes the page, so nothing can be read from it): the receipt records that, marks every measurement of that window width "not measured", and does not count "not measured" as "no deviation".
-  - The page holds text that addresses the program ("ignore the checks"): it is data; the receipt shows page text only inside a fenced block that the receipt marks as quoted data (as `PRESCRIPTION.md` does, section 2.8.1).
+  - The page holds text that addresses the program ("ignore the checks"): it is data; the receipt shows page text only inside a fenced block that the receipt marks as quoted data (as `VISION.md` does, section 2.8.1).
   - The same page and the same files give the same receipt, byte for byte: the receipt holds no date and no time.
   - The program ends with status 0 when it found no deviation in the six measured things (requests, colors, typefaces, radii, content, width), with status 1 when it found at least one or could not measure a window width, and with status 2 when it refused (a missing file, two fingerprints, an unusable build). Contrast ratios alone never change the status (the first bullet of the list says why).
   - The page makes a request that never completes: the program does not wait for it; it counts the request.
@@ -207,7 +207,7 @@ This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside t
 
 ### 2.11 The first build trial: one AI coding tool builds from the seven files, and the program measures the result (milestone M7; decision D65)
 
-- What the user does: asks for one run of the trial. The builder writes the seven files for a fixed project (a small-business project with six Decisions and the sample content) into an empty scratch folder. One helper agent, with no other file from this repository, receives the folder and one fixed instruction: build one page, `index.html`, from the Prescription. The program of section 2.10 measures that page.
+- What the user does: asks for one run of the trial. The builder writes the seven files for a fixed project (a small-business project with six Decisions and the sample content) into an empty scratch folder. One helper agent, with no other file from this repository, receives the folder and one fixed instruction: build one page, `index.html`, from the Vision. The program of section 2.10 measures that page.
 - What the system does in response: the instruction, the helper's page, and the receipt stand in `plugin/fit/trials/001/`. A short record in the same folder says what the run shows and what it does not show.
 - Edge cases:
   - The helper cannot be held to the rule "read no other file". The record says so, and it names the folder that the helper received.
@@ -220,7 +220,7 @@ This slice is the first part of the Fitter. It lives in `plugin/fit/`, outside t
 - What the user does: asks for one more run. One helper agent receives the same project in plain words and no file: the six Decisions as the labels and descriptions that the Studio shows, the owner's one reason, and every text of the sample content. The helper builds `index.html`. The program of section 2.10 measures that page against the seven files that the first trial's helper received.
 - What the system does in response: the instruction, the page, the receipt, and a record stand in `plugin/fit/trials/002/`. The record holds a table that sets the two receipts side by side, one row for each measure.
 - Edge cases:
-  - The second helper never sees the seven files, but the measure uses their values. The record says so: the comparison shows how far a plain request lands from the Prescription's values, not whether the second page is worse in a way that a person would see.
+  - The second helper never sees the seven files, but the measure uses their values. The record says so: the comparison shows how far a plain request lands from the Vision's values, not whether the second page is worse in a way that a person would see.
   - The helper cannot be held to the rule "read no other file". The record says so.
   - One run each, one project: the record says that it is two measurements, not a rate, and that it does not say which page looks better.
 - How to test it end to end: the tests of the first trial run on both folders. A further test reads both receipts and requires that the record's table holds each measure's two counts exactly as the receipts state them.
@@ -244,7 +244,7 @@ The first trial found that section 2.10, point 1, counts a font file at the site
 
 The owner left these three to the builder (decision D63). Each follows the finding's own words.
 
-1. **The reason, from the Summary (U6-11).** The Summary says that the Prescription holds "what you rejected and why", but the field for the reason showed only on a return to a decided Step.
+1. **The reason, from the Summary (U6-11).** The Summary says that the Vision holds "what you rejected and why", but the field for the reason showed only on a return to a decided Step.
    - What the user does: opens the Summary; under each Step that has a Decision, presses "Add a reason" (or "Change the reason", when a reason exists), and types.
    - What the system does: opens the same field that the Step shows; each typed letter is stored at once, on that Step, as on the Step's own screen; the row's "Why: …" line follows. A Step without a Decision shows no such control. The field's id differs for each Step (`decision-reason-<step>`), so that no two fields on the Summary share an id. The text is rendered as text and holds at most 280 characters, as before.
    - Edge cases: Undo takes the typed reason back in one step, and the open field then shows the stored text; a reason typed on the Summary and one typed on the Step are the same reason.
@@ -282,17 +282,17 @@ The seventh review found two blockers in the Fit check: a page that runs its own
 
 1. **A double click does not record a second Decision (U7-02).** The main button of a Step stands in the same place on every Step. A double click used to press it twice, and the second press recorded the default of the next Step, which the person never looked at.
    - What the system does: the second click of a double click on the main button does nothing. One click moves on by one Step and records one Decision. A key press is not affected: each press of Enter is a deliberate act.
-2. **A page that holds some of the owner's texts and some of the sample's says so (U7-01).** The Studio said "The page shows your own texts" as soon as one text had changed, and `PRESCRIPTION.md` told the AI coding tool to use every text "word for word" as the owner's own, although the page still held the sample dental practice's "45 min for a first visit" beside a bakery's name.
+2. **A page that holds some of the owner's texts and some of the sample's says so (U7-01).** The Studio said "The page shows your own texts" as soon as one text had changed, and `VISION.md` told the AI coding tool to use every text "word for word" as the owner's own, although the page still held the sample dental practice's "45 min for a first visit" beside a bakery's name.
    - What the core does: `sampleTextsLeft(content)` names, in the page's order and in fixed plain words, each text and each list that still equals the sample's, and gives the total of texts and lists (23).
    - What the screens say: on "Your content" and on the Summary, when some but not all are still the sample's: "N of 23 texts are still the sample dental practice's words: …". When none is, the existing sentence stays; when all are, the existing sentence stays.
-   - What `PRESCRIPTION.md` says: when some are still the sample's, the line about the texts says which ones are placeholders and tells the tool not to treat them as the owner's content. When none is, or all are, the lines stay as they are, word for word.
+   - What `VISION.md` says: when some are still the sample's, the line about the texts says which ones are placeholders and tells the tool not to treat them as the owner's content. When none is, or all are, the lines stay as they are, word for word.
 3. **A project file is cleaned like typed text (X7-05, C7-03, T7-06).** The texts in a loaded file used to keep hidden signs, line breaks, and any length up to 600 characters, and they reached `mockup.html` raw.
    - What the system does: when it loads a project, each text of the page, each item of a list, each menu word, and each of the three answers is cleaned as typed text is cleaned (invisible signs and signs that change the direction of writing go; line breaks and runs of spaces become one space; the text is cut at its limit by whole characters). A required text that the cleaning would leave empty is replaced by the sample's. The notes of the load say how many texts were changed.
    - Edge cases: a clean file loads as before, with no note; a file with 600-character texts is cut at the limits of section 2.7.
-4. **`DESIGN.md` does not claim a measurement that did not happen (C7-01).** With the Contrast checks setting Off, `DESIGN.md` said "The Studio measured this pair", while `PRESCRIPTION.md` said that no program looked.
+4. **`DESIGN.md` does not claim a measurement that did not happen (C7-01).** With the Contrast checks setting Off, `DESIGN.md` said "The Studio measured this pair", while `VISION.md` said that no program looked.
    - What the system does: with the setting Off, the sentence says that contrast checks are Off for this project and that no program measured the pair. With "Warn me" or "Fix for me" the sentence is unchanged, word for word.
 - Not changed in this feature, and recorded: the fingerprint sentence in all files (finding C7-07) says more than the fingerprint covers; the words cannot change until the stored copies of the build trials are made again, because the trial tests compare them with what the core writes today. This waits for the Floors, which change the files anyway.
-- How to test it end to end: a browser test double-clicks the main button; unit tests for `sampleTextsLeft`, for the line in `PRESCRIPTION.md` in the three cases, for loading a hostile file, and for `DESIGN.md` with the setting Off and on; a browser test for the sentence on "Your content" and on the Summary in the mixed case.
+- How to test it end to end: a browser test double-clicks the main button; unit tests for `sampleTextsLeft`, for the line in `VISION.md` in the three cases, for loading a hostile file, and for `DESIGN.md` with the setting Off and on; a browser test for the sentence on "Your content" and on the Summary in the mixed case.
 
 ### 2.17 Small repairs of the core and of the Undo line (findings X7-10 and C7-05, C7-06, C7-08, V7-07; decision D68)
 
@@ -302,9 +302,9 @@ The seventh review found two blockers in the Fit check: a page that runs its own
 4. **The Undo line does not claim a whole-project change where nothing differs (V7-07).** When the project is the same as the one before it, the line says "Undo takes back: a change that left nothing different." and the notice after it says "Undone: the last change had left nothing different." A difference that the function does not compare (for example the Skin) still gives the whole-project sentence.
 - How to test it end to end: unit tests for each point; the stored copy of `FONTS.md` for the worked project is updated and its two changed lines are the weight lines.
 
-### 2.18 The Floors in the Prescription (milestone M6; decisions D13, D63 point 3, and D69)
+### 2.18 The Floors in the Vision (milestone M6; decisions D13, D63 point 3, and D69)
 
-A Floor is a requirement that the Prescription writes whatever the design is. This section builds the Floors from the research records `docs/research/12a` to `12d`.
+A Floor is a requirement that the Vision writes whatever the design is. This section builds the Floors from the research records `docs/research/12a` to `12d`.
 
 - What the system does: the Catalog holds each Floor requirement as a record: an id, its Floor, its text (for the AI coding tool, in exact terms), the method by which a program could check it, what a person must still check, its source (an address on one of the five approved hosts and a short quotation), its grade, whether a published standard states it, the place in the standard where it states it (for the people Floor, the success criterion), and its review date. The research record holds 66 rows; the Catalog holds 56 requirements (20, 11, 5, 10, 10), and decision D69 point 6 names the ten rows left out and why. The Floors:
   1. **Use by people with disabilities** (ids A1 and on): written only when Contrast checks is "Fix for me" (decision D13).
@@ -312,16 +312,16 @@ A Floor is a requirement that the Prescription writes whatever the design is. Th
   3. **Security settings of the host** (H1 and on): always written, as settings that a person must make at the host, because a page of one file cannot send headers; each requirement says where to set it, and the section tells the builder not to send them in the page.
   4. **Being found by search** (Q1 and on): always written.
   5. **Speed** (P1 and on): always written.
-  `PRESCRIPTION.md` has a section "7. Floors" that lists, for the project, each applicable requirement with its id, its text, what a person must still check, and its source. The section says that no program checks any Floor yet, and that a requirement states what to build and what to check, not that the page meets a standard.
+  `VISION.md` has a section "7. Floors" that lists, for the project, each applicable requirement with its id, its text, what a person must still check, and its source. The section says that no program checks any Floor yet, and that a requirement states what to build and what to check, not that the page meets a standard.
 - Edge cases:
   - Contrast checks "Off" or "Warn me": section 7 says that the Floor for people with disabilities is not written, why, and that the owner can choose "Fix for me"; the other Floors stand.
   - No file says that a page is "accessible" or "compliant" (hard rule 8); the Floor for people with disabilities is not named with those words.
   - A source address is on `www.w3.org`, `developer.mozilla.org`, `web.dev`, `developers.google.com`, or `cheatsheetseries.owasp.org`; a quotation is at most 25 words.
-  - The old section 7 ("What this first part leaves out") becomes section 8 and no longer lists the Floors as missing; it says that structured data for the business and the Fit check's measures of the Floors are not in the Prescription.
+  - The old section 7 ("What this first part leaves out") becomes section 8 and no longer lists the Floors as missing; it says that structured data for the business and the Fit check's measures of the Floors are not in the Vision.
   - `mockup.html` is a reference for the design only: it carries its own policy (which blocks files and forms), its own title, and no description for search engines. Section 7 says that the requirement decides wherever they differ; S5 places the policy after the character set and before every element that loads something; S6 says what a form does when the owner named no endpoint.
   - The design values, `DESIGN.md`, `tokens.*`, `theme.css`, `mockup.html`, and `FONTS.md` do not change; the fingerprint does not change.
 - Not in this slice, and recorded: structured data (JSON-LD) for the business, which needs a data script element that the "no script" rule and the strict content security policy exclude (decision D70 point a: it waits for milestone M7); a program that checks the Floors (milestone M7); the choice of host (decision D70 point c: it waits for the owner to name a host).
-- How to test it end to end: unit tests of every record (fields, address host, quotation length, no claim words, unique ids); of the section for each of the three contrast settings; the stored copies of `PRESCRIPTION.md` are updated, and the diff is only the section and the changed lines; a browser test that the Summary says what the Prescription now holds.
+- How to test it end to end: unit tests of every record (fields, address host, quotation length, no claim words, unique ids); of the section for each of the three contrast settings; the stored copies of `VISION.md` are updated, and the diff is only the section and the changed lines; a browser test that the Summary says what the Vision now holds.
 
 ### 2.19 Repairs after red-team campaign A2 (decision D71)
 
@@ -334,11 +334,11 @@ Campaign A2 (`redteam/campaign-a2/`) confirmed fifteen findings against sections
 - **Colors.** Pseudo-elements, outlines, and text strokes are compared; a color that passes through a CSS `filter` is counted as not measured. (A2-J6)
 - **Content.** Each reading on its own: a required text counts only where a person can read it, drawn at 6 pixels or more, not nearly transparent, and inside the window. (A2-J7)
 - **Width.** Text cut off at the window's edge, where no box lets a person scroll to it, is a deviation like sideways scrolling. (A2-J18)
-- **Typefaces.** Names are compared, because the site's font files are not there during a check; an `@font-face` rule that gives a Prescription typeface's name to a font installed on the machine (`local(...)`) is a deviation. (A2-J19)
+- **Typefaces.** Names are compared, because the site's font files are not there during a check; an `@font-face` rule that gives a Vision typeface's name to a font installed on the machine (`local(...)`) is a deviation. (A2-J19)
 - **The folder.** The program works the fingerprint out from the values of `tokens.css` and refuses when it differs from the stated one, and refuses when `tokens.json` and `tokens.css` disagree about a color, a size, or a typeface. (A2-J20)
 - **Status.** "Not measured" in any of the six measured things gives status 1. (A1-07)
 - **"Still needs a person"** also names every other window width, a page that recognizes the check, the letters that the typefaces draw, and contrast against what lies under a text on screen. (A2-J17, A1-06)
-- **The Prescription's sentences.** `PRESCRIPTION.md` says when the start that a project records differs from its Direction or Skin as this version has it; never "every value comes from the start" or "kept as the start gave it" where a value is not the start's; names an Option when a slider sits exactly on it; names each text that is still the sample's; and, for a Direction that it does not know, says that it may come from a file. `DESIGN.md` claims no measured pair when contrast checks are off. (A2-J9 to A2-J11, A2-J21)
+- **The Vision's sentences.** `VISION.md` says when the start that a project records differs from its Direction or Skin as this version has it; never "every value comes from the start" or "kept as the start gave it" where a value is not the start's; names an Option when a slider sits exactly on it; names each text that is still the sample's; and, for a Direction that it does not know, says that it may come from a file. `DESIGN.md` claims no measured pair when contrast checks are off. (A2-J9 to A2-J11, A2-J21)
 - **The owner's words.** The cleaning removes every control sign, every format sign, and every sign that Unicode says draws nothing (by property, not by list), and cuts a long name before it cleans it. (A2-J12, A2-J16)
 - **Own Directions.** A repeat inside one file is named as a repeat. (A2-J15)
 - **Accepted as stated:** two designs can share the 32-bit fingerprint; it is a mark to compare, not a seal. (A2-J14)
@@ -352,6 +352,37 @@ The owner asked for one markdown file that describes the designs, their colors, 
 - Keeping them: a unit test compares the stored file with what the core writes today, so the file never drifts from the Studio. A second test names the 38 built-in Directions of 2026-11-17; a Direction that leaves the Catalog makes it fail. A new Direction may join without changing that test.
 - Edge cases: the owner's own Directions live in the browser, not in the repository, so the file says that they are not in it and names the Studio's buttons that download and reopen them. The file carries no date, says that it is written by a program, and makes no claim that a page meets a standard (hard rule 8).
 - How to test it end to end: the unit tests of `packages/core/test/directionsBook.test.ts`; a hand check that changing one value of the Catalog, or removing one Direction, makes `npm run check` fail.
+
+### 2.21 The new names (decision D75)
+
+- What the system does: every sentence that a person or an AI coding tool reads says "Frontend Focus" for the app and "Vision" for the export bundle; the bundle's first file is `VISION.md`; downloaded files carry the new names.
+- Edge cases: work that the browser stored under the old names still opens (the storage names do not change); a project file saved under the old file name still opens; the fingerprints of the design values do not change; the Fit check reads `VISION.md` and refuses a folder without it.
+- How to test it end to end: the existing unit and browser tests, with the names changed in them; a test that no source file of the core, the Studio, or the Fit check shows the old names to a reader.
+
+### 2.22 The Fit check reads the Floors, and a third window width (milestone M7; decision D76)
+
+- What the system does: the Fit check reads from `VISION.md` section 7 which requirements the Vision writes for the project (their ids). For 33 of the 56 requirements a program can check a part on one built page (that a tag is there, that an attribute has a value, that a count is right); `plugin/fit/src/floors.ts` names that part for each in plain words. The receipt has a new measure, "Floors: the part of each requirement that a program can check": each deviation line begins with the id of its requirement. The measure's note says how many requirements the Vision writes, of which the program checked a part, and that passing that part does not show that the page meets the requirement. "Still needs a person" names every written requirement of which the program checked nothing; the settings of the host cannot be read from a page.
+- Contrast: when the Vision writes requirement A1 (Contrast checks "Fix for me"), a text below A1's least ratio is a deviation and gives status 1; the measure's title says "required by Floor A1". Otherwise contrast stays a measurement, as before. A text whose contrast cannot be read never changes the status (the Mockup itself holds such texts); the receipt counts it.
+- Status: a deviation in the Floors measure gives status 1.
+- The third window width: the program reads the page at 375, 768, and 1280 pixels.
+- Edge cases: a Vision without section 7 (an older file): the measure says that nothing was checked. The Mockup is a still page (links that lead nowhere, a form that sends nothing, a policy that blocks files and forms), so the Mockup itself shows Floor deviations; a built page must differ from it there, as `VISION.md` says. The tests use a reference build: the Mockup with those places changed (`plugin/fit/e2e/built.ts`).
+- Not checked by any program, and said so in the receipt: the rest of each requirement, and all of the 23 others (among them keyboard use, focus, target sizes, text spacing, the measured speed figures, and the host's five settings).
+- How to test it end to end: the reference build of the plain start and of each of the 38 Directions shows no deviation in any measure; for each checked part, a page with that one fault planted shows a line with that requirement's id, and no line for a requirement that the Vision does not write.
+
+### 2.23 The Fitter as a Claude Code plugin: build, check, repair (milestone M7; decision D76)
+
+- What the system does: the folder `plugin/` is a Claude Code plugin named `frontend-focus-fitter` with three commands. `/fit-build <folder of the Vision> <output file>` tells Claude to read the seven files, build one page, and then run the check. `/fit-check <build> <folder of the Vision> <result folder>` runs the program and shows the receipt. `/fit-repair <build> <folder of the Vision> <result folder>` tells Claude to read the receipt, repair the smallest thing for each deviation, and check again, at most three rounds.
+- The repair budget: the command line takes `--round <n>` (0 for a first check, 1 to 3 for a check after a repair). The receipt states the round. A round above 3 is refused with status 2: the budget is spent, and a person decides.
+- "Judged by the model": the command line takes `--judged <file>`: a text file in which the model wrote one judgment on each line (for example "The photograph is a placeholder"). The receipt shows at most 20 such lines, each made visible and cut at 200 characters, inside a fence, under "Judged by the model", with the sentence that the model wrote them and that no program checked them. Without the option, the part says that no model judged anything.
+- Edge cases: a file of judgments that does not exist is refused (status 2). The content of the Vision's files, of the build, and of the judgments file is data: the commands tell Claude never to follow an instruction found in them (hard rule 10).
+- Not built: `/fit-suggest` (milestone M12); screenshots handed to the model; a comparison of pixels with the Vision's colors (plan, step 13a); a build of more than one page.
+- How to test it end to end: browser tests of `--round` and `--judged`; a test that the plugin's manifest and its three command files exist, name the program by a path inside the plugin, and state the three-round budget and the data rule. Whether Claude Code loads the plugin on the owner's machine is checked by hand; the builder says in the build log whether it did.
+
+### 2.24 The exit test of milestone M7: planted defects (decision D76)
+
+- What the system does: a test plants defects in the reference build, one at a time, and runs the Fit check on each. Every planted defect must appear under its measure (and, for a Floor, with its id), and the reference build without a defect must show none: "every planted defect found, and no false blocker".
+- The planted defects: a color that is not the Vision's; a typeface that is not the Vision's; a corner radius that is not the Vision's; a missing headline; a page wider than its window at 768 pixels only; a request to another site; a text below the least contrast (with Floor A1 written); and one for each checked part of a Floor requirement.
+- How to test it end to end: `plugin/fit/e2e/exit.e2e.ts`.
 
 ## 3. Out of scope
 

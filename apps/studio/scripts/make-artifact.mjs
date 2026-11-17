@@ -12,7 +12,7 @@ js = js.replace(/<\/script/gi, '<\\/script');
 if (js.includes('<!--')) throw new Error('The bundle contains "<!--", which is unsafe inside an inline script. Inspect it before publishing.');
 
 const page = [
-  '<title>Refraction Studio</title>',
+  '<title>Frontend Focus Studio</title>',
   '<meta name="claude:viewport-fit-sides" content="cover">',
   `<style>${css}</style>`,
   '<div id="root"></div>',

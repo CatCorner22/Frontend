@@ -59,3 +59,11 @@ The receipt was measured again after the seventh review's repairs of the program
 ## After the join of the two branches (2026-11-16, decision D73)
 
 The program that measures this page is now the joined program: campaign A2's reading (three readings of each width, from a world of its own) and feature F029's protections of the window. The stored receipt was measured again. No deviation count changed. Three things in the receipt changed: the page's scripts are run (the page holds none), the count of texts that could not be taken is 18 (it was 6: each text is now read three times at each width), and the sentence about Floors in the contrast note says that no program checks a Floor yet.
+
+## The names changed on 2026-11-17 (decision D75)
+
+The owner renamed the app to "Frontend Focus" and the Prescription to the "Vision". The file `PRESCRIPTION.md` is now `VISION.md`. In the folder `files/` the same change of names was made in the stored files, and nothing else in them changed, so that they still equal what the core writes today. `INSTRUCTION.md`, the helper's page, and the text of this record above keep the old names, because they are what was written and built at the time. The receipt was measured again; no count changed.
+
+## The program reads the Floors and a third width (2026-11-17, decision D76)
+
+The program now reads the page at 768 pixels as well, and it checks a part of the Floor requirements that a Vision writes. The receipt was measured again. No deviation count changed. The Vision of this trial was written before the Floors and writes none, so the new measure "Floors" checked nothing. The texts whose contrast could not be read now count 27 (three texts, three widths, three readings of each).

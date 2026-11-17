@@ -2,7 +2,7 @@
 // text, and a DESIGN.md that claims no measurement that did not happen.
 import { describe, expect, it } from 'vitest';
 import {
-  ITEM_LIMITS, SAMPLE_CONTENT, TEXT_LIMITS, applyDirection, createProject, designMd, parseProject, prescriptionMd, sampleTextsLeft, setBriefAnswer,
+  ITEM_LIMITS, SAMPLE_CONTENT, TEXT_LIMITS, applyDirection, createProject, designMd, parseProject, visionMd, sampleTextsLeft, setBriefAnswer,
   setContentItem, setContentText, setNavWord, type ContentTextKey, type Project,
 } from '../src/index.js';
 
@@ -41,14 +41,14 @@ describe('sampleTextsLeft', () => {
   });
 });
 
-describe('PRESCRIPTION.md: the line about the texts', () => {
+describe('VISION.md: the line about the texts', () => {
   it('says that the sample is the sample, as before, when no text is the owner’s', () => {
-    expect(prescriptionMd(createProject('x'))).toContain('`mockup.html` shows a sample dental practice, not the owner’s content.');
+    expect(visionMd(createProject('x'))).toContain('`mockup.html` shows a sample dental practice, not the owner’s content.');
   });
 
   it('names the placeholders, and does not call every text the owner’s own, when some are the sample’s', () => {
-    const md = prescriptionMd(setContentText(createProject('x'), 'business', 'Northside Bakery'));
-    // The Prescription names the texts that are still the sample's, one by one (campaign A2, finding J-11), and never the text that the owner changed.
+    const md = visionMd(setContentText(createProject('x'), 'business', 'Northside Bakery'));
+    // The Vision names the texts that are still the sample's, one by one (campaign A2, finding J-11), and never the text that the owner changed.
     expect(md).toContain('shows the texts that the project holds. Some are still the sample dental practice’s: ');
     expect(md).toContain('the headline');
     expect(md).not.toMatch(/still the sample dental practice’s: [^\n]*the business name/);
@@ -57,7 +57,7 @@ describe('PRESCRIPTION.md: the line about the texts', () => {
   });
 
   it('keeps the line word for word when every text is the owner’s', () => {
-    const md = prescriptionMd(own(createProject('x')));
+    const md = visionMd(own(createProject('x')));
     expect(md).toContain('They are the owner’s own: use them word for word.');
     expect(md).not.toContain('still the sample dental practice’s words');
   });

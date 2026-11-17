@@ -1,19 +1,20 @@
 // The Fit check (SPEC.md sections 2.10, 2.13, 2.14, and 2.15): open a build in a real browser at two window widths, measure it against the
-// Prescription's design values, and write an Honest receipt. The program builds nothing and judges nothing.
+// Vision's design values, and write an Honest receipt. The program builds nothing and judges nothing.
 // The page is untrusted. The program reads it from a world of its own, which no script of the page can reach; the window has no
 // network; and every text that comes from the page is made visible and bounded before it enters the receipt.
 import { createHash } from 'node:crypto';
 import { chromium, type Browser, type LaunchOptions, type Page } from 'playwright';
 import { contrastRatio, hexOf, over, parseRgba, type Rgba } from './color.ts';
 import { collect, readBrief, type Collected } from './collect.ts';
-import { FitError, readDesignValues, type DesignValues } from './prescription.ts';
-import { STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt } from './receipt.ts';
+import { CHECKED_PART, checkedFacts, collectFloorFacts, floorFindings, writtenFloorIds, type FloorFacts } from './floors.ts';
+import { FitError, readDesignValues, type DesignValues } from './vision.ts';
+import { JUDGED_MAX, MAX_REPAIR_ROUNDS, STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt } from './receipt.ts';
 
-export { FitError } from './prescription.ts';
+export { FitError } from './vision.ts';
 export type { Receipt } from './receipt.ts';
 
 export interface FitInput {
-  /** The Prescription's files by name: at least PRESCRIPTION.md, tokens.css, tokens.json, and mockup.html. */
+  /** The Vision's files by name: at least VISION.md, tokens.css, tokens.json, and mockup.html. */
   files: Readonly<Record<string, string | undefined>>;
   /** The page to measure. */
   html: string;
@@ -24,6 +25,10 @@ export interface FitInput {
   loadTimeoutMs?: number;
   /** Run the page's own scripts, as a visitor's browser does. The default is true. With false, the program reads the markup as it stands, before any script. */
   runScripts?: boolean;
+  /** The round of repair after which this check runs: 0 (the default) for a first check, 1 to 3 after a repair. Above 3 the program refuses. */
+  repairRound?: number;
+  /** Lines that a model wrote about its own work, one judgment each. They enter the receipt apart, as quoted data. */
+  judged?: readonly string[];
 }
 
 export interface FitResult {
@@ -33,7 +38,7 @@ export interface FitResult {
   status: 0 | 1;
 }
 
-export const WIDTHS = [375, 1280] as const;
+export const WIDTHS = [375, 768, 1280] as const;
 /** How long after the page has loaded the program reads a window with motion allowed a second time (campaign A2, finding J-3). */
 export const LATER_MS = 2000;
 /**
@@ -48,7 +53,7 @@ const DEAD_PROXY = { server: 'http://127.0.0.1:1', bypass: '<-loopback>' } as co
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
 
 /** One reading of the page. A reading that failed still keeps the requests that its page made before it failed. */
-type Pass = { label: string; width: number; requests: string[]; own: string[] } & ({ collected: Collected; errors: string[] } | { failure: string });
+type Pass = { label: string; width: number; requests: string[]; own: string[] } & ({ collected: Collected; floors: FloorFacts; errors: string[] } | { failure: string });
 
 /** Launch settings that hide the mark of automation and keep WebRTC from sending without a proxy (campaign A2, findings J-1 and J-3). */
 export const LAUNCH_ARGS: readonly string[] = ['--disable-blink-features=AutomationControlled', '--force-webrtc-ip-handling-policy=disable_non_proxied_udp'];
@@ -194,11 +199,11 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
         if (left !== '') return fail(label, `the page replaced itself: it went to ${left}`);
         const contextId = worlds.get(frameTree.frame.id);
         if (contextId === undefined || worldsAfterLoad > 0) return fail(label, 'the page replaced itself: its document was opened again');
-        const { result, exceptionDetails } = await within(session.send('Runtime.evaluate', { expression: `({ collected: (${collect.toString()})(), replaced: globalThis.__refractionWatch ? globalThis.__refractionWatch.replaced : true })`, contextId, returnByValue: true }), ms, 'the page did not answer');
+        const { result, exceptionDetails } = await within(session.send('Runtime.evaluate', { expression: `({ collected: (${collect.toString()})(), floors: (${collectFloorFacts.toString()})(), replaced: globalThis.__refractionWatch ? globalThis.__refractionWatch.replaced : true })`, contextId, returnByValue: true }), ms, 'the page did not answer');
         if (exceptionDetails) return fail(label, 'the program could not read the page');
-        const value = result.value as { collected: Collected; replaced: boolean };
+        const value = result.value as { collected: Collected; floors: unknown; replaced: boolean };
         if (value.replaced) return fail(label, 'the page replaced itself: a script wrote a new document over it');
-        return { label, width, collected: value.collected, errors: [...errors], requests: [...requests], own: [...own] };
+        return { label, width, collected: value.collected, floors: checkedFacts(value.floors), errors: [...errors], requests: [...requests], own: [...own] };
       };
       if (motion === 'reduce') passes.push(await read(base));
       else {
@@ -309,7 +314,7 @@ function contrastOf(text: Collected['texts'][number]): number | null {
   return contrastRatio(fg.a < 1 ? over(fg, behind) : fg, behind);
 }
 
-function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures'] } {
+function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[]): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
   const good = passes.filter((p): p is Extract<Pass, { collected: Collected }> => 'collected' in p);
   const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: bounded(`${p.label}: ${p.failure}`) }] : []));
   const failed = loadFailures.length;
@@ -351,7 +356,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   // A color that passes through a CSS filter is changed before it reaches the screen: not measured (campaign A2, finding J-6).
   const filtered = good.reduce((sum, p) => sum + p.collected.filtered, 0);
   const fontRows = good.flatMap((p) => p.collected.families.filter((f) => !design.typefaces.has(f.family.toLowerCase())).map((f) => ({ key: f.family, where: f.where, width: p.label })));
-  // FONTS.md ships every typeface as a file; a Prescription name given to a font installed on the machine draws other letters (J-19).
+  // FONTS.md ships every typeface as a file; a Vision name given to a font installed on the machine draws other letters (J-19).
   const aliases = new Set(good.flatMap((p) => p.collected.fontFaces.filter((face) => design.typefaces.has(face.family.toLowerCase()) && /local\(/i.test(face.src)).map((face) => `typeface "${face.family}" is drawn from a font installed on the machine (${face.src.trim()}), not from a file`)));
   const radiusRows = good.flatMap((p) => p.collected.radii.filter((r) => { const px = /^([\d.]+)px$/.exec(r.value); return !px || !design.radii.has(Number(px[1])); }).map((r) => ({ key: r.value, where: r.where, width: p.label })));
 
@@ -387,8 +392,14 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     // A text that stands only under a clip-path or a mask may be hidden: not measured, never "found" (retest finding A2-V7).
     const unsure = missing.filter((p) => p.collected.clippedLines.some((line) => collapse(line).includes(collapse(wanted))));
     contentUnsure += unsure.length;
-    const absent = missing.filter((p) => !unsure.includes(p)).map((p) => p.label);
-    if (absent.length > 0) contentLines.push(`the ${label} is not where a person can read it at ${absent.join('; ')}: "${wanted}"`);
+    const absent = missing.filter((p) => !unsure.includes(p));
+    // A width at which the text is missing in every reading is named once ("768 pixels"); otherwise each reading is named.
+    const places = WIDTHS.flatMap((width) => {
+      const here = absent.filter((p) => p.width === width).map((p) => p.label);
+      const all = readingsAt.get(width);
+      return here.length > 0 && all !== undefined && here.length === all.size ? [`${String(width)} pixels`] : here;
+    });
+    if (places.length > 0) contentLines.push(`the ${label} is not where a person can read it at ${places.join('; ')}: "${wanted}"`);
   }
 
   // Sideways scrolling, and text cut off at the window's edge where nothing lets a person reach it (campaign A2, finding J-18).
@@ -397,9 +408,21 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     ...(p.collected.cutOff.length > 0 ? [{ key: `${count(p.collected.cutOff.length)} reach past the window's edge and are cut off, first ${p.collected.cutOff[0] ?? ''}`, width: p.width, label: p.label }] : []),
   ]), readingsAt).map((line) => line.text);
 
-  const colorNote = `A color is a deviation when it is not one of the Prescription's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${translucent.size > 0 ? ' Partly transparent colors are listed as information and not compared.' : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
+  const colorNote = `A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, and text strokes are compared too.${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${translucent.size > 0 ? ' Partly transparent colors are listed as information and not compared.' : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
   const whyUnread = [...reasons].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([why, n]) => `${String(n)} because ${why}`).join('; ');
-  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. No program checks a Floor of the Prescription yet, so no ratio is a deviation from it; the lines show texts below the usual least.${unreadable > 0 ? ` ${String(unreadable)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
+  // The Floors (SPEC.md section 2.22): the part of each written requirement that a program can check on this page.
+  const binding = written.includes('A1');
+  const floorLines = new Set<string>();
+  for (const p of good) {
+    const http = p.collected.references.map((ref) => ref.address.replace(/[\t\n\r]/g, '').trim()).filter((address) => /^http:/i.test(address));
+    for (const line of floorFindings(p.floors, written, http)) floorLines.add(line);
+  }
+  const partly = written.filter((id) => CHECKED_PART[id] !== undefined);
+  const floorsNotChecked = written.filter((id) => CHECKED_PART[id] === undefined);
+  const floorsNote = written.length === 0
+    ? 'The Vision’s section 7 writes no requirement that this program reads, so nothing was checked here.'
+    : `The Vision’s section 7 writes ${String(written.length)} requirements. The program checked a part of ${String(partly.length)} of them (${partly.join(', ')}); each line names its requirement. Passing that part does not show that the page meets the requirement: the rest of each, and all of ${floorsNotChecked.join(', ')}, stay with a person.`;
+  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${String(unreadable)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => [...shown(e)].slice(0, 200).join(''))))].sort().slice(0, 5);
   const most = (pick: (c: Collected) => number): number => Math.max(0, ...good.map((p) => pick(p.collected)));
   return {
@@ -408,13 +431,15 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     scripts: { inline: Math.max(source.inline, most((c) => c.scripts.inline)), external: Math.max(source.external, most((c) => c.scripts.external)) },
     measured: [
       measureOf('requests', 'Requests: the page asks for nothing from another site', 'Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page\u2019s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.', [...requests], failed, ownAddress),
-      measureOf('colors', 'Colors: every color that the page draws is a color of the Prescription', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered, [...translucent]),
-      measureOf('typefaces', 'Typefaces: every text names a typeface of the Prescription', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Prescription typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
-      measureOf('radii', 'Corner radii: every drawn box uses a radius of the Prescription', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
-      measureOf('contrast', 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed),
+      measureOf('colors', 'Colors: every color that the page draws is a color of the Vision', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered, [...translucent]),
+      measureOf('typefaces', 'Typefaces: every text names a typeface of the Vision', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Vision typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
+      measureOf('radii', 'Corner radii: every drawn box uses a radius of the Vision', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
+      measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed),
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.', contentLines, failed + contentUnsure),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
+      measureOf('floors', 'Floors: the part of each requirement that a program can check', floorsNote, [...floorLines], failed),
     ],
+    floorsNotChecked,
   };
 }
 
@@ -422,6 +447,9 @@ const count = (n: number): string => `${String(n)} ${n === 1 ? 'element' : 'elem
 
 export async function fit(input: FitInput): Promise<FitResult> {
   const design = readDesignValues(input.files);
+  const repairRound = input.repairRound ?? 0;
+  if (!Number.isInteger(repairRound) || repairRound < 0) throw new FitError('The repair round must be a whole number from 0 to 3.');
+  if (repairRound > MAX_REPAIR_ROUNDS) throw new FitError(`The repair budget of ${String(MAX_REPAIR_ROUNDS)} rounds is spent. The program did not check again; a person decides now.`);
   if (input.html.trim() === '') throw new FitError('The build is empty.');
   if (!/<(?:!doctype|html|body)\b/i.test(input.html)) throw new FitError('The build is not an HTML page.');
   const ms = input.loadTimeoutMs ?? 10_000;
@@ -431,22 +459,27 @@ export async function fit(input: FitInput): Promise<FitResult> {
     // The four windows are read side by side; their order in the receipt is fixed, so the same inputs give the same receipt.
     const passes: Pass[] = (await Promise.all(READINGS.map((reading) => readAt(browser, input.html, reading, ms, runScripts)))).flat();
     const brief = await readMockupBrief(browser, input.files['mockup.html'] ?? '', ms);
-    const { measured, pageErrors, scripts, loadFailures } = measures(design, passes, brief, scriptsInSource(input.html));
+    const written = writtenFloorIds(input.files['VISION.md'] ?? '');
+    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written);
     const receipt: Receipt = {
       fingerprint: design.fingerprint,
       build: { bytes: Buffer.byteLength(input.html, 'utf8'), sha256: createHash('sha256').update(input.html, 'utf8').digest('hex') },
       widths: [...WIDTHS],
       scriptsRan: runScripts,
       measured,
-      judgedByModel: [],
-      stillNeedsPerson: [...STILL_NEEDS_A_PERSON],
+      repairRound,
+      judgedByModel: (input.judged ?? []).map((line) => bounded(line.replace(/\s+/g, ' ').trim())).filter((line) => line !== '').slice(0, JUDGED_MAX),
+      stillNeedsPerson: [...STILL_NEEDS_A_PERSON, ...(written.length > 0 ? [`The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of ${floorsNotChecked.join(', ')}; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.`] : [])],
       pageErrors,
       scripts,
       loadFailures,
     };
     // "Not measured" is never "no deviation": anything not measured in the six measured things gives status 1 (decision D71, A1-07).
-    const six = measured.filter((m) => m.id !== 'contrast');
-    const status = six.some((m) => m.deviations > 0 || m.notMeasured > 0) || loadFailures.length > 0 ? 1 : 0;
+    // Contrast counts when the Vision writes Floor A1: a ratio below its least is then a deviation. A text whose contrast could not
+    // be read does not change the status (the Mockup itself holds such texts); the receipt and the command line name the count.
+    const counted = measured.filter((m) => m.id !== 'contrast');
+    const contrast = measured.find((m) => m.id === 'contrast');
+    const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || (written.includes('A1') && (contrast?.deviations ?? 0) > 0) || loadFailures.length > 0 ? 1 : 0;
     return { receipt, markdown: receiptMarkdown(receipt), status };
   } finally {
     if (!input.browser) await browser.close();
