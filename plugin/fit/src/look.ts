@@ -68,6 +68,13 @@ export interface LookTypeface {
   drawn: boolean | null;
   /** True when the page loaded the typeface from a file. False with `drawn` true means a font installed on the machine. */
   fromFile: boolean;
+  /**
+   * True when the name is a generic family of CSS (`system-ui`, `serif`, ...): each machine draws its own font for it, no font file
+   * belongs to it, and `drawn` is true.
+   */
+  device: boolean;
+  /** True when `FONTS.md` names a font file for the typeface. Without one, the letters come from the visitor's own machine. */
+  file: boolean;
 }
 
 export interface LookWidth {
@@ -156,7 +163,7 @@ async function inOwnWorld<T>(page: Page, expression: string, ms: number): Promis
 
 interface PageFacts {
   height: number;
-  typefaces: LookTypeface[];
+  typefaces: Omit<LookTypeface, 'file'>[];
 }
 
 /** Runs inside the page, in the program's own world. It stands alone: it uses nothing from this file. */
@@ -183,21 +190,25 @@ function readPage(families: string[]): PageFacts {
     pen.font = font;
     return pen.measureText(sample).width;
   };
+  // A generic family is a keyword, not a name: in quotes it would be the name of a font that no machine has, and without quotes
+  // every machine draws some font for it. Nothing is to be probed, and no font file belongs to it.
+  const generic = /^(?:serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-serif|ui-sans-serif|ui-monospace|ui-rounded|emoji|math|fangsong)$/i;
   const typefaces = families.map((family) => {
     const texts = named.get(family.toLowerCase()) ?? 0;
+    if (generic.test(family)) return { family, texts, drawn: true, fromFile: false, device: true };
     let fromFile = false;
     for (const face of document.fonts) if (first(face.family) === family.toLowerCase() && face.status === 'loaded') fromFile = true;
     // A name with a sign that could end the quoted name is not tried.
-    if (!pen || !/^[\w .-]+$/.test(family)) return { family, texts, drawn: null, fromFile };
+    if (!pen || !/^[\w .-]+$/.test(family)) return { family, texts, drawn: null, fromFile, device: false };
     // The typeface is drawn when it changes the width of a line against either fallback alone.
     const drawn = widthOf(`72px "${family}", monospace`) !== widthOf('72px monospace') || widthOf(`72px "${family}", serif`) !== widthOf('72px serif');
-    return { family, texts, drawn, fromFile };
+    return { family, texts, drawn, fromFile, device: false };
   });
   const root = document.documentElement;
   return { height: Math.max(root.scrollHeight, document.body ? document.body.scrollHeight : 0), typefaces };
 }
 
-type Drawn = { png: Buffer; height: number; cut: boolean; typefaces: LookTypeface[] };
+type Drawn = { png: Buffer; height: number; cut: boolean; typefaces: Omit<LookTypeface, 'file'>[] };
 
 /** A fixed sentence for a window that could not be pictured. The browser's own message is never used: a page can shape it. */
 function failureSentence(error: unknown, ms: number): string {
@@ -238,7 +249,7 @@ async function draw(browser: Browser, html: string, width: number, ms: number, r
     const height = Math.max(1, Math.round(Number(facts.height) || 0));
     const cut = height > MAX_HEIGHT;
     const png = await within(page.screenshot({ fullPage: true, animations: 'disabled', caret: 'hide', clip: { x: 0, y: 0, width, height: Math.min(height, MAX_HEIGHT) }, timeout: ms }), ms + 1000, 'the page did not answer');
-    const typefaces = (Array.isArray(facts.typefaces) ? facts.typefaces : []).map((t, at) => ({ family: families[at] ?? '', texts: Math.max(0, Math.round(Number(t.texts) || 0)), drawn: typeof t.drawn === 'boolean' ? t.drawn : null, fromFile: t.fromFile === true }));
+    const typefaces = (Array.isArray(facts.typefaces) ? facts.typefaces : []).map((t, at) => ({ family: families[at] ?? '', texts: Math.max(0, Math.round(Number(t.texts) || 0)), drawn: typeof t.drawn === 'boolean' ? t.drawn : null, fromFile: t.fromFile === true, device: t.device === true }));
     return { png, height, cut, typefaces };
   } finally {
     await within(context.close(), 5000, 'close').catch(() => undefined);
@@ -530,11 +541,14 @@ export function lookMarkdown(look: Look): string {
         continue;
       }
       const texts = `${String(face.texts)} ${face.texts === 1 ? 'text names' : 'texts name'} it first`;
-      const how = face.drawn === null ? 'the program could not tell whether it is drawn' : face.drawn ? (face.fromFile ? 'drawn, from a font file' : 'drawn, from a font installed on this machine and not from a file') : 'not drawn: the browser has no such font here, so a fallback draws these letters in the pictures';
+      const how = face.device ? 'the device’s own font: no font file belongs to it, and each machine draws its own letters, so the pictures show this machine’s' : face.drawn === null ? 'the program could not tell whether it is drawn' : face.drawn ? (face.fromFile ? 'drawn, from a font file' : 'drawn, from a font installed on this machine and not from a file') : face.file ? 'not drawn: the browser has no such font here, so a fallback draws these letters in the pictures' : 'not drawn: this machine has no font of that name, and the Vision names no font file for it, so a fallback draws these letters in the pictures; a visitor’s machine may have the font';
       out.push(`- “${face.family}”: ${texts}; ${how}.`);
     }
     out.push('');
-    out.push(look.fontsGiven ? 'The program was given font files and answered the page’s requests for them at the site’s own address.' : 'The program was given no font files. A built page is one file and ships no font, so a typeface that the page loads from the site’s own address is not drawn here; give the files (`--fonts`) to see the letters that visitors will see.', '');
+    // A Vision of device fonts alone names no font file, so the advice to give some would mislead.
+    const needsFiles = first.typefaces.some((face) => face.file);
+    if (look.fontsGiven) out.push('The program was given font files and answered the page’s requests for them at the site’s own address.', '');
+    else if (needsFiles) out.push('The program was given no font files. A built page is one file and ships no font, so a typeface that the page loads from the site’s own address is not drawn here; give the files (`--fonts`) to see the letters that visitors will see.', '');
   }
   out.push('## What the pictures do not show', '');
   out.push('- A page in use: nothing is pointed at, pressed, focused, typed, or sent, and no motion is shown. The pictures are still, with reduced motion.');
@@ -565,6 +579,7 @@ export async function look(input: LookInput): Promise<LookResult> {
   const fontsGiven = Object.keys(fonts).length > 0;
   // The names as tokens.json writes them (the design values keep them in lower case; the report shows them as written).
   const families = typefaceNames(input.files['tokens.json'] ?? '');
+  const withFile = new Set(fontFilesOf(input.files['FONTS.md'] ?? '').map((font) => font.family.toLowerCase()));
   const palette = [...design.colors].sort().map((hex): [number, number, number] => [Number.parseInt(hex.slice(1, 3), 16), Number.parseInt(hex.slice(3, 5), 16), Number.parseInt(hex.slice(5, 7), 16)]);
   const mockup = fontsGiven ? mockupWithFonts(input.files['mockup.html'] ?? '', input.files['FONTS.md'] ?? '', fonts) : input.files['mockup.html'] ?? '';
   const browser = input.browser ?? (await chromium.launch({ ...input.launch, args: [...(input.launch?.args ?? []), ...LOOK_LAUNCH_ARGS] }));
@@ -600,7 +615,7 @@ export async function look(input: LookInput): Promise<LookResult> {
           differs: oneDecimal(read.differs),
           parts: read.parts.map(oneDecimal),
           colors: read.colors.map((color) => ({ hex: hexOf(color.rgb), percent: oneDecimal(color.share), nearest: color.nearest ? hexOf(color.nearest) : '' })),
-          typefaces: built.typefaces,
+          typefaces: built.typefaces.map((face) => ({ ...face, file: withFile.has(face.family.toLowerCase()) })),
         });
         pictures.push({ name: `compare-${String(width)}.png`, width, kind: 'compare', what: 'The whole Mockup, the whole build, and the places where their pictures differ (marked in pink on a pale build), side by side and made small', png: Buffer.from(read.compare, 'base64') });
         read.strips.forEach((strip, at) => {

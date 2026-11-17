@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium, type Browser } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { applyDirection, createProject, findDirection, writeVision } from '@refraction/core';
+import { applyDirection, createProject, findDirection, pickValues, writeVision } from '@refraction/core';
 import { built } from './built.ts';
 import { trialProject } from './trial-project.ts';
 import { FitError, LOOK_LAUNCH_ARGS, MAX_HEIGHT, PART_HEIGHT, fontFilesOf, look, lookMarkdown, type LookInput, type LookResult } from '../src/look.ts';
@@ -227,6 +227,24 @@ describe('The look: typefaces', () => {
     expect(pictureOf(withFonts, 'build-1280-1.png').equals(pictureOf(without, 'build-1280-1.png'))).toBe(false);
     // The Mockup received the same letters: had it kept its fallback, the two pictures would differ in every line of text.
     for (const at of withFonts.look.widths) expect(at.differs, `at ${String(at.width)} pixels`).toBeLessThan(1);
+  });
+
+  it('reads a generic family as the device’s own font, and asks for no font file where the Vision names none', async () => {
+    // "system-ui" is a keyword of CSS, not the name of a font: in quotes it names nothing, so it must not be probed like a name.
+    const device: Files = { ...writeVision(pickValues(trialProject(), 'typeface', { fontHeading: 'system-serif', fontBody: 'system-sans' })) };
+    const result = await look({ files: device, html: built(device['mockup.html'] ?? ''), browser });
+    const faces = result.look.widths[0]?.typefaces ?? [];
+    const body = faces.find((f) => f.family === 'system-ui');
+    expect(body).toMatchObject({ device: true, drawn: true, fromFile: false, file: false });
+    expect(body?.texts).toBeGreaterThan(0);
+    expect(result.markdown).toContain('“system-ui”: ');
+    expect(result.markdown).toContain('the device’s own font: no font file belongs to it, and each machine draws its own letters, so the pictures show this machine’s.');
+    // "Georgia" is a font of the visitor's machine: the Vision ships no file for it, and the report does not blame the build.
+    const heading = faces.find((f) => f.family === 'Georgia');
+    expect(heading).toMatchObject({ device: false, file: false, fromFile: false });
+    if (heading?.drawn === false) expect(result.markdown).toContain('“Georgia”: 20 texts name it first; not drawn: this machine has no font of that name, and the Vision names no font file for it');
+    expect(result.markdown).not.toContain('The program was given no font files.');
+    for (const at of result.look.widths) expect(at.differs, `at ${String(at.width)} pixels`).toBe(0);
   });
 });
 
