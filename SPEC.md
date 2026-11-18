@@ -482,7 +482,8 @@ The Vision's section 7 holds the Floors (section 2.18). Until now no program che
   4. **Scripts are counted in one pass** (R-S10): a build that repeats `<script ` 250,000 times without closing it is measured in under a minute.
   5. **The command `/fit-look` pre-approves reading only** (R-T03, R-U06, the rest of G-S14); its test now requires that. The guide names four commands.
   6. **Records**: the sentences that the drift and truth auditor showed to be false are corrected (R-T01, R-T03, R-T04, R-T06 in part, R-T07 to R-T12).
-- Open, each a row of `redteam/FINDINGS.md`: 13 major findings (R-S04 to R-S09, R-S11, R-T05, R-U02 to R-U05) and the minor ones. The gravest: six ways to hide a required text with status 0 (R-S04); a page that changes after the check stops (R-S05); recoloring that the colors measure does not see (R-S06, R-S07); the audit branch's paints came over without their tests (R-T05).
+  7. **Six more ways to hide a required text are read** (R-S04; the owner chose this finding first, 2026-11-18). A required text counts as not measured when a filled box that takes no clicks lies over it, when a filled box that a style rule draws before or after an element lies over it, when the text stands behind the fill of the box that holds it (a negative z-index), or when its box shows its back and the page hides backs. A text whose letters are drawn as dots counts as missing. The place of a drawn box is worked out from its style values, which is an approximation.
+- Open, each a row of `redteam/FINDINGS.md`: 12 major findings (R-S05 to R-S09, R-S11, R-T05, R-U02 to R-U05) and the minor ones. The gravest: a page that changes after the check stops (R-S05); recoloring that the colors measure does not see (R-S06, R-S07); the audit branch's paints came over without their tests (R-T05).
 - How to test it end to end: `npm run e2e`.
 
 ## 3. Out of scope

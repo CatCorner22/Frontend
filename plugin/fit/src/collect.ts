@@ -349,6 +349,24 @@ export function collect(): Collected {
     }
     return false;
   };
+  // Boxes that `elementFromPoint` cannot report: a positioned, filled box that takes no clicks, and a positioned, filled box that a
+  // style rule draws before or after an element's content.
+  const silentCovers: Element[] = [];
+  const drawnCovers: { owner: Element; before: boolean; fixed: boolean; z: number; left: number; top: number; right: number; bottom: number; width: number; height: number }[] = [];
+  for (const el of every('*')) {
+    if (el.getClientRects().length === 0 && el !== document.body && el !== document.documentElement) continue;
+    const style = getComputedStyle(el);
+    if (style.position !== 'static' && style.pointerEvents === 'none' && style.visibility === 'visible' && alphaOf(rgbOf(style.backgroundColor)) >= 0.5 && seenOpacity(el) >= 0.5) silentCovers.push(el);
+    for (const pseudo of ['::before', '::after']) {
+      const ps = getComputedStyle(el, pseudo);
+      if (ps.content === 'none' || ps.content === 'normal' || ps.display === 'none' || ps.visibility !== 'visible') continue;
+      if (ps.position !== 'fixed' && ps.position !== 'absolute') continue;
+      const z = ps.zIndex === 'auto' ? 0 : Number.parseInt(ps.zIndex, 10);
+      if (z < 0 || alphaOf(rgbOf(ps.backgroundColor)) < 0.5 || Number.parseFloat(ps.opacity) * seenOpacity(el) < 0.5) continue;
+      // A value that the browser does not give in pixels ("auto") is NaN here; the area is worked out when it is needed.
+      drawnCovers.push({ owner: el, before: pseudo === '::before', fixed: ps.position === 'fixed', z, left: Number.parseFloat(ps.left), top: Number.parseFloat(ps.top), right: Number.parseFloat(ps.right), bottom: Number.parseFloat(ps.bottom), width: Number.parseFloat(ps.width), height: Number.parseFloat(ps.height) });
+    }
+  }
   // True when, with the text scrolled into the window, the box on top at the text's middle is neither the text's own box nor one around or inside it.
   const covered = (host: Element, range: Range): boolean => {
     const before = range.getBoundingClientRect();
@@ -358,7 +376,62 @@ export function collect(): Collected {
     const y = r.top + r.height / 2;
     if (y < 0 || y >= window.innerHeight) return false;
     const top = document.elementFromPoint(x, y);
-    return top !== null && top !== host && !host.contains(top) && !top.contains(host);
+    if (top !== null && top !== host && !host.contains(top) && !top.contains(host)) return true;
+    // `elementFromPoint` does not see a box that takes no clicks (`pointer-events: none`), and it reports a box that a style rule
+    // draws (`::before`, `::after`) as the element that owns it. Both can lie over the text (retest finding R-S04).
+    const inside = (b: { left: number; top: number; right: number; bottom: number }): boolean => x >= b.left && x < b.right && y >= b.top && y < b.bottom;
+    for (const cover of silentCovers) if (cover !== host && !cover.contains(host) && !host.contains(cover) && inside(cover.getBoundingClientRect())) return true;
+    for (const cover of drawnCovers) {
+      if (cover.owner !== host && !cover.owner.contains(host)) continue;
+      // The text lies over the drawn box when a box between the text and the owner is positioned higher; at the same height, a box
+      // drawn before the content lies under it, and a box drawn after it lies over it.
+      let above = false;
+      for (let up: Element | null = host; up && up !== cover.owner; up = up.parentElement) {
+        const style = getComputedStyle(up);
+        if (style.position === 'static') continue;
+        const z = style.zIndex === 'auto' ? 0 : Number.parseInt(style.zIndex, 10);
+        if (z > cover.z || (z === cover.z && cover.before)) { above = true; break; }
+      }
+      if (above) continue;
+      // The box that the drawn box is placed in: the window for a fixed one, the owner's own box otherwise (an approximation).
+      const own = cover.owner.getBoundingClientRect();
+      const frame = cover.fixed ? { left: 0, top: 0, width: document.documentElement.clientWidth, height: window.innerHeight } : { left: own.left, top: own.top, width: own.width, height: own.height };
+      // One side: from its start, its end, and its length, whichever the browser gave; a side without a start and an end starts at 0.
+      const side = (start: number, end: number, length: number, whole: number): [number, number] => {
+        const from = Number.isFinite(start) ? start : Number.isFinite(end) && Number.isFinite(length) ? whole - end - length : 0;
+        const to = Number.isFinite(length) ? from + length : Number.isFinite(end) ? whole - end : whole;
+        return [from, to];
+      };
+      const [x0, x1] = side(cover.left, cover.right, cover.width, frame.width);
+      const [y0, y1] = side(cover.top, cover.bottom, cover.height, frame.height);
+      if (x1 - x0 >= 1 && y1 - y0 >= 1 && inside({ left: frame.left + x0, top: frame.top + y0, right: frame.left + x1, bottom: frame.top + y1 })) return true;
+    }
+    return false;
+  };
+  // The text stands behind the box that holds it: a negative z-index puts it under the fill of a box around it, unless that box
+  // starts a stacking order of its own (retest finding R-S04). The page's own background (body, html) is always behind.
+  const behindOwnBox = (host: Element): boolean => {
+    let sunk: Element | null = null;
+    for (let up: Element | null = host; up && up !== document.body && up !== document.documentElement; up = up.parentElement) {
+      const style = getComputedStyle(up);
+      if (sunk === null) {
+        if (style.position !== 'static' && style.zIndex !== 'auto' && Number.parseInt(style.zIndex, 10) < 0) sunk = up;
+        continue;
+      }
+      if (alphaOf(rgbOf(style.backgroundColor)) >= 0.5 || style.backgroundImage !== 'none') return true;
+      if ((style.position !== 'static' && style.zIndex !== 'auto') || Number.parseFloat(style.opacity) < 1 || style.transform !== 'none' || style.isolation === 'isolate' || style.filter !== 'none') return false;
+    }
+    return false;
+  };
+  // The text's box shows its back, and the page hides the back of a box (retest finding R-S04).
+  const turnedAway = (host: Element): boolean => {
+    for (let up: Element | null = host; up && up !== document.documentElement; up = up.parentElement) {
+      const style = getComputedStyle(up);
+      if (style.backfaceVisibility !== 'hidden' || style.transform === 'none') continue;
+      const m = new DOMMatrix(style.transform);
+      if (m.m11 * m.m22 - m.m12 * m.m21 < 0) return true;
+    }
+    return false;
   };
   for (const root of [document.body ?? document.documentElement, ...roots.slice(1)]) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -370,6 +443,9 @@ export function collect(): Collected {
       const opacity = seenOpacity(host);
       if (hs.visibility !== 'visible' || Number.parseFloat(hs.fontSize) < 6 || opacity < 0.1) continue;
       if (alphaOf(rgbOf(hs.webkitTextFillColor)) === 0 && !fillsThroughText(host)) continue;
+      // Dots, circles, or squares drawn in place of the letters: no person reads the text (retest finding R-S04).
+      const security = (hs as unknown as { webkitTextSecurity?: string }).webkitTextSecurity;
+      if (security !== undefined && security !== '' && security !== 'none') continue;
       const range = document.createRange();
       range.selectNodeContents(node);
       const r = range.getBoundingClientRect();
@@ -377,7 +453,7 @@ export function collect(): Collected {
       // Above the top of the page, where no person can scroll, or cut away by a box that hides what overflows it (finding G-S03).
       if (r.bottom + window.scrollY <= 0 || cutAway(host, r)) continue;
       // A faint text, and a text that another box covers, may not be readable: not measured, never "found" (finding G-S03).
-      const unsure = underClip(host) || opacity < 0.5 || (root === (document.body ?? document.documentElement) && covered(host, range));
+      const unsure = underClip(host) || opacity < 0.5 || behindOwnBox(host) || turnedAway(host) || (root === (document.body ?? document.documentElement) && covered(host, range));
       const into = unsure ? clipped : shown;
       const block = blockOf(host);
       into.set(block, [...(into.get(block) ?? []), value]);

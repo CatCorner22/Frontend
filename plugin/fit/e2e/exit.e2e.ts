@@ -300,6 +300,24 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(status).toBe(1);
   });
 
+  it('does not count a required text as found when a box that takes no clicks, a box drawn by a style rule, a place behind its own box, a turned-away side, or dots in place of letters hide it (retest finding R-S04)', async () => {
+    const pages = {
+      'a cover that takes no clicks': once(reference, '</body>', '<div style="position:fixed;inset:0;background:#ffffff;z-index:99999;pointer-events:none"></div></body>'),
+      // The Mockup of a Direction with grain draws its own faint box after the body; each value is forced, so that this one truly covers.
+      'a cover drawn after the body by a style rule': inHead('<style>body::after{content:"" !important;position:fixed !important;inset:0 !important;background:#ffffff !important;z-index:99999 !important;opacity:1 !important;mix-blend-mode:normal !important}</style>'),
+      'a cover drawn after the root by a style rule': inHead('<style>html::after{content:"";position:fixed;inset:0;background:#ffffff;z-index:99999}</style>'),
+      'the headline behind its own box': inHead('<style>.hero-copy{background:#fefaf1}h1{position:relative;z-index:-1}</style>'),
+      'the headline turned away': inHead('<style>h1{transform:rotateY(180deg);backface-visibility:hidden}</style>'),
+      'dots in place of the headline’s letters': inHead('<style>h1,h1 *{-webkit-text-security:disc}</style>'),
+    };
+    for (const [name, html] of Object.entries(pages)) {
+      const { receipt, status } = await fit({ files, html, browser });
+      const content = measure(receipt, 'content');
+      expect(content.deviations + content.notMeasured, name).toBeGreaterThan(0);
+      expect(status, name).toBe(1);
+    }
+  }, 180_000);
+
   it('does not say “no deviation” when the page holds a script, a noscript part, or a scripting rule and the program ran no script (retest findings R-S01, R-S02, R-U01)', async () => {
     const pages = {
       'a noscript part': inHead('<noscript><style>.late{display:none}</style></noscript>'),

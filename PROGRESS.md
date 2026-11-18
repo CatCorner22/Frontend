@@ -107,6 +107,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-18
+- Feature worked on (ID): none; retest finding R-S04, which the owner chose to repair first (SPEC.md section 2.29, point 7)
+- Result: passes in the Fit check's tests on this machine; GitHub's check on this commit is the full run
+- What it does: a required text no longer counts as found when a filled box that takes no clicks lies over it, when a filled box that a style rule draws (`::before`, `::after`) lies over it, when it stands behind the fill of its own box (negative z-index), or when its box shows its back and the page hides backs: each counts as not measured, with status 1. Letters drawn as dots count as missing.
+- Tests first: the test with six planted pages failed on its first page before the repair. One planted page was wrong and was corrected: the reviewer's cover on `body::after` did not truly hide the page in a Direction with grain, because the Mockup's own rule for that box made the white fill invisible; the test now forces each value so that the cover is real.
+- Evidence: `npm run check`: 374 unit tests passed. The Fit check's browser tests (Fit, exit, trials, look): 220 of 220 passed (1,294 seconds); among them every Direction's clean build still reports no deviation, so the new rules raise no false alarm there. The full `npm run e2e` was not run here (the Studio's code did not change).
+- Limits, said plainly: the place of a box that a style rule draws is worked out from its style values, not read from the browser, so an unusual placement can be missed or wrongly counted; a blend mode on a cover is not judged.
+- Open: 12 major findings of the retest (SPEC.md section 2.29).
+- Next: GitHub's check; then the merge to the main line (D77).
+
+- Date: 2026-11-18
 - Feature worked on (ID): none; the dependency audit (decision D79), at the owner's request ("Please fix picomatch", then the choice "1")
 - Result: passes on this machine; GitHub's check on this commit decides
 - What happened: GitHub's check was red on `523ae8e` and `4b95982` although every test step passed there. Its last step, the dependency audit, reported a new advisory against every version of `picomatch`, a helper of the build tools. No repaired version exists (newest: 4.0.7, affected), so no upgrade can fix it. With the owner's choice, the step now runs `scripts/audit-deps.mjs`: it fails on any high or critical advisory except this one, prints the exception on every run, and ends the exception by itself when a newer `picomatch` exists.
