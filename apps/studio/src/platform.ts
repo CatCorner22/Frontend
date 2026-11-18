@@ -672,7 +672,7 @@ export async function saveFile(filename: string, text: string | Uint8Array): Pro
 }
 
 /** A safe file name from a project name: lowercase letters, digits, and hyphens only. */
-export function fileNameFor(projectName: string, suffix = 'refraction.json'): string {
+export function fileNameFor(projectName: string, suffix = 'frontend-focus.json'): string {
   const base = projectName
     .normalize('NFKD')
     .toLowerCase()

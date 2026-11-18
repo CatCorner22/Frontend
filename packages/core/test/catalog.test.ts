@@ -726,7 +726,7 @@ describe('Craft rules: the fine details that the Studio adds by itself (SPEC.md 
     }
   });
 
-  it('holds every craft rule on the Mockup of every built-in Direction: the Mockup practices what the Prescription will ask for', () => {
+  it('holds every craft rule on the Mockup of every built-in Direction: the Mockup practices what the Vision will ask for', () => {
     for (const d of DIRECTIONS) {
       const html = page(d.params);
       for (const rule of CRAFT_RULES) expect(rule.holds(html, tokens(d.params)), `${d.id}: ${rule.name}`).toBe(true);
@@ -859,3 +859,16 @@ describe('Craft rules: the fine details that the Studio adds by itself (SPEC.md 
   });
 });
 
+describe('the names of the app and of the Vision (SPEC.md section 2.21; decision D75)', () => {
+  it('shows the old names nowhere in the source of the core, the Studio, or the Fit check', () => {
+    const sourceFiles = (dir: string): string[] =>
+      readdirSync(repoPath(dir), { withFileTypes: true }).flatMap((entry) =>
+        entry.isDirectory() ? sourceFiles(`${dir}/${entry.name}`) : /\.(ts|tsx|css|html|mjs)$/.test(entry.name) ? [`${dir}/${entry.name}`] : [],
+      );
+    const files = [...sourceFiles('packages/core/src'), ...sourceFiles('apps/studio/src'), ...sourceFiles('plugin/fit/src'), 'apps/studio/index.html', 'apps/studio/scripts/make-artifact.mjs'];
+    expect(files.length).toBeGreaterThanOrEqual(20);
+    // The capital letter marks a name that a reader sees. Lower-case `refraction` stays in the names under which the browser stores
+    // the owner's work and in the packages' names: changing those would lose saved work (decision D75).
+    for (const file of files) expect(readFileSync(repoPath(file), 'utf8').match(/Refraction|[Pp]rescription|PRESCRIPTION/)?.[0], file).toBeUndefined();
+  });
+});

@@ -1,4 +1,4 @@
-// The Fit check, first slice (SPEC.md section 2.10): a program measures a page against the Prescription.
+// The Fit check, first slice (SPEC.md section 2.10): a program measures a page against the Vision.
 // The reference build is the Mockup of the same project. A deviation on it is a defect of the program or of the Mockup.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -10,10 +10,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium, type Browser } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DIRECTIONS, applyDirection, createProject, writePrescription, type Project } from '@refraction/core';
+import { DIRECTIONS, applyDirection, createProject, writeVision, type Project } from '@refraction/core';
 import { contrastRatio, parseRgba } from '../src/color.ts';
+import { built } from './built.ts';
 import { FitError, fit, type FitInput, type Receipt } from '../src/fit.ts';
-import { cssValues, fingerprintOf, readDesignValues } from '../src/prescription.ts';
+import { cssValues, fingerprintOf, readDesignValues } from '../src/vision.ts';
 
 const LOCAL_BROWSER = process.env['PW_CHROMIUM'] ? { executablePath: process.env['PW_CHROMIUM'] } : {};
 let browser: Browser;
@@ -26,7 +27,7 @@ afterAll(async () => {
 
 const SIX = ['requests', 'colors', 'typefaces', 'radii', 'content', 'width'] as const;
 type Files = Record<string, string>;
-const filesOf = (project: Project): Files => ({ ...writePrescription(project) });
+const filesOf = (project: Project): Files => ({ ...writeVision(project) });
 const inputOf = (files: Files, html: string, extra: Partial<FitInput> = {}): FitInput => ({ files, html, browser, ...extra });
 const measure = (receipt: Receipt, id: string) => {
   const found = receipt.measured.find((m) => m.id === id);
@@ -35,7 +36,7 @@ const measure = (receipt: Receipt, id: string) => {
 };
 const deviationsOf = (receipt: Receipt): Record<string, number> => Object.fromEntries(SIX.map((id) => [id, measure(receipt, id).deviations]));
 const NONE = { requests: 0, colors: 0, typefaces: 0, radii: 0, content: 0, width: 0 };
-const measureTitles = ['Requests: the page asks for nothing from another site', 'Colors: every color that the page draws is a color of the Prescription', 'Typefaces: every text names a typeface of the Prescription', 'Corner radii: every drawn box uses a radius of the Prescription', 'Contrast: measured, not required', 'Content: the three required texts of the Brief are where a person can read them', 'Width: the page is not wider than its window'];
+const measureTitles = ['Requests: the page asks for nothing from another site', 'Colors: every color that the page draws is a color of the Vision', 'Typefaces: every text names a typeface of the Vision', 'Corner radii: every drawn box uses a radius of the Vision', 'Contrast: measured, not required', 'Content: the three required texts of the Brief are where a person can read them', 'Width: the page is not wider than its window', 'Floors: the part of each requirement that a program can check'];
 const replaceOnce = (text: string, from: string, to: string): string => {
   expect(text.split(from).length - 1, `"${from}" must stand in the page at least once to be damaged`).toBeGreaterThanOrEqual(1);
   return text.replace(from, to);
@@ -48,8 +49,10 @@ describe('Fit check: the reference build', () => {
     const faults: string[] = [];
     for (const [name, project] of projects) {
       const files = filesOf(project);
-      const { receipt, status } = await fit(inputOf(files, files['mockup.html'] ?? ''));
+      // The reference build is the Mockup made into a built page (see built.ts); the Mockup itself is a still page.
+      const { receipt, status } = await fit(inputOf(files, built(files['mockup.html'] ?? '')));
       const seen = deviationsOf(receipt);
+      if (measure(receipt, 'floors').deviations > 0) faults.push(`${name}: ${measure(receipt, 'floors').items.join(' | ')}`);
       if (status !== 0 || JSON.stringify(seen) !== JSON.stringify(NONE)) faults.push(`${name}: status ${String(status)}, ${JSON.stringify(seen)}, ${SIX.flatMap((id) => measure(receipt, id).items.slice(0, 2)).join(' | ')}`);
       if (receipt.measured.some((m) => m.notMeasured > 0 && m.id !== 'contrast')) faults.push(`${name}: something was not measured`);
       if (measure(receipt, 'requests').information.length > 0) faults.push(`${name}: the Mockup names something that it does not ship`);
@@ -61,7 +64,7 @@ describe('Fit check: the reference build', () => {
 describe('Fit check: eight damages, each reported', () => {
   const project = createProject('Damage');
   const files = filesOf(project);
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   const tokens = JSON.parse(files['tokens.json'] ?? '{}') as { color: Record<string, { $value: { hex: string } }>; typeface: Record<string, { $value: string[] }> };
   const accent = tokens.color['accent']?.$value.hex ?? '';
   const bgHex = tokens.color['bg']?.$value.hex ?? '';
@@ -108,7 +111,7 @@ describe('Fit check: eight damages, each reported', () => {
 
   it('the headline removed', async () => {
     const { receipt } = await run(mockup.replace(/<h1>[\s\S]*?<\/h1>/, '<h1></h1>'));
-    // One line for the headline, which names every reading in which it is missing, at both window widths (SPEC.md sections 2.15, point 11, and 2.19).
+    // One line for the headline, which names every window width at which it is missing (SPEC.md sections 2.15, point 11, and 2.19).
     expect(measure(receipt, 'content').deviations).toBe(1);
     expect(measure(receipt, 'content').items.join('\n')).toContain('headline');
     expect(measure(receipt, 'content').items.join('\n')).toMatch(/375 pixels[\s\S]*1280 pixels/);
@@ -131,7 +134,7 @@ describe('Fit check: eight damages, each reported', () => {
 
 describe('Fit check: refusals and faults of the build', () => {
   const files = filesOf(createProject('Refusals'));
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   const refuse = async (input: FitInput, words: RegExp): Promise<void> => {
     const error = await fit(input).then(() => undefined, (e: unknown) => e);
     expect(error).toBeInstanceOf(FitError);
@@ -153,11 +156,11 @@ describe('Fit check: refusals and faults of the build', () => {
     await refuse(inputOf(files, 'Just some words, no page.'), /HTML/);
   });
 
-  it('records a page that never finishes loading, marks both window widths "not measured", and ends with status 1', async () => {
+  it('records a page that never finishes loading, marks every window width "not measured", and ends with status 1', async () => {
     const { receipt, status } = await fit(inputOf(files, '<!doctype html><html><body><script>for(;;){}</script></body></html>', { loadTimeoutMs: 1500, runScripts: true }));
     expect(status).toBe(1);
     // Each width is read with reduced motion and with motion allowed (campaign A2, decision D71): all four readings fail, two per width.
-    expect(receipt.loadFailures.map((f) => f.width).sort((a, b) => a - b)).toEqual([375, 375, 1280, 1280]);
+    expect(receipt.loadFailures.map((f) => f.width).sort((a, b) => a - b)).toEqual([375, 375, 768, 768, 1280, 1280]);
     // "Not measured" is never "no deviation": every measure says that both windows were not measured, and the status is 1.
     for (const m of receipt.measured) expect(m.notMeasured, m.id).toBeGreaterThanOrEqual(2);
   }, 60_000);
@@ -211,11 +214,11 @@ describe('Fit check: refusals and faults of the build', () => {
 
 describe('Fit check: a file at the site’s own address is information, a request to another site is a deviation (SPEC.md section 2.13)', () => {
   const files = filesOf(createProject('Own address'));
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   const run = (extra: string, where: '</head>' | '</body>' = '</body>') => fit(inputOf(files, replaceOnce(mockup, where, `${extra}${where}`)));
 
   it('lists a font file, a style sheet, and a form action at the site’s own address as "Not shipped with the page", with no deviation and status 0', async () => {
-    const { receipt, markdown, status } = await run('<style>@font-face{font-family:"Own";src:url(/fonts/own.woff2) format("woff2")}</style><link rel="stylesheet" href="/site.css"><form action="/send"></form><img src="pictures/a.png" alt="">');
+    const { receipt, markdown, status } = await run('<style>@font-face{font-family:"Own";src:url(/fonts/own.woff2) format("woff2");font-display:swap}</style><link rel="stylesheet" href="/site.css"><form action="/send" method="post"></form><img src="pictures/a.png" alt="" width="10" height="10">');
     const requests = measure(receipt, 'requests');
     expect(requests.deviations).toBe(0);
     expect(status).toBe(0);
@@ -266,10 +269,10 @@ describe('Fit check: a file at the site’s own address is information, a reques
 
 describe('Fit check: what a page shows only to the check, or only to people (campaign A2, findings J-1, J-3 to J-7, J-17 to J-20)', () => {
   const files = filesOf(createProject('Campaign A2'));
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   // The Mockup's own security policy forbids scripts; a build of the owner's may drop that policy, so the scripted pages do.
   const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
-  const run = (html: string) => fit(inputOf(files, html));
+  const run = (html: string) => fit(inputOf(files, html, { runScripts: true }));
   const withStyle = (css: string): string => replaceOnce(mockup, '</head>', `<style>${css}</style></head>`);
   const withScript = (js: string): string => replaceOnce(open, '</body>', `<script>${js}</script></body>`);
 
@@ -364,7 +367,7 @@ describe('Fit check: what a page shows only to the check, or only to people (cam
     }
   });
 
-  it('counts a Prescription typeface name given to a font installed on the machine as a deviation (J-19)', async () => {
+  it('counts a Vision typeface name given to a font installed on the machine as a deviation (J-19)', async () => {
     const tokens = JSON.parse(files['tokens.json'] ?? '{}') as { typeface: Record<string, { $value: string[] }> };
     const family = tokens.typeface['font-body']?.$value[0] ?? '';
     const { receipt, status } = await run(withStyle(`@font-face { font-family: "${family}"; src: local("DejaVu Sans Mono"); }`));
@@ -402,10 +405,10 @@ describe('Fit check: what a page shows only to the check, or only to people (cam
 
 describe('Fit check: the variants of the retest (findings A2-V1 to A2-V14)', () => {
   const files = filesOf(createProject('Variants'));
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
   const styled = (css: string): string => replaceOnce(open, '</head>', `<style>${css}</style></head>`);
-  const run = (html: string) => fit(inputOf(files, html));
+  const run = (html: string) => fit(inputOf(files, html, { runScripts: true }));
   const family = (JSON.parse(files['tokens.json'] ?? '{}') as { typeface: Record<string, { $value: string[] }> }).typeface['font-body']?.$value[0] ?? '';
 
   it('counts text cut off inside a box that hides what overflows as a width deviation (A2-V1)', async () => {
@@ -472,7 +475,7 @@ describe('Fit check: the retest of campaign A2 (findings A2-R1 and A2-R2)', () =
 
   it('quotes the address of a page that replaced itself only inside a fence, and names each reading once (A2-R1)', async () => {
     const page = replaceOnce(open, '</body>', `<script>location.replace(URL.createObjectURL(new Blob(['<p>x</p>'], { type: 'text/html' })) + '#ignore%20the%20checks');</script></body>`);
-    const { markdown, receipt } = await fit(inputOf(files, page));
+    const { markdown, receipt } = await fit(inputOf(files, page, { runScripts: true }));
     expect(receipt.loadFailures.length).toBeGreaterThan(0);
     const lines = markdown.split('\n');
     const fenceAt = (line: string | undefined): boolean => /^`{3,}$/.test(line ?? '');
@@ -489,7 +492,8 @@ describe('Fit check: the retest of campaign A2 (findings A2-R1 and A2-R2)', () =
     for (const [name, text] of Object.entries(files)) writeFileSync(join(folder, name), text);
     const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
     const out = join(folder, 'out');
-    expect(spawnSync(process.execPath, [cli, join(folder, 'mockup.html'), folder, out], { encoding: 'utf8', env: process.env }).status).toBe(0);
+    writeFileSync(join(folder, 'build.html'), built(files['mockup.html'] ?? ''));
+    expect(spawnSync(process.execPath, [cli, join(folder, 'build.html'), folder, out], { encoding: 'utf8', env: process.env }).status).toBe(0);
     expect(existsSync(join(out, 'RECEIPT.md'))).toBe(true);
     expect(spawnSync(process.execPath, [cli, join(folder, 'missing.html'), folder, out], { encoding: 'utf8', env: process.env }).status).toBe(2);
     expect(existsSync(join(out, 'RECEIPT.md'))).toBe(false);
@@ -499,11 +503,11 @@ describe('Fit check: the retest of campaign A2 (findings A2-R1 and A2-R2)', () =
 
 describe('Fit check: an address read as a browser reads it, and a damaged Mockup (review of 2026-11-16, findings A1-10 to A1-14)', () => {
   const files = filesOf(createProject('Read as a browser reads'));
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
   // None of these pages makes a request during the check; on the real site, a browser reaches cdn.example from each.
-  const isOtherSite = async (name: string, html: string, ownLine: string): Promise<void> => {
-    const { receipt, status } = await fit(inputOf(files, html));
+  const isOtherSite = async (name: string, html: string, ownLine: string, runScripts = false): Promise<void> => {
+    const { receipt, status } = await fit(inputOf(files, html, { runScripts }));
     expect(measure(receipt, 'requests').deviations, name).toBeGreaterThan(0);
     expect(measure(receipt, 'requests').information.join('\n'), name).not.toContain(ownLine);
     expect(status, name).toBe(1);
@@ -517,7 +521,7 @@ describe('Fit check: an address read as a browser reads it, and a damaged Mockup
     await isOtherSite('upper case', replaceOnce(mockup, '</head>', '<style>a:hover{background:URL(https://cdn.example/a.png)}</style></head>'), 'cdn.example');
     await isOtherSite('escape in the word', replaceOnce(mockup, '</head>', '<style>a:hover{background:u\\72l(https://cdn.example/b.png)}</style></head>'), 'cdn.example');
     await isOtherSite('image-set', replaceOnce(mockup, '</head>', '<style>a:hover{background-image:image-set("https://cdn.example/c.png" 1x)}</style></head>'), 'cdn.example');
-    await isOtherSite('added by a script', replaceOnce(open, '</body>', '<script>document.styleSheets[0].insertRule("a:hover{background:url(https://cdn.example/d.png)}")</script></body>'), 'cdn.example');
+    await isOtherSite('added by a script', replaceOnce(open, '</body>', '<script>document.styleSheets[0].insertRule("a:hover{background:url(https://cdn.example/d.png)}")</script></body>'), 'cdn.example', true);
   });
 
   it('counts an address that names a scheme as another site, with or without two slashes (A1-12)', async () => {
@@ -565,14 +569,14 @@ describe('Fit check: no way out of the page, and no color skipped (audit of 2026
   });
 
   const files = filesOf(createProject('No way out'));
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   const page = (script: string): string => `<!doctype html><html><head><title>Escape</title></head><body><p>Words</p><script>${script}</script></body></html>`;
   const settle = (): Promise<void> => new Promise((done) => setTimeout(done, 1500));
 
   it('stops a WebSocket, a window that the page opens, and a navigation away, and lists each one', async () => {
     reached.length = 0;
     const script = `new WebSocket('ws://${base}/socket'); window.open('http://${base}/window'); setTimeout(() => { location.href = 'http://${base}/away'; }, 0);`;
-    const { receipt, status } = await fit(inputOf(files, page(script)));
+    const { receipt, status } = await fit(inputOf(files, page(script), { runScripts: true }));
     await settle();
     expect(reached, 'nothing may reach the server').toEqual([]);
     const listed = measure(receipt, 'requests').items.join('\n');
@@ -583,7 +587,7 @@ describe('Fit check: no way out of the page, and no color skipped (audit of 2026
   it('keeps the requests of a window width that could not be read', async () => {
     reached.length = 0;
     // The page asks for a picture and then never answers, so the window cannot be read; the request must still be listed.
-    const { receipt, status } = await fit(inputOf(files, page(`new Image().src = 'http://${base}/before-the-freeze'; setTimeout(() => { for (;;) {} }, 0);`), { loadTimeoutMs: 1500 }));
+    const { receipt, status } = await fit(inputOf(files, page(`new Image().src = 'http://${base}/before-the-freeze'; setTimeout(() => { for (;;) {} }, 0);`), { loadTimeoutMs: 1500, runScripts: true }));
     await settle();
     expect(reached).toEqual([]);
     expect(receipt.loadFailures.length).toBeGreaterThan(0);
@@ -605,7 +609,7 @@ describe('Fit check: no way out of the page, and no color skipped (audit of 2026
     const family = tokens.typeface['font-body']?.$value[0] ?? '';
     const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
     const wrong = open.replace('</head>', '<style>body, body * { font-family: Papyrus !important; }</style></head>');
-    // The script answers every question about a typeface with the Prescription's own typeface.
+    // The script answers every question about a typeface with the Vision's own typeface.
     const forger = `<script>const real = window.getComputedStyle; window.getComputedStyle = (el, p) => new Proxy(real(el, p), { get(t, k) { if (k === 'fontFamily') return ${JSON.stringify(family)}; const v = Reflect.get(t, k); return typeof v === 'function' ? v.bind(t) : v; } });</script>`;
     const plain = await fit(inputOf(files, wrong));
     const forged = await fit(inputOf(files, wrong.replace('</body>', `${forger}</body>`)));
@@ -615,7 +619,7 @@ describe('Fit check: no way out of the page, and no color skipped (audit of 2026
     expect(forged.status).toBe(1);
   });
 
-  it('reads a Prescription color written as rgb() with spaces exactly as the same color', async () => {
+  it('reads a Vision color written as rgb() with spaces exactly as the same color', async () => {
     const tokens = JSON.parse(files['tokens.json'] ?? '{}') as { color: Record<string, { $value: { hex: string } }> };
     const hex = tokens.color['text']?.$value.hex ?? '';
     expect(hex).toMatch(/^#[0-9a-f]{6}$/);
@@ -627,7 +631,7 @@ describe('Fit check: no way out of the page, and no color skipped (audit of 2026
 
 describe('Fit check: a hostile page (SPEC.md section 2.15; findings X7-01 to X7-04, X7-06 to X7-08)', () => {
   const files = filesOf(createProject('Hostile'));
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
   const withBody = (html: string): string => replaceOnce(open, '</body>', `${html}</body>`);
   const HEADINGS = ['Fit check receipt', 'Measured', 'Judged by the model', 'Still needs a person'];
@@ -642,10 +646,10 @@ describe('Fit check: a hostile page (SPEC.md section 2.15; findings X7-01 to X7-
 
   it('gives the same measures for a page that replaces the browser’s own functions as for the same page without that replacement, with the page’s scripts run and not run', async () => {
     const wrong = '<div style="background:#ff0000;width:40px;height:40px;border-radius:13px"></div><p style="font-family:Papyrus">x</p>';
-    const plain = await fit(inputOf(files, withBody(wrong)));
+    const plain = await fit(inputOf(files, withBody(wrong), { runScripts: true }));
     const hostilePage = withBody(`${wrong}<script>Document.prototype.querySelectorAll=function(){return []};Element.prototype.getClientRects=function(){return []};window.getComputedStyle=function(){throw new Error("x")};Array.prototype.push=function(){return 0}</script>`);
-    // The program reads the page from a world of its own, so the page's scripts, which run by default, cannot change what it reads.
-    const hostile = await fit(inputOf(files, hostilePage));
+    // The program reads the page from a world of its own, so the page's scripts, which run here on request, cannot change what it reads.
+    const hostile = await fit(inputOf(files, hostilePage, { runScripts: true }));
     // With scripts not run, the program reads the markup as it stands, and the page cannot change anything.
     const off = await fit(inputOf(files, hostilePage, { runScripts: false }));
     for (const seen of [hostile, off]) {
@@ -661,10 +665,13 @@ describe('Fit check: a hostile page (SPEC.md section 2.15; findings X7-01 to X7-
     expect(off.markdown).toContain('The program did not run the page’s scripts.');
   });
 
-  it('says, with the default, that the page’s scripts ran and that the program read the page from a world of its own', async () => {
-    const { receipt, markdown } = await fit(inputOf(files, withBody('<script>1</script>')));
+  it('says, with the default, that the page’s scripts did not run; and, when asked to run them, that they ran and that the program read the page from a world of its own', async () => {
+    const still = await fit(inputOf(files, withBody('<script>1</script>')));
+    expect(still.receipt.scriptsRan).toBe(false);
+    expect(still.markdown).toContain('The program did not run the page’s scripts.');
+    const { receipt, markdown } = await fit(inputOf(files, withBody('<script>1</script>'), { runScripts: true }));
     expect(receipt.scriptsRan).toBe(true);
-    expect(markdown).toContain('The program ran the page’s scripts');
+    expect(markdown).toContain('The program ran the page’s scripts, on request');
     expect(markdown).toContain('from a world of its own that those scripts cannot reach');
   });
 
@@ -721,12 +728,12 @@ describe('Fit check: a hostile page (SPEC.md section 2.15; findings X7-01 to X7-
 
 describe('Fit check: more ways to name another site, and colors that cannot be read (SPEC.md section 2.15, points 6 to 11)', () => {
   const files = filesOf(createProject('More ways'));
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   const run = (extra: string, runScripts = false) => fit(inputOf(files, replaceOnce(mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, ''), '</body>', `${extra}</body>`), { runScripts }));
 
   it('counts a color in a notation that the program cannot read as not measured, and says so', async () => {
     // The page's own browser turns a color in oklch(), lab(), and the other newer notations into sRGB, so the program reads them (audit finding A1-03).
-    // A color that is read and is not the Prescription's is a deviation; nothing is passed over in silence.
+    // A color that is read and is not the Vision's is a deviation; nothing is passed over in silence.
     const { receipt } = await run('<p style="color: lab(50% 40 59.5)">x</p>');
     expect(measure(receipt, 'colors').notMeasured).toBe(0);
     expect(measure(receipt, 'colors').items.join('\n')).toMatch(/text color #[0-9a-f]{6}/);
@@ -769,7 +776,7 @@ describe('Fit check: more ways to name another site, and colors that cannot be r
 
 describe('Fit check: faults that no test caught (the seventh review’s test auditor, rows Q7-nn)', () => {
   const files = filesOf(createProject('Gaps'));
-  const mockup = files['mockup.html'] ?? '';
+  const mockup = built(files['mockup.html'] ?? '');
   const open = mockup.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '');
   const put = (extra: string, runScripts = false, where: '</head>' | '</body>' = '</body>') => fit(inputOf(files, replaceOnce(open, where, `${extra}${where}`), { runScripts }));
   const lines = (receipt: Receipt, id: string): string => measure(receipt, id).items.join('\n');
@@ -815,8 +822,8 @@ describe('Fit check: faults that no test caught (the seventh review’s test aud
   it('counts a text under a partly transparent box and a text on a gradient as not measured, and says why', async () => {
     const base = await put('');
     const odd = await put('<p style="opacity:0.5">Faded</p><p style="background:linear-gradient(#000000,#ffffff)">Gradient</p>');
-    // Two texts, each read at both widths and in three readings of each: twelve readings that could not be measured.
-    expect(measure(odd.receipt, 'contrast').notMeasured - measure(base.receipt, 'contrast').notMeasured).toBe(12);
+    // Two texts, each read at three widths and in three readings of each: eighteen readings that could not be measured.
+    expect(measure(odd.receipt, 'contrast').notMeasured - measure(base.receipt, 'contrast').notMeasured).toBe(18);
     expect(measure(odd.receipt, 'contrast').note).toContain('partly transparent');
     expect(measure(odd.receipt, 'contrast').note).toContain('gradient');
   });
@@ -852,7 +859,7 @@ describe('Fit check: faults that no test caught (the seventh review’s test aud
     expect(lines(wide.receipt, 'width')).toContain('1280');
     expect(lines(wide.receipt, 'width')).not.toContain('375 pixels');
     const slight = await put('<div style="width:calc(100vw + 5px);height:1px"></div>');
-    expect(measure(slight.receipt, 'width').deviations).toBe(2);
+    expect(measure(slight.receipt, 'width').deviations).toBe(3);
   });
 
   it('counts the elements at the window width where there are most', async () => {
@@ -862,8 +869,8 @@ describe('Fit check: faults that no test caught (the seventh review’s test aud
 
   it('names the windows, the widths, and the six lines of "Still needs a person" in every receipt', async () => {
     const { receipt, markdown } = await put('');
-    expect(receipt.widths).toEqual([375, 1280]);
-    expect(markdown).toContain('375 and 1280 pixels');
+    expect(receipt.widths).toEqual([375, 768, 1280]);
+    expect(markdown).toContain('375, 768, 1280 pixels');
     expect(receipt.stillNeedsPerson.length).toBeGreaterThanOrEqual(6);
     for (const line of receipt.stillNeedsPerson) expect(markdown).toContain(line);
   });
@@ -901,15 +908,15 @@ describe('Fit check: faults that no test caught (the seventh review’s test aud
     expect(markdown).toContain('the page did not finish loading within 1000 milliseconds');
   });
 
-  it('refuses a build of white space only, a tokens.json that is not JSON, and a fingerprint that differs in PRESCRIPTION.md or in mockup.html', async () => {
+  it('refuses a build of white space only, a tokens.json that is not JSON, and a fingerprint that differs in VISION.md or in mockup.html', async () => {
     await refuse(inputOf(files, '   \n  '), /empty/i);
     await refuse(inputOf({ ...files, 'tokens.json': '{ not json' }, open), /JSON/);
     const other = filesOf(applyDirection(createProject('Other'), DIRECTIONS[0] ?? 'paper-and-ink'));
-    await refuse(inputOf({ ...files, 'PRESCRIPTION.md': other['PRESCRIPTION.md'] ?? '' }, open), /fingerprint[\s\S]*PRESCRIPTION\.md/i);
+    await refuse(inputOf({ ...files, 'VISION.md': other['VISION.md'] ?? '' }, open), /fingerprint[\s\S]*VISION\.md/i);
     await refuse(inputOf({ ...files, 'mockup.html': other['mockup.html'] ?? '' }, open), /fingerprint[\s\S]*mockup\.html/i);
   });
 
-  it('reads a radius that the Prescription gives in rem as 16 pixels to the rem', () => {
+  it('reads a radius that the Vision gives in rem as 16 pixels to the rem', () => {
     const tokens = JSON.parse(files['tokens.json'] ?? '{}') as { dimension: Record<string, { $value: { value: number; unit: string } }> };
     const radius = tokens.dimension['radius-control'];
     if (!radius) throw new Error('no radius-control');
@@ -922,7 +929,7 @@ describe('Fit check: faults that no test caught (the seventh review’s test aud
     const fresh = fingerprintOf(cssValues(css));
     expect(fresh).not.toBe(old);
     const swap = (text: string | undefined): string => (text ?? '').split(old).join(fresh);
-    const changed = { ...files, 'tokens.json': swap(JSON.stringify(tokens)), 'tokens.css': swap(css), 'PRESCRIPTION.md': swap(files['PRESCRIPTION.md']), 'mockup.html': swap(files['mockup.html']) };
+    const changed = { ...files, 'tokens.json': swap(JSON.stringify(tokens)), 'tokens.css': swap(css), 'VISION.md': swap(files['VISION.md']), 'mockup.html': swap(files['mockup.html']) };
     expect(readDesignValues(changed).radii.has(8)).toBe(true);
   });
 });
@@ -976,7 +983,9 @@ describe('Fit check: the command line', () => {
   const folder = mkdtempSync(join(tmpdir(), 'fit-files-'));
   const files = filesOf(createProject('Command line'));
   for (const [name, text] of Object.entries(files)) writeFileSync(join(folder, name), text);
-  const build = join(folder, 'mockup.html');
+  // The build is the reference build: the Mockup made into a built page (see built.ts).
+  const build = join(folder, 'build.html');
+  writeFileSync(build, built(files['mockup.html'] ?? ''));
   const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
   const run = (args: string[]) => spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8', env: process.env });
 

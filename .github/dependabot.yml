@@ -17,3 +17,11 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+  # The outside validators have their own lock file (decision D64); watch them too (M6 gate review, finding T8-09).
+  - package-ecosystem: npm
+    directory: /validators
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 2

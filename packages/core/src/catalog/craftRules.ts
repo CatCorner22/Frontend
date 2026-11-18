@@ -2,7 +2,7 @@
 //
 // A skilled person's page differs from a generic one in details that nobody asks for: numbers in a price list stand digit
 // under digit, a heading breaks into even lines, a pressed button gives a little, a keyboard user sees where the focus is.
-// The owner does not choose these; the Mockup has them, and the Prescription asks the AI coding tool for them.
+// The owner does not choose these; the Mockup has them, and the Vision asks the AI coding tool for them.
 //
 // Each record holds texts for two readers. `name`, `what`, and `now` are for the owner, in plain words. `instruction` is
 // for the AI coding tool that builds the page and uses the exact terms of the trade, because such a tool needs them.
@@ -34,7 +34,7 @@ export interface CraftRule {
   name: string;
   /** What it is and why a person notices its absence, in plain words. */
   what: string;
-  /** What the AI coding tool must do in this design, in exact terms. Written into the Prescription. */
+  /** What the AI coding tool must do in this design, in exact terms. Written into the Vision. */
   instruction(params: DesignParams, tokens: Values): string;
   /** The exact text in the Mockup's style sheet that the check rests on. */
   detail: string;

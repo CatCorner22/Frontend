@@ -768,7 +768,7 @@ export type ParseResult =
   | { ok: false; error: string };
 
 // Every message is fixed text. A message never repeats content from the file.
-const NOT_A_PROJECT = 'This is not a Refraction project file.';
+const NOT_A_PROJECT = 'This is not a Frontend Focus project file.';
 const NEWER_VERSION = 'A newer version of the Studio made this file, and this version cannot read it.';
 const SECTIONS = ['name', 'template', 'a11y', 'direction', 'base', 'params', 'decisions', 'content', 'brief', 'overlays', 'skin'] as const;
 /** What each part of a project file holds, in plain words, for the message that refuses a damaged file (finding U2-21). The words are fixed; nothing from the file is repeated. */
@@ -858,7 +858,7 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   const reachable = withinReach(data.params as unknown as DesignParams);
   const params = reachable.params;
   // The file's own record of where the project started is kept, also where it differs from today's Catalog: a project saved under
-  // an older Catalog keeps its start (the typefaces' test). PRESCRIPTION.md says so where the two differ (campaign A2, J-9).
+  // an older Catalog keeps its start (the typefaces' test). VISION.md says so where the two differ (campaign A2, J-9).
   const base = withinReach(data.base as unknown as DesignParams).params;
   const notes: string[] = [];
   if (reachable.moved > 0) notes.push(reachable.moved === 1 ? 'One design value in the file lay outside what the Studio can set. The Studio brought it to the nearest value that it can set, and the design changed with it.' : `${reachable.moved} design values in the file lay outside what the Studio can set. The Studio brought each to the nearest value that it can set, and the design changed with them.`);
@@ -913,12 +913,12 @@ function normalize(data: z.infer<typeof projectSchema>, migrated: boolean): { pr
   const loadedAnswers = Object.fromEntries(BRIEF_KEYS.flatMap((key) => (data.brief?.[key] ? [[key, data.brief[key]]] : []))) as Brief;
   // The texts of the page and the answers are cleaned as typed text is cleaned: a file is not a way around the cleaning (finding X7-05).
   const cleaned = cleanLoaded(data.content, Object.keys(loadedAnswers).length > 0 ? loadedAnswers : undefined);
-  if (cleaned.changed > 0) notes.push(cleaned.changed === 1 ? 'One of the texts of the page or of the answers in the file held signs that do not show, a line break, or more characters than is allowed. The Studio cleaned it.' : `${String(cleaned.changed)} of the texts of the page or of the answers in the file held signs that do not show, line breaks, or more characters than is allowed. The Studio cleaned them.`);
+  // The project's name too: every file cleans it when it writes it, but the project in memory keeps nothing that nobody sees (A2-R3).
+  const name = visibleText(data.name);
+  const changedTexts = cleaned.changed + (name === data.name ? 0 : 1);
+  if (changedTexts > 0) notes.push(changedTexts === 1 ? 'One text in the file held hidden signs, a line break, or more characters than the page allows. The Studio cleaned it.' : `${changedTexts} texts in the file held hidden signs, line breaks, or more characters than the page allows. The Studio cleaned them.`);
   if (cleaned.replaced > 0) notes.push(cleaned.replaced === 1 ? 'One text in the file held nothing that a person can see. The sample’s words stand in its place.' : `${cleaned.replaced} texts in the file held nothing that a person can see. The sample’s words stand in their place.`);
   const brief = cleaned.brief;
-  // The project's name, too: every file cleans it when it writes it, but the project in memory should not keep what nobody sees (campaign A2, finding A2-R3).
-  const name = visibleText(data.name);
-  if (name !== data.name) notes.push('The project’s name in the file held signs that do not show. The Studio cleaned it.');
   // Overlays: those of the file that this Catalog has, each once, in the Catalog's order.
   const listed = data.overlays ?? [];
   const overlays = OVERLAYS.map((overlay) => overlay.id).filter((id) => listed.includes(id));

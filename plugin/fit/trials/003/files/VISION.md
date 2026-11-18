@@ -1,8 +1,8 @@
-# Prescription: the design of one website
+# Vision: the design of one website
 
-This file is an instruction for an AI coding tool. Refraction Studio wrote it from the Decisions that the owner made, one Step at a time. It is one file of the Prescription; section 8 says what it leaves out.
+This file is an instruction for an AI coding tool. Frontend Focus Studio wrote it from the Decisions that the owner made, one Step at a time. It is one file of the Vision; section 8 says what it leaves out.
 
-Fingerprint of the design values: `7776d35d`. Every file of this Prescription carries the same eight characters; where one differs, the files do not belong together.
+Fingerprint of the design values: `7776d35d`. Every file of this Vision carries the same eight characters; where one differs, the files do not belong together.
 
 ## How to read this file
 
@@ -376,7 +376,7 @@ What the page itself must and must not contain, so that nothing on it can be use
 - **S10.** Each form field uses the right `type` (`email`, `tel`, `password`) and a valid `autocomplete` token (`name`, `email`, `tel`, `new-password`, `current-password`). The page sets `autocomplete="off"` only on one-time-code or similar fields, never on ordinary contact fields.
   - A person must still check: Test with a real browser and a password manager. (This row is about correct form markup; it is not a claim about accessibility.)
   - Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete (“consider using autocomplete=”; a published standard states it; long-standing convention)
-- **S11.** Every text field and text area has a length limit (`maxlength`), and typed fields use the matching `type`, `pattern`, `min`, or `max` where one applies. The Prescription also states, in words, that the receiving endpoint must check every field again.
+- **S11.** Every text field and text area has a length limit (`maxlength`), and typed fields use the matching `type`, `pattern`, `min`, or `max` where one applies. The Vision also states, in words, that the receiving endpoint must check every field again.
   - A person must still check: Whether the real endpoint checks the fields (the page cannot show this).
   - Source: https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Input_validation (“So you must also validate input on the server, before processing it.”; long-standing convention)
 
@@ -394,7 +394,7 @@ Settings that the place that serves the page must make. A page of one file canno
   - A person must still check: Whether error pages (404, 500) also carry the headers (a program can request one deliberately).
   - Source: https://web.dev/articles/security-headers (“X-Content-Type-Options: nosniff is recommended for all resources served from your server along with the correct Content-Type header.”; long-standing convention)
 - **H4.** The page's response carries `Content-Security-Policy: frame-ancestors 'none'` (or `'self'` if the owner wants it framed by the same site), and also `X-Frame-Options: DENY` as a fallback. A `<meta>` tag does not meet this.
-  - A person must still check: Whether the host can send these headers at all. Where it cannot, the owner must accept that the page may be framed, and the Prescription must say so.
+  - A person must still check: Whether the host can send these headers at all. Where it cannot, the owner must accept that the page may be framed, and the Vision must say so.
   - Source: https://cheatsheetseries.owasp.org/cheatsheets/Clickjacking_Defense_Cheat_Sheet.html (“which must be configured as an HTTP Response Header, not in a <meta> tag.”; long-standing convention)
 - **H5.** The page's response carries a `Permissions-Policy` that switches off browser features the page does not use, at least `geolocation=(), camera=(), microphone=()`.
   - A person must still check: Whether the page truly needs any of those features (a store locator may need geolocation).

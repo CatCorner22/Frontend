@@ -1,6 +1,6 @@
 import { crc32 } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { PRESCRIPTION_FILES, applyDirection, createProject, writePrescription, zipFiles } from '../src/index.js';
+import { VISION_FILES, applyDirection, createProject, writeVision, zipFiles } from '../src/index.js';
 
 /** Read an archive as any unpacking program does: from the list at its end. Returns each file's name and text. */
 export function unzip(bytes: Uint8Array): Record<string, string> {
@@ -29,11 +29,11 @@ export function unzip(bytes: Uint8Array): Record<string, string> {
   return out;
 }
 
-describe('One archive file for the whole Prescription (SPEC.md section 2.9)', () => {
+describe('One archive file for the whole Vision (SPEC.md section 2.9)', () => {
   it('holds every file under its name, letter for letter, with a check sum that an unpacking program accepts', () => {
-    const files = writePrescription(applyDirection(createProject('Harbor Street Dental'), 'paper-and-ink'));
-    expect(Object.keys(files)).toEqual([...PRESCRIPTION_FILES]);
-    expect(PRESCRIPTION_FILES).toEqual(['PRESCRIPTION.md', 'DESIGN.md', 'tokens.css', 'tokens.json', 'theme.css', 'mockup.html', 'FONTS.md']);
+    const files = writeVision(applyDirection(createProject('Harbor Street Dental'), 'paper-and-ink'));
+    expect(Object.keys(files)).toEqual([...VISION_FILES]);
+    expect(VISION_FILES).toEqual(['VISION.md', 'DESIGN.md', 'tokens.css', 'tokens.json', 'theme.css', 'mockup.html', 'FONTS.md']);
     const archive = zipFiles(files);
     expect(unzip(archive)).toEqual(files);
     // The same files give the same archive, byte for byte: it carries no date of its own.

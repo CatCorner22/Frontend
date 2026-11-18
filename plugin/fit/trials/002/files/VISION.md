@@ -1,8 +1,8 @@
-# Prescription: the design of one website
+# Vision: the design of one website
 
-This file is an instruction for an AI coding tool. Refraction Studio wrote it from the Decisions that the owner made, one Step at a time. It is the first part of the Prescription; section 7 says what it leaves out.
+This file is an instruction for an AI coding tool. Frontend Focus Studio wrote it from the Decisions that the owner made, one Step at a time. It is the first part of the Vision; section 7 says what it leaves out.
 
-Fingerprint of the design values: `7776d35d`. Every file of this Prescription carries the same eight characters; where one differs, the files do not belong together.
+Fingerprint of the design values: `7776d35d`. Every file of this Vision carries the same eight characters; where one differs, the files do not belong together.
 
 ## How to read this file
 

@@ -1,11 +1,11 @@
-// What the Fit check reads from the Prescription's files: the design values to measure against, and the proof that the files belong together.
+// What the Fit check reads from the Vision's files: the design values to measure against, and the proof that the files belong together.
 
 export class FitError extends Error {
   override name = 'FitError';
 }
 
 /** The four files that this slice reads. The other three (DESIGN.md, theme.css, FONTS.md) say the same design in other forms. */
-export const READ_FILES = ['PRESCRIPTION.md', 'tokens.css', 'tokens.json', 'mockup.html'] as const;
+export const READ_FILES = ['VISION.md', 'tokens.css', 'tokens.json', 'mockup.html'] as const;
 
 export interface DesignValues {
   fingerprint: string;
@@ -36,7 +36,7 @@ function fingerprintsOf(files: Readonly<Record<string, string | undefined>>, tok
   return {
     'tokens.json': typeof fromJson === 'string' ? fromJson : undefined,
     'tokens.css': grab(files['tokens.css'], /Fingerprint: ([0-9a-f]{8})\./),
-    'PRESCRIPTION.md': grab(files['PRESCRIPTION.md'], /Fingerprint of the design values: `([0-9a-f]{8})`/),
+    'VISION.md': grab(files['VISION.md'], /Fingerprint of the design values: `([0-9a-f]{8})`/),
     'mockup.html': grab(files['mockup.html'], /<meta name="refraction-fingerprint" content="([0-9a-f]{8})">/),
   };
 }
@@ -91,6 +91,7 @@ export function readDesignValues(files: Readonly<Record<string, string | undefin
   let tokens: TokensJson;
   try {
     tokens = JSON.parse(files['tokens.json'] ?? '') as TokensJson;
+    if (typeof tokens !== 'object' || tokens === null || Array.isArray(tokens)) throw new Error('not an object');
   } catch {
     throw new FitError('The file "tokens.json" is not valid JSON.');
   }
@@ -108,7 +109,7 @@ export function readDesignValues(files: Readonly<Record<string, string | undefin
   const worked = fingerprintOf(css);
   if (worked !== [...distinct][0]) throw new FitError(`The values in tokens.css give the fingerprint ${worked}, but the files state ${String([...distinct][0])}: a value was changed by hand, or the files come from two designs. Write the files again from the Studio.`);
   const disagree = disagreements(tokens, css);
-  if (disagree.length > 0) throw new FitError(`tokens.json and tokens.css disagree about ${disagree.slice(0, 5).join(', ')}${disagree.length > 5 ? ` and ${String(disagree.length - 5)} more` : ''}: a value was changed by hand, or the files come from two designs. Write the files again from the Studio.`);
+  if (disagree.length > 0) throw new FitError(`tokens.json and tokens.css disagree about ${disagree.slice(0, 5).map((name) => (/^--[a-z0-9-]{1,60}$/.test(name) ? name : 'a value with a name of an unexpected form')).join(', ')}${disagree.length > 5 ? ` and ${String(disagree.length - 5)} more` : ''}: a value was changed by hand, or the files come from two designs. Write the files again from the Studio.`);
   const colors = new Set<string>();
   for (const token of Object.values(tokens.color ?? {})) {
     const value = token.$value;

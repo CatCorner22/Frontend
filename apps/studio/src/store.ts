@@ -146,7 +146,7 @@ export const stepOf = (id: string): Step => findStep(id) ?? STEPS[0]!;
 /** The name to show for where a project started. */
 export function directionName(project: Project, known: Pick<StudioState, 'generated' | 'own'>): string {
   const id = project.direction;
-  if (id === null) return 'the plain start';
+  if (id === null) return 'the plain start, without a Direction';
   // A Direction of the owner's own lives in the browser, not in the project; the owner may have removed it since.
   if (isOwnDirectionId(id)) return known.own.find((d) => d.id === id)?.name ?? 'a Direction of your own that you removed';
   const name = findDirection(id)?.name ?? known.generated.find((d) => d.id === id)?.name ?? 'a generated Direction';
@@ -655,7 +655,7 @@ export const useStudio = create<StudioState>((set, get) => {
           storeAsOpened = true;
         } else {
           notes.push('Opening changed some details of your saved project.');
-          unkept.push({ label: 'Download your saved copy as it was', fileName: 'refraction-saved-copy-as-it-was.json', text: chosen.copy.text });
+          unkept.push({ label: 'Download your saved copy as it was', fileName: 'frontend-focus-saved-copy-as-it-was.json', text: chosen.copy.text });
         }
       }
       if (other && JSON.stringify(other.result.project) !== lastSavedText) {
@@ -663,7 +663,7 @@ export const useStudio = create<StudioState>((set, get) => {
           notes.push('The copy saved on this page and the copy saved in this browser differed. The Studio opened the newer one and kept the older one; you can download it from the Summary.');
         } else {
           notes.push('The copy saved on this page and the copy saved in this browser differed. The Studio opened the newer one.');
-          unkept.push({ label: 'Download the older copy', fileName: 'refraction-older-copy.json', text: other.copy.text });
+          unkept.push({ label: 'Download the older copy', fileName: 'frontend-focus-older-copy.json', text: other.copy.text });
         }
       }
       set({ project: chosen.result.project });
@@ -676,7 +676,7 @@ export const useStudio = create<StudioState>((set, get) => {
         if (kept) notes.push(`One saved copy could not be read (${reason}) The Studio kept it untouched; you can download it from the Summary.`);
         else {
           notes.push(`One saved copy could not be read (${reason})`);
-          unkept.push({ label: 'Download the copy that could not be read', fileName: 'unreadable-refraction-project.txt', text: first.copy.text });
+          unkept.push({ label: 'Download the copy that could not be read', fileName: 'unreadable-frontend-focus-project.txt', text: first.copy.text });
         }
       } else {
         // No readable copy at all. Nothing is saved until the owner decides, so that the unreadable copy cannot be overwritten (finding SEC-03).
@@ -684,7 +684,7 @@ export const useStudio = create<StudioState>((set, get) => {
         sticky = true;
         notes.push(`Your saved project could not be read. ${reason} The Studio has not changed it and is not saving over it.`);
         actions.push(
-          { label: 'Download the unreadable copy', run: () => void saveFile('unreadable-refraction-project.txt', first.copy.text) },
+          { label: 'Download the unreadable copy', run: () => void saveFile('unreadable-frontend-focus-project.txt', first.copy.text) },
           {
             label: kept ? 'Start a new project (the unreadable copy stays in a backup)' : 'Start a new project and discard the unreadable copy',
             run: resumeSaving,
@@ -748,7 +748,7 @@ export const useStudio = create<StudioState>((set, get) => {
           hold: {
             text: `${found} This browser’s storage is full or blocked, so the Studio could not keep that copy. It has stopped saving, so that nothing is replaced before you decide.`,
             urgent: true,
-            actions: [...openIt, { label: 'Download the copy found on this page', run: () => void saveFile(result.ok ? 'refraction-copy-from-this-page.json' : 'unreadable-refraction-project.txt', later.text) }, { label: 'Go on: let the Studio save over it', run: resumeSaving }],
+            actions: [...openIt, { label: 'Download the copy found on this page', run: () => void saveFile(result.ok ? 'frontend-focus-copy-from-this-page.json' : 'unreadable-frontend-focus-project.txt', later.text) }, { label: 'Go on: let the Studio save over it', run: resumeSaving }],
           },
         });
       });

@@ -4,10 +4,10 @@ Read `PLAN.md`, then `PROGRESS.md`, then `DECISIONS.md`, before you do anything 
 
 ## What this repository is
 
-"Refraction" (placeholder name): a personal tool for its owner. Two halves share one core.
+"Frontend Focus" (the owner's name for it since 2026-11-17, decision D75; it was "Refraction"): a personal tool for its owner. Two halves share one core.
 
-- **Studio**: a web app. The owner picks design Options one Step at a time; the Studio writes the Prescription.
-- **Fitter**: a Claude Code plugin. It makes Claude build from the Prescription, render the build, measure it, and repair it.
+- **Studio**: a web app. The owner picks design Options one Step at a time; the Studio writes the Vision.
+- **Fitter**: a Claude Code plugin. It makes Claude build from the Vision, render the build, measure it, and repair it.
 
 The tool is for the owner alone. Do not add accounts, payments, analytics, or marketing features.
 
@@ -22,12 +22,12 @@ The tool is for the owner alone. Do not add accounts, payments, analytics, or ma
 | Mockup | The HTML and CSS page on which every Option renders. The Studio's screen calls it "Sample website"; code and records say "Mockup" |
 | Template | A Mockup family (small-business website, guided intake flow, dense operational app, consumer or SaaS app) |
 | Catalog | The typed data that defines every Step, Option, craft rule, and floor |
-| Craft rule | An invisible-detail rule that the exporter writes into every Prescription automatically |
-| Floor | A requirement that the exporter writes into the Prescription (accessibility, security, search, performance). The security, search, and performance Floors are not overridable; the owner chooses per project whether the accessibility Floor applies (decision D13) |
+| Craft rule | An invisible-detail rule that the exporter writes into every Vision automatically |
+| Floor | A requirement that the exporter writes into the Vision. There are five Floors: use by people with disabilities, the page's security, the host's settings, search, and speed. The other four are not overridable; the owner chooses per project whether the Floor for people with disabilities applies (decision D13). The five names were approved by the owner on 2026-11-17 (decision D78) |
 | Brief | The owner's own account of one project: what is offered, for whom, the main job of the page, and the page's real texts. The Studio's screen calls it "Your content"; code and records say "Brief" (added with the owner's approval, 2026-11-15, decision D61) |
 | Research rule | A check, drawn from a research record, that the Studio measures on the open design and shows as "Holds" or "Does not hold" (added with the owner's approval, 2026-11-15) |
-| Prescription | The export bundle: `PRESCRIPTION.md`, `DESIGN.md`, `tokens.json`, `tokens.css`, shadcn theme, `mockup.html`, `FONTS.md` |
-| Fit check | The Fitter's measurement of a build against a Prescription |
+| Vision | The export bundle (called the "Prescription" until 2026-11-17, decision D75): `VISION.md`, `DESIGN.md`, `tokens.json`, `tokens.css`, shadcn theme, `mockup.html`, `FONTS.md` |
+| Fit check | The Fitter's measurement of a build against a Vision |
 | Honest receipt | A report that separates "measured," "judged by the model," and "still needs a person" |
 | Skin | Pre-built colors and color fades for a Direction; a Skin changes colors only (the owner's term, 2026-11-14) |
 | Overlay | A small helper that appears over the page and that the owner switches on or off for any Direction: a tooltip, an "Are you sure?" question, a notice (the owner's term, 2026-11-14) |
@@ -64,7 +64,7 @@ Active voice. One term per concept (see the table). Plain words; explain each te
 
 ## Stack (versions verified 2026-11-13; Playwright and Vite as merged by the owner on 2026-11-14; re-verify before upgrading)
 
-TypeScript 6.0 (D16) · React 19.3 · Vite 8.3 · native HTML controls (D22) · Zustand 5 · Zod 4 · own color math (D17) · Vitest 5 · Playwright 1.65 (D53; the owner merged the update on 2026-11-14) · axe-core 4.14. Node 22. A version is pinned only 7 days or more after its release (D27).
+TypeScript 6.0 (D16) · React 19.3 · Vite 8.3 · native HTML controls (D22) · Zustand 5 · Zod 4 · own color math (D17) · Vitest 5 · Playwright 1.65 (D53; the owner merged the update on 2026-11-14) · axe-core 4.14. Node 22.18 or newer (the Fit check is TypeScript that Node runs directly). A version is pinned only 7 days or more after its release (D27).
 
 ## Layout
 

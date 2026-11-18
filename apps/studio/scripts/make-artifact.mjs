@@ -11,8 +11,11 @@ if (/<\/style/i.test(css)) throw new Error('The stylesheet contains a closing st
 js = js.replace(/<\/script/gi, '<\\/script');
 if (js.includes('<!--')) throw new Error('The bundle contains "<!--", which is unsafe inside an inline script. Inspect it before publishing.');
 
+// The character set comes first, so that a browser that opens this file bare (without the host's wrapper) reads it as UTF-8
+// (M6 gate review, finding U8-01). Inside the host's wrapper it changes nothing.
 const page = [
-  '<title>Refraction Studio</title>',
+  '<meta charset="utf-8">',
+  '<title>Frontend Focus Studio</title>',
   '<meta name="claude:viewport-fit-sides" content="cover">',
   `<style>${css}</style>`,
   '<div id="root"></div>',

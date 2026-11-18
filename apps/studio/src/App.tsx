@@ -1,6 +1,6 @@
 import {
-  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, PRESCRIPTION_FILES, STEPS, activeTunables, isSampleContent, plainName, sampleTextsLeft, zipFiles, BRIEF_KEYS, BRIEF_MAX, ITEM_LIMITS, LIST_LIMITS, NAV_WORD_MAX, REQUIRED_TEXTS, SAMPLE_CONTENT, TEXT_LIMITS, canAddContentItem, canRemoveContentItem, emphasisIsInHeadline, asDirection, conflicts, craftReport, findDirection, writePrescription, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
-  type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type FontId, type MockupFocus, type PrescriptionFile, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
+  DIRECTION_GROUPS, DIRECTIONS, FONTS, NOT_CHECKED, OVERLAYS, OWN_NAME_MAX, OWN_TEXT_MAX, VISION_FILES, STEPS, activeTunables, isSampleContent, plainName, sampleTextsLeft, zipFiles, BRIEF_KEYS, BRIEF_MAX, ITEM_LIMITS, LIST_LIMITS, NAV_WORD_MAX, REQUIRED_TEXTS, SAMPLE_CONTENT, TEXT_LIMITS, canAddContentItem, canRemoveContentItem, emphasisIsInHeadline, asDirection, conflicts, craftReport, findDirection, writeVision, ownDirectionsFile, findOverlay, findSkin, findStep, heldOptionId, matchingOptionId, nearestSliderValue, nextSliderValue, overlaysOf, researchReport, resolvePatch, startDeparture, skinParams, skinsOf, toCss,
+  type A11yProfile, type BriefKey, type ContentList, type ContentTextKey, type DesignParams, type Direction, type FontId, type MockupFocus, type VisionFile, type Project, type SourceRef, type Step, type TokenIssue, type Tunable,
 } from '@refraction/core';
 import { Component, Fragment, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { LICENSE_TEXTS, MIT_COPYRIGHT_PLACEHOLDER, NOTICES } from './notices.generated';
@@ -45,9 +45,11 @@ const SAVE_LABEL: Record<StudioState['saved'], string> = {
   held: 'Not saving: see the notice at the top of the page',
 };
 const PROFILE_MEANING: Record<A11yProfile, string> = {
-  off: 'Off: no contrast notes are shown.',
-  advise: 'Warn me: the Studio notes colors that are hard to tell apart, and changes nothing.',
-  enforce: 'Fix for me: the Studio adjusts colors that are hard to tell apart, and lists each change.',
+  // The setting also decides whether the Vision holds the requirements for people with disabilities (D13), and the
+  // switch says so where the owner chooses (M6 gate review, finding U8-03).
+  off: 'Off: no contrast notes are shown, and the Vision leaves out the requirements for people with disabilities.',
+  advise: 'Warn me: the Studio notes colors that are hard to tell apart, and changes nothing. The Vision leaves out the requirements for people with disabilities; choose “Fix for me” to include them.',
+  enforce: 'Fix for me: the Studio adjusts colors that are hard to tell apart, and lists each change. The Vision includes the requirements for people with disabilities.',
 };
 const HUE_NAMES: [number, string][] = [[25, 'red'], [55, 'orange'], [95, 'yellow'], [140, 'green'], [195, 'teal'], [258, 'blue'], [298, 'violet'], [345, 'pink']];
 const hueName = (hue: number): string => HUE_NAMES.reduce((best, entry) => (Math.min(Math.abs(hue - entry[0]), 360 - Math.abs(hue - entry[0])) < Math.min(Math.abs(hue - best[0]), 360 - Math.abs(hue - best[0])) ? entry : best))[1];
@@ -172,9 +174,9 @@ function TopBar(): React.JSX.Element {
   const s = useStudio();
   return (
     <header className="top">
-      <a className="logo" href="#directions" aria-label="Refraction Studio: go to the Directions">
+      <a className="logo" href="#directions" aria-label="Frontend Focus Studio: go to the Directions">
         <span className="logo-mark" aria-hidden="true" />
-        Refraction Studio
+        Frontend Focus Studio
       </a>
       <label className="name-field">
         <span className="visually-hidden">Project name</span>
@@ -441,7 +443,7 @@ function DirectionsView(): React.JSX.Element {
         <p className="eyebrow">Start here</p>
         <h1 ref={heading} tabIndex={-1}>Pick a Direction: a complete starting look</h1>
         <p className="teach">
-          The Studio helps you decide how a website looks and feels, one small decision at a time. Today you leave with a project file that holds your Decisions, and with the Prescription: seven files that an AI coding tool builds your page from. You find both on the Summary.
+          The Studio helps you decide how a website looks and feels, one small decision at a time. Today you leave with a project file that holds your Decisions, and with the Vision: seven files that an AI coding tool builds your page from. You find both on the Summary.
         </p>
         <p className="teach">
           First pick a Direction below. Then {STEPS.length} short Steps let you change one thing at a time, like an eye exam: “which is better, 1 or 2?” You can stop at any point; the line under the top bar says whether your work is saved.
@@ -595,8 +597,8 @@ function ReasonField({ stepId, fieldId = 'decision-reason', brief = false }: { s
           on another Step (code review of 2026-11-13, findings "screen 4" and "gaps 0"). */}
       <input id={fieldId} type="text" value={text} maxLength={280} placeholder="For example: most of our visitors come to book" onChange={(e) => { setText(e.target.value); save(stepId, e.target.value); }} />
       {brief
-        ? <small>Saved with the project, and written word for word into PRESCRIPTION.md.</small>
-        : <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved with the project and goes, word for word, into PRESCRIPTION.md, the file that an AI coding tool reads. Write nothing here that you want to keep to yourself.</small>}
+        ? <small>Saved with the project, and written word for word into VISION.md.</small>
+        : <small>Your reason belongs to this choice. If you later pick another Option on this Step, the Studio removes the reason, tells you, and offers to put it back. The reason is saved with the project and goes, word for word, into VISION.md, the file that an AI coding tool reads. Write nothing here that you want to keep to yourself.</small>}
     </label>
   );
 }
@@ -761,7 +763,8 @@ function StepsView(): React.JSX.Element {
                 <p>Contrast is how far apart two colors are in lightness, as a ratio. 1 to 1 means no difference; 21 to 1 is black on white. Reading text is usually easy to read from 4.5 to 1 upward.</p>
                 <ul>{large.issues.map((i) => <li key={i.id}>{describeIssue(i)}</li>)}</ul>
                 {s.project.a11y === 'advise' && <p>To fix a note, pick a darker or lighter color on the Step that sets it, or set “Contrast checks” to “Fix for me”.</p>}
-                <p>The Studio does not check: {NOT_CHECKED.map((line) => line.replace(/\.$/, '')).join('; ').toLowerCase()}.</p>
+                <p>The Studio does not check:</p>
+                <ul>{NOT_CHECKED.map((line) => <li key={line}>{line}</li>)}</ul>
               </details>
             )}
           </div>
@@ -981,6 +984,9 @@ const LIST_WORDS: Record<ContentList, { one: string; many: string; region: Mocku
  * signs, cut at the limit). When the owner leaves the field, or when the project changes from elsewhere (Undo, an opened
  * file, "Put the sample text back"), the field shows what the project holds.
  */
+/** A field this long or longer shows how much of it is used, so that the owner sees the limit before the cut (M6 gate, U8-05). */
+const LONG_FIELD = 100;
+
 function ContentField({ id, label, value, max, required = false, onSave, onFocus }: { id: string; label: string; value: string; max: number; required?: boolean; onSave: (text: string) => void; onFocus?: () => void }): React.JSX.Element {
   const [text, setText] = useState(value);
   const field = useRef<HTMLInputElement | null>(null);
@@ -992,7 +998,8 @@ function ContentField({ id, label, value, max, required = false, onSave, onFocus
       <label htmlFor={id}>{label}</label>
       <input ref={field} id={id} className="name" type="text" value={text} maxLength={max} autoComplete="off" onFocus={onFocus} onChange={(e) => { setText(e.target.value); onSave(e.target.value); }} onBlur={() => setText(value)} />
       {required && text.trim() === '' && <p className="note" role="status">The page needs this text. The last one stays in place until you type a new one.</p>}
-      {text.length >= max && <p className="note field-full" role="status">This field is full: it holds {max} characters, and anything beyond that was left out.</p>}
+      {text.length >= max ? <p className="note field-full" role="status">This field is full: it holds {max} characters, and anything beyond that was left out.</p>
+        : max >= LONG_FIELD && <p className="hint field-count">{text.length} of {max} characters</p>}
     </div>
   );
 }
@@ -1058,7 +1065,7 @@ function ContentView(): React.JSX.Element {
       <aside className="options content-form" aria-label="Your content">
         <fieldset>
           <legend>Three questions about the project</legend>
-          <p className="hint">The page does not show these answers. They go, word for word, into PRESCRIPTION.md, so that the AI coding tool that builds your page knows what the page is for. Write nothing here that you want to keep to yourself.</p>
+          <p className="hint">The page does not show these answers. They go, word for word, into VISION.md, so that the AI coding tool that builds your page knows what the page is for. Write nothing here that you want to keep to yourself.</p>
           {BRIEF_KEYS.map((key) => <ContentField key={key} id={`brief-${key}`} label={BRIEF_QUESTIONS[key]} value={s.project.brief?.[key] ?? ''} max={BRIEF_MAX} onSave={(typed) => s.setBriefAnswer(key, typed)} />)}
         </fieldset>
         <fieldset>
@@ -1141,11 +1148,11 @@ function keptCopyFile(copy: KeptCopy, index: number): { name: string; text: stri
   } catch {
     // Not a record.
   }
-  return { name: `refraction-kept-copy-${index + 1}.${record ? 'json' : 'txt'}`, text: copy.text };
+  return { name: `frontend-focus-kept-copy-${index + 1}.${record ? 'json' : 'txt'}`, text: copy.text };
 }
 
-const PRESCRIPTION_WORDS: Record<PrescriptionFile, string> = {
-  'PRESCRIPTION.md': 'The instruction: every Decision with what you rejected and why, the fine details, the Floors, and what a person must still check.',
+const VISION_WORDS: Record<VisionFile, string> = {
+  'VISION.md': 'The instruction: every Decision with what you rejected and why, the fine details, the Floors, and what a person must still check.',
   'DESIGN.md': 'The same design in a second form that AI coding tools read (the DESIGN.md format).',
   'tokens.css': 'Every design value under a name, in the form that a web page uses.',
   'tokens.json': 'The same values in a form that design tools read (the Design Tokens format).',
@@ -1154,21 +1161,21 @@ const PRESCRIPTION_WORDS: Record<PrescriptionFile, string> = {
   'FONTS.md': 'Which letter styles the design uses, and how the built website carries them without asking another website.',
 };
 
-/** The Prescription: seven files, written from the open project, singly or as one archive (PLAN.md section 4.4; SPEC.md sections 2.6 and 2.9). */
-function PrescriptionSection(): React.JSX.Element {
+/** The Vision: seven files, written from the open project, singly or as one archive (PLAN.md section 4.4; SPEC.md sections 2.6 and 2.9). */
+function VisionSection(): React.JSX.Element {
   const s = useStudio();
   // The message names the file that it is about, so that it can stand in that file's entry (finding U6-21).
-  const [said, setSaidOf] = useState<{ name: PrescriptionFile | 'all'; text: string } | null>(null);
+  const [said, setSaidOf] = useState<{ name: VisionFile | 'all'; text: string } | null>(null);
   const untouched = s.project.direction === null && Object.keys(s.project.decisions).length === 0;
   const sample = isSampleContent(s.project.content);
-  const write = (): Record<PrescriptionFile, string> => {
+  const write = (): Record<VisionFile, string> => {
     const { project } = s;
     // The core knows the built-in Directions; only the Studio knows the name of one of the owner's own or of a random one.
     const startName = project.direction === null || findDirection(project.direction) ? undefined : [...s.own, ...s.generated].find((d) => d.id === project.direction)?.name;
     const fonts: FontId[] = [project.params.fontHeading, project.params.fontBody, ...(project.params.numerals === 'mono' ? (['jetbrains-mono'] as FontId[]) : [])];
-    return writePrescription(project, { ...(startName ? { startName } : {}), fontFaceCss: fontFaceCss(fonts) });
+    return writeVision(project, { ...(startName ? { startName } : {}), fontFaceCss: fontFaceCss(fonts) });
   };
-  const download = async (name: PrescriptionFile): Promise<void> => {
+  const download = async (name: VisionFile): Promise<void> => {
     const outcome = await saveFile(name, write()[name]);
     const setSaid = (text: string): void => setSaidOf({ name, text });
     setSaid(outcome === 'saved' ? `The file “${name}” was handed to your browser to save, usually into your Downloads folder. Give all seven files to the AI coding tool that builds your page.`
@@ -1180,24 +1187,24 @@ function PrescriptionSection(): React.JSX.Element {
     const files = write();
     // The archive's name carries the fingerprint of the design values, so that two archives can be told apart.
     const mark = /Fingerprint: ([0-9a-f]{8})\./.exec(files['tokens.css'])?.[1] ?? 'design';
-    const archive = `refraction-prescription-${mark}.zip`;
+    const archive = `frontend-focus-vision-${mark}.zip`;
     const outcome = await saveFile(archive, zipFiles(files));
     setSaidOf({ name: 'all', text: outcome === 'saved' || outcome === 'renamed' ? `The file “${archive}” was handed to your browser to save, usually into your Downloads folder. It is one archive file with all seven files inside; open it (on most computers by a double click) and give the seven files to the AI coding tool that builds your page.`
       : outcome === 'declined' ? 'The download was cancelled. Nothing was saved to a file.'
         : 'This page cannot hand over files here. Use the “Copy” button of each file and paste the text into a file of that name.' });
   };
-  const copy = async (name: PrescriptionFile): Promise<void> => {
+  const copy = async (name: VisionFile): Promise<void> => {
     setSaidOf({ name, text: (await copyText(write()[name])) ? `The text of “${name}” was copied. Paste it into a file of that name.` : 'Copying is blocked here. Use the download button.' });
   };
   return (
-    <section id="prescription" aria-labelledby="prescription-heading">
-      <h2 id="prescription-heading">The Prescription: files that an AI coding tool builds from</h2>
-      <p className="hint">These seven files carry your design out of the Studio. Each is written afresh from the project as it stands when you press its button, so download them again after you change a Decision. To use them: Put the seven files into one folder, open that folder with your AI coding tool, and ask it to build the home page from PRESCRIPTION.md.</p>
+    <section id="vision" aria-labelledby="vision-heading">
+      <h2 id="vision-heading">The Vision: files that an AI coding tool builds from</h2>
+      <p className="hint">These seven files carry your design out of the Studio. Each is written afresh from the project as it stands when you press its button, so download them again after you change a Decision. To use them: Put the seven files into one folder, open that folder with your AI coding tool, and ask it to build the home page from VISION.md.</p>
       {untouched && <p className="note">You have not picked a Direction or decided a Step yet, so these files describe the plain start.</p>}
-      <ul className="prescription-files">
-        {PRESCRIPTION_FILES.map((name) => (
+      <ul className="vision-files">
+        {VISION_FILES.map((name) => (
           <li key={name}>
-            <p><strong>{name}</strong>. {PRESCRIPTION_WORDS[name]}</p>
+            <p><strong>{name}</strong>. {VISION_WORDS[name]}</p>
             <div className="button-row">
               <button type="button" className="btn small" onClick={() => void download(name)}>Download {name}</button>
               <button type="button" className="btn small quiet" onClick={() => void copy(name)}>Copy {name}</button>
@@ -1210,7 +1217,7 @@ function PrescriptionSection(): React.JSX.Element {
         <button type="button" className="btn" onClick={() => void downloadAll()}>Download all seven files as one file</button>
       </div>
       {said?.name === 'all' && <p className="note" role="status">{said.text}</p>}
-      <p className="hint">The Prescription has all seven of its files, and PRESCRIPTION.md carries the Floors in its section 7: requirements on security, on being found by search, and on speed, each with its source, and, when Contrast checks is “Fix for me”, requirements for people with disabilities. No program checks a Floor yet. The Prescription still leaves out: structured data for your business, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}and every page but the home page. PRESCRIPTION.md lists the same in its section 8, and lists in its section 6 what no program checked and a person must still check.</p>
+      <p className="hint">The Vision has all seven of its files, and VISION.md carries the Floors in its section 7: requirements on security, on being found by search, and on speed, each with its source, and, when Contrast checks is “Fix for me”, requirements for people with disabilities. The Fit check checks a part of some Floor requirements on a built page; no program checks the rest. The Vision still leaves out: structured data for your business, how an Overlay opens and closes, {sample && 'your own content (the page shows a sample dental practice), '}and every page but the home page. VISION.md lists the same in its section 8, and lists in its section 6 what no program checked and a person must still check.</p>
     </section>
   );
 }
@@ -1221,7 +1228,7 @@ const OWN_FIELDS = [
   { key: 'risk', id: 'own-risk', short: 'What to watch for', label: 'What to watch for' },
 ] as const;
 const NO_TEXTS = { name: '', mood: '', bestFor: '', risk: '' };
-const OWN_FILE_NAME = 'refraction-own-directions.json';
+const OWN_FILE_NAME = 'frontend-focus-own-directions.json';
 
 /** Keep the design on screen as a Direction of the owner's own (PLAN.md section 4.7). */
 function OwnDirectionForm({ notes, clashes }: { notes: number; clashes: number }): React.JSX.Element {
@@ -1372,7 +1379,7 @@ function SummaryView(): React.JSX.Element {
       try {
         data = JSON.parse(String(reader.result));
       } catch {
-        setMessage('That file was not opened. It is not a Refraction project file. Your open project is unchanged.');
+        setMessage('That file was not opened. It is not a Frontend Focus project file. Your open project is unchanged.');
         return;
       }
       const error = s.requestImport(data, file.name);
@@ -1390,9 +1397,9 @@ function SummaryView(): React.JSX.Element {
           You have decided {decided} of {STEPS.length} Steps. This project started from {directionName(s.project, s)}; a Step you have not decided keeps the value it started with.
         </p>
         <p className="teach">
-          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Prescription: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Prescription” lists as left out. A program that measures a built page against the Prescription exists as a command in the repository (`npm run fit`); it is not part of this Studio yet.
+          <strong>What works today:</strong> you can download the project file and open it here later, and you can download the Vision: seven files that an AI coding tool builds your page from. <strong>What does not exist yet:</strong> the parts that the section “The Vision” lists as left out. A second tool, the Fitter, measures a built page against the Vision; that measurement is called the Fit check. It is not part of this Studio: it runs inside Claude Code, and the file `plugin/README.md` says how to set it up. <strong>Before you build:</strong> the page’s contact form sends nothing by itself. A page of files cannot receive messages, so someone must set up a place that receives them (a form service, or a small program at your host) before the form works; the Vision tells the AI coding tool to say so in its report.
         </p>
-        <p><button type="button" className="btn small" onClick={() => document.getElementById('prescription')?.scrollIntoView({ block: 'start' })}>Show me the Prescription</button></p>
+        <p><button type="button" className="btn small" onClick={() => document.getElementById('vision')?.scrollIntoView({ block: 'start' })}>Show me the Vision</button></p>
         <p className="teach">{contentStatus(s.project.content, false)} To change the texts and your three answers about the project, open <a href="#content">Your content</a>.</p>
         <section aria-labelledby="file-heading">
           <h2 id="file-heading">Project file</h2>
@@ -1474,7 +1481,7 @@ function SummaryView(): React.JSX.Element {
         </section>
         <section id="craft" aria-labelledby="craft-heading">
           <h2 id="craft-heading">Fine details the Studio adds by itself</h2>
-          <p className="hint">A page made with care differs from an ordinary one in small things that nobody asks for. You do not choose these: every design has them, except where one of your Steps sets a detail aside (the list then says so). The preview already draws them, and the Prescription asks the AI coding tool that builds your page for each one. Open a detail to read what it is and how strong the guidance behind it is. The Studio knows three strengths, from strong to weak: measured in studies that were read; long-standing convention; expert opinion. Every detail in this list is expert opinion.</p>
+          <p className="hint">A page made with care differs from an ordinary one in small things that nobody asks for. You do not choose these: every design has them, except where one of your Steps sets a detail aside (the list then says so). The preview already draws them, and the Vision asks the AI coding tool that builds your page for each one. Open a detail to read what it is and how strong the guidance behind it is. The Studio knows three strengths, from strong to weak: measured in studies that were read; long-standing convention; expert opinion. Every detail in this list is expert opinion at best{craft.some((line) => line.ownJudgment) ? `; ${String(craft.filter((line) => line.ownJudgment).length)} of them rest only on the judgment of the assistant that wrote this Studio, and each of those says so when you open it` : ''}.</p>
           <ul className="craft-list">
             {craft.map(({ rule, now, aside, ownJudgment }) => (
               <li key={rule.id}>
@@ -1490,7 +1497,7 @@ function SummaryView(): React.JSX.Element {
             ))}
           </ul>
         </section>
-        <PrescriptionSection />
+        <VisionSection />
         <OwnDirectionForm notes={html.issues.length} clashes={clashes.length} />
         <section aria-labelledby="research-heading">
           <h2 id="research-heading">Research rules</h2>
@@ -1528,7 +1535,8 @@ function SummaryView(): React.JSX.Element {
               <>
                 <p>Contrast notes ({s.project.a11y === 'enforce' ? 'adjusted for you' : 'advice; nothing was changed'}). Contrast is how far apart two colors are in lightness, as a ratio; reading text is usually easy to read from 4.5 to 1 upward.</p>
                 <ul>{html.issues.map((i) => <li key={i.id}>{describeIssue(i)}</li>)}</ul>
-                <p>The Studio does not check: {NOT_CHECKED.map((line) => line.replace(/\.$/, '')).join('; ').toLowerCase()}.</p>
+                <p>The Studio does not check:</p>
+                <ul>{NOT_CHECKED.map((line) => <li key={line}>{line}</li>)}</ul>
               </>
             )}
           </section>

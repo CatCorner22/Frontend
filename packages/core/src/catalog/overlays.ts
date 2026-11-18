@@ -98,7 +98,7 @@ export const OVERLAYS: readonly Overlay[] = [
   {
     id: 'sticky-call',
     name: 'Main button that stays in view on a phone',
-    what: 'On a phone, the main button (“Book a visit”) stays at the lower edge of the screen while the visitor scrolls.',
+    what: 'On a phone, the page’s main button stays at the lower edge of the screen while the visitor scrolls.',
     chooseWhen: 'One action matters more than all others, and most visitors use a phone.',
     risk: 'The bar covers the lowest part of the page. The page needs room at its end so that the last lines can be read above the bar.',
     sources: [

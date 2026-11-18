@@ -2,8 +2,8 @@
 // text, and a DESIGN.md that claims no measurement that did not happen.
 import { describe, expect, it } from 'vitest';
 import {
-  ITEM_LIMITS, SAMPLE_CONTENT, TEXT_LIMITS, applyDirection, createProject, designMd, parseProject, prescriptionMd, sampleTextsLeft, setBriefAnswer,
-  setContentItem, setContentText, setNavWord, type ContentTextKey, type Project,
+  ITEM_LIMITS, SAMPLE_CONTENT, TEXT_LIMITS, applyDirection, createProject, designMd, parseProject, visionMd, sampleTextsLeft, setBriefAnswer,
+  setContentItem, setContentText, setNavWord, setOverlay, OVERLAYS, type ContentTextKey, type Project,
 } from '../src/index.js';
 
 const own = (project: Project): Project => {
@@ -29,11 +29,27 @@ describe('sampleTextsLeft', () => {
     p = setContentItem(p, 'facts', 0, 'value', '7 days');
     p = setNavWord(p, 0, 'Bread');
     const { names } = sampleTextsLeft(p.content);
-    expect(names).toHaveLength(20);
+    // A list is counted item by item (campaign A2, finding A2-V12, joined on 2026-11-16): one changed fact and one changed menu word
+    // leave the other items the sample's, and the line names them by count; it no longer drops the whole list.
+    expect(names).toHaveLength(22);
     expect(names).not.toContain('the business name');
     expect(names).not.toContain('the facts');
     expect(names).not.toContain('the menu words');
+    expect(names).toContain(`${String(SAMPLE_CONTENT.facts.length - 1)} of the ${String(SAMPLE_CONTENT.facts.length)} facts`);
+    expect(names).toContain(`${String(SAMPLE_CONTENT.nav.length - 1)} of the ${String(SAMPLE_CONTENT.nav.length)} menu words`);
     expect(names).toContain('the services');
+  });
+
+  it('counts a sample item as the sample’s wherever it stands: one fact removed leaves the other facts the sample’s', () => {
+    // Found at the join (2026-11-16): items compared by place called every fact the owner’s once the first fact was removed.
+    let p = createProject('x');
+    p = { ...p, content: { ...p.content, facts: p.content.facts.slice(1), services: [...p.content.services, { title: 'Powers of attorney', body: '' }] } };
+    const { names } = sampleTextsLeft(p.content);
+    expect(names).toContain('the facts');
+    expect(names).toContain(`${String(SAMPLE_CONTENT.services.length)} of the ${String(SAMPLE_CONTENT.services.length + 1)} services`);
+    // Two equal items of the owner’s do not both match one sample item.
+    const twice = { ...p.content, fees: [SAMPLE_CONTENT.fees[0]!, SAMPLE_CONTENT.fees[0]!] };
+    expect(sampleTextsLeft(twice).names).toContain('1 of the 2 fees');
   });
 
   it('names nothing when every text is the owner’s', () => {
@@ -41,23 +57,21 @@ describe('sampleTextsLeft', () => {
   });
 });
 
-describe('PRESCRIPTION.md: the line about the texts', () => {
+describe('VISION.md: the line about the texts', () => {
   it('says that the sample is the sample, as before, when no text is the owner’s', () => {
-    expect(prescriptionMd(createProject('x'))).toContain('`mockup.html` shows a sample dental practice, not the owner’s content.');
+    expect(visionMd(createProject('x'))).toContain('`mockup.html` shows a sample dental practice, not the owner’s content.');
   });
 
   it('names the placeholders, and does not call every text the owner’s own, when some are the sample’s', () => {
-    const md = prescriptionMd(setContentText(createProject('x'), 'business', 'Northside Bakery'));
-    // The Prescription names the texts that are still the sample's, one by one (campaign A2, finding J-11), and never the text that the owner changed.
-    expect(md).toContain('shows the texts that the project holds. Some are still the sample dental practice’s: ');
+    const md = visionMd(setContentText(createProject('x'), 'business', 'Northside Bakery'));
+    expect(md).toContain('22 of 23 texts are still the sample dental practice’s words, not the owner’s');
     expect(md).toContain('the headline');
-    expect(md).not.toMatch(/still the sample dental practice’s: [^\n]*the business name/);
-    expect(md).toContain('Replace those with the owner’s real content; use the others word for word.');
+    expect(md).toMatch(/placeholders/);
     expect(md).not.toContain('They are the owner’s own: use them word for word.');
   });
 
   it('keeps the line word for word when every text is the owner’s', () => {
-    const md = prescriptionMd(own(createProject('x')));
+    const md = visionMd(own(createProject('x')));
     expect(md).toContain('They are the owner’s own: use them word for word.');
     expect(md).not.toContain('still the sample dental practice’s words');
   });
@@ -135,3 +149,14 @@ describe('the Brief’s answers keep their own cleaning', () => {
     expect(setBriefAnswer(createProject('x'), 'offer', 'a‮b').brief?.offer).toBe('a b');
   });
 });
+
+describe('the Overlays name no sample text (M6 gate review, finding U8-02)', () => {
+  it('quotes none of the sample’s words in an Overlay, so that the owner’s own button words stand alone', () => {
+    const sample = Object.values(SAMPLE_CONTENT).filter((v): v is string => typeof v === 'string' && v.length > 3);
+    for (const overlay of OVERLAYS) for (const words of sample) expect(overlay.what, `${overlay.id}: ${words}`).not.toContain(words);
+    const own = setOverlay(setContentText(createProject('x'), 'primaryAction', 'Order a cake'), 'sticky-call', true);
+    // VISION.md does not quote the page's texts (mockup.html holds them), so the sample's words must not appear in it at all.
+    expect(visionMd(own)).not.toContain('Book a visit');
+  });
+});
+

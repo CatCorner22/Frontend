@@ -1,13 +1,13 @@
 // The build trials (SPEC.md sections 2.11 and 2.12): the stored records of the runs in which a helper agent built a page.
 // Trial 001: the helper received the seven files. Trial 002: the helper received the same project in plain words and no file.
-// Trial 003: the helper received seven files for the same project with Contrast checks "Fix for me", so that PRESCRIPTION.md carried the Floors (first draft).
+// Trial 003: the helper received seven files for the same project with Contrast checks "Fix for me", so that VISION.md carried the Floors (first draft).
 // These tests do not run a helper. They check that each stored record is whole, that it belongs to today's files, and that the
 // stored page still measures to the stored receipt.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium, type Browser } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { PRESCRIPTION_FILES, writePrescription } from '@refraction/core';
+import { VISION_FILES, writeVision } from '@refraction/core';
 import { fit, type Receipt } from '../src/fit.ts';
 import { TRIAL_DECISIONS, trialProject } from './trial-project.ts';
 
@@ -28,20 +28,28 @@ for (const id of ['001', '002', '003']) {
   describe(`Build trial ${id}: the stored record`, () => {
     it('holds the instruction, the helper’s page, the receipt in two forms, the record, and the seven files', () => {
       for (const name of ['INSTRUCTION.md', 'index.html', 'receipt.json', 'RECEIPT.md', 'RECORD.md']) expect(existsSync(join(process.cwd(), 'plugin/fit/trials', id, name)), name).toBe(true);
-      expect(readdirSync(join(process.cwd(), 'plugin/fit/trials', id, 'files')).sort()).toEqual([...PRESCRIPTION_FILES].sort());
+      expect(readdirSync(join(process.cwd(), 'plugin/fit/trials', id, 'files')).sort()).toEqual([...VISION_FILES].sort());
     });
 
     it('keeps the files that the builder writes today for the fixed project, letter for letter', () => {
       expect(TRIAL_DECISIONS).toHaveLength(6);
-      const today = writePrescription(trialProject(id === '003' ? 'enforce' : undefined));
+      const today = writeVision(trialProject(id === '003' ? 'enforce' : undefined));
       // The trials ran before the Floors existed (SPEC.md section 2.18). The six files of design values are the same today, letter for letter.
-      for (const name of PRESCRIPTION_FILES) if (name !== 'PRESCRIPTION.md') expect(read('files', name), name).toBe(today[name]);
-      // `PRESCRIPTION.md` is the file that the helper received. Trial 003 ran with the first draft of the Floors: the stored file and today's
+      for (const name of VISION_FILES) if (name !== 'VISION.md') expect(read('files', name), name).toBe(today[name]);
+      // `VISION.md` is the file that the helper received. Trial 003 ran with the first draft of the Floors: the stored file and today's
       // file are the same outside section 7 (the Floors), and the stored one holds 48 requirements.
-      const stored = read('files', 'PRESCRIPTION.md');
-      const current = today['PRESCRIPTION.md'] ?? '';
+      const stored = read('files', 'VISION.md');
+      const current = today['VISION.md'] ?? '';
       if (id === '003') {
-        const outside = (text: string): string => text.slice(0, text.indexOf('## 7. Floors')) + text.slice(text.indexOf('## 8. '));
+        // One line of section 8 also changed since the helper's file: on 2026-11-17 the Fit check began to check a part of some Floor
+        // requirements, and the line that said "it measures no requirement of section 7" says so now (decision D76). That line is left out.
+        // A second line of section 8 changed at the join of 2026-11-17 (decision D77): the line on structured data no longer says "The
+        // owner decides"; it says that the data stays out (decision D70). The stored file keeps what the helper received, so that line
+        // is left out too; each file must still hold exactly one such line.
+        const program = (line: string): boolean => line.startsWith('- A program that checks ') || line.startsWith('- Structured data for the business (JSON-LD)');
+        const outside = (text: string): string => (text.slice(0, text.indexOf('## 7. Floors')) + text.slice(text.indexOf('## 8. '))).split('\n').filter((line) => !program(line)).join('\n');
+        expect(stored.split('\n').filter(program)).toHaveLength(2);
+        expect(current.split('\n').filter(program)).toHaveLength(2);
         expect(outside(stored)).toBe(outside(current));
         expect(stored.match(/^- \*\*[ASHQP]\d+\.\*\*/gm)).toHaveLength(48);
         return;
@@ -64,7 +72,7 @@ for (const id of ['001', '002', '003']) {
     });
 
     it('measures the stored page to the stored receipt, byte for byte', async () => {
-      const files = Object.fromEntries(PRESCRIPTION_FILES.map((name) => [name, read('files', name)]));
+      const files = Object.fromEntries(VISION_FILES.map((name) => [name, read('files', name)]));
       const { receipt, markdown } = await fit({ files, html: read('index.html'), browser });
       expect(`${JSON.stringify(receipt, null, 2)}\n`).toBe(read('receipt.json'));
       expect(markdown).toBe(read('RECEIPT.md'));
@@ -82,15 +90,16 @@ for (const id of ['001', '002', '003']) {
 describe('Build trial 002: the comparison', () => {
   it('gives the second helper no file: its instruction names none of the seven files as something to read', () => {
     const instruction = readIn('002', 'INSTRUCTION.md');
+    // The instruction is kept word for word as the helper received it, before the Vision got its name (it was called the Prescription; decision D75).
     expect(instruction).toContain('without the Prescription');
     const parts = instruction.split('---\n');
     expect(parts.length, 'the instruction has a header and a body').toBeGreaterThan(1);
-    for (const name of PRESCRIPTION_FILES) expect(parts.slice(1).join('---\n'), name).not.toContain(name);
+    for (const name of VISION_FILES) expect(parts.slice(1).join('---\n'), name).not.toContain(name);
   });
 
   it('carries every text of the sample content and all six chosen Options in the instruction, so that the project is the same', () => {
     const body = readIn('002', 'INSTRUCTION.md');
-    const today = writePrescription(trialProject())['mockup.html'];
+    const today = writeVision(trialProject())['mockup.html'];
     for (const text of ['Harbor Street Dental', 'Dental care that explains itself before it begins.', 'Book a visit', 'Name centered, links below', 'Text and photo side by side', 'Roomy', 'Soft headings with small feet', 'Dark green', 'Clearly rounded (14 px)', 'A calm green, so that the practice does not feel clinical.']) expect(body, text).toContain(text);
     expect(today).toContain('Harbor Street Dental');
   });

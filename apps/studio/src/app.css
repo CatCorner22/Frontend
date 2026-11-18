@@ -1,4 +1,4 @@
-/* Refraction Studio. Layout: a top bar, then three panes (Steps, the large preview, the Options).
+/* Frontend Focus Studio. Layout: a top bar, then three panes (Steps, the large preview, the Options).
    Colors, fonts, shapes, and shadows come from tokens that the design engine derives (see theme.ts).
    The values below are first-paint fallbacks only; theme.ts replaces them as soon as the app starts. */
 :root {
@@ -80,7 +80,7 @@ select, .name, .project-text {
   background: var(--surface); box-shadow: inset 0 1px 2px var(--recess);
 }
 .inline-field, .check { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2rem; font-size: 0.8125rem; color: var(--text-muted); }
-.check input { flex: none; width: 1.25rem; height: 1.25rem; accent-color: var(--accent); }
+.check input { flex: none; width: 1.5rem; height: 1.5rem; accent-color: var(--accent); } /* 24 pixels: a target that meets its size on its own, wherever it scrolls (M6 gate review) */
 .profile { display: grid; grid-template-columns: auto auto; align-items: center; gap: 0 0.5rem; font-size: 0.8125rem; color: var(--text-muted); }
 .profile-meaning { grid-column: 1 / -1; font-size: 0.75rem; max-width: 22rem; }
 .segmented { display: inline-flex; padding: 2px; border-radius: var(--radius-control); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border); }
@@ -321,9 +321,9 @@ select, .name, .project-text {
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 
 /* Copies the Studio kept (Summary). */
-.prescription-files { list-style: none; margin: 0.5rem 0; padding: 0; display: grid; gap: 0.5rem; }
-.prescription-files li { display: grid; gap: 0.35rem; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-control, 0.5rem); background: var(--surface); }
-.prescription-files .button-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.vision-files { list-style: none; margin: 0.5rem 0; padding: 0; display: grid; gap: 0.5rem; }
+.vision-files li { display: grid; gap: 0.35rem; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-control, 0.5rem); background: var(--surface); }
+.vision-files .button-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .own-form { display: grid; gap: 0.35rem; max-width: 40rem; margin-top: 0.5rem; }
 .own-form label { font-weight: 600; margin-top: 0.35rem; }
 .kept-copies { margin-top: 1rem; }
