@@ -40,8 +40,11 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: End-to-end tests (builds the page, checks its size, drives it in a browser)
         run: npm run e2e
-      - name: Dependency audit
-        run: npm audit --audit-level=high
+      # Fails on any advisory of severity high or critical, except those listed in scripts/audit-deps.mjs: an advisory that no
+      # upgrade can remove today. Each exception ends by itself when a newer version of its package exists (decision D79,
+      # the owner's choice of 2026-11-18).
+      - name: Dependency audit (its own rule, tested on fixed inputs first)
+        run: node scripts/audit-deps.mjs --self-test && node scripts/audit-deps.mjs
 
   # Two programs that the builder did not write read two files of the Vision (SPEC.md section 2.9, decision D64).
   # They run here only: the owner decided on 2026-11-16 that they are never run on the machine where the Studio is built.

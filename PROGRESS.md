@@ -106,6 +106,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+- Date: 2026-11-18
+- Feature worked on (ID): none; the dependency audit (decision D79), at the owner's request ("Please fix picomatch", then the choice "1")
+- Result: passes on this machine; GitHub's check on this commit decides
+- What happened: GitHub's check was red on `523ae8e` and `4b95982` although every test step passed there. Its last step, the dependency audit, reported a new advisory against every version of `picomatch`, a helper of the build tools. No repaired version exists (newest: 4.0.7, affected), so no upgrade can fix it. With the owner's choice, the step now runs `scripts/audit-deps.mjs`: it fails on any high or critical advisory except this one, prints the exception on every run, and ends the exception by itself when a newer `picomatch` exists.
+- Evidence: `node scripts/audit-deps.mjs --self-test`: 7 of 7 cases ok. `node scripts/audit-deps.mjs`: status 0, one line "EXCEPTION picomatch GHSA-fc5q-39xc-vjpf", and "no high or critical advisory outside the 1 listed exception(s)". `npm audit --omit=dev`: 0 faults. `npm run check`: 374 unit tests passed.
+- Not done: the moderate advisory against `minimatch` (a newer `typescript-eslint` repairs it; the 7-day rule of D27 applies first).
+- Next: GitHub's check on this commit; if it passes, the builder pushes the merge to the main line (allowed once, D77).
+
 - Date: 2026-11-17
 - Feature worked on (ID): none; the retest by the three red-team reviewers after the join, and its repairs (decision D77, point 4; SPEC.md section 2.29)
 - Result: passes in parts on this machine; the full browser suite did not finish here (see Evidence). GitHub's check on this commit is the full run.

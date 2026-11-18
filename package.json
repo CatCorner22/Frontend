@@ -20,6 +20,7 @@
     "check": "npm run typecheck && npm run lint && npm run boundaries && npm run test",
     "build:page": "npm run build && node apps/studio/scripts/make-artifact.mjs",
     "size": "node scripts/check-size.mjs",
+    "audit:deps": "node scripts/audit-deps.mjs --self-test && node scripts/audit-deps.mjs",
     "e2e": "npm run build:page && npm run size && vitest run --config vitest.e2e.config.ts",
     "fit": "node plugin/fit/src/cli.ts",
     "notices": "node scripts/make-notices.mjs",
