@@ -50,3 +50,8 @@ Decisions of the project itself are in `DECISIONS.md` at the repository root (D1
 | Looked for | Where | Result |
 |---|---|---|
 | a list of the current open bugs | `redteam/FINDINGS.md`, `SPEC.md` section 2.29, `PROGRESS.md` ("Known gaps"), review comments on pull requests 16 and 24 | found: the project keeps its own list; S3 reads it and does not write a second list of the same rows |
+
+<!-- from the log: start -->
+Rebuilt by `scripts/hinshitsu_log.py state`. Do not edit between the marks.
+- Newest CRITERIA entry: E-14 (PROPOSED)
+<!-- from the log: end -->

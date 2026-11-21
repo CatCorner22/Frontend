@@ -1,0 +1,20 @@
+$ grep -n "run:" .github/workflows/ci.yml
+28:        run: npm ci --ignore-scripts
+30:        run: npm run typecheck
+32:        run: npm run lint
+34:        run: npm run boundaries
+36:        run: npm test
+38:        run: node scripts/make-notices.mjs --check
+40:        run: npx playwright install --with-deps chromium
+42:        run: npm run e2e
+47:        run: node scripts/audit-deps.mjs --self-test && node scripts/audit-deps.mjs
+65:        run: npm ci --ignore-scripts
+67:        run: npm ci --ignore-scripts
+70:        run: npx vitest run --config validators/vitest.config.mjs
+$ grep -n "\"e2e\"\|\"check\"" package.json
+20:    "check": "npm run typecheck && npm run lint && npm run boundaries && npm run test",
+24:    "e2e": "npm run build:page && npm run size && vitest run --config vitest.e2e.config.ts",
+$ grep -n "timeout" .claude/verify.json
+3:    { "name": "check", "command": "npm run check", "timeout_seconds": 600 }
+6:    { "name": "e2e", "command": "PW_CHROMIUM=\"${PW_CHROMIUM:-$([ -e /opt/pw-browsers/chromium ] && echo /opt/pw-browsers/chromium)}\" npm run e2e", "timeout_seconds": 1750 }
+8:  "lint_on_edit": { "command": "npx eslint --max-warnings 0 {file}", "extensions": [".ts", ".tsx"], "timeout_seconds": 120 },
