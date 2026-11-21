@@ -59,3 +59,7 @@ The receipt was measured again with the repaired program. The program now reads 
 ## After the join of the three lines of work (2026-11-17, decision D77)
 
 The receipt was measured again with the joined program. It runs none of the page's scripts unless asked (this page has none). The Floors are now edition 3; this trial's `VISION.md` still states no edition, so the program still checks none of its Floor requirements, and the status stays 1. One more line of section 8 differs from today's file: the line on structured data (it said "The owner decides"; today it says that the data stays out, decision D70).
+
+## After the repairs to the receipt's wording (2026-11-21, retest findings R-U02 to R-U04)
+
+The receipt was measured again. This trial's Vision states no edition, so none of its Floors is checked; for that reason its contrast is now "measured, not required" (it said "required by Floor A1"), and "Still needs a person" says that the program checked none of the Floors.

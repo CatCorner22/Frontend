@@ -360,6 +360,34 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(measure(seen.receipt, 'floors').notMeasured).toBe(0);
   });
 
+  it('says nothing in the receipt that disagrees with its own summary line, for the three stored trials (retest findings R-U02, R-U03, R-U04)', () => {
+    const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
+    const run = (trial: string) => {
+      const base = join(process.cwd(), 'plugin/fit/trials', trial);
+      const out = mkdtempSync(join(tmpdir(), 'fit-words-'));
+      const done = spawnSync(process.execPath, [cli, join(base, 'index.html'), join(base, 'files'), out], { encoding: 'utf8', env: process.env });
+      return { line: done.stdout, receipt: readFileSync(join(out, 'RECEIPT.md'), 'utf8') };
+    };
+    // Trial 001: three texts could not be read, each at nine readings; the summary counts texts, and the receipt says both numbers.
+    const one = run('001');
+    expect(one.line).toContain('the contrast of 3 texts could not be read');
+    expect(one.receipt).toContain('27 readings of 3 texts could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width)');
+    expect(one.receipt).not.toContain('one for each text and window width');
+    // Trial 002: its Vision does not require contrast, so texts below the usual least are information, in the receipt and in the line.
+    const two = run('002');
+    expect(two.receipt).toContain('3 below the usual least (information: not counted as deviations); 0 not measured.');
+    expect(two.receipt).not.toMatch(/### Contrast: measured, not required\n\n\d+ deviations?;/);
+    expect(two.line).toMatch(/^22 deviations; 3 text readings below the usual contrast \(information: this Vision does not require it\)\. Status 1\./);
+    const counted = [...two.receipt.matchAll(/^(\d+) deviations?; \d+ not measured\./gm)].reduce((sum, m) => sum + Number(m[1]), 0);
+    expect(counted).toBe(22);
+    // Trial 003: a Vision of an edition that the program does not read. Nothing of its Floors is checked, so contrast is not "required".
+    const three = run('003');
+    expect(three.receipt).toContain('### Contrast: measured, not required');
+    expect(three.receipt).not.toContain('required by Floor A1');
+    expect(three.receipt).toContain('The Floors of the Vision. The program checked none of them (see “Floors” above):');
+    expect(three.receipt).not.toContain('checked only a part of some requirements');
+  }, 120_000);
+
   it('counts the colors as not measured when a box recolors what lies under it, and leaves a plain blur alone (retest finding R-S06)', async () => {
     const cover = (style: string): string => once(reference, '</body>', `<div aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:99;${style}"></div></body>`);
     for (const [name, html] of Object.entries({
@@ -464,7 +492,7 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
     const run = (dir: string, extra: string[] = []) => spawnSync(process.execPath, [cli, ...extra, join(folder, 'build.html'), dir, join(folder, 'out')], { encoding: 'utf8', env: process.env });
     const ok = run(folder);
-    expect(ok.stdout).toMatch(/^No deviation; the contrast of \d+ text readings could not be read \(this does not change the status\)\. Status 0\. Receipt: /);
+    expect(ok.stdout).toMatch(/^No deviation; the contrast of \d+ texts? could not be read \(this does not change the status\)\. Status 0\. Receipt: /);
     // A color name that holds a heading, an instruction, and invisible signs.
     const hostile = mkdtempSync(join(tmpdir(), 'fit-gate-hostile-'));
     for (const [name, text] of Object.entries(files)) writeFileSync(join(hostile, name), text);

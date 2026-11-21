@@ -72,12 +72,12 @@
     },
     {
       "id": "contrast",
-      "title": "Contrast: required by Floor A1 of the Vision",
+      "title": "Contrast: measured, not required",
       "deviations": 0,
       "notMeasured": 27,
       "items": [],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Vision writes Floor A1, so a ratio below its least is a deviation. 27 text readings (one for each text and window width) could not be measured: 27 because the text or a box around it is drawn partly transparent.",
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least. 27 readings of 3 texts could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: 27 because the text or a box around it is drawn partly transparent.",
       "informationHead": "Texts whose contrast the program could not read. A person must judge these by eye:",
       "information": [
         "dd \"for a first visit\"",
@@ -142,7 +142,7 @@
     "Frames. The program does not read what an iframe, a frame, an object, or an embed draws; it counts each as not measured.",
     "Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.",
     "Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.",
-    "The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of A1, A2, A3, A4, A5, A7, A8, A9, A10, A11, A12, A13, A14, S1, S2, S3, S4, S5, S6, S7, S9, S10, S11, H1, H2, H3, H4, H5, Q2, Q3, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, P1, P2, P4, P5, P6, P7, P8, P9, P12, P13; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page."
+    "The Floors of the Vision. The program checked none of them (see “Floors” above): A1, A2, A3, A4, A5, A7, A8, A9, A10, A11, A12, A13, A14, S1, S2, S3, S4, S5, S6, S7, S9, S10, S11, H1, H2, H3, H4, H5, Q2, Q3, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, P1, P2, P4, P5, P6, P7, P8, P9, P12, P13; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page."
   ],
   "pageErrors": [],
   "scripts": {

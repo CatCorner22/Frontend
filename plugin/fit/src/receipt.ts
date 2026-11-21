@@ -104,7 +104,10 @@ export function receiptMarkdown(receipt: Receipt): string {
   out.push('## Measured', '');
   for (const m of receipt.measured) {
     out.push(`### ${m.title}`, '');
-    out.push(`${count(m.deviations, 'deviation', 'deviations')}; ${String(m.notMeasured)} not measured. ${m.note}`, '');
+    // Contrast that the Vision does not require: its lines are texts below the usual least, and the receipt does not call them
+    // deviations, so that no count in it disagrees with the summary line (retest finding R-U02).
+    const advisory = m.id === 'contrast' && !m.title.startsWith('Contrast: required');
+    out.push(`${advisory ? `${String(m.deviations)} below the usual least (information: not counted as deviations)` : count(m.deviations, 'deviation', 'deviations')}; ${String(m.notMeasured)} not measured. ${m.note}`, '');
     if (m.items.length > 0) {
       const body = m.items.join('\n');
       const fence = fenceFor(body);

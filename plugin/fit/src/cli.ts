@@ -123,7 +123,12 @@ async function main(args: string[]): Promise<number> {
   const some = (n: number, one: string, many: string): string => `${String(n)} ${n === 1 ? one : many}`;
   const parts = [deviations === 0 ? 'No deviation' : some(deviations, 'deviation', 'deviations')];
   if (unmeasured > 0) parts.push(`${some(unmeasured, 'thing', 'things')} could not be measured`);
-  if (unread > 0) parts.push(`the contrast of ${some(unread, 'text reading', 'text readings')} could not be read (this does not change the status)`);
+  // The count of texts, not of readings: each text is read up to nine times, and "27 readings" read as 27 texts (finding R-U04).
+  const contrast = receipt.measured.find((m) => m.id === 'contrast');
+  const unreadTexts = (contrast?.information.length ?? 0) + (contrast?.informationMore ?? 0);
+  if (unread > 0) parts.push(`the contrast of ${some(unreadTexts, 'text', 'texts')} could not be read (this does not change the status)`);
+  // Texts below the usual contrast where the Vision does not require it: said, and not counted (finding R-U02).
+  if (contrast && !contrast.title.startsWith('Contrast: required') && contrast.deviations > 0) parts.push(`${some(contrast.deviations, 'text reading', 'text readings')} below the usual contrast (information: this Vision does not require it)`);
   process.stdout.write(`${parts.join('; ')}. Status ${String(status)}. Receipt: ${join(resolve(outFolder), 'RECEIPT.md')}\n`);
   return status;
 }

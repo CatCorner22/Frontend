@@ -485,7 +485,22 @@ The Vision's section 7 holds the Floors (section 2.18). Until now no program che
   7. **Six more ways to hide a required text are read** (R-S04; the owner chose this finding first, 2026-11-18). A required text counts as not measured when a filled box that takes no clicks lies over it, when a filled box that a style rule draws before or after an element lies over it, when the text stands behind the fill of the box that holds it (a negative z-index), or when its box shows its back and the page hides backs. A text whose letters are drawn as dots counts as missing. The place of a drawn box is worked out from its style values, which is an approximation.
   8. **A page that keeps changing is never called measured** (R-S05, 2026-11-21). An animation that never ends, and a timer inside an SVG picture, each count as not measured at each window width, and the receipt says that the page keeps changing after the program stops reading. The program does not judge what the animation changes, so a harmless endless animation has the same effect.
   9. **Recoloring boxes, field text, and shapes by reference** (R-S06 in part, R-S07, R-T05; 2026-11-21). A box with a backdrop filter other than a blur or more saturation, and a box with a blend mode, each make the colors measure "not measured". The text that stands in a form field is read for color, typeface, and contrast. The fill and stroke of a shape that an SVG picture draws by reference (`use`) are compared. The paints that came from the audit branch (underline, column rule, list marker, placeholder, caret, accent color, the opacity of an SVG paint, each address of a ping) now have a test of their own.
-- Open, each a row of `redteam/FINDINGS.md`: 8 major findings (R-S08, R-S09, R-S11, R-T06 in part, R-U02 to R-U05) and the minor ones. Of R-S06 a part stays open and stated: a gradient or an inset shadow on every element.
+  10. **The receipt agrees with its own summary line** (R-U02, R-U03, R-U04; 2026-11-21). Where the Vision does not require contrast, texts below the usual least are information and are not called deviations, in the receipt and in the summary line. The receipt counts texts and readings apart ("27 readings of 3 texts"). For a Vision of an edition that the program does not read, contrast is "measured, not required", and "Still needs a person" says that none of the Floors was checked.
+- Open, each a row of `redteam/FINDINGS.md`: 5 major findings (R-S08, R-S09, R-S11, R-T06 in part, R-U05 in part) and the minor ones. Of R-S06 a part stays open and stated: a gradient or an inset shadow on every element.
+- How to test it end to end: `npm run e2e`.
+
+### 2.30 The owner's final deliverable works as its recipient gets it (the owner's request of 2026-11-21)
+
+- What the owner does: picks a Direction, writes texts, opens the Summary, and downloads the Vision as one archive file or as seven single files.
+- What the system guarantees, and one browser test proves for three Directions (`apps/studio/e2e/deliverable.e2e.ts`):
+  1. The archive unpacks with a program that the Studio did not write (`unzip`), and it holds exactly the seven files. Each single download equals the archive's copy.
+  2. No file is empty, holds a broken character, an old name, or a value that a program printed in place of a real one ("undefined", "NaN", "[object Object]").
+  3. Every file carries the same fingerprint, and the archive's name carries it too.
+  4. `tokens.json` is JSON. A browser keeps every design value of `tokens.css` and `theme.css`.
+  5. `mockup.html`, opened from the unpacked folder with no network, shows no error, asks for nothing, holds no script, defines every design value that it uses, has one main headline, and is not wider than a window of 375, 768, or 1280 pixels.
+  6. Texts that the owner typed with signs that code could misread (`<b>`, `</style><script>`, a closing fence, a line that looks like a heading) stand in the page letter for letter as text, run nothing, and add no section to `VISION.md`.
+  7. The Fit check reads the unpacked folder, and the Mockup shows no deviation from its own Vision in the six design measures.
+- What the test does not prove: that an AI coding tool builds a good page from the files (build trials 001 and 003 are one run each); the download on the real private page, whose host saves a `.css` file with `.txt` at the end of its name; what the files look like to a person.
 - How to test it end to end: `npm run e2e`.
 
 ## 3. Out of scope

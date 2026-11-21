@@ -75,3 +75,7 @@ The receipt was measured again with the repaired program. No deviation count cha
 ## After the join of the three lines of work (2026-11-17, decision D77)
 
 The receipt was measured again with the joined program. It now runs none of the page's scripts unless asked (this page has none), and the colors measure also compares underlines, list markers, placeholders, carets, and accent colors. No count of deviations changed; two more partly transparent colors are listed as information (the underline of links).
+
+## After the repairs to the receipt's wording (2026-11-21, retest findings R-U02 to R-U04)
+
+The receipt was measured again. No count changed. Its wording changed: it now says "27 readings of 3 texts could not be measured", where it said "27 text readings", because each of the three texts is read at 3 window widths and up to 3 times at each.

@@ -107,6 +107,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-21
+- Feature worked on (ID): none; the owner's final deliverable (SPEC.md section 2.30), and retest findings R-U02 to R-U04 (section 2.29, point 10), at the owner's request ("the customer's final deliverable ... must work correctly")
+- Result: passes in the tests run on this machine; GitHub's check on this commit is the full run
+- The deliverable: the builder downloaded the Vision from the built Studio page in a real browser for three Directions, with texts that code could misread, unpacked the archive with `unzip`, and checked every file by itself (243 checks). No defect was found. One oddity is recorded as a note (row DV-01: `--font-numeric: inherit` works by a rule of CSS). The audit is now a browser test, `apps/studio/e2e/deliverable.e2e.ts`.
+- The receipt: where the Vision does not require contrast, texts below the usual least are information and are not called deviations; texts and readings are counted apart; for a Vision of an edition that the program does not read, contrast is "measured, not required".
+- Tests: the deliverable test passed at once (it found no defect; it guards from now on). The receipt's test was written after its repair, and this entry says so.
+- Evidence: `npm run check`: 374 unit tests passed. Browser tests run: the Fit check's four files and the deliverable test, 228 of 228 passed (1,330 seconds). The Studio's other browser tests were not run here (the Studio's code did not change).
+- Not proven: that an AI coding tool builds a good page from the files; the download on the real private page.
+- Open: 5 major findings of the retest (SPEC.md section 2.29); pull request 14 (the owner's decision).
+
+- Date: 2026-11-21
 - Feature worked on (ID): none; retest findings R-S06 (in part), R-S07, and R-T05 (SPEC.md section 2.29, point 9), after the owner's second "Continue"
 - Result: passes in the Fit check's tests on this machine; GitHub's check on this commit is the full run
 - What it does: (R-S06) a box with a backdrop filter other than a blur or more saturation, and a box with a blend mode, make the colors "not measured"; the Mockup's own glass (blur and saturation) is left alone. (R-S07) the text in a form field is read for color, typeface, and contrast; a shape that an SVG picture draws by reference is compared. (R-T05) the six paints, the paint opacity, and the ping reading that came from the audit branch have a test.

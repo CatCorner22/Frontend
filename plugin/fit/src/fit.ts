@@ -455,7 +455,9 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   const colorNote = `A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, underlines, column rules, list markers, placeholder text, carets, accent colors, and the fill and stroke of inline SVG shapes are compared too.${frames > 0 ? ` The page holds ${String(frames)} ${frames === 1 ? 'frame or embedded object' : 'frames or embedded objects'}; the program does not read what ${frames === 1 ? 'it draws' : 'they draw'}, and counts ${frames === 1 ? 'it' : 'each'} as not measured.` : ''}${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${translucent.size > 0 ? ' Partly transparent colors are listed as information and not compared.' : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
   const whyUnread = [...reasons].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([why, n]) => `${String(n)} because ${why}`).join('; ');
   // The Floors (SPEC.md section 2.22): the part of each written requirement that a program can check on this page.
-  const binding = written.includes('A1');
+  // Contrast binds only where the program reads the Floors: a Vision of another edition has none of its Floors checked, so its A1
+  // does not bind either (retest finding R-U03: the receipt said "required by Floor A1" beside "checked none").
+  const binding = written.includes('A1') && edition === FLOORS_EDITION;
   const floorLines = new Set<string>();
   for (const p of good) {
     const http = p.collected.references.map((ref) => ref.address.replace(/[\t\n\r]/g, '').trim()).filter((address) => /^http:/i.test(address));
@@ -474,7 +476,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     : otherEdition
     ? `The Vision’s section 7 writes ${String(written.length)} requirements in ${edition === null ? 'an edition without a number (an older Vision)' : `edition ${String(edition)}`} of the Floors; this program reads edition ${String(FLOORS_EDITION)}, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.`
     : `The Vision’s section 7 writes ${String(written.length)} requirements. The program checked a part of ${String(partly.length)} of them (${partly.join(', ')}); each deviation line names its requirement, and the list below says which part of each the program checked. Passing that part does not show that the page meets the requirement: the rest of each, and all of ${floorsNotChecked.join(', ')}, stay with a person.`;
-  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${String(unreadable)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
+  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : written.includes('A1') ? 'The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${String(unreadable)} readings of ${String(unreadTexts.size)} ${unreadTexts.size === 1 ? 'text' : 'texts'} could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: ${whyUnread}.` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => [...shown(e)].slice(0, 200).join(''))))].sort().slice(0, 5);
   const most = (pick: (c: Collected) => number): number => Math.max(0, ...good.map((p) => pick(p.collected)));
   return {
@@ -519,7 +521,7 @@ export async function fit(input: FitInput): Promise<FitResult> {
     // be read does not change the status (the Mockup itself holds such texts); the receipt and the command line name the count.
     const counted = measured.filter((m) => m.id !== 'contrast');
     const contrast = measured.find((m) => m.id === 'contrast');
-    const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || (written.includes('A1') && (contrast?.deviations ?? 0) > 0) || loadFailures.length > 0 ? 1 : 0;
+    const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || ((contrast?.title ?? '').startsWith('Contrast: required') && (contrast?.deviations ?? 0) > 0) || loadFailures.length > 0 ? 1 : 0;
     const judged = (input.judged ?? []).map((line) => bounded(line.replace(/\s+/g, ' ').trim())).filter((line) => line !== '');
     const receipt: Receipt = {
       fingerprint: design.fingerprint,
@@ -531,7 +533,7 @@ export async function fit(input: FitInput): Promise<FitResult> {
       repairRound,
       judgedByModel: judged.slice(0, JUDGED_MAX),
       judgedMore: Math.max(0, judged.length - JUDGED_MAX),
-      stillNeedsPerson: [...STILL_NEEDS_A_PERSON.map((line) => (!runScripts && line.startsWith('A page that recognizes the check.') ? UNRUN_LINE : line)), ...(written.length > 0 ? [`The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of ${floorsNotChecked.join(', ')}; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.`] : [])],
+      stillNeedsPerson: [...STILL_NEEDS_A_PERSON.map((line) => (!runScripts && line.startsWith('A page that recognizes the check.') ? UNRUN_LINE : line)), ...(written.length > 0 ? [`The Floors of the Vision. ${floorsNotChecked.length === written.length ? 'The program checked none of them (see “Floors” above):' : 'The program checked only a part of some requirements (see “Floors” above). It checked nothing of'} ${floorsNotChecked.join(', ')}; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.`] : [])],
       pageErrors,
       scripts,
       loadFailures,

@@ -66,3 +66,7 @@ The receipt was measured again. The colors row shows 18 where it showed 12: the 
 ## After the join of the three lines of work (2026-11-17, decision D77)
 
 The receipt was measured again with the joined program, which runs none of the page's scripts unless asked (this page has none). The colors row shows 20 where it showed 18: the program now also compares the color of an underline and of a caret (the mark that shows where typing lands), and this page draws one of each in a color that is not the Vision's.
+
+## After the repairs to the receipt's wording (2026-11-21, retest findings R-U02 to R-U04)
+
+The receipt was measured again. No count changed. Its wording changed: this Vision does not require contrast, so the three readings below the usual least are now called information ("3 below the usual least (information: not counted as deviations)"), not deviations. The table above keeps the number 3 in its Contrast row, as the receipt's data states it.
