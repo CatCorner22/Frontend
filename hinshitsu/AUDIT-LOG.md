@@ -1198,3 +1198,21 @@ Translation, 1 line changed: O4 (the checks pass before each commit) → C5, its
 ### E-109 · 2026-11-21T20:04:58Z · CORRECTION · orchestrator
 
 Corrects 3 statements (FINDINGS F-35 and F-42). (1) E-55, last line: F-27 and F-28 are repaired in plan steps 8 and 10, not 7 and 10. (2) The card of E-64 and the question quoted in E-67 say that a search finds 44 rows, 4 of them of grade blocker: at that time the script listed 40 rows, 3 more matched and said "closed", and R-12 entered by name; the 44 held 5 blocker rows (M-01, G-S04, G-S05, R-S03, R-12), and 6 of the 44 were planned as closed with no change of code. After E-108 the list holds 49 rows. (3) E-68, C5: only GitHub's check "check" runs the whole browser suite; "Outside validators" runs the validators' own tests. E-108 holds the corrected sentence.
+
+### E-110 · 2026-11-21T20:06:42Z · LAUNCH · orchestrator
+
+- Role: RED CELL: probe of the change of the CRITERIA, E-108 (rule 6.3 (a))
+- WORK UNIT: plan
+- Scope: `prompts/S6-redcell-probe-criteria-change.md`
+- Commit under review: a86c9b0
+- SUB-AGENT identifier: af39059359b7f289e — not openable by the USER
+- Report: `audits/redcell-probe-E-110.md`
+
+### E-111 · 2026-11-21T20:06:42Z · LAUNCH · orchestrator
+
+- Role: AUDITOR: second re-audit of the open FINDINGS on the plan (round 2 of 2, rule 14.5)
+- WORK UNIT: plan
+- Scope: `prompts/S6-reaudit-2.md`
+- Commit under review: a86c9b0
+- SUB-AGENT identifier: a6d6085f0ca1a7233 — not openable by the USER
+- Report: `audits/reaudit-plan-2-E-111.md`
