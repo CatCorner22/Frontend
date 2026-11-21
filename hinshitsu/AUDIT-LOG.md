@@ -1709,3 +1709,10 @@ Commit 1 of `PLAN.md`: `cutAway` and `covered` in `plugin/fit/src/collect.ts` (t
 - forward: `collect.ts` gives `shownLines` and `clippedLines` to `fit.ts` (the Content measure) and to `look.ts`. The change adds lines to `shownLines` for a text inside a box that scrolls; no line leaves. Not broken.
 - backward: the change rests on finding G-S03 (a text that no visitor can see is not counted). A box that hides what overflows, and a scrolling box with no room, still cut the text away; the test asserts both. Not violated.
 - lateral: no other WORK UNIT is in progress.
+
+### E-169 · 2026-11-21T21:47:14Z · TRACE · orchestrator
+
+Commit 2 of `PLAN.md`: the branch for SVG text in `plugin/fit/src/collect.ts` (the automatic reviewer's finding 2, C2).
+- forward: `collect.ts` gives `families` and `texts` to `fit.ts` (the Typefaces and Contrast measures). The change adds entries for a text that an inline picture draws; none leaves. A build that draws text in a typeface outside the Vision now gets a Typefaces deviation where it got none. Not broken.
+- backward: finding G-S08 (fill and stroke of SVG shapes are compared) and the rule that a text whose contrast cannot be read is "not measured": both kept; where a shape of the same picture may lie behind the text, the contrast is not measured.
+- lateral: commit 1 changed another function of the same file; no shared lines.

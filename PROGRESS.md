@@ -106,6 +106,12 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 2: a text that an inline picture draws is compared by typeface and contrast
+- Feature worked on (ID): none in the list. The second of the 3 findings of the automatic reviewer on pull request 16.
+- The finding is true, fixed. Before: a text drawn by an inline SVG picture (`text`, `tspan`) was compared by its fill color only; its typeface was not compared, and its contrast was not read. Now: its typeface is compared, and its contrast is read from its fill against the boxes around the picture. Where a shape of the same picture may lie behind the letters, where the fill is a gradient or partly transparent, or where the letters are an outline, the contrast is "not measured", never "found good".
+- Test (written first; it failed because the Typefaces measure held no line for the planted typeface): "automatic reviewer, finding 2: SVG text is left out of the typefaces and contrast measures ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- How the checks ran from this commit on: in a second checkout of the repository that holds exactly the files of the commit, so that the builder can write the next repair while the browser tests run (about 25 minutes). The commit is made only after the 3 checks pass. Evidence: `hinshitsu/evidence/commit-2-checks.txt`.
+
 ### 2026-11-21: repair run, commit 1: a text inside a box that scrolls is no longer read as cut away
 - Feature worked on (ID): none in the list. The first of the 3 findings that the automatic reviewer left on pull request 16 (record of the run: `hinshitsu/AUDIT-LOG.md`; plan: `hinshitsu/PLAN.md`).
 - The finding is true, fixed. Before: a required text that stood below the visible part of a box with `overflow: auto` or `scroll` was left out of the texts that a person can read, so the Content measure called a headline missing that a visitor reaches by scrolling the box. Now: in a direction in which a box scrolls, the box cuts nothing away, and the text is judged where the visitor reads it (scrolled into its box; the boxes are put back). A box that hides what overflows (`hidden`, `clip`) and a scrolling box with no room at all still cut the text away.

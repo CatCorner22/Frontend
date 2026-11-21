@@ -281,6 +281,32 @@ export function collect(): Collected {
       // The paint's own opacity joins the color's alpha, so a half-transparent fill is listed as partly transparent (audit branch, finding CX-02).
       if (cs.fill !== 'none' && !cs.fill.startsWith('url(') && Number.parseFloat(cs.fillOpacity) > 0) add('background', withAlpha(rgbOf(cs.fill), Number.parseFloat(cs.fillOpacity)), label, recolored);
       if (cs.stroke !== 'none' && !cs.stroke.startsWith('url(') && Number.parseFloat(cs.strokeWidth) > 0 && Number.parseFloat(cs.strokeOpacity) > 0) add('border', withAlpha(rgbOf(cs.stroke), Number.parseFloat(cs.strokeOpacity)), label, recolored);
+      // A text that the picture draws (`text`, `tspan`) is a text of the page: its typeface is compared, and its contrast is read
+      // from its fill against the boxes around the picture (automatic reviewer of pull request 16, finding 2).
+      if (el instanceof SVGTextContentElement && hasText && (cs.fill !== 'none' || cs.stroke !== 'none')) {
+        const family = (cs.fontFamily.match(/^\s*(?:"([^"]*)"|'([^']*)'|([^,]*))/) ?? []).slice(1).find((part) => part !== undefined) ?? '';
+        families.push({ family: family.trim(), where: label });
+        const picture = el.ownerSVGElement;
+        const paint = cs.fill === 'none' || cs.fill.startsWith('url(') ? '' : withAlpha(rgbOf(cs.fill), Number.parseFloat(cs.fillOpacity));
+        let unmeasured = '';
+        const layers: string[] = [];
+        if (paint === '' || alphaOf(paint) < 1) unmeasured = cs.fill.startsWith('url(') ? 'the text is filled by an image or a gradient' : 'the text or a box around it is drawn partly transparent';
+        if (unmeasured === '' && cs.stroke !== 'none' && Number.parseFloat(cs.strokeWidth) > 0) unmeasured = 'the letters are drawn as an outline';
+        if (unmeasured === '' && recolored) unmeasured = 'a filter changes how the text is drawn';
+        // The program does not work out which shape of the picture lies behind the letters.
+        if (unmeasured === '' && picture !== null && picture.querySelector('rect, circle, ellipse, path, polygon, polyline, line, image, use, foreignObject') !== null) unmeasured = 'a shape of the same picture may lie behind the text';
+        for (let up: Element | null = el; up && unmeasured === ''; up = up.parentElement) {
+          const style = getComputedStyle(up);
+          if (Number.parseFloat(style.opacity) < 1) { unmeasured = 'the text or a box around it is drawn partly transparent'; break; }
+          if (up instanceof SVGElement && up !== picture) continue;
+          if (style.backgroundImage !== 'none') { unmeasured = 'an image or a gradient lies behind the text'; break; }
+          const behind = rgbOf(style.backgroundColor);
+          const a = alphaOf(behind);
+          if (a > 0) layers.unshift(behind);
+          if (a === 1) break;
+        }
+        texts.push({ where: label, foreground: paint === '' ? rgbOf(cs.color) : paint, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400 });
+      }
       continue;
     }
     box(cs, label, hasText, recolored, el.tagName === 'IMG' || el.tagName === 'VIDEO' || el.tagName === 'CANVAS');

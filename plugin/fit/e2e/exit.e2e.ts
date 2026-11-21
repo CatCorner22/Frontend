@@ -303,6 +303,21 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     }
   }, 240_000);
 
+  it('automatic reviewer, finding 2: SVG text is left out of the typefaces and contrast measures. A text that an inline picture draws is compared by its typeface, and its contrast is read from its fill; where a shape of the same picture may lie behind it, the contrast is not measured', async () => {
+    const drawn = (rest: string): string => `<div style="background:#888888"><svg width="320" height="40" role="img" aria-label="Planted">${rest}<text x="0" y="30" font-family="Papyrus" font-size="20" fill="#777777">Planted drawn text</text></svg></div>`;
+    const plain = await fit({ files, html: inBody(drawn('')), browser });
+    expect(measure(plain.receipt, 'typefaces').items.join('\n')).toContain('Papyrus');
+    expect(measure(plain.receipt, 'typefaces').deviations).toBeGreaterThan(0);
+    expect(measure(plain.receipt, 'contrast').items.join('\n')).toMatch(/Planted drawn text/);
+    expect(measure(plain.receipt, 'contrast').deviations).toBeGreaterThan(0);
+    // A shape of the same picture may lie behind the letters: the program does not work out which, so it does not call the ratio measured.
+    const base = await fit({ files, html: reference, browser });
+    const over = await fit({ files, html: inBody(drawn('<rect width="320" height="40" fill="#ffffff"/>')), browser });
+    expect(measure(over.receipt, 'contrast').items.join('\n')).not.toMatch(/Planted drawn text/);
+    expect(measure(over.receipt, 'contrast').notMeasured).toBeGreaterThan(measure(base.receipt, 'contrast').notMeasured);
+    expect(measure(over.receipt, 'typefaces').deviations).toBeGreaterThan(0);
+  }, 240_000);
+
   it.each([
     ['a faint headline', (page: string) => once(page, '<h1', '<h1 style="opacity:0.2"')],
     ['a box that covers the whole page', (page: string) => once(page, '</body>', '<div style="position:fixed;inset:0;background:#ffffff;z-index:99999"></div></body>')],
