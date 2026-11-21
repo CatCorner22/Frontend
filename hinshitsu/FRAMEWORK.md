@@ -6,7 +6,7 @@ Form required by section 7 (`skills/hinshitsu-record/SKILL.md`). A superseded li
 
 No `CRITERIA` entry exists yet. It is written at S4 as `PROPOSED` and controls from then on, with each later `CRITERIA-CHANGE` entry. (superseded 2026-11-21 → E-56)
 
-The CRITERIA are in `AUDIT-LOG.md` E-68 (`FROZEN`, the USER's approval quoted there); E-14 and E-56 are the earlier `PROPOSED` texts.
+The CRITERIA are in `AUDIT-LOG.md` E-68 (`FROZEN`, the USER's approval quoted there), with C1, C3, C4, C5, C6 and C7 as changed by E-108 (`CRITERIA-CHANGE`, the USER's approval quoted there); E-14 and E-56 are the earlier `PROPOSED` texts.
 
 ## 2. Architecture decisions
 
@@ -22,7 +22,7 @@ The CRITERIA are in `AUDIT-LOG.md` E-68 (`FROZEN`, the USER's approval quoted th
 | D-6 | WU-1 is steps 1 to 11 of `PLAN.md`; 1 audit round over the finished set | E-70 |
 | D-7 | This run publishes no new version of the private page | E-71 |
 
-Decisions of the project itself are in `DECISIONS.md` at the repository root (D1 to D79). This run cites them by that file and number and does not copy them.
+Decisions of the project itself are in `DECISIONS.md` at the repository root (D1 to D81). This run cites them by that file and number and does not copy them.
 
 ## 3. Naming conventions
 
