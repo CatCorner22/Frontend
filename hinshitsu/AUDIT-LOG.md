@@ -801,3 +801,11 @@ The card as sent to the USER (copied here before sending). Working assumption wh
 **Not part of this card:** pull request 14 still waits for your decision (I recommended closing it).
 
 Shortest reply that accepts every recommendation: "1: approve; 2: A; 3: once; 4: yes; 5: yes; 6: yes; 7: yes; 8: yes".
+
+### E-65 · 2026-11-21T19:02:23Z · CORRECTION · orchestrator
+
+Corrects E-64 before sending: decisions 1 and 2 held more than 120 words (183 and 130). As sent, the list of the 9 tests stands above decision 1 as context, with the same words, and the 2 decisions read:
+
+**Decision 1 — the 9 tests of "done".** (a) Do you approve the 9 tests above as the definition of "done" for this run? (b) I recommend yes: each one names a command or a reader that a third party can repeat. (c) Approve: the build starts on these tests, and I cannot change one later without asking you. Change: you tell me what to change, and I send the list again; nothing is built meanwhile. (d) Reply "1: approve" or "1: change …".
+
+**Decision 2 — how much to repair in this run.** (a) Which of the 44 rows do I repair now? (b) I recommend A: your final deliverable first, in one checked batch; the other rows change the Studio's screens and need a new version of your private page. (c) A: the 7 rows in the Fit check, the receipt and the Vision, plus the 3 reviewer findings; 19 Studio rows wait for a second run. Sooner and safer; "all bugs" takes 2 runs. B: every row that code can repair, in 1 run about 3 times as large. C: the 4 blocker rows only. (d) Reply "2: A", "2: B" or "2: C".
