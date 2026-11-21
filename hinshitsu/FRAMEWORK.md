@@ -6,7 +6,7 @@ Form required by section 7 (`skills/hinshitsu-record/SKILL.md`). A superseded li
 
 No `CRITERIA` entry exists yet. It is written at S4 as `PROPOSED` and controls from then on, with each later `CRITERIA-CHANGE` entry. (superseded 2026-11-21 → E-56)
 
-The CRITERIA are in `AUDIT-LOG.md` E-68 (`FROZEN`, the USER's approval quoted there), with C1, C3, C4, C5, C6 and C7 as changed by E-108 (`CRITERIA-CHANGE`, the USER's approval quoted there); E-14 and E-56 are the earlier `PROPOSED` texts.
+The CRITERIA are in `AUDIT-LOG.md` E-68 (`FROZEN`, the USER's approval quoted there), with C1, C3, C4, C5, C6 and C7 as changed last by E-139 (`CRITERIA-CHANGE`, the USER's approval quoted there; E-108 is the change before it); E-14 and E-56 are the earlier `PROPOSED` texts.
 
 ## 2. Architecture decisions
 
@@ -19,7 +19,7 @@ The CRITERIA are in `AUDIT-LOG.md` E-68 (`FROZEN`, the USER's approval quoted th
 | D-5 | The AUDITORS run the tests that the CRITERIA name | E-60 |
 | D-4, D-6, D-7 | wait for the USER's answer on the S6 card | — | (superseded 2026-11-21 → E-69, E-70, E-71)
 | D-4 | G-S05: a media condition other than width and height that the Mockup lacks makes the measures "not measured" | E-69 |
-| D-6 | WU-1 is steps 1 to 11 of `PLAN.md`; 1 audit round over the finished set | E-70 |
+| D-6 | WU-1 is the whole set of fixes of `PLAN.md` (18 commits since E-139); 1 audit round over the finished set | E-70 |
 | D-7 | This run publishes no new version of the private page | E-71 |
 
 Decisions of the project itself are in `DECISIONS.md` at the repository root (D1 to D81). This run cites them by that file and number and does not copy them.
@@ -55,7 +55,7 @@ Decisions of the project itself are in `DECISIONS.md` at the repository root (D1
 | ID | Content | Status | LENS memo | Swarm reports |
 |---|---|---|---|---|
 | (none declared yet; declared at S6, before S7) | | | | | (superseded 2026-11-21 → WU-1)
-| WU-1 | steps 1 to 11 of `PLAN.md` | declared (E-70); not started | — | — |
+| WU-1 | commits 1 to 18 of `PLAN.md` | declared (E-70); not started | — | — |
 
 ## 7. Existing implementations checked
 

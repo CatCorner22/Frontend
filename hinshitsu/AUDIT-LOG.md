@@ -1216,3 +1216,264 @@ Corrects 3 statements (FINDINGS F-35 and F-42). (1) E-55, last line: F-27 and F-
 - Commit under review: a86c9b0
 - SUB-AGENT identifier: a6d6085f0ca1a7233 — not openable by the USER
 - Report: `audits/reaudit-plan-2-E-111.md`
+
+### E-112 · 2026-11-21T20:34:59Z · ANSWER · orchestrator
+
+Two messages of the USER, word for word.
+
+(1) Before the reports of E-110 and E-111 were read, the USER wrote: "I approve.   Proceed". The ORCHESTRATOR's message before it had said that this was the second of the 2 rounds on the plan and that, with a BLOCKER still open, the USER would be asked. The ORCHESTRATOR does not take these words as approval of any text that the USER had not seen.
+
+(2) At about 2026-11-21T20:34Z the USER answered 3 questions in a dialog window. Each answer is the label that the USER chose.
+
+| Question as asked (start) | The USER's answer |
+|---|---|
+| "Two more reviewers checked the tests of \"done\" and demand 12 changes; each makes a test stricter. May I change the tests so? In short: (a) the bug list grows from 49 to 53 rows (my search missed 4; I repair 2 now: the shown option of a drop-down list, and the corners of drawn shapes); (b) each fix is its own commit; (c) I compare the built page byte for byte with a build of the published version; (d) one more receipt case covers a Vision with every Floor; (e) every receipt states the width-and-height limit, and a test proves it; (f) a checking tool that is missing counts as \"not met\"." | "Approve the changes (Recommended)" |
+| "Three of the newly found items need your word. May they wait as follows? (1) The Fit check works out where a covering box sits from its style values (an approximation) and does not judge a blend effect on such a box: stays a limit that the receipt states. (2) Splitting GitHub's long check into two shorter jobs: next run. (3) The project's own tests of the Vision's craft rules can miss a fault in a style sheet: next run." | "Yes, all 3 wait (Recommended)" |
+| "Reviewers have now checked the wording of the tests three times and found new wording faults each time; no code is built yet. After I make these changes, how do I go on?" | "One more check, then build (Recommended)" — the option's text: "Two helper runs (about 15 minutes) check the changed wording once more. Then I build whatever they find; I fix any wording fault alongside and list it in the final report. This departs from the method's stop rule, and the report says so." |
+
+What the third answer means for the record: after the next probe and re-audit the build starts, even with a BLOCKER on the plan's wording open. That departs from rules 14.1 and 14.5, on the USER's instruction; the delivery report states it in its `Summary`.
+
+### E-113 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C4, the clause "a Vision of an edition of the Floors that the program does not read gives no count \"not measured\" for its Floor requirements (row R-U03)".
+- Trigger: in a copy of a86c9b0, at `plugin/fit/src/fit.ts` line 494, change `failed + (otherEdition ? 1 :` to `failed + (otherEdition ? 0 :`, then run `PW_CHROMIUM=/opt/pw-browsers/chromium node plugin/fit/src/cli.ts plugin/fit/trials/003/index.html plugin/fit/trials/003/files <folder>`. Result: "Status 0". Line 524 of `fit.ts` shows that the status 1 of trial 003 rests on that count alone.
+- Violates: O1 as E-68 translates it (no known way to status 0 on a wrong page except those the receipt states); "nothing is made easier" (E-107). On the reading "no count at all" it also asks the builder to change the assertions `floors.notMeasured` 1 and `status` 1 of the test at `exit.e2e.ts` lines 265 to 276, which hold the repair of the blocker G-U01 (`CLAUDE.md`, hard rule 3).
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 1
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-43
+
+### E-114 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C5, first sentence; and the line "Translation, 1 line changed".
+- Trigger: read steps 1, 6 and 8 of `PLAN.md`: up to 3 fixes, 2 rows, and 4 subjects in 1 commit each. Read E-64, "Decided by me": "each fix is its own commit, so one fix can be taken back alone". Read E-68, Translation: "O3 (1 commit for each fix) → C5"; E-108 leaves that line standing. E-107 names no such change.
+- Violates: the statement to the USER in E-64; G6 of E-10; "Nothing is removed and nothing is made easier" (E-107). C5 also takes its meaning from `PLAN.md`, which the ORCHESTRATOR can rewrite with no `CRITERIA-CHANGE` entry.
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 2
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-44
+
+### E-115 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C1, the list "(b), the project's own tests, Catalog data and GitHub's check, for the next run, on the same word: X-02, CR-GX2, C-07, A1-09".
+- Trigger: compare with E-107, question 1 (b) ("3 rows") and with E-68 (A1-09 under "waits for an act of the owner"); read E-64, decision 2 (c).
+- Violates: C1, state (b) ("the Status cites the `ANSWER` entry that holds the USER's word"): no entry holds the USER's word for moving A1-09 to the next run, and the entry cited for the other 3 holds the reason that F-33 showed false. C6's list in "Known gaps" loses A1-09 without a word to the USER.
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 3
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-45
+
+### E-116 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C3, the sentence on the Summary.
+- Trigger: run `git diff --stat 523ae8e a86c9b0 -- packages/core apps/studio package.json package-lock.json` (3 paths, 1 of them a test file). Then build both commits in 2 folders and run `cmp` on the 2 files `refraction-studio.html` (silent).
+- Violates: E-68 C3 asked "whether the built page differs", and the new text never answers it; V3 ("true, verified information"); "nothing is made easier". The owner would read "may differ" where a repeatable comparison shows equal bytes. Smaller: `tsconfig.base.json`, which `apps/studio/tsconfig.json` extends, is outside the 4 paths (unchanged between the 2 commits today).
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 4
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-46
+
+### E-117 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C4, "1 reference build (the Vision's own page of trial 001 … this Vision writes no Floor …)".
+- Trigger: run the command of C4 (status 0, "Contrast: measured, not required", Floors "nothing was checked here"); `grep -n '^## 7' plugin/fit/trials/00{1,2,3}/files/VISION.md` finds section 7 in trial 003 only, in an edition that the program does not read.
+- Violates: a test that proves less than E-68's, whose "reference build of the plain start" the test file builds with every Floor written. In all 4 receipts the measure Floors checks nothing and Contrast is never required, so the clauses of C4 on those 2 measures meet no case. E-107 does not name this.
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 5
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-47
+
+### E-118 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C1, "G-S05 (… kept for width and height conditions, on the USER's word in E-107)".
+- Trigger: `grep -rn "All other window widths\|other window heights" plugin packages apps` finds no test file. Step 2 of `PLAN.md` changes the sentences on dark mode, touch screens and pixel density, which share line 61 and stand next to line 58.
+- Violates: the USER's condition in E-107 ("a limit that every receipt states"): no CRITERION and no test holds it.
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 6
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-48
+
+### E-119 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C1, state (c), third reason, and the Test sentence.
+- Trigger: read the Test sentence for the question that the framework-drift auditor answers for G-U07, and for a sentence that binds a row to its list. Neither exists.
+- Violates: C1 as a test that a third party can repeat. The third reason is not in the question that E-107 records.
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 7
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-49
+
+### E-120 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C6, "(… on a machine without that skill this part of the test is reported UNVERIFIED)".
+- Trigger: run the command where `ls /root/.claude/skills/synced/*/living-reference/scripts/refresh_reference.py` finds nothing. Under E-68 the test fails; under E-108 the part is "reported UNVERIFIED", and no sentence says whether C6 is met.
+- Violates: "nothing is made easier" (E-107).
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 8
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-50
+
+### E-121 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C7, "and `plugin/commands/fit-check.md` does too"; and steps 10 and 11 of `PLAN.md`.
+- Trigger: the Test sentence of C7 reads the guide for the measures and names nobody who reads `fit-check.md` for them. `redteam/FINDINGS.md` stands in the Files cell of step 10 only, while the rows R-T06 and G-U07 are repaired in step 11; the Status written in step 10 would state a repair that does not exist at that commit.
+- Violates: C7 (a clause with no test); C5 ("1 commit that holds its tests and its record").
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 9
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-51
+
+### E-122 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C1, "Each of the 49 rows"; E-107, question 1 (a) ("my search missed 5").
+- Trigger: `grep -n "^| R-S07 |" redteam/FINDINGS.md`: grade major, Status "Repaired on 2026-11-21 … Not read: a `select`'s shown option, and a shape referenced from another file". The 9 patterns of `open-rows.py` do not match it. I appended `<select style="color:#ff00ff;background:transparent;border:0;outline:0;font:italic 40px Papyrus,fantasy"><option>Another design</option></select>` to `plugin/fit/trials/001/files/mockup.html` in scratch and ran the Fit check against the Vision of trial 001: "No deviation … Status 0". The receipt names neither the color, nor the typeface, nor such a limit. G-S08 ("The corner radius of an SVG shape is not; stated") and R-S04 ("Limits: … a blend mode on a cover is not judged") have a rest by the same reading.
+- Violates: the translation of V1 in E-9 ("each open finding of grade blocker or major"); O1; the count told to the USER in E-107.
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 10
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-52
+
+### E-123 · 2026-11-21T20:35:00Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-108, C1, "(b), repaired in part by this run: G-S05 … and R-S06".
+- Trigger: `git log -S'counts the colors as not measured when a box recolors' -- plugin/fit/e2e/exit.e2e.ts` gives af90f7e, an ancestor of 859c643, the base of the run (E-1). `PLAN.md` holds no step for R-S06.
+- Violates: one statement, one fact. R-S06 was repaired in part before this run.
+- Raised by: RED CELL probe, LAUNCH E-110, `audits/redcell-probe-E-110.md`, finding 11
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet
+- ID: F-53
+
+### E-124 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-2
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-2: NO LONGER REPRODUCES
+
+### E-125 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-29
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-29: NO LONGER REPRODUCES
+
+### E-126 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-30
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-30: NO LONGER REPRODUCES
+
+### E-127 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-31
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-31: NO LONGER REPRODUCES
+
+### E-128 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-32
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-32: NO LONGER REPRODUCES
+
+### E-129 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-33
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-33: NO LONGER REPRODUCES
+
+### E-130 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-34
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-34: NO LONGER REPRODUCES
+
+### E-131 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-35
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-35: NO LONGER REPRODUCES
+
+### E-132 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-36
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-36: NO LONGER REPRODUCES
+
+### E-133 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-37
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-37: NO LONGER REPRODUCES
+
+### E-134 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-38
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-38: NO LONGER REPRODUCES
+
+### E-135 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-39
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-39: NO LONGER REPRODUCES
+
+### E-136 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-40
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-40: NO LONGER REPRODUCES
+
+### E-137 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-41
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-41: NO LONGER REPRODUCES
+
+### E-138 · 2026-11-21T20:35:00Z · RESOLUTION · orchestrator
+
+- Finding: F-42
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-108, `PLAN.md`, `FRAMEWORK.md` and the `CORRECTION` entry E-109
+- Re-audit: `audits/reaudit-plan-2-E-111.md` (LAUNCH E-111, a SUB-AGENT that did not raise it), row F-42: NO LONGER REPRODUCES
+
+### E-139 · 2026-11-21T20:35:49Z · CRITERIA-CHANGE · orchestrator
+
+- Who asked: the RED CELL's probe of E-108 (`audits/redcell-probe-E-110.md`, verdict "CHANGE SURVIVES WITH CHANGES", 12 changes demanded; FINDINGS F-43 to F-53) and the second re-audit (`audits/reaudit-plan-2-E-111.md`; F-1 and F-13 still reproduce).
+- The USER's approval, word for word (E-112): to the question "Two more reviewers checked the tests of \"done\" and demand 12 changes; each makes a test stricter. May I change the tests so? …" the USER answered "Approve the changes (Recommended)"; to the question on the 3 items that wait the USER answered "Yes, all 3 wait (Recommended)".
+- Old text: C1, C3, C4, C5, C6 and C7 as they stand in E-108. C2, C8 and C9 stand as in E-68.
+- Not in the question that the USER saw, and said here: the rule of `open-rows.py`, widened by the 4 phrases that the re-audit named, lists 5 more rows, not 4. The fifth, A1-04, was repaired in full on 2026-11-16 and enters state (c). The list holds 54 rows. This adds a row and changes no state of another row.
+- Reason, by FINDING: F-1 and F-52 (rows in no state); F-13 and F-44 (1 commit for each fix; the deliverable test before each commit); F-43 (a Vision of an unread edition keeps status 1); F-45 (A1-09 moved without the USER's word); F-46 (the Summary answers whether the built page differs); F-47 (no case with every Floor); F-48 (the kept part of G-S05 had no test); F-49 (a row bound to its list; the reader for G-U07); F-50 (UNVERIFIED is not met); F-51 (a reader for the list in `fit-check.md`; the rows of R-T06 and G-U07 in the commit of their repair); F-53 (R-S06 was repaired in part before this run).
+
+The full new text of each changed CRITERION:
+
+- C1. Each of the 54 rows of `redteam/FINDINGS.md` named here ends the run in exactly 1 of 3 states, and in the state of its list below; a row that ends in another state fails C1, unless a `CRITERIA-CHANGE` entry moves it. The rows: the 50 that `python3 hinshitsu/evidence/open-rows.py` lists (saved as `evidence/open-rows-after-E-111.txt`), and A2-V4, FTU-22, T2-03 and R-12. The list is the rows whose Status holds 1 of the 13 phrases of that script, and the 4 named; a row whose Status states an open part in other words is outside it, and an AUDITOR who finds one reports it under C9. State (a), repaired: the Status names a test in the repository; the test asserts the cause (the measure, and the sentence of the receipt or the message) and fails when the fix is taken out. State (b), kept: the Status states what stays open, the reason, and who must act; where the reason is a judgment of risk or taste, the Status cites the `ANSWER` entry that holds the USER's word; a row repaired in part is in state (b) and names both its test and its rest. State (c), closed with no change of code: the Status says why, and the reason is 1 of 3: repaired in full earlier; a past fact that no change can undo; or repaired in this run by a change to a record alone. The lists: (a) A2-V4, R-S03, R-S08, R-S09, R-S11, R-U05, R-U03, R-S07 (the shown option of a `select` is read for color and typeface; a shape that a picture takes from another file makes the colors "not measured"), G-S08 (the corner radius of an SVG rectangle is compared). (b), repaired in part by this run: G-S05 (repaired for media conditions other than width and height; kept for width and height conditions, on the USER's word in E-107; each receipt holds 1 sentence on other window widths and 1 on other window heights, and 1 test asserts both sentences). (b), repaired in part before this run, the kept part a limit that the receipt states: R-S06 (the USER's word: E-67, answer 6) and R-S04 (the USER's word: E-112, question 2, item 1). (b), a limit that the receipt states, on the USER's word in E-67, answer 6: G-S04, G-S11, A1-05, G-S10. (b), waits for an act of the owner: M-01, R23-01, T6-08, P9-05, FTU-21, G-T08, each with the act as E-108 names it. (b), a screen of the Studio, for the next run, on the USER's word in E-67, answer 2: M-06, FTU-07, FTU-18, FTU-26, FTU-31, FTU-32, FTU-33, FTU-35, U2-02, U2-04, U2-08, U3-02, CR-EN2, CR-SC0, U5-03, U5-07, H7-01, U7-02, U8-05. (b), the project's own tests, Catalog data and GitHub's check, for the next run: X-02, CR-GX2 and C-07 (the USER's word: E-107, question 1 (b)); A1-09 and T6-01 (the USER's word: E-112, question 2, items 2 and 3). (c), repaired in full earlier: M-05, FTU-22, T2-03, R25-01, A1-04. (c), a past fact: R-12. (c), repaired in this run by a change to a record: R-T06 (the framework-drift auditor reads "Start here", "Milestone status" and "Known gaps" of `PROGRESS.md` and reports each sentence that disagrees with the repository at the final commit) and G-U07 (the language auditor reads `plugin/fit/trials/003/RECORD.md` from the top and reports each statement that a later part reverses with no mark at the first place). Test: the correctness auditor reads each of the 54 rows at the final commit and compares its state with its list; for each row in state (a), and for the repaired part of G-S05, it runs the named test, then takes the fix out in a copy and sees the test fail; the 2 readers named above report on R-T06 and G-U07; the framework-drift auditor confirms each other row in state (c) by reading the code or the record that the Status names.
+- C3. The Vision that the built Studio page hands over works as its RECIPIENTS (the owner, and an AI coding tool) get it: the archive unpacks with `unzip` to exactly 7 files; all 7 files carry 1 fingerprint, and it equals the one in the archive's name; `tokens.json` parses; each custom property declared in `tokens.css` and `theme.css` has a non-empty computed value in Chromium; `mockup.html` opens from the unpacked folder with no network request, no console error and no script; the 3 hostile texts that `apps/studio/e2e/deliverable.e2e.ts` names `BUSINESS`, `HEADLINE` and `BRIEF` appear as text in every file that holds them; the Fit check on the unpacked folder ends with status 0 or 1, not 2. The test opens `local-test.html`; a second test shows that the fragment inside it equals `refraction-studio.html` byte for byte. The final report states in its `Summary` whether the built page differs from a build of the published version: the SHA-256 of `apps/studio/dist/artifact/refraction-studio.html` built at the final commit and at commit 523ae8e (the commit of the published page; built in a separate checkout with `npm ci --ignore-scripts` and `npm run build:page`), the words "equal bytes" or "different bytes", and the sentence "The published page itself was not read." Test: `npm run build:page`, then `npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts`, reports 0 failed and at least 4 passed; the recipient-experience auditor checks each of the 7 clauses by hand for 1 Direction that the test does not use; the final AUDITOR makes the 2 builds and compares the 2 SHA-256 values with the `Summary`.
+- C4. For each of 5 cases, the Fit check's summary line and its `RECEIPT.md` agree. The cases: the 3 stored trials (`plugin/fit/trials/001`, `002`, `003`); the Vision's own page of trial 001 (`node plugin/fit/src/cli.ts plugin/fit/trials/001/files/mockup.html plugin/fit/trials/001/files <result folder>`; this Vision writes no Floor); and the stored folder `plugin/fit/trials/reference-floors/` (the Vision of the plain start with every Floor written in the edition that the program reads, checked against its own `mockup.html` by the same command form; 1 test shows that the folder equals what the Catalog writes today). They agree when: the number that the line calls deviations equals the sum of the numbers that the receipt calls deviations; each count of contrast names its unit ("readings of N texts") in the line and in the receipt alike; status 0 goes only with "No deviation" and with 0 "not measured" in a measure that counts; a measure with nothing to check says so and gives no count; a Vision that writes its Floors in an edition that the program does not read ends with status 1, and its line and its receipt say in words that none of its Floor requirements was checked and do not present the number 1 as a count of requirements (row R-U03; `receipt.json` keeps the count that the status rests on, and the test of finding G-U01 in `exit.e2e.ts` keeps its assertions of `floors.notMeasured` 1 and `status` 1); and no sentence of the receipt says that the program did something it did not do. The measures that count are Requests, Colors, Typefaces, Corner radii, Content, Width and Floors, and Contrast only where the Vision writes Floor A1. Test: the test "says nothing in the receipt that disagrees with its own summary line" in `plugin/fit/e2e/exit.e2e.ts` makes those assertions for all 5 and passes; the language auditor reads the 3 stored receipts and the 2 receipts that the 2 commands write.
+- C5. Each fix is 1 commit that holds its test and its record. The fixes of this run, 1 commit each: the 3 findings of C2 (3 commits); G-S05; A2-V4; R-S08; C8; R-S09; R-S11; R-S03; R-S07; G-S08; the receipt's wording (R-U03 and the units and "nothing to check" of C4); the guide and the 2 commands (R-U05, C7); the message for a missing browser (C7); the deliverable test (C3); the fifth case of C4; the rows and records (C1's states, R-T06, G-U07, C6). Before each such commit, on the building machine: `npm run check` exits 0; `npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e` reports 0 failed; and `npm run build:page` followed by `npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts` reports 0 failed; the last lines of the 3 outputs are saved as `evidence/commit-<n>-checks.txt` in that commit. At the final commit the same commands pass on the building machine, and GitHub's checks "check" (which runs the whole browser suite, `npm run e2e`) and "Outside validators" succeed on that commit. The whole suite is not run on the building machine (PREMISE A-3); the USER accepted GitHub's run in its place (E-67, answer 7). The run pushes to the working branch only. Test: the saved outputs under `evidence/`; the check runs of pull request 24 as GitHub reports them; `git log` of the working branch from 859c643, read against the list of fixes above; and the head of `claude/brave-mayer-sawqz9`, which stays `4dc8649` unless the USER moves it; all read by the final AUDITOR.
+- C6. The text of E-108, with 1 sentence added at its end: "While that part is UNVERIFIED, C6 is not met, and the delivery report lists it as open." In full: each sentence that states a count, a command, an option, a status of a finding or a state of a milestone, in `PROGRESS.md` (the parts "Start here", "Milestone status" and "Known gaps"), in `SPEC.md` from section 2.28 to the end of section 2, in `plugin/README.md` and in `docs/reference/guarantees.md`, agrees with the code and the tests at the final commit; and "Known gaps" holds 1 list of every row of C1 that waits for the owner, each with the question to answer. Test: the framework-drift auditor reads those parts and checks each such sentence with a command; and the check of the guarantees reference exits 0: `python3 "$(ls /root/.claude/skills/synced/*/living-reference/scripts/refresh_reference.py | head -1)" docs/reference/guarantees.md --check` (the script belongs to the owner's skill "living-reference" and is not in the repository; on a machine without that skill this part of the test is reported UNVERIFIED). While that part is UNVERIFIED, C6 is not met, and the delivery report lists it as open.
+- C7. The text of E-108, with its Test sentence ending: "the language auditor reads the guide and `plugin/commands/fit-check.md`, and reports for each whether it lists the measures that count as C4 lists them." In full: `plugin/README.md`: names each of the 4 commands in `plugin/commands/`; names each option of `plugin/fit/src/cli.ts` and of `plugin/fit/src/look-cli.ts`; names each status that each program can return, with what the owner does next, and for status 1 of the Fit check it separates 2 cases (deviations: repair; "not measured" only: no repair round, the receipt names the part); lists the measures that count, as C4 lists them, and `plugin/commands/fit-check.md` does too; says that the archive is unpacked first and that the folder holds the 7 files under their own names; says that the repair command can write to the Vision folder; calls the 2 programs "the Fit check" and "the look" in each heading and table, and calls the folder "the Vision folder" each time; and gives each of these terms a meaning of 1 sentence at its first use: plugin, Node, TypeScript, Chromium, environment variable, Floor, edition, Mockup, deviation, markup, status, marketplace, receipt (the Honest receipt), the three required texts. Where no browser is found, each program's message names the variable `PW_CHROMIUM`. Test: a test in `plugin/fit/e2e/exit.e2e.ts` compares the guide's options with each usage line, the guide's command names with the files in `plugin/commands/`, the guide's statuses with the statuses in each program's source, finds the 2 cases of status 1 in the guide and in `fit-check.md` and `fit-repair.md`, and finds no "folder of the Vision" in the guide; 1 test runs each program with no browser; the language auditor reads the guide and `plugin/commands/fit-check.md`, and reports for each whether it lists the measures that count as C4 lists them.
+
+Translation, 1 line confirmed: O3 (1 commit for each fix) → C5, its first 2 sentences.
