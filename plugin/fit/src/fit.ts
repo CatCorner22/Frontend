@@ -57,7 +57,7 @@ const DEAD_PROXY = { server: 'http://127.0.0.1:1', bypass: '<-loopback>' } as co
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
 
 /** One reading of the page. A reading that failed still keeps the requests that its page made before it failed. */
-type Pass = { label: string; width: number; requests: string[]; own: string[] } & ({ collected: Collected; floors: FloorFacts; errors: string[]; media: string[] } | { failure: string });
+type Pass = { label: string; width: number; requests: string[]; own: string[] } & ({ collected: Collected; floors: FloorFacts; errors: string[]; media: string[]; closedRoots: number } | { failure: string });
 
 /** Launch settings that hide the mark of automation and keep WebRTC from sending without a proxy (campaign A2, findings J-1 and J-3). */
 export const LAUNCH_ARGS: readonly string[] = ['--disable-blink-features=AutomationControlled', '--force-webrtc-ip-handling-policy=disable_non_proxied_udp'];
@@ -230,7 +230,11 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
         if (exceptionDetails) return fail(label, 'the program could not read the page');
         const value = result.value as { collected: Collected; floors: unknown; media: unknown; replaced: boolean };
         if (value.replaced) return fail(label, 'the page replaced itself: a script wrote a new document over it');
-        return { label, width, collected: value.collected, floors: checkedFacts(value.floors), media: Array.isArray(value.media) ? value.media.filter((m): m is string => typeof m === 'string') : [], errors: [...errors], requests: [...requests], own: [...own] };
+        // A closed shadow root is out of reach of every reading inside the page; the browser's own list of the page's parts
+        // names it (finding A2-V4).
+        const { root } = await within(session.send('DOM.getDocument', { depth: -1, pierce: true }), ms, 'the page did not answer');
+        const closedRoots = countClosedRoots(root);
+        return { label, width, collected: value.collected, floors: checkedFacts(value.floors), media: Array.isArray(value.media) ? value.media.filter((m): m is string => typeof m === 'string') : [], closedRoots, errors: [...errors], requests: [...requests], own: [...own] };
       };
       if (motion === 'reduce') passes.push(await read(base));
       else {
@@ -359,6 +363,8 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   if (unrun !== '') loadFailures.push({ width: 0, reason: unrun });
   // A part of the design that shows only under a setting that the program did not read under: not measured, never "no deviation"
   // (finding G-S05).
+  const closedRoots = Math.max(0, ...passes.map((p) => ('closedRoots' in p ? p.closedRoots : 0)));
+  if (closedRoots > 0) loadFailures.push({ width: 0, reason: `The page holds ${String(closedRoots)} closed shadow root${closedRoots === 1 ? '' : 's'}: a part of the page that the program cannot read. What it draws was not measured` });
   const unread = unreadConditions(passes.flatMap((p) => ('media' in p ? p.media : [])), mockupMedia);
   if (unread.length > 0) loadFailures.push({ width: 0, reason: bounded(`The page's style rules name ${unread.length === 1 ? 'a setting' : `${String(unread.length)} settings`} of the screen or of the visitor that the Vision's Mockup does not name, and the program did not read the page under ${unread.length === 1 ? 'it' : 'them'}: ${unread.slice(0, 8).map((c) => `"${c}"`).join('; ')}${unread.length > 8 ? `; and ${String(unread.length - 8)} more` : ''}. What the page shows there was not measured`, 900) });
   const failed = loadFailures.length;
@@ -546,6 +552,21 @@ export async function fit(input: FitInput): Promise<FitResult> {
   } finally {
     if (!input.browser) await browser.close();
   }
+}
+
+/** How many closed shadow roots the page's tree holds, as the browser lists it (a root of the browser's own controls is not one). */
+function countClosedRoots(node: { shadowRoots?: unknown[]; children?: unknown[]; contentDocument?: unknown; templateContent?: unknown; shadowRootType?: string }): number {
+  let found = 0;
+  const stack: (typeof node)[] = [node];
+  for (let at = 0; at < stack.length && at < 200_000; at++) {
+    const current = stack[at]!;
+    for (const root of (current.shadowRoots ?? []) as (typeof node)[]) {
+      if (root.shadowRootType === 'closed') found++;
+      stack.push(root);
+    }
+    for (const child of (current.children ?? []) as (typeof node)[]) stack.push(child);
+  }
+  return found;
 }
 
 /**

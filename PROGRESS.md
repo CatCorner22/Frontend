@@ -106,6 +106,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 5: a closed shadow root makes the page "not measured" (finding A2-V4)
+- Feature worked on (ID): none in the list. Finding A2-V4 (grade major): a closed shadow root draws a second design that no measure reads; until now the receipt only said so under "Still needs a person".
+- Now: the program asks the browser for its own list of the page's parts (which names closed roots too) and counts them at each reading. A page that holds one gets a sentence in the receipt with the number, colors, typefaces, corner radii and content count as not measured, and the status is 1.
+- Test (written first; it failed with status 0 for a page with a red paragraph inside a closed root): "counts the page as not measured when it holds a closed shadow root, written in the markup or made by a script ..." in `plugin/fit/e2e/exit.e2e.ts`. It asserts the sentence and the measures, not the status alone, and it shows that an open root is still read.
+- The 3 stored trial receipts are written again by the program: 1 sentence of "Still needs a person" changed.
+- Evidence: `hinshitsu/evidence/commit-5-checks.txt`.
+
 ### 2026-11-21: repair run, commit 4: a setting that the program did not read under makes the page "not measured" (finding G-S05, in part)
 - Feature worked on (ID): none in the list. Finding G-S05 (grade blocker): status 0 for a page that shows another design on a high-density screen.
 - Before: a page could hold a style block under `(min-resolution: 2.5dppx)`, `(pointer: coarse)`, `(prefers-color-scheme: dark)` or `(prefers-contrast: more)` that turned every element into another design, and got "No deviation. Status 0". Now: the program collects every media condition of the page (style rules, imports, `source`, `link` and `style` elements, open shadow roots) and of the Vision's Mockup. A condition that the Mockup does not hold, and that names more than the window's width or height or reduced motion, is listed in the receipt; colors, typefaces, corner radii and content count as not measured; the status is 1.

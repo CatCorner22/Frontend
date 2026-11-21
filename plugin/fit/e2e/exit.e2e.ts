@@ -377,6 +377,31 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(unreadConditions(['(pointer: fine) and (hover: hover)'], mockup)).toEqual(['(pointer: fine) and (hover: hover)']);
   });
 
+  it('counts the page as not measured when it holds a closed shadow root, written in the markup or made by a script, and names it in the receipt (finding A2-V4)', async () => {
+    const base = await fit({ files, html: reference, browser });
+    expect(base.status).toBe(0);
+    // Written in the markup: a second design that no measure can reach.
+    const written = await fit({ files, html: inBody('<section><template shadowrootmode="closed"><p style="color:#ff0000;font-family:Papyrus;border-radius:37px;background:#00ff00">Another design</p></template></section>'), browser });
+    expect(written.status).toBe(1);
+    expect(written.receipt.loadFailures.map((f) => f.reason).join('\n')).toMatch(/1 closed shadow root: a part of the page that the program cannot read\. What it draws was not measured/);
+    for (const id of ['colors', 'typefaces', 'radii', 'content']) expect(measure(written.receipt, id).notMeasured, id).toBeGreaterThan(measure(base.receipt, id).notMeasured);
+    expect(measure(written.receipt, 'colors').deviations).toBe(0);
+    expect(receiptMarkdown(written.receipt)).toMatch(/closed shadow root/);
+    // Made by a script, with the page's scripts on.
+    const html = inBody('<section id="planted-host"></section><script>document.getElementById("planted-host").attachShadow({ mode: "closed" }).innerHTML = "<p style=\\"color:#ff0000\\">Another design</p>";</script>');
+    // The reference build's own policy stops every script; this page drops the policy, so that its script runs (that alone is a
+    // Floor deviation, so the assertion that counts here is the sentence on the closed root, not the status).
+    const made = await fit({ files, html: once(html, /<meta http-equiv="Content-Security-Policy"[^>]*>/i, ''), browser, runScripts: true });
+    expect(made.status).toBe(1);
+    const unmade = await fit({ files, html: once(reference, /<meta http-equiv="Content-Security-Policy"[^>]*>/i, ''), browser, runScripts: true });
+    expect(unmade.receipt.loadFailures.map((f) => f.reason).join('\n')).not.toMatch(/closed shadow root/);
+    expect(made.receipt.loadFailures.map((f) => f.reason).join('\n')).toMatch(/closed shadow root/);
+    // An open root is read, as before: its color is a deviation, and nothing is "not measured" for it.
+    const open = await fit({ files, html: inBody('<section><template shadowrootmode="open"><p style="color:#ff0000">Another design</p></template></section>'), browser });
+    expect(measure(open.receipt, 'colors').items.join('\n')).toContain('#ff0000');
+    expect(open.receipt.loadFailures.map((f) => f.reason).join('\n')).not.toMatch(/closed shadow root/);
+  }, 300_000);
+
   it.each([
     ['a faint headline', (page: string) => once(page, '<h1', '<h1 style="opacity:0.2"')],
     ['a box that covers the whole page', (page: string) => once(page, '</body>', '<div style="position:fixed;inset:0;background:#ffffff;z-index:99999"></div></body>')],

@@ -1730,3 +1730,10 @@ Commit 4 of `PLAN.md`: `mediaConditions` (new) in `collect.ts`; `unreadCondition
 - forward: `fit.ts` gives `loadFailures` to `receipt.ts` and to the status; 1 more reason can stand there. The stored receipts of the 3 trials repeat the 2 changed sentences and are written again by the program in this commit (`trial.e2e.ts` compares them byte for byte). `look.ts` gives `LOOK.md` 1 more line.
 - backward: decision D71 of the project (not measured is never no deviation) is applied to 1 more case; the USER's answers 4 (E-67) and E-107.
 - lateral: commits 1 to 3 touched other functions; search for an existing implementation: `grep -n "matchMedia\|CSSMediaRule\|mediaText" plugin/fit/src` found none before this commit.
+
+### E-172 · 2026-11-21T21:55:05Z · TRACE · orchestrator
+
+Commit 5 of `PLAN.md`: `readAt`, `countClosedRoots` (new) and `measures` in `fit.ts`; 1 sentence of `STILL_NEEDS_A_PERSON` in `receipt.ts` (finding A2-V4).
+- forward: 1 more reason can stand in `loadFailures`; the stored receipts repeat the changed sentence and are written again by the program in this commit.
+- backward: finding A1-05 (the program reads from a world of its own): the new reading uses the browser's debugging connection, which the page's scripts cannot reach. Decision D71 applied to 1 more case.
+- lateral: commit 4 added a reason to the same list in the same function; both stand.

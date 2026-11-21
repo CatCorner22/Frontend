@@ -88,5 +88,5 @@ Nothing. No model handed over a judgment for this check.
 - Dark mode, touch screens, high-density screens, and other settings. The program reads the page in light mode, with a mouse, on a screen of ordinary pixel density. Where the page’s style rules name another such setting in a media condition that the Vision’s Mockup does not hold, the program lists the condition and counts the page as not measured. A page can still show another design there by a way that names no media condition (a set of pictures by density, a script), and in print or in another language setting.
 - What happens later. The program stops reading about five seconds after the page has loaded. A page can change after that, or when a person scrolls, clicks, or types.
 - Frames. The program does not read what an iframe, a frame, an object, or an embed draws; it counts each as not measured.
-- Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.
+- Closed shadow roots. The program reads the page and every open shadow root. A closed one is out of its reach: the program counts the page as not measured and says how many it holds.
 - Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.
