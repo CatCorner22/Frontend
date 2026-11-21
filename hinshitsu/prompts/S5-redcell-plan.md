@@ -6,7 +6,7 @@ You are the RED CELL in a hinshitsu run (section 6). You are the opposing force:
 
 - Activation: full attack on the plan
 - For a probe, the 1 trigger event: not a probe
-- Commit under review: cbfbc60
+- Commit under review: the commit of the working branch that holds this scope file (the LAUNCH entry names it)
 - Files to read:
 - `hinshitsu/AUDIT-LOG.md`: entry E-9 (`VOC`), E-10 (`GAP`), E-13 (`ASSUMPTION`), E-14 (`CRITERIA`, `PROPOSED`). No `DECISION` entry exists yet.
 - `hinshitsu/PLAN.md` (the plan), `hinshitsu/FRAMEWORK.md`, `hinshitsu/CONNECTIONS.md`

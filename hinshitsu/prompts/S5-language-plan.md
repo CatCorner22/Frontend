@@ -9,7 +9,7 @@ Read the CRITERIA, the `VOC` entry, every word a RECIPIENT reads, and the delive
 ## Filled in by the ORCHESTRATOR
 
 - DELIVERABLE and files to examine: the planning entries E-9 (`VOC`), E-10 (`GAP`), E-13 (`ASSUMPTION`) and E-14 (`CRITERIA`) of `hinshitsu/AUDIT-LOG.md`, and `hinshitsu/PLAN.md` (rule 13.3: the CRITERIA are `PROPOSED`)
-- Commit under review: cbfbc60
+- Commit under review: the commit of the working branch that holds this scope file (the LAUNCH entry names it)
 - Files to read:
 - `hinshitsu/AUDIT-LOG.md`: entry E-9 (`VOC`), E-10 (`GAP`), E-13 (`ASSUMPTION`), E-14 (`CRITERIA`, `PROPOSED`). No `DECISION` entry exists yet.
 - `hinshitsu/PLAN.md` (the plan), `hinshitsu/FRAMEWORK.md`, `hinshitsu/CONNECTIONS.md`

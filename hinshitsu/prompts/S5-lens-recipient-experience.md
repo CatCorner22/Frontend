@@ -9,7 +9,7 @@ What will each RECIPIENT do with this, step by step, and where does it fail them
 ## Filled in by the ORCHESTRATOR
 
 - Stage: plan
-- Commit under review: cbfbc60
+- Commit under review: the commit of the working branch that holds this scope file (the LAUNCH entry names it)
 - Files to read:
 - `hinshitsu/AUDIT-LOG.md`: entry E-9 (`VOC`), E-10 (`GAP`), E-13 (`ASSUMPTION`), E-14 (`CRITERIA`, `PROPOSED`). No `DECISION` entry exists yet.
 - `hinshitsu/PLAN.md` (the plan), `hinshitsu/FRAMEWORK.md`, `hinshitsu/CONNECTIONS.md`
