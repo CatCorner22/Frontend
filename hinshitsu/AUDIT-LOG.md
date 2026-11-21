@@ -885,3 +885,283 @@ No new version of the private page is published by this run. No step changes a s
 - Commit under review: 5ed57e7
 - SUB-AGENT identifier: a8b3a615c3c9545c2 — not openable by the USER
 - Report: `audits/reaudit-plan-E-72.md`
+
+### E-73 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-3
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-3: NO LONGER REPRODUCES
+
+### E-74 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-4
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-4: NO LONGER REPRODUCES
+
+### E-75 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-5
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-5: NO LONGER REPRODUCES
+
+### E-76 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-6
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-6: NO LONGER REPRODUCES
+
+### E-77 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-7
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-7: NO LONGER REPRODUCES
+
+### E-78 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-8
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-8: NO LONGER REPRODUCES
+
+### E-79 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-9
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-9: NO LONGER REPRODUCES
+
+### E-80 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-10
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-10: NO LONGER REPRODUCES
+
+### E-81 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-11
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-11: NO LONGER REPRODUCES
+
+### E-82 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-12
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-12: NO LONGER REPRODUCES
+
+### E-83 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-14
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-14: NO LONGER REPRODUCES
+
+### E-84 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-18
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-18: NO LONGER REPRODUCES
+
+### E-85 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-19
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-19: NO LONGER REPRODUCES
+
+### E-86 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-20
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-20: NO LONGER REPRODUCES
+
+### E-87 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-21
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-21: NO LONGER REPRODUCES
+
+### E-88 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-22
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-22: NO LONGER REPRODUCES
+
+### E-89 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-23
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-23: NO LONGER REPRODUCES
+
+### E-90 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-24
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-24: NO LONGER REPRODUCES
+
+### E-91 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-25
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-25: NO LONGER REPRODUCES
+
+### E-92 · 2026-11-21T19:55:40Z · RESOLUTION · orchestrator
+
+- Finding: F-26
+- Result: FIXED
+- Change: the CRITERIA of E-68, `PLAN.md` and the entries E-53, E-57 to E-60, E-69 to E-71
+- Re-audit: `audits/reaudit-plan-E-72.md` (LAUNCH E-72, a SUB-AGENT that did not raise it), row F-26: NO LONGER REPRODUCES
+
+### E-93 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `hinshitsu/PLAN.md` line 12, Test cell of step 2
+- Trigger: read "the 5 with such a condition get status 1 … the 2 width and height pages are recorded as the kept part" beside the table of P2 in `audits/redcell-plan-E-21.md` (lines 32 to 41); my run of the 7 pages confirms the table. P2 holds 4 pages with a condition other than width and height, 2 width pages and 1 height page. "5" and "2" fit only when `(min-height: 801px)` counts among the 5, which the Fix cell of the same row and C1 ("other than width and height") exclude
+- Violates: a third party cannot run the test of step 2 as written; conflict between `PLAN.md` and C1.
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 1
+- Lens: structural integrity
+- ID: F-29
+
+### E-94 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-68, C3 (line 847), the sentence on the published page
+- Trigger: look in C3's `Test:` sentence for a test of that sentence; there is none, and no text names the method. Today 2 methods give 2 answers: `git diff --stat 523ae8e 5ed57e7 -- packages/core apps/studio/src` prints nothing (same sources), while `git diff 523ae8e 5ed57e7 -- package.json` shows `vite` 8.3.7 → 8.3.8 (the tool that builds the page changed, so the bytes can differ)
+- Violates: a CRITERION clause that a third party cannot test as written; the sentence goes into the `Summary`, where a false statement is a BLOCKER by the glossary.
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 2
+- Lens: structural integrity
+- ID: F-30
+
+### E-95 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-68, C4 (line 848)
+- Trigger: look for the fourth receipt that "the language auditor reads". The 3 trials store a `RECEIPT.md`; no file holds a receipt of the plain start, and C4 gives no command that makes one. The plain start also has 2 Visions: `exit.e2e.ts` line 55 builds it with `a11y: 'enforce'` (every Floor written, contrast counts); without that setting Contrast does not count and Floors has "nothing to check". C4 does not say which
+- Violates: a named test that a third party cannot read as written.
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 3
+- Lens: structural integrity
+- ID: F-31
+
+### E-96 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-68, C1, state (c), against `PLAN.md` line 21
+- Trigger: state (c) lists 2 reasons, "repaired in full earlier, or a past fact that no change can undo". R-T06 (`redteam/FINDINGS.md` line 842: "Repaired in part … the file was not read end to end") and G-U07 (line 729: "Repaired … in part") are planned for (c), and step 11 changes `PROGRESS.md` and `plugin/fit/trials/003/RECORD.md` for them in this run. A row repaired in this run by a change to a record fits neither reason of (c), and in (a) it has no test
+- Violates: C1, "exactly 1 of 3 states", for 2 rows.
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 4
+- Lens: structural integrity
+- ID: F-32
+
+### E-97 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-68, C1, the list "(b), a screen of the Studio, for the next run"
+- Trigger: read the rows. X-02 (line 65: "N04 still survives", the unit suite), CR-GX2 (line 306: "the limits of the picture comparison itself", a test) and C-07 (line 78: "an Option still takes them from its Step", Catalog data) change no screen. State (b) requires the Status to state the reason, and the reason that C1 and the card give for these 3 is false
+- Violates: C1 state (b); E-64 decision 2 ("the other rows change the Studio's screens").
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 5
+- Lens: structural integrity
+- ID: F-33
+
+### E-98 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-68, C1, FTU-21 in "(b), waits for an act of the owner"
+- Trigger: FTU-21 (line 124) and FTU-22 (line 125) give the same open reason ("the defined-terms table in CLAUDE.md needs the owner's approval"). FTU-22's row adds "Closed on 2026-11-15: the owner approved the changes … (decision D55)", and C1 puts FTU-22 in (c). No text that I read says which act of the owner FTU-21 still waits for. UNVERIFIED whether a part of FTU-21 stays open on screen
+- Violates: C1 state (b) ("who must act"); conflict between 2 rows of C1.
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 6
+- Lens: structural integrity
+- ID: F-34
+
+### E-99 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: out-of-date sentences in the RUN FOLDER
+- Trigger: `hinshitsu/PLAN.md` line 3 ("The CRITERIA are in E-56 (`PROPOSED`) … nothing is built before the USER answers the S6 card"), line 14 ("if the USER answers so on the card"), line 25 ("The USER is asked … If not: WU-1 … and WU-2 …"), line 33 ("next run, if the USER answers so") against E-67, E-68 and E-70. `FRAMEWORK.md` line 25 ("D1 to D79") against `DECISIONS.md` lines 135 to 136 (D80, D81; E-67 cites D81). E-55, last line: F-27 and F-28 "are repaired in plan steps 7 and 10"; step 7 of `PLAN.md` is the UDP test, the guide is step 8
+- Violates: rule 14.6, as F-26 cites it.
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 7
+- Lens: structural integrity
+- ID: F-35
+
+### E-100 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-68, C5 ("Each fix is 1 commit that holds its test and its record") against `PLAN.md` line 7 ("1 commit for each step")
+- Trigger: step 1 holds up to 3 fixes, step 6 holds 2 rows (R-S09, R-S11), step 8 holds R-U05, the missing-browser message and the wording of F-16 and F-17. C5's test (`git log`) gives 2 results by the 2 readings of "fix"
+- Violates: C5; G6 of E-10 ("1 commit for each fix", so that 1 fix can be taken back alone).
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 8
+- Lens: structural integrity
+- ID: F-36
+
+### E-101 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: E-68, C6 (line 850)
+- Trigger: run the command on another machine, or after the skills folder syncs under a new name. The script stands at `/root/.claude/skills/synced/<id>/living-reference/scripts/refresh_reference.py`, outside the repository; `grep -rl refresh_reference` finds no copy in the product
+- Violates: a named test that works on this machine today only.
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 9
+- Lens: structural integrity
+- ID: F-37
+
+### E-102 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: E-68, C3 and C5, the command `npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts`
+- Trigger: `git check-ignore -v apps/studio/dist/artifact/local-test.html` prints `.gitignore:2:dist/`. The command builds nothing; only `npm run e2e` builds first. On a new checkout the test has no page; with an old `dist` folder it tests a page of an earlier commit
+- Violates: C3 and C5 as written name no build step (`npm run build:page`) before the command.
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 10
+- Lens: structural integrity
+- ID: F-38
+
+### E-103 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: E-68, C3: "(lines 18 to 20)" of `apps/studio/e2e/deliverable.e2e.ts`
+- Trigger: step 9 of `PLAN.md` edits this file; 1 added line above line 18 makes the frozen reference point at other lines
+- Violates: C3 (the 3 names `BUSINESS`, `HEADLINE`, `BRIEF` do not move).
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 11
+- Lens: structural integrity
+- ID: F-39
+
+### E-104 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: E-68, C6: "`SPEC.md` sections 2.28 to 2.30"
+- Trigger: steps 2, 3 and 4 of `PLAN.md` write `SPEC.md`; `SPEC.md` ends its section 2 at 2.30 (line 492). A new section 2.31 for this run's repairs is outside the range that the framework-drift auditor reads under C6
+- Violates: C6's purpose (V3).
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 12
+- Lens: structural integrity
+- ID: F-40
+
+### E-105 · 2026-11-21T19:55:40Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: E-68, C7, the list of 13 terms
+- Trigger: the cited finding (plan-language, finding 12) lists "TypeScript" among the terms with no meaning; `plugin/README.md` line 7 still uses it ("a program written in TypeScript"); C7's list leaves it out
+- Violates: `CLAUDE.md`, writing style (each technical term explained at first use).
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 13
+- Lens: structural integrity
+- ID: F-41
+
+### E-106 · 2026-11-21T19:55:41Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: 3 loose statements
+- Trigger: read the places that the report names: (a) C5: "GitHub's checks \"check\" and \"Outside validators\", which run the whole browser suite": only the job `check` runs `npm run e2e` (`.github/workflows/ci.yml` line 42); `Outside validators` runs `validators/vitest.config.mjs` (line 70). (b) C5: "the USER is asked to accept GitHub's run" stands in a text frozen on the USER's answer. (c) E-67, decision 2 as quoted: "A search finds 44 open bug rows"; the script prints 40 and 3 "says closed", R-12 enters by name, and 6 of the 44 are planned as closed (state (c)). The 44 hold 5 blocker rows (M-01, G-S04, G-S05, R-S03, R-12); the card says 4 · Violates: one statement, one fact.
+- Violates: one statement, one fact.
+- Raised by: AUDITOR re-audit, LAUNCH E-72, `audits/reaudit-plan-E-72.md`, new finding 14
+- Lens: structural integrity
+- ID: F-42

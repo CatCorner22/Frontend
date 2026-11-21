@@ -3,12 +3,13 @@
 
 Rule (repeatable): a row counts when its Severity cell is "blocker" or "major" and its Status cell
 matches, without regard to letter case, 1 of these patterns:
-  "in part", "still open", "open:", "not repaired", "not fixed", "stays open", or the cell begins with "open".
+  "in part", "still open", "open:", "not repaired", "not fixed", "stays open", "not changed", ": open.", "deferred",
+  or the cell begins with "open". (The last 3 patterns were added after the re-audit of E-72, FINDING F-1.)
 A row whose Status cell also holds "Closed on" or "closed:" is listed apart, as "says closed".
 Usage: python3 hinshitsu/evidence/open-rows.py [--full]
 """
 import re, sys
-PAT = re.compile(r"in part|still open|open:|not repaired|not fixed|stays open", re.I)
+PAT = re.compile(r"in part|still open|open:|not repaired|not fixed|stays open|not changed|: open\.|deferred", re.I)
 rows, closed, total = [], [], 0
 for line in open("redteam/FINDINGS.md", encoding="utf-8"):
     if not line.startswith("| ") or line.startswith("| ID "):
