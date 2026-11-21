@@ -1477,3 +1477,12 @@ The full new text of each changed CRITERION:
 - C7. The text of E-108, with its Test sentence ending: "the language auditor reads the guide and `plugin/commands/fit-check.md`, and reports for each whether it lists the measures that count as C4 lists them." In full: `plugin/README.md`: names each of the 4 commands in `plugin/commands/`; names each option of `plugin/fit/src/cli.ts` and of `plugin/fit/src/look-cli.ts`; names each status that each program can return, with what the owner does next, and for status 1 of the Fit check it separates 2 cases (deviations: repair; "not measured" only: no repair round, the receipt names the part); lists the measures that count, as C4 lists them, and `plugin/commands/fit-check.md` does too; says that the archive is unpacked first and that the folder holds the 7 files under their own names; says that the repair command can write to the Vision folder; calls the 2 programs "the Fit check" and "the look" in each heading and table, and calls the folder "the Vision folder" each time; and gives each of these terms a meaning of 1 sentence at its first use: plugin, Node, TypeScript, Chromium, environment variable, Floor, edition, Mockup, deviation, markup, status, marketplace, receipt (the Honest receipt), the three required texts. Where no browser is found, each program's message names the variable `PW_CHROMIUM`. Test: a test in `plugin/fit/e2e/exit.e2e.ts` compares the guide's options with each usage line, the guide's command names with the files in `plugin/commands/`, the guide's statuses with the statuses in each program's source, finds the 2 cases of status 1 in the guide and in `fit-check.md` and `fit-repair.md`, and finds no "folder of the Vision" in the guide; 1 test runs each program with no browser; the language auditor reads the guide and `plugin/commands/fit-check.md`, and reports for each whether it lists the measures that count as C4 lists them.
 
 Translation, 1 line confirmed: O3 (1 commit for each fix) → C5, its first 2 sentences.
+
+### E-140 · 2026-11-21T20:36:58Z · LAUNCH · orchestrator
+
+- Role: RED CELL probe of the change E-139 (rule 6.3 (a)) and AUDITOR of the third re-audit, in 1 run (the USER's answer 3 in E-112 allowed 2 runs; 1 is used)
+- WORK UNIT: plan
+- Scope: `prompts/S6-final-wording-check.md`
+- Commit under review: d0f60de
+- SUB-AGENT identifier: a65a772d1390e3477 — not openable by the USER
+- Report: `audits/final-wording-check-E-140.md`
