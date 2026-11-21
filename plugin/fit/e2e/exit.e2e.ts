@@ -360,6 +360,55 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(measure(seen.receipt, 'floors').notMeasured).toBe(0);
   });
 
+  it('counts the colors as not measured when a box recolors what lies under it, and leaves a plain blur alone (retest finding R-S06)', async () => {
+    const cover = (style: string): string => once(reference, '</body>', `<div aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:99;${style}"></div></body>`);
+    for (const [name, html] of Object.entries({
+      'a backdrop filter that inverts': cover('backdrop-filter:invert(1) hue-rotate(90deg)'),
+      'a blend mode': cover('background:#ffffff;mix-blend-mode:difference'),
+    })) {
+      const { receipt, status } = await fit({ files, html, browser });
+      expect(measure(receipt, 'colors').notMeasured, name).toBeGreaterThan(0);
+      expect(status, name).toBe(1);
+    }
+    // A blur, with or without more saturation, changes no color into another design's color: the Mockup's own glass uses it.
+    const blurred = await fit({ files, html: once(reference, '</body>', '<div aria-hidden="true" style="position:fixed;top:0;left:0;width:10px;height:10px;backdrop-filter:blur(4px) saturate(170%)"></div></body>'), browser });
+    expect(measure(blurred.receipt, 'colors').notMeasured).toBe(0);
+  }, 180_000);
+
+  it('reads the color and the typeface of a text that stands in a form field, and the paint of a shape that a picture draws by reference (retest finding R-S07)', async () => {
+    const field = await fit({ files, html: once(reference, '</body>', '<input aria-label="x" maxlength="9" readonly value="Another design" style="color:#ff0000;font-family:Comic Sans MS;border:0;background:transparent"></body>'), browser });
+    expect(measure(field.receipt, 'colors').items.join('\n')).toContain('#ff0000');
+    expect(measure(field.receipt, 'typefaces').deviations).toBeGreaterThan(0);
+    const drawn = await fit({ files, html: once(reference, '</body>', '<svg width="300" height="200" aria-hidden="true"><defs><rect id="r-s07" width="300" height="200" fill="#ff0000"/></defs><use href="#r-s07"/></svg></body>'), browser });
+    expect(measure(drawn.receipt, 'colors').items.join('\n')).toContain('#ff0000');
+  }, 180_000);
+
+  it('compares the paints that came from the audit branch, each with a planted color (retest finding R-T05; findings S8-02 and CX-02)', async () => {
+    const plants: Record<string, string> = {
+      'underline': '<p><a href="/" style="text-decoration:underline;text-decoration-color:#ff0000">A link</a></p>',
+      'column rule': '<div style="column-count:2;column-rule:2px solid #ff0000"><p>One</p><p>Two</p></div>',
+      'marker': '<style>.r-t05 li::marker{color:#ff0000}</style><ul class="r-t05" style="list-style:disc"><li>One</li></ul>',
+      'placeholder': '<style>.r-t05p::placeholder{color:#ff0000}</style><input class="r-t05p" aria-label="x" maxlength="9" placeholder="Type here">',
+      'caret': '<input aria-label="x" maxlength="9" style="caret-color:#ff0000">',
+      'accent': '<input type="checkbox" aria-label="x" style="accent-color:#ff0000">',
+    };
+    for (const [kind, extra] of Object.entries(plants)) {
+      const { receipt } = await fit({ files, html: once(reference, '</body>', `${extra}</body>`), browser });
+      expect(measure(receipt, 'colors').items.join('\n'), kind).toContain(`${kind} color #ff0000`);
+    }
+    // The paint's own opacity joins the color: a half-transparent fill is listed as partly transparent, not as an opaque deviation.
+    const half = await fit({ files, html: once(reference, '</body>', '<svg width="20" height="20" aria-hidden="true"><rect width="20" height="20" fill="#ff00aa" fill-opacity="0.5"/></svg></body>'), browser });
+    expect(measure(half.receipt, 'colors').items.join('\n')).not.toContain('#ff00aa');
+    expect(measure(half.receipt, 'colors').information.join('\n')).toContain('rgba(255, 0, 170, 0.5)');
+    // Each address of a ping is read.
+    const ping = await fit({ files, html: once(reference, '</body>', '<a href="/" ping="https://one.example/p https://two.example/p">A link</a></body>'), browser });
+    const asked = measure(ping.receipt, 'requests').items.join('\n');
+    expect(asked).toContain('one.example');
+    expect(asked).toContain('two.example');
+    // The receipt names the color of selected text among the things it does not compare.
+    expect(half.markdown).toContain('the color of selected text');
+  }, 240_000);
+
   it('says that the page keeps changing when an animation never ends or a picture holds a timer, and never calls such a page measured (retest finding R-S05)', async () => {
     const pages = {
       'an animation without an end that recolors the page': [inHead('<style>@keyframes turn{0%,49.99%{background-color:#fefaf1}50%,100%{background-color:#ff0000}} body{animation:turn 18s infinite}</style>'), 'never end'],

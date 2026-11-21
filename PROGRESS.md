@@ -107,6 +107,15 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ## Build log (verified build loop; newest entry first)
 
 - Date: 2026-11-21
+- Feature worked on (ID): none; retest findings R-S06 (in part), R-S07, and R-T05 (SPEC.md section 2.29, point 9), after the owner's second "Continue"
+- Result: passes in the Fit check's tests on this machine; GitHub's check on this commit is the full run
+- What it does: (R-S06) a box with a backdrop filter other than a blur or more saturation, and a box with a blend mode, make the colors "not measured"; the Mockup's own glass (blur and saturation) is left alone. (R-S07) the text in a form field is read for color, typeface, and contrast; a shape that an SVG picture draws by reference is compared. (R-T05) the six paints, the paint opacity, and the ping reading that came from the audit branch have a test.
+- Tests first: the tests for R-S06 and R-S07 failed before the repairs. The test for R-T05 passed at once, as expected: its code was already there, and the test now guards it.
+- Evidence: `npm run check`: 374 unit tests passed. The Fit check's browser tests: 224 of 224 passed (1,310 seconds), every Direction's clean build among them. The full `npm run e2e` was not run here.
+- Not repaired, and stated: a gradient or an inset shadow on every element (the rest of R-S06); a `select`'s shown option; a blend mode on a box that a style rule draws.
+- Open: 8 major findings of the retest (SPEC.md section 2.29); pull request 14 (the owner's decision).
+
+- Date: 2026-11-21
 - Feature worked on (ID): none; retest finding R-S05 (SPEC.md section 2.29, point 8), after the owner's "Continue"
 - Result: passes in the Fit check's tests on this machine; GitHub's check on this commit is the full run
 - Where the work stood: the owner stopped all work on 2026-11-18 and merged pull request 19 (the records) on 2026-11-19; two package updates by the update robot followed on the main line (vite 8.3.8, prettier 3.10.0). The working branch was brought level with the main line (`4dc8649`) before this work.
