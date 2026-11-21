@@ -40,6 +40,10 @@ export interface Collected {
   frames: number;
   /** Animations with an end that had not ended when the program read the page: the page may still change (finding G-S04). */
   pendingAnimations: number;
+  /** Animations that never end and are running: the page keeps changing after the program stops reading (retest finding R-S05). */
+  endlessAnimations: number;
+  /** Timers inside SVG pictures (`set`, `animate`, `animateTransform`, `animateMotion`): they change the picture by the clock, and the browser's list of animations does not hold them (R-S05). */
+  svgTimers: number;
   /** Drawn colors that a CSS filter changes before they reach the screen; they are counted as not measured (finding J-6). */
   filtered: number;
   /** Every `@font-face` rule of the page: the family that it names and where its letters come from (finding J-19). */
@@ -251,9 +255,28 @@ export function collect(): Collected {
     const cs = getComputedStyle(el);
     if (cs.visibility !== 'visible') continue;
     const label = where(el);
-    const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== '');
+    // A form field draws its value as text, though it holds no text node (retest finding R-S07).
+    const fieldText = (el instanceof HTMLInputElement && !['hidden', 'checkbox', 'radio', 'range', 'color', 'file', 'image'].includes(el.type) && el.value !== '') || (el instanceof HTMLTextAreaElement && el.value !== '');
+    const hasText = fieldText || [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== '');
     const recolored = isFiltered(el);
+    // A box that changes the colors of what lies under it: a backdrop filter other than a blur or more saturation, or a blend mode.
+    // The program reads each element's own colors, so what a visitor sees there is not what it read (retest finding R-S06).
+    const backdrop = (cs.backdropFilter || (cs as unknown as { webkitBackdropFilter?: string }).webkitBackdropFilter || 'none').toLowerCase();
+    if ((backdrop !== 'none' && backdrop.replace(/\b(blur|saturate)\([^)]*\)/g, '').trim() !== '') || cs.mixBlendMode !== 'normal') filtered++;
     // A shape or a text of an inline SVG picture paints with `fill` and `stroke` (finding G-S08).
+    // A shape that a picture draws by reference (`use`): the shape itself stands where nothing is drawn, so it is read here (R-S07).
+    if (el instanceof SVGUseElement) {
+      const id = (el.getAttribute('href') ?? el.getAttribute('xlink:href') ?? '').replace(/^#/, '');
+      const scope = el.getRootNode();
+      const target = id !== '' && (scope instanceof Document || scope instanceof ShadowRoot) ? scope.getElementById(id) : null;
+      for (const shape of target ? [target, ...target.querySelectorAll('*')].slice(0, 200) : []) {
+        if (!(shape instanceof SVGGeometryElement || shape instanceof SVGTextContentElement)) continue;
+        const ss = getComputedStyle(shape);
+        if (ss.fill !== 'none' && !ss.fill.startsWith('url(') && Number.parseFloat(ss.fillOpacity) > 0) add('background', withAlpha(rgbOf(ss.fill), Number.parseFloat(ss.fillOpacity)), label, recolored);
+        if (ss.stroke !== 'none' && !ss.stroke.startsWith('url(') && Number.parseFloat(ss.strokeWidth) > 0 && Number.parseFloat(ss.strokeOpacity) > 0) add('border', withAlpha(rgbOf(ss.stroke), Number.parseFloat(ss.strokeOpacity)), label, recolored);
+      }
+      continue;
+    }
     if (el instanceof SVGGeometryElement || el instanceof SVGTextContentElement) {
       // The paint's own opacity joins the color's alpha, so a half-transparent fill is listed as partly transparent (audit branch, finding CX-02).
       if (cs.fill !== 'none' && !cs.fill.startsWith('url(') && Number.parseFloat(cs.fillOpacity) > 0) add('background', withAlpha(rgbOf(cs.fill), Number.parseFloat(cs.fillOpacity)), label, recolored);
@@ -462,8 +485,10 @@ export function collect(): Collected {
 
   window.scrollTo(0, 0);
   const pendingAnimations = document.getAnimations().filter((a) => a.effect !== null && a.effect.getComputedTiming().endTime !== Infinity && a.playState !== 'finished' && a.playState !== 'idle').length;
+  const endlessAnimations = document.getAnimations().filter((a) => a.effect !== null && a.effect.getComputedTiming().endTime === Infinity && a.playState !== 'finished' && a.playState !== 'idle').length;
+  const svgTimers = every('set, animate, animateTransform, animateMotion').filter((el) => el.namespaceURI === 'http://www.w3.org/2000/svg').length;
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, frames: every('iframe, frame, object, embed').length, pendingAnimations, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
+  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, frames: every('iframe, frame, object, embed').length, pendingAnimations, endlessAnimations, svgTimers, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */

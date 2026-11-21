@@ -348,6 +348,13 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: bounded(`${p.label}: ${p.failure}`) }] : []));
   // An animation with an end that has not ended at the last reading: the page may still change after the program stops (finding G-S04).
   for (const p of passes) if ('collected' in p && p.label.endsWith('two seconds later') && p.collected.pendingAnimations > 0) loadFailures.push({ width: p.width, reason: bounded(`${p.label}: ${String(p.collected.pendingAnimations)} of the page’s animations had not ended when the program stopped reading, so the page may still change`) });
+  // An animation that never ends, and a timer inside an SVG picture: the page keeps changing by the clock after the program stops, so
+  // what was read is one moment of it (retest finding R-S05). Once for each window width, at the last reading.
+  for (const p of passes) {
+    if (!('collected' in p) || !p.label.endsWith('two seconds later')) continue;
+    if (p.collected.endlessAnimations > 0) loadFailures.push({ width: p.width, reason: bounded(`${p.label}: ${String(p.collected.endlessAnimations)} of the page’s animations never end, so the page keeps changing after the program stops reading; what was measured is one moment of it`) });
+    if (p.collected.svgTimers > 0) loadFailures.push({ width: p.width, reason: bounded(`${p.label}: ${String(p.collected.svgTimers)} of the page’s pictures hold a timer of its own (an SVG animation), so the page may change after the program stops reading`) });
+  }
   // What the page holds for a browser with scripts, when the program ran none: not measured, never "no deviation" (R-S01, R-S02).
   if (unrun !== '') loadFailures.push({ width: 0, reason: unrun });
   const failed = loadFailures.length;
