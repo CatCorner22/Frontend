@@ -594,3 +594,12 @@ Sent to: the LENS SUB-AGENT that records whether the RED CELL's attack on an unl
 ### E-53 · 2026-11-21T18:57:40Z · CORRECTION · orchestrator
 
 Corrects E-4 (FINDING F-7). E-4 names a push to the shared branch `claude/brave-mayer-sawqz9` as an action that "may follow". That is wrong for this run: the run pushes to the working branch `claude/festive-mendel-lfnahh` only. A merge into the main line is the USER's own act and is no part of the run. The other possible section-18 action that E-4 names (a new version of the private page) stays possible, on the USER's word and with its own `ROLLBACK` entry first.
+
+### E-54 · 2026-11-21T18:58:36Z · LAUNCH · orchestrator
+
+- Role: LENS trust and controls: does the RED CELL's attack on an unlisted PREMISE count (rule 6.5)
+- WORK UNIT: plan
+- Scope: `prompts/S5-counts-judge.md`
+- Commit under review: 7e5015d
+- SUB-AGENT identifier: a643889a504d8a80f — not openable by the USER
+- Report: `memos/redcell-counts-E-54.md`
