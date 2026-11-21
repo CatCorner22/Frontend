@@ -876,3 +876,12 @@ WORK UNITS: WU-1 is steps 1 to 11 of `PLAN.md`, with 1 audit round over the fini
 - Rests on: A-9, A-12
 
 No new version of the private page is published by this run. No step changes a screen of the Studio; the final report states whether the built page differs from the published one (C3). Rejected: publishing without the USER's word.
+
+### E-72 · 2026-11-21T19:23:14Z · LAUNCH · orchestrator
+
+- Role: AUDITOR: re-audit of FINDINGS F-1 to F-28 on the frozen plan (rule 14.3)
+- WORK UNIT: plan
+- Scope: `prompts/S6-reaudit-plan.md`
+- Commit under review: 5ed57e7
+- SUB-AGENT identifier: a8b3a615c3c9545c2 — not openable by the USER
+- Report: `audits/reaudit-plan-E-72.md`
