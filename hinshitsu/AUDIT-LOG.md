@@ -1486,3 +1486,226 @@ Translation, 1 line confirmed: O3 (1 commit for each fix) → C5, its first 2 se
 - Commit under review: d0f60de
 - SUB-AGENT identifier: a65a772d1390e3477 — not openable by the USER
 - Report: `audits/final-wording-check-E-140.md`
+
+### E-141 · 2026-11-21T21:13:13Z · RESOLUTION · orchestrator
+
+- Finding: F-1
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-1: NO LONGER REPRODUCES
+
+### E-142 · 2026-11-21T21:13:13Z · RESOLUTION · orchestrator
+
+- Finding: F-13
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-13: NO LONGER REPRODUCES
+
+### E-143 · 2026-11-21T21:13:13Z · RESOLUTION · orchestrator
+
+- Finding: F-43
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-43: NO LONGER REPRODUCES
+
+### E-144 · 2026-11-21T21:13:13Z · RESOLUTION · orchestrator
+
+- Finding: F-44
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-44: NO LONGER REPRODUCES
+
+### E-145 · 2026-11-21T21:13:13Z · RESOLUTION · orchestrator
+
+- Finding: F-45
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-45: NO LONGER REPRODUCES
+
+### E-146 · 2026-11-21T21:13:13Z · RESOLUTION · orchestrator
+
+- Finding: F-46
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-46: NO LONGER REPRODUCES
+
+### E-147 · 2026-11-21T21:13:13Z · RESOLUTION · orchestrator
+
+- Finding: F-47
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-47: NO LONGER REPRODUCES
+
+### E-148 · 2026-11-21T21:13:13Z · RESOLUTION · orchestrator
+
+- Finding: F-48
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-48: NO LONGER REPRODUCES
+
+### E-149 · 2026-11-21T21:13:14Z · RESOLUTION · orchestrator
+
+- Finding: F-49
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-49: NO LONGER REPRODUCES
+
+### E-150 · 2026-11-21T21:13:14Z · RESOLUTION · orchestrator
+
+- Finding: F-50
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-50: NO LONGER REPRODUCES
+
+### E-151 · 2026-11-21T21:13:14Z · RESOLUTION · orchestrator
+
+- Finding: F-51
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-51: NO LONGER REPRODUCES
+
+### E-152 · 2026-11-21T21:13:14Z · RESOLUTION · orchestrator
+
+- Finding: F-52
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-52: NO LONGER REPRODUCES
+
+### E-153 · 2026-11-21T21:13:14Z · RESOLUTION · orchestrator
+
+- Finding: F-53
+- Result: FIXED
+- Change: the `CRITERIA-CHANGE` entry E-139 and `PLAN.md` (third text)
+- Re-audit: `audits/final-wording-check-E-140.md` (LAUNCH E-140, a SUB-AGENT that did not raise it), row F-53: NO LONGER REPRODUCES
+
+### E-154 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-139, C1, the lists "(b), a limit that the receipt states" (G-S11, G-S10) and "(b), repaired in part before this run, the kept part a limit that the receipt states" (R-S04, and 1 rest of R-S06).
+- Trigger: `grep -ci "trusted\|hostile\|owner.s own\|model counts\|counts the rounds\|approximation\|style values" plugin/fit/trials/00{1,2,3}/RECEIPT.md` gives 0 in each; `grep -n "blend" plugin/fit/src/receipt.ts` finds line 66 alone, a sentence on contrast. The Status of G-S11 (line 689) names "README and guarantee 66.12"; that of G-S10 (line 688) names "the README and the command"; the receipt says "This is a first check: no repair round came before it" as a fact. No receipt holds a sentence on a hostile `mockup.html` in the Vision folder, on who counts the repair rounds, on the place of a covering box worked out from style values, or on a blend mode on a box that a style rule draws. No commit of `PLAN.md` adds one, and C5's list holds no such fix.
+- Violates: the USER's condition in E-67, answer 6 ("limits that every receipt states") and in E-112, question 2, item 1; O1 as E-68 translates it ("no known way to status 0 on a wrong page except those the receipt states"); C1's own list titles. The run would end these rows as "kept, a limit that the receipt states, on the USER's word" while the receipt is silent. It is the fault of F-48 for other rows.
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 1
+- Lens: trust and controls
+- Stop: by the USER's answer 3 in E-112 the build starts with this FINDING open; it is repaired beside the build
+- ID: F-54
+
+### E-155 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-139, C4: "status 0 goes only with \"No deviation\" and with 0 \"not measured\" in a measure that counts", "Contrast only where the Vision writes Floor A1", and the fifth case "checked against its own `mockup.html`".
+- Trigger: (a) write the Vision of the plain start with `a11y: 'enforce'` and run `node plugin/fit/src/cli.ts <folder>/mockup.html <folder> <out>`: "8 deviations; the contrast of 3 texts could not be read (this does not change the status). Status 1." The 8 are Floor deviations (A11, Q10, Q8, S11, S5 two times, S8, S9); `docs/reference/guarantees.md` line 955 says why: "The Mockup itself is a still page and shows Floor deviations". (b) Run the same Vision against the page that `plugin/fit/e2e/built.ts` makes from that Mockup: "No deviation; the contrast of 3 texts could not be read (this does not change the status). Status 0.", and the receipt says "### Contrast: required by Floor A1 of the Vision" with "0 deviations; 27 not measured".
+- Violates: C4 against the program. The program gives status 0 beside 27 "not measured" in a measure that C4 says counts; this is a rule of the program (`fit.ts` lines 519 to 524; `SPEC.md` line 366: "A text whose contrast cannot be read never changes the status"; the guide, line 34). None of the 5 cases ends with status 0 where Contrast counts, so the test of C4 passes while its sentence is false for a faithful build of any project with "Fix for me". C4 also does not say which status the fifth case ends with, and gives its command only as "the same command form". Class DEFECT because C4 binds its rules to its 5 cases and they can be met; if the sentence is read as a rule for every receipt, the program cannot meet it.
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 2
+- Lens: trust and controls
+- ID: F-55
+
+### E-156 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/fit/src/fit.ts` lines 519 to 524.
+- Trigger: in the reference build of finding 2 (b), change `<p class="lede">` to `<p class="lede" style="color:#f7faff">` (the color of the page's background): "3 deviations; … Status 1." Add `opacity:0.98` to the same style: "No deviation; the contrast of 4 texts could not be read (this does not change the status). Status 0."
+- Violates: O1. Against a Vision that requires contrast, a paragraph that nobody can see gets status 0. The line and the receipt state the count of unread texts, so the way is stated; no row of `redteam/FINDINGS.md` and no `ANSWER` entry holds it.
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 3
+- Lens: trust and controls
+- ID: F-56
+
+### E-157 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `redteam/FINDINGS.md` lines 642 (A2-J3), 687 (G-S09), 401 (S6-01, grade blocker), 194 (T2-05); C1, the sentence on rows outside the list.
+- Trigger: `grep -n "^| A2-J3 |\|^| G-S09 |\|^| S6-01 |\|^| T2-05 |" redteam/FINDINGS.md`; each Status states an open part in words that none of the script's phrases matches (quoted in the row F-1 above). `grep -c` of each ID in C1: 0.
+- Violates: V1 as E-9 translates it. For A2-J3 also O1: "finds other signs of the check" is a way to status 0 that the receipt states and that is not among the 5 limits of E-67, answer 6. C1 names no AUDITOR who searches for such rows after this check.
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 4
+- Lens: trust and controls
+- ID: F-57
+
+### E-158 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-139, C1: "The list is the rows whose Status holds 1 of the 13 phrases of that script, and the 4 named".
+- Trigger: `open-rows.py` line 13 holds 13 phrases; line 25 adds a 14th rule, `status.lower().startswith("open")`. A count with the 13 phrases alone leaves out 4 of the 50: P9-05, G-T08, R-S09, R-S11 (each Status begins "Open." or "Open,").
+- Violates: C1 against itself: its definition shuts out 4 rows that its lists (a) and (b) hold. Beside it: A1-04 is in the list by chance (its Status says "on open, and a fixed note …", the verb), and "limits:" does not match the "Limit:" of R-S05.
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 5
+- Lens: trust and controls
+- ID: F-58
+
+### E-159 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-139, C1, the list "(b), a screen of the Studio, for the next run, on the USER's word in E-67, answer 2".
+- Trigger: compare the 19 IDs with the 19 of E-68 (line 845): FTU-33, FTU-35 and U2-02 are new, and E-107, question 1 (a), is the place where the USER heard of them. Read the Status of H7-01 (line 387): "Fixed in part on 2026-11-15, as the owner chose … keep their link colors … a unit test pins exactly these three".
+- Violates: C1, state (b) ("the Status cites the `ANSWER` entry that holds the USER's word"): for 3 rows the cited entry is the wrong one; for H7-01 the list's reason ("for the next run") disagrees with the row.
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 6
+- Lens: trust and controls
+- ID: F-59
+
+### E-160 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: E-139, C1, Test: "the 2 readers named above report on R-T06 and G-U07".
+- Trigger: read the Test for the report that passes. None is named; E-108 said "confirms".
+- Violates: C1 as a test that a third party can repeat. C9 holds the gap only if each reported sentence becomes a FINDING.
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 7
+- Lens: trust and controls
+- ID: F-60
+
+### E-161 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: E-139, C5: "The fixes of this run, 1 commit each: …" and "the last lines of the 3 outputs are saved".
+- Trigger: (a) a fix of a FINDING after the audit round (C9), or of a wording fault beside the build (E-112, answer 3), is a 19th commit that the closed list does not hold, so `git log` "read against the list" then disagrees. (b) No sentence ties a saved file of commits 1 to 17 to the tree of that commit; the E-110 report named this cheat and E-139 left it.
+- Violates: C5 as a test that a third party can repeat.
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 8
+- Lens: trust and controls
+- ID: F-61
+
+### E-162 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `hinshitsu/PLAN.md` line 40 and line 18.
+- Trigger: line 40 plants 1 defect in `collect.ts`, `fit.ts`, `receipt.ts`, `look.ts`. The Files cells of commits 3, 7, 9, 13 and 15 also change `floors.ts`, `vision.ts`, `cli.ts` and `look-cli.ts`. Commit 4 changes `look.ts` for a sentence in `LOOK.md` and names no test for it.
+- Violates: E-55, row "TC add: 1 planted defect for each program changed", ACCEPTED; G8 of E-10 ("each fix carries a test that failed before it").
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 9
+- Lens: trust and controls
+- ID: F-62
+
+### E-163 · 2026-11-21T21:13:14Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: E-139, C1: "M-01, R23-01, T6-08, P9-05, FTU-21, G-T08, each with the act as E-108 names it", under the heading "The full new text of each changed CRITERION".
+- Trigger: read C1 for the 6 acts; they stand in E-108 alone, an entry that E-139 calls "Old text".
+- Violates: the entry's own heading; a reader of C1 needs a second entry.
+- Raised by: RED CELL probe and re-audit, LAUNCH E-140, `audits/final-wording-check-E-140.md`, new finding 10
+- Lens: trust and controls
+- ID: F-63
+
+### E-164 · 2026-11-21T21:13:14Z · DECISION · orchestrator
+
+- ID: D-8
+- Rests on: A-14; the USER's answer 3 in E-112
+
+The build starts now, with F-54 (BLOCKER) and F-55 to F-63 open. How each is handled beside the build: F-54: 1 more fix, commit 19 of `PLAN.md`: each receipt states the 4 limits (a hostile `mockup.html` in the Vision folder; the model counts the repair rounds; the place of a covering box is worked out from style values; a blend mode on a drawn box is not judged), and 1 test asserts the sentences. F-55 (the rule of C4 on Contrast): the program keeps its written rule (`SPEC.md`: a text whose contrast cannot be read never changes the status); the choice between that rule and a stricter one goes to the USER on the card after the audit round, with F-56. F-56 and F-57: FINDINGS against the product under C9; they go on that card. F-58, F-59, F-60, F-61, F-63 (wording of C1 and C5): 1 `CRITERIA-CHANGE` entry, put to the USER on that same card. F-62: `PLAN.md` now plants 1 defect in each of the 8 programs changed, and commit 4 names a test for the sentence in `LOOK.md`. This departs from rules 14.1 and 14.5 on the USER's instruction (E-112); the delivery report says so in its `Summary`. Rejected: 1 more round of checks before the build (the USER chose against it).
+
+### E-165 · 2026-11-21T21:13:14Z · STAGE · orchestrator
+
+- Stage: S6
+- Event: end
+- Artifacts: E-67, E-107, E-112 (ANSWER); E-68 (CRITERIA, FROZEN); E-108, E-139 (CRITERIA-CHANGE); `PLAN.md` (third text); 3 re-audits and 1 probe (E-72, E-110, E-111, E-140)
+
+### E-166 · 2026-11-21T21:15:23Z · STAGE · orchestrator
+
+- Stage: S7
+- Event: start
+- Skills read: conductor `SKILL.md` SHA-256 a3907653b8a517f2597ec025d6b22eb5929730ff4f79291d4b74c60549250d0e; `GLOSSARY.md` SHA-256 92b526977fb5d1fc507f934ddba2a5c43144cfbe477c75adba9b7219bb46d599; `hinshitsu-audit/SKILL.md` SHA-256 0f7094ca8204f5a138c6d1de18836e8af84e33d3b201039e571ad792920895c0
+- Note: the build starts with F-54 (BLOCKER) and F-55 to F-63 open, on the USER's answer 3 in E-112 (D-8, E-164)
+
+### E-167 · 2026-11-21T21:15:23Z · CHECK · orchestrator
+
+Before WU-1 (rule 7.3): the WORK UNIT rests on `FRAMEWORK.md` part 1 (the CRITERIA of E-68 and E-139), part 4 (the contracts of `cli.ts`, `look-cli.ts` and of the Vision's files), part 5 (the ORCHESTRATOR builds; SUB-AGENTS audit) and part 7. Search for an existing implementation before commit 1 (rule 7.5): `grep -n "overflow" plugin/fit/src/collect.ts` finds `cutAway` and `clippedOnPurpose`; commit 1 changes `cutAway` and adds no second function for the same job.
+
+### E-168 · 2026-11-21T21:15:24Z · TRACE · orchestrator
+
+Commit 1 of `PLAN.md`: `cutAway` and `covered` in `plugin/fit/src/collect.ts` (the automatic reviewer's finding 1, C2).
+- forward: `collect.ts` gives `shownLines` and `clippedLines` to `fit.ts` (the Content measure) and to `look.ts`. The change adds lines to `shownLines` for a text inside a box that scrolls; no line leaves. Not broken.
+- backward: the change rests on finding G-S03 (a text that no visitor can see is not counted). A box that hides what overflows, and a scrolling box with no room, still cut the text away; the test asserts both. Not violated.
+- lateral: no other WORK UNIT is in progress.

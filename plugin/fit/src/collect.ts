@@ -357,6 +357,10 @@ export function collect(): Collected {
     return false;
   };
   // True when a box around the text hides what overflows it and leaves nothing of the text inside.
+  // A box that scrolls (`auto`, `scroll`) cuts nothing away in the direction in which a visitor can scroll it: the visitor reaches the
+  // text by scrolling the box. Such a box with no room at all in that direction shows nothing and still cuts (automatic reviewer of
+  // pull request 16, finding 1).
+  const scrolls = (value: string): boolean => value === 'auto' || value === 'scroll' || value === 'overlay';
   const cutAway = (host: Element, r: DOMRect): boolean => {
     let left = r.left;
     let right = r.right;
@@ -366,8 +370,12 @@ export function collect(): Collected {
       const style = getComputedStyle(up);
       if (style.overflowX === 'visible' && style.overflowY === 'visible') continue;
       const box = up.getBoundingClientRect();
-      if (style.overflowX !== 'visible') { left = Math.max(left, box.left); right = Math.min(right, box.right); }
-      if (style.overflowY !== 'visible') { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
+      // In a direction in which the box scrolls, the visitor can bring the text to any place inside the box: from here upward the
+      // text stands where the box stands.
+      if (scrolls(style.overflowX) && up.clientWidth >= 1) { left = box.left; right = box.right; }
+      else if (style.overflowX !== 'visible') { left = Math.max(left, box.left); right = Math.min(right, box.right); }
+      if (scrolls(style.overflowY) && up.clientHeight >= 1) { top = box.top; bottom = box.bottom; }
+      else if (style.overflowY !== 'visible') { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
       if (right - left < 1 || bottom - top < 1) return true;
     }
     return false;
@@ -391,7 +399,25 @@ export function collect(): Collected {
     }
   }
   // True when, with the text scrolled into the window, the box on top at the text's middle is neither the text's own box nor one around or inside it.
+  // The boxes around a text that a visitor can scroll, each with the place to which it is scrolled now.
+  const scrollBoxes = (host: Element): { box: Element; left: number; top: number }[] => {
+    const found: { box: Element; left: number; top: number }[] = [];
+    for (let up = host.parentElement; up && up !== document.body && up !== document.documentElement; up = up.parentElement) {
+      const style = getComputedStyle(up);
+      if ((scrolls(style.overflowX) && up.scrollWidth > up.clientWidth) || (scrolls(style.overflowY) && up.scrollHeight > up.clientHeight)) found.push({ box: up, left: up.scrollLeft, top: up.scrollTop });
+    }
+    return found;
+  };
   const covered = (host: Element, range: Range): boolean => {
+    // A text inside a box that scrolls is judged where the visitor reads it: scrolled into its box. The boxes go back afterwards.
+    const boxes = scrollBoxes(host);
+    if (boxes.length === 0) return coveredInPlace(host, range);
+    host.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+    const result = coveredInPlace(host, range);
+    for (const { box, left, top } of boxes) box.scrollTo({ left, top, behavior: 'instant' });
+    return result;
+  };
+  const coveredInPlace = (host: Element, range: Range): boolean => {
     const before = range.getBoundingClientRect();
     window.scrollTo(0, Math.max(0, before.top + window.scrollY - 300));
     const r = range.getBoundingClientRect();

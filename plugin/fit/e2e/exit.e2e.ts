@@ -285,6 +285,24 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(status).toBe(1);
   });
 
+  it('automatic reviewer, finding 1: a text inside a box that scrolls is read as cut away. A headline that a visitor reaches by scrolling its box counts as found; a box that hides what overflows, or a scrolling box without height, still cuts it away', async () => {
+    const h1 = /<h1>[\s\S]*?<\/h1>/.exec(reference)?.[0] ?? '';
+    const below = '<div style="height:600px"></div>';
+    for (const overflow of ['auto', 'scroll']) {
+      const { receipt } = await fit({ files, html: once(reference, h1, `<div style="height:120px;overflow:${overflow}">${below}${h1}</div>`), browser });
+      const content = measure(receipt, 'content');
+      expect(content.items.join('\n')).not.toMatch(/headline/);
+      expect(content.deviations).toBe(0);
+      expect(content.notMeasured).toBe(0);
+    }
+    // The same place in a box that lets nobody scroll, and a scrolling box that has no room at all: no visitor reaches the headline.
+    for (const style of ['height:120px;overflow:hidden', 'height:0;overflow:auto']) {
+      const { receipt, status } = await fit({ files, html: once(reference, h1, `<div style="${style}">${below}${h1}</div>`), browser });
+      expect(measure(receipt, 'content').items.join('\n')).toMatch(/headline is not where a person can read it/);
+      expect(status).toBe(1);
+    }
+  }, 240_000);
+
   it.each([
     ['a faint headline', (page: string) => once(page, '<h1', '<h1 style="opacity:0.2"')],
     ['a box that covers the whole page', (page: string) => once(page, '</body>', '<div style="position:fixed;inset:0;background:#ffffff;z-index:99999"></div></body>')],

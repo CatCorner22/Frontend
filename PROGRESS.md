@@ -106,6 +106,12 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 1: a text inside a box that scrolls is no longer read as cut away
+- Feature worked on (ID): none in the list. The first of the 3 findings that the automatic reviewer left on pull request 16 (record of the run: `hinshitsu/AUDIT-LOG.md`; plan: `hinshitsu/PLAN.md`).
+- The finding is true, fixed. Before: a required text that stood below the visible part of a box with `overflow: auto` or `scroll` was left out of the texts that a person can read, so the Content measure called a headline missing that a visitor reaches by scrolling the box. Now: in a direction in which a box scrolls, the box cuts nothing away, and the text is judged where the visitor reads it (scrolled into its box; the boxes are put back). A box that hides what overflows (`hidden`, `clip`) and a scrolling box with no room at all still cut the text away.
+- Test (written first; it failed with "the headline is not where a person can read it"): "automatic reviewer, finding 1: a text inside a box that scrolls is read as cut away ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- Evidence: `hinshitsu/evidence/commit-1-checks.txt` (`npm run check`; the Fit check's browser tests; the deliverable test).
+
 ### 2026-11-21: the owner's equivalency backlog, checked and added to the plan (decision D80)
 - Feature worked on (ID): none in the list. A change of records only; no code changed.
 - What happened: the owner handed over a file with 5 gaps and 8 action items and asked that its claims be checked and, where correct, built into the plan. The file is kept unchanged as `docs/sources/2026-11-21-equivalency-backlog.md`. Of 14 claims: 7 true, 3 true in part, 2 false, 2 not verified. `PLAN.md` (version 3.9) gains section 13.10 with the items E1 to E8 as corrected.
