@@ -264,3 +264,333 @@ Each helper's prompt was 1 wrapper line that names the scope file and the commit
 - Report: `audits/plan-language-E-22.md`
 
 Each helper's prompt was 1 wrapper line that names the scope file and the commit; the scope file is the whole scope.
+
+### E-23 · 2026-11-21T18:54:54Z · CHECK · orchestrator
+
+Resume after a restart of the machine (rule 8.3), at S5. Read: `SESSION-STATE.md`, `AUDIT-LOG.md` (E-1 to E-22), and the challenge skill. Each artifact that `SESSION-STATE.md` lists exists (`ls hinshitsu`). `SESSION-STATE.md` itself is out of date: it names S2 and no CRITERIA; it is rewritten at the end of S5. Nothing was lost: the 6 SUB-AGENT runs of E-17 to E-22 had finished, their transcripts survived, and their reports are saved whole in commits 94b73fa, d09b078, 2332f7f, 2a2accd, 687476c and b385e3d.
+
+### E-24 · 2026-11-21T18:57:39Z · ASSUMPTION · orchestrator
+
+PREMISES that the RED CELL attacked and that no earlier `ASSUMPTION` entry lists (rule 6.6), with the report cited: `audits/redcell-plan-E-21.md`. Each is answered in the `RECONCILIATION` entry that follows the FINDING entries.
+
+| ID | PREMISE | Decision that rests on it | EVIDENCE | If false |
+|---|---|---|---|---|
+| A-10 | The filter that made `evidence/open-major-859c643.txt` found every open row of grade blocker or major | the bug list of C1 | false: `python3 hinshitsu/evidence/open-rows.py` (a stated rule over the Status text) lists 40 rows, not 16; RED CELL P1 | bugs that the USER asked for are left out of the run |
+| A-11 | A page with a closed declarative shadow root that gets status 1 proves the fix of A2-V4 | plan step 2 | false as a test: RED CELL P3 reports that both of its pages give status 1 before any fix | a test passes with no fix |
+| A-12 | The page that the test of C3 opens (`local-test.html`) is what the USER holds | C3 | not verified: the private page was published from commit 523ae8e (Version 26); RED CELL P4 | the test passes on a page that the USER does not have |
+| A-13 | The tests that C4 and C7 name cover what C4 and C7 say | C4, C7 | false: RED CELL P7; `plugin/fit/e2e/exit.e2e.ts` lines 244 and 363 to 390 | a CRITERION is called met by a narrower test |
+| A-14 | A limit stated in the receipt is an acceptable end for a way to get status 0 on a wrong page | C1 state (b) | not verified; it is the USER's to decide (risk); RED CELL P8 | the Fit check's status 0 means less than the USER takes it to mean |
+
+Sent to: the LENS SUB-AGENT that records whether the RED CELL's attack on an unlisted PREMISE counts (launched after this entry); the USER, on the S6 card, for A-10, A-12 and A-14.
+
+### E-25 · 2026-11-21T18:57:39Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: `hinshitsu/evidence/open-major-859c643.txt`, C1
+- Trigger: list the rows of `redteam/FINDINGS.md` with grade blocker or major whose Status holds "in part", "Still open", "Open:" or "Not repaired", and compare with the 16
+- Violates: V1 ("all current bugs"), C1's own count, and the header of the evidence file. Missing at least G-S04, M-01, R-S03 (blockers) and about 20 majors
+- Raised by: RED CELL, LAUNCH E-21, `audits/redcell-plan-E-21.md`, finding 1
+- Lens: minimal viable sequence
+- Stop: a finding on the plan; nothing is built yet, and no build starts while it is open (rule 14.1)
+- ID: F-1
+
+### E-26 · 2026-11-21T18:57:39Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: PLAN step 1, C1 state (a) for G-S05
+- Trigger: the 7 pages of P2 through `node plugin/fit/src/cli.ts`; each gives status 0 today, and 6 of them are untouched by a reading at 2 dppx
+- Violates: C1 (a row called closed whose trigger still passes), `CLAUDE.md` hard rule 13, O1
+- Raised by: RED CELL, LAUNCH E-21, `audits/redcell-plan-E-21.md`, finding 2
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet, and no build starts while it is open (rule 14.1)
+- ID: F-2
+
+### E-27 · 2026-11-21T18:57:39Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: PLAN step 2, its test
+- Trigger: the 2 pages of P3; both give status 1 before any fix
+- Violates: the plan's own rule "write the test, see it fail" and PREMISE A-4
+- Raised by: RED CELL, LAUNCH E-21, `audits/redcell-plan-E-21.md`, finding 3
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet, and no build starts while it is open (rule 14.1)
+- ID: F-3
+
+### E-28 · 2026-11-21T18:57:39Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: C3, G11, A-9
+- Trigger: change any line of `packages/core` that `writeVision` uses, run C3's test (passes), open the private page (unchanged)
+- Violates: V2: the deliverable test passes on a page the RECIPIENT does not hold
+- Raised by: RED CELL, LAUNCH E-21, `audits/redcell-plan-E-21.md`, finding 4
+- Lens: recipient experience
+- Stop: a finding on the plan; nothing is built yet, and no build starts while it is open (rule 14.1)
+- ID: F-4
+
+### E-29 · 2026-11-21T18:57:39Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: C1, PLAN step 7, A-9
+- Trigger: read the 3 texts
+- Violates: rule of one CRITERION one outcome; and `CLAUDE.md` verification rule 2 if the fix is made with only "the browser tests of the part changed"
+- Raised by: RED CELL, LAUNCH E-21, `audits/redcell-plan-E-21.md`, finding 5
+- Lens: structural integrity
+- Stop: a finding on the plan; nothing is built yet, and no build starts while it is open (rule 14.1)
+- ID: F-5
+
+### E-30 · 2026-11-21T18:57:39Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: C4 and C7
+- Trigger: `grep -n "three stored trials\|has three commands" plugin/fit/e2e/exit.e2e.ts`
+- Violates: C4 and C7: the named tests do not cover "the reference build" (C4) or the fourth command (C7)
+- Raised by: RED CELL, LAUNCH E-21, `audits/redcell-plan-E-21.md`, finding 6
+- Lens: structural integrity
+- Stop: a finding on the plan; nothing is built yet, and no build starts while it is open (rule 14.1)
+- ID: F-6
+
+### E-31 · 2026-11-21T18:57:39Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: E-4 against C5
+- Trigger: read E-4 and the record of pull request 24
+- Violates: C5 and O2: the log names `claude/brave-mayer-sawqz9` as a push target
+- Raised by: RED CELL, LAUNCH E-21, `audits/redcell-plan-E-21.md`, finding 7
+- Lens: trust and controls
+- Stop: a finding on the plan; nothing is built yet, and no build starts while it is open (rule 14.1)
+- ID: F-7
+
+### E-32 · 2026-11-21T18:57:39Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: C6
+- Trigger: run the command as written
+- Violates: C6: `<living-reference>` is not a path
+- Raised by: RED CELL, LAUNCH E-21, `audits/redcell-plan-E-21.md`, finding 8
+- Lens: structural integrity
+- Stop: a finding on the plan; nothing is built yet, and no build starts while it is open (rule 14.1)
+- ID: F-8
+
+### E-33 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `AUDIT-LOG.md` E-14, C1 (line 178) and "Outside these CRITERIA" (line 186); the same in `PLAN.md` lines 19 and 31.
+- Trigger: read C1 "Planned for state (b): … FTU-32 … G-T08", then line 186 "Outside these CRITERIA … (FTU-32) … (G-T08)".
+- Violates: rule 13.1 language category "conflict"; GLOSSARY "CRITERION" (a named test).
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 1
+- Lens: structural integrity
+- Title: C1 lists FTU-32 and G-T08 as inside the CRITERIA, and the closing sentence lists them as outside.
+- ID: F-9
+
+### E-34 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C1; `evidence/open-major-859c643.txt` lines 3, 5, 13.
+- Trigger: R-12's Status says "the breach cannot be undone": no one "must act", yet (b) requires the Status to name who must act. FTU-22's Status ends "Closed on 2026-11-15: the owner approved …", yet the row is planned as "kept". R-S06 is "(its rest)": 1 part is repaired with a test and 1 part stays, so the row is in both states.
+- Violates: C1 against itself.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 2
+- Lens: structural integrity
+- Title: C1 state (b) cannot hold for R-12 and FTU-22, and "exactly 1 of 2 states" cannot hold for R-S06.
+- ID: F-10
+
+### E-35 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C1 ("Planned for state (a): U7-02"); `PLAN.md` line 17 ("only if the USER wants it changed"); E-13 A-9 ("No fix of this run changes a screen of the Studio").
+- Trigger: read the 3 lines together.
+- Violates: C1; rule 13.1 "conflict".
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 3
+- Lens: structural integrity
+- Title: U7-02 is planned as closed in C1, optional in the plan, and excluded by PREMISE A-9.
+- ID: F-11
+
+### E-36 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C1 state (a) and its Test; `PLAN.md` line 18 (Test column: "the framework-drift auditor's reading").
+- Trigger: C1's test says the auditor "runs the named test, then takes the fix out in a copy and sees the test fail". A corrected sentence in `PROGRESS.md` has no test in the repository.
+- Violates: C1.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 4
+- Lens: structural integrity
+- Title: C1 requires a failing test for R-T06 and R-U05 in part; the plan names a reading, not a test, for R-T06.
+- ID: F-12
+
+### E-37 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-9 lines 101, 107, 108, 109, 110; E-10 lines 132 (G9) and 139 (G16).
+- Trigger: read the places in the Where field; the report, finding 5, holds the row-by-row detail: The translation table in the VOC points 6 rows at CRITERIA that do not say what the row says.
+- Violates: rule 13.1 "conflict"; GLOSSARY "CRITERION".
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 5
+- Lens: structural integrity
+- Title: The translation table in the VOC points 6 rows at CRITERIA that do not say what the row says.
+- ID: F-13
+
+### E-38 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C4; `plugin/fit/e2e/exit.e2e.ts` lines 363-390.
+- Trigger: the named test's title ends "for the three stored trials"; it does not run a reference build. It sums the receipt's deviation counts for trial 002 only (line 380-381). "The language auditor reads the 3 receipts" also leaves the reference build out. "The reference build" is singular, while `exit.e2e.ts` line 50 holds 39 (the plain start and 38 Directions).
+- Violates: C4 against its own test.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 6
+- Lens: structural integrity
+- Title: C4 names 4 subjects and a test that covers 3, and the test checks the sum for 1.
+- ID: F-14
+
+### E-39 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C4; `plugin/README.md` line 34; `plugin/commands/fit-check.md` line 12.
+- Trigger: run the Fit check on trial 001. The line says "Status 0"; the receipt's Contrast measure says "27 not measured". Whether this breaks "status 0 goes … with nothing 'not measured' in a measure that counts" depends on whether Contrast counts, and no text says which measures count.
+- Violates: C4; C7 (a term with no meaning at first use).
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 7
+- Lens: recipient experience
+- Title: "A measure that counts" has no definition, in C4, in the guide, or in the command.
+- ID: F-15
+
+### E-40 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/fit/trials/002/RECEIPT.md` line 61; the summary lines of trials 001 and 002.
+- Trigger: run trial 002. The line says "3 text readings below the usual contrast". The receipt says "3 below the usual least" with no unit, then "the lines show texts below the usual least"; the 3 lines are 1 text (`p.promise`) at 3 widths. In trial 001 the line counts texts ("the contrast of 3 texts could not be read") for 27 readings. One summary line family counts readings in one clause and texts in the other.
+- Violates: C4 ("agree").
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 8
+- Lens: recipient experience
+- Title: The summary line and the receipt count contrast in 2 units, and the receipt names the wrong unit.
+- ID: F-16
+
+### E-41 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/fit/trials/001/RECEIPT.md` line 66 (and 002 line 81).
+- Trigger: read "0 deviations; 0 not measured. The Vision's section 7 writes no requirement that this program reads, so nothing was checked here." A reader takes "0 deviations; 0 not measured" as "checked and clean".
+- Violates: C4 ("no sentence of the receipt says that the program did something it did not do").
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 9
+- Lens: recipient experience
+- Title: The receipt says "0 not measured" for Floors where it checked nothing.
+- ID: F-17
+
+### E-42 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C5.
+- Trigger: C5 lists `npm run check`, "the Fit check's browser tests" and "the deliverable test". C2 and C3 give 2 different `vitest` commands for the last 2, which makes 3 commands. C5 also does not require `npm run e2e`, which `CLAUDE.md` verification rule 2 requires after a change to a screen (U7-02), and `PLAN.md` line 7 says "the browser tests of the part changed".
+- Violates: C5; `CLAUDE.md` verification rule 2 (conflict with the plan).
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 10
+- Lens: structural integrity
+- Title: C5 counts "2 local commands" and names 3 things; "the Fit check's browser tests" has no command.
+- ID: F-18
+
+### E-43 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C6: "`python3 <living-reference>/refresh_reference.py docs/reference/guarantees.md --check`".
+- Trigger: `grep -rn refresh_reference` finds the script nowhere in the repository; `<living-reference>` is not a path. `docs/reference/guarantees.md` is not among the 3 documents that C6's first sentence lists.
+- Violates: GLOSSARY "CRITERION" (a named test); "EVIDENCE" (a third party can open).
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 11
+- Lens: structural integrity
+- Title: C6's command holds a placeholder, and checks a file that C6 does not name.
+- ID: F-19
+
+### E-44 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C7; `plugin/fit/src/cli.ts` line 9; `look-cli.ts` line 10; `exit.e2e.ts` line 244.
+- Trigger: the 2 usage lines hold options only, no status, so "compares the … statuses in the guide with each program's usage line" has nothing to compare. The existing test's title says "has three commands". "Each technical term" names no list; in the present guide these have no meaning at first use: plugin, Node, TypeScript, Chromium, environment variable, Floor, edition (defined), Mockup, deviation, markup, status, marketplace, "the three required texts".
+- Violates: C7.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 12
+- Lens: structural integrity
+- Title: C7's test cannot compare statuses, and does not compare the 4 commands; "technical term" is not bounded.
+- ID: F-20
+
+### E-45 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 line 176 (`apps/studio/dist/artifact/refraction-studio.html`); `apps/studio/e2e/deliverable.e2e.ts` line 14 (`../dist/artifact/local-test.html`).
+- Trigger: read both lines; `ls apps/studio/dist/artifact` shows 2 files.
+- Violates: C3; GLOSSARY "VERIFIED" part (a). I did not compare the 2 files; whether they differ in what C3 tests is UNVERIFIED.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 13
+- Lens: structural integrity
+- Title: C3's test opens a different file from the one the CRITERIA call the built Studio page.
+- ID: F-21
+
+### E-46 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C3.
+- Trigger: (a) "each file carries the same fingerprint": the same as what; (b) "a browser keeps every design value": "keeps" has no stated meaning; (c) "texts typed with signs that code could misread stay text": which signs, in which files; (d) "the Fit check reads the folder": no status named; (e) "its RECIPIENT": the VOC names 2 for the Vision (the owner and an AI coding tool). Also "reports 3 passed" fails when a 4th test is added, and "does the same by hand" does not say which clauses.
+- Violates: C3.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 14
+- Lens: structural integrity
+- Title: C3 holds 5 phrases that a third party cannot test as written.
+- ID: F-22
+
+### E-47 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-14 C2.
+- Trigger: "is shown true or false by a test … the correctness auditor finds the 3 tests by name": no name is given, and a passing test can mean "bug fixed" or "bug never existed".
+- Violates: C2.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 15
+- Lens: structural integrity
+- Title: C2 does not say what a test that "shows a finding false" looks like, and names no test.
+- ID: F-23
+
+### E-48 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: E-14 C4 ("the reference build"); `PLAN.md` line 11 ("clean builds"); E-13 A-5 ("a faithful build", "clean builds").
+- Trigger: read the places in the Where field; the report, finding 16, holds the row-by-row detail: One thing has 3 names: "reference build", "clean build", "faithful build".
+- Violates: `FRAMEWORK.md` section 3 (one term for one concept).
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 16
+- Lens: structural integrity
+- Title: One thing has 3 names: "reference build", "clean build", "faithful build".
+- ID: F-24
+
+### E-49 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: `PLAN.md` lines 13-14: "a cleaned name"; "ends within its time limit" (no limit stated); "a busy page".
+- Trigger: read the places in the Where field; the report, finding 17, holds the row-by-row detail: The plan's test column holds 3 vague terms.
+- Violates: rule 13.1 "vagueness".
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 17
+- Lens: structural integrity
+- Title: The plan's test column holds 3 vague terms.
+- ID: F-25
+
+### E-50 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `hinshitsu/FRAMEWORK.md` line 7 against line 56. Section 6 (line 46) and section 2 (line 13) are also still empty, while `PLAN.md` cites D-1 to D-7 only through E-13.
+- Trigger: read the places in the Where field; the report, finding 18, holds the row-by-row detail: `FRAMEWORK.md` says in section 1 that no CRITERIA entry exists, and at its end that E-14 is the newest.
+- Violates: rule 14.6.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 18
+- Lens: structural integrity
+- Title: `FRAMEWORK.md` says in section 1 that no CRITERIA entry exists, and at its end that E-14 is the newest.
+- ID: F-26
+
+### E-51 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: `plugin/README.md` line 26 ("A second program (the look)") against the heading at line 30 ("What the program's status means") and line 50; "receipt" throughout the guide against "Honest receipt" in `CLAUDE.md` and `plugin/commands/fit-check.md` line 2; "Vision folder" (line 9) against "folder of the Vision" (lines 23-26).
+- Trigger: read the places in the Where field; the report, finding 19, holds the row-by-row detail: The guide and the commands use "the program" for 2 programs, and "receipt" for the defined term "Honest receipt".
+- Violates: `CLAUDE.md` writing style (one term per concept); C7 once frozen.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 19
+- Lens: recipient experience
+- Title: The guide and the commands use "the program" for 2 programs, and "receipt" for the defined term "Honest receipt".
+- ID: F-27
+
+### E-52 · 2026-11-21T18:57:40Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: `redteam/FINDINGS.md` row R-S08, Status cell (copied at `evidence/open-major-859c643.txt` line 14): "should a required text of no contrast count as missing?"; `plugin/fit/src/look.ts` line 187 (code comment): "A caller that passes its own browser should launch it with these."
+- Trigger: the grep of Examined item 1. No banned word stands in E-9, E-10, E-13, E-14, `PLAN.md`, `FRAMEWORK.md`, `CONNECTIONS.md`, the guide, the 4 commands or the 3 receipts.
+- Violates: the banned list of the scope.
+- Raised by: AUDITOR language, LAUNCH E-22, `audits/plan-language-E-22.md`, finding 20
+- Lens: structural integrity
+- Title: Banned words: 2 occurrences.
+- ID: F-28
+
+### E-53 · 2026-11-21T18:57:40Z · CORRECTION · orchestrator
+
+Corrects E-4 (FINDING F-7). E-4 names a push to the shared branch `claude/brave-mayer-sawqz9` as an action that "may follow". That is wrong for this run: the run pushes to the working branch `claude/festive-mendel-lfnahh` only. A merge into the main line is the USER's own act and is no part of the run. The other possible section-18 action that E-4 names (a new version of the private page) stays possible, on the USER's word and with its own `ROLLBACK` entry first.
