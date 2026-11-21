@@ -198,3 +198,69 @@ Outside these CRITERIA, and said so: the 149 open rows of grade minor and note; 
 - Skill read: `skills/hinshitsu-challenge/SKILL.md`, 8684 bytes, SHA-256 c9169b39ddb43107186e4320fc3966404990b84bdc1e532843547eddf87dc2ad
 
 Conductor SKILL.md SHA-256 a3907653b8a517f2597ec025d6b22eb5929730ff4f79291d4b74c60549250d0e; GLOSSARY.md SHA-256 92b526977fb5d1fc507f934ddba2a5c43144cfbe477c75adba9b7219bb46d599.
+
+### E-17 · 2026-11-21T18:29:37Z · LAUNCH · orchestrator
+
+- Role: LENS: recipient experience
+- WORK UNIT: plan
+- Scope: `prompts/S5-lens-recipient-experience.md`
+- Commit under review: 219108a
+- SUB-AGENT identifier: ac9dfa30ca4e1c027 — not openable by the USER
+- Report: `memos/lens-recipient-experience-E-17.md`
+
+Each helper's prompt was 1 wrapper line that names the scope file and the commit; the scope file is the whole scope.
+
+### E-18 · 2026-11-21T18:29:37Z · LAUNCH · orchestrator
+
+- Role: LENS: minimal viable sequence
+- WORK UNIT: plan
+- Scope: `prompts/S5-lens-minimal-viable-sequence.md`
+- Commit under review: 219108a
+- SUB-AGENT identifier: adf2a4e9030c5c071 — not openable by the USER
+- Report: `memos/lens-minimal-viable-sequence-E-18.md`
+
+Each helper's prompt was 1 wrapper line that names the scope file and the commit; the scope file is the whole scope.
+
+### E-19 · 2026-11-21T18:29:37Z · LAUNCH · orchestrator
+
+- Role: LENS: structural integrity
+- WORK UNIT: plan
+- Scope: `prompts/S5-lens-structural-integrity.md`
+- Commit under review: 219108a
+- SUB-AGENT identifier: af117017be9c29372 — not openable by the USER
+- Report: `memos/lens-structural-integrity-E-19.md`
+
+Each helper's prompt was 1 wrapper line that names the scope file and the commit; the scope file is the whole scope.
+
+### E-20 · 2026-11-21T18:29:37Z · LAUNCH · orchestrator
+
+- Role: LENS: trust and controls
+- WORK UNIT: plan
+- Scope: `prompts/S5-lens-trust-controls.md`
+- Commit under review: 219108a
+- SUB-AGENT identifier: a7bdca52b41a599bb — not openable by the USER
+- Report: `memos/lens-trust-controls-E-20.md`
+
+Each helper's prompt was 1 wrapper line that names the scope file and the commit; the scope file is the whole scope.
+
+### E-21 · 2026-11-21T18:29:37Z · LAUNCH · orchestrator
+
+- Role: RED CELL: full attack on the plan
+- WORK UNIT: plan
+- Scope: `prompts/S5-redcell-plan.md`
+- Commit under review: 219108a
+- SUB-AGENT identifier: a7745bca376134faa — not openable by the USER
+- Report: `audits/redcell-plan-E-21.md`
+
+Each helper's prompt was 1 wrapper line that names the scope file and the commit; the scope file is the whole scope.
+
+### E-22 · 2026-11-21T18:29:37Z · LAUNCH · orchestrator
+
+- Role: AUDITOR: language, on the planning entries
+- WORK UNIT: plan
+- Scope: `prompts/S5-language-plan.md`
+- Commit under review: 219108a
+- SUB-AGENT identifier: afab9c2d0dfff6fdc — not openable by the USER
+- Report: `audits/plan-language-E-22.md`
+
+Each helper's prompt was 1 wrapper line that names the scope file and the commit; the scope file is the whole scope.
