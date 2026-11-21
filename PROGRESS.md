@@ -106,6 +106,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+- Date: 2026-11-21
+- Feature worked on (ID): none; retest finding R-S05 (SPEC.md section 2.29, point 8), after the owner's "Continue"
+- Result: passes in the Fit check's tests on this machine; GitHub's check on this commit is the full run
+- Where the work stood: the owner stopped all work on 2026-11-18 and merged pull request 19 (the records) on 2026-11-19; two package updates by the update robot followed on the main line (vite 8.3.8, prettier 3.10.0). The working branch was brought level with the main line (`4dc8649`) before this work.
+- What it does: a page that keeps changing by the clock is never called measured. An animation that never ends, and a timer inside an SVG picture, each count as not measured at each window width (status 1), and the receipt says that the page keeps changing after the program stops reading.
+- Tests first: the test with three planted pages failed before the repair (it found no such sentence).
+- Evidence: `npm run check`: 374 passed (374) (unit tests). The Fit check's browser tests: 221 of 221 passed (1,296 seconds), every Direction's clean build among them. The full `npm run e2e` was not run here.
+- Limit: the program does not judge what an animation changes, so a harmless endless animation (a turning wheel) also makes the check "not measured".
+- Open: 11 major findings of the retest (SPEC.md section 2.29); pull request 14 (the owner's decision).
+
 - Date: 2026-11-18
 - Feature worked on (ID): none; the merge into the main line (decision D77)
 - Result: done. GitHub's check passed on `ab2403e` ("check" twice and "Outside validators" twice), with the new audit step (D79). The builder pushed merge commit `9b50f36` to `claude/brave-mayer-sawqz9`; its files equal the working branch's, file for file. GitHub shows pull request 16 as merged.

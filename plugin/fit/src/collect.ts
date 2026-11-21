@@ -40,6 +40,10 @@ export interface Collected {
   frames: number;
   /** Animations with an end that had not ended when the program read the page: the page may still change (finding G-S04). */
   pendingAnimations: number;
+  /** Animations that never end and are running: the page keeps changing after the program stops reading (retest finding R-S05). */
+  endlessAnimations: number;
+  /** Timers inside SVG pictures (`set`, `animate`, `animateTransform`, `animateMotion`): they change the picture by the clock, and the browser's list of animations does not hold them (R-S05). */
+  svgTimers: number;
   /** Drawn colors that a CSS filter changes before they reach the screen; they are counted as not measured (finding J-6). */
   filtered: number;
   /** Every `@font-face` rule of the page: the family that it names and where its letters come from (finding J-19). */
@@ -462,8 +466,10 @@ export function collect(): Collected {
 
   window.scrollTo(0, 0);
   const pendingAnimations = document.getAnimations().filter((a) => a.effect !== null && a.effect.getComputedTiming().endTime !== Infinity && a.playState !== 'finished' && a.playState !== 'idle').length;
+  const endlessAnimations = document.getAnimations().filter((a) => a.effect !== null && a.effect.getComputedTiming().endTime === Infinity && a.playState !== 'finished' && a.playState !== 'idle').length;
+  const svgTimers = every('set, animate, animateTransform, animateMotion').filter((el) => el.namespaceURI === 'http://www.w3.org/2000/svg').length;
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, frames: every('iframe, frame, object, embed').length, pendingAnimations, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
+  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, frames: every('iframe, frame, object, embed').length, pendingAnimations, endlessAnimations, svgTimers, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */

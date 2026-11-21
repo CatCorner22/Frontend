@@ -360,6 +360,19 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(measure(seen.receipt, 'floors').notMeasured).toBe(0);
   });
 
+  it('says that the page keeps changing when an animation never ends or a picture holds a timer, and never calls such a page measured (retest finding R-S05)', async () => {
+    const pages = {
+      'an animation without an end that recolors the page': [inHead('<style>@keyframes turn{0%,49.99%{background-color:#fefaf1}50%,100%{background-color:#ff0000}} body{animation:turn 18s infinite}</style>'), 'never end'],
+      'an animation without an end that hides the headline': [inHead('<style>@keyframes fade{0%,45%{opacity:1}50%,100%{opacity:0}} h1{animation:fade 20s infinite}</style>'), 'never end'],
+      'a timer inside a picture': [once(reference, '</body>', '<svg aria-hidden="true" width="10" height="10"><rect width="0" height="10" fill="#ffffff"><set attributeName="width" to="10" begin="8s" fill="freeze"/></rect></svg></body>'), 'a timer of its own'],
+    } as const;
+    for (const [name, [html, words]] of Object.entries(pages)) {
+      const { receipt, status } = await fit({ files, html, browser });
+      expect(receipt.loadFailures.map((f) => f.reason).join('\n'), name).toContain(words);
+      expect(status, name).toBe(1);
+    }
+  }, 180_000);
+
   it('counts a frame as not measured, because it does not read what a frame draws (finding G-S06)', async () => {
     const { receipt, status } = await fit({ files, html: inBody('<iframe width="300" height="200" title="Planted" srcdoc="<body style=&quot;background:#ff0000&quot;>x</body>"></iframe>'), browser });
     expect(measure(receipt, 'colors').notMeasured).toBe(1);
