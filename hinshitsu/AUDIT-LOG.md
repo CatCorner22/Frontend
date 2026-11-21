@@ -190,3 +190,11 @@ Outside these CRITERIA, and said so: the 149 open rows of grade minor and note; 
 - Stage: S4
 - Event: end
 - Artifacts: `AUDIT-LOG.md` E-13 (ASSUMPTION), E-14 (CRITERIA, PROPOSED), `evidence/a5-checks.txt`, `evidence/open-major-859c643.txt`
+
+### E-16 · 2026-11-21T18:29:00Z · STAGE · orchestrator
+
+- Stage: S5
+- Event: start
+- Skill read: `skills/hinshitsu-challenge/SKILL.md`, 8684 bytes, SHA-256 c9169b39ddb43107186e4320fc3966404990b84bdc1e532843547eddf87dc2ad
+
+Conductor SKILL.md SHA-256 a3907653b8a517f2597ec025d6b22eb5929730ff4f79291d4b74c60549250d0e; GLOSSARY.md SHA-256 92b526977fb5d1fc507f934ddba2a5c43144cfbe477c75adba9b7219bb46d599.
