@@ -106,6 +106,12 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 3: an empty label no longer names a form field
+- Feature worked on (ID): none in the list. The third of the 3 findings of the automatic reviewer on pull request 16.
+- The finding is true, fixed. Before: a form field counted as labelled when a `label` element stood around it or pointed at it, even an empty one. Now: a label names a field only when it holds words outside the field itself, or a picture with words. An empty label, a label of invisible signs, and a label whose only words are the field's own options give the line "A3: 1 form field has no label".
+- Test (written first; it failed because the Floors measure held no line): "automatic reviewer, finding 3: a field with an empty label counts as labelled ..." in `plugin/fit/e2e/exit.e2e.ts`, with 4 empty cases and 3 named cases.
+- Evidence: `hinshitsu/evidence/commit-3-checks.txt`.
+
 ### 2026-11-21: repair run, commit 2: a text that an inline picture draws is compared by typeface and contrast
 - Feature worked on (ID): none in the list. The second of the 3 findings of the automatic reviewer on pull request 16.
 - The finding is true, fixed. Before: a text drawn by an inline SVG picture (`text`, `tspan`) was compared by its fill color only; its typeface was not compared, and its contrast was not read. Now: its typeface is compared, and its contrast is read from its fill against the boxes around the picture. Where a shape of the same picture may lie behind the letters, where the fill is a gradient or partly transparent, or where the letters are an outline, the contrast is "not measured", never "found good".

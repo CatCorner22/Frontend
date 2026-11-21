@@ -318,6 +318,28 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(measure(over.receipt, 'typefaces').deviations).toBeGreaterThan(0);
   }, 240_000);
 
+  it('automatic reviewer, finding 3: a field with an empty label counts as labelled. A label names a field only when it holds words (or a picture with words) beside the field itself; an empty label around a field, an empty label that points at it, and a label of invisible signs do not', async () => {
+    const empties: [string, string][] = [
+      ['an empty label that points at the field', '<label for="rev3a"></label><input id="rev3a" type="text" maxlength="10">'],
+      ['an empty label around the field', '<label><input type="text" maxlength="10"></label>'],
+      ['a label of invisible signs around the field', '<label>\u200b \u00ad<input type="text" maxlength="10"></label>'],
+      ['a label whose only words are the options of the field itself', '<label><select><option>Planted option</option></select></label>'],
+    ];
+    for (const [name, html] of empties) {
+      const { receipt } = await fit({ files, html: inBody(html), browser });
+      expect(measure(receipt, 'floors').items.join('\n'), name).toMatch(/^A3: 1 form field has no label/m);
+    }
+    const named: [string, string][] = [
+      ['a label with words that points at the field', '<label for="rev3b">Planted name</label><input id="rev3b" type="text" maxlength="10">'],
+      ['a label with words around the field', '<label>Planted name <input type="text" maxlength="10"></label>'],
+      ['a label that holds a picture with words', '<label><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" width="1" height="1" alt="Planted name"><input type="text" maxlength="10"></label>'],
+    ];
+    for (const [name, html] of named) {
+      const { receipt } = await fit({ files, html: inBody(html), browser });
+      expect(measure(receipt, 'floors').items.join('\n'), name).not.toMatch(/^A3:/m);
+    }
+  }, 300_000);
+
   it.each([
     ['a faint headline', (page: string) => once(page, '<h1', '<h1 style="opacity:0.2"')],
     ['a box that covers the whole page', (page: string) => once(page, '</body>', '<div style="position:fixed;inset:0;background:#ffffff;z-index:99999"></div></body>')],

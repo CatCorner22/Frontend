@@ -1716,3 +1716,10 @@ Commit 2 of `PLAN.md`: the branch for SVG text in `plugin/fit/src/collect.ts` (t
 - forward: `collect.ts` gives `families` and `texts` to `fit.ts` (the Typefaces and Contrast measures). The change adds entries for a text that an inline picture draws; none leaves. A build that draws text in a typeface outside the Vision now gets a Typefaces deviation where it got none. Not broken.
 - backward: finding G-S08 (fill and stroke of SVG shapes are compared) and the rule that a text whose contrast cannot be read is "not measured": both kept; where a shape of the same picture may lie behind the text, the contrast is not measured.
 - lateral: commit 1 changed another function of the same file; no shared lines.
+
+### E-170 · 2026-11-21T21:48:42Z · TRACE · orchestrator
+
+Commit 3 of `PLAN.md`: `labelled` in `plugin/fit/src/floors.ts` (the automatic reviewer's finding 3, C2).
+- forward: `floors.ts` gives `fieldsWithoutLabel` to the Floors measure (requirement A3). The change adds entries for a field whose label holds no words; none leaves. Not broken: the Mockup's own fields keep their labels (the exit test's reference builds of all Directions show it).
+- backward: the receipt's stated checked part for A3 ("a label that holds words or another name") is now what the code does.
+- lateral: commits 1 and 2 changed `collect.ts`, not this file.
