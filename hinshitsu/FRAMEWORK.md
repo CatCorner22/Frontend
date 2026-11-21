@@ -4,13 +4,20 @@ Form required by section 7 (`skills/hinshitsu-record/SKILL.md`). A superseded li
 
 ## 1. CRITERIA
 
-No `CRITERIA` entry exists yet. It is written at S4 as `PROPOSED` and controls from then on, with each later `CRITERIA-CHANGE` entry.
+No `CRITERIA` entry exists yet. It is written at S4 as `PROPOSED` and controls from then on, with each later `CRITERIA-CHANGE` entry. (superseded 2026-11-21 → E-56)
+
+The CRITERIA are in `AUDIT-LOG.md` E-56 (`PROPOSED`); E-14 is the first text and is replaced by E-56.
 
 ## 2. Architecture decisions
 
 | ID | Decision | Log entry |
 |---|---|---|
-| (none yet) | | |
+| (none yet) | | | (superseded 2026-11-21 → D-1)
+| D-1 | The bug list of C1 is made by a stated rule over the Status text | E-57 |
+| D-2 | GitHub's check stands for the whole browser suite | E-58 |
+| D-3 | Each fix is proven by a test that asserts the cause | E-59 |
+| D-5 | The AUDITORS run the tests that the CRITERIA name | E-60 |
+| D-4, D-6, D-7 | wait for the USER's answer on the S6 card | — |
 
 Decisions of the project itself are in `DECISIONS.md` at the repository root (D1 to D79). This run cites them by that file and number and does not copy them.
 
@@ -30,6 +37,7 @@ Decisions of the project itself are in `DECISIONS.md` at the repository root (D1
 | `apps/studio` (built page `apps/studio/dist/artifact/refraction-studio.html`) | the owner in a browser | Steps, saving, and the download of the Vision |
 | the Vision's 7 files | `plugin/fit` (Fit check, look) | `tokens.json`, `tokens.css`, `mockup.html`, `VISION.md` with one fingerprint |
 | `plugin/fit/src/cli.ts` | the owner, and the commands in `plugin/commands/` | status 0, 1 or 2; `RECEIPT.md` and `receipt.json` in the result folder |
+| `plugin/fit/src/look-cli.ts` (the look) | the owner, and `plugin/commands/fit-look.md` | status 0 (every window width was pictured), 1 (at least 1 was not) or 2 (the program refused and wrote nothing); `LOOK.md` and pictures in the result folder; it draws and measures nothing |
 | `npm run check`, `npm run e2e` | every change | the project's own tests; a change is committed only when they pass (`CLAUDE.md`, verification rules) |
 
 ## 5. File ownership
@@ -53,5 +61,5 @@ Decisions of the project itself are in `DECISIONS.md` at the repository root (D1
 
 <!-- from the log: start -->
 Rebuilt by `scripts/hinshitsu_log.py state`. Do not edit between the marks.
-- Newest CRITERIA entry: E-14 (PROPOSED)
+- Newest CRITERIA entry: E-56 (PROPOSED)
 <!-- from the log: end -->

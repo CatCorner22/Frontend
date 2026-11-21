@@ -672,3 +672,132 @@ Corrects E-4 (FINDING F-7). E-4 names a push to the shared branch `claude/brave-
 | RC demand 8: correct E-4 | RED CELL | ACCEPTED | E-53 (`CORRECTION`) | done |
 
 Rejected: 1 of 60 rows (MVS cut 4). The 20 findings of the language AUDITOR (F-9 to F-28) are answered by the new CRITERIA and close only when a new SUB-AGENT re-runs each trigger (rules 14.3 and 15.4); F-27 (2 names for 1 thing in the guide) and F-28 (2 banned words) are repaired in plan steps 7 and 10.
+
+### E-56 · 2026-11-21T19:00:29Z · CRITERIA · orchestrator
+
+- Status: PROPOSED
+- Approval: approval: pending
+
+This entry replaces the text of E-14 for the catchball (rule 3.3); E-14 stays as written. It follows the `RECONCILIATION` entry E-55. The planned states in C1 are the working assumption until the USER answers the S6 card.
+
+The DELIVERABLE is the repository at the final commit of the working branch `claude/festive-mendel-lfnahh`, in the 3 forms its RECIPIENTS receive: the built Studio page (`npm run build:page` writes the fragment `apps/studio/dist/artifact/refraction-studio.html` and the same fragment inside a wrapper, `local-test.html`, which a browser opens from disk), the Vision that this page hands over, and the Fitter's folder `plugin/`.
+
+- C1. Each of the 44 rows of `redteam/FINDINGS.md` named here ends the run in exactly 1 of 3 states. The rows: the 40 that `python3 hinshitsu/evidence/open-rows.py` lists (saved as `evidence/open-rows-7e5015d.txt`), and A2-V4, FTU-22, T2-03 and R-12. State (a), repaired: the Status names a test in the repository; the test asserts the cause (the measure, and the sentence of the receipt or the message) and fails when the fix is taken out. State (b), kept: the Status states what stays open, the reason, and who must act; where the reason is a judgment of risk or taste, the Status cites the `ANSWER` entry that holds the USER's word; a row repaired in part is in state (b) and names both its test and its rest. State (c), closed with no change of code: the Status says why (repaired in full earlier, or a past fact that no change can undo). Planned for (a): G-S05 (for media conditions other than width and height), A2-V4, R-S03, R-S08, R-S09, R-S11, R-U05. Planned for (c): M-05, R-T06, G-U07, FTU-22, T2-03, R-12. Planned for (b), a limit that the receipt states: G-S04, G-S11, R-S06, A1-05, G-S10. Planned for (b), waits for an act of the owner: M-01, R23-01, T6-08, P9-05, FTU-21, G-T08, A1-09. Planned for (b), a screen of the Studio, for the next run: M-06, X-02, C-07, FTU-07, FTU-18, FTU-26, FTU-31, FTU-32, U2-04, U2-08, U3-02, CR-EN2, CR-SC0, CR-GX2, U5-03, U5-07, H7-01, U7-02, U8-05. Test: the correctness auditor reads each of the 44 rows at the final commit; for each row in state (a) it runs the named test, then takes the fix out in a copy and sees the test fail; the framework-drift auditor confirms each row in state (c) by reading the code or the record that the Status names.
+- C2. Each of the 3 findings of the automatic reviewer on pull request 16 (a text inside a box that scrolls is read as cut away; SVG text is left out of the typefaces and contrast measures; a field with an empty label counts as labelled) has 1 test in `plugin/fit/e2e/` whose title names the finding. The commit message says "true, fixed" or "false" for each; for "true" the test fails when the fix is taken out; for "false" the test shows the behavior that the reviewer said was missing. Test: `npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e` reports 0 failed, and the correctness auditor finds the 3 tests by title.
+- C3. The Vision that the built Studio page hands over works as its RECIPIENTS (the owner, and an AI coding tool) get it: the archive unpacks with `unzip` to exactly 7 files; all 7 files carry 1 fingerprint, and it equals the one in the archive's name; `tokens.json` parses; each custom property declared in `tokens.css` and `theme.css` has a non-empty computed value in Chromium; `mockup.html` opens from the unpacked folder with no network request, no console error and no script; the 3 hostile texts of `apps/studio/e2e/deliverable.e2e.ts` (lines 18 to 20) appear as text in every file that holds them; the Fit check on the unpacked folder ends with status 0 or 1, not 2. The test opens `local-test.html`; a second test shows that the fragment inside it equals `refraction-studio.html` byte for byte. The final report states in its `Summary` whether the built page differs from the page published at the private address. Test: `npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts` reports 0 failed and at least 4 passed; and the recipient-experience auditor checks each of the 7 clauses by hand for 1 Direction that the test does not use.
+- C4. For each of the 3 stored trials (`plugin/fit/trials/001`, `002`, `003`) and for the reference build of the plain start (the Vision's own `mockup.html`), the Fit check's summary line and its `RECEIPT.md` agree: the number that the line calls deviations equals the sum of the numbers that the receipt calls deviations; each count of contrast names its unit ("readings of N texts") in the line and in the receipt alike; status 0 goes only with "No deviation" and with 0 "not measured" in a measure that counts; a measure with nothing to check says so and gives no count; and no sentence of the receipt says that the program did something it did not do. The measures that count are Requests, Colors, Typefaces, Corner radii, Content, Width and Floors, and Contrast only where the Vision writes Floor A1. Test: the test "says nothing in the receipt that disagrees with its own summary line" in `plugin/fit/e2e/exit.e2e.ts` makes those assertions for all 4 and passes, and the language auditor reads the 4 receipts.
+- C5. At the final commit: `npm run check` exits 0 on the building machine; `npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e` and `npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts` report 0 failed on the building machine; and GitHub's checks "check" and "Outside validators", which run the whole browser suite, succeed on that commit. The whole suite (`npm run e2e`) is not run on the building machine (PREMISE A-3); the USER is asked to accept GitHub's run in its place. Each fix is 1 commit that holds its test and its record. The run pushes to the working branch only. Test: the 3 saved outputs under `evidence/`; the check runs of pull request 24 as GitHub reports them; `git log` of the working branch from 859c643; and the head of `claude/brave-mayer-sawqz9`, which stays `4dc8649` unless the USER moves it; all read by the final AUDITOR.
+- C6. Each sentence that states a count, a command, an option, a status of a finding or a state of a milestone, in `PROGRESS.md` (the parts "Start here", "Milestone status" and "Known gaps"), in `SPEC.md` sections 2.28 to 2.30, in `plugin/README.md` and in `docs/reference/guarantees.md`, agrees with the code and the tests at the final commit; and "Known gaps" holds 1 list of every row of C1 that waits for the owner, each with the question to answer. Test: the framework-drift auditor reads those parts and checks each such sentence with a command, and `python3 /root/.claude/skills/synced/2ba04e91-bb35-46bd-9611-dd981ae6b7ec_3811a0d8-9163-4304-a28a-44f4a2b6e87c/living-reference/scripts/refresh_reference.py docs/reference/guarantees.md --check` exits 0.
+- C7. `plugin/README.md`: names each of the 4 commands in `plugin/commands/`; names each option of `plugin/fit/src/cli.ts` and of `plugin/fit/src/look-cli.ts`; names each status that each program can return, with what the owner does next, and for status 1 of the Fit check it separates 2 cases (deviations: repair; "not measured" only: no repair round, the receipt names the part); says that the archive is unpacked first and that the folder holds the 7 files under their own names; says that the repair command can write to the Vision folder; calls the 2 programs "the Fit check" and "the look" in each heading and table; and gives each of these terms a meaning of 1 sentence at its first use: plugin, Node, Chromium, environment variable, Floor, edition, Mockup, deviation, markup, status, marketplace, receipt (the Honest receipt), the three required texts. Where no browser is found, each program's message names the variable `PW_CHROMIUM`. Test: a test in `plugin/fit/e2e/exit.e2e.ts` compares the guide's options with each usage line, the guide's command names with the files in `plugin/commands/`, the guide's statuses with the statuses in each program's source, and finds the 2 cases of status 1 in the guide and in `fit-check.md` and `fit-repair.md`; 1 test runs each program with no browser; the language auditor reads the guide.
+- C8. The receipt (`RECEIPT.md` and `receipt.json`) states a SHA-256 for each Vision file that the Fit check reads, and the number of Floor requirements that it read from `VISION.md`; a receipt of a round after the first says in 1 sentence when a Vision file differs from the round before. Test: a test in `plugin/fit/e2e/` deletes section 7 of `VISION.md` between 2 rounds and finds 2 different hashes, a different count and that sentence.
+- C9. Each FINDING that an AUDITOR or the RED CELL of this run raises against the product ends as the run's rules require: fixed and confirmed by a new SUB-AGENT, withdrawn, or accepted by the USER by name. Test: the final AUDITOR compares the count of `FINDING` entries with the closing entries and the list of open FINDINGS in the delivery report.
+
+Translation (replaces the CRITERION column of E-9 and the references in E-10): V1 "fix all current bugs" → C1, C2, C9; V2 "the customer's final deliverable … must work correctly" → C3, C4, C8; the bugs that this run's auditors find → C9; O1 (no known way to status 0 on a wrong page except those the receipt states) → C1, state (b) with the USER's word; O2 (pushes to the working branch only), O3 (1 commit for each fix) and O4 (checks pass before each commit) → C5; G9 (the programs' messages) → C7 for the missing browser, the other messages are not in this run; G16 → C2.
+
+Not in this run, and said so: the open rows of grade minor and note; the repair of the 19 rows on screens of the Studio (state (b) of C1, for the next run); a run of the commands inside Claude Code (G-T08); the owner's trial of the Studio (milestone M4); a merge into the main line.
+
+### E-57 · 2026-11-21T19:01:29Z · DECISION · orchestrator
+
+- ID: D-1
+- Rests on: A-1, A-10
+
+The bug list of C1 is the output of `hinshitsu/evidence/open-rows.py` (40 rows) plus A2-V4, FTU-22, T2-03 and R-12 by name. Reason: a third party can repeat the rule; the first list of 16 was made by eye and left out 3 blockers (F-1). Rejected: the list of 16 (not repeatable); every row of every grade (the 800 other rows are closed, or of grade minor and note, and the USER is asked for the scope on the card). No earlier decision of this run on the subject (rule 8.4: searched `AUDIT-LOG.md` for DECISION entries; none).
+
+### E-58 · 2026-11-21T19:01:29Z · DECISION · orchestrator
+
+- ID: D-2
+- Rests on: A-2, A-3
+
+C5 takes GitHub's checks on the final commit as the run of the whole browser suite, and requires 3 named commands on the building machine. Reason: the whole suite takes about 40 minutes here and was cut off 2 times by restarts. Rejected: the whole suite on this machine before each commit (not finishable inside the hook's limit); no browser run at all (breaks `CLAUDE.md` verification rule 2). The USER is asked to accept this on the card.
+
+### E-59 · 2026-11-21T19:01:29Z · DECISION · orchestrator
+
+- ID: D-3
+- Rests on: A-4, A-11
+
+Each fix is proven by a test that asserts the cause (the measure and the sentence) and that fails with the fix taken out. Reason: F-3 showed a test that passes with no fix. Rejected: a test of the status alone.
+
+### E-60 · 2026-11-21T19:01:29Z · DECISION · orchestrator
+
+- ID: D-5
+- Rests on: A-6
+
+The AUDITORS run the tests that the CRITERIA name. Each scope gives the line `export PW_CHROMIUM=/opt/pw-browsers/chromium`, because the judge of E-54 could not start the browser by a direct run (`memos/redcell-counts-E-54.md`, Commands run, 6). Rejected: AUDITORS that only read. D-4 (the fix of G-S05), D-6 (the WORK UNITS) and D-7 (the private page) wait for the USER's answer on the S6 card and are not decided here.
+
+### E-61 · 2026-11-21T19:01:29Z · COMPACTION · orchestrator
+
+`SESSION-STATE.md` rewritten. Reason: more than 25 entries since the last rewrite (rule 8.2 (c)), and the file still named S2 (E-23).
+
+### E-62 · 2026-11-21T19:01:29Z · STAGE · orchestrator
+
+- Stage: S5
+- Event: end
+- Artifacts: 4 LENS memos (E-17 to E-20), the RED CELL's report (E-21, verdict "PLAN SURVIVES WITH CHANGES"), the language audit (E-22), `memos/redcell-counts-E-54.md` (verdict "AT LEAST 1 COUNTS"), E-24 (ASSUMPTION), E-25 to E-52 (FINDING F-1 to F-28), E-53 (CORRECTION), E-55 (RECONCILIATION), E-56 (CRITERIA, PROPOSED), `PLAN.md`
+
+### E-63 · 2026-11-21T19:01:29Z · STAGE · orchestrator
+
+- Stage: S6
+- Event: start
+- Skills read: conductor `SKILL.md` SHA-256 a3907653b8a517f2597ec025d6b22eb5929730ff4f79291d4b74c60549250d0e; `GLOSSARY.md` SHA-256 92b526977fb5d1fc507f934ddba2a5c43144cfbe477c75adba9b7219bb46d599; `hinshitsu-baby-bird-plan` read in this session
+
+### E-64 · 2026-11-21T19:02:09Z · CARD · orchestrator
+
+The card as sent to the USER (copied here before sending). Working assumption while it is open: the recommended answer of each decision. No build starts before the `ANSWER` entry.
+
+**Where the run stands.** Six independent reviewers attacked my first plan and found it too weak: my list of open bugs held 16 rows, and a repeatable search finds 44 (4 of the highest grade, "blocker"). I rewrote the plan. Nothing is built yet. Eight decisions are yours.
+
+**Decision 1 — the 9 tests of "done".**
+(a) Do you approve these 9 tests as the definition of "done" for this run?
+(b) I recommend yes: each one names a command or a reader that a third party can repeat.
+(c) The 9 tests, in short: 1. each of the 44 open bug rows ends repaired with a test, or kept with a reason and your word, or closed as already repaired; 2. the 3 findings of the automatic reviewer are each tested, and the true ones fixed; 3. the Vision download unpacks to 7 working files; 4. the receipt and its summary line agree; 5. all checks pass here and on GitHub, and I push to the working branch only; 6. the records agree with the code; 7. the guide covers the 4 commands, every option, every status; 8. the receipt names exactly which Vision files it read; 9. every new finding of this run's reviewers is fixed or accepted by you by name. "Yes": the build starts. "Change": you tell me what to change, and I send the list again.
+(d) Reply "1: approve" or "1: change …".
+
+**Decision 2 — how much to repair in this run.**
+(a) Which of the 44 rows do I repair now?
+(b) I recommend A: your final deliverable first, in one audited batch, because the other rows change the Studio's screens and need a new version of your private page.
+(c) A: I repair the 7 rows in the Fit check, the receipt and the Vision, plus the 3 reviewer findings; 19 rows on the Studio's screens wait for a second run. You get a verified deliverable sooner; "all bugs" takes 2 runs. B: I repair all rows that code can repair in one run. You get one run; it is about 3 times as large, and a fault in one part delays all of it. C: the 4 blocker rows only.
+(d) Reply "2: A", "2: B" or "2: C".
+
+**Decision 3 — how often independent reviewers check the fixes.**
+(a) Do reviewers check once, over the finished set of fixes, or after each fix?
+(b) I recommend once: about 30 helper runs in total against about 100.
+(c) Once: lower cost; a fault found late may touch several fixes. After each fix: each fault is found early; about 3 times the cost and time.
+(d) Reply "3: once" or "3: each".
+
+**Decision 4 — pages that look different on some devices.**
+(a) When a built page holds a rule that changes its look only on some devices (a sharp phone screen, a touch screen, dark mode), and your Vision's sample website holds no such rule, may the Fit check answer "not measured" (status 1) and never "all clear" (status 0)?
+(b) I recommend yes: today such a page can show a different design on a phone and still get "all clear".
+(c) Yes: "all clear" becomes trustworthy for those devices; a build with such rules needs your eye before you accept it. No: the gap stays, written in each receipt.
+(d) Reply "4: yes" or "4: no".
+
+**Decision 5 — invisible required text.**
+(a) When a required text has the same color as its background, does the Fit check count it as missing?
+(b) I recommend yes: a text that nobody can see is not on the page.
+(c) Yes: such a page gets a deviation (status 1). No: it keeps status 0 where your Vision does not require contrast, and the receipt only reports the contrast.
+(d) Reply "5: yes" or "5: no".
+
+**Decision 6 — five limits that code cannot fully close.**
+(a) May these 5 stay as limits that every receipt states: a page that changes itself later than about 5 seconds after loading; a page script that changes the page during the reading; a hostile `mockup.html` inside your own Vision folder; page-wide color effects of 4 kinds; the count of repair rounds, which the model reports?
+(b) I recommend yes: each needs a person's eye or a different design of the tool.
+(c) Yes: the 5 are recorded as accepted by you. No: name the ones to attempt; each adds work and may end unrepaired.
+(d) Reply "6: yes" or "6: attempt …".
+
+**Decision 7 — the long browser test.**
+(a) Do you accept GitHub's run of the whole browser test suite (about 40 minutes) in place of a run on my machine, which restarts cut off twice?
+(b) I recommend yes; I still run the Fit check's and the deliverable's browser tests here before each commit.
+(c) Yes: faster; a failure shows only after a push. No: each commit waits for a full local run that may be cut off.
+(d) Reply "7: yes" or "7: no".
+
+**Decision 8 — the time limit of the automatic check at the end of my turns.**
+(a) May I raise that limit from 1,750 to 3,000 seconds in `.claude/verify.json`, a file that your rules forbid me to change without you?
+(b) I recommend yes: the check now fails by running out of time, not by a failing test.
+(c) Yes: the check can finish and report truly. No: it keeps reporting a failure that is only a timeout.
+(d) Reply "8: yes" or "8: no".
+
+**Decided by me, each cheap to undo (you may reverse any):** a fix that cannot pass its test is taken back and its row stays open; the look's hang on a pipe or an endless file is in the repairs; no accounts, no new package; the records hold no e-mail address and no token; each fix is its own commit, so one fix can be taken back alone; each fix carries a test that failed before it; the 3 reviewer findings are verified and the true ones fixed.
+
+**Assumptions about you that I could not check:** "the customer's final deliverable" means the Vision download and the Fit check's receipt; the bug list in `redteam/FINDINGS.md` is the list you mean; the page you use is the private page published from an earlier commit, and I publish a new version only on your word.
+
+**Not part of this card:** pull request 14 still waits for your decision (I recommended closing it).
+
+Shortest reply that accepts every recommendation: "1: approve; 2: A; 3: once; 4: yes; 5: yes; 6: yes; 7: yes; 8: yes".
