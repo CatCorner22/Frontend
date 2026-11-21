@@ -106,6 +106,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: the owner's equivalency backlog, checked and added to the plan (decision D80)
+- Feature worked on (ID): none in the list. A change of records only; no code changed.
+- What happened: the owner handed over a file with 5 gaps and 8 action items and asked that its claims be checked and, where correct, built into the plan. The file is kept unchanged as `docs/sources/2026-11-21-equivalency-backlog.md`. Of 14 claims: 7 true, 3 true in part, 2 false, 2 not verified. `PLAN.md` (version 3.9) gains section 13.10 with the items E1 to E8 as corrected.
+- Not done, and said so: nothing of E1 to E8 is built; no milestone moved; no hard rule changed. Not verified: the numbers "9 of 67", and the likeness of the repository `Devin_Frontend` (this session cannot read it).
+- Evidence: `grep -n 13a PLAN.md PROGRESS.md SPEC.md`; `grep -n WIDTHS plugin/fit/src/fit.ts` (375, 768, 1280); `find apps/studio/e2e/baselines -name '*.png' | wc -l` (117); the rows S6-04, T6-12, T6-16 and G-T08 of `redteam/FINDINGS.md`; `git log -1 59704b7`.
+- Open for the owner: the 4 questions at the end of `PLAN.md` section 13.10; the 8 decisions of the card of the repair run (`hinshitsu/AUDIT-LOG.md`, entries E-64 and E-65).
+
 - Date: 2026-11-21
 - Feature worked on (ID): none; the owner's final deliverable (SPEC.md section 2.30), and retest findings R-U02 to R-U04 (section 2.29, point 10), at the owner's request ("the customer's final deliverable ... must work correctly")
 - Result: passes in the tests run on this machine; GitHub's check on this commit is the full run

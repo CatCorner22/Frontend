@@ -1,6 +1,6 @@
 # Plan: "Frontend Focus" — your personal design studio and fitter for LLM-built frontends
 
-**Version 3.8, 2026-11-17.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. The app is named "Frontend Focus" (your name for it, decision D75).
+**Version 3.9, 2026-11-21.** Versions 1 (2026-11-13) and 2 (2026-11-14) are in the repository's history. Section 10 lists what changed and why. The app is named "Frontend Focus" (your name for it, decision D75).
 
 **How to read this plan.** Sections 1 to 3 say why the tool exists. Section 4 is the map of the forest: every part of the tool and its state today. Sections 5 to 7 say what it is built from. Section 8 holds the milestones. Section 9 lists what can go wrong. Each statement about the present says "built", "being built", or "not built".
 
@@ -349,3 +349,48 @@ The Floors are written (feature F032, decisions D69 and D70): `VISION.md` carrie
 **What these totals do not hold.** Your steps set the pace as much as the builder's: the trial, the Floors, and the real project each wait for you, and each can stop the line while it waits. Red-team rounds beyond those named cost about 2 hours and 1.3 million tokens each. Any new request of yours adds its own estimate. "Completing the app today" is not within reach: today closes step 1, and possibly steps 2 and 3.
 
 **What you have already, without waiting for any of this.** The Studio does its main job now: you pick a Direction and the Steps, and download the seven files of the Vision for an AI coding tool. The Fit check can measure a page built from them. What is missing is the proof on a real project, and the parts of the Fitter that decision D76 left for later.
+
+### 13.10 The equivalency backlog (your file of 2026-11-21; decision D80)
+
+**What this is.** On 2026-11-21 you handed over a file, "Frontend Focus — Equivalency Backlog" (kept unchanged as `docs/sources/2026-11-21-equivalency-backlog.md`). Its goal: get frontends built by a language model as close as possible to the work of a talented human frontend developer. It names 5 gaps and 8 action items. You asked that the builder check its claims and build what is correct into this plan. The builder checked each claim against the repository on 2026-11-21. This section holds the items as corrected. Nothing here is built. Nothing here changes the order of the milestones until you answer the 4 questions at the end (hard rule 2).
+
+**The claims, checked.**
+
+| Claim of the file | Result | What the repository shows |
+|---|---|---|
+| "The pixel-measurement step (step 13a) is not built" | True in part | Step 13a of section 13.5 is "compare the pixels of a screenshot with the Vision's colors, and find the three required texts in the drawn page". The look builds a part of it as advice that changes no status (`SPEC.md` section 2.28). The file gives the name "13a" to a different and larger thing: measures of baseline rhythm, alignment, type pairings and spacing. No such measure exists |
+| "Nobody has run the plugin's commands in a Claude Code session" | True | finding G-T08, open |
+| "A nine-reviewer code review alone cost about 1.84M tokens" | True | `PROGRESS.md`, "Waiting on the owner"; decision D48 |
+| "Seven red-team campaigns" | True as to 7 rounds | `PROGRESS.md` names a seventh round; the rounds differ in size |
+| "9 of 67 still open after round six" | Not verified | the builder found no record with these 2 numbers |
+| "No elicitation or Fit-check dimension for states or motion" | False for motion, true for most states | Step 22 "Motion" exists, and the Fit check reads each width with motion allowed and with motion reduced. The Catalog holds craft rules that name hover, focus and disabled states. No Step lets you choose a hover, loading, empty or error state, and the Fit check reads no such state |
+| "Evidence screenshots cover 1280 px and 375 px only" | False for the Fit check | the Fit check and the look read 375, 768 and 1,280 pixels (`plugin/fit/src/fit.ts`, `WIDTHS`). True that 700 pixels, about 1,100 pixels and 150% zoom are not read; finding G-S05's kept part names unread bands |
+| Finding S6-04 (a letter of another alphabet can make a name look like another name) | True | open in part, grade minor |
+| Finding T6-12 (13 named values in `tokens.css` that the sample website never uses) | True | open in part, grade minor |
+| Finding T6-16 (a failed Dependabot run that nobody handled) | True | open, grade minor |
+| "Findings recur instead of becoming permanent gates" | True in part | many repairs carry a test; `npm audit` already blocks GitHub's check (decision D79). No rule fails the check on an unused value of `tokens.css`, and the audit is not part of `npm run check` |
+| "The 76 stored screenshots prove capture already works"; "visual diff job on every push" as new work | The number is out of date; the job exists | 117 stored pictures in `apps/studio/e2e/baselines`; `apps/studio/e2e/visual.e2e.ts` compares them inside `npm run e2e`, which GitHub runs on every push (decision D8). It covers the Studio and the sample website, not a build made by the Fitter |
+| "`frontend` and `devin_frontend` are near-duplicates with drifted terminology" | Not verified | a repository `CatCorner22/Devin_Frontend` exists (last push 2026-11-18); this session has no access to its files |
+| Commit `59704b7` removed "a redundant color guard and an unmeasured cache" | True | `git log -1 59704b7` |
+
+**The 8 action items, as corrected, in the file's order.**
+
+| Item | What | State today | What changes against the file, and what can go wrong | Estimate |
+|---|---|---|---|---|
+| E1 | **Run the whole loop once, for real.** You build 1 real page from your own content: Studio, Vision, `/fit-build`, `/fit-check`, `/fit-repair`, inside a Claude Code session, and every moment that felt broken is recorded | not done | This is milestone M8 (section 13.7) plus finding G-T08, moved to the front. Only you can do criterion (a): the builder cannot be the owner in a live session. The builder can prepare a written walk-through and stand by. Risk: the plugin fails at its first real use; that is the purpose of the run | builder 2 to 4 hours; your time 1 to 3 hours |
+| E2 | **Optical measures in the Fit check**: vertical rhythm, alignment differences, size and weight pairs across the type scale, and equal rendered distance for 1 spacing value; a planted offset of 2 pixels is found | not built | It is new scope, beside step 13a, not step 13a itself. "Optical centering" (what looks centered to an eye) has no agreed formula; the builder can measure the geometric difference and report it, and a person still judges whether it looks right. Thresholds per Direction are new Catalog data (hard rule 5) | 14 to 24 hours |
+| E3 | **Fewer review rounds, more cheap looks.** At most 1 red-team round per milestone; the token cost of review recorded per milestone | not done | It conflicts with hard rule 12 of `CLAUDE.md` (3 reviewers at each unit of work and at each milestone gate) and with the run in progress. It needs your explicit word, because it changes a hard rule. The visual comparison on every push exists already. Risk: fewer reviews find fewer faults of the kind that tests do not catch (the retest of 2026-11-17 found 3 blockers) | 1 to 2 hours |
+| E4 | **States and edge cases in the Studio, the Vision and the Fit check**: a choice for each state (hover, focus, pressed, disabled, error, loading, empty); readings at 700 and about 1,100 pixels and at 150% zoom; a long unbreakable text; a long name; non-Latin text | not built | The largest item. Each new Step and Option is a Catalog record with a source and a grade (hard rule 5). The Fit check must put a page into a state before it reads it; for hover and focus that is possible without the page's scripts, for loading, empty and error it needs a convention that the Vision states and the build follows. It lies inside milestone M5 (the rest of the Catalog) and M7 | 30 to 50 hours |
+| E5 | **Repeated findings become permanent checks**: a check that fails on an unused value of `tokens.css` (T6-12); the dependency audit inside `npm run check`; the failed Dependabot run looked at (T6-16); a list of repeated kinds of finding in `DECISIONS.md` | in part (the audit blocks on GitHub) | The audit needs the network, so inside `npm run check` it fails where there is none; the builder would keep it a separate step that both the hook and GitHub run. Risk of the token check: a value that a real build uses and the sample website does not would have to be listed as allowed | 6 to 10 hours |
+| E6 | **axe-core and Lighthouse in the Fit check**, on every round, in the same receipt | axe-core is in the project and runs in the Studio's browser tests, not in the Fit check; Lighthouse is not in the project | axe-core: possible now. Hard rule 8 stays: the receipt says what axe-core checked and never "accessible"; axe-core finds only a part of the barriers. Lighthouse: a new package, so hard rule 7 applies (existence, licence, upkeep, 7 days since release, recorded in `DECISIONS.md`); its scores change from run to run on 1 machine, so a floor of 95 can fail a faithful build by chance. The builder would first try the 5 Floors' own speed requirements with fixed measures | axe-core 4 to 7 hours; Lighthouse 6 to 12 hours |
+| E7 | **One repository, or two with a stated reason** | not verified | Your decision alone. This session cannot read `Devin_Frontend`. A repository `CatCorner22/Frontend-Focus` also exists (last push 2026-11-21). If you name the main one, the builder writes the decision and the pointer in each README | 1 to 2 hours after your answer |
+| E8 | **A number for "equivalency"**: 0 axe-core findings, a speed floor, a pixel difference under a stated share at 5 widths, 0 unused values, every named state verified; the Fit check prints a combined score each round and keeps its history | not built | It rests on E2, E4, E5 and E6. A single score can hide one bad measure behind four good ones, so the receipt would show each measure beside the score. The score is a stand-in, not proof of equal craft; the README must say so (hard rule 13) | 6 to 10 hours after the others |
+
+**Order proposed.** E1 first, as the file says: one real run shows what E2 to E8 need to measure. Then E5 (small, and it stops repeats), E6 for axe-core, E2, E4, E8. E3 and E7 are decisions, not building work. Total for the builder: about 70 to 120 hours beyond section 13.9's totals, of which E4 is the largest part.
+
+**Four questions for you before any of this is built.**
+
+1. E1 against the repair run in progress: do you run the real loop (E1) before the open findings are repaired, or after the repairs of the Fit check and the Vision that the decision card of 2026-11-21 lists? The builder recommends: after those repairs (the card's answer "2: A"), because 4 open blockers are in the very parts that E1 exercises.
+2. E3: do you change hard rule 12 to "at most 1 red-team round per milestone"?
+3. E6: do you want Lighthouse added as a package, or the fixed speed measures first?
+4. E7: which repository is the main one, and what becomes of the others?
