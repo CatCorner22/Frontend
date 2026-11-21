@@ -603,3 +603,72 @@ Corrects E-4 (FINDING F-7). E-4 names a push to the shared branch `claude/brave-
 - Commit under review: 7e5015d
 - SUB-AGENT identifier: a643889a504d8a80f — not openable by the USER
 - Report: `memos/redcell-counts-E-54.md`
+
+### E-55 · 2026-11-21T18:59:45Z · RECONCILIATION · orchestrator
+
+1 row for each point of the 4 LENS memos and for each demand of the RED CELL (rule 5.4). Memos: RE = `memos/lens-recipient-experience-E-17.md`; MVS = `memos/lens-minimal-viable-sequence-E-18.md`; SI = `memos/lens-structural-integrity-E-19.md`; TC = `memos/lens-trust-controls-E-20.md`; RC = `audits/redcell-plan-E-21.md`. "New CRITERIA" means the `CRITERIA` entry (`PROPOSED`) that follows this entry; "new plan" means `PLAN.md` as rewritten in the same commit. The RED CELL's verdict, word for word: "PLAN SURVIVES WITH CHANGES".
+
+| Point | LENS | Result | CRITERION or decision changed | Reason |
+|---|---|---|---|---|
+| RE breaks 1: status 1 with no deviation has no advice | recipient experience | ACCEPTED | C7 | the guide and 2 commands state 2 cases of status 1; the test of C7 reads both |
+| RE breaks 2: the guide never says to unpack the archive | recipient experience | ACCEPTED | C7 | 1 sentence in the guide; the test of C7 reads it |
+| RE breaks 3: the receipt's sentences go false after the density fix | recipient experience | ACCEPTED | new plan, column Files | `receipt.ts` and the stored receipts are in the step's files |
+| RE breaks 4: `trial.e2e.ts` compares the stored receipts byte for byte | recipient experience | ACCEPTED | new plan, column Files | each step that changes the receipt writes the 3 stored receipts again with the program |
+| RE breaks 5: no browser, and the message names no next act | recipient experience | ACCEPTED | C7; new plan step 8 | the message names the variable `PW_CHROMIUM`; 1 test |
+| RE cut: the Studio change of U7-02 | recipient experience | ACCEPTED as the working assumption | C1 (U7-02 in state (b)); the S6 card asks | D68 records that each press counts on purpose; the USER decides |
+| RE add: the guide's unpack sentence and the look's own run line, options, statuses | recipient experience | ACCEPTED | C7 | see RE breaks 2 |
+| RE add: `receipt.ts`, the guide line 46 and the stored receipts in step 1 | recipient experience | ACCEPTED | new plan | see RE breaks 3 |
+| RE add: 1 list for the owner of every kept row that waits for the owner | recipient experience | ACCEPTED | C6; new plan step 10 | `PROGRESS.md` "Known gaps" holds the list; the framework-drift auditor reads it |
+| RE insists: split status 1 into 2 cases | recipient experience | ACCEPTED | C7 | see RE breaks 1 |
+| MVS breaks 1: G-S05 cannot reach state (a) by a reading at 2 device pixels | minimal viable sequence | ACCEPTED | C1; A-5 is dropped (see D-4 on the card) | the fix becomes a rule on media conditions |
+| MVS breaks 2: R-T06 cannot reach state (a) | minimal viable sequence | ACCEPTED | C1 state (c) | a corrected sentence is proven by a reading under C6 |
+| MVS breaks 3: U7-02 is planned 2 ways | minimal viable sequence | ACCEPTED | C1; A-9 | 1 outcome: state (b) unless the USER answers otherwise on the card |
+| MVS breaks 4: FTU-22 and R-12 fit neither state | minimal viable sequence | ACCEPTED | C1 state (c) | a third state for rows closed with no change of code |
+| MVS breaks 5: the test of C4 is narrower than C4 | minimal viable sequence | ACCEPTED | C4 | the test sums all 3 trials and 1 named reference build |
+| MVS breaks 6: steps 8 and 9 are in the wrong order | minimal viable sequence | ACCEPTED | new plan | the rows first, the counts after |
+| MVS cut: step 1 as a second full reading | minimal viable sequence | ACCEPTED | new plan step 2 | no second reading; see MVS insists |
+| MVS cut: step 7 (U7-02) to state (b) | minimal viable sequence | ACCEPTED as the working assumption | C1 | see RE cut |
+| MVS cut: FTU-22 and R-12 from the list, or a sentence that admits "closed by a recorded decision" | minimal viable sequence | ACCEPTED | C1 state (c) | the sentence is state (c) |
+| MVS cut: write `PROGRESS.md` and `SPEC.md` once, in the last step | minimal viable sequence | REJECTED | none | `CLAUDE.md` hard rule 11 requires `PROGRESS.md` after each unit of work; a third party tests this by reading that rule. `SPEC.md` is written once per step that changes behavior |
+| MVS cut: 2 WORK UNITS in place of 4 if the USER refuses 1 round | minimal viable sequence | ACCEPTED | new plan | WU-1 `plugin/`, WU-2 the records |
+| MVS add: 3 assertions to the test of C4 | minimal viable sequence | ACCEPTED | C4 | see MVS breaks 5 |
+| MVS add: a test or state (b) for R-T06 | minimal viable sequence | ACCEPTED | C1 state (c) | see MVS breaks 2 |
+| MVS add: order 5 first, then 2, 3, 4, 1, 6, 9, 8 | minimal viable sequence | ACCEPTED | new plan | the 3 reviewer findings first show which fixes exist |
+| MVS insists: a condition on pixel density makes the colors "not measured" | minimal viable sequence | ACCEPTED, widened | C1; D-4 on the card | the rule covers every media condition other than width and height that the Mockup lacks (RC demand 2) |
+| SI breaks 1: steps 1 and 2 turn `trial.e2e.ts` red | structural integrity | ACCEPTED | new plan, column Files | see RE breaks 4 |
+| SI breaks 2: the test of C3 does not open the file named as the DELIVERABLE | structural integrity | ACCEPTED | C3 | C3 names `local-test.html`, says why it stands for the built page, and adds a test that the fragment inside it equals `refraction-studio.html` |
+| SI breaks 3: C4 claims more than its test | structural integrity | ACCEPTED | C4 | see MVS breaks 5 |
+| SI breaks 4: the look has no contract | structural integrity | ACCEPTED | `FRAMEWORK.md` section 4; C7 | rows for `look-cli.ts`; the test of C7 covers `fit-look` |
+| SI breaks 5: the CRITERIA IDs do not match across entries | structural integrity | ACCEPTED | C9 (new); the table at the end of the new CRITERIA | a new translation table names 1 CRITERION for each need of E-9 |
+| SI breaks 6: U7-02 has 3 states | structural integrity | ACCEPTED | C1; A-9 | see MVS breaks 3 |
+| SI cut: FTU-22 from the rows | structural integrity | ACCEPTED | C1 state (c) | its Status says "Closed" |
+| SI cut: `FRAMEWORK.md` section 1, "No CRITERIA entry exists yet" | structural integrity | ACCEPTED | `FRAMEWORK.md` | the line is corrected in the same commit |
+| SI add: `receipt.ts`, the stored receipts, the guarantees reference and `SPEC.md` to steps 1 and 2 | structural integrity | ACCEPTED | new plan | see RE breaks 3 |
+| SI add: rows for the look in `FRAMEWORK.md`; `fit-look` in the test | structural integrity | ACCEPTED | `FRAMEWORK.md`; C7 | see SI breaks 4 |
+| SI add: `DECISION` entries D-1 to D-7 | structural integrity | ACCEPTED | `DECISION` entries after the new CRITERIA | D-1, D-2, D-3 and D-5 are written now; D-4, D-6 and D-7 wait for the USER's answer and are working assumptions in the `CARD` entry |
+| SI add: plan steps or a "Not in the plan" line for G9, G14, G15 | structural integrity | ACCEPTED | new plan | G9 is step 8; G14 and G15 are in "Not in the plan" with the reason |
+| SI add: the real path for the command of C6 | structural integrity | ACCEPTED | C6 | the full path stands in C6 |
+| SI add: a decision on whether G-S05 also covers the look | structural integrity | ACCEPTED | new plan step 2 | the look says in `LOOK.md` at which pixel density it drew; it measures nothing, so it has no status to correct |
+| SI insists: a full Files cell for each plan step | structural integrity | ACCEPTED | new plan | each step lists code, tests, stored receipts and records |
+| TC breaks 1: status 0 after a change to the Vision folder that the fingerprint does not show | trust and controls | ACCEPTED | C8 (new) | the receipt states a SHA-256 of each Vision file read and the count of Floor requirements read |
+| TC breaks 2: G-S05 would be called closed while open | trust and controls | ACCEPTED | C1; D-4 | see MVS insists |
+| TC breaks 3: state (b) is met by the builder alone | trust and controls | ACCEPTED | C1 state (b) | a reason that is a judgment cites the entry of the USER's answer |
+| TC breaks 4: 1 planted defect guards 7 fixes in 4 programs | trust and controls | ACCEPTED | new plan, the audit round | 1 planted defect in each program changed; the seeder still is 1 SUB-AGENT run |
+| TC cut: the word "closed" for G-S05 | trust and controls | ACCEPTED | C1 | state (a) covers the conditions other than width and height; the width bands are state (b) by name |
+| TC cut: "closed" for A2-V4 beyond the declarative case | trust and controls | ACCEPTED | C1; new plan step 3 | the test holds 2 pages: a declarative closed root, and a closed root that a script makes under `--run-scripts` |
+| TC cut: FTU-22 from the kept list | trust and controls | ACCEPTED | C1 state (c) | see SI cut |
+| TC add: count unmatched `@media` conditions on resolution as "not measured" | trust and controls | ACCEPTED | C1; D-4 | see MVS insists |
+| TC add: the USER's word for each judged row in state (b) | trust and controls | ACCEPTED | C1; the S6 card names G-S04, G-S11, R-S06, R-S08, A1-05, G-S10 | see TC breaks 3 |
+| TC add: 1 planted defect for each program changed | trust and controls | ACCEPTED | new plan | see TC breaks 4 |
+| TC add: the guide says that the repair command can write to the Vision folder | trust and controls | ACCEPTED | C7 | 1 sentence; the language auditor reads it |
+| TC insists: SHA-256 of the 4 Vision files and the Floor count in the receipt; refusal when a file differs from the last receipt's | trust and controls | ACCEPTED in the second form that the memo's own test allows ("or 2 receipts with different hashes") | C8 | the owner replaces the Vision on purpose when the design changes (E-9, RECIPIENT 1), so a refusal would stop an allowed act; the receipt of a later round states in 1 sentence that a Vision file differs from the round before |
+| RC demand 1: rebuild the bug list by a repeatable rule; correct "165" | RED CELL | ACCEPTED | C1; `evidence/open-rows.py` and `evidence/open-rows-7e5015d.txt` | 40 rows by the rule, plus A2-V4, FTU-22, T2-03 and R-12 by name; the count of minor rows is no longer stated |
+| RC demand 2: G-S05 by a rule on media conditions, or part-open | RED CELL | ACCEPTED | C1; D-4 | the rule for conditions other than width and height; the Mockup's unread width bands are state (b), by name, on the card |
+| RC demand 3: each state-(a) test asserts the cause | RED CELL | ACCEPTED | C1 state (a) | the test asserts the measure and the sentence, and the page gives the old result with the fix taken out |
+| RC demand 4: state (b) only with the USER's answer or a recorded attempt | RED CELL | ACCEPTED | C1 state (b); the card | see TC breaks 3 |
+| RC demand 5: decide U7-02 on the card; 1 outcome | RED CELL | ACCEPTED | C1; A-9; the card | see MVS breaks 3 |
+| RC demand 6: a change to what the built page holds leads to a new published version or to a first-line statement in the report | RED CELL | ACCEPTED | C3 | the final report states in its `Summary` whether the built page differs from the published one; a new version is published only on the USER's word |
+| RC demand 7: widen the tests of C4 and C7; the real path in C6 | RED CELL | ACCEPTED | C4, C6, C7 | see MVS breaks 5, SI breaks 4, SI add |
+| RC demand 8: correct E-4 | RED CELL | ACCEPTED | E-53 (`CORRECTION`) | done |
+
+Rejected: 1 of 60 rows (MVS cut 4). The 20 findings of the language AUDITOR (F-9 to F-28) are answered by the new CRITERIA and close only when a new SUB-AGENT re-runs each trigger (rules 14.3 and 15.4); F-27 (2 names for 1 thing in the guide) and F-28 (2 banned words) are repaired in plan steps 7 and 10.
