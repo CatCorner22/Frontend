@@ -106,6 +106,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 4: a setting that the program did not read under makes the page "not measured" (finding G-S05, in part)
+- Feature worked on (ID): none in the list. Finding G-S05 (grade blocker): status 0 for a page that shows another design on a high-density screen.
+- Before: a page could hold a style block under `(min-resolution: 2.5dppx)`, `(pointer: coarse)`, `(prefers-color-scheme: dark)` or `(prefers-contrast: more)` that turned every element into another design, and got "No deviation. Status 0". Now: the program collects every media condition of the page (style rules, imports, `source`, `link` and `style` elements, open shadow roots) and of the Vision's Mockup. A condition that the Mockup does not hold, and that names more than the window's width or height or reduced motion, is listed in the receipt; colors, typefaces, corner radii and content count as not measured; the status is 1.
+- Kept, on the owner's word (`hinshitsu/AUDIT-LOG.md`, entry E-107): a condition on the window's width or height alone still passes unread. Every receipt says so in 2 sentences ("All other window widths", "Other window heights"), and the test asserts both.
+- Why not a second reading on a sharper screen (the first plan): the plan's reviewers showed that such a reading catches 1 of 7 attack pages.
+- Tests (the first fails with the detection taken out: "(min-resolution: 2.5dppx): expected 0 to be 1"): "counts the page as not measured when its style rules name a setting ..." and "lists as unread only the conditions that name a setting ..." in `plugin/fit/e2e/exit.e2e.ts`; the look's report test asserts its new sentence.
+- The 3 stored trial receipts are written again by the program: 2 sentences of "Still needs a person" changed, nothing else.
+- Not done here: the guarantees reference still carries the old sentence; it is brought up to date in the run's last commit (the records).
+- Evidence: `hinshitsu/evidence/commit-4-checks.txt`.
+
 ### 2026-11-21: repair run, commit 3: an empty label no longer names a form field
 - Feature worked on (ID): none in the list. The third of the 3 findings of the automatic reviewer on pull request 16.
 - The finding is true, fixed. Before: a form field counted as labelled when a `label` element stood around it or pointed at it, even an empty one. Now: a label names a field only when it holds words outside the field itself, or a picture with words. An empty label, a label of invisible signs, and a label whose only words are the field's own options give the line "A3: 1 form field has no label".

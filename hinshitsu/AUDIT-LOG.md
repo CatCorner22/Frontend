@@ -1723,3 +1723,10 @@ Commit 3 of `PLAN.md`: `labelled` in `plugin/fit/src/floors.ts` (the automatic r
 - forward: `floors.ts` gives `fieldsWithoutLabel` to the Floors measure (requirement A3). The change adds entries for a field whose label holds no words; none leaves. Not broken: the Mockup's own fields keep their labels (the exit test's reference builds of all Directions show it).
 - backward: the receipt's stated checked part for A3 ("a label that holds words or another name") is now what the code does.
 - lateral: commits 1 and 2 changed `collect.ts`, not this file.
+
+### E-171 · 2026-11-21T21:52:49Z · TRACE · orchestrator
+
+Commit 4 of `PLAN.md`: `mediaConditions` (new) in `collect.ts`; `unreadConditions` (new) and `measures` in `fit.ts`; 2 sentences of `STILL_NEEDS_A_PERSON` in `receipt.ts`; 1 sentence in `look.ts` (finding G-S05).
+- forward: `fit.ts` gives `loadFailures` to `receipt.ts` and to the status; 1 more reason can stand there. The stored receipts of the 3 trials repeat the 2 changed sentences and are written again by the program in this commit (`trial.e2e.ts` compares them byte for byte). `look.ts` gives `LOOK.md` 1 more line.
+- backward: decision D71 of the project (not measured is never no deviation) is applied to 1 more case; the USER's answers 4 (E-67) and E-107.
+- lateral: commits 1 to 3 touched other functions; search for an existing implementation: `grep -n "matchMedia\|CSSMediaRule\|mediaText" plugin/fit/src` found none before this commit.

@@ -503,6 +503,15 @@ The Vision's section 7 holds the Floors (section 2.18). Until now no program che
 - What the test does not prove: that an AI coding tool builds a good page from the files (build trials 001 and 003 are one run each); the download on the real private page, whose host saves a `.css` file with `.txt` at the end of its name; what the files look like to a person.
 - How to test it end to end: `npm run e2e`.
 
+### 2.31 The repair run of 2026-11-21 (record: `hinshitsu/AUDIT-LOG.md`; plan: `hinshitsu/PLAN.md`)
+
+The owner asked for a run that repairs the current bugs, with the final deliverable first. Each repair is 1 commit with a test that failed before it. This section gains 1 point for each repair that changes what the Fit check or the look does.
+
+1. A text inside a box that scrolls (`overflow: auto` or `scroll`) counts as a text that a person can read: the visitor reaches it by scrolling the box. A box that hides what overflows, and a scrolling box with no room, still cut the text away. Edge cases: a box that scrolls in 1 direction only; a scrolling box inside a box that hides what overflows.
+2. A text that an inline SVG picture draws is compared by its typeface, and its contrast is read from its fill. Edge cases: a shape of the same picture behind the letters, a gradient fill, a partly transparent fill, and outlined letters each make the contrast "not measured".
+3. A label names a form field only when it holds words outside the field itself, or a picture with words. Edge cases: an empty label, a label of invisible signs, a label whose only words are the field's own options.
+4. Where the page's style rules name, in a media condition, a setting of the screen or of the visitor that the Vision's Mockup does not name, the program lists the condition and counts the page as not measured (status 1). A condition on the window's width or height alone, on reduced motion, or for paper alone is not listed; other widths and heights are a limit that every receipt states. Edge cases: several conditions joined by a comma; a condition that the Mockup holds in another order of words (listed, because the program compares the text that the browser writes); a condition on a `source`, `link` or `style` element; a condition inside an open shadow root. The look states in `LOOK.md` at which pixel density and in which settings it drew.
+
 ## 3. Out of scope
 
 - For the Direction Creator: sharing with other people; a Direction written by an AI inside the Studio; Skins for own Directions; new Options.

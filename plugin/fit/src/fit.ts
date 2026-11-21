@@ -5,7 +5,7 @@
 import { createHash } from 'node:crypto';
 import { chromium, type Browser, type LaunchOptions, type Page } from 'playwright';
 import { contrastRatio, hexOf, over, parseRgba, type Rgba } from './color.ts';
-import { collect, readBrief, type Collected } from './collect.ts';
+import { collect, mediaConditions, readBrief, type Collected } from './collect.ts';
 import { CHECKED_PART, FLOORS_EDITION, checkedFacts, collectFloorFacts, floorFindings, statedEdition, writtenFloorIds, type FloorFacts } from './floors.ts';
 import { FitError, readDesignValues, type DesignValues } from './vision.ts';
 import { JUDGED_MAX, MAX_REPAIR_ROUNDS, STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt } from './receipt.ts';
@@ -57,7 +57,7 @@ const DEAD_PROXY = { server: 'http://127.0.0.1:1', bypass: '<-loopback>' } as co
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
 
 /** One reading of the page. A reading that failed still keeps the requests that its page made before it failed. */
-type Pass = { label: string; width: number; requests: string[]; own: string[] } & ({ collected: Collected; floors: FloorFacts; errors: string[] } | { failure: string });
+type Pass = { label: string; width: number; requests: string[]; own: string[] } & ({ collected: Collected; floors: FloorFacts; errors: string[]; media: string[] } | { failure: string });
 
 /** Launch settings that hide the mark of automation and keep WebRTC from sending without a proxy (campaign A2, findings J-1 and J-3). */
 export const LAUNCH_ARGS: readonly string[] = ['--disable-blink-features=AutomationControlled', '--force-webrtc-ip-handling-policy=disable_non_proxied_udp'];
@@ -226,11 +226,11 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
         if (left !== '') return fail(label, `the page replaced itself: it went to ${left}`);
         const contextId = worlds.get(frameTree.frame.id);
         if (contextId === undefined || worldsAfterLoad > 0) return fail(label, 'the page replaced itself: its document was opened again');
-        const { result, exceptionDetails } = await within(session.send('Runtime.evaluate', { expression: `({ collected: (${collect.toString()})(), floors: (${collectFloorFacts.toString()})(), replaced: globalThis.__refractionWatch ? globalThis.__refractionWatch.replaced : true })`, contextId, returnByValue: true }), ms, 'the page did not answer');
+        const { result, exceptionDetails } = await within(session.send('Runtime.evaluate', { expression: `({ collected: (${collect.toString()})(), floors: (${collectFloorFacts.toString()})(), media: (${mediaConditions.toString()})(), replaced: globalThis.__refractionWatch ? globalThis.__refractionWatch.replaced : true })`, contextId, returnByValue: true }), ms, 'the page did not answer');
         if (exceptionDetails) return fail(label, 'the program could not read the page');
-        const value = result.value as { collected: Collected; floors: unknown; replaced: boolean };
+        const value = result.value as { collected: Collected; floors: unknown; media: unknown; replaced: boolean };
         if (value.replaced) return fail(label, 'the page replaced itself: a script wrote a new document over it');
-        return { label, width, collected: value.collected, floors: checkedFacts(value.floors), errors: [...errors], requests: [...requests], own: [...own] };
+        return { label, width, collected: value.collected, floors: checkedFacts(value.floors), media: Array.isArray(value.media) ? value.media.filter((m): m is string => typeof m === 'string') : [], errors: [...errors], requests: [...requests], own: [...own] };
       };
       if (motion === 'reduce') passes.push(await read(base));
       else {
@@ -343,7 +343,7 @@ function contrastOf(text: Collected['texts'][number]): number | null {
   return contrastRatio(fg.a < 1 ? over(fg, behind) : fg, behind);
 }
 
-function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[], edition: number | null, unrun = ''): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
+function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[], edition: number | null, unrun = '', mockupMedia: readonly string[] = []): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
   const good = passes.filter((p): p is Extract<Pass, { collected: Collected }> => 'collected' in p);
   const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: bounded(`${p.label}: ${p.failure}`) }] : []));
   // An animation with an end that has not ended at the last reading: the page may still change after the program stops (finding G-S04).
@@ -357,6 +357,10 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   }
   // What the page holds for a browser with scripts, when the program ran none: not measured, never "no deviation" (R-S01, R-S02).
   if (unrun !== '') loadFailures.push({ width: 0, reason: unrun });
+  // A part of the design that shows only under a setting that the program did not read under: not measured, never "no deviation"
+  // (finding G-S05).
+  const unread = unreadConditions(passes.flatMap((p) => ('media' in p ? p.media : [])), mockupMedia);
+  if (unread.length > 0) loadFailures.push({ width: 0, reason: bounded(`The page's style rules name ${unread.length === 1 ? 'a setting' : `${String(unread.length)} settings`} of the screen or of the visitor that the Vision's Mockup does not name, and the program did not read the page under ${unread.length === 1 ? 'it' : 'them'}: ${unread.slice(0, 8).map((c) => `"${c}"`).join('; ')}${unread.length > 8 ? `; and ${String(unread.length - 8)} more` : ''}. What the page shows there was not measured`, 900) });
   const failed = loadFailures.length;
 
   // Another site is a deviation. A reference at the page's own address is information: the page names it but, being one file, cannot ship it.
@@ -515,7 +519,7 @@ export async function fit(input: FitInput): Promise<FitResult> {
     const brief = await readMockupBrief(browser, input.files['mockup.html'] ?? '', ms);
     const visionMd = input.files['VISION.md'] ?? '';
     const written = writtenFloorIds(visionMd);
-    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written, statedEdition(visionMd), runScripts ? '' : unrunParts(input.html));
+    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written, statedEdition(visionMd), runScripts ? '' : unrunParts(input.html), brief.media);
     // "Not measured" is never "no deviation": anything not measured in a measure that counts gives status 1 (decision D71, A1-07).
     // Contrast counts when the Vision writes Floor A1: a ratio below its least is then a deviation. A text whose contrast could not
     // be read does not change the status (the Mockup itself holds such texts); the receipt and the command line name the count.
@@ -544,18 +548,41 @@ export async function fit(input: FitInput): Promise<FitResult> {
   }
 }
 
-async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief>> {
+/**
+ * The media conditions of the build under which the program did not read the page (finding G-S05). The program reads at three
+ * widths, each with motion allowed and with reduced motion, so a condition on the window's width or height, or on reduced motion,
+ * is not listed here (other widths and heights are a limit that the receipt states). A condition that the Vision's Mockup holds
+ * too belongs to the design. A condition for paper alone changes nothing on a screen. Every other condition (pixel density,
+ * pointer, hover, color scheme, contrast, and the rest) names a setting under which the page may show another design.
+ */
+export function unreadConditions(build: readonly string[], mockup: readonly string[]): string[] {
+  const known = new Set(mockup);
+  const sizeOrMotion = /\((?:[^()]*\b(?:width|height|aspect-ratio|orientation)\b[^()]*|\s*prefers-reduced-motion[^()]*)\)/g;
+  const unread = new Set<string>();
+  for (const condition of build) {
+    if (known.has(condition)) continue;
+    // Each part between commas is a condition of its own.
+    for (const part of condition.split(',')) {
+      const text = part.trim();
+      if (/^(?:only\s+)?print\b/.test(text)) continue;
+      if (text.replace(sizeOrMotion, '').replace(/\b(?:all|screen|and|not|only|or)\b/g, '').replace(/[()\s]/g, '') !== '') unread.add(condition);
+    }
+  }
+  return [...unread].sort();
+}
+
+async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief> & { media: string[] }> {
   // The Mockup comes from the Vision folder, which may come from anywhere: its window has no script, no network, and the same dead
   // proxy as the build's window, so that not even a prefetch or a preconnect link reaches a host (gate review, finding G-S01).
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, offline: true, javaScriptEnabled: false, serviceWorkers: 'block', proxy: DEAD_PROXY });
-  let brief: ReturnType<typeof readBrief>;
+  let brief: ReturnType<typeof readBrief> & { media: string[] };
   try {
     const page = await context.newPage();
     await context.route('**/*', (route) => route.abort());
     await context.routeWebSocket(() => true, (socket) => socket.close());
     await within(page.setContent(mockup, { waitUntil: 'load', timeout: ms }), ms + 1000, 'the Mockup did not load');
     // Read from a world of its own, as the build is: a script in a changed mockup.html cannot blank or forge the texts (finding A1-14).
-    brief = await within(readInOwnWorld(page, readBrief), ms, 'the Mockup did not answer');
+    brief = { ...(await within(readInOwnWorld(page, readBrief), ms, 'the Mockup did not answer')), media: await within(readInOwnWorld(page, mediaConditions), ms, 'the Mockup did not answer') };
   } catch {
     throw new FitError('The file "mockup.html" could not be opened to read the three required texts.');
   } finally {

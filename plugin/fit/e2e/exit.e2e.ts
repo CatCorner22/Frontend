@@ -9,7 +9,8 @@ import { chromium, type Browser } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { DIRECTIONS, FLOORS_EDITION as CORE_EDITION, FLOOR_RULES, applyDirection, createProject, writeVision, type Project } from '@refraction/core';
 import { built } from './built.ts';
-import { FitError, fit, type Receipt } from '../src/fit.ts';
+import { FitError, fit, unreadConditions, type Receipt } from '../src/fit.ts';
+import { receiptMarkdown } from '../src/receipt.ts';
 import { CHECKED_PART, FLOORS_EDITION, statedEdition, writtenFloorIds } from '../src/floors.ts';
 
 const LOCAL_BROWSER = process.env['PW_CHROMIUM'] ? { executablePath: process.env['PW_CHROMIUM'] } : {};
@@ -339,6 +340,42 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
       expect(measure(receipt, 'floors').items.join('\n'), name).not.toMatch(/^A3:/m);
     }
   }, 300_000);
+
+  it('counts the page as not measured when its style rules name a setting of the screen or of the visitor that the Mockup does not name, and states the limit for other window widths and heights (finding G-S05)', async () => {
+    // One style block that turns every element into another design, under one media condition (the pages of the plan's review).
+    const other = (condition: string): string => inHead(`<style>@media ${condition} { * { color: #ff0000 !important; background: #00ff00 !important; border-radius: 0 !important; font-family: "Comic Sans MS" !important } }</style>`);
+    const base = await fit({ files, html: reference, browser });
+    expect(base.status).toBe(0);
+    for (const condition of ['(min-resolution: 2.5dppx)', '(pointer: coarse)', '(prefers-color-scheme: dark)', '(prefers-contrast: more)']) {
+      const { receipt, status } = await fit({ files, html: other(condition), browser });
+      expect(status, condition).toBe(1);
+      const reasons = receipt.loadFailures.map((f) => f.reason).join('\n');
+      expect(reasons, condition).toContain(`"${condition}"`);
+      expect(reasons, condition).toMatch(/What the page shows there was not measured/);
+      for (const id of ['colors', 'typefaces', 'radii', 'content']) expect(measure(receipt, id).notMeasured, `${condition} ${id}`).toBeGreaterThan(measure(base.receipt, id).notMeasured);
+      expect(receiptMarkdown(receipt), condition).toContain(`"${condition}"`);
+    }
+    // A condition on the window's width or height alone: the program reads three widths and one height, and says so. This part of
+    // the finding stays open, as a limit that every receipt states (the owner's word of 2026-11-21).
+    for (const condition of ['(min-width: 1281px)', '(min-width: 400px) and (max-width: 700px)', '(min-height: 801px)']) {
+      const { receipt, status } = await fit({ files, html: other(condition), browser });
+      expect(status, condition).toBe(0);
+      const text = receiptMarkdown(receipt);
+      expect(text).toMatch(/All other window widths\. The program read the page at 375, 768, and 1280 pixels only/);
+      expect(text).toMatch(/Other window heights\. The program reads the page in a window 800 pixels tall/);
+    }
+    // The control: the same block under a condition that holds in every window is read, and it deviates.
+    const control = await fit({ files, html: other('(min-width: 1px)'), browser });
+    expect(measure(control.receipt, 'colors').deviations).toBeGreaterThan(0);
+  }, 600_000);
+
+  it('lists as unread only the conditions that name a setting under which the program did not read (finding G-S05)', () => {
+    const mockup = ['(hover: hover) and (pointer: fine)', '(min-width: 860px)'];
+    expect(unreadConditions(['(hover: hover) and (pointer: fine)', '(min-width: 860px)', '(max-width: 599px)', '(prefers-reduced-motion: reduce)', 'print', 'screen and (min-width: 40em)', '(400px <= width <= 700px)', '(orientation: landscape)'], mockup)).toEqual([]);
+    expect(unreadConditions(['(pointer: coarse)', '(min-width: 600px) and (prefers-color-scheme: dark)', 'screen and (-webkit-min-device-pixel-ratio: 2)', 'print, (hover: none)', '(forced-colors: active)'], mockup)).toEqual(['(forced-colors: active)', '(min-width: 600px) and (prefers-color-scheme: dark)', '(pointer: coarse)', 'print, (hover: none)', 'screen and (-webkit-min-device-pixel-ratio: 2)']);
+    // The Mockup's own condition in another order of words is another condition: the program compares the text that the browser writes.
+    expect(unreadConditions(['(pointer: fine) and (hover: hover)'], mockup)).toEqual(['(pointer: fine) and (hover: hover)']);
+  });
 
   it.each([
     ['a faint headline', (page: string) => once(page, '<h1', '<h1 style="opacity:0.2"')],

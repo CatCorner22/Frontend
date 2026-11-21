@@ -109,6 +109,8 @@ describe('The look: the reference build', () => {
     expect(text).toContain('- 1280 pixels: 0.0 percent of the picture differs.');
     expect(text).toContain('### Large areas of a color that is not the Vision’s\n\nNone.');
     expect(text).toContain(`Fingerprint of the design values: \`${result.look.fingerprint}\``);
+    // The look draws at one pixel density and says so (finding G-S05).
+    expect(text).toContain('The pictures are drawn on a screen of ordinary pixel density (1 device pixel for each CSS pixel)');
     // No date and no time: the same inputs give the same report.
     const again = await look(inputOf(reference));
     expect(again.markdown).toBe(text);

@@ -544,6 +544,45 @@ export function collect(): Collected {
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */
+/**
+ * The media conditions that the page's style rules and pictures name, each as the browser writes it: the conditions of `@media`
+ * rules (also inside other rules), of `@import` rules, of `link`, `style`, and `source` elements, in the page and in every open
+ * shadow root. A condition says under which window, screen, or setting a part of the design shows; the program reads the page
+ * under a few of them only (finding G-S05). Runs in the page; it must stand alone.
+ */
+export function mediaConditions(): string[] {
+  const found = new Set<string>();
+  const note = (text: string | null | undefined): void => {
+    const clean = (text ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
+    if (clean !== '' && clean !== 'all') found.add(clean.slice(0, 200));
+  };
+  let budget = 20000;
+  const walk = (rules: CSSRuleList): void => {
+    for (const rule of rules) {
+      if (budget-- <= 0) return;
+      if (rule instanceof CSSMediaRule) note(rule.media.mediaText);
+      if (rule instanceof CSSImportRule) note(rule.media.mediaText);
+      const inner = (rule as { cssRules?: CSSRuleList }).cssRules;
+      if (inner) walk(inner);
+    }
+  };
+  const sheets = (root: Document | ShadowRoot): void => {
+    for (const sheet of [...root.styleSheets, ...root.adoptedStyleSheets]) {
+      note(sheet.media.mediaText);
+      try {
+        walk(sheet.cssRules);
+      } catch {
+        // A style sheet of another site: the program stops such a request, so the sheet holds no rule.
+      }
+    }
+    for (const el of root.querySelectorAll('source[media], link[media], style[media]')) note(el.getAttribute('media'));
+  };
+  const roots: (Document | ShadowRoot)[] = [document];
+  for (let at = 0; at < roots.length && at < 2000; at++) for (const el of roots[at]!.querySelectorAll('*')) if (el.shadowRoot) roots.push(el.shadowRoot);
+  for (const root of roots) sheets(root);
+  return [...found].sort().slice(0, 400);
+}
+
 export function readBrief(): { business: string; headline: string; primaryAction: string } {
   const text = (selector: string): string => (document.querySelector<HTMLElement>(selector)?.innerText ?? '').replace(/\s+/g, ' ').trim();
   return { business: text('.brand'), headline: text('h1'), primaryAction: text('.btn-primary') };

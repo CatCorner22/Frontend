@@ -1137,6 +1137,7 @@ export function lookMarkdown(look: Look): string {
   out.push('## What the pictures do not show', '');
   out.push('- A page in use: nothing is pointed at, pressed, focused, typed, or sent, and no motion is shown. The pictures are still, with reduced motion.');
   out.push('- Any window width other than the three, and any other browser.');
+  out.push('- Another screen or setting. The pictures are drawn on a screen of ordinary pixel density (1 device pixel for each CSS pixel), in a window 800 pixels tall, in light mode, with a mouse. A page can look different on a high-density screen (most phones), on a touch screen, or in dark mode (finding G-S05).');
   out.push('- Whether the page looks good. That is a judgment: a model’s judgment of these pictures belongs under “Judged by the model” in the receipt, and the owner’s own look decides.');
   out.push('');
   return out.join('\n');
