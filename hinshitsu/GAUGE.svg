@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 420" width="860" height="420" role="img" aria-label="hinshitsu gauge: 8 percent, 1 of 12 stages complete">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 420" width="860" height="420" role="img" aria-label="hinshitsu gauge: 17 percent, 2 of 12 stages complete">
 <rect width="860" height="420" fill="#ffffff"/>
 <text x="20" y="30" font-family="sans-serif" font-size="18" font-weight="bold" fill="#212121">hinshitsu gauge</text>
 <path d="M 80.0 246.9 A 180 180 0 0 1 85.3 206.5" fill="none" stroke="#2e7d32" stroke-width="30"/>
 <text x="49.8" y="226.3" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#424242">S1</text>
-<path d="M 87.0 200.4 A 180 180 0 0 1 102.6 162.7" fill="none" stroke="#e0e0e0" stroke-width="30"/>
+<path d="M 87.0 200.4 A 180 180 0 0 1 102.6 162.7" fill="none" stroke="#2e7d32" stroke-width="30"/>
 <text x="64.1" y="172.9" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#424242">S2</text>
 <path d="M 105.7 157.3 A 180 180 0 0 1 130.5 125.0" fill="none" stroke="#e0e0e0" stroke-width="30"/>
 <text x="91.8" y="124.9" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#424242">S3</text>
@@ -25,17 +25,17 @@
 <text x="455.9" y="172.9" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#424242">S11</text>
 <path d="M 434.7 206.5 A 180 180 0 0 1 440.0 246.9" fill="none" stroke="#e0e0e0" stroke-width="30"/>
 <text x="470.2" y="226.3" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#424242">S12</text>
-<line x1="260.0" y1="250.0" x2="114.7" y2="212.7" stroke="#212121" stroke-width="6" stroke-linecap="round"/>
+<line x1="260.0" y1="250.0" x2="130.9" y2="173.6" stroke="#212121" stroke-width="6" stroke-linecap="round"/>
 <circle cx="260.0" cy="250.0" r="12" fill="#212121"/>
-<text x="260.0" y="310.0" font-family="sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="#212121">8%</text>
-<text x="260.0" y="334.0" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#424242">1 of 12 stages complete</text>
-<text x="260.0" y="360.0" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#212121">Next: S2 Record set up (hinshitsu-record)</text>
+<text x="260.0" y="310.0" font-family="sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="#212121">17%</text>
+<text x="260.0" y="334.0" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#424242">2 of 12 stages complete</text>
+<text x="260.0" y="360.0" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#212121">Next: S3 Customer voice and gap list (hinshitsu-baby-bird-plan)</text>
 <rect x="520" y="48" width="14" height="14" fill="#2e7d32" stroke="#757575"/>
 <text x="542" y="60" font-family="sans-serif" font-size="13" font-weight="normal" fill="#212121">S1 Capability and tier</text>
 <text x="542" y="72" font-family="sans-serif" font-size="10" fill="#616161">hinshitsu - done</text>
-<rect x="520" y="76" width="14" height="14" fill="#e0e0e0" stroke="#757575"/>
+<rect x="520" y="76" width="14" height="14" fill="#2e7d32" stroke="#757575"/>
 <text x="542" y="88" font-family="sans-serif" font-size="13" font-weight="normal" fill="#212121">S2 Record set up</text>
-<text x="542" y="100" font-family="sans-serif" font-size="10" fill="#616161">hinshitsu-record - pending</text>
+<text x="542" y="100" font-family="sans-serif" font-size="10" fill="#616161">hinshitsu-record - done</text>
 <rect x="520" y="104" width="14" height="14" fill="#e0e0e0" stroke="#757575"/>
 <text x="542" y="116" font-family="sans-serif" font-size="13" font-weight="normal" fill="#212121">S3 Customer voice and gap list</text>
 <text x="542" y="128" font-family="sans-serif" font-size="10" fill="#616161">hinshitsu-baby-bird-plan - pending</text>

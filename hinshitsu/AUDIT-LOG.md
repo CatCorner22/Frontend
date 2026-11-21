@@ -49,3 +49,17 @@ Rule 0.5: where the planned change cannot be counted, the TIER is FULL. The 30 r
 - Stage: S1
 - Event: end
 - Artifacts: `AUDIT-LOG.md` (E-1 to E-4), `prompts/capability-probe.md`, `evidence/capability-probe.md`, `evidence/capability-browser.txt`, `evidence/capability-browser.png`, `evidence/capability-git-clock.txt`
+
+### E-6 · 2026-11-21T18:25:11Z · STAGE · orchestrator
+
+- Stage: S2
+- Event: start
+- Skill read: `skills/hinshitsu-record/SKILL.md`, 11230 bytes, SHA-256 f373f424d106cc55836ee27d663182121010755eb4a74cff3bb044c5b2b62610
+
+Conductor SKILL.md SHA-256 a3907653b8a517f2597ec025d6b22eb5929730ff4f79291d4b74c60549250d0e; GLOSSARY.md SHA-256 92b526977fb5d1fc507f934ddba2a5c43144cfbe477c75adba9b7219bb46d599.
+
+### E-7 · 2026-11-21T18:25:52Z · STAGE · orchestrator
+
+- Stage: S2
+- Event: end
+- Artifacts: `FRAMEWORK.md`, `SESSION-STATE.md`, `MINDMAP.md`, `CONNECTIONS.md`, `COVERAGE-LEDGER.md`, `GAUGE.svg`
