@@ -464,6 +464,22 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(readFileSync(join(folder, 'other-out', 'RECEIPT.md'), 'utf8')).toContain('The result folder held no receipt of the round before, so the program could not say whether a Vision file changed.');
   }, 300_000);
 
+  it('reads the shown option of a drop-down list for color and typeface, and counts a shape that a picture takes from another file as not measured (the rest of retest finding R-S07)', async () => {
+    const base = await fit({ files, html: reference, browser });
+    const list = await fit({ files, html: inBody('<select aria-label="Planted" style="color:#ff00ff;background:transparent;border:0;outline:0;font:italic 40px Papyrus,fantasy"><option>Another design</option></select>'), browser });
+    expect(measure(list.receipt, 'colors').items.join('\n')).toContain('#ff00ff');
+    expect(measure(list.receipt, 'typefaces').items.join('\n')).toContain('Papyrus');
+    expect(measure(list.receipt, 'typefaces').deviations).toBeGreaterThan(0);
+    // A drop-down list without any option draws no text: nothing to compare.
+    const empty = await fit({ files, html: inBody('<select aria-label="Planted" style="color:#ff00ff;background:transparent;border:0;outline:0"></select>'), browser });
+    expect(measure(empty.receipt, 'colors').items.join('\n')).not.toContain('#ff00ff');
+    // A shape from another file: the program stops the request for that file, so it cannot know what the visitor's browser draws there.
+    const foreign = await fit({ files, html: inBody('<svg width="20" height="20" aria-hidden="true"><use href="shapes.svg#planted"/></svg>'), browser });
+    expect(measure(foreign.receipt, 'colors').notMeasured).toBeGreaterThan(measure(base.receipt, 'colors').notMeasured);
+    expect(measure(foreign.receipt, 'colors').note).toMatch(/1 shape that a picture takes from another file/);
+    expect(foreign.status).toBe(1);
+  }, 300_000);
+
   it.each([
     ['a faint headline', (page: string) => once(page, '<h1', '<h1 style="opacity:0.2"')],
     ['a box that covers the whole page', (page: string) => once(page, '</body>', '<div style="position:fixed;inset:0;background:#ffffff;z-index:99999"></div></body>')],

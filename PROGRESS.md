@@ -106,6 +106,12 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 11: a drop-down list's shown option is read, and a shape from another file is not measured (the rest of finding R-S07)
+- Feature worked on (ID): none in the list. The rest of finding R-S07 (grade major), which the plan's reviewers found outside the first bug list: a `select` in another color and typeface got "No deviation. Status 0".
+- Now: a `select` with an option that holds words is read as a text. A `use` element that points into another file adds 1 to "not measured" in the Colors measure, and the measure's note says why.
+- Test (written first; it failed because the Colors measure held no line for the planted color): "reads the shown option of a drop-down list for color and typeface, and counts a shape that a picture takes from another file as not measured ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- Evidence: `hinshitsu/evidence/commit-11-checks.txt`.
+
 ### 2026-11-21: repair run, commit 10: a listener proves that the look sends no WebRTC packet (finding R-S03)
 - Feature worked on (ID): none in the list. Finding R-S03 (grade blocker): the look with `--run-scripts` let a page send a UDP packet through WebRTC. The code was repaired on 2026-11-17; no test proved it.
 - Now: a test opens a UDP listener on this machine, draws a page that opens a WebRTC connection toward it (in the page itself and in a frame), and asserts that the listener receives nothing.

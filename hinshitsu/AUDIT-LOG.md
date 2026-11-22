@@ -1765,3 +1765,10 @@ Commit 9 of `PLAN.md`: `readText` and `main` in `look-cli.ts` (finding R-S11).
 - forward: the look's command line refuses 3 more kinds of input with status 2; `plugin/commands/fit-look.md` reads the status; nothing else changes.
 - backward: finding G-S09 (the same rule in `cli.ts`); the rule is written a second time in `look-cli.ts` because the 2 command lines share no module today. A shared module is a change of structure that no CRITERION asks for; noted for the audit round.
 - lateral: commit 8 changed `look.ts`, not this file.
+
+### E-177 · 2026-11-21T22:13:08Z · TRACE · orchestrator
+
+Commit 11 of `PLAN.md`: the main loop of `collect` (form fields; `use`) and the field `foreignShapes` (new) in `collect.ts`; the Colors measure in `fit.ts` (the rest of R-S07).
+- forward: `Collected` gains 1 field; `fit.ts` reads it. `look.ts` does not use `collect`. A Mockup that holds a `select` now has its words compared: the exit test's reference builds of all Directions show whether any false deviation appears.
+- backward: the first repair of R-S07 (commit ab2403e and after): input, textarea and same-page `use` are read as before.
+- lateral: commits 1, 2 and 4 changed other parts of `collect.ts`.

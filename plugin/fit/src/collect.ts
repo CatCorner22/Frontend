@@ -46,6 +46,8 @@ export interface Collected {
   svgTimers: number;
   /** Drawn colors that a CSS filter changes before they reach the screen; they are counted as not measured (finding J-6). */
   filtered: number;
+  /** Shapes that an inline picture takes from another file (`use` with an address before the `#`): not read (R-S07). */
+  foreignShapes: number;
   /** Every `@font-face` rule of the page: the family that it names and where its letters come from (finding J-19). */
   fontFaces: { family: string; src: string }[];
   scrollWidth: number;
@@ -183,6 +185,7 @@ export function collect(): Collected {
 
   const drawn: Drawn[] = [];
   let filtered = 0;
+  let foreignShapes = 0;
   const families: Collected['families'] = [];
   const radii: Collected['radii'] = [];
   const texts: TextRead[] = [];
@@ -256,7 +259,8 @@ export function collect(): Collected {
     if (cs.visibility !== 'visible') continue;
     const label = where(el);
     // A form field draws its value as text, though it holds no text node (retest finding R-S07).
-    const fieldText = (el instanceof HTMLInputElement && !['hidden', 'checkbox', 'radio', 'range', 'color', 'file', 'image'].includes(el.type) && el.value !== '') || (el instanceof HTMLTextAreaElement && el.value !== '');
+    // A drop-down list draws the words of its shown option (the rest of retest finding R-S07).
+    const fieldText = (el instanceof HTMLInputElement && !['hidden', 'checkbox', 'radio', 'range', 'color', 'file', 'image'].includes(el.type) && el.value !== '') || (el instanceof HTMLTextAreaElement && el.value !== '') || (el instanceof HTMLSelectElement && [...el.options].some((option) => option.text.trim() !== ''));
     const hasText = fieldText || [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== '');
     const recolored = isFiltered(el);
     // A box that changes the colors of what lies under it: a backdrop filter other than a blur or more saturation, or a blend mode.
@@ -266,7 +270,11 @@ export function collect(): Collected {
     // A shape or a text of an inline SVG picture paints with `fill` and `stroke` (finding G-S08).
     // A shape that a picture draws by reference (`use`): the shape itself stands where nothing is drawn, so it is read here (R-S07).
     if (el instanceof SVGUseElement) {
-      const id = (el.getAttribute('href') ?? el.getAttribute('xlink:href') ?? '').replace(/^#/, '');
+      const href = (el.getAttribute('href') ?? el.getAttribute('xlink:href') ?? '').trim();
+      // A shape from another file (`shapes.svg#name`): the program stops every request, so it does not know what a visitor's browser
+      // draws there; it counts the shape as not measured (the rest of retest finding R-S07).
+      if (href !== '' && !href.startsWith('#')) foreignShapes++;
+      const id = href.startsWith('#') ? href.slice(1) : '';
       const scope = el.getRootNode();
       const target = id !== '' && (scope instanceof Document || scope instanceof ShadowRoot) ? scope.getElementById(id) : null;
       for (const shape of target ? [target, ...target.querySelectorAll('*')].slice(0, 200) : []) {
@@ -540,7 +548,7 @@ export function collect(): Collected {
   const endlessAnimations = document.getAnimations().filter((a) => a.effect !== null && a.effect.getComputedTiming().endTime === Infinity && a.playState !== 'finished' && a.playState !== 'idle').length;
   const svgTimers = every('set, animate, animateTransform, animateMotion').filter((el) => el.namespaceURI === 'http://www.w3.org/2000/svg').length;
   const root = document.documentElement;
-  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, frames: every('iframe, frame, object, embed').length, pendingAnimations, endlessAnimations, svgTimers, filtered, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
+  return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, frames: every('iframe, frame, object, embed').length, pendingAnimations, endlessAnimations, svgTimers, filtered, foreignShapes, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
 /** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */
