@@ -106,6 +106,12 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 16: the deliverable test opens the published fragment itself (criterion C3 of the run)
+- Feature worked on (ID): none in the list. A point of the plan's reviewers: the deliverable test opens `local-test.html`, while the file that is published is `refraction-studio.html`; nothing showed that the 2 hold the same page.
+- Now: a test reads both built files and asserts that the published fragment stands inside the test page exactly once, byte for byte, with only a short head before it and the 2 closing tags after it.
+- No product code changed. The test needs the built page: `npm run build:page` first.
+- Evidence: `hinshitsu/evidence/commit-16-checks.txt`.
+
 ### 2026-11-21: repair run, commit 15: a missing browser gets one line that says what to do (criterion C7 of the run)
 - Feature worked on (ID): none in the list. A point of the plan's reviewers: with no browser, the Fit check printed the browser library's own message ("browserType.launch: Failed to launch chromium because executable doesn't exist at ..."), which names no next act.
 - Now: the Fit check and the look each say "... stopped: it found no browser to open the page. Fetch one with "npx playwright install chromium" in the plugin's folder, or set the environment variable PW_CHROMIUM to the path of a Chromium browser on this machine." The look's refusal line is also made one visible line of at most 400 characters, as the Fit check's already was.

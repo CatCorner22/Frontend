@@ -1,0 +1,29 @@
+Checks before commit 16 of hinshitsu/PLAN.md. Started 2026-11-22T06:33:24Z. Parent commit: dfc8c05.
+Tree checked (files changed against the parent, with the SHA-256 of each):
+  c16c969043fdbc7e  PROGRESS.md
+  83371f0ef5de0f3c  apps/studio/e2e/deliverable.e2e.ts
+
+== npm run check ==
+exit 0
+
+ Test Files  17 passed (17)
+      Tests  374 passed (374)
+   Start at  06:33:50
+   Duration  14.33s (tests 92%, import 7%, transform 1%)
+
+
+== npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e ==
+exit 0
+ Test Files  4 passed (4)
+      Tests  241 passed (241)
+   Duration  1745.29s (tests 100%)
+
+== npm run build:page, then npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts ==
+build exit 0
+exit 0
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Duration  25.05s (tests 98%, import 2%)
+
+Finished 2026-11-22T07:03:38Z.
+Run in a second checkout that holds exactly the files of this commit (snapshot 239130c69b7700ac2b5b4037292a937bc8fd0611).

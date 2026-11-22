@@ -28,6 +28,23 @@ afterAll(async () => {
 });
 
 describe('the Vision as its recipient gets it: downloaded, unpacked by an outside program, and used', () => {
+  it('opens, as its test page, the built Studio page itself: the fragment inside `local-test.html` equals `refraction-studio.html` byte for byte (criterion C3 of the repair run of 2026-11-21)', () => {
+    // The build writes the Studio as a bare fragment (`refraction-studio.html`, the file that is published) and the same fragment
+    // inside a wrapper that a browser opens from disk (`local-test.html`). The tests below press through the wrapped copy; this
+    // test shows that what they press through is the published fragment and nothing else.
+    const fragment = readFileSync(new URL('../dist/artifact/refraction-studio.html', import.meta.url));
+    const wrapped = readFileSync(new URL('../dist/artifact/local-test.html', import.meta.url));
+    expect(fragment.length).toBeGreaterThan(100_000);
+    const at = wrapped.indexOf(fragment);
+    expect(at).toBeGreaterThan(0);
+    // The fragment stands in the wrapper exactly once, and the wrapper adds a short head before it and a short end after it.
+    expect(wrapped.indexOf(fragment, at + 1)).toBe(-1);
+    expect(at).toBeLessThan(600);
+    expect(wrapped.length - at - fragment.length).toBeLessThan(40);
+    expect(wrapped.subarray(0, at).toString('utf8')).toMatch(/^<!doctype html><html><head>[\s\S]*<\/head><body>$/);
+    expect(wrapped.subarray(at + fragment.length).toString('utf8')).toMatch(/^\s*<\/body><\/html>\s*$/);
+  });
+
   for (const direction of ['Graphite Precision', 'Galactic Goth', 'Sticker Pop']) {
     it(`${direction}: the archive unpacks, every file works by itself, and the Fit check reads the folder`, async () => {
       const folder = mkdtempSync(join(tmpdir(), 'vision-deliverable-'));
