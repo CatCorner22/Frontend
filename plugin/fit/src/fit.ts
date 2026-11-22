@@ -335,6 +335,38 @@ function atWidths(rows: { key: string; width: number; label: string }[], reading
   });
 }
 
+/** Below this ratio a text and its ground are one color to the eye (1 to 1 is the same color). */
+const SAME_COLOR_RATIO = 1.1;
+
+/**
+ * True when every element that draws a part of the wanted text draws it in the color of its ground (retest finding R-S08). An
+ * element counts as drawing the text when its own words stand inside the wanted text, or hold it. One readable element that holds
+ * half of the wanted text or more makes the text readable; a short word elsewhere on the page does not.
+ */
+function sameAsGround(texts: Collected['texts'], wanted: string): boolean {
+  let unseen = 0;
+  for (const text of texts) {
+    const quoted = /"(.*)"$/.exec(text.where)?.[1] ?? '';
+    // The label holds the element's own words, without the words of an element inside it (a marked word of a headline), and it is
+    // cut after 40 characters: the words are compared in their order, and a word that the cut may have broken is left out.
+    const words = collapse(quoted.replace(/…$/, '')).split(' ').filter((word) => word !== '');
+    if (quoted.endsWith('…')) words.pop();
+    const own = words.join(' ');
+    if (own.length < 2 || !(inOrder(words, wanted.split(' ')) || own.includes(wanted))) continue;
+    const ratio = contrastOf(text);
+    if (ratio !== null && ratio < SAME_COLOR_RATIO) unseen++;
+    else if (own.includes(wanted) || own.length * 2 >= wanted.length) return false;
+  }
+  return unseen > 0;
+}
+
+/** True when the words stand in the line in this order, with or without other words between them. */
+function inOrder(words: readonly string[], line: readonly string[]): boolean {
+  let at = 0;
+  for (const word of line) if (at < words.length && word === words[at]) at++;
+  return at === words.length;
+}
+
 function contrastOf(text: Collected['texts'][number]): number | null {
   const fg = parseRgba(text.foreground);
   if (!fg || text.layers === null) return null;
@@ -440,7 +472,9 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   let contentUnsure = 0;
   const required: [string, string][] = [['business name', mockupBrief.business], ['headline', mockupBrief.headline], ['primary action', mockupBrief.primaryAction]];
   for (const [label, wanted] of required) {
-    const missing = good.filter((p) => !p.collected.shownLines.some((line) => collapse(line).includes(collapse(wanted))));
+    // A text in the color of its own ground is there for no reader: it counts as missing, whether or not the Vision requires
+    // contrast (retest finding R-S08; the owner's answer of 2026-11-21).
+    const missing = good.filter((p) => !p.collected.shownLines.some((line) => collapse(line).includes(collapse(wanted))) || sameAsGround(p.collected.texts, collapse(wanted)));
     // A text that stands only under a clip-path or a mask may be hidden: not measured, never "found" (retest finding A2-V7).
     const unsure = missing.filter((p) => p.collected.clippedLines.some((line) => collapse(line).includes(collapse(wanted))));
     contentUnsure += unsure.length;

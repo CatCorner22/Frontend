@@ -1737,3 +1737,10 @@ Commit 5 of `PLAN.md`: `readAt`, `countClosedRoots` (new) and `measures` in `fit
 - forward: 1 more reason can stand in `loadFailures`; the stored receipts repeat the changed sentence and are written again by the program in this commit.
 - backward: finding A1-05 (the program reads from a world of its own): the new reading uses the browser's debugging connection, which the page's scripts cannot reach. Decision D71 applied to 1 more case.
 - lateral: commit 4 added a reason to the same list in the same function; both stand.
+
+### E-173 · 2026-11-21T21:58:09Z · TRACE · orchestrator
+
+Commit 6 of `PLAN.md`: `sameAsGround` and `inOrder` (new) and the Content measure in `fit.ts` (finding R-S08; the USER's answer 5 in E-67).
+- forward: the Content measure can hold 1 more kind of line; the status follows it. No sentence of the receipt changes, so the stored receipts stay.
+- backward: `SPEC.md`: "a text whose contrast cannot be read never changes the status" still holds: only a ratio that the program did read, below 1.1 to 1, makes a text missing.
+- lateral: commits 4 and 5 changed the same function `measures` in other lines.

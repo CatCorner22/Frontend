@@ -402,6 +402,25 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(open.receipt.loadFailures.map((f) => f.reason).join('\n')).not.toMatch(/closed shadow root/);
   }, 300_000);
 
+  it('counts a required text in the color of its own background as missing, also where the Vision does not require contrast (retest finding R-S08)', async () => {
+    const lenient = { ...writeVision({ ...strict(), a11y: 'advise' }) };
+    const page = built(lenient['mockup.html'] ?? '');
+    const base = await fit({ files: lenient, html: page, browser });
+    expect(base.status).toBe(0);
+    expect(measure(base.receipt, 'content').deviations).toBe(0);
+    // The headline in the color of the box that it stands on: nobody can read it.
+    const h1 = /<h1>[\s\S]*?<\/h1>/.exec(page)?.[0] ?? '';
+    const hidden = await fit({ files: lenient, html: page.replace(h1, `<div style="background:#123456">${h1.replace('<h1>', '<h1 style="color:#123456">')}</div>`), browser });
+    expect(measure(hidden.receipt, 'contrast').title).toBe('Contrast: measured, not required');
+    expect(measure(hidden.receipt, 'content').items.join('\n')).toMatch(/the headline is not where a person can read it/);
+    expect(hidden.status).toBe(1);
+    // Almost the same color (a ratio below 1.1 to 1) is the same to the eye; a pale but readable headline is found, and its ratio is listed.
+    const almost = await fit({ files: lenient, html: page.replace(h1, `<div style="background:#123456">${h1.replace('<h1>', '<h1 style="color:#16385a">')}</div>`), browser });
+    expect(measure(almost.receipt, 'content').items.join('\n')).toMatch(/the headline is not where a person can read it/);
+    const pale = await fit({ files: lenient, html: page.replace(h1, `<div style="background:#123456">${h1.replace('<h1>', '<h1 style="color:#5a7a9a">')}</div>`), browser });
+    expect(measure(pale.receipt, 'content').items.join('\n')).not.toMatch(/headline/);
+  }, 300_000);
+
   it.each([
     ['a faint headline', (page: string) => once(page, '<h1', '<h1 style="opacity:0.2"')],
     ['a box that covers the whole page', (page: string) => once(page, '</body>', '<div style="position:fixed;inset:0;background:#ffffff;z-index:99999"></div></body>')],

@@ -106,6 +106,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 6: a required text in the color of its background counts as missing (finding R-S08)
+- Feature worked on (ID): none in the list. Finding R-S08 (grade major), decided by the owner on 2026-11-21: yes, such a text counts as missing.
+- Before: where the Vision did not require contrast, a headline in the exact color of its box got "No deviation. Status 0"; the receipt only listed the ratio 1.00 to 1. Now: the Content measure calls the text missing when every element that draws a part of it draws it at a ratio below 1.1 to 1 against its ground.
+- Test (written first; it failed because the Content measure held no line): "counts a required text in the color of its own background as missing ..." in `plugin/fit/e2e/exit.e2e.ts`, with an exact match, a near match, and a pale but readable headline that still counts as found.
+- Found while building: the Mockup's headline holds a marked word in an element of its own, so the headline's own words are not one unbroken piece of the wanted text; the rule compares words in their order.
+- Evidence: `hinshitsu/evidence/commit-6-checks.txt`.
+
 ### 2026-11-21: repair run, commit 5: a closed shadow root makes the page "not measured" (finding A2-V4)
 - Feature worked on (ID): none in the list. Finding A2-V4 (grade major): a closed shadow root draws a second design that no measure reads; until now the receipt only said so under "Still needs a person".
 - Now: the program asks the browser for its own list of the page's parts (which names closed roots too) and counts them at each reading. A page that holds one gets a sentence in the receipt with the number, colors, typefaces, corner radii and content count as not measured, and the status is 1.
