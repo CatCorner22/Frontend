@@ -1814,3 +1814,11 @@ Commits 16, 17 and 18 of `PLAN.md`: 1 test in `apps/studio/e2e/deliverable.e2e.t
 - forward: no program's behavior changes in these 3 commits. `trial.e2e.ts` names its trials by number and does not read the new folder. The guarantees reference passes its own check after the change (run before this entry).
 - backward: `hinshitsu/evidence/open-rows.py` reads the Status text of `redteam/FINDINGS.md`; after commit 18 it lists 42 rows, not 50, because repaired rows no longer hold its phrases. The list of C1 is the saved file `evidence/open-rows-after-E-111.txt`, as C1 says.
 - lateral: a fault of the ORCHESTRATOR found beside commit 18 and corrected there: the first check of the owner's backlog called the claim "9 of 67" not verified; it is true (project decision D82).
+
+### E-184 · 2026-11-21T22:32:28Z · COMPACTION · orchestrator
+
+`SESSION-STATE.md` rewritten during S7 (rule 8.2 (b) and (c)): all 19 commits of WU-1 are written; commits 3 to 19 wait as snapshots for their checks, which run 1 commit at a time in a second checkout. The file says how a later session goes on after a restart. A departure from the plan's routine, said here: the ORCHESTRATOR wrote the later repairs while the checks of the earlier ones ran, to use the waiting time; each commit is still made only after its own 3 checks passed on exactly its own files.
+
+### E-185 · 2026-11-22T09:15:25Z · CHECK · orchestrator
+
+WU-1 is built: 19 commits on `claude/festive-mendel-lfnahh`, from 5f6d8c2 (commit 1) to 52d1e73 (commit 18), in the order 1 to 13, 19, 14 to 18; each is pushed. Each has its saved checks, `evidence/commit-<n>-checks.txt` (19 files, each with 4 lines "exit 0"). 2 events during the checks, both recorded in `PROGRESS.md`: the first snapshot of commit 12 left out trial 002's stored receipt and record (3 new deviations that the commit itself finds) and was taken again before its checks; the checks of commit 13 failed 1 time, because 1 older test of the command line expected the earlier wording of the one line; the expected sentence was brought to the wording that C4 asks for, in commit 13 and in each later snapshot, and the checks then passed. GitHub's check reported no failure on the pushed commits up to commit 17 (notifications read by the ORCHESTRATOR; the final AUDITOR reads the check runs itself).
