@@ -1793,3 +1793,10 @@ Commit 19 of `PLAN.md` (added by D-8, E-164): 4 sentences in `STILL_NEEDS_A_PERS
 - forward: every receipt gains 4 lines; the stored receipts are written again by the program. `fit.e2e.ts` asserts at least 6 such lines; more is allowed.
 - backward: the USER's answers 6 (E-67) and question 2, item 1 (E-112): "limits that every receipt states" is now true for these 4.
 - lateral: commits 4 and 5 changed 3 other sentences of the same list; commit 13 changed the head sentences.
+
+### E-181 · 2026-11-21T22:26:02Z · TRACE · orchestrator
+
+Commit 14 of `PLAN.md`: `plugin/README.md` (written again), `plugin/commands/fit-check.md`, `fit-repair.md` (R-U05; C7; FINDINGS F-15 and F-27).
+- forward: the 3 files are read by the owner and by Claude Code; an existing test reads the commands' front matter and their rules (unchanged, and it passes). The test of the manifest is untouched.
+- backward: project decision D75 (the names "Frontend Focus" and "Vision"); hard rule 8 of `CLAUDE.md` (no claim of a standard): the new test asserts both.
+- lateral: commit 13 changed the one line that `fit-check.md` describes; the command now says "how many readings of how many texts", as the line does.

@@ -3,7 +3,7 @@
 // the third window width, the repair round, the model's judgments, and the files of the plugin.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium, type Browser } from 'playwright';
@@ -243,7 +243,7 @@ describe('the plugin’s files (SPEC.md section 2.23)', () => {
     expect(manifest.description).not.toMatch(/\baccessible\b|\bcompliant\b/i);
   });
 
-  it('has three commands that run the program by a path inside the plugin, treat what they read as data, and claim no standard', () => {
+  it('has commands that run the Fit check by a path inside the plugin, treat what they read as data, and claim no standard', () => {
     for (const name of ['fit-build', 'fit-check', 'fit-repair']) {
       const text = read(`commands/${name}.md`);
       expect(text, name).toMatch(/^---\ndescription: .+\nargument-hint: .+\nallowed-tools: .+\n---\n/);
@@ -252,6 +252,64 @@ describe('the plugin’s files (SPEC.md section 2.23)', () => {
       expect(text, name).not.toMatch(/\baccessible\b|\bcompliant\b|Refraction|Prescription/i);
     }
     expect(existsSync(join(process.cwd(), 'plugin/fit/src/cli.ts'))).toBe(true);
+  });
+
+  it('has a guide that agrees with the programs: the 4 commands, each option, each status, the 2 cases of status 1, the measures that count, and 1 name for the Vision folder (finding R-U05; criterion C7 of the repair run of 2026-11-21)', () => {
+    const guide = read('README.md');
+    // The commands: the guide names each file of the folder `commands`, and no other.
+    const commands = readdirSync(join(process.cwd(), 'plugin/commands')).filter((name) => name.endsWith('.md')).map((name) => name.replace(/\.md$/, '')).sort();
+    expect(commands).toEqual(['fit-build', 'fit-check', 'fit-look', 'fit-repair']);
+    for (const name of commands) {
+      expect(guide, name).toContain(`\`/frontend-focus-fitter:${name}\``);
+      expect(guide, name).toMatch(new RegExp(`^\\| \`${name} `, 'm'));
+    }
+    expect([...guide.matchAll(/^\| `(fit-[a-z]+) /gm)].map((m) => m[1]).sort()).toEqual(commands);
+    // Each program has a part of its own in the guide: its options are those of its usage line, and its statuses those of its source.
+    const part = (heading: string): string => {
+      const from = guide.indexOf(`## ${heading}`);
+      expect(from, heading).toBeGreaterThan(-1);
+      const next = guide.indexOf('\n## ', from + 4);
+      return guide.slice(from, next === -1 ? undefined : next);
+    };
+    const programs: [file: string, run: string, status: string][] = [
+      ['cli.ts', 'Running the Fit check without Claude Code', 'What the Fit check’s status means, and what you do'],
+      ['look-cli.ts', 'Running the look without Claude Code', 'What the look’s status means, and what you do'],
+    ];
+    for (const [file, run, status] of programs) {
+      const source = readFileSync(join(process.cwd(), 'plugin/fit/src', file), 'utf8');
+      const usage = /const USAGE = '([^']+)'/.exec(source)?.[1] ?? '';
+      const options = [...new Set(usage.match(/--[a-z-]+/g) ?? [])].sort();
+      expect(options.length, file).toBeGreaterThan(0);
+      const running = part(run);
+      expect([...new Set([...running.matchAll(/^\| `(--[a-z-]+)/gm)].map((m) => m[1]))].sort(), file).toEqual(options);
+      for (const option of options) expect(running.split('\n').find((line) => line.startsWith('`node ')) ?? '', `${file} ${option}`).toContain(option);
+      const stated = [...new Set([...source.slice(0, source.indexOf('import ')).matchAll(/Status (\d)/g)].map((m) => m[1]))].sort();
+      expect(stated, file).toEqual(['0', '1', '2']);
+      expect([...part(status).matchAll(/^\| (\d) \|/gm)].map((m) => m[1]), file).toEqual(stated);
+    }
+    // Status 1 of the Fit check has 2 cases, in the guide and in the 2 commands that act on it.
+    for (const [name, text] of [['the guide', guide], ['fit-check', read('commands/fit-check.md')], ['fit-repair', read('commands/fit-repair.md')]] as const) {
+      expect(text, name).toMatch(/[Dd]eviation lines/);
+      expect(text, name).toMatch(/[“"]Not measured[”"] and no deviation line/i);
+    }
+    expect(read('commands/fit-repair.md')).toMatch(/[“"]not measured[”"] and no deviation line[^.]*\. Do not start a repair round/i);
+    // The measures that count, in the guide and in the command that shows the status.
+    const counting = 'Requests, Colors, Typefaces, Corner radii, Content, Width, and Floors, and Contrast only where the Vision writes Floor A1';
+    expect(guide).toContain(counting);
+    expect(read('commands/fit-check.md')).toContain(counting);
+    // One name for the folder, the archive unpacked first, the 7 files, and what the repair command can write.
+    expect(guide).not.toMatch(/folder of the Vision/i);
+    expect(guide).toContain('Vision folder');
+    expect(guide).toMatch(/Unpack the archive first/);
+    for (const name of ['VISION.md', 'DESIGN.md', 'tokens.json', 'tokens.css', 'theme.css', 'mockup.html', 'FONTS.md']) expect(guide, name).toContain(`\`${name}\``);
+    expect(guide).toMatch(/Claude can write to the Vision folder too/);
+    // Each term of the list has a row in the guide's table of words, or a sentence that says what it is.
+    for (const term of ['Node', 'TypeScript', 'Chromium', 'Environment variable', 'Mockup', 'Markup', 'Deviation', 'Status', 'Floor', 'Edition', 'The three required texts', 'Marketplace']) expect(guide, term).toMatch(new RegExp(`^\\| ${term} \\| \\S`, 'm'));
+    expect(guide).toMatch(/A \*\*plugin\*\* is /);
+    expect(guide).toMatch(/the \*\*receipt\*\* \(in the project’s records: the Honest receipt\)/);
+    // The 2 programs carry their names in every heading; no heading says "the program".
+    expect(guide.split('\n').filter((line) => line.startsWith('#')).join('\n')).not.toMatch(/the program/i);
+    expect(guide).not.toMatch(/\baccessible\b|\bcompliant\b|Refraction|Prescription/i);
   });
 
   it('gives the repair command a budget of three rounds and makes it pass the round to the program', () => {

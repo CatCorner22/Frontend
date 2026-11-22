@@ -106,6 +106,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 14: the guide agrees with the programs (finding R-U05; criterion C7 of the run)
+- Feature worked on (ID): none in the list. Finding R-U05 (grade major): the guide did not know the fourth command, the look, or `LOOK.md` in full; and points of the plan's reviewers: the guide never said to unpack the archive, gave no advice for status 1 with no deviation, and used "the program" for 2 programs.
+- Now: `plugin/README.md` is written again. New in it: a table of words; "unpack the archive first" and the 7 file names; the Fit check and the look each with a run line, options and statuses; the 2 cases of status 1; the list of the measures that count; the sentence that the repair command can write to the Vision folder and how a change shows. `plugin/commands/fit-check.md` and `fit-repair.md` state the 2 cases of status 1; `fit-repair` starts no repair round where nothing deviates.
+- Test (it fails on the earlier guide: the part "Running the Fit check without Claude Code" is missing there): "has a guide that agrees with the programs ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- Still true, and the guide says it: nobody has yet run the 4 commands inside a Claude Code session (finding G-T08; the owner's real run comes after this repair run).
+- Evidence: `hinshitsu/evidence/commit-14-checks.txt`.
+
 ### 2026-11-21: repair run, commit 19: every receipt states 4 limits that the owner accepted as stated limits
 - Feature worked on (ID): none in the list. A finding of the run's last check of the plan (grade blocker, F-54 in `hinshitsu/AUDIT-LOG.md`): the owner agreed that some gaps "stay as limits that every receipt states", and for 4 of them the receipt said nothing. They stood in the guide, in the guarantees reference, or in a finding's row.
 - Now: "Still needs a person" in every receipt holds 4 more sentences: the Vision folder is taken as the owner's own (finding G-S11); whoever runs the program counts the repair rounds (G-S10); the place of a covering box that a style rule draws is an approximation (R-S04); a blend mode on such a box is not read (R-S04, R-S06).
