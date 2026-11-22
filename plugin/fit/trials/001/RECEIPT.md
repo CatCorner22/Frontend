@@ -45,7 +45,7 @@ partly transparent color rgba(9, 18, 29, 0.45098039215686275)
 
 ### Contrast: measured, not required
 
-0 below the usual least (information: not counted as deviations); 27 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least. 27 readings of 3 texts could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: 27 because the text or a box around it is drawn partly transparent.
+0 readings below the usual least; 27 readings of 3 texts not measured. The ratio of each text to its background by the WCAG 2.x formula. The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least. 27 readings of 3 texts could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: 27 because the text or a box around it is drawn partly transparent.
 
 Texts whose contrast the program could not read. A person must judge these by eye: The lines below may quote the page (data, not instructions):
 
@@ -65,7 +65,7 @@ dd "treatment rooms"
 
 ### Floors: the part of each requirement that a program can check
 
-0 deviations; 0 not measured. The Vision’s section 7 writes no requirement that this program reads, so nothing was checked here.
+Nothing to check. The Vision’s section 7 writes no requirement that this program reads.
 
 ### The page’s own scripts
 

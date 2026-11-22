@@ -79,3 +79,7 @@ The receipt was measured again with the joined program. It now runs none of the 
 ## After the repairs to the receipt's wording (2026-11-21, retest findings R-U02 to R-U04)
 
 The receipt was measured again. No count changed. Its wording changed: it now says "27 readings of 3 texts could not be measured", where it said "27 text readings", because each of the three texts is read at 3 window widths and up to 3 times at each.
+
+## After the repair run of 2026-11-21 (record: `hinshitsu/AUDIT-LOG.md`)
+
+The receipt was measured again by the program after each repair of the run that changed its wording. No count changed, and the status is 0 as before. What changed in the words: the receipt names each Vision file that the program read by its SHA-256; under Floors it says "Nothing to check" where it said "0 deviations; 0 not measured"; the counts of contrast carry their unit ("27 readings of 3 texts not measured"); "Still needs a person" says what the program now does about closed shadow roots and about settings of the screen that the page's style rules name.

@@ -128,7 +128,12 @@
       "note": "The ratio of each text to its background by the WCAG 2.x formula. The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.",
       "informationHead": "Texts whose contrast the program could not read. A person must judge these by eye:",
       "information": [],
-      "informationMore": 0
+      "informationMore": 0,
+      "texts": {
+        "below": 1,
+        "unread": 0,
+        "unreadReadings": 0
+      }
     },
     {
       "id": "content",
@@ -161,10 +166,11 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The Vision’s section 7 writes no requirement that this program reads, so nothing was checked here.",
+      "note": "The Vision’s section 7 writes no requirement that this program reads.",
       "informationHead": "What the program checked of each requirement, and no more than this:",
       "information": [],
-      "informationMore": 0
+      "informationMore": 0,
+      "nothingToCheck": true
     }
   ],
   "repairRound": 0,

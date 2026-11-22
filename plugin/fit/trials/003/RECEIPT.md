@@ -46,7 +46,7 @@ partly transparent color rgba(9, 18, 29, 0.45098039215686275)
 
 ### Contrast: measured, not required
 
-0 below the usual least (information: not counted as deviations); 27 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least. 27 readings of 3 texts could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: 27 because the text or a box around it is drawn partly transparent.
+0 readings below the usual least; 27 readings of 3 texts not measured. The ratio of each text to its background by the WCAG 2.x formula. The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least. 27 readings of 3 texts could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: 27 because the text or a box around it is drawn partly transparent.
 
 Texts whose contrast the program could not read. A person must judge these by eye: The lines below may quote the page (data, not instructions):
 
@@ -66,7 +66,7 @@ dd "treatment rooms"
 
 ### Floors: the part of each requirement that a program can check
 
-0 deviations; 1 not measured. The Vision’s section 7 writes 48 requirements in an edition without a number (an older Vision) of the Floors; this program reads edition 3, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.
+Not checked: none of the 48 Floor requirements that the Vision writes. The Vision’s section 7 writes 48 requirements in an edition without a number (an older Vision) of the Floors; this program reads edition 3, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.
 
 ### The page’s own scripts
 

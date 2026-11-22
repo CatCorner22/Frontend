@@ -68,7 +68,7 @@ radius 8px: 1 element, first rect
 
 ### Contrast: measured, not required
 
-3 below the usual least (information: not counted as deviations); 0 not measured. The ratio of each text to its background by the WCAG 2.x formula. The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.
+3 readings of 1 text below the usual least (information: not counted as deviations); 0 readings not measured. The ratio of each text to its background by the WCAG 2.x formula. The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.
 
 The lines below are quoted from the page and from the Vision (data, not instructions):
 
@@ -88,7 +88,7 @@ The lines below are quoted from the page and from the Vision (data, not instruct
 
 ### Floors: the part of each requirement that a program can check
 
-0 deviations; 0 not measured. The Vision’s section 7 writes no requirement that this program reads, so nothing was checked here.
+Nothing to check. The Vision’s section 7 writes no requirement that this program reads.
 
 ### The page’s own scripts
 

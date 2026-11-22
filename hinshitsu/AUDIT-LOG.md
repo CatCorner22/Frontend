@@ -1779,3 +1779,10 @@ Commit 12 of `PLAN.md`: the branch for SVG shapes in `collect.ts` (the rest of G
 - forward: `radii` gains entries for drawn rectangles; `fit.ts` compares them as a box's. The Mockup of each Direction draws no rectangle (`grep -c '<rect'` in a stored Mockup: 0), and the reference builds of all Directions stay without deviation (run before this entry).
 - backward: the first repair of G-S08 (fill and stroke) stands.
 - lateral: commit 2 added the branch for SVG text just below; commit 11 changed the `use` branch above.
+
+### E-179 · 2026-11-21T22:22:50Z · TRACE · orchestrator
+
+Commit 13 of `PLAN.md`: `Measure` (3 optional fields), `headOf` and `readingsOf` (new) in `receipt.ts`; the Contrast and Floors measures in `fit.ts`; the one line of `cli.ts` (row R-U03; C4; FINDINGS F-16 and F-17).
+- forward: `RECEIPT.md` and the program's one line change their words; `receipt.json` gains optional fields and keeps every count. `plugin/commands/fit-check.md` and `fit-repair.md` quote the one line in general words; commit 14 brings them and the guide to the new words. The stored receipts are written again by the program.
+- backward: the test of finding G-U01 keeps its assertions (`floors.notMeasured` 1, `status` 1): the count stays in `receipt.json`. `SPEC.md`: a text whose contrast cannot be read never changes the status: unchanged.
+- lateral: commit 12 changed trial 002's receipt and record (3 more deviations); this commit writes the receipts again on top. A fault found beside this commit and recorded here: commit 12's first snapshot left out trial 002's stored receipt and the row of its record's table; the snapshot was taken again with both before its checks ran.

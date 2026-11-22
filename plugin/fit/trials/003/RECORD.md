@@ -63,3 +63,7 @@ The receipt was measured again with the joined program. It runs none of the page
 ## After the repairs to the receipt's wording (2026-11-21, retest findings R-U02 to R-U04)
 
 The receipt was measured again. This trial's Vision states no edition, so none of its Floors is checked; for that reason its contrast is now "measured, not required" (it said "required by Floor A1"), and "Still needs a person" says that the program checked none of the Floors.
+
+## After the repair run of 2026-11-21 (record: `hinshitsu/AUDIT-LOG.md`)
+
+The receipt was measured again by the program after each repair of the run. The status is 1 as before, for the same reason: the Vision writes its 48 Floor requirements in an edition that the program does not read, and the program checked none of them. The words for that changed: the receipt says "Not checked: none of the 48 Floor requirements that the Vision writes" where it said "0 deviations; 1 not measured", and the program's one line says "none of the 48 Floor requirements of the Vision was checked" where it said "1 thing could not be measured" (finding R-U03). `receipt.json` keeps the count 1 that the status rests on. The other wording changed as in trial 001.

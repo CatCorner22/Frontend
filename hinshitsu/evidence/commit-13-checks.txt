@@ -1,0 +1,44 @@
+Checks before commit 13 of hinshitsu/PLAN.md. Started 2026-11-22T04:32:43Z. Parent commit: a853d71.
+Tree checked (files changed against the parent, with the SHA-256 of each):
+  c3d4075867eba14d  PROGRESS.md
+  4d7008aa34eedb7a  SPEC.md
+  a51647c414861d28  hinshitsu/AUDIT-LOG.md
+  88eff620ee2325da  plugin/fit/e2e/exit.e2e.ts
+  d9f678762e023e57  plugin/fit/src/cli.ts
+  d84943958b1a8ff0  plugin/fit/src/fit.ts
+  38312383bd546d61  plugin/fit/src/receipt.ts
+  8b7f4d37e7a0de5c  plugin/fit/trials/001/RECEIPT.md
+  37842499c587e7ad  plugin/fit/trials/001/RECORD.md
+  ae1e675493abf176  plugin/fit/trials/001/receipt.json
+  2ebc98677a2831c8  plugin/fit/trials/002/RECEIPT.md
+  4375df98f153d83c  plugin/fit/trials/002/RECORD.md
+  940c4bbd3d28ba7b  plugin/fit/trials/002/receipt.json
+  929694c1d03aa1df  plugin/fit/trials/003/RECEIPT.md
+  aaa700883f014532  plugin/fit/trials/003/RECORD.md
+  80b59bd394c933be  plugin/fit/trials/003/receipt.json
+  21e978589a1fc990  redteam/FINDINGS.md
+
+== npm run check ==
+exit 0
+
+ Test Files  17 passed (17)
+      Tests  374 passed (374)
+   Start at  04:33:08
+   Duration  14.48s (tests 91%, import 8%, transform 1%)
+
+
+== npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e ==
+exit 0
+ Test Files  4 passed (4)
+      Tests  238 passed (238)
+   Duration  1699.65s (tests 100%)
+
+== npm run build:page, then npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts ==
+build exit 0
+exit 0
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Duration  26.98s (tests 98%, import 1%)
+
+Finished 2026-11-22T05:02:11Z.
+Run in a second checkout that holds exactly the files of this commit (snapshot 950e58ae19b7045e22e97eeac48cdbdac741f7cd).

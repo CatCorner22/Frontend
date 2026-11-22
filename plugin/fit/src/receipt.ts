@@ -16,6 +16,16 @@ export interface Measure {
   note: string;
   /** Things that the measure lists but does not count as deviations (for example, files at the site's own address that the page names but does not ship). */
   information: string[];
+  /**
+   * For Contrast alone: the texts behind its counts. The measure counts readings (each text is read at 3 window widths, and up to 3
+   * times at each); `below` and `unread` say how many texts those readings belong to, and `unreadReadings` how many of the "not
+   * measured" are readings of a text (the rest are readings of the whole page that failed).
+   */
+  texts?: { below: number; unread: number; unreadReadings: number };
+  /** For Floors alone: true when the Vision writes no requirement that the program reads, so that there is nothing to check. */
+  nothingToCheck?: boolean;
+  /** For Floors alone: how many requirements the Vision writes in an edition that the program does not read; it checked none of them. */
+  noneCheckedOf?: number;
   /** The sentence that stands above the lines of information; it says what kind of lines they are. */
   informationHead: string;
   /** How many lines of information are not listed. */
@@ -101,6 +111,23 @@ export function fenceFor(text: string): string {
 
 const count = (n: number, one: string, many: string): string => `${String(n)} ${n === 1 ? one : many}`;
 
+/** A count of contrast with its unit: "27 readings of 3 texts" (retest finding R-U04; the plan's language audit, finding 8). */
+export const readingsOf = (readings: number, texts: number): string => `${count(readings, 'reading', 'readings')} of ${count(texts, 'text', 'texts')}`;
+
+/**
+ * The first sentence under a measure's title: its counts, each with its unit. A measure with nothing to check gives no count, and a
+ * Vision whose Floors the program does not read gives the number of its requirements, not the number 1 (retest finding R-U03).
+ */
+function headOf(m: Measure, advisory: boolean): string {
+  if (m.nothingToCheck) return 'Nothing to check.';
+  if (m.noneCheckedOf !== undefined) return `Not checked: none of the ${count(m.noneCheckedOf, 'Floor requirement', 'Floor requirements')} that the Vision writes.${m.notMeasured > 1 ? ` ${count(m.notMeasured - 1, 'reading of the page', 'readings of the page')} failed besides (see below).` : ''}`;
+  if (m.id !== 'contrast' || m.texts === undefined) return `${count(m.deviations, 'deviation', 'deviations')}; ${String(m.notMeasured)} not measured.`;
+  const below = m.deviations === 0 ? (advisory ? '0 readings below the usual least' : '0 deviations') : advisory ? `${readingsOf(m.deviations, m.texts.below)} below the usual least (information: not counted as deviations)` : `${count(m.deviations, 'deviation', 'deviations')} (${readingsOf(m.deviations, m.texts.below)} below the least)`;
+  const other = m.notMeasured - m.texts.unreadReadings;
+  const unread = m.texts.unreadReadings === 0 ? '0 readings not measured' : `${readingsOf(m.texts.unreadReadings, m.texts.unread)} not measured`;
+  return `${below}; ${unread}${other > 0 ? `, and ${count(other, 'reading of the page', 'readings of the page')} failed (see below)` : ''}.`;
+}
+
 export function receiptMarkdown(receipt: Receipt): string {
   const out: string[] = [];
   out.push('# Fit check receipt', '');
@@ -121,7 +148,7 @@ export function receiptMarkdown(receipt: Receipt): string {
     // Contrast that the Vision does not require: its lines are texts below the usual least, and the receipt does not call them
     // deviations, so that no count in it disagrees with the summary line (retest finding R-U02).
     const advisory = m.id === 'contrast' && !m.title.startsWith('Contrast: required');
-    out.push(`${advisory ? `${String(m.deviations)} below the usual least (information: not counted as deviations)` : count(m.deviations, 'deviation', 'deviations')}; ${String(m.notMeasured)} not measured. ${m.note}`, '');
+    out.push(`${headOf(m, advisory)} ${m.note}`, '');
     if (m.items.length > 0) {
       const body = m.items.join('\n');
       const fence = fenceFor(body);

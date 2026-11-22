@@ -106,6 +106,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 13: the receipt's counts carry their unit, and "nothing to check" gives no count (finding R-U03; criterion C4 of the run)
+- Feature worked on (ID): none in the list. The third point of finding R-U03 (grade major) and 2 findings of the plan's language audit.
+- Before: the summary line said "3 text readings below the usual contrast" and the receipt "3 below the usual least"; one clause of the line counted texts, the other readings. Under Floors the receipt said "0 deviations; 0 not measured" where it had checked nothing, and "1 not measured" for 48 requirements of an edition that it does not read.
+- Now: every count of contrast reads "N readings of M texts", in the line and in the receipt alike. Under Floors the receipt says "Nothing to check." or "Not checked: none of the 48 Floor requirements that the Vision writes." The line says "none of the 48 Floor requirements of the Vision was checked". The status of such a Vision stays 1.
+- Test: the earlier test of the receipt's agreement is written again to the run's criterion C4 and now holds for 4 cases (the 3 trials and the Vision's own page of trial 001): the sum of deviations, the units, status 0 only with "No deviation", "Nothing to check" with no count. Each promise of the earlier test is kept; its expected sentences changed with the wording that the criterion asks for.
+- The 3 stored trial receipts are written again by the program; each trial's record gains a dated note.
+- Evidence: `hinshitsu/evidence/commit-13-checks.txt`.
+
 ### 2026-11-21: repair run, commit 12: the corners of a drawn rectangle are compared (the rest of finding G-S08)
 - Feature worked on (ID): none in the list. The rest of finding G-S08 (grade major), which the plan's reviewers found outside the first bug list: a box with `border-radius: 37px` was a deviation, the same corner on an SVG rectangle (`rx="37"`) was not.
 - Now: the Corner radii measure reads `rx` and `ry` of each rectangle that draws something.

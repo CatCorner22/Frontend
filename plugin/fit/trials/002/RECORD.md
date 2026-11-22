@@ -74,3 +74,7 @@ The receipt was measured again. No count changed. Its wording changed: this Visi
 ## The corners of drawn rectangles are compared (2026-11-21, the rest of finding G-S08)
 
 The receipt was measured again. The Corner radii row of the table shows 3 where it showed 0: the program now compares the corners of rectangles that an inline picture draws, and this page draws 3 with corners of 8, 18 and 30 pixels, none of them a corner radius of its Vision. The receipt's line shows 25 deviations where it showed 22.
+
+## After the repair run of 2026-11-21 (record: `hinshitsu/AUDIT-LOG.md`)
+
+The receipt was measured again by the program after each repair of the run. One count changed: the Corner radii row shows 3 where it showed 0, and the receipt's line shows 25 deviations where it showed 22. The program now compares the corners of rectangles that an inline picture draws, and this page draws 3 with corners of 8, 18 and 30 pixels, none of them a corner radius of its Vision. The table above shows the new number in its Corner radii row. The wording changed as in trial 001; the contrast line now reads "3 readings of 1 text below the usual least (information: not counted as deviations)".

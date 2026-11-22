@@ -110,7 +110,12 @@
         "dd \"open each week\"",
         "dd \"treatment rooms\""
       ],
-      "informationMore": 0
+      "informationMore": 0,
+      "texts": {
+        "below": 0,
+        "unread": 3,
+        "unreadReadings": 27
+      }
     },
     {
       "id": "content",
@@ -146,7 +151,8 @@
       "note": "The Vision’s section 7 writes 48 requirements in an edition without a number (an older Vision) of the Floors; this program reads edition 3, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.",
       "informationHead": "What the program checked of each requirement, and no more than this:",
       "information": [],
-      "informationMore": 0
+      "informationMore": 0,
+      "noneCheckedOf": 48
     }
   ],
   "repairRound": 0,

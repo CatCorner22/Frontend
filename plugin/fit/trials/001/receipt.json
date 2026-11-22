@@ -109,7 +109,12 @@
         "dd \"open each week\"",
         "dd \"treatment rooms\""
       ],
-      "informationMore": 0
+      "informationMore": 0,
+      "texts": {
+        "below": 0,
+        "unread": 3,
+        "unreadReadings": 27
+      }
     },
     {
       "id": "content",
@@ -142,10 +147,11 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The Vision’s section 7 writes no requirement that this program reads, so nothing was checked here.",
+      "note": "The Vision’s section 7 writes no requirement that this program reads.",
       "informationHead": "What the program checked of each requirement, and no more than this:",
       "information": [],
-      "informationMore": 0
+      "informationMore": 0,
+      "nothingToCheck": true
     }
   ],
   "repairRound": 0,

@@ -571,34 +571,79 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(measure(seen.receipt, 'floors').notMeasured).toBe(0);
   });
 
-  it('says nothing in the receipt that disagrees with its own summary line, for the three stored trials (retest findings R-U02, R-U03, R-U04)', () => {
+  it('says nothing in the receipt that disagrees with its own summary line: the 3 stored trials and the Vision’s own page of trial 001 (retest findings R-U02, R-U03, R-U04; criterion C4 of the repair run of 2026-11-21)', () => {
     const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
-    const run = (trial: string) => {
-      const base = join(process.cwd(), 'plugin/fit/trials', trial);
+    const trials = join(process.cwd(), 'plugin/fit/trials');
+    const run = (build: string, vision: string) => {
       const out = mkdtempSync(join(tmpdir(), 'fit-words-'));
-      const done = spawnSync(process.execPath, [cli, join(base, 'index.html'), join(base, 'files'), out], { encoding: 'utf8', env: process.env });
-      return { line: done.stdout, receipt: readFileSync(join(out, 'RECEIPT.md'), 'utf8') };
+      const done = spawnSync(process.execPath, [cli, build, vision, out], { encoding: 'utf8', env: process.env });
+      return { line: done.stdout, status: done.status, text: readFileSync(join(out, 'RECEIPT.md'), 'utf8'), receipt: JSON.parse(readFileSync(join(out, 'receipt.json'), 'utf8')) as Receipt };
     };
-    // Trial 001: three texts could not be read, each at nine readings; the summary counts texts, and the receipt says both numbers.
-    const one = run('001');
-    expect(one.line).toContain('the contrast of 3 texts could not be read');
-    expect(one.receipt).toContain('27 readings of 3 texts could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width)');
-    expect(one.receipt).not.toContain('one for each text and window width');
-    // Trial 002: its Vision does not require contrast, so texts below the usual least are information, in the receipt and in the line.
-    const two = run('002');
-    expect(two.receipt).toContain('3 below the usual least (information: not counted as deviations); 0 not measured.');
-    expect(two.receipt).not.toMatch(/### Contrast: measured, not required\n\n\d+ deviations?;/);
-    // 25 since the corners of drawn rectangles are compared (the rest of finding G-S08): this page draws 3 with corners that its Vision does not hold. 22 before.
-    expect(two.line).toMatch(/^25 deviations; 3 text readings below the usual contrast \(information: this Vision does not require it\)\. Status 1\./);
-    const counted = [...two.receipt.matchAll(/^(\d+) deviations?; \d+ not measured\./gm)].reduce((sum, m) => sum + Number(m[1]), 0);
-    expect(counted).toBe(25);
-    // Trial 003: a Vision of an edition that the program does not read. Nothing of its Floors is checked, so contrast is not "required".
-    const three = run('003');
-    expect(three.receipt).toContain('### Contrast: measured, not required');
-    expect(three.receipt).not.toContain('required by Floor A1');
-    expect(three.receipt).toContain('The Floors of the Vision. The program checked none of them (see “Floors” above):');
-    expect(three.receipt).not.toContain('checked only a part of some requirements');
-  }, 120_000);
+    const cases = {
+      'trial 001': run(join(trials, '001/index.html'), join(trials, '001/files')),
+      'trial 002': run(join(trials, '002/index.html'), join(trials, '002/files')),
+      'trial 003': run(join(trials, '003/index.html'), join(trials, '003/files')),
+      'the Vision’s own page of trial 001': run(join(trials, '001/files/mockup.html'), join(trials, '001/files')),
+    };
+    // The measures that count: all but Contrast, and Contrast only where the Vision writes Floor A1 in the edition that the program reads.
+    for (const [name, { line, status, text, receipt }] of Object.entries(cases)) {
+      const contrast = measure(receipt, 'contrast');
+      const required = contrast.title.startsWith('Contrast: required');
+      const counting = receipt.measured.filter((m) => m.id !== 'contrast' || required);
+      // The number that the line calls deviations is the sum of the numbers that the receipt calls deviations.
+      const inReceipt = [...text.matchAll(/^(\d+) deviations?[;. (]/gm)].reduce((sum, m) => sum + Number(m[1]), 0);
+      const inJson = counting.reduce((sum, m) => sum + m.deviations, 0);
+      expect(inReceipt, name).toBe(inJson);
+      const inLine = /^(\d+) deviations?/.exec(line);
+      if (inJson === 0) expect(line, name).toMatch(/^No deviation[;.]/);
+      else expect(Number(inLine?.[1]), name).toBe(inJson);
+      // Status 0 goes only with "No deviation" and with nothing "not measured" in a measure that counts.
+      if (status === 0) {
+        expect(line, name).toMatch(/^No deviation/);
+        expect(counting.reduce((sum, m) => sum + m.notMeasured, 0), name).toBe(0);
+      }
+      expect(line, name).toMatch(new RegExp(`Status ${String(status)}\\.`));
+      // Each count of contrast names its unit, in the line and in the receipt alike.
+      const texts = contrast.texts ?? { below: -1, unread: -1, unreadReadings: -1 };
+      const unit = (readings: number, of: number): string => `${String(readings)} ${readings === 1 ? 'reading' : 'readings'} of ${String(of)} ${of === 1 ? 'text' : 'texts'}`;
+      if (texts.unreadReadings > 0) {
+        expect(line, name).toContain(`the contrast of ${unit(texts.unreadReadings, texts.unread)} could not be read`);
+        expect(text, name).toContain(`${unit(texts.unreadReadings, texts.unread)} not measured`);
+      }
+      if (contrast.deviations > 0) {
+        expect(line, name).toContain(unit(contrast.deviations, texts.below));
+        expect(text, name).toContain(unit(contrast.deviations, texts.below));
+      }
+      expect(text, name).not.toMatch(/### Contrast[^\n]*\n\n\d+ (?:below|not measured)/);
+      // A measure with nothing to check says so and gives no count; a count stands under every other measure.
+      const floors = measure(receipt, 'floors');
+      const floorsHead = /### Floors[^\n]*\n\n([^\n]*)/.exec(text)?.[1] ?? '';
+      if (floors.nothingToCheck) expect(floorsHead, name).toMatch(/^Nothing to check\. /);
+      if (floors.nothingToCheck || floors.noneCheckedOf !== undefined) expect(floorsHead, name).not.toMatch(/^\d+ deviations?; \d+ not measured/);
+      expect(text, name).not.toContain('so nothing was checked here');
+    }
+    // Trial 001 and its Vision's own page: status 0, 27 readings of 3 texts unread, no Floor written.
+    expect(cases['trial 001'].status).toBe(0);
+    expect(cases['trial 001'].line).toContain('the contrast of 27 readings of 3 texts could not be read');
+    expect(cases['the Vision’s own page of trial 001'].receipt.measured.find((m) => m.id === 'floors')?.nothingToCheck).toBe(true);
+    // Trial 002: its Vision does not require contrast, so readings below the usual least are information, in the receipt and in the line.
+    // 25 deviations since the corners of drawn rectangles are compared (22 before; the rest of finding G-S08).
+    expect(cases['trial 002'].line).toMatch(/^25 deviations; 3 readings of 1 text below the usual contrast \(information: this Vision does not require it\)\. Status 1\./);
+    expect(cases['trial 002'].text).toContain('3 readings of 1 text below the usual least (information: not counted as deviations); 0 readings not measured.');
+    // Trial 003: a Vision of an edition that the program does not read. None of its Floor requirements is checked: the status is 1,
+    // the line and the receipt say "none of the 48", and neither presents the number 1 as a count of requirements (row R-U03).
+    const three = cases['trial 003'];
+    expect(three.status).toBe(1);
+    expect(three.line).toContain('none of the 48 Floor requirements of the Vision was checked');
+    expect(three.line).not.toMatch(/1 thing could not be measured/);
+    expect(three.text).toContain('Not checked: none of the 48 Floor requirements that the Vision writes.');
+    expect(three.text).not.toMatch(/### Floors[^\n]*\n\n0 deviations; 1 not measured/);
+    expect(measure(three.receipt, 'floors').notMeasured).toBe(1);
+    expect(three.text).toContain('### Contrast: measured, not required');
+    expect(three.text).not.toContain('required by Floor A1');
+    expect(three.text).toContain('The Floors of the Vision. The program checked none of them (see “Floors” above):');
+    expect(three.text).not.toContain('checked only a part of some requirements');
+  }, 240_000);
 
   it('counts the colors as not measured when a box recolors what lies under it, and leaves a plain blur alone (retest finding R-S06)', async () => {
     const cover = (style: string): string => once(reference, '</body>', `<div aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:99;${style}"></div></body>`);
@@ -704,7 +749,7 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
     const run = (dir: string, extra: string[] = []) => spawnSync(process.execPath, [cli, ...extra, join(folder, 'build.html'), dir, join(folder, 'out')], { encoding: 'utf8', env: process.env });
     const ok = run(folder);
-    expect(ok.stdout).toMatch(/^No deviation; the contrast of \d+ texts? could not be read \(this does not change the status\)\. Status 0\. Receipt: /);
+    expect(ok.stdout).toMatch(/^No deviation; the contrast of \d+ readings? of \d+ texts? could not be read \(this does not change the status\)\. Status 0\. Receipt: /);
     // A color name that holds a heading, an instruction, and invisible signs.
     const hostile = mkdtempSync(join(tmpdir(), 'fit-gate-hostile-'));
     for (const [name, text] of Object.entries(files)) writeFileSync(join(hostile, name), text);
