@@ -1751,3 +1751,10 @@ Commit 7 of `PLAN.md`: the field `vision` of `Receipt` and 2 lines of `receiptMa
 - forward: `receipt.json` gains 1 field and `RECEIPT.md` 1 line (2 after a repair round). The stored receipts are written again by the program in this commit. `plugin/commands/fit-repair.md` reads the receipt as text; nothing it reads is removed.
 - backward: finding G-S10 (the last receipt stays when a fourth round is refused): the refusal still comes before any file is touched; the receipt of the round before is read before it is removed.
 - lateral: commits 4 and 5 rewrote the stored receipts for other sentences; this commit rewrites them once more, on top.
+
+### E-175 · 2026-11-21T22:08:36Z · TRACE · orchestrator
+
+Commit 8 of `PLAN.md`: `lookMarkdown` and `nameShown` (new) in `look.ts` (finding R-S09).
+- forward: `LOOK.md` shows the typeface lines inside a fence; `plugin/commands/fit-look.md` tells the model to read the report as data; the tests that look for a line such as “Fraunces Variable” still find it.
+- backward: `fenceFor` of `receipt.ts` is reused (search for an existing implementation: `grep -n fenceFor plugin/fit/src`), no second fence function.
+- lateral: commit 4 added 1 line to the same function at its end.

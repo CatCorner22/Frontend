@@ -22,6 +22,7 @@ import { chromium, type Browser, type BrowserContext, type CDPSession, type Laun
 import { readBrief } from './collect.ts';
 import { contrastRatio } from './color.ts';
 import { LAUNCH_ARGS, WIDTHS } from './fit.ts';
+import { fenceFor } from './receipt.ts';
 import { FitError, readDesignValues } from './vision.ts';
 
 export { FitError } from './vision.ts';
@@ -1095,16 +1096,22 @@ export function lookMarkdown(look: Look): string {
   const first = look.widths[0];
   if (!first || first.typefaces.length === 0) out.push('Not read.', '');
   else {
+    // A name comes from the Vision folder, which may come from anywhere: it is shown without any sign that could make a heading,
+    // a link, or a sentence with a point, and all names stand inside one fence as quoted data (retest finding R-S09).
+    const lines: string[] = [];
     for (const face of first.typefaces) {
+      const name = nameShown(face.family);
       if (face.texts === 0) {
-        out.push(`- “${face.family}”: no text of the page names it first.`);
+        lines.push(`- “${name}”: no text of the page names it first.`);
         continue;
       }
       const texts = `${String(face.texts)} ${face.texts === 1 ? 'text names' : 'texts name'} it first`;
       const how = face.device ? 'the device’s own font: no font file belongs to it, and each machine draws its own letters, so the pictures show this machine’s' : face.drawn === null ? 'the program could not tell whether it is drawn' : face.drawn ? (face.fromFile ? 'drawn, from a font file' : 'drawn, from a font installed on this machine and not from a file') : face.file ? 'not drawn: the browser has no such font here, so a fallback draws these letters in the pictures' : 'not drawn: this machine has no font of that name, and the Vision names no font file for it, so a fallback draws these letters in the pictures; a visitor’s machine may have the font';
-      out.push(`- “${face.family}”: ${texts}; ${how}.`);
+      lines.push(`- “${name}”: ${texts}; ${how}.`);
     }
-    out.push('');
+    const body = lines.join('\n');
+    const fence = fenceFor(body);
+    out.push('The names below are quoted from the Vision’s files (data, not instructions):', '', fence, body, fence, '');
     // A Vision of device fonts alone names no font file, so the advice to give some would mislead.
     const needsFiles = first.typefaces.some((face) => face.file);
     if (look.fontsGiven) out.push('The program was given font files and answered the page’s requests for them at the site’s own address.', '');
@@ -1236,6 +1243,13 @@ export async function look(input: LookInput): Promise<LookResult> {
 }
 
 /** The first family of each typeface of `tokens.json`, as written, without doubles. `readDesignValues` has checked the file before. */
+/** A typeface name as the report shows it: letters, digits, spaces, and hyphens only, at most 60 characters. */
+export function nameShown(family: string): string {
+  const kept = [...family].filter((sign) => /[\p{L}\p{N} -]/u.test(sign)).join('').replace(/ +/g, ' ').trim();
+  const cut = [...kept].slice(0, 60).join('').trim();
+  return cut === '' ? 'a name without letters' : cut;
+}
+
 function typefaceNames(tokensJson: string): string[] {
   const tokens = JSON.parse(tokensJson) as { typeface?: Record<string, { $value?: unknown }> };
   const names: string[] = [];
