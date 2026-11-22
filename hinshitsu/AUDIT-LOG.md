@@ -2883,3 +2883,22 @@ The full new text of each changed CRITERION:
 - Commit under review: 1008f12 (the DELIVERABLE at cb41130, commit 21)
 - SUB-AGENT identifier: aa2218f1d7266655f — not openable by the USER
 - Report: `audits/WU-1-reaudit-records.md`
+
+### E-292 · 2026-11-22T13:05:10Z · DECISION · orchestrator
+
+- ID: D-9
+
+What the 2 LENS memos of WU-1 change (`memos/lens-recipient-experience-WU-1.md`, `memos/lens-structural-integrity-WU-1.md`; each answers "yes" for the plan and for a CRITERION, "no" for a later WORK UNIT). Each point, and what was done:
+
+| Point | LENS | Result | What changed |
+|---|---|---|---|
+| Commit 21 was not at the head when the memos were written, and it changes more than the test (`vision.ts`, 2 programs) | both | ACCEPTED | `PLAN.md`, part "The fix round", names every file group of commit 21; commit 21 is at the head since cb41130 |
+| The change in `vision.ts` repairs row G-U15, and the row was not updated | structural integrity | ACCEPTED | row G-U15 of `redteam/FINDINGS.md`, in commit 21 |
+| F-123 repaired in part: section 66.10 still named 3 commands in 1 sentence | structural integrity | ACCEPTED | `docs/reference/guarantees.md`, section 66.10, in commit 21 |
+| No closing entry for F-121, F-122, F-124, F-125 | structural integrity | ACCEPTED | the RESOLUTION entries follow the re-audit by a new SUB-AGENT (LAUNCH E-291), as the rule for a BLOCKER asks |
+| Question 1: `inherit` fails in 2 of 3 ways of writing a rule with it; either answer needs 1 commit in `packages/core` | recipient experience | ACCEPTED | the card gave the USER this evidence; the USER chose a real value (E-288, answer 1); built in commit 21 (decision D83 of the project) |
+| Question 1: fewer edges move if the value stays | structural integrity | REJECTED | the USER chose the real value with the cost stated on the card (new fingerprints); the moved edges were followed in commit 21: the 4 stored Vision folders, their receipts, the freshness test, the unit test's stored texts, `docs/reference/directions.md` |
+| Question 2: the program's rule serves the owner; C4's sentence takes the exception | both | ACCEPTED | the USER chose it (E-288, answer 2); C4 in E-289 |
+| Question 2: the guide's act for status 0 does not lead the owner to the unread texts | recipient experience | ACCEPTED | `plugin/README.md`, the row for status 0, in commit 21 |
+| S8 repeats the hand check of C3 on a Vision downloaded after commit 21 | recipient experience | ACCEPTED | the scope of S8 says so |
+| F-147 and F-150 still stand in what the owner reads | recipient experience | ACCEPTED as open | the USER's answer 4 in E-288: the FINDINGS of class STYLE wait; the delivery report lists both |

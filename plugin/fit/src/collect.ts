@@ -22,8 +22,6 @@ export interface TextRead {
   unmeasured: string;
   sizePx: number;
   weight: number;
-  /** The place of the text's element among the elements that the program walks: two texts with the same words are two texts. */
-  n?: number;
   /** The element's own words, without the words of an element inside it, at most 400 characters. */
   own?: string;
   /**
@@ -228,7 +226,24 @@ export function collect(): Collected {
     if (shape instanceof SVGRectElement && (ss.fill !== 'none' || ss.stroke !== 'none')) {
       const corners = ss as unknown as { rx?: string; ry?: string };
       const matrix = placed instanceof SVGGraphicsElement ? placed.getScreenCTM() : null;
-      const scale = [matrix ? Math.hypot(matrix.a, matrix.b) : 1, matrix ? Math.hypot(matrix.c, matrix.d) : 1];
+      let scale = [matrix ? Math.hypot(matrix.a, matrix.b) : 1, matrix ? Math.hypot(matrix.c, matrix.d) : 1];
+      // A shape that a `use` draws from a `symbol` (or a picture) with a `viewBox` of its own takes the scale of that reference:
+      // the size at which the `use` is drawn against the size that the `viewBox` names (an icon sprite).
+      const frame = placed !== shape ? shape.closest('symbol, svg') : null;
+      const view = frame instanceof SVGSymbolElement || frame instanceof SVGSVGElement ? frame.viewBox.baseVal : null;
+      if (view && view.width > 0 && view.height > 0) {
+        const box = placed.getBoundingClientRect();
+        const fit = Math.min(box.width / view.width, box.height / view.height);
+        if (fit > 0) scale = [fit, fit];
+      } else {
+        // A transform of a box around the picture changes the screen size of everything in it, of an HTML box too, and a box's corner
+        // is compared as its style writes it: only the picture's own scale counts here.
+        let outer: SVGSVGElement | null = placed instanceof SVGSVGElement ? placed : (placed as SVGElement).ownerSVGElement;
+        while (outer?.ownerSVGElement) outer = outer.ownerSVGElement;
+        const drawn = outer ? outer.getBoundingClientRect().width : 0;
+        const laid = outer ? outer.clientWidth : 0;
+        if (drawn > 0 && laid > 0 && Math.abs(drawn / laid - 1) > 0.001) scale = scale.map((part) => part / (drawn / laid));
+      }
       const seen = new Set<string>();
       [corners.rx ?? '', corners.ry ?? ''].forEach((part, at) => {
         if (part === '' || part === 'auto' || part === '0px' || part === '0') return;
@@ -299,9 +314,7 @@ export function collect(): Collected {
     families.push({ family: family.trim(), where: label });
   };
 
-  let ordinal = 0;
   for (const el of [...(document.body ? [document.body] : []), ...every('body *'), ...roots.slice(1).flatMap((root) => [...root.querySelectorAll('*')])]) {
-    const n = ordinal++;
     if (skip.has(el.tagName) || el.getClientRects().length === 0) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility !== 'visible') continue;
@@ -355,7 +368,7 @@ export function collect(): Collected {
           const family = (ss.fontFamily.match(/^\s*(?:"([^"]*)"|'([^']*)'|([^,]*))/) ?? []).slice(1).find((part) => part !== undefined) ?? '';
           const words = where(shape);
           families.push({ family: family.trim(), where: words });
-          texts.push({ n, where: words, foreground: rgbOf(ss.color), layers: null, unmeasured: 'a picture draws the text by reference', sizePx: Number.parseFloat(ss.fontSize), weight: Number.parseInt(ss.fontWeight, 10) || 400 });
+          texts.push({ where: words, foreground: rgbOf(ss.color), layers: null, unmeasured: 'a picture draws the text by reference', sizePx: Number.parseFloat(ss.fontSize), weight: Number.parseInt(ss.fontWeight, 10) || 400 });
         }
       }
       continue;
@@ -388,7 +401,7 @@ export function collect(): Collected {
           if (a > 0) layers.unshift(behind);
           if (a === 1) break;
         }
-        texts.push({ n, where: label, foreground: paint === '' ? rgbOf(cs.color) : paint, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400 });
+        texts.push({ where: label, foreground: paint === '' ? rgbOf(cs.color) : paint, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400 });
       }
       continue;
     }
@@ -459,7 +472,7 @@ export function collect(): Collected {
       }
     }
     const own = collapse([...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent ?? '').join(' ')).slice(0, 400);
-    texts.push({ n, where: label, foreground: textColor, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400, ...(own !== '' ? { own } : {}), ...(nominal !== undefined ? { nominal } : {}) });
+    texts.push({ where: label, foreground: textColor, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400, ...(own !== '' ? { own } : {}), ...(nominal !== undefined ? { nominal } : {}) });
   }
 
   // The text that a person can read in this window (finding J-7). innerText counts text at size 0, at opacity 0, and outside the window.
@@ -498,8 +511,19 @@ export function collect(): Collected {
     let right = r.right;
     let top = r.top;
     let bottom = r.bottom;
+    // A box clips only what it contains for layout. A text placed with `absolute` is contained by the nearest positioned box (or a
+    // box with a transform), and a text placed with `fixed` by the window (or a box with a transform): a box between the text and
+    // that box does not clip it, whatever its overflow (second re-audit of the repair run, 2026-11-22).
+    let skipping: '' | 'absolute' | 'fixed' = '';
     for (let up: Element | null = host; up && up !== document.documentElement; up = up.parentElement) {
       const style = getComputedStyle(up);
+      const holds = style.transform !== 'none' || style.filter !== 'none' || style.perspective !== 'none' || style.contain.includes('paint') || style.contain.includes('layout') || style.contain === 'strict' || style.contain === 'content';
+      if (skipping === 'absolute' && (style.position !== 'static' || holds)) skipping = '';
+      if (skipping === 'fixed' && holds) skipping = '';
+      const clips = skipping === '';
+      if (style.position === 'absolute') skipping = 'absolute';
+      if (style.position === 'fixed') skipping = 'fixed';
+      if (!clips) continue;
       if (style.overflowX === 'visible' && style.overflowY === 'visible') continue;
       const box = up.getBoundingClientRect();
       // In a direction in which the box scrolls, the visitor can bring the text to any place inside the box: from here upward the
@@ -632,7 +656,13 @@ export function collect(): Collected {
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
       const value = node.textContent ?? '';
       const host = node.parentElement;
-      if (value.trim() === '' || host === null || host.closest('script, style, template, noscript, title') !== null) continue;
+      if (host === null || host.closest('script, style, template, noscript, title') !== null) continue;
+      // White space between two inline elements is a space between their words: a headline whose words each stand in an element of
+      // their own keeps its spaces (second re-audit of the repair run, 2026-11-22).
+      if (value.trim() === '') {
+        if (value !== '') for (const lines of [shown, clipped]) lines.get(blockOf(host))?.push(' ');
+        continue;
+      }
       const hs = getComputedStyle(host);
       const opacity = seenOpacity(host);
       if (hs.visibility !== 'visible' || Number.parseFloat(hs.fontSize) < 6 || opacity < 0.1) continue;

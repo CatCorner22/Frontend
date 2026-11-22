@@ -42,6 +42,8 @@ graph LR
 | plugin/commands and plugin/README.md | npm run check and npm run e2e | the words that the guide test reads | a change of wording in the guide or in a command that the test "has a guide that agrees with the programs ..." asserts |
 | receipt.json of an earlier check | plugin/fit (Fit check) | `repairRound` and the Vision files' SHA-256 | the field names change, or the file is not the program's own (it is read as data) |
 | receipt.json of an earlier check | plugin/commands and plugin/README.md | `repairRound` | `fit-repair.md` step 1 names a field that the receipt does not hold |
+| packages/core | the Vision files of trials 001 to 003 (`plugin/fit/trials/<id>/files/`) and their receipts | what `writeVision` writes for the trial project | `trial.e2e.ts` fails after a change of the writer or of a design value (repair: write the files and the receipts again; the record of each trial says so) |
+| packages/core | `docs/reference/directions.md` | what `directionsBook` writes | the unit test of the book fails after a change of the Catalog or of a design value (repair: `npm run directions`) |
 | packages/core | npm run check and npm run e2e | code under test | a test imports a name that the core no longer exports |
 | apps/studio | npm run check and npm run e2e | code under test | a browser test names a button or a sentence that the screen no longer shows |
 | plugin/fit (Fit check) | npm run check and npm run e2e | code under test | a stored trial receipt differs from what the program writes today |

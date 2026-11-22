@@ -36,7 +36,7 @@ What can go wrong: if Node is older, a program stops with a syntax error at its 
 
 ## How to load the plugin
 
-Start Claude Code with `claude --plugin-dir <path to this folder>`. Claude Code then shows four commands. It names a plugin's command with the plugin's name in front: `/frontend-focus-fitter:fit-build`, `/frontend-focus-fitter:fit-check`, `/frontend-focus-fitter:fit-repair`, and `/frontend-focus-fitter:fit-look`. (Nobody has yet run these four commands in a Claude Code session. The folder passed Claude Code's own check of a plugin's form, `claude plugin validate`: on 2026-11-17 with one remark, that it has no install line for a marketplace; on 2026-11-22, under a newer version of that check, with a second remark, that the plugin has no icon.)
+Start Claude Code with `claude --plugin-dir <path to this folder>`. Claude Code then shows four commands. It names a plugin's command with the plugin's name in front: `/frontend-focus-fitter:fit-build`, `/frontend-focus-fitter:fit-check`, `/frontend-focus-fitter:fit-repair`, and `/frontend-focus-fitter:fit-look`. (Nobody has yet run these four commands in a Claude Code session. The folder passes Claude Code's own check of a plugin's form, `claude plugin validate`, with warnings and no error. The warnings change with the version of that check, so this guide gives no count: run the command to read them. On 2026-11-22 they concerned things that matter only where a plugin is offered to others through a plugin directory: an author, a licence, an icon, and an install line. You load this plugin from its folder, so none of them stops you.)
 
 Claude Code asks you each time before it runs a program. That is intended: the commands pre-approve reading and writing files, not running programs.
 

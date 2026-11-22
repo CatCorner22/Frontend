@@ -1,4 +1,4 @@
-// The command line of the look:  node plugin/fit/src/look-cli.ts [--run-scripts] [--fonts <folder>] <build.html> <folder of the Vision's files> <result folder>
+// The command line of the look:  node plugin/fit/src/look-cli.ts [--run-scripts] [--fonts <folder>] <build.html> <Vision folder> <result folder>
 // It writes the pictures, `LOOK.md`, and `look.json` into the folder `look` inside the result folder, beside the receipt of the Fit check.
 // Status 0: every window width was pictured. Status 1: at least one was not. Status 2: the program refused, and it wrote nothing.
 // The look judges nothing and counts no deviation; the Fit check (cli.ts) does that.

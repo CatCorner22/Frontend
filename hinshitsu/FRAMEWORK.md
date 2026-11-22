@@ -6,7 +6,7 @@ Form required by section 7 (`skills/hinshitsu-record/SKILL.md`). A superseded li
 
 No `CRITERIA` entry exists yet. It is written at S4 as `PROPOSED` and controls from then on, with each later `CRITERIA-CHANGE` entry. (superseded 2026-11-21 → E-56)
 
-The CRITERIA are in `AUDIT-LOG.md` E-68 (`FROZEN`, the USER's approval quoted there), with C1, C3, C4, C5, C6 and C7 as changed last by E-139 (`CRITERIA-CHANGE`, the USER's approval quoted there; E-108 is the change before it); E-14 and E-56 are the earlier `PROPOSED` texts.
+The CRITERIA are in `AUDIT-LOG.md` E-68 (`FROZEN`, the USER's approval quoted there), with C1, C3 and C6 as changed last by E-139, and C4, C5, C7 and C8 as changed last by E-289 (each a `CRITERIA-CHANGE` with the USER's approval quoted there; E-108 is the change before E-139); E-14 and E-56 are the earlier `PROPOSED` texts.
 
 ## 2. Architecture decisions
 
@@ -24,7 +24,7 @@ The CRITERIA are in `AUDIT-LOG.md` E-68 (`FROZEN`, the USER's approval quoted th
 | D-8 | How the 10 findings of the last check of the wording are handled: F-54 by commit 19; F-62 in `PLAN.md`; the rest on 1 card after the audit round | E-164 |
 | D-7 | This run publishes no new version of the private page | E-71 |
 
-Decisions of the project itself are in `DECISIONS.md` at the repository root (D1 to D82). This run cites them by that file and number and does not copy them.
+Decisions of the project itself are in `DECISIONS.md` at the repository root (D1 to D83). This run cites them by that file and number and does not copy them.
 
 ## 3. Naming conventions
 
@@ -59,7 +59,7 @@ Decisions of the project itself are in `DECISIONS.md` at the repository root (D1
 |---|---|---|---|---|
 | (none declared yet; declared at S6, before S7) | | | | | (superseded 2026-11-21 → WU-1)
 | WU-1 | commits 1 to 18 of `PLAN.md` | declared (E-70); not started | — | — | (superseded 2026-11-22 → the next row)
-| WU-1 | commits 1 to 19 of `PLAN.md`, and the commits of the fix round (20 onward) | built; audit round reported on 2026-11-22 (88 findings, E-194 to E-281); fix round running | after the fix round | `audits/WU-1-*-E-186.md` to `E-193.md` |
+| WU-1 | commits 1 to 19 of `PLAN.md`, and the commits of the fix round (20 onward) | built; audit round reported on 2026-11-22 (88 findings, E-194 to E-281); fix round running | `memos/lens-recipient-experience-WU-1.md`, `memos/lens-structural-integrity-WU-1.md` (reconciled in D-9, E-292) | `audits/WU-1-*-E-186.md` to `E-193.md`; the re-audits `audits/WU-1-reaudit-*.md` |
 
 ## 7. Existing implementations checked
 

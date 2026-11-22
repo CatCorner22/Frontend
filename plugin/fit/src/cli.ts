@@ -1,4 +1,4 @@
-// The command line of the Fit check:  node plugin/fit/src/cli.ts <build.html> <folder of the Vision's files> <result folder>
+// The command line of the Fit check:  node plugin/fit/src/cli.ts <build.html> <Vision folder> <result folder>
 // Status 0: no deviation in the measures that count. Status 1: at least one deviation, or something that could not be measured in them.
 // Status 2: the program refused, and it wrote no receipt.
 import { closeSync, constants, lstatSync, mkdirSync, openSync, readFileSync, rmSync, statSync, writeSync } from 'node:fs';

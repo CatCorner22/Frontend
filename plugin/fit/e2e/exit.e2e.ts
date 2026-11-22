@@ -254,7 +254,7 @@ describe('the plugin’s files (SPEC.md section 2.23)', () => {
     expect(existsSync(join(process.cwd(), 'plugin/fit/src/cli.ts'))).toBe(true);
   });
 
-  it('has a guide that agrees with the programs: the 4 commands, each option, each status, the 2 cases of status 1, the measures that count, and 1 name for the Vision folder (finding R-U05; criterion C7 of the repair run of 2026-11-21)', () => {
+  it('has a guide that agrees with the programs: the 4 commands, each option, each status, the 3 cases of status 1, the measures that count, and 1 name for the Vision folder (finding R-U05; criterion C7 of the repair run of 2026-11-21)', () => {
     const guide = read('README.md');
     // The commands: the guide names each file of the folder `commands`, and no other.
     const commands = readdirSync(join(process.cwd(), 'plugin/commands')).filter((name) => name.endsWith('.md')).map((name) => name.replace(/\.md$/, '')).sort();
@@ -936,14 +936,14 @@ describe('the audit round of the repair run (2026-11-22): what the seven reviewe
       ['a condition of more than 200 characters', inHead(`<style>@media ${Array.from({ length: 12 }, () => '(min-width: 1px)').join(' and ')} and (prefers-color-scheme: dark) ${block}</style>`), /prefers-color-scheme: dark/],
       ['401 width conditions before the setting', inHead(`<style>${Array.from({ length: 401 }, (_, n) => `@media (min-width: ${String(n + 1)}px){.zz${String(n)}{top:0}}`).join('')}${dark}</style>`), /prefers-color-scheme: dark/],
       ['20,001 plain rules before the setting', inHead(`<style>${Array.from({ length: 20001 }, (_, n) => `.zz${String(n)}{top:0}`).join('')}${dark}</style>`), /prefers-color-scheme: dark/],
-      ['more than 200,000 rules', inHead(`<style>${Array.from({ length: 200001 }, (_, n) => `.z${String(n)}{top:0}`).join('')}${dark}</style>`), /more style rules or conditions than the program reads/],
+      ['more than 200,000 rules', inHead(`<style>${Array.from({ length: 200001 }, (_, n) => `.z${String(n)}{top:0}`).join('')}${dark}</style>`), /The page holds more style rules, media conditions or shadow roots than the program reads/],
       ['an imported style sheet', once(inHead(`<style>@import url("data:text/css,${encodeURIComponent(dark)}");</style>`), "style-src 'unsafe-inline'", "style-src 'unsafe-inline' data:"), /prefers-color-scheme: dark/],
     ];
     for (const [name, html, named] of pages) {
       const { receipt, status } = await fit({ files, html, browser });
       expect(status, name).toBe(1);
       expect(receipt.loadFailures.map((f) => f.reason).join('\n'), name).toMatch(named);
-      expect(receipt.loadFailures.map((f) => f.reason).join('\n'), name).toMatch(/What the page shows there was not measured/);
+      expect(receipt.loadFailures.map((f) => f.reason).join('\n'), name).toMatch(/What the page shows (?:there|under such a setting) was not measured/);
     }
     const everyScreen = await fit({ files, html: inHead('<style>@media not print { .zz{top:0} }</style>'), browser });
     expect(everyScreen.status).toBe(0);
@@ -1081,4 +1081,28 @@ describe('the audit round of the repair run (2026-11-22): what the seven reviewe
     expect(closed.markdown).not.toMatch(/readings? of the page failed/);
     expect(closed.markdown).toMatch(/, and 1 cause left the page, or a part of it, unread/);
   }, 240_000);
+
+  it('second re-audit: a box that does not contain a placed headline does not cut it away; a headline whose words stand in elements of their own is found; an icon drawn from a symbol and a picture inside a scaled box are compared at the picture’s own scale; a script that adds an element between two readings does not double the count of texts', async () => {
+    // The scrolling box lies between the headline and the box that contains it for layout: the browser does not clip the headline by it.
+    const placed = once(reference, h1, `<div style="position:relative;height:260px"><div style="overflow-x:auto;margin-top:200px;height:40px">${h1.replace('<h1>', '<h1 style="position:absolute;top:0;left:0">')}</div></div>`);
+    expect(await headlineMissing(placed)).toBe(false);
+    const words = h1.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().split(' ');
+    expect(await headlineMissing(once(reference, h1, `<h1>${words.map((word) => `<span>${word}</span>`).join(' ')}</h1>`))).toBe(false);
+    // An icon sprite: the shape is 6 wide in its own units and is drawn 24 wide, so its corner of 2 is 8 pixels on the screen.
+    const sprite = (view: string, rx: string, size: string): string => inBody(`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ic" viewBox="${view}"><rect width="${view.split(' ')[2] ?? ''}" height="${view.split(' ')[3] ?? ''}" rx="${rx}" fill="#ffffff"/></symbol></svg><svg width="${size}" height="${size}" role="img" aria-label="Icon"><use href="#ic" width="${size}" height="${size}"/></svg>`);
+    const big = await fit({ files, html: sprite('0 0 20 20', '8', '200'), browser });
+    expect(measure(big.receipt, 'radii').items.join('\n')).toMatch(/radius 80px/);
+    const small = await fit({ files, html: sprite('0 0 6 6', '2', '24'), browser });
+    expect(measure(small.receipt, 'radii').items.join('\n')).toMatch(/radius 8px/);
+    expect(measure(small.receipt, 'radii').items.join('\n')).not.toMatch(/radius 2px/);
+    // A transform on a box around the picture is no scale of the picture: the corner is compared as the picture writes it.
+    const turned = await fit({ files, html: inBody('<div style="transform:scale(1.25);transform-origin:0 0"><svg width="100" height="40" role="img" aria-label="Bar"><rect width="100" height="40" rx="37" fill="#ffffff"/></svg></div>'), browser });
+    expect(measure(turned.receipt, 'radii').items.join('\n')).toMatch(/radius 37px/);
+    // With the page's scripts on, a script adds a paragraph at the top between two readings: the unread texts are counted once each.
+    const policy = /<meta http-equiv="Content-Security-Policy"[^>]*>/i;
+    const still = await fit({ files, html: once(reference, policy, ''), browser, runScripts: true });
+    const moving = await fit({ files, html: once(inBody('<script>setTimeout(function(){var d=document.createElement("p");d.textContent="We are closed on Friday.";document.body.insertBefore(d,document.body.firstChild);},900);</script>'), policy, ''), browser, runScripts: true });
+    expect(measure(still.receipt, 'contrast').texts?.unread).toBeGreaterThan(0);
+    expect(measure(moving.receipt, 'contrast').texts?.unread).toBe(measure(still.receipt, 'contrast').texts?.unread);
+  }, 600_000);
 });

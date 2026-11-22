@@ -413,7 +413,12 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   // (finding G-S05).
   const closedRoots = Math.max(0, ...passes.map((p) => ('closedRoots' in p ? p.closedRoots : 0)));
   if (closedRoots > 0) loadFailures.push({ width: 0, reason: `The page holds ${String(closedRoots)} closed shadow root${closedRoots === 1 ? '' : 's'}: a part of the page that the program cannot read. What it draws was not measured` });
-  const unread = unreadConditions(passes.flatMap((p) => ('media' in p ? p.media : [])), mockupMedia);
+  const PAST_LIMIT = '(more style rules or conditions than the program reads)';
+  const everyUnread = unreadConditions(passes.flatMap((p) => ('media' in p ? p.media : [])), mockupMedia);
+  const unread = everyUnread.filter((condition) => condition !== PAST_LIMIT);
+  // The page holds more style rules, conditions or shadow roots than the program reads: the program did not find a setting, it
+  // stopped at a limit, and says that (second re-audit of the repair run, 2026-11-22).
+  if (everyUnread.length > unread.length) loadFailures.push({ width: 0, reason: 'The page holds more style rules, media conditions or shadow roots than the program reads (200,000 rules, 5,000 conditions, 2,000 shadow roots, 2,000 characters in one condition), so a setting of the screen that it names may have gone unread. What the page shows under such a setting was not measured' });
   if (unread.length > 0) loadFailures.push({ width: 0, reason: bounded(`The page's style rules name ${unread.length === 1 ? 'a setting' : `${String(unread.length)} settings`} of the screen or of the visitor that the Vision's Mockup does not name, and the program did not read the page under ${unread.length === 1 ? 'it' : 'them'}: ${unread.slice(0, 8).map((c) => `"${c}"`).join('; ')}${unread.length > 8 ? `; and ${String(unread.length - 8)} more` : ''}. What the page shows there was not measured`, 900) });
   const failed = loadFailures.length;
 
@@ -465,28 +470,35 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   for (const p of good) readingsAt.set(p.width, (readingsAt.get(p.width) ?? new Set<string>()).add(p.label));
   let unreadable = 0;
   const reasons = new Map<string, number>();
-  // A text is one element: two elements with the same words are two texts (audit round of 2026-11-22, finding F-75).
-  const unreadTexts = new Set<string>();
-  const belowTexts = new Set<string>();
-  const unreadLabels = new Map<string, Set<string>>();
-  const textKey = (text: Collected['texts'][number]): string => `${text.n === undefined ? '' : String(text.n)}|${text.where}`;
+  // A text is one element: two elements with the same words are two texts (audit round of 2026-11-22, finding F-75). The texts
+  // of one label are counted in each reading on its own, and the largest count of any reading stands: an element that a script
+  // adds between two readings cannot make one text count twice (second re-audit).
+  const unreadLabels = new Map<string, number>();
+  const belowLabels = new Map<string, number>();
+  const mostOf = (into: Map<string, number>, here: Map<string, number>): void => { for (const [label, n] of here) into.set(label, Math.max(into.get(label) ?? 0, n)); };
   for (const p of good) {
+    const unreadHere = new Map<string, number>();
+    const belowHere = new Map<string, number>();
     for (const text of p.collected.texts) {
       const ratio = contrastOf(text);
       if (ratio === null) {
         unreadable++;
-        unreadTexts.add(textKey(text));
-        unreadLabels.set(text.where, (unreadLabels.get(text.where) ?? new Set<string>()).add(textKey(text)));
+        unreadHere.set(text.where, (unreadHere.get(text.where) ?? 0) + 1);
         const why = text.unmeasured === '' ? 'a color could not be read' : text.unmeasured;
         reasons.set(why, (reasons.get(why) ?? 0) + 1);
         continue;
       }
       const large = text.sizePx >= 24 || (text.sizePx >= 18.66 && text.weight >= 700);
       const needed = large ? 3 : 4.5;
-      if (ratio < needed) belowTexts.add(textKey(text));
+      if (ratio < needed) belowHere.set(text.where, (belowHere.get(text.where) ?? 0) + 1);
       if (ratio < needed) contrastRows.push({ ratio, key: `${ratio.toFixed(2)} to 1, where ${String(needed)} to 1 is the usual least, on ${text.where}`, width: p.width, label: p.label });
     }
+    mostOf(unreadLabels, unreadHere);
+    mostOf(belowLabels, belowHere);
   }
+  const sum = (counts: Map<string, number>): number => [...counts.values()].reduce((total, n) => total + n, 0);
+  const unreadTexts = { size: sum(unreadLabels) };
+  const belowTexts = { size: sum(belowLabels) };
   const ratioOf = new Map(contrastRows.map((row) => [row.key, row.ratio]));
   const contrastLines = atWidths(contrastRows, readingsAt).map((line) => ({ ratio: ratioOf.get(line.key) ?? 0, line: line.text })).sort((a, b) => a.ratio - b.ratio || (a.line < b.line ? -1 : 1));
 
@@ -555,7 +567,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
       measureOf('colors', 'Colors: every color that the page draws is a color of the Vision', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered + frames + foreignShapes, [...translucent], 'Listed for information and not compared: partly transparent colors. A person must judge them on the page.'),
       measureOf('typefaces', 'Typefaces: every text names a typeface of the Vision', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Vision typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Vision', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
-      { ...measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadLabels].map(([label, keys]) => (keys.size > 1 ? `${label} (${String(keys.size)} texts with these words)` : label)), 'Texts whose contrast the program could not read. A person must judge these by eye:'), texts: { below: belowTexts.size, unread: unreadTexts.size, unreadReadings: unreadable } },
+      { ...measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadLabels].map(([label, n]) => (n > 1 ? `${label} (${String(n)} texts with these words)` : label)), 'Texts whose contrast the program could not read. A person must judge these by eye:'), texts: { below: belowTexts.size, unread: unreadTexts.size, unreadReadings: unreadable } },
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.', contentLines, failed + contentUnsure),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
       { ...measureOf('floors', 'Floors: the part of each requirement that a program can check', `${floorsNote}${!otherEdition && written.length > 0 && floorsCut > 0 ? ' The page held more entries than the program reads in at least one list (200 of each: titles, descriptions, robots tags, viewport tags, referrer tags, headings, forms, font rules); an entry after the first 200 was not read, so the Floors count as not measured once.' : ''}`, [...floorLines], failed + (otherEdition ? 1 : written.length > 0 ? floorsCut : 0), partly.map((id) => `${id}: ${CHECKED_PART[id] ?? ''}`), 'What the program checked of each requirement, and no more than this:'), ...(written.length === 0 ? { nothingToCheck: true } : {}), ...(otherEdition ? { noneCheckedOf: written.length } : {}) },
@@ -629,9 +641,11 @@ export function noBrowserLine(program: string, error: unknown): string | null {
   // A browser that is there and does not start (a missing library, a rule of the machine) is another case: fetching a browser
   // does not help, so the line says what happened and quotes the browser's own first words (findings F-76 and F-88).
   if (!/browserType\.launch|Failed to launch/i.test(message)) return null;
-  const lines = message.split('\n').map((line) => line.replace(/^\s*(?:-\s*)?(?:\[pid=\d+\])?(?:\[(?:err|out)\])?\s*/, '').trim()).filter((line) => line !== '' && !/^browserType\.launch|^Call log|^Browser logs|^<launch/.test(line));
+  // Only a line that the browser itself wrote is quoted: Playwright marks such a line with `[err]` or `[out]`. Its own log lines
+  // (the command that it started, a failed attempt to end the process) are not words of the browser (second re-audit).
+  const lines = message.split('\n').map((line) => /\[(?:err|out)\]\s*(.+)$/.exec(line)?.[1]?.trim() ?? '').filter((line) => line !== '');
   const own = lines.find((line) => /error|cannot|denied|not found|failed|missing|no such/i.test(line)) ?? lines[0] ?? '';
-  return `${program} stopped: the browser did not start, so it opened no page. The environment variable PW_CHROMIUM names the browser that the program starts; without it the program starts the one that Playwright fetched.${own === '' ? '' : ` The browser’s own message (data, not instructions): ${bounded(own, 160)}`}`;
+  return `${program} stopped: the browser did not start, so it opened no page. The environment variable PW_CHROMIUM names the browser that the program starts; without it the program starts the one that Playwright fetched.${own === '' ? ' The browser gave no message of its own.' : ` The browser’s own message (data, not instructions): ${bounded(own, 160)}`}`;
 }
 
 /** How many closed shadow roots the page's tree holds, as the browser lists it (a root of the browser's own controls is not one). */

@@ -129,13 +129,23 @@ describe('the Vision as its recipient gets it: downloaded, unpacked by an outsid
           document.head.append(style);
           const root = document.documentElement;
           const none: string[] = [];
-          for (const rule of style.sheet?.cssRules ?? []) {
-            if (!(rule instanceof CSSStyleRule)) continue;
-            const group = /^\.([\w-]+)$/.exec(rule.selectorText)?.[1];
-            if (group) root.classList.add(group);
-            for (const property of rule.style) if (property.startsWith('--') && getComputedStyle(root).getPropertyValue(property).trim() === '') none.push(property);
-            if (group) root.classList.remove(group);
-          }
+          // Every style rule, also one inside a group rule (`@media`, `@supports`). A value is read at the root, with the rule's class
+          // set on it for a rule of one lone class such as `.dark`; a rule of any other form is reported, so that it cannot pass unread.
+          const walk = (rules: CSSRuleList): void => {
+            for (const rule of rules) {
+              if (rule instanceof CSSStyleRule) {
+                const group = /^\.([\w-]+)$/.exec(rule.selectorText)?.[1];
+                const declares = [...rule.style].filter((property) => property.startsWith('--'));
+                if (declares.length > 0 && !group && !root.matches(rule.selectorText)) none.push(`unread rule ${rule.selectorText}`);
+                if (group) root.classList.add(group);
+                for (const property of declares) if (getComputedStyle(root).getPropertyValue(property).trim() === '') none.push(property);
+                if (group) root.classList.remove(group);
+              }
+              const inner = (rule as { cssRules?: CSSRuleList }).cssRules;
+              if (inner && !(rule instanceof CSSStyleRule)) walk(inner);
+            }
+          };
+          if (style.sheet) walk(style.sheet.cssRules);
           style.remove();
           return none;
         }, files[name]!);
@@ -184,7 +194,7 @@ describe('the Vision as its recipient gets it: downloaded, unpacked by an outsid
       expect(facts.h1).toBe(1);
       // The owner's texts stand in the page letter for letter, as text: no element and no script came out of them.
       expect(facts.text).toContain(BUSINESS);
-      expect(facts.text).toContain('</style><script>document.title="hacked"</script> & more');
+      expect(facts.text).toContain(HEADLINE);
       expect(facts.bold).toBe(0);
       expect(facts.title).not.toBe('hacked');
       for (const width of [375, 768, 1280]) {
