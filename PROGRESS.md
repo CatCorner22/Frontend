@@ -106,6 +106,12 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 15: a missing browser gets one line that says what to do (criterion C7 of the run)
+- Feature worked on (ID): none in the list. A point of the plan's reviewers: with no browser, the Fit check printed the browser library's own message ("browserType.launch: Failed to launch chromium because executable doesn't exist at ..."), which names no next act.
+- Now: the Fit check and the look each say "... stopped: it found no browser to open the page. Fetch one with "npx playwright install chromium" in the plugin's folder, or set the environment variable PW_CHROMIUM to the path of a Chromium browser on this machine." The look's refusal line is also made one visible line of at most 400 characters, as the Fit check's already was.
+- Test (written first; it failed with the library's message): "says, where no browser is found, one line that names the variable PW_CHROMIUM ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- Evidence: `hinshitsu/evidence/commit-15-checks.txt`.
+
 ### 2026-11-21: repair run, commit 14: the guide agrees with the programs (finding R-U05; criterion C7 of the run)
 - Feature worked on (ID): none in the list. Finding R-U05 (grade major): the guide did not know the fourth command, the look, or `LOOK.md` in full; and points of the plan's reviewers: the guide never said to unpack the archive, gave no advice for status 1 with no deviation, and used "the program" for 2 programs.
 - Now: `plugin/README.md` is written again. New in it: a table of words; "unpack the archive first" and the 7 file names; the Fit check and the look each with a run line, options and statuses; the 2 cases of status 1; the list of the measures that count; the sentence that the repair command can write to the Vision folder and how a change shows. `plugin/commands/fit-check.md` and `fit-repair.md` state the 2 cases of status 1; `fit-repair` starts no repair round where nothing deviates.

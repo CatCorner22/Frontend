@@ -600,6 +600,16 @@ export async function fit(input: FitInput): Promise<FitResult> {
   }
 }
 
+/**
+ * The one line for a machine on which no browser starts: it names what the owner does next (criterion C7 of the repair run of
+ * 2026-11-21). Playwright's own message for this case holds a path and a hint for another setup; the owner needs the variable.
+ */
+export function noBrowserLine(program: string, error: unknown): string | null {
+  const message = error instanceof Error ? error.message : String(error);
+  if (!/browserType\.launch|Executable doesn't exist|Failed to launch/i.test(message)) return null;
+  return `${program} stopped: it found no browser to open the page. Fetch one with “npx playwright install chromium” in the plugin’s folder, or set the environment variable PW_CHROMIUM to the path of a Chromium browser on this machine.`;
+}
+
 /** How many closed shadow roots the page's tree holds, as the browser lists it (a root of the browser's own controls is not one). */
 function countClosedRoots(node: { shadowRoots?: unknown[]; children?: unknown[]; contentDocument?: unknown; templateContent?: unknown; shadowRootType?: string }): number {
   let found = 0;

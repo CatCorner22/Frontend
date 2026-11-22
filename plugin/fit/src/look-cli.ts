@@ -5,6 +5,7 @@
 import { closeSync, constants, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, rmSync, statSync, writeSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { FitError, fontFilesOf, look } from './look.ts';
+import { bounded, noBrowserLine } from './fit.ts';
 import { READ_FILES } from './vision.ts';
 
 const USAGE = 'Usage: node plugin/fit/src/look-cli.ts [--run-scripts] [--fonts <folder>] <build.html> <folder of the Vision files> <result folder>';
@@ -149,7 +150,9 @@ async function main(args: string[]): Promise<number> {
 main(process.argv.slice(2)).then(
   (status) => process.exit(status),
   (error: unknown) => {
-    process.stderr.write(`${error instanceof FitError ? error.message : `The look stopped: ${error instanceof Error ? error.message : String(error)}`}\n`);
+    // One line, made visible and cut, as the Fit check's (gate review, finding G-S02).
+    const message = error instanceof FitError ? error.message : (noBrowserLine('The look', error) ?? `The look stopped: ${error instanceof Error ? error.message : String(error)}`);
+    process.stderr.write(`${bounded(message.replace(/\s+/g, ' '), 400)}\n`);
     process.exit(2);
   },
 );

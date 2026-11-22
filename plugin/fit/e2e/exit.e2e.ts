@@ -312,6 +312,20 @@ describe('the plugin’s files (SPEC.md section 2.23)', () => {
     expect(guide).not.toMatch(/\baccessible\b|\bcompliant\b|Refraction|Prescription/i);
   });
 
+  it('says, where no browser is found, one line that names the variable PW_CHROMIUM and the command that fetches the browser: the Fit check and the look (criterion C7 of the repair run of 2026-11-21)', () => {
+    const folder = mkdtempSync(join(tmpdir(), 'fit-no-browser-'));
+    for (const [name, text] of Object.entries(files)) writeFileSync(join(folder, name), text);
+    writeFileSync(join(folder, 'build.html'), reference);
+    for (const [program, name] of [['cli.ts', 'The Fit check'], ['look-cli.ts', 'The look']] as const) {
+      const done = spawnSync(process.execPath, [join(process.cwd(), 'plugin/fit/src', program), join(folder, 'build.html'), folder, join(folder, `out-${program}`)], { encoding: 'utf8', env: { ...process.env, PW_CHROMIUM: join(folder, 'no-such-browser') } });
+      expect(done.status, program).toBe(2);
+      const lines = done.stderr.trim().split('\n');
+      expect(lines, program).toHaveLength(1);
+      expect(lines[0], program).toBe(`${name} stopped: it found no browser to open the page. Fetch one with “npx playwright install chromium” in the plugin’s folder, or set the environment variable PW_CHROMIUM to the path of a Chromium browser on this machine.`);
+      expect(existsSync(join(folder, `out-${program}`, 'RECEIPT.md')), program).toBe(false);
+    }
+  }, 120_000);
+
   it('gives the repair command a budget of three rounds and makes it pass the round to the program', () => {
     const repair = read('commands/fit-repair.md');
     expect(repair).toContain('three rounds');

@@ -3,7 +3,7 @@
 // Status 2: the program refused, and it wrote no receipt.
 import { closeSync, constants, lstatSync, mkdirSync, openSync, readFileSync, rmSync, statSync, writeSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { FitError, bounded, fit } from './fit.ts';
+import { FitError, bounded, fit, noBrowserLine } from './fit.ts';
 import { readingsOf } from './receipt.ts';
 import { READ_FILES } from './vision.ts';
 
@@ -163,7 +163,7 @@ main(process.argv.slice(2)).then(
   (status) => process.exit(status),
   (error: unknown) => {
     // One line, made visible and cut: a message can hold words from a file, and a model reads this line (gate review, finding G-S02).
-    const message = error instanceof FitError ? error.message : `The Fit check stopped: ${error instanceof Error ? error.message : String(error)}`;
+    const message = error instanceof FitError ? error.message : (noBrowserLine('The Fit check', error) ?? `The Fit check stopped: ${error instanceof Error ? error.message : String(error)}`);
     process.stderr.write(`${bounded(message.replace(/\s+/g, ' '), 400)}\n`);
     process.exit(2);
   },

@@ -1800,3 +1800,10 @@ Commit 14 of `PLAN.md`: `plugin/README.md` (written again), `plugin/commands/fit
 - forward: the 3 files are read by the owner and by Claude Code; an existing test reads the commands' front matter and their rules (unchanged, and it passes). The test of the manifest is untouched.
 - backward: project decision D75 (the names "Frontend Focus" and "Vision"); hard rule 8 of `CLAUDE.md` (no claim of a standard): the new test asserts both.
 - lateral: commit 13 changed the one line that `fit-check.md` describes; the command now says "how many readings of how many texts", as the line does.
+
+### E-182 · 2026-11-21T22:26:54Z · TRACE · orchestrator
+
+Commit 15 of `PLAN.md`: `noBrowserLine` (new) in `fit.ts`; the last lines of `cli.ts` and `look-cli.ts` (C7).
+- forward: both command lines print another line in 1 case; the commands `fit-check` and `fit-look` repeat the line to the owner as a quotation.
+- backward: finding G-S02 (one visible, cut line): the Fit check's line stays under that rule, and the look's line now follows it too.
+- lateral: commit 9 changed `look-cli.ts` in its reading of files, commit 7 `cli.ts` in its reading of the last receipt.
