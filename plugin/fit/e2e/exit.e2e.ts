@@ -2,6 +2,7 @@
 // check finds every planted defect, and on the reference build without a defect it reports none. Also here: the Floors measure,
 // the third window width, the repair round, the model's judgments, and the files of the plugin.
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -419,6 +420,48 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(measure(almost.receipt, 'content').items.join('\n')).toMatch(/the headline is not where a person can read it/);
     const pale = await fit({ files: lenient, html: page.replace(h1, `<div style="background:#123456">${h1.replace('<h1>', '<h1 style="color:#5a7a9a">')}</div>`), browser });
     expect(measure(pale.receipt, 'content').items.join('\n')).not.toMatch(/headline/);
+  }, 300_000);
+
+  it('names in the receipt each Vision file that it read, by its SHA-256, and how many Floor requirements it read; a later round says which Vision file changed (criterion C8 of the repair run of 2026-11-21)', () => {
+    const folder = mkdtempSync(join(tmpdir(), 'fit-vision-files-'));
+    for (const [name, text] of Object.entries(files)) writeFileSync(join(folder, name), text);
+    writeFileSync(join(folder, 'build.html'), reference);
+    const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
+    const run = (args: string[]) => spawnSync(process.execPath, [cli, ...args, join(folder, 'build.html'), folder, join(folder, 'out')], { encoding: 'utf8', env: process.env });
+    const read = (): { receipt: Receipt; text: string } => ({ receipt: JSON.parse(readFileSync(join(folder, 'out', 'receipt.json'), 'utf8')) as Receipt, text: readFileSync(join(folder, 'out', 'RECEIPT.md'), 'utf8') });
+    const sha = (name: string): string => createHash('sha256').update(readFileSync(join(folder, name))).digest('hex');
+    expect(run([]).status).toBe(0);
+    const first = read();
+    expect(first.receipt.vision.files.map((f) => f.name)).toEqual(['VISION.md', 'tokens.css', 'tokens.json', 'mockup.html']);
+    for (const file of first.receipt.vision.files) {
+      expect(file.sha256, file.name).toBe(sha(file.name));
+      expect(first.text).toContain(`\`${file.name}\` SHA-256 \`${file.sha256}\``);
+    }
+    expect(first.receipt.vision.floorsRead).toBe(56);
+    expect(first.text).toContain('Floor requirements read from `VISION.md`: 56.');
+    expect(first.receipt.vision.changedSinceLastRound).toBeNull();
+    expect(first.text).not.toMatch(/Since the receipt of the round before/);
+    // Between the rounds, section 7 (the Floors) leaves VISION.md: the fingerprint of the design values stays, the file's hash does not.
+    const vision = readFileSync(join(folder, 'VISION.md'), 'utf8');
+    const cut = vision.slice(0, vision.indexOf('## 7. Floors'));
+    expect(cut.length).toBeGreaterThan(0);
+    expect(cut.length).toBeLessThan(vision.length);
+    writeFileSync(join(folder, 'VISION.md'), cut);
+    run(['--round', '1']);
+    const second = read();
+    expect(second.receipt.fingerprint).toBe(first.receipt.fingerprint);
+    expect(second.receipt.vision.files[0]?.sha256).not.toBe(first.receipt.vision.files[0]?.sha256);
+    expect(second.receipt.vision.floorsRead).toBe(0);
+    expect(second.receipt.vision.changedSinceLastRound).toEqual(['VISION.md']);
+    expect(second.text).toContain('Since the receipt of the round before, 1 of the Vision files that the program reads has changed: `VISION.md`.');
+    expect(second.text).toContain('Floor requirements read from `VISION.md`: 0.');
+    // A round with the same files says that none changed; a round with no receipt before it says that it could not compare.
+    run(['--round', '2']);
+    expect(read().receipt.vision.changedSinceLastRound).toEqual([]);
+    expect(read().text).toContain('Since the receipt of the round before, none of the Vision files that the program reads has changed.');
+    const fresh = spawnSync(process.execPath, [cli, '--round', '1', join(folder, 'build.html'), folder, join(folder, 'other-out')], { encoding: 'utf8', env: process.env });
+    expect(fresh.status).not.toBe(2);
+    expect(readFileSync(join(folder, 'other-out', 'RECEIPT.md'), 'utf8')).toContain('The result folder held no receipt of the round before, so the program could not say whether a Vision file changed.');
   }, 300_000);
 
   it.each([

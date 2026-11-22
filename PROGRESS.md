@@ -106,6 +106,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 7: the receipt names the Vision files that it read (criterion C8 of the run)
+- Feature worked on (ID): none in the list. A gap that a reviewer of the plan showed: the receipt named the Vision by its 8-sign fingerprint alone, which covers the design values. A model that repairs a page can also write to the Vision folder; deleting section 7 (the Floors) from `VISION.md` left the fingerprint as it was and removed every Floor requirement.
+- Now: the receipt (`RECEIPT.md` and `receipt.json`) holds the SHA-256 of each of the 4 Vision files that the program reads, and the number of Floor requirements read. After a repair round, the command line reads the receipt of the round before from the result folder (before it removes it) and the new receipt says which Vision file changed.
+- Not done, on purpose: the program does not refuse a changed Vision, because the owner may replace the Vision when the design changes; the receipt states the change and a person decides.
+- Test: "names in the receipt each Vision file that it read, by its SHA-256 ..." in `plugin/fit/e2e/exit.e2e.ts`: 2 rounds with section 7 deleted between them give 2 hashes, 56 and 0 requirements read, and the sentence that names `VISION.md`. The test did not exist before the code: it does not compile without the receipt's new field.
+- The 3 stored trial receipts are written again by the program: 1 new line and 1 new field each.
+- Evidence: `hinshitsu/evidence/commit-7-checks.txt`.
+
 ### 2026-11-21: repair run, commit 6: a required text in the color of its background counts as missing (finding R-S08)
 - Feature worked on (ID): none in the list. Finding R-S08 (grade major), decided by the owner on 2026-11-21: yes, such a text counts as missing.
 - Before: where the Vision did not require contrast, a headline in the exact color of its box got "No deviation. Status 0"; the receipt only listed the ratio 1.00 to 1. Now: the Content measure calls the text missing when every element that draws a part of it draws it at a ratio below 1.1 to 1 against its ground.

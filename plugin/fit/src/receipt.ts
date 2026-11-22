@@ -25,6 +25,13 @@ export interface Measure {
 export interface Receipt {
   fingerprint: string;
   build: { bytes: number; sha256: string };
+  /**
+   * The Vision files that the program read, each by the SHA-256 of its bytes, and how many Floor requirements it read from
+   * `VISION.md`. The fingerprint covers the design values alone; these hashes show a change to any other part of a file, such as
+   * the Floors (repair run of 2026-11-21, criterion C8). `changedSinceLastRound` is null for a first check and where the result
+   * folder held no receipt of the round before; otherwise it names the files whose hash differs from that receipt's.
+   */
+  vision: { files: { name: string; bytes: number; sha256: string }[]; floorsRead: number; changedSinceLastRound: string[] | null };
   widths: number[];
   /** Whether the program ran the page's own scripts. By default it does not; the command line's `--run-scripts` runs them (the owner's decision of 2026-11-17, D77). */
   scriptsRan: boolean;
@@ -98,6 +105,13 @@ export function receiptMarkdown(receipt: Receipt): string {
   const out: string[] = [];
   out.push('# Fit check receipt', '');
   out.push(`Fingerprint of the Vision that this receipt measured against: \`${receipt.fingerprint}\`. The build: ${String(receipt.build.bytes)} bytes, SHA-256 \`${receipt.build.sha256}\`. Window widths: ${receipt.widths.join(', ')} pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended (the program waits at most three seconds for them), and two seconds later.`, '');
+  out.push(`Vision files read: ${receipt.vision.files.map((f) => `\`${f.name}\` SHA-256 \`${f.sha256}\``).join('; ')}. Floor requirements read from \`VISION.md\`: ${String(receipt.vision.floorsRead)}.`, '');
+  if (receipt.repairRound > 0) {
+    const changed = receipt.vision.changedSinceLastRound;
+    if (changed === null) out.push('The result folder held no receipt of the round before, so the program could not say whether a Vision file changed.', '');
+    else if (changed.length === 0) out.push('Since the receipt of the round before, none of the Vision files that the program reads has changed.', '');
+    else out.push(`Since the receipt of the round before, ${String(changed.length)} of the Vision files that the program reads ${changed.length === 1 ? 'has' : 'have'} changed: ${changed.map((name) => `\`${name}\``).join(', ')}. The program measured against the files as they are now; a person decides whether the change was meant.`, '');
+  }
   out.push(receipt.repairRound === 0 ? 'This is a first check: no repair round came before it.' : `This check came after repair round ${String(receipt.repairRound)} of at most ${String(MAX_REPAIR_ROUNDS)}.`, '');
   if (receipt.repairRound >= MAX_REPAIR_ROUNDS && receipt.status === 1) out.push(`The ${String(MAX_REPAIR_ROUNDS)} repair rounds are spent, and the page still deviates or holds something that could not be measured. The program will not check after a fourth repair. A person decides now: accept the page with what is listed below, repair it by hand, or change the design in the Studio and write the Vision again.`, '');
   out.push('This receipt keeps three things apart: what a program measured, what a model judged, and what still needs a person. It states what was checked. It does not say that the page is good, finished, or fit for any rule.', '');

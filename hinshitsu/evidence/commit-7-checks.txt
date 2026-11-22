@@ -1,0 +1,40 @@
+Checks before commit 7 of hinshitsu/PLAN.md. Started 2026-11-22T01:02:52Z. Parent commit: cd9626d.
+Tree checked (files changed against the parent, with the SHA-256 of each):
+  70b40fce932a697b  PROGRESS.md
+  5bd1dbd4e417e5f6  SPEC.md
+  649f94247b1271b2  hinshitsu/AUDIT-LOG.md
+  8e3b404b5cad5939  plugin/fit/e2e/exit.e2e.ts
+  5706817a6dbb95b0  plugin/fit/src/cli.ts
+  ceb3e967c34d78dc  plugin/fit/src/fit.ts
+  a2055e30f71ba9c4  plugin/fit/src/receipt.ts
+  771759df41e330cc  plugin/fit/trials/001/RECEIPT.md
+  295229b4b01101f6  plugin/fit/trials/001/receipt.json
+  8ab54bf8fdb7f7dc  plugin/fit/trials/002/RECEIPT.md
+  a04ec83317eb7050  plugin/fit/trials/002/receipt.json
+  38d0d1de3aed0e75  plugin/fit/trials/003/RECEIPT.md
+  48c8dac332a72cc9  plugin/fit/trials/003/receipt.json
+
+== npm run check ==
+exit 0
+   Start at  01:03:17
+   Duration  15.50s (tests 91%, import 8%, transform 1%)
+
+    Isolate  17 workers spawned · ~212ms startup each (spawn + environment, per file)
+             at least ~990ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+== npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e ==
+exit 0
+ Test Files  4 passed (4)
+      Tests  233 passed (233)
+   Duration  1555.80s (tests 100%)
+
+== npm run build:page, then npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts ==
+build exit 0
+exit 0
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Duration  23.98s (tests 98%, import 2%)
+
+Finished 2026-11-22T01:29:55Z.
+Run in a second checkout that holds exactly the files of this commit (snapshot 53fbc834c4922e1be53ad7b4f1b52a58c146783e).

@@ -2,6 +2,8 @@
 
 Fingerprint of the Vision that this receipt measured against: `7776d35d`. The build: 22625 bytes, SHA-256 `e4efc468a119001634e8de8e79fa74d580641153e7b22a2060adf71c0359570b`. Window widths: 375, 768, 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended (the program waits at most three seconds for them), and two seconds later.
 
+Vision files read: `VISION.md` SHA-256 `ce236b2cc03f91e25240e36a7768a62b340149993356389c3e4138d3f6d81bdc`; `tokens.css` SHA-256 `697ca6b49cf2fd1691e00afa29054922b8db995eef84ba21f7cf67ec442d0ddc`; `tokens.json` SHA-256 `cb5ff8cc476233778fcbd16e460e6edba0ff5b2dcaf440b4696600574e8ad7a9`; `mockup.html` SHA-256 `9902cbd9e1be663a4552a057e61e2c20d4dc559b158f8962d0b54d68bc99e8a2`. Floor requirements read from `VISION.md`: 0.
+
 This is a first check: no repair round came before it.
 
 This receipt keeps three things apart: what a program measured, what a model judged, and what still needs a person. It states what was checked. It does not say that the page is good, finished, or fit for any rule.

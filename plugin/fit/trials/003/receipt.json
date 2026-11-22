@@ -4,6 +4,32 @@
     "bytes": 22625,
     "sha256": "e4efc468a119001634e8de8e79fa74d580641153e7b22a2060adf71c0359570b"
   },
+  "vision": {
+    "files": [
+      {
+        "name": "VISION.md",
+        "bytes": 43566,
+        "sha256": "ce236b2cc03f91e25240e36a7768a62b340149993356389c3e4138d3f6d81bdc"
+      },
+      {
+        "name": "tokens.css",
+        "bytes": 3412,
+        "sha256": "697ca6b49cf2fd1691e00afa29054922b8db995eef84ba21f7cf67ec442d0ddc"
+      },
+      {
+        "name": "tokens.json",
+        "bytes": 16838,
+        "sha256": "cb5ff8cc476233778fcbd16e460e6edba0ff5b2dcaf440b4696600574e8ad7a9"
+      },
+      {
+        "name": "mockup.html",
+        "bytes": 41664,
+        "sha256": "9902cbd9e1be663a4552a057e61e2c20d4dc559b158f8962d0b54d68bc99e8a2"
+      }
+    ],
+    "floorsRead": 0,
+    "changedSinceLastRound": null
+  },
   "widths": [
     375,
     768,

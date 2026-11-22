@@ -42,6 +42,26 @@ function writeNoFollow(path: string, text: string): void {
 /** The largest file that the program reads: a page or a Vision file is far smaller. */
 const FILE_MAX = 20_000_000;
 
+/**
+ * The Vision files that the receipt of the round before names, or nothing when no such receipt stands in the result folder or it
+ * holds no such list. The receipt is read as data: only names and hashes of the expected form are taken.
+ */
+function lastVision(path: string): { name: string; sha256: string }[] | undefined {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readText(path, 'the receipt of the round before'));
+  } catch {
+    return undefined;
+  }
+  const listed = (parsed as { vision?: { files?: unknown } } | null)?.vision?.files;
+  if (!Array.isArray(listed)) return undefined;
+  const files: { name: string; sha256: string }[] = [];
+  for (const entry of listed as { name?: unknown; sha256?: unknown }[]) {
+    if (typeof entry?.name === 'string' && (READ_FILES as readonly string[]).includes(entry.name) && typeof entry.sha256 === 'string' && /^[0-9a-f]{64}$/.test(entry.sha256)) files.push({ name: entry.name, sha256: entry.sha256 });
+  }
+  return files;
+}
+
 function readText(path: string, what: string): string {
   // Only an ordinary file is read: a pipe or a device would make the program wait for ever (gate review, finding G-S09).
   let ordinary = false;
@@ -90,6 +110,8 @@ async function main(args: string[]): Promise<number> {
   // A fourth repair round is refused before anything is touched, so that the last receipt, which holds the round, stays (finding G-S10).
   if (repairRound > 3) throw new FitError('The repair budget of 3 rounds is spent. The program did not check again; a person decides now.');
   // An earlier receipt in the result folder would look current after a refusal; it goes first (retest finding A2-R2).
+  // The receipt of the round before names the Vision files that it read; this round says which of them changed (criterion C8).
+  const lastRoundVision = repairRound > 0 ? lastVision(join(resolve(outFolder), 'receipt.json')) : undefined;
   for (const name of RESULT_FILES) rmSync(join(resolve(outFolder), name), { force: true });
   const html = readText(resolve(buildPath), 'the build');
   const files: Record<string, string> = {};
@@ -109,7 +131,7 @@ async function main(args: string[]): Promise<number> {
   }
   // A machine whose installed browser differs from the one that Playwright expects names its browser here.
   const launch = process.env['PW_CHROMIUM'] ? { executablePath: process.env['PW_CHROMIUM'] } : {};
-  const { receipt, markdown, status } = await fit({ files, html, launch, runScripts, repairRound, judged });
+  const { receipt, markdown, status } = await fit({ files, html, launch, runScripts, repairRound, judged, ...(lastRoundVision ? { lastRoundVision } : {}) });
   mkdirSync(resolve(outFolder), { recursive: true });
   refuseLinks(resolve(outFolder));
   writeNoFollow(join(resolve(outFolder), 'receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);

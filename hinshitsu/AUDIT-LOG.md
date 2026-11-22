@@ -1744,3 +1744,10 @@ Commit 6 of `PLAN.md`: `sameAsGround` and `inOrder` (new) and the Content measur
 - forward: the Content measure can hold 1 more kind of line; the status follows it. No sentence of the receipt changes, so the stored receipts stay.
 - backward: `SPEC.md`: "a text whose contrast cannot be read never changes the status" still holds: only a ratio that the program did read, below 1.1 to 1, makes a text missing.
 - lateral: commits 4 and 5 changed the same function `measures` in other lines.
+
+### E-174 · 2026-11-21T22:01:04Z · TRACE · orchestrator
+
+Commit 7 of `PLAN.md`: the field `vision` of `Receipt` and 2 lines of `receiptMarkdown` in `receipt.ts`; `fit` in `fit.ts`; `lastVision` (new) and `main` in `cli.ts` (criterion C8).
+- forward: `receipt.json` gains 1 field and `RECEIPT.md` 1 line (2 after a repair round). The stored receipts are written again by the program in this commit. `plugin/commands/fit-repair.md` reads the receipt as text; nothing it reads is removed.
+- backward: finding G-S10 (the last receipt stays when a fourth round is refused): the refusal still comes before any file is touched; the receipt of the round before is read before it is removed.
+- lateral: commits 4 and 5 rewrote the stored receipts for other sentences; this commit rewrites them once more, on top.

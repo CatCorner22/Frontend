@@ -7,7 +7,7 @@ import { chromium, type Browser, type LaunchOptions, type Page } from 'playwrigh
 import { contrastRatio, hexOf, over, parseRgba, type Rgba } from './color.ts';
 import { collect, mediaConditions, readBrief, type Collected } from './collect.ts';
 import { CHECKED_PART, FLOORS_EDITION, checkedFacts, collectFloorFacts, floorFindings, statedEdition, writtenFloorIds, type FloorFacts } from './floors.ts';
-import { FitError, readDesignValues, type DesignValues } from './vision.ts';
+import { FitError, READ_FILES, readDesignValues, type DesignValues } from './vision.ts';
 import { JUDGED_MAX, MAX_REPAIR_ROUNDS, STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt } from './receipt.ts';
 
 export { FitError } from './vision.ts';
@@ -29,6 +29,8 @@ export interface FitInput {
   repairRound?: number;
   /** Lines that a model wrote about its own work, one judgment each. They enter the receipt apart, as quoted data. */
   judged?: readonly string[];
+  /** The Vision files of the receipt of the round before, by name and SHA-256, when the caller holds that receipt. */
+  lastRoundVision?: readonly { name: string; sha256: string }[];
 }
 
 export interface FitResult {
@@ -567,9 +569,16 @@ export async function fit(input: FitInput): Promise<FitResult> {
     const contrast = measured.find((m) => m.id === 'contrast');
     const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || ((contrast?.title ?? '').startsWith('Contrast: required') && (contrast?.deviations ?? 0) > 0) || loadFailures.length > 0 ? 1 : 0;
     const judged = (input.judged ?? []).map((line) => bounded(line.replace(/\s+/g, ' ').trim())).filter((line) => line !== '');
+    const visionFiles = READ_FILES.map((name) => ({ name, bytes: Buffer.byteLength(input.files[name] ?? '', 'utf8'), sha256: createHash('sha256').update(input.files[name] ?? '', 'utf8').digest('hex') }));
     const receipt: Receipt = {
       fingerprint: design.fingerprint,
       build: { bytes: Buffer.byteLength(input.html, 'utf8'), sha256: createHash('sha256').update(input.html, 'utf8').digest('hex') },
+      vision: {
+        files: visionFiles,
+        // The requirements count as read only in the edition that the program knows.
+        floorsRead: statedEdition(visionMd) === FLOORS_EDITION ? written.length : 0,
+        changedSinceLastRound: repairRound > 0 && input.lastRoundVision ? visionFiles.filter((f) => input.lastRoundVision?.find((last) => last.name === f.name)?.sha256 !== f.sha256).map((f) => f.name) : null,
+      },
       widths: [...WIDTHS],
       scriptsRan: runScripts,
       status,
