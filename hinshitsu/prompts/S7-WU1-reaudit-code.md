@@ -6,11 +6,11 @@ You are a new SUB-AGENT in a hinshitsu run, in the role of AUDITOR. You raised n
 
 The repository at `/home/user/Frontend`, working branch `claude/festive-mendel-lfnahh`, at the commit that `git -C /home/user/Frontend log --oneline -1 -- plugin/fit/src` shows (the fix round). The fix round is the commits after `6dd5592` that change `plugin/`, `apps/`, `packages/` or the records: `git -C /home/user/Frontend log --oneline 6dd5592..HEAD`. The programs: `plugin/fit/src/collect.ts`, `fit.ts`, `floors.ts`, `receipt.ts`, `cli.ts`, `look.ts`, `look-cli.ts`. Their browser tests: `plugin/fit/e2e/exit.e2e.ts` (the group "the audit round of the repair run (2026-11-22)" is new), `fit.e2e.ts`, `look.e2e.ts`.
 
-The CRITERIA of the run are in `hinshitsu/AUDIT-LOG.md`: C2, C8 and C9 in entry E-68; C1, C3, C4, C5, C6 and C7 in entry E-139.
+The CRITERIA of the run are in `hinshitsu/AUDIT-LOG.md`: C2 and C9 in entry E-68; C1, C3 and C6 in entry E-139; C4, C5, C7 and C8 in entry E-289 (a change that the USER approved in entry E-288). By the USER's answer 1 in E-288 the design value `--font-numeric` is a real list of typefaces (the body typeface where the numerals are not set apart); by answer 2 an unread contrast never changes the status.
 
 ## Duty 1: re-run each trigger
 
-Each FINDING is an entry of `hinshitsu/AUDIT-LOG.md` with the fields `Where`, `Trigger` and `Violates`, and names the report and the number of the finding in it (`hinshitsu/audits/WU-1-<role>-E-<n>.md`); read the full finding in that report, because the log entry is cut. The FINDINGS of this part: F-65, F-67, F-68, F-69, F-70, F-71, F-72, F-73, F-75, F-76, F-78, F-84, F-85, F-88, F-94, F-97, F-98, F-99, F-100, F-101, F-102, F-103, F-104, F-105, F-106, F-113, F-115, F-116, F-117.
+Each FINDING is an entry of `hinshitsu/AUDIT-LOG.md` with the fields `Where`, `Trigger` and `Violates`, and names the report and the number of the finding in it (`hinshitsu/audits/WU-1-<role>-E-<n>.md`); read the full finding in that report, because the log entry is cut. The FINDINGS of this part: F-54 (find its entry by the line `- ID: F-54`; it names its report), F-67, F-68, F-69, F-70, F-71, F-72, F-73, F-75, F-76, F-78, F-84, F-85, F-88, F-94, F-97, F-98, F-99, F-100, F-101, F-102, F-103, F-104, F-105, F-106, F-115, F-116, F-117.
 
 For each: build the page, folder or command of the trigger yourself, run it against the programs as they stand, and record exactly 1 of `NO LONGER REPRODUCES`, `STILL REPRODUCES`, or `REPRODUCES IN PART` (say which part), with EVIDENCE: the command and the last lines of its output. A trigger with several cases (a), (b), (c) gets 1 result for each case. Do not take the word of a code comment, of a test title, or of a record: run the trigger.
 
