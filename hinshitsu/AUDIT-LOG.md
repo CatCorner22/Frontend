@@ -2820,3 +2820,7 @@ The defect is the one that the seeder planted in the copy `kite` (CHECK E-282). 
 - Result: WITHDRAWN
 
 The defect is the one that the seeder planted in the copy `kite` (CHECK E-282). It stands in the copy alone; `plugin/fit/src/cli.ts` of the DELIVERABLE holds `repairRound > 0`. EVIDENCE: `grep -n 'repairRound > ' plugin/fit/src/cli.ts`.
+
+### E-285 · 2026-11-22T11:32:17Z · WAIVER · orchestrator
+
+WU-1 is larger than the glossary's size of a WORK UNIT (1 component): it holds 7 programs, 2 test files, the guide, the commands and the records. The USER chose 1 audit round over the finished set, in the USER's words: "Once, at the end (Recommended)" (E-67, answer 3). What the size costs: a finding of the round can touch several components, and the fix round is 1 commit over them (commit 20). Raised by the framework-drift auditor as F-134.
