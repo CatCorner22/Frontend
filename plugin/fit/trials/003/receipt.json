@@ -1,8 +1,34 @@
 {
-  "fingerprint": "7776d35d",
+  "fingerprint": "0fabf790",
   "build": {
     "bytes": 22625,
     "sha256": "e4efc468a119001634e8de8e79fa74d580641153e7b22a2060adf71c0359570b"
+  },
+  "vision": {
+    "files": [
+      {
+        "name": "VISION.md",
+        "bytes": 43573,
+        "sha256": "7b0b2e00eaab8f6084d62e636c9b8d467a60feb361452d17caa2e21116b45b23"
+      },
+      {
+        "name": "tokens.css",
+        "bytes": 3485,
+        "sha256": "1c8318c02d1129fc2944c152ed4aaadb76c5b309953d9cf755d194c796a44284"
+      },
+      {
+        "name": "tokens.json",
+        "bytes": 17022,
+        "sha256": "a27772d0c858dc80a5ec571cdc4dc9a24d29c5003d34d5085d38e5af6aa5b34f"
+      },
+      {
+        "name": "mockup.html",
+        "bytes": 41737,
+        "sha256": "cbbac8327a74ef5255c75cd4703b6b4da67248b01d5fef39553cdae5be70c33e"
+      }
+    ],
+    "floorsRead": 0,
+    "changedSinceLastRound": null
   },
   "widths": [
     375,
@@ -72,19 +98,24 @@
     },
     {
       "id": "contrast",
-      "title": "Contrast: required by Floor A1 of the Vision",
+      "title": "Contrast: measured, not required",
       "deviations": 0,
       "notMeasured": 27,
       "items": [],
       "more": 0,
-      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Vision writes Floor A1, so a ratio below its least is a deviation. 27 text readings (one for each text and window width) could not be measured: 27 because the text or a box around it is drawn partly transparent.",
+      "note": "The ratio of each text to its background by the WCAG 2.x formula. The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least. 27 readings of 3 texts could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: 27 because the text or a box around it is drawn partly transparent.",
       "informationHead": "Texts whose contrast the program could not read. A person must judge these by eye:",
       "information": [
         "dd \"for a first visit\"",
         "dd \"open each week\"",
         "dd \"treatment rooms\""
       ],
-      "informationMore": 0
+      "informationMore": 0,
+      "texts": {
+        "below": 0,
+        "unread": 3,
+        "unreadReadings": 27
+      }
     },
     {
       "id": "content",
@@ -120,7 +151,8 @@
       "note": "The Vision’s section 7 writes 48 requirements in an edition without a number (an older Vision) of the Floors; this program reads edition 3, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.",
       "informationHead": "What the program checked of each requirement, and no more than this:",
       "information": [],
-      "informationMore": 0
+      "informationMore": 0,
+      "noneCheckedOf": 48
     }
   ],
   "repairRound": 0,
@@ -136,13 +168,17 @@
     "All other window widths. The program read the page at 375, 768, and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.",
     "A page that behaves differently for a visitor. The program ran no script of the page, so it did not read anything that a script draws or changes; a visitor’s browser runs scripts. If the page holds a script, check again with the option --run-scripts.",
     "Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.",
-    "Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.",
-    "Other screens and settings. The program reads the page on a screen of ordinary pixel density; a page can show another design on a high-density screen (most phones), in print, with high contrast, or in another language setting.",
+    "Other window heights. The program reads the page in a window 800 pixels tall; a page can show another design at any other height.",
+    "Dark mode, touch screens, high-density screens, and other settings. The program reads the page in light mode, with a mouse, on a screen of ordinary pixel density. Where the page’s style rules name another such setting in a media condition that the Vision’s Mockup does not hold, the program lists the condition and counts the page as not measured. A condition that the Mockup holds too (a mouse that can point at a thing, for one) is read in one state only, the one of the reading; under the other state the page can show another design. A page can still show another design there by a way that names no media condition (a set of pictures by density, a script), and in print or in another language setting.",
     "What happens later. The program stops reading about five seconds after the page has loaded. A page can change after that, or when a person scrolls, clicks, or types.",
+    "The Vision folder itself. The program takes the files in the Vision folder as the owner’s own and measures the page against them as they are. A folder from elsewhere, or a file that was changed in it, can state other texts, values, and requirements; the top of this receipt names each file that was read by its SHA-256.",
+    "The count of repair rounds. The number of the round comes from whoever runs the program (a model, or a person); the program records it and cannot know how many repairs were made.",
+    "Where a covering box lies. The program works out the place of a box that a style rule draws from its style values, an approximation; a text at the edge of such a box can be counted as covered, or as free, by mistake.",
+    "A blend mode on a box that a style rule draws. The program does not read it; such a box can change the colors of what lies under it.",
     "Frames. The program does not read what an iframe, a frame, an object, or an embed draws; it counts each as not measured.",
-    "Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.",
+    "Closed shadow roots. The program reads the page and every open shadow root. A closed one is out of its reach: the program counts the page as not measured and says how many it holds.",
     "Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast.",
-    "The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of A1, A2, A3, A4, A5, A7, A8, A9, A10, A11, A12, A13, A14, S1, S2, S3, S4, S5, S6, S7, S9, S10, S11, H1, H2, H3, H4, H5, Q2, Q3, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, P1, P2, P4, P5, P6, P7, P8, P9, P12, P13; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page."
+    "The Floors of the Vision. The program checked none of them (see “Floors” above): A1, A2, A3, A4, A5, A7, A8, A9, A10, A11, A12, A13, A14, S1, S2, S3, S4, S5, S6, S7, S9, S10, S11, H1, H2, H3, H4, H5, Q2, Q3, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, P1, P2, P4, P5, P6, P7, P8, P9, P12, P13; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page."
   ],
   "pageErrors": [],
   "scripts": {

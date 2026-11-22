@@ -5,10 +5,10 @@
 import { createHash } from 'node:crypto';
 import { chromium, type Browser, type LaunchOptions, type Page } from 'playwright';
 import { contrastRatio, hexOf, over, parseRgba, type Rgba } from './color.ts';
-import { collect, readBrief, type Collected } from './collect.ts';
+import { collect, mediaConditions, readBrief, type Collected } from './collect.ts';
 import { CHECKED_PART, FLOORS_EDITION, checkedFacts, collectFloorFacts, floorFindings, statedEdition, writtenFloorIds, type FloorFacts } from './floors.ts';
-import { FitError, readDesignValues, type DesignValues } from './vision.ts';
-import { JUDGED_MAX, MAX_REPAIR_ROUNDS, STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt } from './receipt.ts';
+import { FitError, READ_FILES, readDesignValues, type DesignValues } from './vision.ts';
+import { JUDGED_MAX, MAX_REPAIR_ROUNDS, STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt, readingsOf } from './receipt.ts';
 
 export { FitError } from './vision.ts';
 export type { Receipt } from './receipt.ts';
@@ -29,6 +29,16 @@ export interface FitInput {
   repairRound?: number;
   /** Lines that a model wrote about its own work, one judgment each. They enter the receipt apart, as quoted data. */
   judged?: readonly string[];
+  /** The Vision files of the receipt of the round before, by name and SHA-256, when the caller holds that receipt. */
+  lastRoundVision?: readonly { name: string; sha256: string }[];
+  /** The repair round that the receipt of `lastRoundVision` states, when the caller read it. */
+  lastRound?: number;
+  /**
+   * The size and the SHA-256 of the build and of each Vision file as they stand on the disk, byte for byte. A caller that read
+   * the files from a disk gives them: a file that is no valid UTF-8 text changes when it is read as text, so a hash of the text
+   * is not the hash of the file (audit round of 2026-11-22, findings F-71 and F-105). Without them the texts are hashed.
+   */
+  onDisk?: { build?: { bytes: number; sha256: string }; files?: Readonly<Record<string, { bytes: number; sha256: string } | undefined>> };
 }
 
 export interface FitResult {
@@ -57,7 +67,7 @@ const DEAD_PROXY = { server: 'http://127.0.0.1:1', bypass: '<-loopback>' } as co
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
 
 /** One reading of the page. A reading that failed still keeps the requests that its page made before it failed. */
-type Pass = { label: string; width: number; requests: string[]; own: string[] } & ({ collected: Collected; floors: FloorFacts; errors: string[] } | { failure: string });
+type Pass = { label: string; width: number; requests: string[]; own: string[] } & ({ collected: Collected; floors: FloorFacts; errors: string[]; media: string[]; closedRoots: number } | { failure: string });
 
 /** Launch settings that hide the mark of automation and keep WebRTC from sending without a proxy (campaign A2, findings J-1 and J-3). */
 export const LAUNCH_ARGS: readonly string[] = ['--disable-blink-features=AutomationControlled', '--force-webrtc-ip-handling-policy=disable_non_proxied_udp'];
@@ -226,11 +236,15 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
         if (left !== '') return fail(label, `the page replaced itself: it went to ${left}`);
         const contextId = worlds.get(frameTree.frame.id);
         if (contextId === undefined || worldsAfterLoad > 0) return fail(label, 'the page replaced itself: its document was opened again');
-        const { result, exceptionDetails } = await within(session.send('Runtime.evaluate', { expression: `({ collected: (${collect.toString()})(), floors: (${collectFloorFacts.toString()})(), replaced: globalThis.__refractionWatch ? globalThis.__refractionWatch.replaced : true })`, contextId, returnByValue: true }), ms, 'the page did not answer');
+        const { result, exceptionDetails } = await within(session.send('Runtime.evaluate', { expression: `({ collected: (${collect.toString()})(), floors: (${collectFloorFacts.toString()})(), media: (${mediaConditions.toString()})(), replaced: globalThis.__refractionWatch ? globalThis.__refractionWatch.replaced : true })`, contextId, returnByValue: true }), ms, 'the page did not answer');
         if (exceptionDetails) return fail(label, 'the program could not read the page');
-        const value = result.value as { collected: Collected; floors: unknown; replaced: boolean };
+        const value = result.value as { collected: Collected; floors: unknown; media: unknown; replaced: boolean };
         if (value.replaced) return fail(label, 'the page replaced itself: a script wrote a new document over it');
-        return { label, width, collected: value.collected, floors: checkedFacts(value.floors), errors: [...errors], requests: [...requests], own: [...own] };
+        // A closed shadow root is out of reach of every reading inside the page; the browser's own list of the page's parts
+        // names it (finding A2-V4).
+        const { root } = await within(session.send('DOM.getDocument', { depth: -1, pierce: true }), ms, 'the page did not answer');
+        const closedRoots = countClosedRoots(root);
+        return { label, width, collected: value.collected, floors: checkedFacts(value.floors), media: Array.isArray(value.media) ? value.media.filter((m): m is string => typeof m === 'string') : [], closedRoots, errors: [...errors], requests: [...requests], own: [...own] };
       };
       if (motion === 'reduce') passes.push(await read(base));
       else {
@@ -256,7 +270,8 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
   }
 }
 
-const collapse = (text: string): string => text.replace(/\s+/g, ' ').trim().toLowerCase();
+// A soft hyphen (U+00AD) only says where a word may break: it is no letter of the text.
+const collapse = (text: string): string => text.replace(/\u00ad/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
 
 const INFORMATION_LISTED = 50;
 
@@ -331,7 +346,45 @@ function atWidths(rows: { key: string; width: number; label: string }[], reading
   });
 }
 
-function contrastOf(text: Collected['texts'][number]): number | null {
+/** Below this ratio a text and its ground are one color to the eye (1 to 1 is the same color). */
+const SAME_COLOR_RATIO = 1.1;
+
+/**
+ * True when a part of the wanted text is drawn only in the color of its ground (retest finding R-S08). An element counts as
+ * drawing the text when its own words stand inside the wanted text in their order, or hold it. The text is readable only when the
+ * readable elements together draw every word of it: a readable part elsewhere on the page does not stand in for a headline that
+ * nobody can see (audit round of 2026-11-22, findings F-69 and F-97).
+ */
+function sameAsGround(texts: Collected['texts'], wanted: string): boolean {
+  const line = wanted.split(' ');
+  const readable = new Set<number>();
+  let unseen = 0;
+  for (const text of texts) {
+    // The element's own words, without the words of an element inside it (a marked word of a headline). An older reading holds
+    // them only in its label, cut after 40 characters: a word that the cut may have broken is left out.
+    const quoted = /"(.*)"$/.exec(text.where)?.[1] ?? '';
+    const words = collapse(text.own ?? quoted.replace(/…$/, '')).split(' ').filter((word) => word !== '');
+    if (text.own === undefined && quoted.endsWith('…')) words.pop();
+    const own = words.join(' ');
+    if (own.length < 2) continue;
+    const places = own.includes(wanted) ? line.map((_, at) => at) : placesInOrder(words, line);
+    if (places === null) continue;
+    // Opacity and a gradient of one color do not set a text apart from its ground: the colors alone decide there.
+    const ratio = contrastOf(text) ?? (text.nominal ? contrastOf({ ...text, layers: text.nominal }) : null);
+    if (ratio !== null && ratio < SAME_COLOR_RATIO) unseen++;
+    else for (const at of places) readable.add(at);
+  }
+  return unseen > 0 && readable.size < line.length;
+}
+
+/** Where the words stand in the line, in this order, with or without other words between them; null when they do not. */
+function placesInOrder(words: readonly string[], line: readonly string[]): number[] | null {
+  const places: number[] = [];
+  for (let at = 0; at < line.length && places.length < words.length; at++) if (line[at] === words[places.length]) places.push(at);
+  return places.length === words.length ? places : null;
+}
+
+function contrastOf(text: Pick<Collected['texts'][number], 'foreground' | 'layers'>): number | null {
   const fg = parseRgba(text.foreground);
   if (!fg || text.layers === null) return null;
   let behind = WHITE;
@@ -343,13 +396,31 @@ function contrastOf(text: Collected['texts'][number]): number | null {
   return contrastRatio(fg.a < 1 ? over(fg, behind) : fg, behind);
 }
 
-function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[], edition: number | null, unrun = ''): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
+function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[], edition: number | null, unrun = '', mockupMedia: readonly string[] = [], mockupUnread: ReadonlySet<string> = new Set()): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
   const good = passes.filter((p): p is Extract<Pass, { collected: Collected }> => 'collected' in p);
   const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: bounded(`${p.label}: ${p.failure}`) }] : []));
   // An animation with an end that has not ended at the last reading: the page may still change after the program stops (finding G-S04).
   for (const p of passes) if ('collected' in p && p.label.endsWith('two seconds later') && p.collected.pendingAnimations > 0) loadFailures.push({ width: p.width, reason: bounded(`${p.label}: ${String(p.collected.pendingAnimations)} of the page’s animations had not ended when the program stopped reading, so the page may still change`) });
+  // An animation that never ends, and a timer inside an SVG picture: the page keeps changing by the clock after the program stops, so
+  // what was read is one moment of it (retest finding R-S05). Once for each window width, at the last reading.
+  for (const p of passes) {
+    if (!('collected' in p) || !p.label.endsWith('two seconds later')) continue;
+    if (p.collected.endlessAnimations > 0) loadFailures.push({ width: p.width, reason: bounded(`${p.label}: ${String(p.collected.endlessAnimations)} of the page’s animations never end, so the page keeps changing after the program stops reading; what was measured is one moment of it`) });
+    if (p.collected.svgTimers > 0) loadFailures.push({ width: p.width, reason: bounded(`${p.label}: ${String(p.collected.svgTimers)} of the page’s pictures hold a timer of its own (an SVG animation), so the page may change after the program stops reading`) });
+  }
   // What the page holds for a browser with scripts, when the program ran none: not measured, never "no deviation" (R-S01, R-S02).
   if (unrun !== '') loadFailures.push({ width: 0, reason: unrun });
+  // A part of the design that shows only under a setting that the program did not read under: not measured, never "no deviation"
+  // (finding G-S05).
+  const closedRoots = Math.max(0, ...passes.map((p) => ('closedRoots' in p ? p.closedRoots : 0)));
+  if (closedRoots > 0) loadFailures.push({ width: 0, reason: `The page holds ${String(closedRoots)} closed shadow root${closedRoots === 1 ? '' : 's'}: a part of the page that the program cannot read. What it draws was not measured` });
+  const PAST_LIMIT = '(more style rules or conditions than the program reads)';
+  const everyUnread = unreadConditions(passes.flatMap((p) => ('media' in p ? p.media : [])), mockupMedia);
+  const unread = everyUnread.filter((condition) => condition !== PAST_LIMIT);
+  // The page holds more style rules, conditions or shadow roots than the program reads: the program did not find a setting, it
+  // stopped at a limit, and says that (second re-audit of the repair run, 2026-11-22).
+  if (everyUnread.length > unread.length) loadFailures.push({ width: 0, reason: 'The page holds more style rules, media conditions or shadow roots than the program reads (200,000 rules, 5,000 conditions, 2,000 shadow roots, 2,000 characters in one condition), so a setting of the screen that it names may have gone unread. What the page shows under such a setting was not measured' });
+  if (unread.length > 0) loadFailures.push({ width: 0, reason: bounded(`The page's style rules name ${unread.length === 1 ? 'a setting' : `${String(unread.length)} settings`} of the screen or of the visitor that the Vision's Mockup does not name, and the program did not read the page under ${unread.length === 1 ? 'it' : 'them'}: ${unread.slice(0, 8).map((c) => `"${c}"`).join('; ')}${unread.length > 8 ? `; and ${String(unread.length - 8)} more` : ''}. What the page shows there was not measured`, 900) });
   const failed = loadFailures.length;
 
   // Another site is a deviation. A reference at the page's own address is information: the page names it but, being one file, cannot ship it.
@@ -388,6 +459,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
 
   // A color that passes through a CSS filter is changed before it reaches the screen: not measured (campaign A2, finding J-6).
   const filtered = good.reduce((sum, p) => sum + p.collected.filtered, 0);
+  const foreignShapes = Math.max(0, ...good.map((p) => p.collected.foreignShapes));
   const fontRows = good.flatMap((p) => p.collected.families.filter((f) => !design.typefaces.has(f.family.toLowerCase())).map((f) => ({ key: f.family, where: f.where, width: p.label })));
   // FONTS.md ships every typeface as a file; a Vision name given to a font installed on the machine draws other letters (J-19).
   const aliases = new Set(good.flatMap((p) => p.collected.fontFaces.filter((face) => design.typefaces.has(face.family.toLowerCase()) && /local\(/i.test(face.src)).map((face) => `typeface "${face.family}" is drawn from a font installed on the machine (${face.src.trim()}), not from a file`)));
@@ -399,22 +471,42 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   for (const p of good) readingsAt.set(p.width, (readingsAt.get(p.width) ?? new Set<string>()).add(p.label));
   let unreadable = 0;
   const reasons = new Map<string, number>();
-  const unreadTexts = new Set<string>();
+  // A text is one element: two elements with the same words are two texts (audit round of 2026-11-22, finding F-75). The texts
+  // of one label are counted in each reading on its own, and the largest count of any reading stands: an element that a script
+  // adds between two readings cannot make one text count twice (second re-audit).
+  const unreadLabels = new Map<string, number>();
+  // Where the Vision requires contrast, an unread text is excused only where the Mockup leaves a text with the same words unread
+  // too (the owner's answer of 2026-11-22): every other unread text makes the page "not measured".
+  const unexcusedLabels = new Map<string, number>();
+  const wordsOf = (where: string): string => collapse(/"(.*)"$/.exec(where)?.[1] ?? where);
+  const belowLabels = new Map<string, number>();
+  const mostOf = (into: Map<string, number>, here: Map<string, number>): void => { for (const [label, n] of here) into.set(label, Math.max(into.get(label) ?? 0, n)); };
   for (const p of good) {
+    const unreadHere = new Map<string, number>();
+    const unexcusedHere = new Map<string, number>();
+    const belowHere = new Map<string, number>();
     for (const text of p.collected.texts) {
       const ratio = contrastOf(text);
       if (ratio === null) {
         unreadable++;
-        unreadTexts.add(text.where);
+        unreadHere.set(text.where, (unreadHere.get(text.where) ?? 0) + 1);
+        if (!mockupUnread.has(wordsOf(text.where))) unexcusedHere.set(text.where, (unexcusedHere.get(text.where) ?? 0) + 1);
         const why = text.unmeasured === '' ? 'a color could not be read' : text.unmeasured;
         reasons.set(why, (reasons.get(why) ?? 0) + 1);
         continue;
       }
       const large = text.sizePx >= 24 || (text.sizePx >= 18.66 && text.weight >= 700);
       const needed = large ? 3 : 4.5;
+      if (ratio < needed) belowHere.set(text.where, (belowHere.get(text.where) ?? 0) + 1);
       if (ratio < needed) contrastRows.push({ ratio, key: `${ratio.toFixed(2)} to 1, where ${String(needed)} to 1 is the usual least, on ${text.where}`, width: p.width, label: p.label });
     }
+    mostOf(unreadLabels, unreadHere);
+    mostOf(unexcusedLabels, unexcusedHere);
+    mostOf(belowLabels, belowHere);
   }
+  const sum = (counts: Map<string, number>): number => [...counts.values()].reduce((total, n) => total + n, 0);
+  const unreadTexts = { size: sum(unreadLabels) };
+  const belowTexts = { size: sum(belowLabels) };
   const ratioOf = new Map(contrastRows.map((row) => [row.key, row.ratio]));
   const contrastLines = atWidths(contrastRows, readingsAt).map((line) => ({ ratio: ratioOf.get(line.key) ?? 0, line: line.text })).sort((a, b) => a.ratio - b.ratio || (a.line < b.line ? -1 : 1));
 
@@ -423,7 +515,9 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   let contentUnsure = 0;
   const required: [string, string][] = [['business name', mockupBrief.business], ['headline', mockupBrief.headline], ['primary action', mockupBrief.primaryAction]];
   for (const [label, wanted] of required) {
-    const missing = good.filter((p) => !p.collected.shownLines.some((line) => collapse(line).includes(collapse(wanted))));
+    // A text in the color of its own ground is there for no reader: it counts as missing, whether or not the Vision requires
+    // contrast (retest finding R-S08; the owner's answer of 2026-11-21).
+    const missing = good.filter((p) => !p.collected.shownLines.some((line) => collapse(line).includes(collapse(wanted))) || sameAsGround(p.collected.texts, collapse(wanted)));
     // A text that stands only under a clip-path or a mask may be hidden: not measured, never "found" (retest finding A2-V7).
     const unsure = missing.filter((p) => p.collected.clippedLines.some((line) => collapse(line).includes(collapse(wanted))));
     contentUnsure += unsure.length;
@@ -445,10 +539,12 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
 
   // A frame draws a page of its own that the program does not read (finding G-S06).
   const frames = Math.max(0, ...good.map((p) => p.collected.frames));
-  const colorNote = `A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, underlines, column rules, list markers, placeholder text, carets, accent colors, and the fill and stroke of inline SVG shapes are compared too.${frames > 0 ? ` The page holds ${String(frames)} ${frames === 1 ? 'frame or embedded object' : 'frames or embedded objects'}; the program does not read what ${frames === 1 ? 'it draws' : 'they draw'}, and counts ${frames === 1 ? 'it' : 'each'} as not measured.` : ''}${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${translucent.size > 0 ? ' Partly transparent colors are listed as information and not compared.' : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
+  const colorNote = `A color is a deviation when it is not one of the Vision's opaque colors. Pseudo-elements, outlines, text strokes, underlines, column rules, list markers, placeholder text, carets, accent colors, and the fill and stroke of inline SVG shapes are compared too.${frames > 0 ? ` The page holds ${String(frames)} ${frames === 1 ? 'frame or embedded object' : 'frames or embedded objects'}; the program does not read what ${frames === 1 ? 'it draws' : 'they draw'}, and counts ${frames === 1 ? 'it' : 'each'} as not measured.` : ''}${filtered > 0 ? ` ${String(filtered)} drawn ${filtered === 1 ? 'color passes' : 'colors pass'} through a CSS filter, which changes ${filtered === 1 ? 'it' : 'them'} before ${filtered === 1 ? 'it reaches' : 'they reach'} the screen, and ${filtered === 1 ? 'was' : 'were'} not compared.` : ''}${foreignShapes > 0 ? ` The page holds ${String(foreignShapes)} ${foreignShapes === 1 ? 'shape that a picture takes' : 'shapes that pictures take'} from another file; the program does not load that file, and counts ${foreignShapes === 1 ? 'the shape' : 'each'} as not measured.` : ''}${translucent.size > 0 ? ' Partly transparent colors are listed as information and not compared.' : ''}${unreadColors > 0 ? ` ${String(unreadColors)} drawn ${unreadColors === 1 ? 'color' : 'colors'} could not be read and ${unreadColors === 1 ? 'was' : 'were'} not compared.` : ''}`;
   const whyUnread = [...reasons].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([why, n]) => `${String(n)} because ${why}`).join('; ');
   // The Floors (SPEC.md section 2.22): the part of each written requirement that a program can check on this page.
-  const binding = written.includes('A1');
+  // Contrast binds only where the program reads the Floors: a Vision of another edition has none of its Floors checked, so its A1
+  // does not bind either (retest finding R-U03: the receipt said "required by Floor A1" beside "checked none").
+  const binding = written.includes('A1') && edition === FLOORS_EDITION;
   const floorLines = new Set<string>();
   for (const p of good) {
     const http = p.collected.references.map((ref) => ref.address.replace(/[\t\n\r]/g, '').trim()).filter((address) => /^http:/i.test(address));
@@ -463,11 +559,11 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   const partly = otherEdition ? [] : written.filter((id) => CHECKED_PART[id] !== undefined);
   const floorsNotChecked = otherEdition ? [...written] : written.filter((id) => CHECKED_PART[id] === undefined);
   const floorsNote = written.length === 0
-    ? 'The Vision’s section 7 writes no requirement that this program reads, so nothing was checked here.'
+    ? 'The Vision’s section 7 writes no requirement that this program reads.'
     : otherEdition
     ? `The Vision’s section 7 writes ${String(written.length)} requirements in ${edition === null ? 'an edition without a number (an older Vision)' : `edition ${String(edition)}`} of the Floors; this program reads edition ${String(FLOORS_EDITION)}, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.`
     : `The Vision’s section 7 writes ${String(written.length)} requirements. The program checked a part of ${String(partly.length)} of them (${partly.join(', ')}); each deviation line names its requirement, and the list below says which part of each the program checked. Passing that part does not show that the page meets the requirement: the rest of each, and all of ${floorsNotChecked.join(', ')}, stay with a person.`;
-  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${String(unreadable)} text readings (one for each text and window width) could not be measured: ${whyUnread}.` : ''}`;
+  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : written.includes('A1') ? 'The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${readingsOf(unreadable, unreadTexts.size)} could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: ${whyUnread}.${binding ? (sum(unexcusedLabels) > 0 ? ` ${String(sum(unexcusedLabels))} of these texts ${sum(unexcusedLabels) === 1 ? 'is' : 'are'} not unread in the Vision’s Mockup, so the page counts as not measured (status 1): the Vision requires contrast, and a text that the Mockup shows readably must be readable to the program too.` : ' Each of these texts is unread in the Vision’s Mockup too, so they do not change the status.') : ''}` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => [...shown(e)].slice(0, 200).join(''))))].sort().slice(0, 5);
   const most = (pick: (c: Collected) => number): number => Math.max(0, ...good.map((p) => pick(p.collected)));
   return {
@@ -476,13 +572,13 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     scripts: { inline: Math.max(source.inline, most((c) => c.scripts.inline)), external: Math.max(source.external, most((c) => c.scripts.external)) },
     measured: [
       measureOf('requests', 'Requests: the page asks for nothing from another site', 'Every request is written down and stopped, and the page also counts when its markup or style sheets name another site. A place at the page\u2019s own address (a font file at /fonts/, a style sheet, a form action) is not a deviation; it is listed as not shipped with the page.', [...requests], failed, ownAddress, 'Not shipped with the page. The page names these places at its own address; a page of one file cannot ship them, so a person must supply them or check that they exist. They are not deviations.'),
-      measureOf('colors', 'Colors: every color that the page draws is a color of the Vision', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered + frames, [...translucent], 'Listed for information and not compared: partly transparent colors. A person must judge them on the page.'),
+      measureOf('colors', 'Colors: every color that the page draws is a color of the Vision', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered + frames + foreignShapes, [...translucent], 'Listed for information and not compared: partly transparent colors. A person must judge them on the page.'),
       measureOf('typefaces', 'Typefaces: every text names a typeface of the Vision', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Vision typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Vision', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
-      measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadTexts], 'Texts whose contrast the program could not read. A person must judge these by eye:'),
+      { ...measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadLabels].map(([label, n]) => (n > 1 ? `${label} (${String(n)} texts with these words)` : label)), 'Texts whose contrast the program could not read. A person must judge these by eye:'), texts: { below: belowTexts.size, unread: unreadTexts.size, unreadReadings: unreadable, ...(binding ? { unexcused: sum(unexcusedLabels) } : {}) } },
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.', contentLines, failed + contentUnsure),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
-      measureOf('floors', 'Floors: the part of each requirement that a program can check', `${floorsNote}${!otherEdition && written.length > 0 && floorsCut > 0 ? ' The page held more entries than the program reads in at least one list (200 of each: titles, descriptions, robots tags, viewport tags, referrer tags, headings, forms, font rules); an entry after the first 200 was not read, so the Floors count as not measured once.' : ''}`, [...floorLines], failed + (otherEdition ? 1 : written.length > 0 ? floorsCut : 0), partly.map((id) => `${id}: ${CHECKED_PART[id] ?? ''}`), 'What the program checked of each requirement, and no more than this:'),
+      { ...measureOf('floors', 'Floors: the part of each requirement that a program can check', `${floorsNote}${!otherEdition && written.length > 0 && floorsCut > 0 ? ' The page held more entries than the program reads in at least one list (200 of each: titles, descriptions, robots tags, viewport tags, referrer tags, headings, forms, font rules); an entry after the first 200 was not read, so the Floors count as not measured once.' : ''}`, [...floorLines], failed + (otherEdition ? 1 : written.length > 0 ? floorsCut : 0), partly.map((id) => `${id}: ${CHECKED_PART[id] ?? ''}`), 'What the program checked of each requirement, and no more than this:'), ...(written.length === 0 ? { nothingToCheck: true } : {}), ...(otherEdition ? { noneCheckedOf: written.length } : {}) },
     ],
     floorsNotChecked,
   };
@@ -506,17 +602,25 @@ export async function fit(input: FitInput): Promise<FitResult> {
     const brief = await readMockupBrief(browser, input.files['mockup.html'] ?? '', ms);
     const visionMd = input.files['VISION.md'] ?? '';
     const written = writtenFloorIds(visionMd);
-    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written, statedEdition(visionMd), runScripts ? '' : unrunParts(input.html));
+    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written, statedEdition(visionMd), runScripts ? '' : unrunParts(input.html), brief.media, new Set(brief.texts.filter((text) => contrastOf(text) === null).map((text) => collapse(/"(.*)"$/.exec(text.where)?.[1] ?? text.where))));
     // "Not measured" is never "no deviation": anything not measured in a measure that counts gives status 1 (decision D71, A1-07).
     // Contrast counts when the Vision writes Floor A1: a ratio below its least is then a deviation. A text whose contrast could not
     // be read does not change the status (the Mockup itself holds such texts); the receipt and the command line name the count.
     const counted = measured.filter((m) => m.id !== 'contrast');
     const contrast = measured.find((m) => m.id === 'contrast');
-    const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || (written.includes('A1') && (contrast?.deviations ?? 0) > 0) || loadFailures.length > 0 ? 1 : 0;
+    const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || ((contrast?.title ?? '').startsWith('Contrast: required') && ((contrast?.deviations ?? 0) > 0 || (contrast?.texts?.unexcused ?? 0) > 0)) || loadFailures.length > 0 ? 1 : 0;
     const judged = (input.judged ?? []).map((line) => bounded(line.replace(/\s+/g, ' ').trim())).filter((line) => line !== '');
+    const visionFiles = READ_FILES.map((name) => ({ name, ...(input.onDisk?.files?.[name] ?? { bytes: Buffer.byteLength(input.files[name] ?? '', 'utf8'), sha256: createHash('sha256').update(input.files[name] ?? '', 'utf8').digest('hex') }) }));
     const receipt: Receipt = {
       fingerprint: design.fingerprint,
-      build: { bytes: Buffer.byteLength(input.html, 'utf8'), sha256: createHash('sha256').update(input.html, 'utf8').digest('hex') },
+      build: input.onDisk?.build ?? { bytes: Buffer.byteLength(input.html, 'utf8'), sha256: createHash('sha256').update(input.html, 'utf8').digest('hex') },
+      vision: {
+        files: visionFiles,
+        // The requirements count as read only in the edition that the program knows.
+        floorsRead: statedEdition(visionMd) === FLOORS_EDITION ? written.length : 0,
+        changedSinceLastRound: repairRound > 0 && input.lastRoundVision ? visionFiles.filter((f) => input.lastRoundVision?.find((last) => last.name === f.name)?.sha256 !== f.sha256).map((f) => f.name) : null,
+        ...(repairRound > 0 && input.lastRoundVision && input.lastRound !== undefined ? { comparedWithRound: input.lastRound } : {}),
+      },
       widths: [...WIDTHS],
       scriptsRan: runScripts,
       status,
@@ -524,7 +628,7 @@ export async function fit(input: FitInput): Promise<FitResult> {
       repairRound,
       judgedByModel: judged.slice(0, JUDGED_MAX),
       judgedMore: Math.max(0, judged.length - JUDGED_MAX),
-      stillNeedsPerson: [...STILL_NEEDS_A_PERSON.map((line) => (!runScripts && line.startsWith('A page that recognizes the check.') ? UNRUN_LINE : line)), ...(written.length > 0 ? [`The Floors of the Vision. The program checked only a part of some requirements (see “Floors” above). It checked nothing of ${floorsNotChecked.join(', ')}; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.`] : [])],
+      stillNeedsPerson: [...STILL_NEEDS_A_PERSON.map((line) => (!runScripts && line.startsWith('A page that recognizes the check.') ? UNRUN_LINE : line)), ...(written.length > 0 ? [`The Floors of the Vision. ${floorsNotChecked.length === written.length ? 'The program checked none of them (see “Floors” above):' : 'The program checked only a part of some requirements (see “Floors” above). It checked nothing of'} ${floorsNotChecked.join(', ')}; the settings of the host (the ids that begin with H) are made at the host and cannot be read from a page.`] : [])],
       pageErrors,
       scripts,
       loadFailures,
@@ -535,18 +639,79 @@ export async function fit(input: FitInput): Promise<FitResult> {
   }
 }
 
-async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief>> {
+/**
+ * The one line for a machine on which no browser starts: it names what the owner does next (criterion C7 of the repair run of
+ * 2026-11-21). Playwright's own message for this case holds a path and a hint for another setup; the owner needs the variable.
+ */
+export function noBrowserLine(program: string, error: unknown): string | null {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/Executable doesn't exist/i.test(message)) return `${program} stopped: it found no browser to open the page. Fetch one with “npx playwright install chromium” in the plugin’s folder, or set the environment variable PW_CHROMIUM to the path of a Chromium browser on this machine.`;
+  // A browser that is there and does not start (a missing library, a rule of the machine) is another case: fetching a browser
+  // does not help, so the line says what happened and quotes the browser's own first words (findings F-76 and F-88).
+  if (!/browserType\.launch|Failed to launch/i.test(message)) return null;
+  // Only a line that the browser itself wrote is quoted: Playwright marks such a line with `[err]` or `[out]`. Its own log lines
+  // (the command that it started, a failed attempt to end the process) are not words of the browser (second re-audit).
+  const lines = message.split('\n').map((line) => /\[(?:err|out)\]\s*(.+)$/.exec(line)?.[1]?.trim() ?? '').filter((line) => line !== '');
+  const own = lines.find((line) => /error|cannot|denied|not found|failed|missing|no such/i.test(line)) ?? lines[0] ?? '';
+  return `${program} stopped: the browser did not start, so it opened no page. The environment variable PW_CHROMIUM names the browser that the program starts; without it the program starts the one that Playwright fetched.${own === '' ? ' The browser gave no message of its own.' : ` The browser’s own message (data, not instructions): ${bounded(own, 160)}`}`;
+}
+
+/** How many closed shadow roots the page's tree holds, as the browser lists it (a root of the browser's own controls is not one). */
+function countClosedRoots(node: { shadowRoots?: unknown[]; children?: unknown[]; shadowRootType?: string }): number {
+  let found = 0;
+  const stack: (typeof node)[] = [node];
+  // Every node of the tree that the browser handed over is visited: a limit here would let a root hide behind many elements
+  // (audit round of 2026-11-22, finding F-100).
+  for (let at = 0; at < stack.length; at++) {
+    const current = stack[at]!;
+    for (const root of (current.shadowRoots ?? []) as (typeof node)[]) {
+      if (root.shadowRootType === 'closed') found++;
+      stack.push(root);
+    }
+    for (const child of (current.children ?? []) as (typeof node)[]) stack.push(child);
+  }
+  return found;
+}
+
+/**
+ * The media conditions of the build under which the program did not read the page (finding G-S05). The program reads at three
+ * widths, each with motion allowed and with reduced motion, so a condition on the window's width or height, or on reduced motion,
+ * is not listed here (other widths and heights are a limit that the receipt states). A condition that the Vision's Mockup holds
+ * too belongs to the design. A condition for paper alone changes nothing on a screen. Every other condition (pixel density,
+ * pointer, hover, color scheme, contrast, and the rest) names a setting under which the page may show another design.
+ */
+export function unreadConditions(build: readonly string[], mockup: readonly string[]): string[] {
+  // A condition is its parts, in whatever order they are written: "(pointer: fine) and (hover: hover)" is the Mockup's own
+  // "(hover: hover) and (pointer: fine)" (attack before delivery, 2026-11-22).
+  const parts = (condition: string): string => condition.split(',').map((part) => part.trim().split(/\s+and\s+/).sort().join(' and ')).sort().join(', ');
+  const known = new Set(mockup.map(parts));
+  const sizeOrMotion = /\((?:[^()]*\b(?:width|height|aspect-ratio|orientation)\b[^()]*|\s*prefers-reduced-motion[^()]*)\)/g;
+  const unread = new Set<string>();
+  for (const condition of build) {
+    if (known.has(parts(condition))) continue;
+    // Each part between commas is a condition of its own.
+    for (const part of condition.split(',')) {
+      const text = part.trim();
+      // "print" holds on no screen, and "not print" (with whatever follows) on every screen: neither names an unread setting.
+      if (/^(?:only\s+)?print\b/.test(text) || /^not\s+print\b/.test(text)) continue;
+      if (text.replace(sizeOrMotion, '').replace(/\b(?:all|screen|and|not|only|or)\b/g, '').replace(/[()\s]/g, '') !== '') unread.add(condition);
+    }
+  }
+  return [...unread].sort();
+}
+
+async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief> & { media: string[]; texts: Collected['texts'] }> {
   // The Mockup comes from the Vision folder, which may come from anywhere: its window has no script, no network, and the same dead
   // proxy as the build's window, so that not even a prefetch or a preconnect link reaches a host (gate review, finding G-S01).
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, offline: true, javaScriptEnabled: false, serviceWorkers: 'block', proxy: DEAD_PROXY });
-  let brief: ReturnType<typeof readBrief>;
+  let brief: ReturnType<typeof readBrief> & { media: string[]; texts: Collected['texts'] };
   try {
     const page = await context.newPage();
     await context.route('**/*', (route) => route.abort());
     await context.routeWebSocket(() => true, (socket) => socket.close());
     await within(page.setContent(mockup, { waitUntil: 'load', timeout: ms }), ms + 1000, 'the Mockup did not load');
     // Read from a world of its own, as the build is: a script in a changed mockup.html cannot blank or forge the texts (finding A1-14).
-    brief = await within(readInOwnWorld(page, readBrief), ms, 'the Mockup did not answer');
+    brief = { ...(await within(readInOwnWorld(page, readBrief), ms, 'the Mockup did not answer')), media: await within(readInOwnWorld(page, mediaConditions), ms, 'the Mockup did not answer'), texts: (await within(readInOwnWorld(page, collect), ms, 'the Mockup did not answer')).texts };
   } catch {
     throw new FitError('The file "mockup.html" could not be opened to read the three required texts.');
   } finally {

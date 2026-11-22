@@ -1,0 +1,83 @@
+Checks before commit 21 of hinshitsu/PLAN.md. Started 2026-11-22T12:35:08Z. Parent commit: eaab1ff.
+Tree checked (files changed against the parent, with the SHA-256 of each):
+  fc7dae31dd6f05e0  DECISIONS.md
+  c329a9260fa62eaf  PROGRESS.md
+  1630f712644facbd  SPEC.md
+  91a24c46d4b24afd  apps/studio/e2e/deliverable.e2e.ts
+  edb36c83e78fc9e1  docs/reference/directions.md
+  7ce6a2870b963181  docs/reference/guarantees.md
+  f273c41ff8591980  hinshitsu/AUDIT-LOG.md
+  be966cd9bdb154d9  hinshitsu/PLAN.md
+  aba6b4e866df48d0  packages/core/src/tokens.ts
+  0370c46ee543ffb7  packages/core/src/vision.ts
+  869e0fc1db5a0cec  packages/core/test/__snapshots__/a-worked-project.mockup.html
+  8c73af10a0347bf9  packages/core/test/__snapshots__/the-plain-start.mockup.html
+  0cdec3ef6445648a  packages/core/test/__snapshots__/vision.test.ts.snap
+  5fdb3db13449fb3c  packages/core/test/vision.test.ts
+  c383eb8f00720832  plugin/README.md
+  4738d8fc125cc169  plugin/fit/e2e/look.e2e.ts
+  027e80ed8b81c400  plugin/fit/src/collect.ts
+  1a3896c265a2925e  plugin/fit/src/fit.ts
+  fb44d37d2ca86b9e  plugin/fit/trials/001/RECEIPT.md
+  b1bcc81ed42ca6aa  plugin/fit/trials/001/RECORD.md
+  7161b46e3e6669de  plugin/fit/trials/001/files/DESIGN.md
+  c3aa2aa2e01ed867  plugin/fit/trials/001/files/FONTS.md
+  47270c9ec5667a64  plugin/fit/trials/001/files/VISION.md
+  cbbac8327a74ef52  plugin/fit/trials/001/files/mockup.html
+  2560ac4f00e1eaab  plugin/fit/trials/001/files/theme.css
+  1c8318c02d1129fc  plugin/fit/trials/001/files/tokens.css
+  a27772d0c858dc80  plugin/fit/trials/001/files/tokens.json
+  ec69d22d04a22753  plugin/fit/trials/001/receipt.json
+  4870817f9de63bd6  plugin/fit/trials/002/RECEIPT.md
+  5c5fb5c4e4fbf54d  plugin/fit/trials/002/RECORD.md
+  7161b46e3e6669de  plugin/fit/trials/002/files/DESIGN.md
+  c3aa2aa2e01ed867  plugin/fit/trials/002/files/FONTS.md
+  47270c9ec5667a64  plugin/fit/trials/002/files/VISION.md
+  cbbac8327a74ef52  plugin/fit/trials/002/files/mockup.html
+  2560ac4f00e1eaab  plugin/fit/trials/002/files/theme.css
+  1c8318c02d1129fc  plugin/fit/trials/002/files/tokens.css
+  a27772d0c858dc80  plugin/fit/trials/002/files/tokens.json
+  a229d10558709a40  plugin/fit/trials/002/receipt.json
+  18a41478db33500c  plugin/fit/trials/003/RECEIPT.md
+  00680513f802fd5e  plugin/fit/trials/003/RECORD.md
+  7161b46e3e6669de  plugin/fit/trials/003/files/DESIGN.md
+  c3aa2aa2e01ed867  plugin/fit/trials/003/files/FONTS.md
+  7b0b2e00eaab8f60  plugin/fit/trials/003/files/VISION.md
+  cbbac8327a74ef52  plugin/fit/trials/003/files/mockup.html
+  2560ac4f00e1eaab  plugin/fit/trials/003/files/theme.css
+  1c8318c02d1129fc  plugin/fit/trials/003/files/tokens.css
+  a27772d0c858dc80  plugin/fit/trials/003/files/tokens.json
+  5b8ac4fa232629b3  plugin/fit/trials/003/receipt.json
+  f13ecf029907a511  plugin/fit/trials/reference-floors/DESIGN.md
+  8f1ada68e041674f  plugin/fit/trials/reference-floors/FONTS.md
+  bc39d70d8c98bda9  plugin/fit/trials/reference-floors/VISION.md
+  8c73af10a0347bf9  plugin/fit/trials/reference-floors/mockup.html
+  a8c79572184b266f  plugin/fit/trials/reference-floors/theme.css
+  0145afe33f04dec7  plugin/fit/trials/reference-floors/tokens.css
+  0d9e589412e52752  plugin/fit/trials/reference-floors/tokens.json
+  2d7d44cc493b86aa  redteam/FINDINGS.md
+
+== npm run check ==
+exit 0
+
+ Test Files  17 passed (17)
+      Tests  374 passed (374)
+   Start at  12:35:29
+   Duration  13.14s (tests 90%, import 8%, transform 2%)
+
+
+== npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e ==
+exit 0
+ Test Files  4 passed (4)
+      Tests  251 passed (251)
+   Duration  1689.40s (tests 100%)
+
+== npm run build:page, then npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts ==
+build exit 0
+exit 0
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Duration  22.21s (tests 97%, import 2%)
+
+Finished 2026-11-22T13:04:16Z.
+Run in a second checkout that holds exactly the files of this commit (snapshot 4986c58b9ba85a835a7936aecfcd3dacda7d2734).

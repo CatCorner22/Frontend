@@ -1,0 +1,30 @@
+== commit 93526c5: npm ci --ignore-scripts ==
+
+added 195 packages in 3s
+exit 0
+== commit 93526c5: npm run build:page ==
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 294ms
+artifact: 1488 KB
+exit 0
+== commit 93526c5: sha256sum ==
+eaffab910c2a2bf3c29fa54198ef4e7dc9481674317b368d2596e395d98e17bb  apps/studio/dist/artifact/refraction-studio.html
+1524689 apps/studio/dist/artifact/refraction-studio.html
+== commit 523ae8e: npm ci --ignore-scripts ==
+
+added 195 packages in 3s
+exit 0
+== commit 523ae8e: npm run build:page ==
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 360ms
+artifact: 1488 KB
+exit 0
+== commit 523ae8e: sha256sum ==
+47adc2ffd08deba65d19a6f110daf4ea975c4cf2f5954a0d961f6adbe98a426f  apps/studio/dist/artifact/refraction-studio.html
+1524671 apps/studio/dist/artifact/refraction-studio.html

@@ -1,0 +1,20 @@
+{
+ "direction": "Ember Noir",
+ "mode": "own",
+ "zip": "/tmp/tmp.k6LvtuB3h7/vB/frontend-focus-vision-82a3dee9.zip",
+ "errors": [],
+ "reqs": [],
+ "dialogs": [],
+ "scriptsInDom": 0,
+ "typed": {
+  "project-name": "Harbor Kiln project",
+  "brief-offer": "Hand-thrown stoneware & kiln classes",
+  "brief-audience": "People near the harbor who cook at home",
+  "brief-job": "Book a place in a Saturday class",
+  "content-business": "Harbor Kiln Pottery",
+  "content-primaryAction": "Book a class",
+  "content-phone": "555 0142 77",
+  "content-headline": "Clay cups that outlast the tea",
+  "content-lede": "Auditor text 7731: every cup is thrown, glazed and fired at the harbor."
+ }
+}

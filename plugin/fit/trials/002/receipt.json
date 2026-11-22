@@ -1,8 +1,34 @@
 {
-  "fingerprint": "7776d35d",
+  "fingerprint": "0fabf790",
   "build": {
     "bytes": 11022,
     "sha256": "f50b23e8363a0c8390056dea5ccdad1e6caefaad900bfd95ddae4a469c9ab54e"
+  },
+  "vision": {
+    "files": [
+      {
+        "name": "VISION.md",
+        "bytes": 17465,
+        "sha256": "47270c9ec5667a64dcf4371fc7c8a4a1d5c805e3c028611bcf131a78d3a5ab09"
+      },
+      {
+        "name": "tokens.css",
+        "bytes": 3485,
+        "sha256": "1c8318c02d1129fc2944c152ed4aaadb76c5b309953d9cf755d194c796a44284"
+      },
+      {
+        "name": "tokens.json",
+        "bytes": 17022,
+        "sha256": "a27772d0c858dc80a5ec571cdc4dc9a24d29c5003d34d5085d38e5af6aa5b34f"
+      },
+      {
+        "name": "mockup.html",
+        "bytes": 41737,
+        "sha256": "cbbac8327a74ef5255c75cd4703b6b4da67248b01d5fef39553cdae5be70c33e"
+      }
+    ],
+    "floorsRead": 0,
+    "changedSinceLastRound": null
   },
   "widths": [
     375,
@@ -75,9 +101,22 @@
     {
       "id": "radii",
       "title": "Corner radii: every drawn box uses a radius of the Vision",
-      "deviations": 0,
+      "deviations": 12,
       "notMeasured": 0,
-      "items": [],
+      "items": [
+        "radius 11.45px: 1 element, first rect",
+        "radius 14.4px: 1 element, first rect",
+        "radius 14.72px: 1 element, first rect",
+        "radius 17.21px: 1 element, first rect",
+        "radius 22.13px: 1 element, first rect",
+        "radius 24.53px: 1 element, first rect",
+        "radius 25.2px: 1 element, first rect",
+        "radius 32.4px: 1 element, first rect",
+        "radius 36.88px: 1 element, first rect",
+        "radius 54px: 1 element, first rect",
+        "radius 6.54px: 1 element, first rect",
+        "radius 9.83px: 1 element, first rect"
+      ],
       "more": 0,
       "note": "Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.",
       "informationHead": "",
@@ -98,7 +137,12 @@
       "note": "The ratio of each text to its background by the WCAG 2.x formula. The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.",
       "informationHead": "Texts whose contrast the program could not read. A person must judge these by eye:",
       "information": [],
-      "informationMore": 0
+      "informationMore": 0,
+      "texts": {
+        "below": 1,
+        "unread": 0,
+        "unreadReadings": 0
+      }
     },
     {
       "id": "content",
@@ -131,10 +175,11 @@
       "notMeasured": 0,
       "items": [],
       "more": 0,
-      "note": "The Vision’s section 7 writes no requirement that this program reads, so nothing was checked here.",
+      "note": "The Vision’s section 7 writes no requirement that this program reads.",
       "informationHead": "What the program checked of each requirement, and no more than this:",
       "information": [],
-      "informationMore": 0
+      "informationMore": 0,
+      "nothingToCheck": true
     }
   ],
   "repairRound": 0,
@@ -150,11 +195,15 @@
     "All other window widths. The program read the page at 375, 768, and 1280 pixels only, each with motion allowed and with reduced motion; a page can show another design at any other width.",
     "A page that behaves differently for a visitor. The program ran no script of the page, so it did not read anything that a script draws or changes; a visitor’s browser runs scripts. If the page holds a script, check again with the option --run-scripts.",
     "Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.",
-    "Dark mode, touch screens, and other window heights. The program reads the page in light mode, with a mouse, in a window 800 pixels tall; a page can show another design in each.",
-    "Other screens and settings. The program reads the page on a screen of ordinary pixel density; a page can show another design on a high-density screen (most phones), in print, with high contrast, or in another language setting.",
+    "Other window heights. The program reads the page in a window 800 pixels tall; a page can show another design at any other height.",
+    "Dark mode, touch screens, high-density screens, and other settings. The program reads the page in light mode, with a mouse, on a screen of ordinary pixel density. Where the page’s style rules name another such setting in a media condition that the Vision’s Mockup does not hold, the program lists the condition and counts the page as not measured. A condition that the Mockup holds too (a mouse that can point at a thing, for one) is read in one state only, the one of the reading; under the other state the page can show another design. A page can still show another design there by a way that names no media condition (a set of pictures by density, a script), and in print or in another language setting.",
     "What happens later. The program stops reading about five seconds after the page has loaded. A page can change after that, or when a person scrolls, clicks, or types.",
+    "The Vision folder itself. The program takes the files in the Vision folder as the owner’s own and measures the page against them as they are. A folder from elsewhere, or a file that was changed in it, can state other texts, values, and requirements; the top of this receipt names each file that was read by its SHA-256.",
+    "The count of repair rounds. The number of the round comes from whoever runs the program (a model, or a person); the program records it and cannot know how many repairs were made.",
+    "Where a covering box lies. The program works out the place of a box that a style rule draws from its style values, an approximation; a text at the edge of such a box can be counted as covered, or as free, by mistake.",
+    "A blend mode on a box that a style rule draws. The program does not read it; such a box can change the colors of what lies under it.",
     "Frames. The program does not read what an iframe, a frame, an object, or an embed draws; it counts each as not measured.",
-    "Closed shadow roots. The program reads the page and every open shadow root; a closed one is out of its reach.",
+    "Closed shadow roots. The program reads the page and every open shadow root. A closed one is out of its reach: the program counts the page as not measured and says how many it holds.",
     "Contrast against what lies under a text on screen. The program reads the color of the boxes that hold a text, so a text placed over another box, or blended with it, can have another contrast."
   ],
   "pageErrors": [],

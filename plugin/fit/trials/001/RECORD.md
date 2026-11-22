@@ -4,7 +4,7 @@ Date of the run: 2026-11-16. This is one run: one helper agent, one project, one
 
 ## Instruction
 
-The helper received the text in `INSTRUCTION.md`, word for word, and a folder that held the seven files in `files/` and nothing else. The files are the output of the Studio's core for the fixed project of `plugin/fit/e2e/trial-project.ts`: the plain start, six Decisions (menu, first screen, density, typeface, accent color, corner radius; each differs from the start), one reason in the owner's words, and the sample content. Their fingerprint is `7776d35d`.
+The helper received the text in `INSTRUCTION.md`, word for word, and a folder that held the seven files in `files/` and nothing else. The files are the output of the Studio's core for the fixed project of `plugin/fit/e2e/trial-project.ts`: the plain start, six Decisions (menu, first screen, density, typeface, accent color, corner radius; each differs from the start), one reason in the owner's words, and the sample content. Their fingerprint is `7776d35d` [as of the run's date; the stored files carry `0fabf790` since 2026-11-22: see the last part of this record].
 
 The helper was a general-purpose helper agent of this session. It ran on the session's model at that time; the builder did not read which model served the turn, and the record does not claim one. The helper ran for about 71 seconds and used 9 tool calls.
 
@@ -75,3 +75,15 @@ The receipt was measured again with the repaired program. No deviation count cha
 ## After the join of the three lines of work (2026-11-17, decision D77)
 
 The receipt was measured again with the joined program. It now runs none of the page's scripts unless asked (this page has none), and the colors measure also compares underlines, list markers, placeholders, carets, and accent colors. No count of deviations changed; two more partly transparent colors are listed as information (the underline of links).
+
+## After the repairs to the receipt's wording (2026-11-21, retest findings R-U02 to R-U04)
+
+The receipt was measured again. No count changed. Its wording changed: it now says "27 readings of 3 texts could not be measured", where it said "27 text readings", because each of the three texts is read at 3 window widths and up to 3 times at each.
+
+## After the repair run of 2026-11-21 (record: `hinshitsu/AUDIT-LOG.md`)
+
+The receipt was measured again by the program after each repair of the run that changed its wording. No count changed, and the status is 0 as before. What changed in the words: the receipt names each Vision file that the program read by its SHA-256; under Floors it says "Nothing to check" where it said "0 deviations; 0 not measured"; the counts of contrast carry their unit ("27 readings of 3 texts not measured"); "Still needs a person" says what the program now does about closed shadow roots and about settings of the screen that the page's style rules name.
+
+## The typeface for numerals and one sentence changed (2026-11-22, decision D83)
+
+The stored files in `files/` were written again, because a test keeps them equal to what the core writes today. Two things changed in them, and nothing else: (1) the design value `--font-numeric` is the body typeface, a real list of typefaces, where it was the keyword `inherit` (the owner's decision D83); with it the fingerprint of the design values changed from `7776d35d` to `0fabf790` in all seven files; (2) `VISION.md` says "each carries the fingerprint stated above" where it said "below". The helper's page (`index.html`) is as the helper built it. The receipt was measured again: its fingerprint and the SHA-256 of the Vision files are new, and no count changed.

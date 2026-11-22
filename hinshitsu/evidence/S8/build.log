@@ -1,0 +1,32 @@
+
+> build:page
+> npm run build && node apps/studio/scripts/make-artifact.mjs
+
+
+> build
+> npm run build -w @refraction/studio
+
+
+> @refraction/studio@0.1.0 build
+> vite build
+
+vite v8.3.8 building client environment for production...
+
+ WARN  inlineDynamicImports option is deprecated, please use codeSplitting: false instead.
+
+transforming...
+✓ 155 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html            0.40 kB │ gzip:   0.25 kB
+dist/assets/style.css     23.45 kB │ gzip:   5.36 kB
+dist/assets/app.js     1,501.05 kB │ gzip: 791.91 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 341ms
+artifact: 1488 KB
+exit 0

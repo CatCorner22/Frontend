@@ -1,0 +1,55 @@
+Checks before commit 20 of hinshitsu/PLAN.md. Started 2026-11-22T11:30:59Z. Parent commit: 6dd5592.
+Tree checked (files changed against the parent, with the SHA-256 of each):
+  a7d61c8288a6762a  PROGRESS.md
+  954c1f1c77a17b5e  SPEC.md
+  68a1e35744ff8747  docs/reference/guarantees.md
+  3a9a6d4903a91585  plugin/README.md
+  38b141a5935f4e3b  plugin/commands/fit-build.md
+  79f0a7b05080888f  plugin/commands/fit-check.md
+  d53d19a0d017f7ce  plugin/commands/fit-look.md
+  4beee7c4619c539e  plugin/commands/fit-repair.md
+  36b97b820124c187  plugin/fit/e2e/exit.e2e.ts
+  c89e3cbd0ec6937d  plugin/fit/e2e/fit.e2e.ts
+  b97389374a3699c3  plugin/fit/e2e/look.e2e.ts
+  637518acb8306d38  plugin/fit/src/cli.ts
+  c92799b0aa13ffc2  plugin/fit/src/collect.ts
+  8a9d0a28fd285dd5  plugin/fit/src/fit.ts
+  7cb2a691c00a719b  plugin/fit/src/floors.ts
+  c34b6aafa906258d  plugin/fit/src/look-cli.ts
+  5e11cadf2700524e  plugin/fit/src/look.ts
+  30f431cab0dd0f08  plugin/fit/src/receipt.ts
+  f173fb10e8a7e62e  plugin/fit/trials/001/RECEIPT.md
+  6b66bef5969ce170  plugin/fit/trials/001/receipt.json
+  e270581e9c33fa52  plugin/fit/trials/002/RECEIPT.md
+  b3e9b24ba625edd7  plugin/fit/trials/002/RECORD.md
+  ea6d9291fa691229  plugin/fit/trials/002/receipt.json
+  b5625f1af0032d4c  plugin/fit/trials/003/RECEIPT.md
+  7c8c8f9a708514b8  plugin/fit/trials/003/RECORD.md
+  c2e8e5c5b9c3d4f9  plugin/fit/trials/003/receipt.json
+  21f1b5de4981d67b  plugin/fit/trials/reference-floors/README.md
+  f32f26879be3c7a8  redteam/FINDINGS.md
+
+== npm run check ==
+exit 0
+
+ Test Files  17 passed (17)
+      Tests  374 passed (374)
+   Start at  11:31:21
+   Duration  12.87s (tests 92%, import 7%, transform 1%)
+
+
+== npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e ==
+exit 0
+ Test Files  4 passed (4)
+      Tests  251 passed (251)
+   Duration  1725.16s (tests 100%)
+
+== npm run build:page, then npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts ==
+build exit 0
+exit 0
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Duration  22.30s (tests 98%, import 2%)
+
+Finished 2026-11-22T12:00:44Z.
+Run in a second checkout that holds exactly the files of this commit (snapshot 88d959321381d7eb2c8de29cfb343bd4ed379cf0).

@@ -694,7 +694,7 @@ describe('Fit check: a hostile page (SPEC.md section 2.15; findings X7-01 to X7-
     for (const runScripts of [false, true]) {
       const { markdown } = await fit(inputOf(files, html, { runScripts, loadTimeoutMs: 4000 }));
       const headings = markdown.split('\n').filter((line) => /^#{1,6} /.test(line)).map((line) => line.replace(/^#+ /, ''));
-      const allowed = new Set([...HEADINGS, ...measureTitles, 'The page’s own scripts', 'Windows that did not load', 'Errors that the page threw while it loaded']);
+      const allowed = new Set([...HEADINGS, ...measureTitles, 'The page’s own scripts', 'What the program could not read', 'Errors that the page threw while it loaded']);
       expect(headings.filter((h) => !allowed.has(h)), `runScripts ${String(runScripts)}`).toEqual([]);
       expect(markdown).not.toContain('Everything is fine');
     }
@@ -904,7 +904,7 @@ describe('Fit check: faults that no test caught (the seventh review’s test aud
 
   it('says in the markdown which window did not load and why', async () => {
     const { markdown } = await fit(inputOf(files, '<!doctype html><html><body><script>for(;;){}</script></body></html>', { loadTimeoutMs: 1000, runScripts: true }));
-    expect(markdown).toContain('Windows that did not load');
+    expect(markdown).toContain('What the program could not read');
     expect(markdown).toContain('the page did not finish loading within 1000 milliseconds');
   });
 

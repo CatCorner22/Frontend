@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; form-action 'none'; base-uri 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="refraction-fingerprint" content="0059c6f8">
+<meta name="color-scheme" content="light">
+<title>Harbor Street Dental</title>
+<style>
+
+:root {
+  --bg: #f7faff;
+  --surface: #ffffff;
+  --surface-2: #e9f1fb;
+  --card-surface: #ffffff;
+  --border-strong: #646e7c;
+  --text: #09111c;
+  --text-muted: #4e5967;
+  --accent: #0f4ea3;
+  --on-accent: #fafcff;
+  --accent-text: #0f4ea3;
+  --accent-soft: #e2eeff;
+  --accent-2: #0f4ea3;
+  --on-accent-2: #fafcff;
+  --action: #0f4ea3;
+  --on-action: #fafcff;
+  --btn-label: #fafcff;
+  --btn-fill: #0f4ea3;
+  --band-bg: #e2eeff;
+  --band-text: #09111c;
+  --band-solid-bg: #0f4ea3;
+  --band-solid-text: #fafcff;
+  --hero-bg: #f7faff;
+  --hero-text: #09111c;
+  --focus: #0f4ea3;
+  --focus-hero: #0f4ea3;
+  --marker-ink: #0f4ea3;
+  --border: rgb(9 17 28 / 0.148);
+  --selection: rgb(15 78 163 / 0.22);
+  --marker: rgb(15 78 163 / 0.3);
+  --soft-label-alpha: 0.78;
+  --hero-lede-alpha: 0.88;
+  --display-scale: 1;
+  --media-a: #e2eeff;
+  --media-b: #e9f1fb;
+  --inset-highlight: rgb(255 255 255 / 0.8);
+  --recess: rgb(0 0 0 / 0.045);
+  --card-backdrop: none;
+  --header-bg: #f7faff;
+  --header-backdrop: none;
+  --header-position: static;
+  --page-atmo: none;
+  --card-bg: #ffffff;
+  --card-border: rgb(9 17 28 / 0.148);
+  --card-border-w: 1px;
+  --card-shadow: none;
+  --control-shadow: none;
+  --btn-bg: #0f4ea3;
+  --btn-bg-hover: #2460b7;
+  --btn-color: #fafcff;
+  --btn-border: #004091;
+  --btn-shadow: var(--control-shadow);
+  --btn-shadow-hover: var(--control-shadow);
+  --atmo-image: none;
+  --atmo-size: auto;
+  --atmo-mask: none;
+  --grain-opacity: 0;
+  --display-fill: none;
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-slow: 480ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --press-scale: 0.97;
+  --hover-lift: 0px;
+  --text-xs: 0.8287rem;
+  --text-sm: 0.9456rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.3281rem;
+  --text-xl: 1.6602rem;
+  --text-2xl: 2.0752rem;
+  --text-3xl: 2.594rem;
+  --text-4xl: 3.2425rem;
+  --text-display: clamp(2.0752rem, 1.5915rem + 2.064vw, 3.2425rem);
+  --lede-size: min(var(--text-lg), 5.6vw);
+  --h2-size: min(var(--text-2xl), 8.5vw);
+  --h3-size: min(var(--text-xl), 7vw);
+  --numeral-size: min(var(--text-3xl), 11vw);
+  --brand-size: min(var(--text-lg), 6vw);
+  --h1-floor: max(calc(var(--lede-size) * 1.25), calc(var(--h2-size) * 1.15));
+  --font-heading: "Public Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Public Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+  --heading-weight: 600;
+  --heading-tracking: -0.015em;
+  --heading-transform: none;
+  --leading-heading: 1.12;
+  --leading-body: 1.55;
+  --numeric: tabular-nums;
+  --font-numeric: "Public Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  --section-gap: 6.5rem;
+  --page-max: 68rem;
+  --measure: 65ch;
+  --about-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  --fees-column: auto;
+  --radius-control: 8px;
+  --radius-surface: 12px;
+  --radius-small: 4px;
+  --border-w: 1px;
+  --control-border-w: 1px;
+  --focus-w: 3px;
+  --target-min: 2.75rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: var(--font-body); font-size: var(--text-base); line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-kerning: normal; font-optical-sizing: auto;
+  /* A word that is wider than its line breaks instead of pushing the page wider than the screen. */
+  /* "anywhere", not "break-word": a long word then breaks where it must, and a grid or flex part may also become narrower
+     than its longest word. With "break-word" a long name or headline of the owner's own made the whole page wider than
+     the window (finding B17-01). */
+  overflow-wrap: anywhere;
+}
+::selection { background: var(--selection); }
+h1, h2, h3 {
+  font-family: var(--font-heading); font-weight: var(--heading-weight); letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform); line-height: var(--leading-heading); margin: 0; text-wrap: balance;
+}
+p { margin: 0; text-wrap: pretty; }
+:where(a[role="link"]) { text-decoration: underline; cursor: pointer; }
+/* Underlines sit a little below the text and start soft; they firm up under the pointer. */
+a { color: var(--accent-text); text-underline-offset: 0.22em; text-decoration-thickness: 0.07em; text-decoration-color: color-mix(in oklch, currentColor 45%, transparent); transition: text-decoration-color var(--dur-fast) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { a:hover { text-decoration-color: currentColor; } }
+.wrap { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--space-6); }
+.skip { position: absolute; left: var(--space-4); top: -100px; background: var(--surface); color: var(--text); padding: var(--space-2) var(--space-4); border-radius: var(--radius-small); z-index: 60; }
+.skip:focus { top: var(--space-4); }
+:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: 2px; }
+/* On the first screen the ring takes a color that stands out from that screen, which may be painted in the accent. */
+.hero :focus-visible { outline-color: var(--focus-hero); }
+mark { background: none; color: inherit; }
+
+/* Page-wide layers: a faint glow behind glass surfaces, and optional film grain on top. */
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: var(--page-atmo); }
+body[data-atmosphere="grain"]::after { content: ""; position: fixed; inset: 0; z-index: 50; pointer-events: none; opacity: var(--grain-opacity); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode: multiply; }
+body[data-atmosphere="grain"][data-theme="dark"]::after { mix-blend-mode: overlay; }
+
+/* Motion: only the properties that change are animated, and everything can be interrupted. */
+.btn, .nav li a, .field input, .field textarea, .service, .more {
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), box-shadow var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: var(--target-min); padding: 0 var(--space-5);
+  border: var(--control-border-w) solid transparent; border-radius: var(--radius-control);
+  font: inherit; font-weight: 600; letter-spacing: -0.006em; text-decoration: none; cursor: pointer; white-space: nowrap; user-select: none;
+}
+.btn-primary { background: var(--btn-bg); color: var(--btn-color); border-color: var(--btn-border); box-shadow: var(--btn-shadow); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover { background: var(--btn-bg-hover); box-shadow: var(--btn-shadow-hover); }
+}
+.btn:active { transform: scale(var(--press-scale)); }
+/* A button with a hard shadow moves into its shadow. Not in a design without movement: there a pressed button stays put. */
+body[data-elevation="hard-shadow"]:not([data-motion="none"]) .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+
+/* Header and navigation */
+.site-header { position: var(--header-position); top: 0; z-index: 30; border-bottom: var(--border-w) solid var(--border); background: var(--header-bg); -webkit-backdrop-filter: var(--header-backdrop); backdrop-filter: var(--header-backdrop); }
+.nav { display: flex; align-items: center; gap: var(--space-3) var(--space-6); min-height: calc(var(--target-min) + var(--space-6)); flex-wrap: wrap; padding-block: var(--space-2); }
+.brand { font-family: var(--font-heading); font-weight: var(--heading-weight); letter-spacing: var(--heading-tracking); font-size: var(--brand-size); color: var(--text); text-decoration: none; margin-right: auto; }
+.nav ul { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); list-style: none; margin: 0; padding: 0; }
+.nav li a { display: inline-flex; align-items: center; min-height: var(--target-min); color: var(--text-muted); text-decoration: none; font-size: var(--text-sm); font-weight: 500; }
+.nav li a[aria-current="page"] { color: var(--text); }
+@media (hover: hover) and (pointer: fine) { .nav li a:hover { color: var(--text); } }
+.nav-actions { display: none; align-items: center; gap: var(--space-4); }
+.phone { color: var(--text); font-weight: 600; text-decoration: none; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+body[data-nav="top-centered"] .nav { flex-direction: column; gap: var(--space-1); padding-block: var(--space-5) var(--space-2); }
+body[data-nav="top-centered"] .brand { margin: 0; font-size: var(--h3-size); }
+body[data-nav="top-centered"] .nav ul { justify-content: center; }
+body[data-nav="split-cta"] .nav-actions { display: flex; }
+body[data-nav="split-cta"] .brand { margin-right: 0; }
+body[data-nav="split-cta"] .nav nav { margin-inline: auto; }
+@media (max-width: 719px) {
+  body[data-nav="split-cta"] .nav nav { order: 3; width: 100%; margin: 0; }
+  body[data-nav="split-cta"] .brand { margin-right: auto; }
+  /* Only the telephone number in the top bar goes. The rule once named every telephone number, so the number in the contact
+     part vanished on a phone, where it is the most useful (code review of 2026-11-13, finding "tokens 1"). */
+  body[data-nav="split-cta"] .nav-actions .phone { display: none; }
+}
+@media (min-width: 960px) {
+  body[data-nav="side-rail"] { display: grid; grid-template-columns: 15rem minmax(0, 1fr); grid-template-rows: 1fr auto; min-height: 100vh; }
+  body[data-nav="side-rail"] .site-header { position: static; grid-row: 1 / span 2; border-bottom: 0; border-right: var(--border-w) solid var(--border); background: var(--surface-2); }
+  body[data-nav="side-rail"] .site-header .nav { flex-direction: column; align-items: flex-start; position: sticky; top: 0; padding: var(--space-8) var(--space-6); gap: var(--space-8); max-width: none; }
+  body[data-nav="side-rail"] .nav ul { flex-direction: column; gap: 0; }
+  body[data-nav="side-rail"] .brand { margin: 0; }
+  body[data-nav="side-rail"] .nav-actions { display: flex; flex-direction: column; align-items: flex-start; }
+}
+
+/* Hero */
+.hero { position: relative; isolation: isolate; overflow: clip; background: var(--hero-bg); color: var(--hero-text); padding-block: calc(var(--section-gap) * 0.85); }
+.hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: var(--atmo-image); background-size: var(--atmo-size); -webkit-mask-image: var(--atmo-mask); mask-image: var(--atmo-mask); }
+.hero-grid { display: grid; gap: var(--space-10); align-items: center; }
+/* The headline: never wider than the screen allows, and never smaller than its floor (see --h1-floor in the tokens). */
+.hero h1 { font-size: clamp(var(--h1-floor), calc(var(--text-display) * var(--display-scale)), calc(13vw * var(--display-scale))); max-width: 18ch; padding-block: 0.04em; }
+.tag { font-size: var(--text-sm); font-weight: 600; color: var(--accent-text); margin-bottom: var(--space-4); }
+body[data-strategy="color-block"] .tag { color: inherit; }
+.lede { font-size: var(--lede-size); line-height: 1.5; max-width: 52ch; margin-top: var(--space-5); color: var(--text-muted); }
+body[data-strategy="color-block"] .lede { color: inherit; opacity: var(--hero-lede-alpha); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); margin-top: var(--space-8); }
+.actions .link { color: inherit; font-weight: 600; }
+/* A link that stands alone is at least 24 pixels tall, the floor for a pointer target. */
+.actions .link, .service .more, address .phone, .nav-actions .phone { display: inline-flex; align-items: center; min-height: 1.5rem; }
+.actions .phone-big { display: none; font-size: var(--lede-size); color: inherit; }
+body[data-strategy="color-block"] .hero .btn-primary { background: var(--hero-text); color: var(--hero-bg); border-color: var(--hero-text); box-shadow: none; }
+.hero-media { display: none; }
+.fact-list.hero-facts { display: none; }
+
+body[data-display="ink-gradient"] .hero h1, body[data-display="accent-gradient"] .hero h1 { background: var(--display-fill); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+
+body[data-hero="centered"] .hero-copy { text-align: center; margin-inline: auto; }
+body[data-hero="centered"] .hero h1, body[data-hero="centered"] .lede { margin-inline: auto; }
+body[data-hero="centered"] .hero h1 { max-width: 22ch; }
+body[data-hero="centered"] .actions { justify-content: center; }
+@media (min-width: 860px) {
+  body[data-hero="split-media"] .hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); }
+  body[data-hero="split-media"] .hero-media { display: grid; aspect-ratio: 4 / 5; max-height: 34rem; width: 100%; }
+}
+body[data-hero="statement"] .hero h1 { font-size: clamp(var(--h1-floor), calc(var(--text-display) * var(--display-scale) * 1.22), calc(13vw * var(--display-scale))); max-width: none; line-height: 1; }
+body[data-hero="statement"] .hero-sub { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-6) var(--space-10); margin-top: var(--space-10); padding-top: var(--space-6); border-top: var(--control-border-w) solid currentColor; }
+body[data-hero="statement"] .lede { margin-top: 0; flex: 1 1 22rem; }
+body[data-hero="statement"] .actions { margin-top: 0; flex: 0 1 auto; }
+
+/* Emphasis: what the eye finds first */
+body[data-emphasis="action"] .hero h1 { font-size: clamp(var(--h1-floor), calc(var(--text-3xl) * var(--display-scale)), calc(13vw * var(--display-scale))); max-width: 24ch; }
+body[data-emphasis="action"] .hero .btn-primary { min-height: 3.5rem; padding-inline: var(--space-8); font-size: var(--lede-size); }
+body[data-emphasis="action"] .actions .phone-big { display: inline-flex; }
+body[data-emphasis="action"] .actions .link { display: none; }
+body[data-emphasis="proof"] .fact-list.hero-facts { display: grid; }
+body[data-emphasis="proof"] .facts { display: none; }
+body[data-emphasis="proof"] .hero h1 { font-size: clamp(var(--h1-floor), calc(var(--text-3xl) * var(--display-scale)), calc(13vw * var(--display-scale))); }
+
+/* Facts */
+.fact-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--space-6) var(--space-8); margin: 0; }
+.fact-list div { display: grid; gap: var(--space-1); }
+.fact-list dt { font-family: var(--font-heading); font-weight: var(--heading-weight); font-size: var(--h2-size); line-height: 1.05; letter-spacing: var(--heading-tracking); font-variant-numeric: var(--numeric); white-space: nowrap; }
+/* A short figure ("45 min") stays on one line. A long one may break, and is drawn one size smaller so that it fits its column. */
+.fact-list dt.long { white-space: normal; font-size: var(--h3-size); line-height: 1.15; }
+.fact-list dd { margin: 0; font-size: var(--text-sm); opacity: var(--soft-label-alpha); }
+body[data-numerals="mono"] .fact-list dt, body[data-numerals="mono"] .phone, body[data-numerals="mono"] .num { font-family: var(--font-numeric); letter-spacing: -0.02em; }
+.facts { background: var(--band-bg); color: var(--band-text); padding-block: var(--space-10); }
+@media (min-width: 720px) { .facts .fact-list div + div { border-left: 1px solid color-mix(in oklch, currentColor 16%, transparent); padding-left: var(--space-8); } }
+.fact-list.hero-facts { margin-top: var(--space-10); padding-top: var(--space-6); border-top: var(--border-w) solid var(--border); }
+
+/* Sections */
+section.block { padding-block: var(--section-gap); }
+.section-head { display: grid; gap: var(--space-3); margin-bottom: var(--space-10); max-width: 46rem; }
+.section-head h2, .about h2, .contact h2 { font-size: var(--h2-size); }
+.section-head p { color: var(--text-muted); font-size: var(--lede-size); }
+.service-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.service h3 { font-size: var(--h3-size); }
+.service p { color: var(--text-muted); max-width: var(--measure); }
+.service .more { font-weight: 600; font-size: var(--text-sm); }
+.service .num { display: none; font-family: var(--font-heading); font-weight: var(--heading-weight); color: var(--accent-text); font-variant-numeric: tabular-nums; }
+.service-media { display: none; }
+/* The box and its one column may shrink below the width of their longest word, which then wraps: a long word in spaced capitals pushed the page 5 pixels wider than a 1024-pixel window (found 2026-11-14 on a new Direction). */
+.service { min-width: 0; }
+.service-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); align-content: start; min-width: 0; }
+/* Light falls from above: a box that casts a shadow also catches a faint highlight along its top edge. */
+.card, body[data-sections="grid"] .service, body[data-sections="bento"] .service { background-clip: padding-box; }
+.card { background: var(--card-bg); border: var(--card-border-w) solid var(--card-border); border-radius: var(--radius-surface); box-shadow: var(--card-shadow); -webkit-backdrop-filter: var(--card-backdrop); backdrop-filter: var(--card-backdrop); }
+
+body[data-sections="stacked"] .service { display: grid; gap: var(--space-4); padding-block: var(--space-8); border-top: var(--border-w) solid var(--border); }
+body[data-sections="stacked"] .service:last-child { border-bottom: var(--border-w) solid var(--border); }
+@media (min-width: 860px) {
+  body[data-sections="stacked"] .service-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 0.8fr); gap: var(--space-8); align-items: baseline; }
+  body[data-sections="stacked"] .service .more { justify-self: end; text-align: right; }
+}
+
+body[data-sections="alternating"] .service-list { gap: var(--space-16); }
+body[data-sections="alternating"] .service { display: grid; gap: var(--space-8); align-items: center; }
+body[data-sections="alternating"] .service-media { display: grid; aspect-ratio: 16 / 10; }
+@media (min-width: 860px) {
+  body[data-sections="alternating"] .service { grid-template-columns: 1fr 1fr; gap: var(--space-16); }
+  body[data-sections="alternating"] .service:nth-child(even) .service-media { order: 2; }
+}
+
+body[data-sections="grid"] .service-list { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--space-6); }
+body[data-sections="grid"] .service, body[data-sections="bento"] .service { background: var(--card-bg); border: var(--card-border-w) solid var(--card-border); border-radius: var(--radius-surface); box-shadow: var(--card-shadow); -webkit-backdrop-filter: var(--card-backdrop); backdrop-filter: var(--card-backdrop); padding: var(--space-8); display: grid; gap: var(--space-4); align-content: start; }
+@media (hover: hover) and (pointer: fine) { body[data-sections="grid"] .service:hover, body[data-sections="bento"] .service:hover { transform: translateY(var(--hover-lift)); } }
+
+/* Bento: one large tile and smaller tiles beside it, so that size itself says which item matters most. */
+body[data-sections="bento"] .service-list { gap: var(--space-5); }
+body[data-sections="bento"] .service:first-child .service-media { display: grid; aspect-ratio: 16 / 9; }
+body[data-sections="bento"] .service:first-child h3 { font-size: var(--h2-size); }
+@media (min-width: 860px) {
+  body[data-sections="bento"] .service-list { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+  body[data-sections="bento"] .service:first-child { grid-row: span 2; align-content: space-between; }
+}
+
+@media (min-width: 960px) {
+  body[data-sections="ledger"] .services .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--space-16); align-items: start; }
+  body[data-sections="ledger"] .section-head { position: sticky; top: var(--space-8); margin: 0; }
+  body[data-sections="ledger"] .fees { grid-column: var(--fees-column); }
+}
+body[data-sections="ledger"] .service { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-6); padding-block: var(--space-6); border-top: var(--border-w) solid var(--border-strong); }
+body[data-sections="ledger"] .service .num { display: block; font-size: var(--text-sm); padding-top: 0.35em; }
+
+/* Fees: a short price list. A column of numbers is where number styles show. */
+.fees { margin-top: var(--space-12); max-width: 34rem; }
+.fees h3 { font-size: var(--lede-size); margin-bottom: var(--space-3); }
+.fees table { width: 100%; border-collapse: collapse; }
+.fees th, .fees td { padding-block: var(--space-3); border-top: var(--border-w) solid var(--border); font-weight: 400; text-align: left; }
+.fees tr:last-child th, .fees tr:last-child td { border-bottom: var(--border-w) solid var(--border); }
+.fees td { text-align: right; font-variant-numeric: var(--numeric); font-weight: 600; white-space: nowrap; }
+body[data-numerals="mono"] .fees td { font-family: var(--font-numeric); letter-spacing: -0.02em; }
+
+/* About */
+.about { background: var(--surface-2); }
+body[data-elevation="glass"] .about { background: transparent; }
+.about-grid { display: grid; gap: var(--space-10); align-items: center; }
+@media (min-width: 860px) { .about-grid { grid-template-columns: var(--about-columns); gap: var(--space-16); } }
+.about p { color: var(--text-muted); font-size: var(--lede-size); margin-top: var(--space-4); max-width: var(--measure); }
+.promise { margin: 0; padding: var(--space-8); }
+.promise p { font-family: var(--font-heading); font-weight: var(--heading-weight); letter-spacing: var(--heading-tracking); font-size: var(--h3-size); line-height: 1.25; color: var(--text); margin: 0; }
+.promise span { display: block; margin-top: var(--space-4); font-size: var(--text-sm); color: var(--text-muted); }
+body[data-elevation="flat"] .about .promise, body[data-elevation="tonal"] .about .promise { background: var(--surface); }
+
+/* Contact */
+.contact-grid { display: grid; gap: var(--space-10); align-items: start; }
+@media (min-width: 860px) { .contact-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: var(--space-16); } }
+.contact p { color: var(--text-muted); margin-top: var(--space-4); max-width: 44ch; }
+.contact address { font-style: normal; margin-top: var(--space-6); display: grid; gap: var(--space-1); font-variant-numeric: var(--numeric); }
+.form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); padding: var(--space-8); min-width: 0; }
+/* A field never asks for more room than its column has: the column may shrink below the field's own width. */
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); min-width: 0; }
+.field label { font-weight: 600; font-size: var(--text-sm); }
+.field input, .field textarea {
+  font: inherit; color: var(--text); background: var(--surface); width: 100%;
+  min-height: var(--target-min); padding: var(--space-2) var(--space-3);
+  border: var(--control-border-w) solid var(--border-strong); border-radius: var(--radius-control);
+  box-shadow: inset 0 1px 2px var(--recess);
+}
+@media (hover: hover) and (pointer: fine) { .field input:hover, .field textarea:hover { border-color: var(--text-muted); } }
+/* A focused field: the ring, plus a soft halo of the same color. */
+.field input:focus-visible, .field textarea:focus-visible { outline-offset: 0; box-shadow: 0 0 0 4px color-mix(in oklch, var(--focus) 22%, transparent); }
+.field textarea { min-height: 6.5rem; resize: vertical; border-radius: min(var(--radius-control), var(--radius-surface)); }
+.hint { font-size: var(--text-xs); color: var(--text-muted); }
+/* On a very narrow screen the button's words may wrap; a button that insists on one line made the whole form wider than the screen. */
+.form .btn { justify-self: start; max-width: 100%; white-space: normal; }
+
+/* Footer */
+.site-footer { border-top: var(--border-w) solid var(--border); padding-block: var(--space-8); color: var(--text-muted); font-size: var(--text-sm); }
+.site-footer .wrap { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-8); justify-content: space-between; }
+
+/* Placeholder for a photograph: a quiet composition in the design's own colors (light from the upper left, a faint grid, a soft floor), so that the page reads as finished before real photographs arrive. */
+.media {
+  position: relative; place-items: end start; padding: var(--space-4); border-radius: var(--radius-surface); overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 18% 12%, color-mix(in oklch, var(--surface) 70%, transparent), transparent 62%),
+    radial-gradient(70% 60% at 86% 88%, color-mix(in oklch, var(--accent) 26%, transparent), transparent 70%),
+    linear-gradient(to bottom, transparent 62%, color-mix(in oklch, var(--text) 7%, transparent)),
+    linear-gradient(140deg, var(--media-a), var(--media-b));
+  border: var(--card-border-w) solid var(--card-border); box-shadow: var(--card-shadow);
+}
+.media::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.5; background-image: linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px); background-size: 2.5rem 2.5rem; -webkit-mask-image: radial-gradient(90% 80% at 70% 30%, #000, transparent 75%); mask-image: radial-gradient(90% 80% at 70% 30%, #000, transparent 75%); }
+.media::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--border), inset 0 1px 0 var(--inset-highlight); pointer-events: none; }
+.media span { position: relative; background: var(--surface); color: var(--text-muted); font-size: var(--text-xs); font-weight: 600; padding: var(--space-1) var(--space-3); border-radius: var(--radius-small); box-shadow: 0 0 0 1px var(--border), 0 1px 2px var(--recess); }
+
+/* Signature elements: one memorable move */
+body[data-signature="marker"] .hero mark { background: linear-gradient(transparent 56%, var(--marker) 56% 92%, transparent 92%); padding-inline: 0.08em; -webkit-text-fill-color: var(--hero-text); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+body[data-signature="big-numerals"] .service .num { display: block; font-size: var(--numeral-size); line-height: 1; letter-spacing: -0.03em; }
+body[data-signature="big-numerals"][data-sections="ledger"] .service .num { font-size: var(--h2-size); padding-top: 0; }
+body[data-signature="color-band"] .facts { background: var(--band-solid-bg); color: var(--band-solid-text); padding-block: var(--space-16); }
+body[data-signature="color-band"] .facts .fact-list dt { font-size: var(--numeral-size); }
+body[data-signature="color-band"][data-strategy="color-block"] .facts { background: var(--band-bg); color: var(--band-text); }
+body[data-signature="outline-type"] .hero mark { color: var(--hero-bg); -webkit-text-fill-color: var(--hero-bg); -webkit-text-stroke: 0.055em var(--hero-text); paint-order: stroke fill; }
+body[data-signature="corner-tag"] .tag { display: inline-block; background: var(--accent-2); color: var(--on-accent-2); padding: var(--space-1) var(--space-3); border-radius: var(--radius-small); transform: rotate(-2deg); transform-origin: left center; }
+
+/* Expressive motion: one orchestrated entrance. The page is complete at rest, and still previews skip it. */
+@media (prefers-reduced-motion: no-preference) {
+  body[data-motion="expressive"]:not([data-still]) .hero-copy > *, body[data-motion="expressive"]:not([data-still]) .hero-media { animation: rise var(--dur-slow) var(--ease-out) both; }
+  body[data-motion="expressive"]:not([data-still]) .hero-copy > :nth-child(2) { animation-delay: 70ms; }
+  body[data-motion="expressive"]:not([data-still]) .hero-copy > :nth-child(3) { animation-delay: 140ms; }
+  body[data-motion="expressive"]:not([data-still]) .hero-copy > :nth-child(4), body[data-motion="expressive"]:not([data-still]) .hero-media { animation-delay: 210ms; }
+}
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+/* Preview regions: start the page at the section where the current change shows. */
+body[data-focus]:not([data-focus="top"]) { display: block; min-height: 0; }
+body[data-focus]:not([data-focus="top"]) .site-header, body[data-focus]:not([data-focus="top"]):not([data-focus="buttons"]) .hero { display: none; }
+body[data-focus="services"] .facts, body[data-focus="fees"] .facts, body[data-focus="about"] .facts, body[data-focus="contact"] .facts { display: none; }
+body[data-focus="about"] .services, body[data-focus="contact"] .services, body[data-focus="contact"] .about { display: none; }
+
+/* Overlays: small helpers over the page. The region "overlays" shows each one that is switched on, open, as a picture with a
+   caption. Everywhere else they stay out of the page, except the main button that stays in view on a phone, which plain CSS
+   can show as it will behave. */
+.overlay-demo { display: none; }
+body[data-focus="overlays"] main > :not(.overlay-demo), body[data-focus="overlays"] .site-footer { display: none; }
+body[data-focus="overlays"] .overlay-demo, body[data-overlays-shown] .overlay-demo { display: block; padding-block: var(--space-8); }
+.overlay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: var(--space-8) var(--space-6); align-items: start; }
+.ov { display: grid; gap: var(--space-3); min-width: 0; }
+.ov-name { font-size: var(--text-sm); font-weight: 600; color: var(--text-muted); margin: 0; }
+.ov-none { color: var(--text-muted); }
+.ov-stage { position: relative; display: grid; gap: var(--space-3); padding: var(--space-5); border-radius: var(--radius-surface); background: var(--surface-2); min-width: 0; }
+.ov-term { text-decoration: underline dotted; text-underline-offset: 0.2em; }
+.ov-tip { display: block; width: fit-content; max-width: 100%; padding: var(--space-2) var(--space-3); border-radius: var(--radius-small); background: var(--text); color: var(--surface); font-size: var(--text-sm); }
+.ov-dialog { padding: var(--space-5); display: grid; gap: var(--space-3); }
+.ov-dialog h3 { font-size: var(--h3-size); margin: 0; }
+.ov-dialog p { margin: 0; color: var(--text-muted); }
+.ov-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.ov-quiet { background: transparent; color: var(--text); border-color: var(--border-strong); }
+.ov-toast { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); }
+.ov-error input { border-width: calc(var(--control-border-w) + 1px); border-color: var(--text); }
+.ov-error .ov-message { display: flex; gap: var(--space-2); align-items: baseline; font-size: var(--text-sm); font-weight: 600; color: var(--text); margin: 0; }
+.ov-error .ov-mark { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; border-radius: 50%; background: var(--text); color: var(--surface); font-size: 0.85em; flex: none; }
+.ov-skeleton { display: grid; gap: var(--space-3); padding: var(--space-5); }
+.ov-skeleton span { display: block; height: 0.9em; border-radius: var(--radius-small); background: var(--border); }
+.ov-skeleton span:first-child { height: 5rem; }
+.ov-skeleton span:nth-child(3) { width: 80%; }
+.ov-skeleton span:last-child { width: 55%; }
+.ov-phone { display: grid; gap: 0; border: var(--border-w) solid var(--border); border-radius: var(--radius-surface); overflow: hidden; background: var(--surface); }
+.ov-phone p { margin: 0; padding: var(--space-4); color: var(--text-muted); font-size: var(--text-sm); }
+.ov-bar, .sticky-call { display: grid; padding: var(--space-3) var(--space-4); background: var(--surface); border-top: var(--border-w) solid var(--border); }
+.ov-bar .btn, .sticky-call .btn { width: 100%; justify-content: center; }
+.sticky-call { display: none; }
+@media (max-width: 599px) {
+  body[data-overlays~="sticky-call"]:not([data-focus="overlays"]):not([data-focus="buttons"]):not([data-focus="box"]) .sticky-call { display: grid; position: sticky; bottom: 0; z-index: 3; }
+}
+
+/* Close-ups, for the small pictures on a card. A whole region shrunk to card size left the changed part out of the picture
+   or made it too small to see: four cards for the button's look were the same picture, without a button in it (finding U2-08,
+   measured 2026-11-14). A close-up shows one part and nothing else.
+   "buttons": the line above the headline, the main button, and the link beside it, on the first screen's background. */
+body[data-focus="buttons"] main > :not(.hero), body[data-focus="buttons"] .site-footer, body[data-focus="buttons"] .hero-media,
+body[data-focus="buttons"] .hero h1, body[data-focus="buttons"] .hero .lede, body[data-focus="buttons"] .hero-facts { display: none; }
+body[data-focus="buttons"] .hero { min-height: 100vh; padding-block: var(--space-5); display: grid; align-content: center; }
+body[data-focus="buttons"] .hero-grid, body[data-focus="buttons"] .hero-copy, body[data-focus="buttons"] .hero-sub { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); border: 0; margin: 0; max-width: none; text-align: left; justify-items: start; }
+body[data-focus="buttons"] .hero-copy, body[data-focus="buttons"] .hero-sub { padding: 0; }
+body[data-focus="buttons"] .hero .actions { justify-content: flex-start; align-items: center; }
+body[data-focus="buttons"] .hero .actions .btn { flex: 0 0 auto; width: auto; }
+/* "box": the one box of the "about" part. */
+body[data-focus="box"] main > :not(.about), body[data-focus="box"] .site-footer, body[data-focus="box"] .about-grid > :first-child { display: none; }
+body[data-focus="box"] .about { padding-block: var(--space-5); margin: 0; }
+body[data-focus="box"] .about-grid { display: block; }
+body[data-focus="fees"] .services .section-head, body[data-focus="fees"] .services .service-list { display: none; }
+body[data-focus="fees"] .fees { margin-top: 0; }
+
+/* In a narrow preview of one region, the part that carries the change comes first. */
+@media (max-width: 859px) {
+  body[data-focus="contact"] .contact-grid > :first-child, body[data-focus="about"] .about-grid > :first-child { order: 2; }
+}
+@media (max-width: 599px) {
+  .wrap { padding-inline: var(--space-5); }
+  .actions .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+</style>
+</head>
+<body data-nav="top-inline" data-hero="text-left" data-sections="stacked" data-emphasis="headline" data-elevation="borders" data-signature="none" data-strategy="single-accent" data-numerals="tabular" data-theme="light" data-atmosphere="plain" data-button="flat" data-display="solid" data-motion="subtle" data-focus="top" data-still>
+<a class="skip" role="link" tabindex="0">Skip to content</a>
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" role="link" tabindex="0">Harbor Street Dental</a>
+    <nav aria-label="Main"><ul><li><a role="link" tabindex="0" aria-current="page">Services</a></li><li><a role="link" tabindex="0">First visit</a></li><li><a role="link" tabindex="0">Fees</a></li><li><a role="link" tabindex="0">About</a></li><li><a role="link" tabindex="0">Contact</a></li></ul></nav>
+    <div class="nav-actions"><a class="phone" role="link" tabindex="0">555-0117</a><a class="btn btn-primary" role="link" tabindex="0">Book a visit</a></div>
+  </div>
+</header>
+<main id="main">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="tag">Family dentistry on Harbor Street</p>
+        <h1>Dental care that <mark>explains itself</mark> before it begins.</h1>
+        <div class="hero-sub">
+          <p class="lede">Checkups, cleanings, and repairs for adults and children. We show you what we see, tell you what it costs, and let you decide.</p>
+          <div class="actions">
+            <a class="btn btn-primary" role="link" tabindex="0">Book a visit</a>
+            <a class="phone phone-big" role="link" tabindex="0">Call 555-0117</a>
+            <a class="link" role="link" tabindex="0">See what a first visit includes</a>
+          </div>
+        </div>
+        <dl class="fact-list hero-facts"><div><dt>6 days</dt><dd>open each week</dd></div><div><dt>45 min</dt><dd>for a first visit</dd></div><div><dt>3</dt><dd>treatment rooms</dd></div></dl>
+      </div>
+      <div class="hero-media media" role="img" aria-label="Photo placeholder"><span>Your photo</span></div>
+    </div>
+  </section>
+  <section class="facts" aria-label="At a glance"><div class="wrap"><dl class="fact-list"><div><dt>6 days</dt><dd>open each week</dd></div><div><dt>45 min</dt><dd>for a first visit</dd></div><div><dt>3</dt><dd>treatment rooms</dd></div></dl></div></section>
+  <section class="block services" id="services">
+    <div class="wrap">
+      <div class="section-head"><h2>What we do</h2><p>Three kinds of visit cover most of what people need.</p></div>
+      <ol class="service-list"><li class="service">
+        <div class="service-media media" role="img" aria-label="Photo placeholder"><span>Your photo</span></div>
+        <span class="num" aria-hidden="true">01</span>
+        <div class="service-body"><h3>Checkups and cleanings</h3><p>A full look, a careful clean, and photographs of anything worth watching, explained in plain words.</p><a class="more" role="link" tabindex="0">About checkups and cleanings</a></div>
+      </li><li class="service">
+        <div class="service-media media" role="img" aria-label="Photo placeholder"><span>Your photo</span></div>
+        <span class="num" aria-hidden="true">02</span>
+        <div class="service-body"><h3>Repairs</h3><p>Fillings, crowns, and chipped teeth. You see the price and the options before any work starts.</p><a class="more" role="link" tabindex="0">About repairs</a></div>
+      </li><li class="service">
+        <div class="service-media media" role="img" aria-label="Photo placeholder"><span>Your photo</span></div>
+        <span class="num" aria-hidden="true">03</span>
+        <div class="service-body"><h3>Urgent visits</h3><p>Pain, swelling, or a broken tooth. Call before ten and we will see you the same day when a chair is free.</p><a class="more" role="link" tabindex="0">About urgent visits</a></div>
+      </li></ol>
+      <div class="fees"><h3>Typical fees</h3><table><tbody><tr><th scope="row">Checkup and cleaning</th><td>$118</td></tr><tr><th scope="row">Filling</th><td>$181</td></tr><tr><th scope="row">Crown</th><td>$1,110</td></tr><tr><th scope="row">Urgent visit</th><td>$88</td></tr></tbody></table></div>
+    </div>
+  </section>
+  <section class="block about">
+    <div class="wrap about-grid">
+      <div><h2>A small practice, on purpose</h2><p>Two dentists and one hygienist. You see the same people each time, and they remember what you told them last time.</p></div>
+      <figure class="promise card"><p>No work starts until you have seen the price and said yes.</p><span>Harbor Street Dental</span></figure>
+    </div>
+  </section>
+  <section class="block contact" id="contact">
+    <div class="wrap contact-grid">
+      <div>
+        <h2>Ask for an appointment</h2>
+        <p>Tell us how to reach you and what you need. We reply on the next working day.</p>
+        <address><strong>Harbor Street Dental</strong><span>41 Harbor Street, Suite 2</span><span>Monday to Saturday, 8 to 5</span><a class="phone" role="link" tabindex="0">555-0117</a></address>
+      </div>
+      <form class="form card">
+        <div class="field"><label for="m-name">Your name</label><input id="m-name" name="name" type="text" autocomplete="name"></div>
+        <div class="field"><label for="m-phone">Phone number</label><input id="m-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="m-phone-hint"><span class="hint" id="m-phone-hint">We call on working days between 8 and 5.</span></div>
+        <div class="field"><label for="m-note">What do you need?</label><textarea id="m-note" name="note"></textarea></div>
+        <button class="btn btn-primary" type="button">Send my request</button>
+      </form>
+    </div>
+  </section>
+  <section class="block overlay-demo" aria-label="Overlays, each shown open"><div class="wrap overlay-grid"><p class="ov-none">No Overlay is switched on.</p></div></section>
+</main>
+<div class="sticky-call"><a class="btn btn-primary" role="link" tabindex="0">Book a visit</a></div>
+<footer class="site-footer"><div class="wrap"><span>Harbor Street Dental · 41 Harbor Street, Suite 2</span><span>Sample content for design preview.</span></div></footer>
+</body>
+</html>

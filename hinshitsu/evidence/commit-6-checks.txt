@@ -1,0 +1,33 @@
+Checks before commit 6 of hinshitsu/PLAN.md. Started 2026-11-21T23:35:06Z. Parent commit: e0bb89a.
+Tree checked (files changed against the parent, with the SHA-256 of each):
+  0e9e4396dcdc9b0b  PROGRESS.md
+  f210a3ff1c8f21f8  SPEC.md
+  2ad92f6973b80f06  hinshitsu/AUDIT-LOG.md
+  eb499af055ff4ef9  plugin/fit/e2e/exit.e2e.ts
+  1ae04ee9ab2d6d5b  plugin/fit/src/fit.ts
+  2bb0dfa1be193aed  redteam/FINDINGS.md
+
+== npm run check ==
+exit 0
+   Start at  23:35:30
+   Duration  15.37s (tests 90%, import 9%, transform 1%)
+
+    Isolate  17 workers spawned · ~188ms startup each (spawn + environment, per file)
+             at least ~878ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+== npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e ==
+exit 0
+ Test Files  4 passed (4)
+      Tests  232 passed (232)
+   Duration  1517.16s (tests 100%)
+
+== npm run build:page, then npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts ==
+build exit 0
+exit 0
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Duration  24.27s (tests 98%, import 2%)
+
+Finished 2026-11-22T00:01:29Z.
+Run in a second checkout that holds exactly the files of this commit (snapshot 06737e08798ceda7b58aa5ba947e117bbf43457c).

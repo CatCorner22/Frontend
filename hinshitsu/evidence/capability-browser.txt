@@ -1,0 +1,4 @@
+$ node .cap.mjs  (opens the built Studio page in Chromium and takes a screenshot)
+title: Frontend Focus Studio
+exit 0
+-rw-r--r-- 1 root root 96475 Nov 21 18:24 hinshitsu/evidence/capability-browser.png

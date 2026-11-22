@@ -85,11 +85,27 @@ export function collectFloorFacts(): FloorFacts {
   const firstLoader = loaders[0] ?? null;
 
   const fields = all('input, select, textarea').filter((f) => !['hidden', 'submit', 'button', 'reset', 'image'].includes(attr(f, 'type').toLowerCase()));
+  // The words that a label gives to the field `f`: its text without the text inside form fields (a field's own options or value do
+  // not name it), or the words of a picture inside it (automatic reviewer of pull request 16, finding 3).
+  const labelWords = (l: Element): boolean => {
+    const walker = document.createTreeWalker(l, NodeFilter.SHOW_TEXT);
+    let text = '';
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) if (node.parentElement?.closest('input, select, textarea, datalist, script, style, template') === null) text += node.textContent ?? '';
+    if (visible(text) !== '') return true;
+    return [...l.querySelectorAll('img[alt], svg[aria-label]')].some((inner) => visible(attr(inner, 'alt')) !== '' || visible(attr(inner, 'aria-label')) !== '');
+  };
   const labelled = (f: Element): boolean => {
-    if (visible(attr(f, 'aria-label')) !== '' || f.closest('label') !== null) return true;
-    if (attr(f, 'aria-labelledby').split(/\s+/).some((id) => id !== '' && visible(document.getElementById(id)?.textContent ?? '') !== '')) return true;
+    if (visible(attr(f, 'aria-label')) !== '') return true;
+    const around = f.closest('label');
+    if (around !== null && labelWords(around)) return true;
+    // A browser ties a name to a field only inside the field's own tree (the page, or one shadow root), only by words (the text of a
+    // style sheet or of a list of suggestions is none), and ties a label to the first element that holds the id (audit round of
+    // 2026-11-22, finding F-106).
+    const scope = f.getRootNode();
+    const tree = scope instanceof Document || scope instanceof ShadowRoot ? scope : document;
+    if (attr(f, 'aria-labelledby').split(/\s+/).some((id) => { const named = id === '' ? null : tree.getElementById(id); return named !== null && labelWords(named); })) return true;
     const id = attr(f, 'id');
-    return id !== '' && all('label[for]').some((l) => attr(l, 'for') === id);
+    return id !== '' && tree.getElementById(id) === f && [...tree.querySelectorAll('label[for]')].some((l) => attr(l, 'for') === id && labelWords(l));
   };
 
   // Only an element that is drawn can take the focus: a skip link with `display: none` is no skip link.

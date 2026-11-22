@@ -1,0 +1,120 @@
+{
+ "dir": "/tmp/tmp.k6LvtuB3h7/vA",
+ "names": [
+  "DESIGN.md",
+  "FONTS.md",
+  "VISION.md",
+  "mockup.html",
+  "theme.css",
+  "tokens.css",
+  "tokens.json"
+ ],
+ "fp": "f467508d",
+ "fpIn": {
+  "DESIGN.md": 2,
+  "FONTS.md": 1,
+  "VISION.md": 1,
+  "mockup.html": 1,
+  "theme.css": 1,
+  "tokens.css": 1,
+  "tokens.json": 1
+ },
+ "otherFp": {
+  "DESIGN.md": [],
+  "FONTS.md": [],
+  "VISION.md": [],
+  "mockup.html": [],
+  "theme.css": [
+   "f467508d"
+  ],
+  "tokens.css": [
+   "f467508d"
+  ],
+  "tokens.json": [
+   "f467508d"
+  ]
+ },
+ "tokensJson": "object",
+ "tokens.css": {
+  "writtenInText": 114,
+  "declared": 114,
+  "empty": [],
+  "unread": [],
+  "selectors": [
+   ":root (114)"
+  ]
+ },
+ "theme.css": {
+  "writtenInText": 64,
+  "declared": 64,
+  "empty": [],
+  "unread": [],
+  "selectors": [
+   ":root (32)",
+   ".dark (32)"
+  ]
+ },
+ "mockup": {
+  "requests": [
+   "file:mockup.html"
+  ],
+  "errs": [],
+  "dialogs": [],
+  "scriptEls": 0,
+  "scriptTagInText": 0,
+  "onAttrs": 0,
+  "jsUrls": 0,
+  "extUrls": [
+   "http://www.w3.org/2000/svg"
+  ],
+  "scrollW": 1280,
+  "clientW": 1280
+ },
+ "texts": {
+  "project-name": {
+   "rendered": false,
+   "raw": "VISION.md",
+   "escaped": "VISION.md"
+  },
+  "brief-offer": {
+   "rendered": false,
+   "raw": "VISION.md",
+   "escaped": ""
+  },
+  "brief-audience": {
+   "rendered": false,
+   "raw": "VISION.md",
+   "escaped": "VISION.md"
+  },
+  "brief-job": {
+   "rendered": false,
+   "raw": "VISION.md",
+   "escaped": "VISION.md"
+  },
+  "content-business": {
+   "rendered": true,
+   "raw": "mockup.html",
+   "escaped": "mockup.html"
+  },
+  "content-primaryAction": {
+   "rendered": true,
+   "raw": "mockup.html",
+   "escaped": "mockup.html"
+  },
+  "content-phone": {
+   "rendered": true,
+   "raw": "mockup.html",
+   "escaped": "mockup.html"
+  },
+  "content-headline": {
+   "rendered": true,
+   "raw": "mockup.html",
+   "escaped": "mockup.html"
+  },
+  "content-lede": {
+   "rendered": true,
+   "raw": "mockup.html",
+   "escaped": "mockup.html"
+  }
+ }
+}

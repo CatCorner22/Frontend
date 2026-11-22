@@ -6,7 +6,9 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Start here (written 2026-11-14; its stale parts corrected on 2026-11-17, finding T8-08)
 
-**The one-minute picture (2026-11-17).** The app is "Frontend Focus". The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, write the page's own texts ("Your content"), and read the result back on a Summary with five research rules and twelve craft rules. It saves reliably. It hands over the Vision: seven files, and `VISION.md` carries 56 Floor requirements. The Fitter (`plugin/`) is a Claude Code plugin: its Fit check measures a built page against a Vision at three window widths and checks a part of 33 Floor requirements; its commands build, check, and repair. Nobody has run those commands in Claude Code yet. `docs/reference/directions.md` describes every built-in Direction in code. The newest entry of the build log below is the current state; older sections of this file keep the names of their day ("Refraction", "Prescription").
+**State after the repair run of 2026-11-21 (read this first).** The owner asked for a run that repairs the current bugs, with the final deliverable first (decision D81). The run's record is the folder `hinshitsu/` (its log `AUDIT-LOG.md`, its plan `PLAN.md`); each repair has an entry in the build log below ("repair run, commit 1" to "commit 25"; commits 20 to 25 are the repairs after the run's audit round of 2026-11-22). What the run changed in the Fit check, the look, the receipt and the guide is in `SPEC.md` section 2.31. Of the 54 open rows of grade blocker or major that the run listed in `redteam/FINDINGS.md`, each now ends with a sentence that begins "State after the repair run of 2026-11-21": 9 repaired with a test, 1 repaired in part, 8 closed with no change of code or by a change to a record, and 36 kept with a reason and the name of who must act. The work is on the branch `claude/festive-mendel-lfnahh`, in draft pull request CatCorner22/Frontend#24; the main line `claude/brave-mayer-sawqz9` is untouched by the run. The owner's equivalency backlog is `PLAN.md` section 13.10 (decision D80); its item E1, the owner's real run of the whole loop, comes next.
+
+**The one-minute picture (2026-11-17).** The app is "Frontend Focus". The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, write the page's own texts ("Your content"), and read the result back on a Summary with five research rules and twelve craft rules. It saves reliably. It hands over the Vision: seven files, and `VISION.md` carries 56 Floor requirements. The Fitter (`plugin/`) is a Claude Code plugin: its Fit check measures a built page against a Vision at three window widths and checks a part of 33 Floor requirements; its four commands build, check, repair, and look. Nobody has run those commands in Claude Code yet. `docs/reference/directions.md` describes every built-in Direction in code. The newest entry of the build log below is the current state; older sections of this file keep the names of their day ("Refraction", "Prescription").
 
 **Where the work is.** Since 2026-11-16 one session builds at a time (decision D72). On 2026-11-17 the three lines of work became one (decision D77): the working branch `claude/festive-mendel-lfnahh` holds the audit branch (`claude/eloquent-curie-hnhykj`, pull request CatCorner22/Frontend#14) and the look (pull request 17, merged), and it goes into the main line `claude/brave-mayer-sawqz9` through pull request 16. GitHub refuses its own merge call for these pull requests (a "stack"), so the owner allowed the builder to push the merge to the main line once (D77); that happened on 2026-11-18: merge commit `9b50f36` on the main line, after GitHub's check passed on `ab2403e`. Pull requests 16 and 17 are merged. Pull request 14 shows as open again, because the audit session pushed one more commit after the join (`d98faab`: its own third window width and exit test, which the main line already holds in another form); the owner decides what happens to it. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc, Version 26 since 2026-11-17 (the joined build of `523ae8e`, titled "Frontend Focus Studio").
 
@@ -14,7 +16,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 1. `npm ci --ignore-scripts` (about 5 seconds).
 2. `npm run check` (type check, lint, boundary rule, unit tests; under a minute).
 3. Before any browser test on this kind of machine: `export PW_CHROMIUM=/opt/pw-browsers/chromium`. The installed browser is older than the pinned Playwright, and the tests find it through that variable. Never run `playwright install`.
-4. `npm run e2e` (builds the page, then all browser tests; 15 to 25 minutes). Run it in the background and do not rebuild the page while it runs.
+4. `npm run e2e` (builds the page, then all browser tests; about 40 minutes on this kind of machine since 2026-11-21, and the check hook stops it after 1,750 seconds, so GitHub's check is the full run: decision D81). The Fit check's own browser tests alone: `npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e` (about 25 minutes). Run it in the background and do not rebuild the page while it runs.
 
 **Rules that changed how the work is done (all in `CLAUDE.md`).** After any change to code: `npm run check`. After any change to a screen, the Mockup, or saving: also `npm run e2e`. No commit of code until every check passes. Never weaken a test.
 
@@ -23,19 +25,19 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - A new text on screen must pass the plain-words rule (`packages/core/src/catalog/words.ts`): no trade word outside round brackets, and none of the vague phrases (for example "research helper"). The unit tests now cover Skins, Overlays, and research rules; the browser walk covers every screen.
 - The grade "measured" needs a source that was read in full. Nearly all research was seen as search summaries, so new records are "convention" or "expert opinion".
 - A new screen changes the path: tests that walk from the last Step to the Summary pass through the Overlays.
-- Four links in the top bar do not fit a 320-pixel window side by side; the row wraps.
+- The five links in the top bar do not fit a 320-pixel window side by side; the row wraps.
 
 **What does not travel to a new chat.**
 - The earlier chat's memory and its scratch folder are gone. Everything needed is in this repository.
 - The reviewers' own test scripts lived in that scratch folder and are gone. Their reports are in `redteam/reports/2026-11-14-*`, and every finding has a row in `redteam/FINDINGS.md`.
 - No background job is running. Open pull requests: see "Where the work is".
-- The private page keeps its address. A new chat republishes to it by passing that address. The newest version is the one in "Where the work is"; `WAYPOINTS.md` holds the address and the version of each waypoint (its newest rows are W15 and W16; Version 26 is named in "Where the work is").
+- The private page keeps its address. A new chat republishes to it by passing that address. The newest version is the one in "Where the work is"; `WAYPOINTS.md` holds the address and the version of each waypoint (its newest row is W17; Version 26 is named in "Where the work is").
 - The cloud environment is named "engine" (see "Environment notes" at the end of this file). Another environment may block hosts that this one allows.
-- If a new chat is given a branch of its own, it starts from the main line `claude/brave-mayer-sawqz9` once the merge of decision D77 is in it (until then from `claude/festive-mendel-lfnahh`) and opens a draft pull request into the main line.
+- If a new chat is given a branch of its own, it starts from the branch that holds the newest work and opens a draft pull request into the main line. On 2026-11-22 that branch is `claude/festive-mendel-lfnahh` (the repair run; draft pull request 24): the main line `claude/brave-mayer-sawqz9` does not hold the run's commits until the owner merges that pull request. After the merge, a new chat starts from the main line.
 - The owner's standing preferences (active voice, one term per concept, every step and contingency explained) are in `CLAUDE.md`, section "Writing style".
 - Three ready first messages for a new chat are in `docs/new-chat-first-message.md`.
 
-**What the next session should do first.** Read the newest build-log entry and the retest's open findings (`redteam/reports/2026-11-17-j-retest.md`: 13 major findings are open). Read "Next" and "Waiting on the owner" below. If the owner has sent the ten trial answers, turn each named problem into a row in `redteam/FINDINGS.md` and repair the serious ones; M4 then closes on the owner's word.
+**What the next session does first.** Read the newest build-log entry and "Known gaps" below, which lists the rows that wait for the owner. If the repair run of 2026-11-21 has not reached its delivery report (`hinshitsu/DELIVERY-REPORT.md`), read `hinshitsu/SESSION-STATE.md` and go on from its "single next action". Then: the walk-through for the owner's real run (backlog item E1), and the backlog items that the owner chose (decision D81: repeated findings become permanent checks; axe-core and fixed speed measures in the Fit check). If the owner has sent the ten trial answers, turn each named problem into a row in `redteam/FINDINGS.md`; M4 then closes on the owner's word.
 
 ## Current milestone: M5 (the rest of the Catalog for Template 1). M6 is complete (2026-11-17, waypoint W15). M4 and M4D wait for the owner's trial; M7 is built (gate review done; retest by the three reviewers on 2026-11-17).
 
@@ -53,7 +55,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 | M4D | Built on 2026-11-15 (features F003 to F006); its exit test waits for the owner to make one Direction on the private page. |
 | M5 | Started early by the owner's decisions D52 and D58: Overlays, research rules, the first twelve craft rules, and the first slice of the Brief (the screen "Your content", features F015 to F018) are built; the Floors are built as 56 Catalog records (see M6). Not built: an inner page, the rest of the behavior Steps, either/or picks about the brand. |
 | M6 | **Complete on 2026-11-17** (waypoint W15: GitHub's check passed on the commit that holds the Floors, and two gate reviews found no blocker for M6). Built: all seven files of the Vision, a fingerprint, one archive download, outside validators for `DESIGN.md` and `tokens.json`, and the Floors (56 requirements; features F010, F011, F019 to F023, F032). Gate review of 2026-11-17: no blocker. |
-| M7 | Built on 2026-11-17 (features F024 to F029, F035 to F038): the Fit check, the exit test with planted defects, and the plugin's commands (four since the look was merged). Gate review of 2026-11-17: 9 blockers found; 7 repaired, G-S04 in part, G-S05 stated as a limit. Retest of 2026-11-17 after the join: 3 new blockers, repaired (R-S01, R-S03, R-T02); 20 major findings, of which 13 are open (`redteam/reports/2026-11-17-j-retest.md`). Open: nobody has run the commands in a Claude Code session; step 13a (pixels) is not built. |
+| M7 | Built on 2026-11-17 (features F024 to F029, F035 to F038): the Fit check, the exit test with planted defects, and the plugin's commands (four since the look was merged). Gate review of 2026-11-17: 9 blockers found; 7 repaired, G-S04 in part, G-S05 stated as a limit. Retest of 2026-11-17 after the join: 3 new blockers, repaired (R-S01, R-S03, R-T02); 20 major findings, of which 13 were open on that day (`redteam/reports/2026-11-17-j-retest.md`). Repair run of 2026-11-21: 9 rows repaired with a test and G-S05 in part (see "Start here"). Open: nobody has run the commands in a Claude Code session; step 13a (pixels) is built only as the look's advice. |
 
 ## What exists
 
@@ -105,6 +107,233 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **A code review that the owner started with `/code-review` was stopped by the owner before it reported.** No review of the repairs of 2026-11-15 exists yet.
 
 ## Build log (verified build loop; newest entry first)
+
+### 2026-11-22: GitHub's long check gets 75 minutes in place of 45 (the owner asked to clear what blocks pull request 24)
+- Pull request 24 has no merge conflict with the main line (`git merge-tree` of the 2 heads writes a tree with no conflict). What blocked it: on the newest commit both runs of GitHub's check "check" were stopped at their 45-minute limit before the browser tests ended (the run's finding F-183; the job took 41 to 42 minutes on the commits before).
+- `.github/workflows/ci.yml`: `timeout-minutes: 75`. No test and no step changed. Rows A1-09 and T6-01 of `redteam/FINDINGS.md` (split the long job) stay open for the next run.
+- Not verified at the time of this entry: that the check ends green on this commit; GitHub runs it after the push.
+
+### 2026-11-22: repair run, commit 25: records only, after the final reviewer
+- Feature worked on (ID): none in the list. The run's final reviewer (`hinshitsu/audits/final-audit.md`) re-ran the saved commands (all equal), rebuilt the page at 2 commits (the checksums equal the saved ones: the built page differs from a build of the published version), and re-ran the repairs of commits 23 and 24.
+- It showed that 1 repair of commit 24 is half done: a line break or a line box directly before a marked word of the headline still gives "headline missing", and an icon's rounded square drawn at more than 24 pixels still gives a corner deviation. No code changes here: row RC-05 of `redteam/FINDINGS.md` and the entry of commit 24 now say "repaired in part" and name the rest; row RC-01 says what commit 24 changed for it.
+- 3 sentences that still stated the older rule for an unread contrast carry the condition or a mark (`SPEC.md` sections 2.22 and 2.31 point 18; the guarantees reference, section 66.09).
+- The run ends here with the status "delivered, not done". Its report: `hinshitsu/DELIVERY-REPORT.md`.
+- Checks: `npm run check` (exit 0). No program changed, so the browser tests of commit 24 stand (`hinshitsu/evidence/commit-24-checks.txt`).
+
+### 2026-11-22: repair run, commit 24: the round that the owner chose after the attack (false alarms, 2 tricks, a tighter rule for unread contrast)
+- Feature worked on (ID): none in the list. The owner's decision D85 (2 answers on 2026-11-22).
+- False alarms on ordinary pages, repaired in part (the final reviewer showed the rest: a line break or a line box directly before a marked word of the headline, and an icon's rounded square drawn at more than 24 pixels, still give a false deviation; row RC-05): a line break between plain words, lines as boxes of plain words, and a soft hyphen in the headline no longer give "headline missing"; a small icon's rounded stroke no longer gives a corner deviation; a canonical link no longer gives a request deviation; the sample website's own hover rule, written in another order, no longer gives "not measured".
+- Trick, repaired: a text drawn less than 6 pixels tall is not readable. A second repair was written and taken out again before the commit: it made a linked style sheet of the site's own address "not measured", and an older test showed that this breaks the rule of `SPEC.md` section 2.13 (such a file is information, no fault). The trick stays open as row RC-07.
+- The tighter rule: where the Vision requires contrast, a text whose contrast the Fit check cannot read is excused only where the Mockup leaves a text with the same words unread too; every other unread text gives status 1. The guide, 2 commands, the guarantees reference (version 1.30) and `SPEC.md` section 2.31 point 20 say so.
+- Test (written first; it failed before the repair): "attack before delivery: ordinary pages get no false alarm ..." in `plugin/fit/e2e/exit.e2e.ts`. One older assertion changed with the owner's decision: the hover rule in another order is now the same condition.
+- Known open, listed for the next run: rows RC-01 to RC-04 and RC-07 of `redteam/FINDINGS.md` (2 hidden-text tricks, the earlier receipt that anyone can edit, limit sentences that name no act, a linked style sheet of the site's own that is not read).
+- The stored trial receipts were written again; no count changed.
+- Evidence: `hinshitsu/evidence/commit-24-checks.txt`.
+
+### 2026-11-22: repair run, commit 23: what the last two checkers found in records and tests
+- Feature worked on (ID): none in the list. Two more independent checkers ran on commit 22: one did each task of a recipient with the finished product and re-ran the last repairs (`hinshitsu/audits/S8-recipient-stability-E-372.md`: every task worked; 3 repeated runs gave equal bytes; 15 of 16 repairs confirmed); one attacked the product and the run's record (`hinshitsu/audits/redcell-delivery-E-373.md`, verdict "PLAN SURVIVES WITH CHANGES").
+- This commit: the row G-S05, `SPEC.md` and this file say that the owner accepted the touch-phone limit (decision D84); the guide says from which folder to run the two programs and that the Mockup is no built page; `fit-check` and `fit-build` say that an unread contrast is not the case "not measured"; the record of trial 001 marks its old fingerprint; 2 tests that the attacker showed were missing (a headline fixed to the window; a browser that ends without a word).
+- Not repaired, and open for the owner's decision (the attacker's pages; each is a finding in `hinshitsu/AUDIT-LOG.md`): 5 ways in which a page still gets "No deviation" wrongly (a headline shrunk to 1.5 pixels by a transform; a headline in its ground color over a gradient of 2 colors; a headline over a box of its own color that is no box around it; one style line that makes every faint text "unread" where contrast is required; a style sheet of the site's own that the page links), 1 way to make the "Vision file changed" sentence false by editing the earlier receipt, and 5 false alarms on ordinary pages (a line break or a soft hyphen in the headline; an icon's small rounded rectangle; a canonical link; the sample website's own hover rule written in another order).
+- Evidence: `hinshitsu/evidence/commit-23-checks.txt`.
+
+### 2026-11-22: repair run, commit 22: the repairs after the second re-audit (2 fresh reviewers on commits 20 and 21)
+- Feature worked on (ID): none in the list. The 2 reviewers re-ran the 88 findings of the audit round case by case: 81 of 88 cases no longer reproduce. They wrote 18 new findings (`hinshitsu/audits/WU-1-reaudit-code-E-290.md`, `WU-1-reaudit-records-E-291.md`); 2 of them were side effects of commit 20.
+- Repaired in code (`SPEC.md` section 2.31, point 19): a placed headline is no longer cut away by a box that does not contain it (a side effect of commit 20); a headline whose words each stand in an element of their own is found (an older fault); an icon drawn from a symbol is compared at its drawn size; a transform around a picture no longer changes the corner that is compared; a script that adds an element between two readings no longer doubles the count of texts (a side effect of commit 20); a limit of the reading has a sentence of its own; the line for a browser that does not start quotes only the browser's own words.
+- Test (written first; it failed before the repair): "second re-audit: ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- Repaired in the guide, the commands and the records: the guide gives no count of the plugin validator's warnings (the count "two" was wrong; a run shows four); the 4 commands name an act for each case and read result files only where a run wrote them; the record of trial 002 names 4 rounded rectangles; `SPEC.md` and this file state what the repository holds; the deliverable test compares the whole headline and reads design values inside group rules.
+- A stated limit, accepted by the owner on 2026-11-22 (the run's log, entry E-293): a page can show another design on a touch phone by a style rule that the sample website holds too (row G-S05). Every receipt states the limit. A second reading as a touch phone can be built in a later run.
+- Evidence: `hinshitsu/evidence/commit-22-checks.txt`.
+
+### 2026-11-22: repair run, commit 21: the test of the downloaded Vision reads more, and one sentence of `VISION.md` points the right way
+- Feature worked on (ID): none in the list. Findings F-66, F-114 and F-118 of the run's audit round, and 4 small clean-ups that the reviewers named (F-84, F-85, F-94, and a comment that stood at the wrong function).
+- `apps/studio/e2e/deliverable.e2e.ts`: what it newly asserts is in `SPEC.md` section 2.31, point 16. Findings F-65 and F-113 (the value `--font-numeric: inherit`) went to the owner; the answer is the next point but one.
+- `packages/core/src/vision.ts`: `VISION.md` says "each carries the fingerprint stated above" (it said "below"; the fingerprint stands above the sentence). The stored copies that must equal today's text follow: the unit test's stored `VISION.md` texts and `plugin/fit/trials/reference-floors/VISION.md`. The stored Visions of trials 001 to 003 follow too (a test keeps them equal to today's writer outside the Floors).
+- The owner's decision D83 (4 answers on 2026-11-22), built in this commit: the typeface for numerals, `--font-numeric`, is the body typeface where the numerals are not set apart (`packages/core/src/tokens.ts`); it was the keyword `inherit`, which a browser drops in 2 of 3 ways of writing a rule with it. The test now asserts that every design value has a value in the browser and that a `font` shorthand with this value keeps its size and weight. Every design has a new fingerprint from this commit on (the trial project: `7776d35d` became `0fabf790`). Stored copies that follow today's writer were written again: the unit test's stored texts, `docs/reference/directions.md`, `plugin/fit/trials/reference-floors/`, and the Vision files of trials 001 to 003 with their receipts (each trial's record says so in its last part).
+- The same decision keeps status 0 where a Vision requires contrast and the contrast of a text cannot be read; the guide's row for status 0 now tells the owner to judge those texts by eye.
+- Also here: the row G-U15 of `redteam/FINDINGS.md` (repaired), row DV-01 (changed by D83), and 1 sentence of section 66.10 of the guarantees reference (four commands).
+- Evidence: `hinshitsu/evidence/commit-21-checks.txt`.
+
+### 2026-11-22: repair run, commit 20: the repairs after the audit round (7 reviewers on commits 1 to 19)
+- Feature worked on (ID): none in the list. The run's audit round: 7 reviewers read the 19 repairs and wrote 88 findings (F-64 to F-151 in `hinshitsu/AUDIT-LOG.md`; 2 of them are the defect that the run planted on purpose in a copy, and both reviewers who had to find it found it).
+- This commit repairs the findings in the Fit check's and the look's code. What changed is in `SPEC.md` section 2.31, point 15. In short: a hidden headline no longer counts as found by 5 routes that the reviewers showed (a nearly opaque box, a gradient of one color, a text fill color, a readable part elsewhere, a place before the start of a scrolling box); a setting of the screen can no longer hide past a limit of the reading or in an imported style sheet; a closed shadow root can no longer hide behind many elements; a picture's references, second colors and scale are read; fields that draw words with no value are read; a field's name is tested as a browser ties it; the receipt's SHA-256 is the file's own; the receipt says which earlier receipt it compared with; two texts with the same words are two texts; the messages for a browser that does not start, for a wrong command and for an archive given as the folder say what happened.
+- Tests (written first; each failed on the code before the repair): the 9 tests of the group "the audit round of the repair run (2026-11-22)" in `plugin/fit/e2e/exit.e2e.ts`.
+- Changed tests, each to the new wording and none weaker: the receipt's sentences on the earlier receipt; the title "What the program could not read" (it was "Windows that did not load"); the usage line of the look; the count of Floor requirements is taken from the Catalog in place of the number 56; trial 002's line (34 deviations, see below).
+- The stored receipts of the 3 trials are written again by the program. Trial 002 shows 12 corner radii where it showed 3: the corner of a drawn rectangle is now compared as the screen shows it, and the page's picture changes its size with the window (`plugin/fit/trials/002/RECORD.md`, last part).
+- The records and the guide, in this same commit (the reviewers' findings on stale sentences): the guide and 3 commands (`fit-check`, `fit-repair`, `fit-build`) state 3 cases of status 1 (the third: none of the Floor requirements was checked, for a Vision of an older Studio), name the "Vision folder" by one name, and `fit-build` no longer offers a repair where nothing deviates; `SPEC.md` section 2.29 says that the WebRTC test exists and that its 5 major findings are repaired; the guarantees reference is version 1.29 (section 66.10: five tests, four commands, two remarks of today's validator); "Start here" and "Known gaps" above name five links in the top bar, waypoint W17, the four commands and the branch that holds the newest work; the record of trial 003 carries a mark at each of 5 more statements that a later part reverses; the record of trial 002 names today's counts; 18 rows of `redteam/FINDINGS.md` say in words what stays open, where they said "as stated above".
+- Not repaired here, and listed for the owner: the question of `--font-numeric: inherit`, the rule for unread contrast where the Vision requires contrast, and the findings of grade fragility and style that the run's log keeps open.
+- Evidence: `hinshitsu/evidence/commit-20-checks.txt`.
+
+### 2026-11-21: repair run, commit 18: the state of each of the 54 rows, and the records brought up to date (findings R-T06 and G-U07)
+- Feature worked on (ID): none in the list. The run's criterion C1 (each listed row ends in a named state) and C6 (the records agree with the code).
+- `redteam/FINDINGS.md`: each of the 54 rows ends with a sentence that begins "State after the repair run of 2026-11-21" and says what stays open, why, who must act, and which answer of the owner it rests on.
+- `PROGRESS.md` (finding R-T06): "Start here" opens with the state after the run; the time of the browser tests and the next session's first acts are corrected; the M7 row says what the run repaired; "Known gaps" opens with one list of the rows that wait for the owner, each with its question.
+- `plugin/fit/trials/003/RECORD.md` (finding G-U07): 3 statements that a later part reverses carry a mark at their first place.
+- `docs/reference/guarantees.md` version 1.28: section 66.12 states what the Fit check now counts as readable, missing and not measured.
+- `PLAN.md` section 13.10 and decision D82: the backlog's claim "9 of 67 still open after round six" is true; the builder's first check called it "not verified" because it searched for the exact words.
+- `plugin/fit/src/look.ts`: 1 word of a comment.
+- Evidence: `hinshitsu/evidence/commit-18-checks.txt`.
+
+### 2026-11-21: repair run, commit 17: a stored Vision with every Floor gives the receipt's agreement test its fifth case (criterion C4 of the run)
+- Feature worked on (ID): none in the list. A point of the plan's reviewers: in none of the cases that the receipt's agreement test ran did the Fit check read the Floors or require contrast, so the test's sentences on those 2 measures met no case.
+- Now: the folder `plugin/fit/trials/reference-floors/` holds the Vision of the plain start with every Floor written (56 requirements, the edition that the program reads), with a short guide of its own. A test keeps the folder equal to what the Catalog writes today; `UPDATE_REFERENCE=1` writes it again. The agreement test runs the Fit check on this Vision's own Mockup as its fifth case.
+- What the fifth case shows: contrast is "required by Floor A1", 56 requirements are read, and the Floors measure holds deviations (the Mockup is a still page with sample addresses; status 1). The case is there for the receipt's words.
+- Open, and on the card for the owner after the review round (the run's finding F-55): no case ends with status 0 where contrast is required, because a text whose contrast cannot be read never changes the status. Whether that rule stays is the owner's decision.
+- Evidence: `hinshitsu/evidence/commit-17-checks.txt`.
+
+### 2026-11-21: repair run, commit 16: the deliverable test opens the published fragment itself (criterion C3 of the run)
+- Feature worked on (ID): none in the list. A point of the plan's reviewers: the deliverable test opens `local-test.html`, while the file that is published is `refraction-studio.html`; nothing showed that the 2 hold the same page.
+- Now: a test reads both built files and asserts that the published fragment stands inside the test page exactly once, byte for byte, with only a short head before it and the 2 closing tags after it.
+- No product code changed. The test needs the built page: `npm run build:page` first.
+- Evidence: `hinshitsu/evidence/commit-16-checks.txt`.
+
+### 2026-11-21: repair run, commit 15: a missing browser gets one line that says what to do (criterion C7 of the run)
+- Feature worked on (ID): none in the list. A point of the plan's reviewers: with no browser, the Fit check printed the browser library's own message ("browserType.launch: Failed to launch chromium because executable doesn't exist at ..."), which names no next act.
+- Now: the Fit check and the look each say "... stopped: it found no browser to open the page. Fetch one with "npx playwright install chromium" in the plugin's folder, or set the environment variable PW_CHROMIUM to the path of a Chromium browser on this machine." The look's refusal line is also made one visible line of at most 400 characters, as the Fit check's already was.
+- Test (written first; it failed with the library's message): "says, where no browser is found, one line that names the variable PW_CHROMIUM ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- Evidence: `hinshitsu/evidence/commit-15-checks.txt`.
+
+### 2026-11-21: repair run, commit 14: the guide agrees with the programs (finding R-U05; criterion C7 of the run)
+- Feature worked on (ID): none in the list. Finding R-U05 (grade major): the guide did not know the fourth command, the look, or `LOOK.md` in full; and points of the plan's reviewers: the guide never said to unpack the archive, gave no advice for status 1 with no deviation, and used "the program" for 2 programs.
+- Now: `plugin/README.md` is written again. New in it: a table of words; "unpack the archive first" and the 7 file names; the Fit check and the look each with a run line, options and statuses; the 2 cases of status 1; the list of the measures that count; the sentence that the repair command can write to the Vision folder and how a change shows. `plugin/commands/fit-check.md` and `fit-repair.md` state the 2 cases of status 1; `fit-repair` starts no repair round where nothing deviates.
+- Test (it fails on the earlier guide: the part "Running the Fit check without Claude Code" is missing there): "has a guide that agrees with the programs ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- Still true, and the guide says it: nobody has yet run the 4 commands inside a Claude Code session (finding G-T08; the owner's real run comes after this repair run).
+- Evidence: `hinshitsu/evidence/commit-14-checks.txt`.
+
+### 2026-11-21: repair run, commit 19: every receipt states 4 limits that the owner accepted as stated limits
+- Feature worked on (ID): none in the list. A finding of the run's last check of the plan (grade blocker, F-54 in `hinshitsu/AUDIT-LOG.md`): the owner agreed that some gaps "stay as limits that every receipt states", and for 4 of them the receipt said nothing. They stood in the guide, in the guarantees reference, or in a finding's row.
+- Now: "Still needs a person" in every receipt holds 4 more sentences: the Vision folder is taken as the owner's own (finding G-S11); whoever runs the program counts the repair rounds (G-S10); the place of a covering box that a style rule draws is an approximation (R-S04); a blend mode on such a box is not read (R-S04, R-S06).
+- Test (written first; it failed because the sentences were missing): "states in every receipt the limits that the owner accepted as stated limits ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- The number 19: the plan held 18 commits when this finding came; this repair was added as the 19th and is made after commit 13, because both change the receipt's words.
+- The 3 stored trial receipts are written again by the program: 4 more lines each.
+- Evidence: `hinshitsu/evidence/commit-19-checks.txt`.
+
+### 2026-11-21: repair run, commit 13: the receipt's counts carry their unit, and "nothing to check" gives no count (finding R-U03; criterion C4 of the run)
+- Feature worked on (ID): none in the list. The third point of finding R-U03 (grade major) and 2 findings of the plan's language audit.
+- Before: the summary line said "3 text readings below the usual contrast" and the receipt "3 below the usual least"; one clause of the line counted texts, the other readings. Under Floors the receipt said "0 deviations; 0 not measured" where it had checked nothing, and "1 not measured" for 48 requirements of an edition that it does not read.
+- Now: every count of contrast reads "N readings of M texts", in the line and in the receipt alike. Under Floors the receipt says "Nothing to check." or "Not checked: none of the 48 Floor requirements that the Vision writes." The line says "none of the 48 Floor requirements of the Vision was checked". The status of such a Vision stays 1.
+- Test: the earlier test of the receipt's agreement is written again to the run's criterion C4 and now holds for 4 cases (the 3 trials and the Vision's own page of trial 001): the sum of deviations, the units, status 0 only with "No deviation", "Nothing to check" with no count. Each promise of the earlier test is kept; its expected sentences changed with the wording that the criterion asks for.
+- The 3 stored trial receipts are written again by the program; each trial's record gains a dated note.
+- Evidence: `hinshitsu/evidence/commit-13-checks.txt`.
+
+### 2026-11-21: repair run, commit 12: the corners of a drawn rectangle are compared (the rest of finding G-S08)
+- Feature worked on (ID): none in the list. The rest of finding G-S08 (grade major), which the plan's reviewers found outside the first bug list: a box with `border-radius: 37px` was a deviation, the same corner on an SVG rectangle (`rx="37"`) was not.
+- Now: the Corner radii measure reads `rx` and `ry` of each rectangle that draws something.
+- Test (written first; it failed because the measure held no line): "compares the corner radius of a rectangle that an inline picture draws ..." in `plugin/fit/e2e/exit.e2e.ts`. Checked beside it: the reference builds of the plain start and of all 38 Directions still show no deviation with commits 1 to 12 together (the Mockup draws no rectangle).
+- Found by this repair in a stored trial: the page of trial 002 (built by a model on 2026-11-16) draws 3 rectangles with rounded corners of 8, 18 and 30 pixels, none of them a corner radius of its Vision. Its stored receipt is written again by the program and now counts 25 deviations where it counted 22; the trial's record keeps its dated text.
+- Evidence: `hinshitsu/evidence/commit-12-checks.txt`.
+
+### 2026-11-21: repair run, commit 11: a drop-down list's shown option is read, and a shape from another file is not measured (the rest of finding R-S07)
+- Feature worked on (ID): none in the list. The rest of finding R-S07 (grade major), which the plan's reviewers found outside the first bug list: a `select` in another color and typeface got "No deviation. Status 0".
+- Now: a `select` with an option that holds words is read as a text. A `use` element that points into another file adds 1 to "not measured" in the Colors measure, and the measure's note says why.
+- Test (written first; it failed because the Colors measure held no line for the planted color): "reads the shown option of a drop-down list for color and typeface, and counts a shape that a picture takes from another file as not measured ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- Evidence: `hinshitsu/evidence/commit-11-checks.txt`.
+
+### 2026-11-21: repair run, commit 10: a listener proves that the look sends no WebRTC packet (finding R-S03)
+- Feature worked on (ID): none in the list. Finding R-S03 (grade blocker): the look with `--run-scripts` let a page send a UDP packet through WebRTC. The code was repaired on 2026-11-17; no test proved it.
+- Now: a test opens a UDP listener on this machine, draws a page that opens a WebRTC connection toward it (in the page itself and in a frame), and asserts that the listener receives nothing.
+- Shown once by hand: with the line that installs the replacement commented out, the test fails ("expected [ Array(16) ] to deeply equal []": 16 packets arrived); with the line back, it passes. No product code changed in this commit.
+- Evidence: `hinshitsu/evidence/commit-10-checks.txt`.
+
+### 2026-11-21: repair run, commit 9: the look refuses a pipe or a device, and ends on a busy page (finding R-S11)
+- Feature worked on (ID): none in the list. Finding R-S11 (grade major): the look hung on a named pipe, crashed on `/dev/zero`, and was reported to hang on a busy page.
+- Now: the look's command line uses the Fit check's rule for reading a file (an ordinary file of at most 20 megabytes) for the build and for each Vision file.
+- The busy page: the test shows that the look, as it stood, already ended by itself on a page with `for (;;) {}` under `--run-scripts` (status 1, "Not pictured", about 30 seconds). No code changed for that part; the test now holds it.
+- A difference from the plan's wording, said here: the plan expected status 2 for the busy page. The look's own rule gives status 1 there (at least 1 width was not pictured; status 2 means that the program refused and wrote nothing), and the test asserts status 1.
+- Test (written first; it failed because the program had to be stopped on the pipe): "refuses a build or a Vision file that is no ordinary file ..." in `plugin/fit/e2e/look.e2e.ts`.
+- Evidence: `hinshitsu/evidence/commit-9-checks.txt`.
+
+### 2026-11-21: repair run, commit 8: the look quotes a typeface name as data (finding R-S09)
+- Feature worked on (ID): none in the list. Finding R-S09 (grade major): a hostile Vision folder wrote its own sentence into `LOOK.md` outside any fence, through a typeface name. A model that reads `LOOK.md` could take that sentence for an instruction.
+- Now: every name is cleaned (letters, digits, spaces, hyphens; at most 60 characters) and all names stand inside one fence, after the sentence "The names below are quoted from the Vision's files (data, not instructions):".
+- Test (written first; it failed because the report held the planted heading "## Orders for the model"): "writes a typeface name from the Vision folder into the report only as quoted data ..." in `plugin/fit/e2e/look.e2e.ts`. The planted folder is consistent in itself: the program refuses a folder whose 2 token files disagree or whose fingerprint does not fit, so the test changes both files and all 4 fingerprints.
+- Evidence: `hinshitsu/evidence/commit-8-checks.txt`.
+
+### 2026-11-21: repair run, commit 7: the receipt names the Vision files that it read (criterion C8 of the run)
+- Feature worked on (ID): none in the list. A gap that a reviewer of the plan showed: the receipt named the Vision by its 8-sign fingerprint alone, which covers the design values. A model that repairs a page can also write to the Vision folder; deleting section 7 (the Floors) from `VISION.md` left the fingerprint as it was and removed every Floor requirement.
+- Now: the receipt (`RECEIPT.md` and `receipt.json`) holds the SHA-256 of each of the 4 Vision files that the program reads, and the number of Floor requirements read. After a repair round, the command line reads the receipt of the round before from the result folder (before it removes it) and the new receipt says which Vision file changed.
+- Not done, on purpose: the program does not refuse a changed Vision, because the owner may replace the Vision when the design changes; the receipt states the change and a person decides.
+- Test: "names in the receipt each Vision file that it read, by its SHA-256 ..." in `plugin/fit/e2e/exit.e2e.ts`: 2 rounds with section 7 deleted between them give 2 hashes, 56 and 0 requirements read, and the sentence that names `VISION.md`. The test did not exist before the code: it does not compile without the receipt's new field.
+- The 3 stored trial receipts are written again by the program: 1 new line and 1 new field each.
+- Evidence: `hinshitsu/evidence/commit-7-checks.txt`.
+
+### 2026-11-21: repair run, commit 6: a required text in the color of its background counts as missing (finding R-S08)
+- Feature worked on (ID): none in the list. Finding R-S08 (grade major), decided by the owner on 2026-11-21: yes, such a text counts as missing.
+- Before: where the Vision did not require contrast, a headline in the exact color of its box got "No deviation. Status 0"; the receipt only listed the ratio 1.00 to 1. Now: the Content measure calls the text missing when every element that draws a part of it draws it at a ratio below 1.1 to 1 against its ground.
+- Test (written first; it failed because the Content measure held no line): "counts a required text in the color of its own background as missing ..." in `plugin/fit/e2e/exit.e2e.ts`, with an exact match, a near match, and a pale but readable headline that still counts as found.
+- Found while building: the Mockup's headline holds a marked word in an element of its own, so the headline's own words are not one unbroken piece of the wanted text; the rule compares words in their order.
+- Evidence: `hinshitsu/evidence/commit-6-checks.txt`.
+
+### 2026-11-21: repair run, commit 5: a closed shadow root makes the page "not measured" (finding A2-V4)
+- Feature worked on (ID): none in the list. Finding A2-V4 (grade major): a closed shadow root draws a second design that no measure reads; until now the receipt only said so under "Still needs a person".
+- Now: the program asks the browser for its own list of the page's parts (which names closed roots too) and counts them at each reading. A page that holds one gets a sentence in the receipt with the number, colors, typefaces, corner radii and content count as not measured, and the status is 1.
+- Test (written first; it failed with status 0 for a page with a red paragraph inside a closed root): "counts the page as not measured when it holds a closed shadow root, written in the markup or made by a script ..." in `plugin/fit/e2e/exit.e2e.ts`. It asserts the sentence and the measures, not the status alone, and it shows that an open root is still read.
+- The 3 stored trial receipts are written again by the program: 1 sentence of "Still needs a person" changed.
+- Evidence: `hinshitsu/evidence/commit-5-checks.txt`.
+
+### 2026-11-21: repair run, commit 4: a setting that the program did not read under makes the page "not measured" (finding G-S05, in part)
+- Feature worked on (ID): none in the list. Finding G-S05 (grade blocker): status 0 for a page that shows another design on a high-density screen.
+- Before: a page could hold a style block under `(min-resolution: 2.5dppx)`, `(pointer: coarse)`, `(prefers-color-scheme: dark)` or `(prefers-contrast: more)` that turned every element into another design, and got "No deviation. Status 0". Now: the program collects every media condition of the page (style rules, imports, `source`, `link` and `style` elements, open shadow roots) and of the Vision's Mockup. A condition that the Mockup does not hold, and that names more than the window's width or height or reduced motion, is listed in the receipt; colors, typefaces, corner radii and content count as not measured; the status is 1.
+- Kept, on the owner's word (`hinshitsu/AUDIT-LOG.md`, entry E-107): a condition on the window's width or height alone still passes unread. Every receipt says so in 2 sentences ("All other window widths", "Other window heights"), and the test asserts both.
+- Why not a second reading on a sharper screen (the first plan): the plan's reviewers showed that such a reading catches 1 of 7 attack pages.
+- Tests (the first fails with the detection taken out: "(min-resolution: 2.5dppx): expected 0 to be 1"): "counts the page as not measured when its style rules name a setting ..." and "lists as unread only the conditions that name a setting ..." in `plugin/fit/e2e/exit.e2e.ts`; the look's report test asserts its new sentence.
+- The 3 stored trial receipts are written again by the program: 2 sentences of "Still needs a person" changed, nothing else.
+- Not done here: the guarantees reference still carries the old sentence; it is brought up to date in the run's last commit (the records).
+- Evidence: `hinshitsu/evidence/commit-4-checks.txt`.
+
+### 2026-11-21: repair run, commit 3: an empty label no longer names a form field
+- Feature worked on (ID): none in the list. The third of the 3 findings of the automatic reviewer on pull request 16.
+- The finding is true, fixed. Before: a form field counted as labelled when a `label` element stood around it or pointed at it, even an empty one. Now: a label names a field only when it holds words outside the field itself, or a picture with words. An empty label, a label of invisible signs, and a label whose only words are the field's own options give the line "A3: 1 form field has no label".
+- Test (written first; it failed because the Floors measure held no line): "automatic reviewer, finding 3: a field with an empty label counts as labelled ..." in `plugin/fit/e2e/exit.e2e.ts`, with 4 empty cases and 3 named cases.
+- Evidence: `hinshitsu/evidence/commit-3-checks.txt`.
+
+### 2026-11-21: repair run, commit 2: a text that an inline picture draws is compared by typeface and contrast
+- Feature worked on (ID): none in the list. The second of the 3 findings of the automatic reviewer on pull request 16.
+- The finding is true, fixed. Before: a text drawn by an inline SVG picture (`text`, `tspan`) was compared by its fill color only; its typeface was not compared, and its contrast was not read. Now: its typeface is compared, and its contrast is read from its fill against the boxes around the picture. Where a shape of the same picture may lie behind the letters, where the fill is a gradient or partly transparent, or where the letters are an outline, the contrast is "not measured", never "found good".
+- Test (written first; it failed because the Typefaces measure held no line for the planted typeface): "automatic reviewer, finding 2: SVG text is left out of the typefaces and contrast measures ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- How the checks ran from this commit on: in a second checkout of the repository that holds exactly the files of the commit, so that the builder can write the next repair while the browser tests run (about 25 minutes). The commit is made only after the 3 checks pass. Evidence: `hinshitsu/evidence/commit-2-checks.txt`.
+
+### 2026-11-21: repair run, commit 1: a text inside a box that scrolls is no longer read as cut away
+- Feature worked on (ID): none in the list. The first of the 3 findings that the automatic reviewer left on pull request 16 (record of the run: `hinshitsu/AUDIT-LOG.md`; plan: `hinshitsu/PLAN.md`).
+- The finding is true, fixed. Before: a required text that stood below the visible part of a box with `overflow: auto` or `scroll` was left out of the texts that a person can read, so the Content measure called a headline missing that a visitor reaches by scrolling the box. Now: in a direction in which a box scrolls, the box cuts nothing away, and the text is judged where the visitor reads it (scrolled into its box; the boxes are put back). A box that hides what overflows (`hidden`, `clip`) and a scrolling box with no room at all still cut the text away.
+- Test (written first; it failed with "the headline is not where a person can read it"): "automatic reviewer, finding 1: a text inside a box that scrolls is read as cut away ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- Evidence: `hinshitsu/evidence/commit-1-checks.txt` (`npm run check`; the Fit check's browser tests; the deliverable test).
+
+### 2026-11-21: the owner's equivalency backlog, checked and added to the plan (decision D80)
+- Feature worked on (ID): none in the list. A change of records only; no code changed.
+- What happened: the owner handed over a file with 5 gaps and 8 action items and asked that its claims be checked and, where correct, built into the plan. The file is kept unchanged as `docs/sources/2026-11-21-equivalency-backlog.md`. Of 14 claims: 7 true, 3 true in part, 2 false, 2 not verified. `PLAN.md` (version 3.9) gains section 13.10 with the items E1 to E8 as corrected.
+- Corrected on 2026-11-21 (decision D82): the numbers "9 of 67" are true; this file's "Known gaps" holds them for the sixth review, counted on 2026-11-16, and the builder's search had looked for the exact words "9 of 67".
+- Not done, and said so: nothing of E1 to E8 is built; no milestone moved; no hard rule changed. Not verified at the time of this entry: the numbers "9 of 67", and the likeness of the repository `Devin_Frontend` (this session cannot read it).
+- Evidence: `grep -n 13a PLAN.md PROGRESS.md SPEC.md`; `grep -n WIDTHS plugin/fit/src/fit.ts` (375, 768, 1280); `find apps/studio/e2e/baselines -name '*.png' | wc -l` (117); the rows S6-04, T6-12, T6-16 and G-T08 of `redteam/FINDINGS.md`; `git log -1 59704b7`.
+- Open for the owner: the 4 questions at the end of `PLAN.md` section 13.10; the 8 decisions of the card of the repair run (`hinshitsu/AUDIT-LOG.md`, entries E-64 and E-65).
+
+- Date: 2026-11-21
+- Feature worked on (ID): none; the owner's final deliverable (SPEC.md section 2.30), and retest findings R-U02 to R-U04 (section 2.29, point 10), at the owner's request ("the customer's final deliverable ... must work correctly")
+- Result: passes in the tests run on this machine; GitHub's check on this commit is the full run
+- The deliverable: the builder downloaded the Vision from the built Studio page in a real browser for three Directions, with texts that code could misread, unpacked the archive with `unzip`, and checked every file by itself (243 checks). No defect was found. One oddity is recorded as a note (row DV-01: `--font-numeric: inherit` works by a rule of CSS). The audit is now a browser test, `apps/studio/e2e/deliverable.e2e.ts`.
+- The receipt: where the Vision does not require contrast, texts below the usual least are information and are not called deviations; texts and readings are counted apart; for a Vision of an edition that the program does not read, contrast is "measured, not required".
+- Tests: the deliverable test passed at once (it found no defect; it guards from now on). The receipt's test was written after its repair, and this entry says so.
+- Evidence: `npm run check`: 374 unit tests passed. Browser tests run: the Fit check's four files and the deliverable test, 228 of 228 passed (1,330 seconds). The Studio's other browser tests were not run here (the Studio's code did not change).
+- Not proven: that an AI coding tool builds a good page from the files; the download on the real private page.
+- Open: 5 major findings of the retest (SPEC.md section 2.29); pull request 14 (the owner's decision).
+
+- Date: 2026-11-21
+- Feature worked on (ID): none; retest findings R-S06 (in part), R-S07, and R-T05 (SPEC.md section 2.29, point 9), after the owner's second "Continue"
+- Result: passes in the Fit check's tests on this machine; GitHub's check on this commit is the full run
+- What it does: (R-S06) a box with a backdrop filter other than a blur or more saturation, and a box with a blend mode, make the colors "not measured"; the Mockup's own glass (blur and saturation) is left alone. (R-S07) the text in a form field is read for color, typeface, and contrast; a shape that an SVG picture draws by reference is compared. (R-T05) the six paints, the paint opacity, and the ping reading that came from the audit branch have a test.
+- Tests first: the tests for R-S06 and R-S07 failed before the repairs. The test for R-T05 passed at once, as expected: its code was already there, and the test now guards it.
+- Evidence: `npm run check`: 374 unit tests passed. The Fit check's browser tests: 224 of 224 passed (1,310 seconds), every Direction's clean build among them. The full `npm run e2e` was not run here.
+- Not repaired, and stated: a gradient or an inset shadow on every element (the rest of R-S06); a `select`'s shown option; a blend mode on a box that a style rule draws.
+- Open: 8 major findings of the retest (SPEC.md section 2.29); pull request 14 (the owner's decision).
+
+- Date: 2026-11-21
+- Feature worked on (ID): none; retest finding R-S05 (SPEC.md section 2.29, point 8), after the owner's "Continue"
+- Result: passes in the Fit check's tests on this machine; GitHub's check on this commit is the full run
+- Where the work stood: the owner stopped all work on 2026-11-18 and merged pull request 19 (the records) on 2026-11-19; two package updates by the update robot followed on the main line (vite 8.3.8, prettier 3.10.0). The working branch was brought level with the main line (`4dc8649`) before this work.
+- What it does: a page that keeps changing by the clock is never called measured. An animation that never ends, and a timer inside an SVG picture, each count as not measured at each window width (status 1), and the receipt says that the page keeps changing after the program stops reading.
+- Tests first: the test with three planted pages failed before the repair (it found no such sentence).
+- Evidence: `npm run check`: 374 passed (374) (unit tests). The Fit check's browser tests: 221 of 221 passed (1,296 seconds), every Direction's clean build among them. The full `npm run e2e` was not run here.
+- Limit: the program does not judge what an animation changes, so a harmless endless animation (a turning wheel) also makes the check "not measured".
+- Open: 11 major findings of the retest (SPEC.md section 2.29); pull request 14 (the owner's decision).
 
 - Date: 2026-11-18
 - Feature worked on (ID): none; the merge into the main line (decision D77)
@@ -617,6 +846,21 @@ Earlier cost reports, for the record (no decision needed): third review about 59
 
 ## Known gaps (every plan item that is absent or partial)
 
+**Rows that wait for the owner (state of 2026-11-21; each row's own Status in `redteam/FINDINGS.md` says more).**
+
+| Row | The question for the owner |
+|---|---|
+| M-01 | Do the small pictures on the cards appear when you open the private page? |
+| R23-01 | When you download the Vision from the private page, does every file arrive under its own name? |
+| T6-08 | Which research sites may the builder's network reach, before any further craft rule or Floor is written? |
+| P9-05 | Who reads the craft rules, the Vision's writer and the Summary's sections as a second reader? |
+| FTU-21 | In your trial of the Studio (milestone M4): do the words on the first screen, in the advice and on the Summary read plainly to you? |
+| G-T08 | Will you run the 4 commands of the Fitter in a Claude Code session, with the builder's walk-through? |
+| The time limit of the full check | The guard of the build loop refuses the builder's edit of the settings file of the checks. Will you change `"timeout_seconds": 1750` to `3000` in that file and then run the guard's own command that accepts the new state (`relock`; the build loop's guide names it)? |
+| Pull request 14 | Close it? Its one extra commit repeats what the main line holds in another form. |
+
+Limits that the owner accepted as stated limits on 2026-11-21 (decision D81), so no question is open: G-S04, G-S11, A1-05, G-S10, the kept parts of R-S04, R-S06 and G-S05. One more kept part of G-S05, accepted on 2026-11-22 (the run's log, entry E-293): a setting that the sample website's own style rules name, such as a mouse that can hover, is read in one state only. Rows kept for the next run on the owner's word: the 19 rows on screens of the Studio and X-02, CR-GX2, C-07, A1-09, T6-01.
+
 - **The Brief.** A first slice: texts and three answers. The words of the contact form are fixed. No either/or picks about the brand, no pictures of the owner's own, no second page, no way to take texts from an existing site. The layout sweep measures width and the headline's size on all 38 Directions; overlap and beauty were looked at on six. The top bar now holds five links and wraps on a narrow window. The form is long and has no way to jump between its groups.
 - **The sixth red-team review.** 9 of its 67 findings are open (counted on 2026-11-16) (rows S6, U6, T6 in `redteam/FINDINGS.md`), among them: words for a value that matches no Option are missing in `PRESCRIPTION.md` (U6-07); a letter of another alphabet can make a name look like another name (S6-04); 13 named values that the sample website does not use stay in `tokens.css` (T6-12); a failed Dependabot run that the reviewer reported and the builder has not looked at (T6-16). The seventh round (2026-11-16) is the second reading of the repairs, the Brief, and the layout sweep; its findings are in rows X7, U7, V7, C7, T7, and Q7.
 
@@ -628,7 +872,7 @@ Earlier cost reports, for the record (no decision needed): third review about 59
 - **Overlays.** The preview shows what each Overlay looks like, open, as a still picture. How an Overlay opens, closes, and behaves with a keyboard or a screen reader is not shown and not specified yet; that belongs to the export (M6). The six are a first set.
 - **Research rules.** Each rule measures a value of the design, not the built website. Nobody read the studies behind them. Three of the five measure values that the sample website fixes (line length, line height, the height of buttons), so they hold for every design today; the Summary says so, and they exist to catch a later Template or a changed value. Text links inside the sample website are 24 pixels tall, not 44; the rule about buttons says so.
 - **Research records.** 76 new records, unreviewed; every figure in them comes from a search summary unless its source is marked "read in full". The records list what could not be verified.
-- **Top bar on a 320-pixel window.** Its four links wrap onto two rows.
+- **Top bar on a 320-pixel window.** Its five links wrap onto two rows.
 
 - A slider step on the Step "Main color" still costs about 56 milliseconds of main-thread work (it was about 73). The two previews that change must be redrawn, and each carries its fonts inside it.
 - The contrast checks do not measure the fine grain texture, and the tests do not yet tie the drawn colors of boxes, the top bar, and the highlighter stroke to the measured ones.

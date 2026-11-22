@@ -1,0 +1,166 @@
+$ python3 (list rows of redteam/FINDINGS.md whose Status begins Open / Repaired in part / Stated / Not repaired, at commit 859c643)
+SEC-10 | minor | Opened as a local file, the Studio shares its storage with every other local HTML file | Open. Deferred to M8 (hosting decision): serve the Studio from a web address, not as a local file.
+SEC-13 | note | The names of the two workspace packages are free on the public registry, and the Studio asks for the core by exact version number | Open (note).
+P-12 | note | The claude.ai save and download path has no test, and the host probe uses an unsandboxed frame | Open (note): the save path on the real private page has no automated test; the stand-in used in tests covers t
+C-09 | note | The token data holds community look-alikes named after companies | Open (note).
+W-04 | minor | "Mockup" never appears on screen; four other words stand in | Fixed in part on screen. Still open: the defined-terms table in CLAUDE.md needs the owner's approval to change
+W-05 | minor | "design", "look", "direction" and "project" overlap | Fixed in part on screen. Still open: the defined-terms table in CLAUDE.md needs the owner's approval to change
+W-08 | minor | The defined-terms table is out of date | Fixed in part on screen. Still open: the defined-terms table in CLAUDE.md needs the owner's approval to change
+W-09 | note | Smaller slips | Fixed in part on screen. Still open: the defined-terms table in CLAUDE.md needs the owner's approval to change
+R-12 | blocker | No red-team review ran at any unit of work or milestone gate before this one, and the log says otherwise | Corrected: the log's opening now states that no review ran at the M0-M3 gates. Acknowledged: the breach cannot
+O-03 | note | Bundle size and its budget | Open (note).
+O-05 | note | Dead or unused pieces | Open (note).
+FTU-21 | major | First screen, Option advice, Summary: Words a non-designer will not know, used without explanation. | Fixed in part on screen. Still open: the defined-terms table in CLAUDE.md needs the owner's approval to change
+FTU-22 | major | Whole Studio: Several words for one thing, and one word for several things. | Fixed in part on screen. Still open: the defined-terms table in CLAUDE.md needs the owner's approval to change
+FTU-32 | major | One-column layout (windows up to 1,099 px), observed with my test-only style rule because of FTU-01: At 720×450: after "Start from Soft Daylight" the  | Fixed in part: each Step opens at its top, phone-wide windows open at phone width, the main button stays in re
+S2-03 | minor | Work done while saving is paused is lost on close or reload, with no leave-page warning | Open. A leave-page warning does not show inside the private page's frame and would stop the browser tests' rel
+S2-05 | minor | In the local file:// copy, any other local HTML file can read and overwrite the project | Open. Recorded in `PROGRESS.md`: the local-test file is for testing only.
+S2-08 | note | A `__proto__` key in `decisions` vanishes inside Zod, and the "left out" count is wrong | Open (note). No exploit found.
+S2-11 | note | The save time decides which copy opens, but nothing checks it | Open (note).
+S2-12 | note | CI action pins not verified against upstream | Open (note).
+S2-13 | note | Very small numbers reach CSS in exponent form | Open (note).
+S2-14 | note | A 1.77 MB file holding 20,000 junk Decisions passes the 2 MB size check | Open (note).
+U2-10 | minor | The first screen asks about "Contrast checks" before the person knows what anything is | Open.
+U2-11 | minor | Each Step has about 19 extra Tab stops inside the large preview | Open.
+U2-12 | minor | Escape on the "Start a new project?" dialog drops focus to the top of the page | Open.
+U2-15 | minor | Options 10 and above have no number key | Open.
+U2-17 | minor | "Decide later" leaves no trace | Open.
+U2-19 | minor | At 200% zoom and on a phone, the Step list is at the very bottom | Open.
+U2-20 | minor | "Show me six more Directions" gives near-duplicates with list-like names | Open.
+T2-06 | minor | Import re-attributes a "picked" Decision to whichever Option the values happen to match | Open.
+T2-09 | minor | Colors at the edge of the screen's range are written out slightly out of range | Open.
+T2-12 | minor | Conflict-rule tests check only that each rule fires on one example | Open.
+T2-13 | note | Options carry no source, grade, or review date of their own | Open (note); see row C-07.
+T2-15 | note | The line-thickness slider allows values that the parameter description rules out | Open (note).
+T2-16 | note | The dot grid is louder than the range the Step text cites | Open (note).
+S3-06 | note | Two tabs keeping copies at the same moment can lose one (inferred, not reproduced) | Open (note).
+U3-11 | minor | The values that the sliders announce are bare numbers, and the announced value can differ from the slider's own | Open.
+U3-12 | minor | The refusal of a file does not say what a project file is | Open.
+U3-19 | minor | "Licences" beside "SIL Open Font License"; a 16-pixel link | Open.
+U3-20 to U3-24 | note | Five notes (see the report) | Open (note).
+C4-F3 | minor | An opened file whose Decision did not match its design values was changed without a word | Fixed in `86c16c9`: the opening notice counts the changed Decisions. Retested and passed.
+S5-07 | note | Small untrue or missing words when a hand-made file or stored copy opens | Open. Three wordings: the notice says "in the file" for the copy saved in the browser; a count of left-out Dec
+DT-17 | note | A Direction's sources and grade are shown on no screen; one of the four research files feeds nothing | Open (note): no screen shows a Direction’s sources and grade; the research file on eye tracking feeds no rule 
+DT-18 | note | Names: the rule holds word for word; some descriptions still point at one person | Open (note), for the owner: some Direction descriptions still point at one person although no name appears. De
+U5-08 | minor | Overlays preview at "Phone" width shows one and a half of six Overlays and does not say that the rest are further down inside the picture | Open: at phone width the Overlays preview shows the first Overlays only; the rest are further down inside the 
+U5-09 | minor | The Overlays preview is labelled "Sample website" but shows no website, and the label covers part of the picture | Open: the label "Sample website" on the Overlays preview, and its place over a corner of the picture (known ga
+U5-11 | minor | Trade words and an unexplained "The record" in the source lines of the research rules and the Overlays | Open: source lines quote record titles, which hold trade words, and begin with "The record" without saying wha
+U5-12 | minor | Several Direction cards have pictures I cannot tell apart; "Ink and Seal" and "Plain Label" are the closest pair of all | Open in part: "Plain Ground" now differs from "Ink and Seal" in its color; several other Direction pictures re
+U5-13 | minor | A group heading folds its 12 Directions away with no sign that it can | Open: a group heading folds without an arrow or a word that says so.
+U5-16 | note | "Control Room" starts with a research rule that "Does not hold", and nothing says it is made that way on purpose; the Step "Text size" is silent when  | Open (note): "Control Room" starts with one research rule that does not hold, by decision D53; the Summary doe
+U5-17 | note | Card pictures look out of focus on a screen with double pixel density (seen in the installed test browser only) | Open (note): card pictures look soft on a screen with double pixel density; seen in the test browser only.
+U5-18 | note | On the phone the top bar, the start notice, and the main button leave about 600 of 800 pixels, and a Step opens with no preview and no card on the fir | Open (note): on a phone a Step opens without a card or the preview in the first screenful.
+L8-04 | note | Seen, and left for the owner's judgment, because no program can call it a fault: (1) in most layouts the price list takes a third to a half of the pag | Open, for the owner. Nothing changed.
+P9-05 | major | No second reader has seen the craft rules, the Prescription writer, or the Summary's new sections. Hard rule 12 asks for three red-team reviewers at e | Open. The builder read its own changes line by line; that is no review.
+P9-06 | note | What the tests of this unit do not cover: (1) no validator program of the Design Tokens format has read `tokens.json`; the test rests on the builder's | Open.
+S6-10 | note | A list of own Directions that cannot be written for a reason other than storage gets the words for full storage | Open
+S6-12 | note | An own Direction can take a name that is one of the Studio's own phrases, for example "the plain start" | Open. Accepted for now: the owner would have to choose such a name, and the only effect is an odd sentence on 
+U6-07 | minor | For a Step whose value is only close to an Option, the file gives a code name and a number and no words | Open. The file now explains what a "Studio setting" is, but still gives no words for a value that matches no O
+U6-23 | minor | "Undo" stays live after a removal that it cannot undo and takes back something older; no "Redo" exists | Repaired in part in feature F028 (decision D63 point 4): a line beside the Undo button says what the next Undo
+U6-27 | note | The Overlays preview is a large empty box when no Overlay is switched on; a phone is told about number keys | Open (note).
+U6-28 | note | "Your own; no source, not reviewed." does not say source of what or reviewed by whom | Open (note).
+U6-29 | note | "Start a new project?" does not say that own Directions stay; under "Fix for me" the keep form still counts contrast notes | Open (note).
+U6-30 | note | A project started from an own Direction shows the Decisions that made it as "Not decided yet", and its Prescription has no rejected Options | Open (note).
+T6-09 | minor | Requirement 2.6 says that `tokens.json` is grouped by role; the file groups by type | Open, for the owner: the file groups by type, which is how the Design Tokens format names things; the requirem
+T6-16 | minor | Dependabot acted on the 7-day wait on 2026-11-15 and its npm job failed; row S2-06 and guarantee 70.03 still say that nobody has seen it act | Open. Recorded here on the reviewer's word; the builder has not looked at that run. Row S2-06 and guarantee 70
+B17-03 | note | Seen in the pictures, and left as it is: (1) a 12-character figure breaks inside the number on Marquee Deco at phone width ("1,234, / 567 / km"); (2)  | Open, for the owner's judgment. None makes a page wider than its window, and nothing overlaps in the 24 pictur
+R26-01 | minor | The repository's `CLAUDE.md` seems to reach a helper agent without a file read (the harness appears to add it to the helper's context). Both trials th | Open. A cleaner comparison would run the helpers in a folder outside the repository, with no `CLAUDE.md`; the 
+X7-09 | minor | Chromium runs with `--no-sandbox` (Playwright's default) while it opens hostile pages with scripts on. A browser exploit would run with the owner's ri | Recorded, open: Chromium runs without its own sandbox when the program runs as the root user; named in guarant
+U7-02 | major | A double click on "Pick … and continue" records two Decisions: the one I chose, and the default of the next Step, which I never looked at. Pressing En | Repaired in part in feature F030: the second click of a double click does nothing. Open: pressing Enter severa
+U7-03 | minor | The sentence beside Undo after I add a reason is "Undo takes back: the Step 'Menu (navigation)' goes back to how it was." This sounds like my pick wil | Open: not yet repaired.
+U7-04 | minor | The Undo line after I pick a Direction reads "the whole project goes back to the earlier one, which started from the plain start." The phrase "the ear | Open: not yet repaired.
+U7-06 | minor | After a reload, "Nothing to undo." returns. The "Saved in this browser" line makes me feel safe, but my Undo history is gone. The confirm dialogs do s | Open: not yet repaired.
+U7-07 | minor | A long unbroken word in the headline is cut off at the edge of the preview, not wrapped. The exported mockup could do the same on a phone. A long busi | Open: not yet repaired.
+U7-08 | minor | The three answers ("What do you offer?" and so on) are empty single-line boxes with no hint text. The paragraph fields (up to 600 characters) are also | Open: not yet repaired.
+U7-09 | minor | The Summary's "What works today / What does not exist yet" paragraph is hard to follow: "the parts that the section 'The Prescription' lists as left o | Open: not yet repaired.
+U7-10 | minor | The first screen says "seven files" and the Summary has a separate "Download all seven files as one file" button. The zip is named "refraction-prescri | Open: not yet repaired.
+U7-11 | minor | Neither the zip nor the Summary has a plain "read me first" file for a person. PRESCRIPTION.md is addressed to the AI tool ("Everything outside a bloc | Open: not yet repaired.
+U7-12 | minor | The empty project name leaves an empty code block in PRESCRIPTION.md under "The project's name". The Studio field itself shows the hint "Name this pro | Open: not yet repaired.
+U7-13 | minor | On the Steps screen at 390 px, the large preview is only about 200 px tall and shows just the menu and the top of the headline. The "Sample website" b | Open: not yet repaired.
+U7-14 | minor | At 390 and 768 px the list of Steps and "N of 23 decided" sits at the very bottom of the page, far below the cards. At those widths I lose the sense o | Open: not yet repaired.
+U7-15 | minor | On the Directions screen the cards are uneven. Some have a large blank white area under the button. The same long "A Skin sets which color…" paragraph | Open: not yet repaired.
+U7-16 | minor | The preview pictures are blank for the first second or two after the screen loads (my 800 ms screenshot showed empty boxes). A newcomer could think th | Open: not yet repaired.
+U7-17 | minor | Small click targets at 390 px. "Add a reason" is 28 px tall. The "Your content" link in the top bar is 19 px tall, and the "Choose Overlays" link is 1 | Open: not yet repaired.
+U7-18 | note | The Overlays preview is a large empty rectangle with tiny text "No Overlay is switched on." The idea of an Overlay is explained, but a newcomer has no | Open: not yet repaired.
+U7-19 | note | The Step cards at 1440 have very small thumbnails. On the color Steps the top card is slightly clipped at the top, and "Call 555-0117" sits tight unde | Open: not yet repaired.
+U7-20 | note | After the 2nd Direction pick on a project, a "kept copy" is listed on the Summary as "The project "Bakery site", as it was before you started again fr | Open: not yet repaired.
+V7-04 | minor | 2.10 point 1 / 2.13: every address the page names. Edge case: "a request that never completes".: `holders` omits `formaction` on `<button>` and `<inpu | Repaired in part in feature F029: formaction, poster, ping, meta refresh, and SVG image and use are read. Not 
+V7-08 | minor | 2.14 "How to test it end to end", edge.: Test gaps in 'three repairs of taste'. (a) The edge test reads only `.btn.quiet` elements on the Summary. The | Open: not yet repaired.
+V7-10 | note | 2.10 edge case ("the program refuses… writes no receipt").: The command-line test covers a missing build file only. The empty-build, not-HTML, missing | Open (note).
+C7-02 | minor | `DESIGN.md` never says when a pair it lists stands below 4.5 to 1. The `link` component pair fails in 3 of the 38 Directions, and the `button-primary` | Open: not yet repaired.
+C7-07 | minor | The fingerprint covers only the design values (`tokens`). `PRESCRIPTION.md` says "where one differs, the files do not belong together", which reads as | Recorded, open: the fingerprint sentence says more than the fingerprint covers; the words cannot change until 
+C7-08 | minor | `FONTS.md` writes `font-weight: 100 900` in every `@font-face` block. Eight of the 13 packages cover a narrower range, and DM Sans goes beyond it. Thr | Repaired in part in feature F031: FONTS.md states each font file's real weight range. Open: three designs set 
+T7-07 | minor | SPEC.md:119: "the screen shows how many characters remain when few remain". Reality: `ContentField` (App.tsx:986) shows only "This field is full" at t | Open: not yet repaired.
+T7-08 | minor | SPEC.md:128 and feature F017: "no overflow, no overlap, the headline stays the largest text". Reality: The test `holds the owner's content at the ends | Open: not yet repaired.
+T7-09 | minor | guarantees.md §55.02 and SPEC.md:118: "A list at 0 leaves no empty box, heading, or gap behind". Reality: Probe with every optional text emptied and f | Open: not yet repaired.
+T7-10 | minor | SPEC.md:179: "unit tests with stored copies of the three new files for two projects". Reality: `prescription.test.ts` stores `FONTS.md`, `theme.css`,  | Open: not yet repaired.
+T7-14 | note | The same fingerprint claim: "tell two sets of files apart" (SPEC §2.9, F019). Reality: With all six Overlays switched on, the fingerprint stays `f30f6 | Recorded, open: the same cause as C7-07 (the fingerprint sentence); see there.
+T7-17 | minor | CLAUDE.md term table: the Mockup is "Sample website" on screen. App.tsx:1144 and PRESCRIPTION.md say "reference page" for the same thing. Reality: One | Open: not yet repaired.
+T7-18 | note | `PRESCRIPTION.md` opening: "It is the first part of the Prescription"; section 7 title: "What this first part leaves out". Reality: Seven files exist  | Recorded, open: the same cause as C7-07 (a sentence in `PRESCRIPTION.md` that changes every stored copy).
+T7-19 | note | trials/002/RECORD.md table: "Contrast 0 / 2" under "Deviations that the program counted". receipt.json gives contrast `"deviations": 2`. Reality: The  | Open: not yet repaired.
+F7-12 | note | Criterion numbers dropped from the sources of the people Floor | Repaired in part in feature F032: the source line names the success criterion (`where`). The cut of A4's quota
+F7-13 | note | Search Floor repeats requirements of the Floor for people with disabilities | Partly repaired in feature F032: the search Floor says that those requirements stand whatever the contrast set
+F7-16 | note | No tests for F7-01, F7-04, F7-07; stale banners in the research records | Repaired in part in feature F032: ten new tests; the four banners now say that the Floors rest on the records 
+A2-V4 | major | A declarative shadow root (`<template shadowrootmode>`) draws a second design that colors, typefaces, and radii never enter (status 0). S2 | Fixed in part on 2026-11-16: every open shadow root is read; a closed one is out of reach, and "Still needs a 
+A2-V15 | note | Needs the owner: a file that names an own Direction of the owner’s with other start values; not reproduced through the Studio | Open: not reproduced through the Studio; it needs a file that names one of the owner’s own Directions with oth
+G-S05 | blocker | M7: Status 0 for a page that shows another design on a high-density screen | Stated, not repaired: "Still needs a person" names high-density screens, print, and other settings. The progra
+G-S11 | major | M7: A hostile `mockup.html` empties the content measure | Stated, not repaired: the Vision folder is trusted as the owner's own (README and guarantee 66.12).
+G-T08 | major | M7: The exit test runs the program, never the command inside Claude Code | Open, for the owner: nobody has run the three commands in a Claude Code session.
+G-T30 | note | rename: The plugin has no lock file | Open: `plugin/package.json` pins Playwright exactly; its own dependencies are not pinned without a lock file.
+G-U12 | minor | M6: S11 and H4 refer to words of the Vision that are hard to find | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U13 | minor | M6: "Contrast checks" and the Floor for people with disabilities under one switch | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U14 | minor | M6: Gaps in the ids look like lost requirements | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U15 | minor | M6: "the fingerprint below" stands above | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U16 | minor | M6: Technical words in section 7 without explanation | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U17 | minor | M6: "Vision" beside "low vision" | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U18 | minor | M6: `refraction-fingerprint` in the Vision's files | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U19 | minor | M7: One usage line for every mistake | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U20 | minor | M7: A missing folder reads as a missing file | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U21 | minor | M7: Raw words when the browser is missing | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U22 | minor | M7: Technical words in the receipt's header | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U23 | minor | M7: Two wordings of one disclaimer | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U24 | minor | M7: "Brief" in the receipt against "the owner's answers" in the Vision | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U26 | minor | M7: Three names for the receipt | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U27 | minor | M7: `fit-build` does not say where the receipt goes | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U28 | minor | M6: A sentence on the Summary that says nothing to act on | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U29 | minor | M6: The same source sentence 38 times in directions.md | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U30 | note | M6: Two units for one width | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U31 | note | M6: Small disagreements in DESIGN.md and FONTS.md | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+G-U32 | note | M7: The program believes the round that it is given | Stated: the README and the command say that the model counts the rounds.
+G-U33 | note | M6: Two colons in a row | Open: not yet repaired. Some of these change `VISION.md` outside section 7, which the stored trial files are c
+CR-07 | note | `headlineEmphasis` may stand outside the headline after loading | Not repaired, on purpose: a project saved by the Studio can hold such a pair (the owner edits the headline aft
+CR-08 | note | The double-click guard (`event.detail > 1`) ignores a deliberate quick second click | Not repaired: the trade-off is the one that decision D68 and SPEC 2.16 accept (U7-02, in part).
+CR-09 | note | The reason box opens in the click handler and not by the browser | Not repaired: a test covers it and the first version that relied on the `toggle` event lost typed letters.
+CR-10 | note | `cutUnits` leaves a lone high half that is already in the input | Not repaired: `visibleText` replaces every lone half with a space before a reason reaches a file (checked by r
+U8-12 | minor | "Open a project file" exists only on the Summary; the Directions screen offers no way to open a saved file | Recorded on 2026-11-17: a second "Open a project file" button is a change of the Directions screen; the owner 
+D77-note | note | Rows S8-01, S8-02, CX-01, CX-02, and RV-01 to RV-08 describe the audit branch's own Fit check. The join of decision D77 kept the main line's program:  | Stated.
+R-S06 | major | `backdrop-filter`, `mix-blend-mode`, a gradient on every element, or an inset box shadow recolors the whole page; colors measure says 0 deviations | Repaired in part on 2026-11-21: a box with a backdrop filter other than a blur or more saturation, and a box w
+R-S08 | major | Where the Vision does not write Floor A1, a required text in the color of its background gives status 0 (contrast 1.00 to 1 is listed, not required) | Open: a design decision for the owner (should a required text of no contrast count as missing?).
+R-S09 | major | A hostile Vision folder writes its own sentence into `LOOK.md` outside any fence (through a typeface name) | Open. Lessened: the command `/fit-look` no longer pre-approves any program.
+R-S11 | major | The look hangs on a named pipe, crashes on `/dev/zero`, and hangs on a busy page with `--run-scripts`, where the Fit check refuses or ends | Open.
+R-S12 | minor | The receipt says S1 checks that "no address in the page begins with http://", but a plain `http://` link passes | Open.
+R-S13 | minor | A result folder below `/proc` hangs the Fit check | Open (the path comes from the caller).
+R-S14 | note | The browser itself may have tried to reach a Google host (not attributed; another browser ran at the same time) | Open: not reproduced.
+R-S15 | note | Passes by a stated rule: a headline at 6 pixels; at opacity 0.5; a result folder below a linked parent | Stated.
+R-T06 | major | "Start here", "Known gaps", and the status table of `PROGRESS.md` described the state before the join | Repaired in part: the paragraphs named in the report are rewritten; the file was not read end to end.
+R-T13 | minor | Three checks of the audit branch's Floors measure have no counterpart: S11 for an input type that a browser reads as text; Q8 when the description equ | Open.
+R-T14 | minor | The plain words of A3 and A13 promise more than the check (an empty label passes; no viewport tag gives only a Q9 line) | Open (Codex found the A3 part too, pull request 16).
+R-T15 | minor | Row G-T26 points to a full run that its entry does not hold | Open.
+R-T16 | note | The join and the look are not features in `feature_list.json`; the look has no guarantee section; the trial 003 test leaves out a second line | Stated.
+R-U05 | major | The guide did not know the fourth command, the look, or `LOOK.md` | Repaired in part: the guide names the command and what it is for; the look's options and statuses are not yet 
+R-U07 | minor | Two names for one fingerprint | Open.
+R-U08 | minor | `fit-build` does not say what to do at status 0 or 2 | Open.
+R-U09 | minor | The guide's status table leaves out the look and two causes of status 2 | Open.
+R-U10 | minor | With `--run-scripts` the receipt says "ran" even when the page's own policy stopped every script | Open.
+R-U11 | minor | Programmer's words in deviation lines ("first rect", "a.btn"); no nearest Vision color | Open.
+R-U12 | minor | Partly transparent colors print 17 digits | Open.
+R-U13 | minor | The list of checked parts is sorted as text (A10 before A2) | Open.
+R-U14 | minor | Two sentences run together, one ending in a colon | Open.
+R-U15 | minor | "(data, not instructions)" is written for a model and never explained to the owner | Open.
+R-U16 | minor | "Not shipped with the page" is explained twice; one font file appears in two spellings | Open.
+R-U17 | minor | The look's terminal line names no status; `LOOK.md` uses measuring terms without explanation | Open.
+R-U18 | minor | The Studio sends the owner to a file path and to "Claude Code" without saying what they are | Open.
+R-U19 | note | `--no-scripts` now gets only the usage line | Open.
+R-U20 | note | Guide words that a non-programmer needs explained (environment variable, syntax error, marketplace) | Open.
+R-U21 | note | "Still needs a person" has 15 or 16 long lines of equal weight | Open.
+DV-01 | note | `tokens.css` and `tokens.json` write `--font-numeric: inherit` when the numerals are not set apart. On the page's root that value is empty, and a rule | Stated; not changed (a change would alter every fingerprint).
