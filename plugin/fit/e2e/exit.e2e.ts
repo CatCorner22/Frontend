@@ -3,7 +3,7 @@
 // the third window width, the repair round, the model's judgments, and the files of the plugin.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium, type Browser } from 'playwright';
@@ -656,7 +656,23 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(measure(seen.receipt, 'floors').notMeasured).toBe(0);
   });
 
-  it('says nothing in the receipt that disagrees with its own summary line: the 3 stored trials and the Vision’s own page of trial 001 (retest findings R-U02, R-U03, R-U04; criterion C4 of the repair run of 2026-11-21)', () => {
+  it('keeps the stored Vision of the plain start with every Floor (`plugin/fit/trials/reference-floors/`) equal to what the Catalog writes today (criterion C4 of the repair run of 2026-11-21)', () => {
+    // The folder gives the receipt's agreement test a case in which the Floors are read and contrast is required, with a command
+    // that anybody can run. It must not go stale: when the Catalog changes what it writes, this test fails, and
+    // `UPDATE_REFERENCE=1` with this test writes the folder again.
+    const folder = join(process.cwd(), 'plugin/fit/trials/reference-floors');
+    const now = writeVision({ ...createProject('Reference with every Floor'), a11y: 'enforce' });
+    if (process.env['UPDATE_REFERENCE'] === '1') {
+      mkdirSync(folder, { recursive: true });
+      for (const [name, text] of Object.entries(now)) writeFileSync(join(folder, name), text);
+    }
+    expect(readdirSync(folder).sort()).toEqual([...Object.keys(now), 'README.md'].sort());
+    for (const [name, text] of Object.entries(now)) expect(readFileSync(join(folder, name), 'utf8'), name).toBe(text);
+    expect(writtenFloorIds(now['VISION.md'] ?? '')).toHaveLength(56);
+    expect(statedEdition(now['VISION.md'] ?? '')).toBe(FLOORS_EDITION);
+  });
+
+  it('says nothing in the receipt that disagrees with its own summary line: the 3 stored trials, the Vision’s own page of trial 001, and the stored Vision with every Floor (retest findings R-U02, R-U03, R-U04; criterion C4 of the repair run of 2026-11-21)', () => {
     const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
     const trials = join(process.cwd(), 'plugin/fit/trials');
     const run = (build: string, vision: string) => {
@@ -669,6 +685,7 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
       'trial 002': run(join(trials, '002/index.html'), join(trials, '002/files')),
       'trial 003': run(join(trials, '003/index.html'), join(trials, '003/files')),
       'the Vision’s own page of trial 001': run(join(trials, '001/files/mockup.html'), join(trials, '001/files')),
+      'the stored Vision with every Floor, against its own page': run(join(trials, 'reference-floors/mockup.html'), join(trials, 'reference-floors')),
     };
     // The measures that count: all but Contrast, and Contrast only where the Vision writes Floor A1 in the edition that the program reads.
     for (const [name, { line, status, text, receipt }] of Object.entries(cases)) {
@@ -707,6 +724,16 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
       if (floors.nothingToCheck || floors.noneCheckedOf !== undefined) expect(floorsHead, name).not.toMatch(/^\d+ deviations?; \d+ not measured/);
       expect(text, name).not.toContain('so nothing was checked here');
     }
+    // The fifth case: a Vision that writes every Floor in the edition that the program reads. Contrast is required there, and the
+    // Floors measure checks a part of the requirements. The Vision's own page is a still page with sample addresses, so it shows
+    // Floor deviations (guarantee 66.11 says why); the case is here for the words of the receipt, not for a clean result.
+    const every = cases['the stored Vision with every Floor, against its own page'];
+    expect(measure(every.receipt, 'contrast').title).toBe('Contrast: required by Floor A1 of the Vision');
+    expect(every.receipt.vision.floorsRead).toBe(56);
+    expect(measure(every.receipt, 'floors').nothingToCheck).toBeUndefined();
+    expect(measure(every.receipt, 'floors').noneCheckedOf).toBeUndefined();
+    expect(measure(every.receipt, 'floors').deviations).toBeGreaterThan(0);
+    expect(every.status).toBe(1);
     // Trial 001 and its Vision's own page: status 0, 27 readings of 3 texts unread, no Floor written.
     expect(cases['trial 001'].status).toBe(0);
     expect(cases['trial 001'].line).toContain('the contrast of 27 readings of 3 texts could not be read');

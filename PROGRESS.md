@@ -106,6 +106,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 17: a stored Vision with every Floor gives the receipt's agreement test its fifth case (criterion C4 of the run)
+- Feature worked on (ID): none in the list. A point of the plan's reviewers: in none of the cases that the receipt's agreement test ran did the Fit check read the Floors or require contrast, so the test's sentences on those 2 measures met no case.
+- Now: the folder `plugin/fit/trials/reference-floors/` holds the Vision of the plain start with every Floor written (56 requirements, the edition that the program reads), with a short guide of its own. A test keeps the folder equal to what the Catalog writes today; `UPDATE_REFERENCE=1` writes it again. The agreement test runs the Fit check on this Vision's own Mockup as its fifth case.
+- What the fifth case shows: contrast is "required by Floor A1", 56 requirements are read, and the Floors measure holds deviations (the Mockup is a still page with sample addresses; status 1). The case is there for the receipt's words.
+- Open, and on the card for the owner after the review round (the run's finding F-55): no case ends with status 0 where contrast is required, because a text whose contrast cannot be read never changes the status. Whether that rule stays is the owner's decision.
+- Evidence: `hinshitsu/evidence/commit-17-checks.txt`.
+
 ### 2026-11-21: repair run, commit 16: the deliverable test opens the published fragment itself (criterion C3 of the run)
 - Feature worked on (ID): none in the list. A point of the plan's reviewers: the deliverable test opens `local-test.html`, while the file that is published is `refraction-studio.html`; nothing showed that the 2 hold the same page.
 - Now: a test reads both built files and asserts that the published fragment stands inside the test page exactly once, byte for byte, with only a short head before it and the 2 closing tags after it.

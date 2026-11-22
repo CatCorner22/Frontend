@@ -1,0 +1,79 @@
+/* The design of one Frontend Focus project, under the names that the shadcn component library reads. Fingerprint: f30f6959.
+   Put these two blocks where the project keeps the library's theme (its main style sheet), in place of the library's own values.
+   tokens.css holds every value of the design under the design's own names; this file holds the part that the library has names for.
+
+   The design is a light page and has one set of colors. The dark name holds the same values as the light one, so that
+   the page looks the same whichever of the two the library switches on.
+   --radius is the rounding of boxes. The design rounds buttons and fields by --radius-control in tokens.css; give them that.
+   --destructive: the design draws an error in the color of the text, with a mark and words, and never by color alone.
+   --chart-1 to --chart-5: the design has no palette for charts. These are five of its own colors; a chart needs a palette
+   that a person has looked at. */
+:root {
+  --radius: 12px;
+  --background: #f7faff;
+  --foreground: #09111c;
+  --card: #ffffff;
+  --card-foreground: #09111c;
+  --popover: #ffffff;
+  --popover-foreground: #09111c;
+  --primary: #0f4ea3;
+  --primary-foreground: #fafcff;
+  --secondary: #e9f1fb;
+  --secondary-foreground: #09111c;
+  --muted: #e9f1fb;
+  --muted-foreground: #4e5967;
+  --accent: #e2eeff;
+  --accent-foreground: #09111c;
+  --destructive: #09111c;
+  --border: rgb(9 17 28 / 0.148);
+  --input: #646e7c;
+  --ring: #0f4ea3;
+  --chart-1: #0f4ea3;
+  --chart-2: #0f4ea3;
+  --chart-3: #4e5967;
+  --chart-4: #646e7c;
+  --chart-5: #09111c;
+  --sidebar: #e9f1fb;
+  --sidebar-foreground: #09111c;
+  --sidebar-primary: #0f4ea3;
+  --sidebar-primary-foreground: #fafcff;
+  --sidebar-accent: #e2eeff;
+  --sidebar-accent-foreground: #09111c;
+  --sidebar-border: rgb(9 17 28 / 0.148);
+  --sidebar-ring: #0f4ea3;
+}
+
+.dark {
+  --radius: 12px;
+  --background: #f7faff;
+  --foreground: #09111c;
+  --card: #ffffff;
+  --card-foreground: #09111c;
+  --popover: #ffffff;
+  --popover-foreground: #09111c;
+  --primary: #0f4ea3;
+  --primary-foreground: #fafcff;
+  --secondary: #e9f1fb;
+  --secondary-foreground: #09111c;
+  --muted: #e9f1fb;
+  --muted-foreground: #4e5967;
+  --accent: #e2eeff;
+  --accent-foreground: #09111c;
+  --destructive: #09111c;
+  --border: rgb(9 17 28 / 0.148);
+  --input: #646e7c;
+  --ring: #0f4ea3;
+  --chart-1: #0f4ea3;
+  --chart-2: #0f4ea3;
+  --chart-3: #4e5967;
+  --chart-4: #646e7c;
+  --chart-5: #09111c;
+  --sidebar: #e9f1fb;
+  --sidebar-foreground: #09111c;
+  --sidebar-primary: #0f4ea3;
+  --sidebar-primary-foreground: #fafcff;
+  --sidebar-accent: #e2eeff;
+  --sidebar-accent-foreground: #09111c;
+  --sidebar-border: rgb(9 17 28 / 0.148);
+  --sidebar-ring: #0f4ea3;
+}

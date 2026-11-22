@@ -1,0 +1,37 @@
+Checks before commit 17 of hinshitsu/PLAN.md. Started 2026-11-22T07:03:40Z. Parent commit: bafb507.
+Tree checked (files changed against the parent, with the SHA-256 of each):
+  1f786ecc3538ad93  PROGRESS.md
+  e0c6af289defa871  plugin/fit/e2e/exit.e2e.ts
+  5a85c728a0911825  plugin/fit/trials/reference-floors/DESIGN.md
+  e875cfb7da986ad3  plugin/fit/trials/reference-floors/FONTS.md
+  922285a04033ac35  plugin/fit/trials/reference-floors/README.md
+  f1a928fae0b15a99  plugin/fit/trials/reference-floors/VISION.md
+  940f4b5e6c8a1a46  plugin/fit/trials/reference-floors/mockup.html
+  a6b544f36fb981f7  plugin/fit/trials/reference-floors/theme.css
+  4a8ec51b0d0ef17b  plugin/fit/trials/reference-floors/tokens.css
+  1ed546eecf3ee56f  plugin/fit/trials/reference-floors/tokens.json
+
+== npm run check ==
+exit 0
+
+ Test Files  17 passed (17)
+      Tests  374 passed (374)
+   Start at  07:04:03
+   Duration  13.80s (tests 92%, import 7%, transform 1%)
+
+
+== npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e ==
+exit 0
+ Test Files  4 passed (4)
+      Tests  242 passed (242)
+   Duration  1710.88s (tests 100%)
+
+== npm run build:page, then npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts ==
+build exit 0
+exit 0
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Duration  29.35s (tests 99%, import 1%)
+
+Finished 2026-11-22T07:33:20Z.
+Run in a second checkout that holds exactly the files of this commit (snapshot 8194a6ab01e5177aba84eda227821db5e81fd5cf).
