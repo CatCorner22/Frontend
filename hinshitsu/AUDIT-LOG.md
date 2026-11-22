@@ -1876,3 +1876,21 @@ WU-1 is built: 19 commits on `claude/festive-mendel-lfnahh`, from 5f6d8c2 (commi
 - Commit under review: c9c81ee (the DELIVERABLE at 52d1e73)
 - SUB-AGENT identifier: a778679bacccdaa91 — not openable by the USER
 - Report: `audits/WU-1-language-E-191.md`
+
+### E-192 · 2026-11-22T10:14:10Z · LAUNCH · orchestrator
+
+- Role: AUDITOR, role 4 Adversarial tester
+- WORK UNIT: WU-1
+- Scope: `prompts/S7-WU1-adversarial.md`
+- Commit under review: c9c81ee (the DELIVERABLE at 52d1e73)
+- SUB-AGENT identifier: a6dcab3df58cdd36c — not openable by the USER
+- Report: `audits/WU-1-adversarial-E-192.md`
+
+### E-193 · 2026-11-22T10:14:10Z · LAUNCH · orchestrator
+
+- Role: AUDITOR, role 5 Recipient-experience auditor
+- WORK UNIT: WU-1
+- Scope: `prompts/S7-WU1-recipient-experience.md`
+- Commit under review: c9c81ee (the DELIVERABLE at 52d1e73)
+- SUB-AGENT identifier: a4869c9bb63540240 — not openable by the USER
+- Report: `audits/WU-1-recipient-experience-E-193.md`
