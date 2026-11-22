@@ -2,6 +2,7 @@
 // The reference build is the Mockup of the same project; its picture must not differ from the Mockup's. Every other test plants
 // one thing and expects the pictures or the readings to show it.
 import { spawnSync } from 'node:child_process';
+import { createSocket } from 'node:dgram';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -482,6 +483,29 @@ describe('The look: an untrusted page', () => {
     await expect(look(inputOf(''))).rejects.toThrow('The build is empty.');
     await expect(look(inputOf('plain words'))).rejects.toThrow('The build is not an HTML page.');
   });
+});
+
+describe('The look: what a page with its scripts on cannot do', () => {
+  it('sends no packet through WebRTC: a listener on this machine receives nothing while the look draws a page that opens such a connection (retest finding R-S03)', async () => {
+    const udp = createSocket('udp4');
+    const got: number[] = [];
+    udp.on('message', (message) => got.push(message.length));
+    await new Promise<void>((done) => udp.bind(0, '127.0.0.1', done));
+    const port = udp.address().port;
+    const open = reference.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/i, '');
+    const connect = `try { const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:127.0.0.1:${String(port)}' }] }); pc.createDataChannel('x'); pc.createOffer().then((o) => pc.setLocalDescription(o)); document.title = 'connection opened'; } catch (e) { document.title = 'connection refused: ' + e.name; }`;
+    // The same script in the page and in a frame of the page: the replacement stands in every frame.
+    const html = open.replace('</body>', `<script>${connect}</script><iframe title="planted" srcdoc="&lt;script&gt;${connect.replace(/"/g, '&quot;')}&lt;/script&gt;"></iframe></body>`);
+    expect(html).toContain('RTCPeerConnection');
+    try {
+      const result = await look({ ...inputOf(html), runScripts: true });
+      await new Promise((done) => setTimeout(done, 1500));
+      expect(got, 'no packet may reach the listener').toEqual([]);
+      expect(result.look.widths.length).toBeGreaterThan(0);
+    } finally {
+      udp.close();
+    }
+  }, 300_000);
 });
 
 describe('The look: the command line', () => {

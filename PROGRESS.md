@@ -106,6 +106,12 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 10: a listener proves that the look sends no WebRTC packet (finding R-S03)
+- Feature worked on (ID): none in the list. Finding R-S03 (grade blocker): the look with `--run-scripts` let a page send a UDP packet through WebRTC. The code was repaired on 2026-11-17; no test proved it.
+- Now: a test opens a UDP listener on this machine, draws a page that opens a WebRTC connection toward it (in the page itself and in a frame), and asserts that the listener receives nothing.
+- Shown once by hand: with the line that installs the replacement commented out, the test fails ("expected [ Array(16) ] to deeply equal []": 16 packets arrived); with the line back, it passes. No product code changed in this commit.
+- Evidence: `hinshitsu/evidence/commit-10-checks.txt`.
+
 ### 2026-11-21: repair run, commit 9: the look refuses a pipe or a device, and ends on a busy page (finding R-S11)
 - Feature worked on (ID): none in the list. Finding R-S11 (grade major): the look hung on a named pipe, crashed on `/dev/zero`, and was reported to hang on a busy page.
 - Now: the look's command line uses the Fit check's rule for reading a file (an ordinary file of at most 20 megabytes) for the build and for each Vision file.
