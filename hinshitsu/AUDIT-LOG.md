@@ -1807,3 +1807,10 @@ Commit 15 of `PLAN.md`: `noBrowserLine` (new) in `fit.ts`; the last lines of `cl
 - forward: both command lines print another line in 1 case; the commands `fit-check` and `fit-look` repeat the line to the owner as a quotation.
 - backward: finding G-S02 (one visible, cut line): the Fit check's line stays under that rule, and the look's line now follows it too.
 - lateral: commit 9 changed `look-cli.ts` in its reading of files, commit 7 `cli.ts` in its reading of the last receipt.
+
+### E-183 · 2026-11-21T22:32:01Z · TRACE · orchestrator
+
+Commits 16, 17 and 18 of `PLAN.md`: 1 test in `apps/studio/e2e/deliverable.e2e.ts` (C3); the folder `plugin/fit/trials/reference-floors/` (new), its freshness test and the fifth case of the agreement test (C4); the rows and records (C1, C6): `redteam/FINDINGS.md`, `PROGRESS.md`, `plugin/fit/trials/003/RECORD.md`, `docs/reference/guarantees.md`, `PLAN.md` section 13.10, `DECISIONS.md` D82, 1 word of a comment in `look.ts`.
+- forward: no program's behavior changes in these 3 commits. `trial.e2e.ts` names its trials by number and does not read the new folder. The guarantees reference passes its own check after the change (run before this entry).
+- backward: `hinshitsu/evidence/open-rows.py` reads the Status text of `redteam/FINDINGS.md`; after commit 18 it lists 42 rows, not 50, because repaired rows no longer hold its phrases. The list of C1 is the saved file `evidence/open-rows-after-E-111.txt`, as C1 says.
+- lateral: a fault of the ORCHESTRATOR found beside commit 18 and corrected there: the first check of the owner's backlog called the claim "9 of 67" not verified; it is true (project decision D82).

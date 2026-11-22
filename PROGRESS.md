@@ -6,6 +6,8 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Start here (written 2026-11-14; its stale parts corrected on 2026-11-17, finding T8-08)
 
+**State after the repair run of 2026-11-21 (read this first).** The owner asked for a run that repairs the current bugs, with the final deliverable first (decision D81). The run's record is the folder `hinshitsu/` (its log `AUDIT-LOG.md`, its plan `PLAN.md`); each repair has an entry in the build log below ("repair run, commit 1" to "commit 19"). What the run changed in the Fit check, the look, the receipt and the guide is in `SPEC.md` section 2.31. Of the 54 open rows of grade blocker or major that the run listed in `redteam/FINDINGS.md`, each now ends with a sentence that begins "State after the repair run of 2026-11-21": 9 repaired with a test, 1 repaired in part, 8 closed with no change of code or by a change to a record, and 36 kept with a reason and the name of who must act. The work is on the branch `claude/festive-mendel-lfnahh`, in draft pull request CatCorner22/Frontend#24; the main line `claude/brave-mayer-sawqz9` is untouched by the run. The owner's equivalency backlog is `PLAN.md` section 13.10 (decision D80); its item E1, the owner's real run of the whole loop, comes next.
+
 **The one-minute picture (2026-11-17).** The app is "Frontend Focus". The Studio lets the owner pick a starting look (38 Directions, most of them in several Skins), refine it over 23 Steps, switch on Overlays, write the page's own texts ("Your content"), and read the result back on a Summary with five research rules and twelve craft rules. It saves reliably. It hands over the Vision: seven files, and `VISION.md` carries 56 Floor requirements. The Fitter (`plugin/`) is a Claude Code plugin: its Fit check measures a built page against a Vision at three window widths and checks a part of 33 Floor requirements; its commands build, check, and repair. Nobody has run those commands in Claude Code yet. `docs/reference/directions.md` describes every built-in Direction in code. The newest entry of the build log below is the current state; older sections of this file keep the names of their day ("Refraction", "Prescription").
 
 **Where the work is.** Since 2026-11-16 one session builds at a time (decision D72). On 2026-11-17 the three lines of work became one (decision D77): the working branch `claude/festive-mendel-lfnahh` holds the audit branch (`claude/eloquent-curie-hnhykj`, pull request CatCorner22/Frontend#14) and the look (pull request 17, merged), and it goes into the main line `claude/brave-mayer-sawqz9` through pull request 16. GitHub refuses its own merge call for these pull requests (a "stack"), so the owner allowed the builder to push the merge to the main line once (D77); that happened on 2026-11-18: merge commit `9b50f36` on the main line, after GitHub's check passed on `ab2403e`. Pull requests 16 and 17 are merged. Pull request 14 shows as open again, because the audit session pushed one more commit after the join (`d98faab`: its own third window width and exit test, which the main line already holds in another form); the owner decides what happens to it. The private page is https://claude.ai/artifact/PexMgowEAEAHZ9vpHw3uXc, Version 26 since 2026-11-17 (the joined build of `523ae8e`, titled "Frontend Focus Studio").
@@ -14,7 +16,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 1. `npm ci --ignore-scripts` (about 5 seconds).
 2. `npm run check` (type check, lint, boundary rule, unit tests; under a minute).
 3. Before any browser test on this kind of machine: `export PW_CHROMIUM=/opt/pw-browsers/chromium`. The installed browser is older than the pinned Playwright, and the tests find it through that variable. Never run `playwright install`.
-4. `npm run e2e` (builds the page, then all browser tests; 15 to 25 minutes). Run it in the background and do not rebuild the page while it runs.
+4. `npm run e2e` (builds the page, then all browser tests; about 40 minutes on this kind of machine since 2026-11-21, and the check hook stops it after 1,750 seconds, so GitHub's check is the full run: decision D81). The Fit check's own browser tests alone: `npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e` (about 25 minutes). Run it in the background and do not rebuild the page while it runs.
 
 **Rules that changed how the work is done (all in `CLAUDE.md`).** After any change to code: `npm run check`. After any change to a screen, the Mockup, or saving: also `npm run e2e`. No commit of code until every check passes. Never weaken a test.
 
@@ -35,7 +37,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - The owner's standing preferences (active voice, one term per concept, every step and contingency explained) are in `CLAUDE.md`, section "Writing style".
 - Three ready first messages for a new chat are in `docs/new-chat-first-message.md`.
 
-**What the next session should do first.** Read the newest build-log entry and the retest's open findings (`redteam/reports/2026-11-17-j-retest.md`: 13 major findings are open). Read "Next" and "Waiting on the owner" below. If the owner has sent the ten trial answers, turn each named problem into a row in `redteam/FINDINGS.md` and repair the serious ones; M4 then closes on the owner's word.
+**What the next session should do first.** Read the newest build-log entry and "Known gaps" below, which lists the rows that wait for the owner. If the repair run of 2026-11-21 has not reached its delivery report (`hinshitsu/DELIVERY-REPORT.md`), read `hinshitsu/SESSION-STATE.md` and go on from its "single next action". Then: the walk-through for the owner's real run (backlog item E1), and the backlog items that the owner chose (decision D81: repeated findings become permanent checks; axe-core and fixed speed measures in the Fit check). If the owner has sent the ten trial answers, turn each named problem into a row in `redteam/FINDINGS.md`; M4 then closes on the owner's word.
 
 ## Current milestone: M5 (the rest of the Catalog for Template 1). M6 is complete (2026-11-17, waypoint W15). M4 and M4D wait for the owner's trial; M7 is built (gate review done; retest by the three reviewers on 2026-11-17).
 
@@ -53,7 +55,7 @@ A fresh session reads this file to learn where the project stands. Update it aft
 | M4D | Built on 2026-11-15 (features F003 to F006); its exit test waits for the owner to make one Direction on the private page. |
 | M5 | Started early by the owner's decisions D52 and D58: Overlays, research rules, the first twelve craft rules, and the first slice of the Brief (the screen "Your content", features F015 to F018) are built; the Floors are built as 56 Catalog records (see M6). Not built: an inner page, the rest of the behavior Steps, either/or picks about the brand. |
 | M6 | **Complete on 2026-11-17** (waypoint W15: GitHub's check passed on the commit that holds the Floors, and two gate reviews found no blocker for M6). Built: all seven files of the Vision, a fingerprint, one archive download, outside validators for `DESIGN.md` and `tokens.json`, and the Floors (56 requirements; features F010, F011, F019 to F023, F032). Gate review of 2026-11-17: no blocker. |
-| M7 | Built on 2026-11-17 (features F024 to F029, F035 to F038): the Fit check, the exit test with planted defects, and the plugin's commands (four since the look was merged). Gate review of 2026-11-17: 9 blockers found; 7 repaired, G-S04 in part, G-S05 stated as a limit. Retest of 2026-11-17 after the join: 3 new blockers, repaired (R-S01, R-S03, R-T02); 20 major findings, of which 13 are open (`redteam/reports/2026-11-17-j-retest.md`). Open: nobody has run the commands in a Claude Code session; step 13a (pixels) is not built. |
+| M7 | Built on 2026-11-17 (features F024 to F029, F035 to F038): the Fit check, the exit test with planted defects, and the plugin's commands (four since the look was merged). Gate review of 2026-11-17: 9 blockers found; 7 repaired, G-S04 in part, G-S05 stated as a limit. Retest of 2026-11-17 after the join: 3 new blockers, repaired (R-S01, R-S03, R-T02); 20 major findings, of which 13 were open on that day (`redteam/reports/2026-11-17-j-retest.md`). Repair run of 2026-11-21: 9 rows repaired with a test and G-S05 in part (see "Start here"). Open: nobody has run the commands in a Claude Code session; step 13a (pixels) is built only as the look's advice. |
 
 ## What exists
 
@@ -105,6 +107,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 - **A code review that the owner started with `/code-review` was stopped by the owner before it reported.** No review of the repairs of 2026-11-15 exists yet.
 
 ## Build log (verified build loop; newest entry first)
+
+### 2026-11-21: repair run, commit 18: the state of each of the 54 rows, and the records brought up to date (findings R-T06 and G-U07)
+- Feature worked on (ID): none in the list. The run's criterion C1 (each listed row ends in a named state) and C6 (the records agree with the code).
+- `redteam/FINDINGS.md`: each of the 54 rows ends with a sentence that begins "State after the repair run of 2026-11-21" and says what stays open, why, who must act, and which answer of the owner it rests on.
+- `PROGRESS.md` (finding R-T06): "Start here" opens with the state after the run; the time of the browser tests and the next session's first acts are corrected; the M7 row says what the run repaired; "Known gaps" opens with one list of the rows that wait for the owner, each with its question.
+- `plugin/fit/trials/003/RECORD.md` (finding G-U07): 3 statements that a later part reverses carry a mark at their first place.
+- `docs/reference/guarantees.md` version 1.28: section 66.12 states what the Fit check now counts as readable, missing and not measured.
+- `PLAN.md` section 13.10 and decision D82: the backlog's claim "9 of 67 still open after round six" is true; the builder's first check called it "not verified" because it searched for the exact words.
+- `plugin/fit/src/look.ts`: 1 word of a comment.
+- Evidence: `hinshitsu/evidence/commit-18-checks.txt`.
 
 ### 2026-11-21: repair run, commit 17: a stored Vision with every Floor gives the receipt's agreement test its fifth case (criterion C4 of the run)
 - Feature worked on (ID): none in the list. A point of the plan's reviewers: in none of the cases that the receipt's agreement test ran did the Fit check read the Floors or require contrast, so the test's sentences on those 2 measures met no case.
@@ -234,7 +246,8 @@ A fresh session reads this file to learn where the project stands. Update it aft
 ### 2026-11-21: the owner's equivalency backlog, checked and added to the plan (decision D80)
 - Feature worked on (ID): none in the list. A change of records only; no code changed.
 - What happened: the owner handed over a file with 5 gaps and 8 action items and asked that its claims be checked and, where correct, built into the plan. The file is kept unchanged as `docs/sources/2026-11-21-equivalency-backlog.md`. Of 14 claims: 7 true, 3 true in part, 2 false, 2 not verified. `PLAN.md` (version 3.9) gains section 13.10 with the items E1 to E8 as corrected.
-- Not done, and said so: nothing of E1 to E8 is built; no milestone moved; no hard rule changed. Not verified: the numbers "9 of 67", and the likeness of the repository `Devin_Frontend` (this session cannot read it).
+- Corrected on 2026-11-21 (decision D82): the numbers "9 of 67" are true; this file's "Known gaps" holds them for the sixth review, counted on 2026-11-16, and the builder's search had looked for the exact words "9 of 67".
+- Not done, and said so: nothing of E1 to E8 is built; no milestone moved; no hard rule changed. Not verified at the time of this entry: the numbers "9 of 67", and the likeness of the repository `Devin_Frontend` (this session cannot read it).
 - Evidence: `grep -n 13a PLAN.md PROGRESS.md SPEC.md`; `grep -n WIDTHS plugin/fit/src/fit.ts` (375, 768, 1280); `find apps/studio/e2e/baselines -name '*.png' | wc -l` (117); the rows S6-04, T6-12, T6-16 and G-T08 of `redteam/FINDINGS.md`; `git log -1 59704b7`.
 - Open for the owner: the 4 questions at the end of `PLAN.md` section 13.10; the 8 decisions of the card of the repair run (`hinshitsu/AUDIT-LOG.md`, entries E-64 and E-65).
 
@@ -777,6 +790,21 @@ The owner settled the earlier list on 2026-11-15 (decision D55 holds every answe
 Earlier cost reports, for the record (no decision needed): third review about 595,000 tokens; nine-reviewer code review about 1.84 million; retest round about 0.74 million; round 3 about 0.75 million (0.33 million measured); the unit of 2026-11-14 about 3.2 million in helpers.
 
 ## Known gaps (every plan item that is absent or partial)
+
+**Rows that wait for the owner (state of 2026-11-21; each row's own Status in `redteam/FINDINGS.md` says more).**
+
+| Row | The question for the owner |
+|---|---|
+| M-01 | Do the small pictures on the cards appear when you open the private page? |
+| R23-01 | When you download the Vision from the private page, does every file arrive under its own name? |
+| T6-08 | Which research sites may the builder's network reach, before any further craft rule or Floor is written? |
+| P9-05 | Who reads the craft rules, the Vision's writer and the Summary's sections as a second reader? |
+| FTU-21 | In your trial of the Studio (milestone M4): do the words on the first screen, in the advice and on the Summary read plainly to you? |
+| G-T08 | Will you run the 4 commands of the Fitter in a Claude Code session, with the builder's walk-through? |
+| The time limit of the full check | The guard of the build loop refuses the builder's edit of the settings file of the checks. Will you change `"timeout_seconds": 1750` to `3000` in that file and then run the guard's own command that accepts the new state (`relock`; the build loop's guide names it)? |
+| Pull request 14 | Close it? Its one extra commit repeats what the main line holds in another form. |
+
+Limits that the owner accepted as stated limits on 2026-11-21 (decision D81), so no question is open: G-S04, G-S11, A1-05, G-S10, the kept parts of R-S04, R-S06 and G-S05. Rows kept for the next run on the owner's word: the 19 rows on screens of the Studio and X-02, CR-GX2, C-07, A1-09, T6-01.
 
 - **The Brief.** A first slice: texts and three answers. The words of the contact form are fixed. No either/or picks about the brand, no pictures of the owner's own, no second page, no way to take texts from an existing site. The layout sweep measures width and the headline's size on all 38 Directions; overlap and beauty were looked at on six. The top bar now holds five links and wraps on a narrow window. The form is long and has no way to jump between its groups.
 - **The sixth red-team review.** 9 of its 67 findings are open (counted on 2026-11-16) (rows S6, U6, T6 in `redteam/FINDINGS.md`), among them: words for a value that matches no Option are missing in `PRESCRIPTION.md` (U6-07); a letter of another alphabet can make a name look like another name (S6-04); 13 named values that the sample website does not use stay in `tokens.css` (T6-12); a failed Dependabot run that the reviewer reported and the builder has not looked at (T6-16). The seventh round (2026-11-16) is the second reading of the repairs, the Brief, and the layout sweep; its findings are in rows X7, U7, V7, C7, T7, and Q7.

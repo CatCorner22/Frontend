@@ -185,7 +185,7 @@ const RANGE_FROM = 0.75;
 /**
  * The launch settings of the look: those of the Fit check, and letters smoothed in gray only. On some machines a browser smooths
  * letters with colored edges in one page and gray edges in another (it depends on how the page is layered); those colored edges
- * would count as differences that no visitor's design holds. A caller that passes its own browser should launch it with these.
+ * would count as differences that no visitor's design holds. A caller that passes its own browser launches it with these.
  */
 export const LOOK_LAUNCH_ARGS: readonly string[] = [...LAUNCH_ARGS, '--disable-lcd-text'];
 

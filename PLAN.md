@@ -362,7 +362,7 @@ The Floors are written (feature F032, decisions D69 and D70): `VISION.md` carrie
 | "Nobody has run the plugin's commands in a Claude Code session" | True | finding G-T08, open |
 | "A nine-reviewer code review alone cost about 1.84M tokens" | True | `PROGRESS.md`, "Waiting on the owner"; decision D48 |
 | "Seven red-team campaigns" | True as to 7 rounds | `PROGRESS.md` names a seventh round; the rounds differ in size |
-| "9 of 67 still open after round six" | Not verified | the builder found no record with these 2 numbers |
+| "9 of 67 still open after round six" | True (corrected on 2026-11-21, decision D82) | `PROGRESS.md`, "Known gaps": "The sixth red-team review. 9 of its 67 findings are open (counted on 2026-11-16)". The builder's first check called this "not verified": its search looked for the exact words "9 of 67" |
 | "No elicitation or Fit-check dimension for states or motion" | False for motion, true for most states | Step 22 "Motion" exists, and the Fit check reads each width with motion allowed and with motion reduced. The Catalog holds craft rules that name hover, focus and disabled states. No Step lets you choose a hover, loading, empty or error state, and the Fit check reads no such state |
 | "Evidence screenshots cover 1280 px and 375 px only" | False for the Fit check | the Fit check and the look read 375, 768 and 1,280 pixels (`plugin/fit/src/fit.ts`, `WIDTHS`). True that 700 pixels, about 1,100 pixels and 150% zoom are not read; finding G-S05's kept part names unread bands |
 | Finding S6-04 (a letter of another alphabet can make a name look like another name) | True | open in part, grade minor |

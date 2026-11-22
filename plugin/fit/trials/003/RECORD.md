@@ -14,14 +14,14 @@ The helper was a general-purpose helper agent of this session. The builder did n
 
 ## What the run shows
 
-What the program measured on the helper's page (`RECEIPT.md` has the full receipt; the program's status was 0, no deviation):
+What the program measured on the helper's page (`RECEIPT.md` has the full receipt; the program's status was 0, no deviation) [as of the run's date; today's receipt has status 1, because today's program reads the Floors and checks none of this older edition: see "The program reads the Floors and a third width" and "After the repair run of 2026-11-21" below]:
 
 - **Requests, colors, typefaces, corner radii, content, width: no deviation.** The page asks for nothing from another site; every color that a visible element draws is a color of the Prescription; every text uses a typeface that the Prescription names; every drawn box uses a radius of the Prescription; the business name, the headline, and the primary action are on the page; the page is not wider than its window at 375 and 1280 pixels.
 - **Not shipped with the page (information, not deviations):** two font files and the form's address, `/appointment-request`, all at the page's own address.
-- **Contrast: 18 text readings could not be taken** (three texts drawn partly transparent, each read at two widths and in three readings of each width), the same count as in trial 001. No reading below the usual least was found among the others.
+- **Contrast: 18 text readings could not be taken** [as of the run's date; today 27 readings of 3 texts, since the program reads a third window width: see "The program reads the Floors and a third width" below] (three texts drawn partly transparent, each read at two widths and in three readings of each width), the same count as in trial 001. No reading below the usual least was found among the others.
 - **No script**, written into the page or fetched.
 
-What the builder read in the page, by searching its text. This is the builder's reading of a few points; it is not a program, and the Fit check measures no Floor:
+What the builder read in the page, by searching its text. This is the builder's reading of a few points; it is not a program, and the Fit check measures no Floor [as of the run's date; since 2026-11-17 the Fit check reads the Floors of its own edition, and none of this Vision's older one: see below]:
 
 - The `<html>` element has `lang="en"`; the page has one `<h1>`; it has one `<title>` of the business name and a few words that say what it is, and a `<meta name="description">`. Trial 001's page had the name alone as title and no description; the Mockup has neither a description nor such a title, so the helper wrote both itself; that agrees with the Floors for search, and the record does not claim that the Floors caused it.
 - The page carries a Content-Security-Policy `<meta>` tag with `script-src 'none'`, `object-src 'none'`, `base-uri 'none'`, and `form-action 'self'`. The tag comes before `<meta charset>`; the then-wording of requirement S5 asked for “first among the `<meta>` tags”, and today's wording asks for the opposite order.
