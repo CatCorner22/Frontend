@@ -15,17 +15,17 @@ Deviations that the program counted on each page. Trial 001's helper had the sev
 | Requests | 0 | 0 |
 | Colors | 0 | 20 |
 | Typefaces | 0 | 2 |
-| Corner radii | 0 | 3 |
+| Corner radii | 0 | 12 |
 | Contrast | 0 | 3 |
 | Content | 0 | 0 |
 | Width | 0 | 0 |
 | Floors | 0 | 0 |
 
-- **Colors: 12 deviations on the plain-words page.** The helper chose its own dark green (`#1f4d3a`), its own tints and grays, and its own page color; none is a value of the Prescription. The Prescription's green is another green.
+- **Colors: 20 deviations on the plain-words page (12 when this line was first written; the program has since learned to read more paints, and the table above holds today's count).** The helper chose its own dark green (`#1f4d3a`), its own tints and grays, and its own page color; none is a value of the Prescription. The Prescription's green is another green.
 - **Typefaces: 2 deviations, which are a difference of name.** The helper wrote "Fraunces" and "Public Sans", as the owner's words name them. The Prescription's names are "Fraunces Variable" and "Public Sans Variable". The program compares names; it does not compare what the browser draws. Neither font was loaded on the page, so a viewer sees fallback fonts unless the fonts are installed.
-- **Contrast: 2 readings below the usual least, and the cause is real.** The promise sentence ("No work starts until you have seen the price and said yes.") is dark gray on dark green, a ratio of 1.24 to 1. The builder read the page's style sheet to rule out a fault of the program: the rule `.about p { color: var(--muted) }` is more specific than the rule `.promise { color: #fff }`, so the gray wins. The helper did not render the page (the instruction forbade it), so it could not see this. The page of trial 001 shows no reading below the usual least.
+- **Contrast: 3 readings of 1 text below the usual least (2 when this line was first written), and the cause is real.** The promise sentence ("No work starts until you have seen the price and said yes.") is dark gray on dark green, a ratio of 1.24 to 1. The builder read the page's style sheet to rule out a fault of the program: the rule `.about p { color: var(--muted) }` is more specific than the rule `.promise { color: #fff }`, so the gray wins. The helper did not render the page (the instruction forbade it), so it could not see this. The page of trial 001 shows no reading below the usual least.
 - **Requests: 0 deviations on both pages.** The plain-words page loaded nothing from outside. When this table was first written, trial 001 showed 3 deviations in requests: the font files and a form address at the site's own address, which the measure then counted wrongly (finding R25-01). Under decision D67 the measure lists such references as information, so both receipts were measured again, and the table shows the repaired counts. The plain-words page names no place at its own address either.
-- **Content, corner radii, width: no deviation on either page.** Both helpers put the required texts on the page. Trial 002's helper took its 14-pixel corners from the plain words ("Clearly rounded (14 px)"); trial 001's helper took them from the files.
+- **Content and width: no deviation on either page. Corner radii: none on trial 001's page; on trial 002's page the 12 of the table, all from the rectangles of its drawn picture (see the notes at the end of this record); its boxes show no deviation.** Both helpers put the required texts on the page. Trial 002's helper took its 14-pixel corners from the plain words ("Clearly rounded (14 px)"); trial 001's helper took them from the files.
 
 What the helper said about itself (a claim, not a measurement): it read no file; it did not load the two typefaces; it drew a placeholder in place of a photograph; it ran no check on the page. The builder verified that the page loads no font and holds no script.
 
@@ -78,3 +78,7 @@ The receipt was measured again. The Corner radii row of the table shows 3 where 
 ## After the repair run of 2026-11-21 (record: `hinshitsu/AUDIT-LOG.md`)
 
 The receipt was measured again by the program after each repair of the run. One count changed: the Corner radii row shows 3 where it showed 0, and the receipt's line shows 25 deviations where it showed 22. The program now compares the corners of rectangles that an inline picture draws, and this page draws 3 with corners of 8, 18 and 30 pixels, none of them a corner radius of its Vision. The table above shows the new number in its Corner radii row. The wording changed as in trial 001; the contrast line now reads "3 readings of 1 text below the usual least (information: not counted as deviations)".
+
+## Measured again on 2026-11-22 (the audit round of the repair run)
+
+The receipt was measured again by the program. One count changed: the Corner radii row shows 12 where it showed 3, and the receipt's line shows 34 deviations where it showed 25. The cause is a repair of the program, not a change of the page: the program now compares the corner of a drawn rectangle as the screen shows it. The page's picture grows and shrinks with the window, so each of its 3 rounded rectangles has another corner at each of the 3 window widths, and some of the 12 values are no whole numbers (for example 11.45 pixels). Before the repair the program compared the corner in the picture's own units (8, 18 and 30), which no screen shows. The three sentences above that named older counts of colors, contrast and corner radii now name today's counts (finding F-151 of the run's log).

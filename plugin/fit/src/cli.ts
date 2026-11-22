@@ -2,12 +2,15 @@
 // Status 0: no deviation in the measures that count. Status 1: at least one deviation, or something that could not be measured in them.
 // Status 2: the program refused, and it wrote no receipt.
 import { closeSync, constants, lstatSync, mkdirSync, openSync, readFileSync, rmSync, statSync, writeSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import { join, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { FitError, bounded, fit, noBrowserLine } from './fit.ts';
 import { readingsOf } from './receipt.ts';
 import { READ_FILES } from './vision.ts';
 
-const USAGE = 'Usage: node plugin/fit/src/cli.ts [--run-scripts] [--round <0 to 3>] [--judged <file>] <build.html> <folder of the Vision files> <result folder>';
+// The path of this file as the caller can type it from where the caller stands (audit round of 2026-11-22, finding F-115).
+const USAGE = `Usage: node ${relative(process.cwd(), fileURLToPath(import.meta.url)) || 'cli.ts'} [--run-scripts] [--round <0 to 3>] [--judged <file>] <build.html> <Vision folder> <result folder>`;
 const RESULT_FILES = ['receipt.json', 'RECEIPT.md'] as const;
 
 /** The program never writes through a symbolic link: a result folder from another place could point a link at a file that it must not replace. */
@@ -47,7 +50,7 @@ const FILE_MAX = 20_000_000;
  * The Vision files that the receipt of the round before names, or nothing when no such receipt stands in the result folder or it
  * holds no such list. The receipt is read as data: only names and hashes of the expected form are taken.
  */
-function lastVision(path: string): { name: string; sha256: string }[] | undefined {
+function lastVision(path: string): { files: { name: string; sha256: string }[]; round?: number } | undefined {
   let parsed: unknown;
   try {
     parsed = JSON.parse(readText(path, 'the receipt of the round before'));
@@ -60,8 +63,14 @@ function lastVision(path: string): { name: string; sha256: string }[] | undefine
   for (const entry of listed as { name?: unknown; sha256?: unknown }[]) {
     if (typeof entry?.name === 'string' && (READ_FILES as readonly string[]).includes(entry.name) && typeof entry.sha256 === 'string' && /^[0-9a-f]{64}$/.test(entry.sha256)) files.push({ name: entry.name, sha256: entry.sha256 });
   }
-  return files;
+  // A receipt that names no Vision file gives nothing to compare with.
+  if (files.length === 0) return undefined;
+  const round = (parsed as { repairRound?: unknown }).repairRound;
+  return { files, ...(typeof round === 'number' && Number.isInteger(round) && round >= 0 && round <= 3 ? { round } : {}) };
 }
+
+/** The size and the SHA-256 of a text as it stood on the disk. */
+const onDiskOf = new Map<string, { bytes: number; sha256: string }>();
 
 function readText(path: string, what: string): string {
   // Only an ordinary file is read: a pipe or a device would make the program wait for ever (gate review, finding G-S09).
@@ -77,10 +86,23 @@ function readText(path: string, what: string): string {
   if (!ordinary) throw new FitError(`Cannot read ${what}: it is not an ordinary file.`);
   if (size > FILE_MAX) throw new FitError(`Cannot read ${what}: it is larger than ${String(FILE_MAX / 1_000_000)} megabytes.`);
   try {
-    return readFileSync(path, 'utf8');
+    const raw = readFileSync(path);
+    onDiskOf.set(path, { bytes: raw.byteLength, sha256: createHash('sha256').update(raw).digest('hex') });
+    return raw.toString('utf8');
   } catch {
     throw new FitError(`Cannot read ${what}: ${path}`);
   }
+}
+
+/** Refuses a Vision folder that is a file: the Studio hands over an archive, and the programs read a folder (recipient review of 2026-11-22). */
+function refuseArchive(folder: string): void {
+  let file = false;
+  try {
+    file = statSync(folder).isFile();
+  } catch {
+    return;
+  }
+  if (file) throw new FitError(`The Vision folder that was given is a file, not a folder: ${folder}. If it is the archive from the Studio, unpack it first and give the folder.`);
 }
 
 async function main(args: string[]): Promise<number> {
@@ -114,6 +136,7 @@ async function main(args: string[]): Promise<number> {
   // The receipt of the round before names the Vision files that it read; this round says which of them changed (criterion C8).
   const lastRoundVision = repairRound > 0 ? lastVision(join(resolve(outFolder), 'receipt.json')) : undefined;
   for (const name of RESULT_FILES) rmSync(join(resolve(outFolder), name), { force: true });
+  refuseArchive(resolve(folder));
   const html = readText(resolve(buildPath), 'the build');
   const files: Record<string, string> = {};
   for (const name of READ_FILES) {
@@ -132,7 +155,8 @@ async function main(args: string[]): Promise<number> {
   }
   // A machine whose installed browser differs from the one that Playwright expects names its browser here.
   const launch = process.env['PW_CHROMIUM'] ? { executablePath: process.env['PW_CHROMIUM'] } : {};
-  const { receipt, markdown, status } = await fit({ files, html, launch, runScripts, repairRound, judged, ...(lastRoundVision ? { lastRoundVision } : {}) });
+  const onDisk = { ...(onDiskOf.has(resolve(buildPath)) ? { build: onDiskOf.get(resolve(buildPath)) as { bytes: number; sha256: string } } : {}), files: Object.fromEntries(READ_FILES.map((name) => [name, onDiskOf.get(join(resolve(folder), name))])) };
+  const { receipt, markdown, status } = await fit({ files, html, launch, runScripts, repairRound, judged, onDisk, ...(lastRoundVision ? { lastRoundVision: lastRoundVision.files, ...(lastRoundVision.round === undefined ? {} : { lastRound: lastRoundVision.round }) } : {}) });
   mkdirSync(resolve(outFolder), { recursive: true });
   refuseLinks(resolve(outFolder));
   writeNoFollow(join(resolve(outFolder), 'receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);

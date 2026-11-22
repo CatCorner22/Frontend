@@ -32,11 +32,11 @@ Two programs do the measuring and the drawing:
 
 The Fit check takes the Vision folder as the statement of your design and measures the page against the files as they are. Do not point it at a folder from someone else. The repair command lets Claude write files, so Claude can write to the Vision folder too; the command forbids it, and the receipt names each file that the Fit check read by a checksum (SHA-256), so that a change shows.
 
-What can go wrong: if Node is older, a program stops with a syntax error at its first line. If the browser is missing, the program says that it stopped and names the environment variable `PW_CHROMIUM`: set it to the path of a Chromium that is on your machine.
+What can go wrong: if Node is older, a program stops with a syntax error at its first line. If the browser is missing, the program says that it stopped and names the environment variable `PW_CHROMIUM`: set it to the path of a Chromium that is on your machine. If a browser is there and does not start, the program says so and quotes the browser's own first error line. If you give the archive in place of the unpacked folder, the program says that it got a file and asks you to unpack it.
 
 ## How to load the plugin
 
-Start Claude Code with `claude --plugin-dir <path to this folder>`. Claude Code then shows four commands. It names a plugin's command with the plugin's name in front: `/frontend-focus-fitter:fit-build`, `/frontend-focus-fitter:fit-check`, `/frontend-focus-fitter:fit-repair`, and `/frontend-focus-fitter:fit-look`. (Nobody has yet run these four commands in a Claude Code session; the folder passed Claude Code's own check of a plugin's form, `claude plugin validate`, with one remark: it has no install line for a marketplace.)
+Start Claude Code with `claude --plugin-dir <path to this folder>`. Claude Code then shows four commands. It names a plugin's command with the plugin's name in front: `/frontend-focus-fitter:fit-build`, `/frontend-focus-fitter:fit-check`, `/frontend-focus-fitter:fit-repair`, and `/frontend-focus-fitter:fit-look`. (Nobody has yet run these four commands in a Claude Code session. The folder passed Claude Code's own check of a plugin's form, `claude plugin validate`: on 2026-11-17 with one remark, that it has no install line for a marketplace; on 2026-11-22, under a newer version of that check, with a second remark, that the plugin has no icon.)
 
 Claude Code asks you each time before it runs a program. That is intended: the commands pre-approve reading and writing files, not running programs.
 
@@ -55,16 +55,17 @@ An example: `/frontend-focus-fitter:fit-check build/index.html vision/ result/`,
 
 | Status | Meaning | What you do |
 |---|---|---|
-| 0 | No deviation in the measures that count, and nothing "not measured" in them. The contrast of some texts may still be unread; the Fit check's one line and the receipt say how many readings of how many texts | Read "Still needs a person" in the receipt, and look at the page |
-| 1 | At least one deviation, or something that the Fit check could not measure. There are two cases; see below | Deviation lines: repair by hand or with `fit-repair`. "Not measured" and no deviation line: do not repair; read below |
-| 2 | The Fit check refused and wrote no receipt (a file is missing, the files do not belong together, the repair budget is spent) | Read its one line; it says why |
+| 0 | No deviation in the measures that count, and nothing "not measured" in them. One thing is left out of that: a text whose contrast the Fit check could not read never changes the status; the Fit check's one line and the receipt say how many readings of how many texts | Read "Still needs a person" in the receipt, and look at the page |
+| 1 | At least one deviation, or something that the Fit check could not measure or did not check. There are three cases; see below | Deviation lines: repair by hand or with `fit-repair`. "Not measured" and no deviation line: do not repair; read below. None of the Floor requirements checked: write the Vision again from the Studio |
+| 2 | The Fit check refused and wrote no receipt (a file is missing, a file was given in place of the Vision folder, the files do not belong together, the repair budget is spent, the command was not written in its form, or no browser started) | Read its one line; it says why |
 
-**The measures that count** for the status are Requests, Colors, Typefaces, Corner radii, Content, Width, and Floors, and Contrast only where the Vision writes Floor A1 (the least contrast of text). A text whose contrast the Fit check cannot read never changes the status.
+**The measures that count** for the status are Requests, Colors, Typefaces, Corner radii, Content, Width, and Floors, and Contrast only where the Vision writes Floor A1 (the least contrast of text) in the edition that the Fit check reads. A text whose contrast the Fit check cannot read never changes the status, also where Contrast counts.
 
-**The two cases of status 1.**
+**The three cases of status 1.** More than one can hold at once.
 
 - *Deviation lines.* The receipt lists what differs. Repair each by hand, or let `fit-repair` do it.
-- *"Not measured" and no deviation line.* The Fit check could not read a part of the page, and it does not call an unread page good. The receipt names the part: a frame, a closed shadow root, a script that did not run, an animation that never ends, a blend effect, or a setting of the screen that the page's style rules name and the Mockup does not (a sharp phone screen, a touch screen, dark mode). No repair round helps here, because nothing deviates. Take the part out of the page, or judge it by eye and accept the page; the receipt will keep saying what it could not read.
+- *"Not measured" and no deviation line.* The Fit check could not read a part of the page, and it does not call an unread page good. The receipt names the part under "What the program could not read" or under its measure, for example: a frame, a closed shadow root, a script that did not run, an animation that never ends, a blend effect, a color under a filter, a shape that a picture takes from another file, a required text under a mask, a window that did not load, or a setting of the screen that the page's style rules name and the Mockup does not (a sharp phone screen, a touch screen, dark mode). No repair round helps here, because nothing deviates. Take the part out of the page, or judge it by eye and accept the page; the receipt will keep saying what it could not read.
+- *None of the Floor requirements was checked.* The Vision comes from an older Studio, which words the Floors in another edition; the Fit check's one line says how many requirements it left unchecked. No repair round helps. Write the Vision again from the Studio, then check again.
 
 ## What the look’s status means, and what you do
 
@@ -72,13 +73,13 @@ An example: `/frontend-focus-fitter:fit-check build/index.html vision/ result/`,
 |---|---|---|
 | 0 | Every window width was pictured | Open `look/LOOK.md` and the pictures beside it |
 | 1 | At least one window width was not pictured (the page did not load or did not answer in time) | Read "Not pictured" in `look/LOOK.md`; it names the width and the reason |
-| 2 | The look refused and wrote nothing (a file is missing or is no ordinary file, the files do not belong together) | Read its one line; it says why |
+| 2 | The look refused and wrote nothing (a file is missing or is no ordinary file, a file was given in place of the Vision folder, the files do not belong together, the command was not written in its form, or no browser started) | Read its one line; it says why |
 
 ## The three repair rounds
 
 A repair has a budget of three rounds. Claude counts the rounds and passes the number to the Fit check; the Fit check writes the number into the receipt and refuses a fourth. After round 3, if the page still deviates, the receipt says that the budget is spent. Then you decide: accept the page with the listed deviations, repair it by hand, or change the design in the Studio and write the Vision again.
 
-After a repair round the receipt also says whether a file of the Vision folder changed since the round before.
+After a repair round the receipt also says whether a file of the Vision folder changed since the earlier receipt in the result folder, and which round that earlier receipt states.
 
 ## What the receipt says, and what it does not
 
@@ -97,7 +98,7 @@ The receipt keeps three things apart: what the Fit check measured, what the mode
 |---|---|
 | `--run-scripts` | The page's own scripts run, as in a visitor's browser, and the Fit check reads the page from a place that those scripts cannot reach. Without the option no script of the page runs: the Fit check reads the page as its markup stands, so a page that draws its text or its style with a script reads as empty until you pass the option |
 | `--round <n>` | The round of repair after which this check runs: 0 for a first check (the default), 1 to 3 after a repair. The Fit check refuses 4 and above |
-| `--judged <file>` | A text file in which the model wrote one judgment on each line. The receipt shows at most 20 of them, apart from what the Fit check measured |
+| `--judged <file>` | A text file in which the model wrote one judgment on each line. The receipt shows at most 20 of them, in a part of its own, separate from what the Fit check measured |
 
 In the repository of Frontend Focus, `npm run fit -- <the same arguments>` runs the same program.
 

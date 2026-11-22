@@ -612,6 +612,6 @@ describe('The look: the command line', () => {
     expect(existsSync(join(folder, 'other'))).toBe(false);
     const usage = run([join(folder, 'build.html'), folder]);
     expect(usage.status).toBe(2);
-    expect(usage.stderr).toContain('Usage: node plugin/fit/src/look-cli.ts');
+    expect(usage.stderr).toMatch(/Usage: node \S*look-cli\.ts .*<Vision folder> <result folder>/);
   });
 });

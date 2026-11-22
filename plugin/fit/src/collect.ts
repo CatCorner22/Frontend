@@ -22,6 +22,16 @@ export interface TextRead {
   unmeasured: string;
   sizePx: number;
   weight: number;
+  /** The place of the text's element among the elements that the program walks: two texts with the same words are two texts. */
+  n?: number;
+  /** The element's own words, without the words of an element inside it, at most 400 characters. */
+  own?: string;
+  /**
+   * The background layers as the colors alone give them, where `layers` is null because a box is partly transparent or a
+   * gradient lies behind the text: opacity is left out, and a gradient of one color counts as that color. Null when even that
+   * cannot be read. Used only to tell whether a text has the color of its ground (audit round of 2026-11-22, finding F-97).
+   */
+  nominal?: string[] | null;
 }
 export interface Collected {
   references: Reference[];
@@ -193,6 +203,42 @@ export function collect(): Collected {
   const corners = ['borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius'] as const;
   const sides = [['borderTopWidth', 'borderTopStyle', 'borderTopColor'], ['borderRightWidth', 'borderRightStyle', 'borderRightColor'], ['borderBottomWidth', 'borderBottomStyle', 'borderBottomColor'], ['borderLeftWidth', 'borderLeftStyle', 'borderLeftColor']] as const;
 
+  // The fill, the stroke and the corners of one shape of an inline SVG picture. `placed` is the element that stands where the
+  // shape is drawn: the shape itself, or the `use` that draws it.
+  const paints = (shape: Element, ss: CSSStyleDeclaration, placed: Element, label: string, recolored: boolean): void => {
+    // A paint that names a gradient or a pattern of the page is not compared (the receipt says so of every gradient). A paint
+    // that names one which is not there draws the color written after it: that color is read (finding F-101).
+    const colorOf = (paint: string): string => {
+      if (paint === 'none') return '';
+      const ref = /^url\(\s*["']?#([^"')]*)["']?\s*\)\s*(.*)$/.exec(paint);
+      if (ref === null) return paint.startsWith('url(') ? '' : paint;
+      const scope = placed.getRootNode();
+      const server = scope instanceof Document || scope instanceof ShadowRoot ? scope.getElementById(ref[1] ?? '') : null;
+      const there = server !== null && ['lineargradient', 'radialgradient', 'pattern'].includes(server.localName.toLowerCase());
+      return there || (ref[2] ?? '') === '' || ref[2] === 'none' ? '' : (ref[2] ?? '');
+    };
+    // The paint's own opacity joins the color's alpha, so a half-transparent fill is listed as partly transparent (audit branch, finding CX-02).
+    const fill = colorOf(ss.fill);
+    const stroke = colorOf(ss.stroke);
+    if (fill !== '' && Number.parseFloat(ss.fillOpacity) > 0) add('background', withAlpha(rgbOf(fill), Number.parseFloat(ss.fillOpacity)), label, recolored);
+    if (stroke !== '' && Number.parseFloat(ss.strokeWidth) > 0 && Number.parseFloat(ss.strokeOpacity) > 0) add('border', withAlpha(rgbOf(stroke), Number.parseFloat(ss.strokeOpacity)), label, recolored);
+    // A rectangle of the picture has corners of its own (`rx`, `ry`): they are compared as a box's corners are (the rest of
+    // finding G-S08). One of the two alone rounds both directions, as the browser draws it. The picture's own scale (a
+    // `viewBox`, a `transform`) changes the size on the screen, so the corner is compared as drawn (finding F-102).
+    if (shape instanceof SVGRectElement && (ss.fill !== 'none' || ss.stroke !== 'none')) {
+      const corners = ss as unknown as { rx?: string; ry?: string };
+      const matrix = placed instanceof SVGGraphicsElement ? placed.getScreenCTM() : null;
+      const scale = [matrix ? Math.hypot(matrix.a, matrix.b) : 1, matrix ? Math.hypot(matrix.c, matrix.d) : 1];
+      const seen = new Set<string>();
+      [corners.rx ?? '', corners.ry ?? ''].forEach((part, at) => {
+        if (part === '' || part === 'auto' || part === '0px' || part === '0') return;
+        const px = /^([\d.]+)px$/.exec(part);
+        const value = px ? `${String(Math.round(Number(px[1]) * (scale[at] ?? 1) * 100) / 100)}px` : part;
+        if (!seen.has(value)) { seen.add(value); radii.push({ value, where: label }); }
+      });
+    }
+  };
+
   // A filter on an element, or on any box around it, changes every color that it draws (finding J-6). Memo by element.
   const filterMemo = new Map<Element, boolean>();
   const isFiltered = (el: Element | null): boolean => {
@@ -253,14 +299,20 @@ export function collect(): Collected {
     families.push({ family: family.trim(), where: label });
   };
 
+  let ordinal = 0;
   for (const el of [...(document.body ? [document.body] : []), ...every('body *'), ...roots.slice(1).flatMap((root) => [...root.querySelectorAll('*')])]) {
+    const n = ordinal++;
     if (skip.has(el.tagName) || el.getClientRects().length === 0) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility !== 'visible') continue;
     const label = where(el);
     // A form field draws its value as text, though it holds no text node (retest finding R-S07).
     // A drop-down list draws the words of its shown option (the rest of retest finding R-S07).
-    const fieldText = (el instanceof HTMLInputElement && !['hidden', 'checkbox', 'radio', 'range', 'color', 'file', 'image'].includes(el.type) && el.value !== '') || (el instanceof HTMLTextAreaElement && el.value !== '') || (el instanceof HTMLSelectElement && [...el.options].some((option) => option.text.trim() !== ''));
+    // A send or reset button, a date or time field, and a file field draw words of the browser's own with no value; an option and a
+    // group of options draw the words of their `label` (audit round of 2026-11-22, finding F-103).
+    const ownWords = el instanceof HTMLInputElement && ['submit', 'reset', 'date', 'time', 'datetime-local', 'month', 'week', 'file'].includes(el.type);
+    const listWords = (el instanceof HTMLSelectElement && ([...el.options].some((option) => option.text.trim() !== '' || option.label.trim() !== '') || [...el.querySelectorAll('optgroup')].some((group) => (group.getAttribute('label') ?? '').trim() !== ''))) || ((el instanceof HTMLOptionElement || el instanceof HTMLOptGroupElement) && (el.getAttribute('label') ?? '').trim() !== '');
+    const fieldText = ownWords || listWords || (el instanceof HTMLInputElement && !['hidden', 'checkbox', 'radio', 'range', 'color', 'file', 'image'].includes(el.type) && el.value !== '') || (el instanceof HTMLTextAreaElement && el.value !== '');
     const hasText = fieldText || [...el.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== '');
     const recolored = isFiltered(el);
     // A box that changes the colors of what lies under it: a backdrop filter other than a blur or more saturation, or a blend mode.
@@ -274,34 +326,50 @@ export function collect(): Collected {
       // A shape from another file (`shapes.svg#name`): the program stops every request, so it does not know what a visitor's browser
       // draws there; it counts the shape as not measured (the rest of retest finding R-S07).
       if (href !== '' && !href.startsWith('#')) foreignShapes++;
-      const id = href.startsWith('#') ? href.slice(1) : '';
+      // The shapes that the reference draws: the named shape and what stands inside it, and what a `use` among them names in turn.
+      // Past 400 shapes, or 8 references deep, the program stops and counts the picture as not measured (audit round of
+      // 2026-11-22, finding F-101).
       const scope = el.getRootNode();
-      const target = id !== '' && (scope instanceof Document || scope instanceof ShadowRoot) ? scope.getElementById(id) : null;
-      for (const shape of target ? [target, ...target.querySelectorAll('*')].slice(0, 200) : []) {
+      const named = (ref: string): Element | null => (ref.startsWith('#') && ref.length > 1 && (scope instanceof Document || scope instanceof ShadowRoot) ? scope.getElementById(ref.slice(1)) : null);
+      const shapes: Element[] = [];
+      let past = false;
+      const gather = (target: Element | null, depth: number): void => {
+        for (const shape of target ? [target, ...target.querySelectorAll('*')] : []) {
+          if (shapes.length >= 400 || depth > 8) { past = true; return; }
+          if (shape instanceof SVGUseElement) {
+            const inner = (shape.getAttribute('href') ?? shape.getAttribute('xlink:href') ?? '').trim();
+            if (inner !== '' && !inner.startsWith('#')) foreignShapes++;
+            gather(named(inner), depth + 1);
+          } else shapes.push(shape);
+        }
+      };
+      gather(named(href), 0);
+      if (past) foreignShapes++;
+      for (const shape of shapes) {
         if (!(shape instanceof SVGGeometryElement || shape instanceof SVGTextContentElement)) continue;
         const ss = getComputedStyle(shape);
-        if (ss.fill !== 'none' && !ss.fill.startsWith('url(') && Number.parseFloat(ss.fillOpacity) > 0) add('background', withAlpha(rgbOf(ss.fill), Number.parseFloat(ss.fillOpacity)), label, recolored);
-        if (ss.stroke !== 'none' && !ss.stroke.startsWith('url(') && Number.parseFloat(ss.strokeWidth) > 0 && Number.parseFloat(ss.strokeOpacity) > 0) add('border', withAlpha(rgbOf(ss.stroke), Number.parseFloat(ss.strokeOpacity)), label, recolored);
+        paints(shape, ss, el, label, recolored);
+        // A text that the reference draws: its typeface is compared; its contrast is not read, because the program does not work
+        // out where the reference places it.
+        if (shape instanceof SVGTextContentElement && [...shape.childNodes].some((n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== '') && (ss.fill !== 'none' || ss.stroke !== 'none')) {
+          const family = (ss.fontFamily.match(/^\s*(?:"([^"]*)"|'([^']*)'|([^,]*))/) ?? []).slice(1).find((part) => part !== undefined) ?? '';
+          const words = where(shape);
+          families.push({ family: family.trim(), where: words });
+          texts.push({ n, where: words, foreground: rgbOf(ss.color), layers: null, unmeasured: 'a picture draws the text by reference', sizePx: Number.parseFloat(ss.fontSize), weight: Number.parseInt(ss.fontWeight, 10) || 400 });
+        }
       }
       continue;
     }
     if (el instanceof SVGGeometryElement || el instanceof SVGTextContentElement) {
-      // The paint's own opacity joins the color's alpha, so a half-transparent fill is listed as partly transparent (audit branch, finding CX-02).
-      if (cs.fill !== 'none' && !cs.fill.startsWith('url(') && Number.parseFloat(cs.fillOpacity) > 0) add('background', withAlpha(rgbOf(cs.fill), Number.parseFloat(cs.fillOpacity)), label, recolored);
-      if (cs.stroke !== 'none' && !cs.stroke.startsWith('url(') && Number.parseFloat(cs.strokeWidth) > 0 && Number.parseFloat(cs.strokeOpacity) > 0) add('border', withAlpha(rgbOf(cs.stroke), Number.parseFloat(cs.strokeOpacity)), label, recolored);
-      // A rectangle of the picture has corners of its own (`rx`, `ry`): they are compared as a box's corners are (the rest of
-      // finding G-S08). One of the two alone rounds both directions, as the browser draws it.
-      if (el instanceof SVGRectElement && (cs.fill !== 'none' || cs.stroke !== 'none')) {
-        const corners = cs as unknown as { rx?: string; ry?: string };
-        const seen = new Set<string>();
-        for (const part of [corners.rx ?? '', corners.ry ?? '']) if (part !== '' && part !== 'auto' && part !== '0px' && part !== '0' && !seen.has(part)) { seen.add(part); radii.push({ value: part, where: label }); }
-      }
+      paints(el, cs, el, label, recolored);
       // A text that the picture draws (`text`, `tspan`) is a text of the page: its typeface is compared, and its contrast is read
       // from its fill against the boxes around the picture (automatic reviewer of pull request 16, finding 2).
       if (el instanceof SVGTextContentElement && hasText && (cs.fill !== 'none' || cs.stroke !== 'none')) {
         const family = (cs.fontFamily.match(/^\s*(?:"([^"]*)"|'([^']*)'|([^,]*))/) ?? []).slice(1).find((part) => part !== undefined) ?? '';
         families.push({ family: family.trim(), where: label });
-        const picture = el.ownerSVGElement;
+        // The outermost picture: a picture inside a picture shares its shapes (audit round of 2026-11-22, finding F-70).
+        let picture = el.ownerSVGElement;
+        while (picture?.ownerSVGElement) picture = picture.ownerSVGElement;
         const paint = cs.fill === 'none' || cs.fill.startsWith('url(') ? '' : withAlpha(rgbOf(cs.fill), Number.parseFloat(cs.fillOpacity));
         let unmeasured = '';
         const layers: string[] = [];
@@ -320,7 +388,7 @@ export function collect(): Collected {
           if (a > 0) layers.unshift(behind);
           if (a === 1) break;
         }
-        texts.push({ where: label, foreground: paint === '' ? rgbOf(cs.color) : paint, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400 });
+        texts.push({ n, where: label, foreground: paint === '' ? rgbOf(cs.color) : paint, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400 });
       }
       continue;
     }
@@ -352,12 +420,14 @@ export function collect(): Collected {
     }
 
     if (!hasText) continue;
-    const textColor = rgbOf(cs.color);
+    // The browser paints the letters with the text fill color where a rule sets one; it equals `color` where none does (finding F-97).
+    const fillColor = rgbOf(cs.webkitTextFillColor);
+    const textColor = alphaOf(rgbOf(cs.color)) === 0 || alphaOf(fillColor) === 0 ? rgbOf(cs.color) : fillColor;
     let unmeasured = '';
     const layers: string[] = [];
     // Letters drawn as an outline: the stroke paints them, and the fill may be the background's own color (finding G-T01).
     if (Number.parseFloat(cs.webkitTextStrokeWidth) > 0) unmeasured = 'the letters are drawn as an outline';
-    if (unmeasured === '' && (alphaOf(textColor) === 0 || alphaOf(rgbOf(cs.webkitTextFillColor)) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text')) unmeasured = 'the text is filled by an image or a gradient';
+    if (unmeasured === '' && (alphaOf(textColor) === 0 || alphaOf(fillColor) === 0 || cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text')) unmeasured = 'the text is filled by an image or a gradient';
     if (unmeasured === '' && recolored) unmeasured = 'a filter changes how the text is drawn';
     for (let up: Element | null = el; up && unmeasured === ''; up = up.parentElement) {
       const style = getComputedStyle(up);
@@ -368,7 +438,28 @@ export function collect(): Collected {
       if (a > 0) layers.unshift(behind);
       if (a === 1) break;
     }
-    texts.push({ where: label, foreground: textColor, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400 });
+    // Where a partly transparent box or a gradient stopped the reading, the colors alone still say whether the text has the color
+    // of its ground: opacity never sets a text apart from its ground, and a gradient of one color is that color (finding F-97).
+    let nominal: string[] | null | undefined;
+    if (unmeasured === 'the text or a box around it is drawn partly transparent' || unmeasured === 'an image or a gradient lies behind the text') {
+      nominal = [];
+      for (let up: Element | null = el; up && nominal !== null; up = up.parentElement) {
+        const style = getComputedStyle(up);
+        let solid = false;
+        if (style.backgroundImage !== 'none') {
+          const colors = style.backgroundImage.match(/rgba?\([^)]*\)/g) ?? [];
+          if (/url\(|image-set\(|element\(/i.test(style.backgroundImage) || colors.length === 0 || new Set(colors).size !== 1) { nominal = null; break; }
+          const one = rgbOf(colors[0] ?? '');
+          if (alphaOf(one) > 0) nominal.unshift(one);
+          solid = alphaOf(one) === 1;
+        }
+        const behind = rgbOf(style.backgroundColor);
+        if (!solid && alphaOf(behind) > 0) nominal.unshift(behind);
+        if (solid || alphaOf(behind) === 1) break;
+      }
+    }
+    const own = collapse([...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent ?? '').join(' ')).slice(0, 400);
+    texts.push({ n, where: label, foreground: textColor, layers: unmeasured === '' ? layers : null, unmeasured, sizePx: Number.parseFloat(cs.fontSize), weight: Number.parseInt(cs.fontWeight, 10) || 400, ...(own !== '' ? { own } : {}), ...(nominal !== undefined ? { nominal } : {}) });
   }
 
   // The text that a person can read in this window (finding J-7). innerText counts text at size 0, at opacity 0, and outside the window.
@@ -412,10 +503,23 @@ export function collect(): Collected {
       if (style.overflowX === 'visible' && style.overflowY === 'visible') continue;
       const box = up.getBoundingClientRect();
       // In a direction in which the box scrolls, the visitor can bring the text to any place inside the box: from here upward the
-      // text stands where the box stands.
-      if (scrolls(style.overflowX) && up.clientWidth >= 1) { left = box.left; right = box.right; }
+      // text stands where the box stands. That holds only for the part of the text that lies inside what the box scrolls over:
+      // a text placed before the start of that area (above it, or to the side from which the box does not scroll) is reached by
+      // no scrolling (audit round of 2026-11-22, findings F-67 and F-98).
+      if (scrolls(style.overflowX) && up.clientWidth >= 1) {
+        const start = getComputedStyle(up).direction === 'rtl' ? up.clientWidth - up.scrollWidth : 0;
+        const from = left - box.left - up.clientLeft + up.scrollLeft;
+        const to = right - box.left - up.clientLeft + up.scrollLeft;
+        if (Math.min(to, start + up.scrollWidth) - Math.max(from, start) < 1) return true;
+        left = box.left; right = box.right;
+      }
       else if (style.overflowX !== 'visible') { left = Math.max(left, box.left); right = Math.min(right, box.right); }
-      if (scrolls(style.overflowY) && up.clientHeight >= 1) { top = box.top; bottom = box.bottom; }
+      if (scrolls(style.overflowY) && up.clientHeight >= 1) {
+        const from = top - box.top - up.clientTop + up.scrollTop;
+        const to = bottom - box.top - up.clientTop + up.scrollTop;
+        if (Math.min(to, up.scrollHeight) - Math.max(from, 0) < 1) return true;
+        top = box.top; bottom = box.bottom;
+      }
       else if (style.overflowY !== 'visible') { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
       if (right - left < 1 || bottom - top < 1) return true;
     }
@@ -567,18 +671,32 @@ export function collect(): Collected {
  */
 export function mediaConditions(): string[] {
   const found = new Set<string>();
+  // Where the page holds more than the program reads (a condition of more than 2,000 characters, more than 200,000 style rules,
+  // more than 5,000 conditions, more than 2,000 shadow roots), the list gains this entry, which no Mockup holds: the page then
+  // counts as not measured, so that a condition past a limit cannot hide (audit round of 2026-11-22, findings F-68 and F-99).
+  const PAST_LIMIT = '(more style rules or conditions than the program reads)';
   const note = (text: string | null | undefined): void => {
     const clean = (text ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
-    if (clean !== '' && clean !== 'all') found.add(clean.slice(0, 200));
+    if (clean.length > 2000) found.add(PAST_LIMIT);
+    else if (clean !== '' && clean !== 'all') found.add(clean);
   };
-  let budget = 20000;
-  const walk = (rules: CSSRuleList): void => {
+  let budget = 200_000;
+  const walk = (rules: CSSRuleList, depth = 0): void => {
     for (const rule of rules) {
-      if (budget-- <= 0) return;
+      if (budget-- <= 0) { found.add(PAST_LIMIT); return; }
       if (rule instanceof CSSMediaRule) note(rule.media.mediaText);
-      if (rule instanceof CSSImportRule) note(rule.media.mediaText);
+      if (rule instanceof CSSImportRule) {
+        note(rule.media.mediaText);
+        // The rules of an imported style sheet are rules of the page.
+        try {
+          if (rule.styleSheet && depth < 20) walk(rule.styleSheet.cssRules, depth + 1);
+          else if (rule.styleSheet) found.add(PAST_LIMIT);
+        } catch {
+          // A style sheet of another site: the program stops such a request, so the sheet holds no rule.
+        }
+      }
       const inner = (rule as { cssRules?: CSSRuleList }).cssRules;
-      if (inner) walk(inner);
+      if (inner) walk(inner, depth);
     }
   };
   const sheets = (root: Document | ShadowRoot): void => {
@@ -594,8 +712,10 @@ export function mediaConditions(): string[] {
   };
   const roots: (Document | ShadowRoot)[] = [document];
   for (let at = 0; at < roots.length && at < 2000; at++) for (const el of roots[at]!.querySelectorAll('*')) if (el.shadowRoot) roots.push(el.shadowRoot);
-  for (const root of roots) sheets(root);
-  return [...found].sort().slice(0, 400);
+  if (roots.length > 2000) found.add(PAST_LIMIT);
+  for (const root of roots.slice(0, 2000)) sheets(root);
+  if (found.size > 5000) return [PAST_LIMIT, ...[...found].sort().slice(0, 5000)];
+  return [...found].sort();
 }
 
 export function readBrief(): { business: string; headline: string; primaryAction: string } {

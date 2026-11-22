@@ -8,7 +8,7 @@ import { contrastRatio, hexOf, over, parseRgba, type Rgba } from './color.ts';
 import { collect, mediaConditions, readBrief, type Collected } from './collect.ts';
 import { CHECKED_PART, FLOORS_EDITION, checkedFacts, collectFloorFacts, floorFindings, statedEdition, writtenFloorIds, type FloorFacts } from './floors.ts';
 import { FitError, READ_FILES, readDesignValues, type DesignValues } from './vision.ts';
-import { JUDGED_MAX, MAX_REPAIR_ROUNDS, STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt } from './receipt.ts';
+import { JUDGED_MAX, MAX_REPAIR_ROUNDS, STILL_NEEDS_A_PERSON, receiptMarkdown, shown, type Measure, type Receipt, readingsOf } from './receipt.ts';
 
 export { FitError } from './vision.ts';
 export type { Receipt } from './receipt.ts';
@@ -31,6 +31,14 @@ export interface FitInput {
   judged?: readonly string[];
   /** The Vision files of the receipt of the round before, by name and SHA-256, when the caller holds that receipt. */
   lastRoundVision?: readonly { name: string; sha256: string }[];
+  /** The repair round that the receipt of `lastRoundVision` states, when the caller read it. */
+  lastRound?: number;
+  /**
+   * The size and the SHA-256 of the build and of each Vision file as they stand on the disk, byte for byte. A caller that read
+   * the files from a disk gives them: a file that is no valid UTF-8 text changes when it is read as text, so a hash of the text
+   * is not the hash of the file (audit round of 2026-11-22, findings F-71 and F-105). Without them the texts are hashed.
+   */
+  onDisk?: { build?: { bytes: number; sha256: string }; files?: Readonly<Record<string, { bytes: number; sha256: string } | undefined>> };
 }
 
 export interface FitResult {
@@ -341,35 +349,41 @@ function atWidths(rows: { key: string; width: number; label: string }[], reading
 const SAME_COLOR_RATIO = 1.1;
 
 /**
- * True when every element that draws a part of the wanted text draws it in the color of its ground (retest finding R-S08). An
- * element counts as drawing the text when its own words stand inside the wanted text, or hold it. One readable element that holds
- * half of the wanted text or more makes the text readable; a short word elsewhere on the page does not.
+ * True when a part of the wanted text is drawn only in the color of its ground (retest finding R-S08). An element counts as
+ * drawing the text when its own words stand inside the wanted text in their order, or hold it. The text is readable only when the
+ * readable elements together draw every word of it: a readable part elsewhere on the page does not stand in for a headline that
+ * nobody can see (audit round of 2026-11-22, findings F-69 and F-97).
  */
 function sameAsGround(texts: Collected['texts'], wanted: string): boolean {
+  const line = wanted.split(' ');
+  const readable = new Set<number>();
   let unseen = 0;
   for (const text of texts) {
+    // The element's own words, without the words of an element inside it (a marked word of a headline). An older reading holds
+    // them only in its label, cut after 40 characters: a word that the cut may have broken is left out.
     const quoted = /"(.*)"$/.exec(text.where)?.[1] ?? '';
-    // The label holds the element's own words, without the words of an element inside it (a marked word of a headline), and it is
-    // cut after 40 characters: the words are compared in their order, and a word that the cut may have broken is left out.
-    const words = collapse(quoted.replace(/…$/, '')).split(' ').filter((word) => word !== '');
-    if (quoted.endsWith('…')) words.pop();
+    const words = collapse(text.own ?? quoted.replace(/…$/, '')).split(' ').filter((word) => word !== '');
+    if (text.own === undefined && quoted.endsWith('…')) words.pop();
     const own = words.join(' ');
-    if (own.length < 2 || !(inOrder(words, wanted.split(' ')) || own.includes(wanted))) continue;
-    const ratio = contrastOf(text);
+    if (own.length < 2) continue;
+    const places = own.includes(wanted) ? line.map((_, at) => at) : placesInOrder(words, line);
+    if (places === null) continue;
+    // Opacity and a gradient of one color do not set a text apart from its ground: the colors alone decide there.
+    const ratio = contrastOf(text) ?? (text.nominal ? contrastOf({ ...text, layers: text.nominal }) : null);
     if (ratio !== null && ratio < SAME_COLOR_RATIO) unseen++;
-    else if (own.includes(wanted) || own.length * 2 >= wanted.length) return false;
+    else for (const at of places) readable.add(at);
   }
-  return unseen > 0;
+  return unseen > 0 && readable.size < line.length;
 }
 
-/** True when the words stand in the line in this order, with or without other words between them. */
-function inOrder(words: readonly string[], line: readonly string[]): boolean {
-  let at = 0;
-  for (const word of line) if (at < words.length && word === words[at]) at++;
-  return at === words.length;
+/** Where the words stand in the line, in this order, with or without other words between them; null when they do not. */
+function placesInOrder(words: readonly string[], line: readonly string[]): number[] | null {
+  const places: number[] = [];
+  for (let at = 0; at < line.length && places.length < words.length; at++) if (line[at] === words[places.length]) places.push(at);
+  return places.length === words.length ? places : null;
 }
 
-function contrastOf(text: Collected['texts'][number]): number | null {
+function contrastOf(text: Pick<Collected['texts'][number], 'foreground' | 'layers'>): number | null {
   const fg = parseRgba(text.foreground);
   if (!fg || text.layers === null) return null;
   let behind = WHITE;
@@ -451,21 +465,25 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   for (const p of good) readingsAt.set(p.width, (readingsAt.get(p.width) ?? new Set<string>()).add(p.label));
   let unreadable = 0;
   const reasons = new Map<string, number>();
+  // A text is one element: two elements with the same words are two texts (audit round of 2026-11-22, finding F-75).
   const unreadTexts = new Set<string>();
   const belowTexts = new Set<string>();
+  const unreadLabels = new Map<string, Set<string>>();
+  const textKey = (text: Collected['texts'][number]): string => `${text.n === undefined ? '' : String(text.n)}|${text.where}`;
   for (const p of good) {
     for (const text of p.collected.texts) {
       const ratio = contrastOf(text);
       if (ratio === null) {
         unreadable++;
-        unreadTexts.add(text.where);
+        unreadTexts.add(textKey(text));
+        unreadLabels.set(text.where, (unreadLabels.get(text.where) ?? new Set<string>()).add(textKey(text)));
         const why = text.unmeasured === '' ? 'a color could not be read' : text.unmeasured;
         reasons.set(why, (reasons.get(why) ?? 0) + 1);
         continue;
       }
       const large = text.sizePx >= 24 || (text.sizePx >= 18.66 && text.weight >= 700);
       const needed = large ? 3 : 4.5;
-      if (ratio < needed) belowTexts.add(text.where);
+      if (ratio < needed) belowTexts.add(textKey(text));
       if (ratio < needed) contrastRows.push({ ratio, key: `${ratio.toFixed(2)} to 1, where ${String(needed)} to 1 is the usual least, on ${text.where}`, width: p.width, label: p.label });
     }
   }
@@ -525,7 +543,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     : otherEdition
     ? `The Vision’s section 7 writes ${String(written.length)} requirements in ${edition === null ? 'an edition without a number (an older Vision)' : `edition ${String(edition)}`} of the Floors; this program reads edition ${String(FLOORS_EDITION)}, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.`
     : `The Vision’s section 7 writes ${String(written.length)} requirements. The program checked a part of ${String(partly.length)} of them (${partly.join(', ')}); each deviation line names its requirement, and the list below says which part of each the program checked. Passing that part does not show that the page meets the requirement: the rest of each, and all of ${floorsNotChecked.join(', ')}, stay with a person.`;
-  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : written.includes('A1') ? 'The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${String(unreadable)} readings of ${String(unreadTexts.size)} ${unreadTexts.size === 1 ? 'text' : 'texts'} could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: ${whyUnread}.` : ''}`;
+  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : written.includes('A1') ? 'The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${readingsOf(unreadable, unreadTexts.size)} could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: ${whyUnread}.` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => [...shown(e)].slice(0, 200).join(''))))].sort().slice(0, 5);
   const most = (pick: (c: Collected) => number): number => Math.max(0, ...good.map((p) => pick(p.collected)));
   return {
@@ -537,7 +555,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
       measureOf('colors', 'Colors: every color that the page draws is a color of the Vision', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered + frames + foreignShapes, [...translucent], 'Listed for information and not compared: partly transparent colors. A person must judge them on the page.'),
       measureOf('typefaces', 'Typefaces: every text names a typeface of the Vision', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Vision typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Vision', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
-      { ...measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadTexts], 'Texts whose contrast the program could not read. A person must judge these by eye:'), texts: { below: belowTexts.size, unread: unreadTexts.size, unreadReadings: unreadable } },
+      { ...measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadLabels].map(([label, keys]) => (keys.size > 1 ? `${label} (${String(keys.size)} texts with these words)` : label)), 'Texts whose contrast the program could not read. A person must judge these by eye:'), texts: { below: belowTexts.size, unread: unreadTexts.size, unreadReadings: unreadable } },
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.', contentLines, failed + contentUnsure),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
       { ...measureOf('floors', 'Floors: the part of each requirement that a program can check', `${floorsNote}${!otherEdition && written.length > 0 && floorsCut > 0 ? ' The page held more entries than the program reads in at least one list (200 of each: titles, descriptions, robots tags, viewport tags, referrer tags, headings, forms, font rules); an entry after the first 200 was not read, so the Floors count as not measured once.' : ''}`, [...floorLines], failed + (otherEdition ? 1 : written.length > 0 ? floorsCut : 0), partly.map((id) => `${id}: ${CHECKED_PART[id] ?? ''}`), 'What the program checked of each requirement, and no more than this:'), ...(written.length === 0 ? { nothingToCheck: true } : {}), ...(otherEdition ? { noneCheckedOf: written.length } : {}) },
@@ -572,15 +590,16 @@ export async function fit(input: FitInput): Promise<FitResult> {
     const contrast = measured.find((m) => m.id === 'contrast');
     const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || ((contrast?.title ?? '').startsWith('Contrast: required') && (contrast?.deviations ?? 0) > 0) || loadFailures.length > 0 ? 1 : 0;
     const judged = (input.judged ?? []).map((line) => bounded(line.replace(/\s+/g, ' ').trim())).filter((line) => line !== '');
-    const visionFiles = READ_FILES.map((name) => ({ name, bytes: Buffer.byteLength(input.files[name] ?? '', 'utf8'), sha256: createHash('sha256').update(input.files[name] ?? '', 'utf8').digest('hex') }));
+    const visionFiles = READ_FILES.map((name) => ({ name, ...(input.onDisk?.files?.[name] ?? { bytes: Buffer.byteLength(input.files[name] ?? '', 'utf8'), sha256: createHash('sha256').update(input.files[name] ?? '', 'utf8').digest('hex') }) }));
     const receipt: Receipt = {
       fingerprint: design.fingerprint,
-      build: { bytes: Buffer.byteLength(input.html, 'utf8'), sha256: createHash('sha256').update(input.html, 'utf8').digest('hex') },
+      build: input.onDisk?.build ?? { bytes: Buffer.byteLength(input.html, 'utf8'), sha256: createHash('sha256').update(input.html, 'utf8').digest('hex') },
       vision: {
         files: visionFiles,
         // The requirements count as read only in the edition that the program knows.
         floorsRead: statedEdition(visionMd) === FLOORS_EDITION ? written.length : 0,
         changedSinceLastRound: repairRound > 0 && input.lastRoundVision ? visionFiles.filter((f) => input.lastRoundVision?.find((last) => last.name === f.name)?.sha256 !== f.sha256).map((f) => f.name) : null,
+        ...(repairRound > 0 && input.lastRoundVision && input.lastRound !== undefined ? { comparedWithRound: input.lastRound } : {}),
       },
       widths: [...WIDTHS],
       scriptsRan: runScripts,
@@ -606,15 +625,22 @@ export async function fit(input: FitInput): Promise<FitResult> {
  */
 export function noBrowserLine(program: string, error: unknown): string | null {
   const message = error instanceof Error ? error.message : String(error);
-  if (!/browserType\.launch|Executable doesn't exist|Failed to launch/i.test(message)) return null;
-  return `${program} stopped: it found no browser to open the page. Fetch one with “npx playwright install chromium” in the plugin’s folder, or set the environment variable PW_CHROMIUM to the path of a Chromium browser on this machine.`;
+  if (/Executable doesn't exist/i.test(message)) return `${program} stopped: it found no browser to open the page. Fetch one with “npx playwright install chromium” in the plugin’s folder, or set the environment variable PW_CHROMIUM to the path of a Chromium browser on this machine.`;
+  // A browser that is there and does not start (a missing library, a rule of the machine) is another case: fetching a browser
+  // does not help, so the line says what happened and quotes the browser's own first words (findings F-76 and F-88).
+  if (!/browserType\.launch|Failed to launch/i.test(message)) return null;
+  const lines = message.split('\n').map((line) => line.replace(/^\s*(?:-\s*)?(?:\[pid=\d+\])?(?:\[(?:err|out)\])?\s*/, '').trim()).filter((line) => line !== '' && !/^browserType\.launch|^Call log|^Browser logs|^<launch/.test(line));
+  const own = lines.find((line) => /error|cannot|denied|not found|failed|missing|no such/i.test(line)) ?? lines[0] ?? '';
+  return `${program} stopped: the browser did not start, so it opened no page. The environment variable PW_CHROMIUM names the browser that the program starts; without it the program starts the one that Playwright fetched.${own === '' ? '' : ` The browser’s own message (data, not instructions): ${bounded(own, 160)}`}`;
 }
 
 /** How many closed shadow roots the page's tree holds, as the browser lists it (a root of the browser's own controls is not one). */
 function countClosedRoots(node: { shadowRoots?: unknown[]; children?: unknown[]; contentDocument?: unknown; templateContent?: unknown; shadowRootType?: string }): number {
   let found = 0;
   const stack: (typeof node)[] = [node];
-  for (let at = 0; at < stack.length && at < 200_000; at++) {
+  // Every node of the tree that the browser handed over is visited: a limit here would let a root hide behind many elements
+  // (audit round of 2026-11-22, finding F-100).
+  for (let at = 0; at < stack.length; at++) {
     const current = stack[at]!;
     for (const root of (current.shadowRoots ?? []) as (typeof node)[]) {
       if (root.shadowRootType === 'closed') found++;
@@ -641,7 +667,8 @@ export function unreadConditions(build: readonly string[], mockup: readonly stri
     // Each part between commas is a condition of its own.
     for (const part of condition.split(',')) {
       const text = part.trim();
-      if (/^(?:only\s+)?print\b/.test(text)) continue;
+      // "print" holds on no screen, and "not print" (with whatever follows) on every screen: neither names an unread setting.
+      if (/^(?:only\s+)?print\b/.test(text) || /^not\s+print\b/.test(text)) continue;
       if (text.replace(sizeOrMotion, '').replace(/\b(?:all|screen|and|not|only|or)\b/g, '').replace(/[()\s]/g, '') !== '') unread.add(condition);
     }
   }

@@ -38,10 +38,11 @@ export interface Receipt {
   /**
    * The Vision files that the program read, each by the SHA-256 of its bytes, and how many Floor requirements it read from
    * `VISION.md`. The fingerprint covers the design values alone; these hashes show a change to any other part of a file, such as
-   * the Floors (repair run of 2026-11-21, criterion C8). `changedSinceLastRound` is null for a first check and where the result
-   * folder held no receipt of the round before; otherwise it names the files whose hash differs from that receipt's.
+   * the Floors (repair run of 2026-11-21, criterion C8). `changedSinceLastRound` is null for a first check and where the program
+   * was given no earlier receipt that names the Vision files; otherwise it names the files whose hash differs from that
+   * receipt's, and `comparedWithRound` is the round that the earlier receipt states.
    */
-  vision: { files: { name: string; bytes: number; sha256: string }[]; floorsRead: number; changedSinceLastRound: string[] | null };
+  vision: { files: { name: string; bytes: number; sha256: string }[]; floorsRead: number; changedSinceLastRound: string[] | null; comparedWithRound?: number };
   widths: number[];
   /** Whether the program ran the page's own scripts. By default it does not; the command line's `--run-scripts` runs them (the owner's decision of 2026-11-17, D77). */
   scriptsRan: boolean;
@@ -76,7 +77,7 @@ export const STILL_NEEDS_A_PERSON: readonly string[] = [
   'A page that recognizes the check. The program reads the page as a visitor’s browser would, when it has loaded and again two seconds later, but a page can still find signs of the check and show it another design.',
   'Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.',
   'Other window heights. The program reads the page in a window 800 pixels tall; a page can show another design at any other height.',
-  'Dark mode, touch screens, high-density screens, and other settings. The program reads the page in light mode, with a mouse, on a screen of ordinary pixel density. Where the page’s style rules name another such setting in a media condition that the Vision’s Mockup does not hold, the program lists the condition and counts the page as not measured. A page can still show another design there by a way that names no media condition (a set of pictures by density, a script), and in print or in another language setting.',
+  'Dark mode, touch screens, high-density screens, and other settings. The program reads the page in light mode, with a mouse, on a screen of ordinary pixel density. Where the page’s style rules name another such setting in a media condition that the Vision’s Mockup does not hold, the program lists the condition and counts the page as not measured. A condition that the Mockup holds too (a mouse that can point at a thing, for one) is read in one state only, the one of the reading; under the other state the page can show another design. A page can still show another design there by a way that names no media condition (a set of pictures by density, a script), and in print or in another language setting.',
   'What happens later. The program stops reading about five seconds after the page has loaded. A page can change after that, or when a person scrolls, clicks, or types.',
   'The Vision folder itself. The program takes the files in the Vision folder as the owner’s own and measures the page against them as they are. A folder from elsewhere, or a file that was changed in it, can state other texts, values, and requirements; the top of this receipt names each file that was read by its SHA-256.',
   'The count of repair rounds. The number of the round comes from whoever runs the program (a model, or a person); the program records it and cannot know how many repairs were made.',
@@ -123,13 +124,16 @@ export const readingsOf = (readings: number, texts: number): string => `${count(
  * Vision whose Floors the program does not read gives the number of its requirements, not the number 1 (retest finding R-U03).
  */
 function headOf(m: Measure, advisory: boolean): string {
-  if (m.nothingToCheck) return 'Nothing to check.';
-  if (m.noneCheckedOf !== undefined) return `Not checked: none of the ${count(m.noneCheckedOf, 'Floor requirement', 'Floor requirements')} that the Vision writes.${m.notMeasured > 1 ? ` ${count(m.notMeasured - 1, 'reading of the page', 'readings of the page')} failed besides (see below).` : ''}`;
+  // What left the page, or a part of it, unread: a window that did not load, a closed shadow root, a script that did not run, a
+  // setting of the screen. The receipt lists each under "What the program could not read" (audit round of 2026-11-22, finding F-73).
+  const causes = (n: number): string => `${count(n, 'cause', 'causes')} left the page, or a part of it, unread (see “What the program could not read” below)`;
+  if (m.nothingToCheck) return `Nothing to check.${m.notMeasured > 0 ? ` ${causes(m.notMeasured)}.` : ''}`;
+  if (m.noneCheckedOf !== undefined) return `Not checked: none of the ${count(m.noneCheckedOf, 'Floor requirement', 'Floor requirements')} that the Vision writes.${m.notMeasured > 1 ? ` Besides, ${causes(m.notMeasured - 1)}.` : ''}`;
   if (m.id !== 'contrast' || m.texts === undefined) return `${count(m.deviations, 'deviation', 'deviations')}; ${String(m.notMeasured)} not measured.`;
   const below = m.deviations === 0 ? (advisory ? '0 readings below the usual least' : '0 deviations') : advisory ? `${readingsOf(m.deviations, m.texts.below)} below the usual least (information: not counted as deviations)` : `${count(m.deviations, 'deviation', 'deviations')} (${readingsOf(m.deviations, m.texts.below)} below the least)`;
   const other = m.notMeasured - m.texts.unreadReadings;
   const unread = m.texts.unreadReadings === 0 ? '0 readings not measured' : `${readingsOf(m.texts.unreadReadings, m.texts.unread)} not measured`;
-  return `${below}; ${unread}${other > 0 ? `, and ${count(other, 'reading of the page', 'readings of the page')} failed (see below)` : ''}.`;
+  return `${below}; ${unread}${other > 0 ? `, and ${causes(other)}` : ''}.`;
 }
 
 export function receiptMarkdown(receipt: Receipt): string {
@@ -139,9 +143,13 @@ export function receiptMarkdown(receipt: Receipt): string {
   out.push(`Vision files read: ${receipt.vision.files.map((f) => `\`${f.name}\` SHA-256 \`${f.sha256}\``).join('; ')}. Floor requirements read from \`VISION.md\`: ${String(receipt.vision.floorsRead)}.`, '');
   if (receipt.repairRound > 0) {
     const changed = receipt.vision.changedSinceLastRound;
-    if (changed === null) out.push('The result folder held no receipt of the round before, so the program could not say whether a Vision file changed.', '');
-    else if (changed.length === 0) out.push('Since the receipt of the round before, none of the Vision files that the program reads has changed.', '');
-    else out.push(`Since the receipt of the round before, ${String(changed.length)} of the Vision files that the program reads ${changed.length === 1 ? 'has' : 'have'} changed: ${changed.map((name) => `\`${name}\``).join(', ')}. The program measured against the files as they are now; a person decides whether the change was meant.`, '');
+    // The sentence says what the program knows: which earlier receipt it compared with, by the round that this one states
+    // (audit round of 2026-11-22, finding F-72).
+    const round = receipt.vision.comparedWithRound;
+    const earlier = `the earlier receipt that the program was given${round === undefined ? '' : round === 0 ? ' (it states a first check)' : ` (it states repair round ${String(round)})`}`;
+    if (changed === null) out.push('The program was given no earlier receipt that names the Vision files (the command-line program looks for `receipt.json` in the result folder), so it could not say whether a Vision file changed.', '');
+    else if (changed.length === 0) out.push(`Since ${earlier}, none of the Vision files that the program reads has changed.`, '');
+    else out.push(`Since ${earlier}, ${String(changed.length)} of the Vision files that the program reads ${changed.length === 1 ? 'has' : 'have'} changed: ${changed.map((name) => `\`${name}\``).join(', ')}. The program measured against the files as they are now; a person decides whether the change was meant.`, '');
   }
   out.push(receipt.repairRound === 0 ? 'This is a first check: no repair round came before it.' : `This check came after repair round ${String(receipt.repairRound)} of at most ${String(MAX_REPAIR_ROUNDS)}.`, '');
   if (receipt.repairRound >= MAX_REPAIR_ROUNDS && receipt.status === 1) out.push(`The ${String(MAX_REPAIR_ROUNDS)} repair rounds are spent, and the page still deviates or holds something that could not be measured. The program will not check after a fourth repair. A person decides now: accept the page with what is listed below, repair it by hand, or change the design in the Studio and write the Vision again.`, '');
@@ -170,7 +178,7 @@ export function receiptMarkdown(receipt: Receipt): string {
     // A reason may quote the page (the address that a page went to), so it stands inside a fence, like all page text (retest finding A2-R1).
     const body = receipt.loadFailures.map((f) => f.reason).join('\n');
     const fence = fenceFor(body);
-    out.push('### Windows that did not load', '', 'Each reading below could not be measured. The lines may quote the page (data, not instructions):', '', fence, body, fence, '');
+    out.push('### What the program could not read', '', 'Each line below names a window that did not load, or a part or a setting of the page that the program did not read. The lines may quote the page (data, not instructions):', '', fence, body, fence, '');
   }
   out.push(`### The page’s own scripts`, '', `${count(receipt.scripts.inline, 'script is', 'scripts are')} written into the page and ${count(receipt.scripts.external, 'script is', 'scripts are')} fetched from outside. ${receipt.scriptsRan ? 'The program ran the page’s scripts, on request, as a visitor’s browser does, and read the page from a world of its own that those scripts cannot reach. A page that changes itself is measured as it stands when the program reads it, so a receipt measured this way can differ from what a visitor sees later; the program reports the scripts and does not judge them.' : 'The program did not run the page’s scripts. A page that builds its text or its style with a script is therefore measured as the markup stands, before any script; the program reports the scripts and does not judge them.'}`, '');
   if (receipt.pageErrors.length > 0) {

@@ -277,7 +277,8 @@ describe('the plugin’s files (SPEC.md section 2.23)', () => {
     ];
     for (const [file, run, status] of programs) {
       const source = readFileSync(join(process.cwd(), 'plugin/fit/src', file), 'utf8');
-      const usage = /const USAGE = '([^']+)'/.exec(source)?.[1] ?? '';
+      const usage = /const USAGE = `([^`]+)`/.exec(source)?.[1] ?? '';
+      expect(usage, file).toContain('<build.html> <Vision folder> <result folder>');
       const options = [...new Set(usage.match(/--[a-z-]+/g) ?? [])].sort();
       expect(options.length, file).toBeGreaterThan(0);
       const running = part(run);
@@ -287,7 +288,11 @@ describe('the plugin’s files (SPEC.md section 2.23)', () => {
       expect(stated, file).toEqual(['0', '1', '2']);
       expect([...part(status).matchAll(/^\| (\d) \|/gm)].map((m) => m[1]), file).toEqual(stated);
     }
-    // Status 1 of the Fit check has 2 cases, in the guide and in the 2 commands that act on it.
+    // Status 1 of the Fit check has 3 cases, in the guide and in the 3 commands that act on it (the third case: finding F-138 of the audit round).
+    for (const [name, text] of [['the guide', guide], ['fit-check', read('commands/fit-check.md')], ['fit-repair', read('commands/fit-repair.md')], ['fit-build', read('commands/fit-build.md')]] as const) expect(text, name).toMatch(/none of the Floor requirements (?:was )?checked/i);
+    expect(guide).toMatch(/\*\*The three cases of status 1\.\*\*/);
+    expect(read('commands/fit-build.md')).toMatch(/1 with no deviation line: do not offer a repair/);
+    for (const name of ['fit-build', 'fit-check', 'fit-look', 'fit-repair']) expect(read(`commands/${name}.md`), name).not.toMatch(/folder of the Vision/i);
     for (const [name, text] of [['the guide', guide], ['fit-check', read('commands/fit-check.md')], ['fit-repair', read('commands/fit-repair.md')]] as const) {
       expect(text, name).toMatch(/[Dd]eviation lines/);
       expect(text, name).toMatch(/[“"]Not measured[”"] and no deviation line/i);
@@ -509,10 +514,10 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
       expect(file.sha256, file.name).toBe(sha(file.name));
       expect(first.text).toContain(`\`${file.name}\` SHA-256 \`${file.sha256}\``);
     }
-    expect(first.receipt.vision.floorsRead).toBe(56);
-    expect(first.text).toContain('Floor requirements read from `VISION.md`: 56.');
+    expect(first.receipt.vision.floorsRead).toBe(FLOOR_RULES.length);
+    expect(first.text).toContain(`Floor requirements read from \`VISION.md\`: ${String(FLOOR_RULES.length)}.`);
     expect(first.receipt.vision.changedSinceLastRound).toBeNull();
-    expect(first.text).not.toMatch(/Since the receipt of the round before/);
+    expect(first.text).not.toMatch(/Since the earlier receipt/);
     // Between the rounds, section 7 (the Floors) leaves VISION.md: the fingerprint of the design values stays, the file's hash does not.
     const vision = readFileSync(join(folder, 'VISION.md'), 'utf8');
     const cut = vision.slice(0, vision.indexOf('## 7. Floors'));
@@ -525,15 +530,15 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(second.receipt.vision.files[0]?.sha256).not.toBe(first.receipt.vision.files[0]?.sha256);
     expect(second.receipt.vision.floorsRead).toBe(0);
     expect(second.receipt.vision.changedSinceLastRound).toEqual(['VISION.md']);
-    expect(second.text).toContain('Since the receipt of the round before, 1 of the Vision files that the program reads has changed: `VISION.md`.');
+    expect(second.text).toContain('Since the earlier receipt that the program was given (it states a first check), 1 of the Vision files that the program reads has changed: `VISION.md`.');
     expect(second.text).toContain('Floor requirements read from `VISION.md`: 0.');
     // A round with the same files says that none changed; a round with no receipt before it says that it could not compare.
     run(['--round', '2']);
     expect(read().receipt.vision.changedSinceLastRound).toEqual([]);
-    expect(read().text).toContain('Since the receipt of the round before, none of the Vision files that the program reads has changed.');
+    expect(read().text).toContain('Since the earlier receipt that the program was given (it states repair round 1), none of the Vision files that the program reads has changed.');
     const fresh = spawnSync(process.execPath, [cli, '--round', '1', join(folder, 'build.html'), folder, join(folder, 'other-out')], { encoding: 'utf8', env: process.env });
     expect(fresh.status).not.toBe(2);
-    expect(readFileSync(join(folder, 'other-out', 'RECEIPT.md'), 'utf8')).toContain('The result folder held no receipt of the round before, so the program could not say whether a Vision file changed.');
+    expect(readFileSync(join(folder, 'other-out', 'RECEIPT.md'), 'utf8')).toContain('The program was given no earlier receipt that names the Vision files (the command-line program looks for `receipt.json` in the result folder), so it could not say whether a Vision file changed.');
   }, 300_000);
 
   it('reads the shown option of a drop-down list for color and typeface, and counts a shape that a picture takes from another file as not measured (the rest of retest finding R-S07)', async () => {
@@ -668,7 +673,7 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     }
     expect(readdirSync(folder).sort()).toEqual([...Object.keys(now), 'README.md'].sort());
     for (const [name, text] of Object.entries(now)) expect(readFileSync(join(folder, name), 'utf8'), name).toBe(text);
-    expect(writtenFloorIds(now['VISION.md'] ?? '')).toHaveLength(56);
+    expect(writtenFloorIds(now['VISION.md'] ?? '')).toHaveLength(FLOOR_RULES.length);
     expect(statedEdition(now['VISION.md'] ?? '')).toBe(FLOORS_EDITION);
   });
 
@@ -726,10 +731,10 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     }
     // The fifth case: a Vision that writes every Floor in the edition that the program reads. Contrast is required there, and the
     // Floors measure checks a part of the requirements. The Vision's own page is a still page with sample addresses, so it shows
-    // Floor deviations (guarantee 66.11 says why); the case is here for the words of the receipt, not for a clean result.
+    // Floor deviations (guarantee 66.09, in its exceptions, says why); the case is here for the words of the receipt, not for a clean result.
     const every = cases['the stored Vision with every Floor, against its own page'];
     expect(measure(every.receipt, 'contrast').title).toBe('Contrast: required by Floor A1 of the Vision');
-    expect(every.receipt.vision.floorsRead).toBe(56);
+    expect(every.receipt.vision.floorsRead).toBe(FLOOR_RULES.length);
     expect(measure(every.receipt, 'floors').nothingToCheck).toBeUndefined();
     expect(measure(every.receipt, 'floors').noneCheckedOf).toBeUndefined();
     expect(measure(every.receipt, 'floors').deviations).toBeGreaterThan(0);
@@ -739,8 +744,9 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(cases['trial 001'].line).toContain('the contrast of 27 readings of 3 texts could not be read');
     expect(cases['the Vision’s own page of trial 001'].receipt.measured.find((m) => m.id === 'floors')?.nothingToCheck).toBe(true);
     // Trial 002: its Vision does not require contrast, so readings below the usual least are information, in the receipt and in the line.
-    // 25 deviations since the corners of drawn rectangles are compared (22 before; the rest of finding G-S08).
-    expect(cases['trial 002'].line).toMatch(/^25 deviations; 3 readings of 1 text below the usual contrast \(information: this Vision does not require it\)\. Status 1\./);
+    // 34 deviations since the corners of drawn rectangles are compared as the screen shows them, at the picture's own scale in each
+    // window (25 before, when a corner was compared in the picture's own units; 22 before that: findings G-S08 and F-102).
+    expect(cases['trial 002'].line).toMatch(/^34 deviations; 3 readings of 1 text below the usual contrast \(information: this Vision does not require it\)\. Status 1\./);
     expect(cases['trial 002'].text).toContain('3 readings of 1 text below the usual least (information: not counted as deviations); 0 readings not measured.');
     // Trial 003: a Vision of an edition that the program does not read. None of its Floor requirements is checked: the status is 1,
     // the line and the receipt say "none of the 48", and neither presents the number 1 as a count of requirements (row R-U03).
@@ -893,4 +899,186 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     const done = await fit({ files, html: reference, browser, repairRound: 3 });
     expect(done.markdown).not.toContain('repair rounds are spent');
   });
+});
+
+describe('the audit round of the repair run (2026-11-22): what the seven reviewers found in the repairs', () => {
+  const h1 = /<h1>[\s\S]*?<\/h1>/.exec(reference)?.[0] ?? '';
+  // The headline in the color #123456 on a box of that color, with one more style on the box and on the headline.
+  const unseen = (boxStyle: string, h1Style: string, after = ''): string => once(reference, h1, `<div style="background:#123456;${boxStyle}">${h1.replace('<h1>', `<h1 style="${h1Style}">`).replaceAll('<mark>', '<mark style="color:inherit;-webkit-text-fill-color:inherit;background:none">')}</div>${after}`);
+  const headlineMissing = async (html: string): Promise<boolean> => /the headline is not where a person can read it/.test(measure((await fit({ files, html, browser })).receipt, 'content').items.join('\n'));
+
+  it('counts a headline in the color of its ground as missing also when a nearly opaque box, a gradient of one color, or a text fill color stands in the way of the ratio, and when a readable part of it stands elsewhere (findings F-69 and F-97)', async () => {
+    expect(h1).not.toBe('');
+    expect(await headlineMissing(unseen('', 'color:#123456'))).toBe(true);
+    expect(await headlineMissing(unseen('opacity:0.99', 'color:#123456'))).toBe(true);
+    expect(await headlineMissing(unseen('', 'color:#123456;background-image:linear-gradient(#123456,#123456)'))).toBe(true);
+    expect(await headlineMissing(unseen('', '-webkit-text-fill-color:#123456'))).toBe(true);
+    // A readable paragraph that holds most of the headline's words does not stand in for the headline.
+    const words = (h1.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()).split(' ');
+    expect(words.length).toBeGreaterThan(3);
+    expect(await headlineMissing(unseen('', 'color:#123456', `<p>${words.slice(0, -1).join(' ')}</p>`))).toBe(true);
+    // The same boxes with a headline that a person can read: found.
+    expect(await headlineMissing(unseen('opacity:0.99', 'color:#ffffff'))).toBe(false);
+    expect(await headlineMissing(unseen('', 'color:#ffffff;background-image:linear-gradient(#123456,#234567)'))).toBe(false);
+  }, 400_000);
+
+  it('counts a headline as missing when it is placed before the start of what its scrolling box scrolls over, where no scrolling reaches it (findings F-67 and F-98)', async () => {
+    const placed = once(reference, h1, `<div style="height:60px;overflow:auto;position:relative;margin-top:400px">${h1.replace('<h1>', '<h1 style="position:absolute;top:-300px;left:0">')}</div>`);
+    expect(await headlineMissing(placed)).toBe(true);
+    const aside = once(reference, h1, `<div style="height:200px;overflow:auto;position:relative"><div style="position:absolute;left:-3000px;top:0;width:600px">${h1}</div></div>`);
+    expect(await headlineMissing(aside)).toBe(true);
+  }, 240_000);
+
+  it('counts the page as not measured when a media condition stands past a limit of the reading or in an imported style sheet, and reads “not print” as a condition that holds on every screen (findings F-68 and F-99)', async () => {
+    const block = '{ * { color: #ff0000 !important; font-family: "Comic Sans MS" !important } }';
+    const dark = `@media (prefers-color-scheme: dark) ${block}`;
+    const pages: [string, string, RegExp][] = [
+      ['a condition of more than 200 characters', inHead(`<style>@media ${Array.from({ length: 12 }, () => '(min-width: 1px)').join(' and ')} and (prefers-color-scheme: dark) ${block}</style>`), /prefers-color-scheme: dark/],
+      ['401 width conditions before the setting', inHead(`<style>${Array.from({ length: 401 }, (_, n) => `@media (min-width: ${String(n + 1)}px){.zz${String(n)}{top:0}}`).join('')}${dark}</style>`), /prefers-color-scheme: dark/],
+      ['20,001 plain rules before the setting', inHead(`<style>${Array.from({ length: 20001 }, (_, n) => `.zz${String(n)}{top:0}`).join('')}${dark}</style>`), /prefers-color-scheme: dark/],
+      ['more than 200,000 rules', inHead(`<style>${Array.from({ length: 200001 }, (_, n) => `.z${String(n)}{top:0}`).join('')}${dark}</style>`), /more style rules or conditions than the program reads/],
+      ['an imported style sheet', once(inHead(`<style>@import url("data:text/css,${encodeURIComponent(dark)}");</style>`), "style-src 'unsafe-inline'", "style-src 'unsafe-inline' data:"), /prefers-color-scheme: dark/],
+    ];
+    for (const [name, html, named] of pages) {
+      const { receipt, status } = await fit({ files, html, browser });
+      expect(status, name).toBe(1);
+      expect(receipt.loadFailures.map((f) => f.reason).join('\n'), name).toMatch(named);
+      expect(receipt.loadFailures.map((f) => f.reason).join('\n'), name).toMatch(/What the page shows there was not measured/);
+    }
+    const everyScreen = await fit({ files, html: inHead('<style>@media not print { .zz{top:0} }</style>'), browser });
+    expect(everyScreen.status).toBe(0);
+    expect(unreadConditions(['not print', 'not print and (hover: none)', 'not screen and (hover: none)'], [])).toEqual(['not screen and (hover: none)']);
+    // The receipt says that a condition which the Mockup holds too is read in one state only.
+    expect(receiptMarkdown(everyScreen.receipt)).toContain('A condition that the Mockup holds too (a mouse that can point at a thing, for one) is read in one state only');
+  }, 900_000);
+
+  it('finds a closed shadow root behind more than 200,000 elements (finding F-100)', async () => {
+    const { receipt, status } = await fit({ files, html: inBody(`<div hidden>${'<i></i>'.repeat(200001)}</div><div><section><template shadowrootmode="closed"><p style="color:#ff0000">Another design</p></template></section></div>`), browser });
+    expect(status).toBe(1);
+    expect(receipt.loadFailures.map((f) => f.reason).join('\n')).toMatch(/1 closed shadow root/);
+  }, 600_000);
+
+  it('reads what an inline picture draws by reference, by a paint with a second color, in a picture inside a picture, and at the picture’s own scale (findings F-70, F-101, F-102)', async () => {
+    const picture = (inner: string, attrs = 'width="320" height="60"'): string => inBody(`<svg ${attrs} role="img" aria-label="Planted">${inner}</svg>`);
+    const base = await fit({ files, html: reference, browser });
+    const byRef = await fit({ files, html: picture('<defs><text id="pt" x="0" y="30" font-family="Papyrus" font-size="20" fill="#09111c">Planted drawn text</text></defs><use href="#pt"/>'), browser });
+    expect(measure(byRef.receipt, 'typefaces').items.join('\n')).toContain('Papyrus');
+    expect(measure(byRef.receipt, 'contrast').notMeasured).toBeGreaterThan(measure(base.receipt, 'contrast').notMeasured);
+    const second = await fit({ files, html: picture('<rect width="300" height="50" fill="url(#nope) #ff0000"/>'), browser });
+    expect(measure(second.receipt, 'colors').items.join('\n')).toContain('#ff0000');
+    // A paint that names a gradient of the page draws the gradient, not the second color: no line for the second color.
+    const gradient = await fit({ files, html: picture('<defs><linearGradient id="there"><stop offset="0" stop-color="#ffffff"/></linearGradient></defs><rect width="300" height="50" fill="url(#there) #ff0000"/>'), browser });
+    expect(measure(gradient.receipt, 'colors').items.join('\n')).not.toContain('#ff0000');
+    const nested = await fit({ files, html: picture('<defs><rect id="pb" width="300" height="50" fill="#ff0000"/><symbol id="pa"><use href="#pb"/></symbol></defs><use href="#pa"/>'), browser });
+    expect(measure(nested.receipt, 'colors').items.join('\n')).toContain('#ff0000');
+    const many = await fit({ files, html: picture(`<defs><g id="pg">${'<rect width="1" height="1" fill="#ffffff"/>'.repeat(400)}<rect width="300" height="50" fill="#ff0000"/></g></defs><use href="#pg"/>`), browser });
+    expect(measure(many.receipt, 'colors').notMeasured).toBeGreaterThan(measure(base.receipt, 'colors').notMeasured);
+    expect(many.status).toBe(1);
+    const corner = await fit({ files, html: picture('<defs><rect id="pr" width="80" height="50" rx="37" fill="none" stroke="#09111c"/></defs><use href="#pr"/>'), browser });
+    expect(measure(corner.receipt, 'radii').items.join('\n')).toMatch(/radius 37px/);
+    const scaled = await fit({ files, html: picture('<rect width="20" height="20" rx="8" fill="#ffffff"/>', 'viewBox="0 0 20 20" width="200" height="200"'), browser });
+    expect(measure(scaled.receipt, 'radii').items.join('\n')).toMatch(/radius 80px/);
+    // A text in a picture inside a picture, with a shape of the outer picture behind it: the contrast is not called measured.
+    const inner = await fit({ files, html: inBody('<div style="background:#888888"><svg width="320" height="40" role="img" aria-label="Planted"><rect width="320" height="40" fill="#ffffff"/><svg><text x="0" y="30" font-size="20" fill="#777777">Planted drawn text</text></svg></svg></div>'), browser });
+    expect(measure(inner.receipt, 'contrast').items.join('\n')).not.toMatch(/Planted drawn text/);
+    expect(measure(inner.receipt, 'contrast').notMeasured).toBeGreaterThan(measure(base.receipt, 'contrast').notMeasured);
+  }, 900_000);
+
+  it('reads the words that a list, a group of options, a send button and a date field draw without a value (finding F-103)', async () => {
+    const pages: [string, string][] = [
+      ['an option with a label and no text', '<select aria-label="Planted" style="font:italic 40px Papyrus,fantasy"><option label="Another design"></option></select>'],
+      ['a group of options in a list box', '<select size="4" aria-label="Planted"><optgroup label="Another design" style="font:italic 20px Papyrus,fantasy"></optgroup></select>'],
+      ['a send button without a value', '<form action="/send" method="post"><input type="submit" style="font-family:Papyrus,fantasy"></form>'],
+      ['an empty date field', '<input type="date" aria-label="Planted" style="font-family:Papyrus,fantasy">'],
+    ];
+    for (const [name, html] of pages) {
+      const { receipt } = await fit({ files, html: inBody(html), browser });
+      expect(measure(receipt, 'typefaces').items.join('\n'), name).toContain('Papyrus');
+    }
+  }, 400_000);
+
+  it('does not take the text of a style sheet or of a list of suggestions, a label in another tree, or a label of a second element with the same id as the name of a field (finding F-106)', async () => {
+    const unnamed: [string, string][] = [
+      ['aria-labelledby that points at a style sheet', '<span id="n1"><style>.zz{}</style></span><input type="text" maxlength="9" aria-labelledby="n1">'],
+      ['a label that holds only a list of suggestions', '<label for="q1"><datalist><option>Planted name</option></datalist></label><input id="q1" type="text" maxlength="9">'],
+      ['a label inside the shadow root of another element', '<div><template shadowrootmode="open"><label for="q2">Planted name</label></template></div><input id="q2" type="text" maxlength="9">'],
+      ['a second field with the id of the first', '<label for="q3">Planted name</label><input id="q3" type="text" maxlength="9"><input id="q3" type="text" maxlength="9">'],
+    ];
+    for (const [name, html] of unnamed) {
+      const { receipt } = await fit({ files, html: inBody(html), browser });
+      expect(measure(receipt, 'floors').items.join('\n'), name).toMatch(/^A3: 1 form field has no label/m);
+    }
+    const named = await fit({ files, html: inBody('<span id="n2">Planted name</span><input type="text" maxlength="9" aria-labelledby="n2">'), browser });
+    expect(measure(named.receipt, 'floors').items.join('\n')).not.toMatch(/^A3:/m);
+  }, 400_000);
+
+  it('states the SHA-256 of each file as its bytes stand on the disk, says which earlier receipt it compared with, and words its messages for the caller: the usage line, a file given as the Vision folder, a browser that does not start, a pipe under a font’s name (findings F-71, F-72, F-76, F-88, F-104, F-105, F-115)', () => {
+    const folder = mkdtempSync(join(tmpdir(), 'fit-audit-round-'));
+    for (const [name, text] of Object.entries(files)) writeFileSync(join(folder, name), text);
+    writeFileSync(join(folder, 'build.html'), reference);
+    // Bytes that are no valid UTF-8 text: read as text they change, so a hash of the text is not the hash of the file.
+    writeFileSync(join(folder, 'VISION.md'), Buffer.concat([readFileSync(join(folder, 'VISION.md')), Buffer.from('\n<!-- \xff\xfe -->\n', 'latin1')]));
+    const cli = join(process.cwd(), 'plugin/fit/src/cli.ts');
+    const lookCli = join(process.cwd(), 'plugin/fit/src/look-cli.ts');
+    const sha = (path: string): string => createHash('sha256').update(readFileSync(path)).digest('hex');
+    const out = join(folder, 'out');
+    expect(spawnSync(process.execPath, [cli, join(folder, 'build.html'), folder, out], { encoding: 'utf8', env: process.env }).status).not.toBe(2);
+    const receipt = JSON.parse(readFileSync(join(out, 'receipt.json'), 'utf8')) as Receipt;
+    for (const file of receipt.vision.files) {
+      expect(file.sha256, file.name).toBe(sha(join(folder, file.name)));
+      expect(file.bytes, file.name).toBe(readFileSync(join(folder, file.name)).byteLength);
+    }
+    expect(receipt.build.sha256).toBe(sha(join(folder, 'build.html')));
+    // An earlier receipt that names no Vision file gives nothing to compare with, and the receipt says so.
+    const bare = join(folder, 'bare');
+    mkdirSync(bare);
+    writeFileSync(join(bare, 'receipt.json'), '{"status":1,"repairRound":0}');
+    spawnSync(process.execPath, [cli, '--round', '1', join(folder, 'build.html'), folder, bare], { encoding: 'utf8', env: process.env });
+    expect(readFileSync(join(bare, 'RECEIPT.md'), 'utf8')).toContain('The program was given no earlier receipt that names the Vision files');
+    // A second check with no round, then round 2: the receipt names the round of the receipt that it compared with.
+    spawnSync(process.execPath, [cli, '--round', '2', join(folder, 'build.html'), folder, out], { encoding: 'utf8', env: process.env });
+    expect(readFileSync(join(out, 'RECEIPT.md'), 'utf8')).toContain('Since the earlier receipt that the program was given (it states a first check), none of the Vision files');
+    // The usage line names the program by a path that works from where the caller stands, and the folder by its one name.
+    for (const program of ['cli.ts', 'look-cli.ts']) {
+      const usage = spawnSync(process.execPath, [join('fit/src', program)], { encoding: 'utf8', env: process.env, cwd: join(process.cwd(), 'plugin') });
+      expect(usage.status, program).toBe(2);
+      expect(usage.stderr, program).toContain(`Usage: node fit/src/${program} `);
+      expect(usage.stderr, program).toContain('<build.html> <Vision folder> <result folder>');
+      // The archive in place of the folder.
+      const archive = spawnSync(process.execPath, [join(process.cwd(), 'plugin/fit/src', program), join(folder, 'build.html'), join(folder, 'tokens.json'), join(folder, `arch-${program}`)], { encoding: 'utf8', env: process.env });
+      expect(archive.status, program).toBe(2);
+      expect(archive.stderr, program).toMatch(/is a file, not a folder: .*unpack it first and give the folder\./);
+      // A browser that is there and does not start is not "no browser": the line quotes the browser's own words.
+      const chrome = join(folder, 'chrome');
+      writeFileSync(chrome, '#!/bin/sh\necho "error while loading shared libraries: libplanted.so" >&2\nexit 127\n', { mode: 0o755 });
+      const dead = spawnSync(process.execPath, [join(process.cwd(), 'plugin/fit/src', program), join(folder, 'build.html'), folder, join(folder, `dead-${program}`)], { encoding: 'utf8', env: { ...process.env, PW_CHROMIUM: chrome } });
+      expect(dead.status, program).toBe(2);
+      expect(dead.stderr.trim().split('\n'), program).toHaveLength(1);
+      expect(dead.stderr, program).toContain('the browser did not start');
+      expect(dead.stderr, program).toContain('libplanted.so');
+      expect(dead.stderr, program).not.toContain('found no browser');
+    }
+    // A pipe under the name of a font file: the look leaves it alone and ends.
+    const font = /[\w-]+\.woff2/.exec(files['FONTS.md'] ?? '')?.[0] ?? '';
+    expect(font).not.toBe('');
+    mkdirSync(join(folder, 'fonts'));
+    expect(spawnSync('mkfifo', [join(folder, 'fonts', font)]).status).toBe(0);
+    const piped = spawnSync(process.execPath, [lookCli, '--fonts', join(folder, 'fonts'), join(folder, 'build.html'), folder, join(folder, 'look-out')], { encoding: 'utf8', env: process.env, timeout: 120_000 });
+    expect(piped.error).toBeUndefined();
+    expect(piped.status).toBe(0);
+  }, 400_000);
+
+  it('counts two texts with the same words as two texts, and says under each measure what left the page unread, also where the measure has nothing to check (findings F-73 and F-75)', async () => {
+    const faint = await fit({ files, html: inBody(`<div style="background:#123456">${'<p style="color:#16385a">Same faint words</p>'.repeat(3)}</div>`), browser });
+    expect(measure(faint.receipt, 'contrast').texts?.below).toBe(3);
+    // A Vision that writes no Floor: the Floors measure has nothing to check, and a closed shadow root still left the page unread.
+    const vision = files['VISION.md'] ?? '';
+    const noFloors = { ...files, 'VISION.md': vision.slice(0, vision.indexOf('## 7. Floors')) };
+    const closed = await fit({ files: noFloors, html: inBody('<section><template shadowrootmode="closed"><p>Another design</p></template></section>'), browser });
+    expect(measure(closed.receipt, 'floors').nothingToCheck).toBe(true);
+    expect(closed.markdown).toContain('Nothing to check. 1 cause left the page, or a part of it, unread (see “What the program could not read” below).');
+    expect(closed.markdown).toContain('### What the program could not read');
+    expect(closed.markdown).not.toMatch(/readings? of the page failed/);
+    expect(closed.markdown).toMatch(/, and 1 cause left the page, or a part of it, unread/);
+  }, 240_000);
 });

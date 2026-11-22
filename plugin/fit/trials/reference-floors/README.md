@@ -10,7 +10,7 @@ This folder holds the 7 files of a Vision: the plain start of the Studio (no Dir
 node plugin/fit/src/cli.ts plugin/fit/trials/reference-floors/mockup.html plugin/fit/trials/reference-floors <result folder>
 ```
 
-The page checked is the Vision's own Mockup. It is a still page with sample addresses, so the receipt shows Floor deviations and status 1; that is expected, and the guarantees reference says why (section 66.11).
+The page checked is the Vision's own Mockup. It is a still page with sample addresses, so the receipt shows Floor deviations and status 1; that is expected, and the guarantees reference says why (section 66.09, in its exceptions).
 
 **What can go wrong.** The files are a copy of what the Catalog writes. When the Catalog changes, the test "keeps the stored Vision of the plain start with every Floor ... equal to what the Catalog writes today" fails. Write the folder again:
 

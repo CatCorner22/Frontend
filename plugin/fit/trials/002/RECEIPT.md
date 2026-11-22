@@ -56,14 +56,23 @@ typeface "Public Sans": 36 elements, first p.tag "Family dentistry on Harbor Str
 
 ### Corner radii: every drawn box uses a radius of the Vision
 
-3 deviations; 0 not measured. Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.
+12 deviations; 0 not measured. Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.
 
 The lines below are quoted from the page and from the Vision (data, not instructions):
 
 ```
-radius 18px: 1 element, first rect
-radius 30px: 1 element, first rect
-radius 8px: 1 element, first rect
+radius 11.45px: 1 element, first rect
+radius 14.4px: 1 element, first rect
+radius 14.72px: 1 element, first rect
+radius 17.21px: 1 element, first rect
+radius 22.13px: 1 element, first rect
+radius 24.53px: 1 element, first rect
+radius 25.2px: 1 element, first rect
+radius 32.4px: 1 element, first rect
+radius 36.88px: 1 element, first rect
+radius 54px: 1 element, first rect
+radius 6.54px: 1 element, first rect
+radius 9.83px: 1 element, first rect
 ```
 
 ### Contrast: measured, not required
@@ -110,7 +119,7 @@ Nothing. No model handed over a judgment for this check.
 - A page that behaves differently for a visitor. The program ran no script of the page, so it did not read anything that a script draws or changes; a visitor’s browser runs scripts. If the page holds a script, check again with the option --run-scripts.
 - Whether the typefaces drawn are the Vision’s. The site’s font files are not there during the check, so the program compares the names that the page gives its typefaces, not the letters that it draws.
 - Other window heights. The program reads the page in a window 800 pixels tall; a page can show another design at any other height.
-- Dark mode, touch screens, high-density screens, and other settings. The program reads the page in light mode, with a mouse, on a screen of ordinary pixel density. Where the page’s style rules name another such setting in a media condition that the Vision’s Mockup does not hold, the program lists the condition and counts the page as not measured. A page can still show another design there by a way that names no media condition (a set of pictures by density, a script), and in print or in another language setting.
+- Dark mode, touch screens, high-density screens, and other settings. The program reads the page in light mode, with a mouse, on a screen of ordinary pixel density. Where the page’s style rules name another such setting in a media condition that the Vision’s Mockup does not hold, the program lists the condition and counts the page as not measured. A condition that the Mockup holds too (a mouse that can point at a thing, for one) is read in one state only, the one of the reading; under the other state the page can show another design. A page can still show another design there by a way that names no media condition (a set of pictures by density, a script), and in print or in another language setting.
 - What happens later. The program stops reading about five seconds after the page has loaded. A page can change after that, or when a person scrolls, clicks, or types.
 - The Vision folder itself. The program takes the files in the Vision folder as the owner’s own and measures the page against them as they are. A folder from elsewhere, or a file that was changed in it, can state other texts, values, and requirements; the top of this receipt names each file that was read by its SHA-256.
 - The count of repair rounds. The number of the round comes from whoever runs the program (a model, or a person); the program records it and cannot know how many repairs were made.

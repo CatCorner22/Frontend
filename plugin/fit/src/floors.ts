@@ -90,7 +90,7 @@ export function collectFloorFacts(): FloorFacts {
   const labelWords = (l: Element): boolean => {
     const walker = document.createTreeWalker(l, NodeFilter.SHOW_TEXT);
     let text = '';
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) if (node.parentElement?.closest('input, select, textarea, script, style, template') === null) text += node.textContent ?? '';
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) if (node.parentElement?.closest('input, select, textarea, datalist, script, style, template') === null) text += node.textContent ?? '';
     if (visible(text) !== '') return true;
     return [...l.querySelectorAll('img[alt], svg[aria-label]')].some((inner) => visible(attr(inner, 'alt')) !== '' || visible(attr(inner, 'aria-label')) !== '');
   };
@@ -98,9 +98,14 @@ export function collectFloorFacts(): FloorFacts {
     if (visible(attr(f, 'aria-label')) !== '') return true;
     const around = f.closest('label');
     if (around !== null && labelWords(around)) return true;
-    if (attr(f, 'aria-labelledby').split(/\s+/).some((id) => id !== '' && visible(document.getElementById(id)?.textContent ?? '') !== '')) return true;
+    // A browser ties a name to a field only inside the field's own tree (the page, or one shadow root), only by words (the text of a
+    // style sheet or of a list of suggestions is none), and ties a label to the first element that holds the id (audit round of
+    // 2026-11-22, finding F-106).
+    const scope = f.getRootNode();
+    const tree = scope instanceof Document || scope instanceof ShadowRoot ? scope : document;
+    if (attr(f, 'aria-labelledby').split(/\s+/).some((id) => { const named = id === '' ? null : tree.getElementById(id); return named !== null && labelWords(named); })) return true;
     const id = attr(f, 'id');
-    return id !== '' && all('label[for]').some((l) => attr(l, 'for') === id && labelWords(l));
+    return id !== '' && tree.getElementById(id) === f && [...tree.querySelectorAll('label[for]')].some((l) => attr(l, 'for') === id && labelWords(l));
   };
 
   // Only an element that is drawn can take the focus: a skip link with `display: none` is no skip link.
