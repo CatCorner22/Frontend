@@ -106,6 +106,14 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 19: every receipt states 4 limits that the owner accepted as stated limits
+- Feature worked on (ID): none in the list. A finding of the run's last check of the plan (grade blocker, F-54 in `hinshitsu/AUDIT-LOG.md`): the owner agreed that some gaps "stay as limits that every receipt states", and for 4 of them the receipt said nothing. They stood in the guide, in the guarantees reference, or in a finding's row.
+- Now: "Still needs a person" in every receipt holds 4 more sentences: the Vision folder is taken as the owner's own (finding G-S11); whoever runs the program counts the repair rounds (G-S10); the place of a covering box that a style rule draws is an approximation (R-S04); a blend mode on such a box is not read (R-S04, R-S06).
+- Test (written first; it failed because the sentences were missing): "states in every receipt the limits that the owner accepted as stated limits ..." in `plugin/fit/e2e/exit.e2e.ts`.
+- The number 19: the plan held 18 commits when this finding came; this repair was added as the 19th and is made after commit 13, because both change the receipt's words.
+- The 3 stored trial receipts are written again by the program: 4 more lines each.
+- Evidence: `hinshitsu/evidence/commit-19-checks.txt`.
+
 ### 2026-11-21: repair run, commit 13: the receipt's counts carry their unit, and "nothing to check" gives no count (finding R-U03; criterion C4 of the run)
 - Feature worked on (ID): none in the list. The third point of finding R-U03 (grade major) and 2 findings of the plan's language audit.
 - Before: the summary line said "3 text readings below the usual contrast" and the receipt "3 below the usual least"; one clause of the line counted texts, the other readings. Under Floors the receipt said "0 deviations; 0 not measured" where it had checked nothing, and "1 not measured" for 48 requirements of an edition that it does not read.

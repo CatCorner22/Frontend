@@ -496,6 +496,19 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(measure(square.receipt, 'radii').deviations).toBe(0);
   }, 300_000);
 
+  it('states in every receipt the limits that the owner accepted as stated limits: the Vision folder is trusted, the caller counts the repair rounds, the place of a drawn covering box is an approximation, and a blend mode on such a box is not read (findings G-S11, G-S10, R-S04, R-S06; finding F-54 of the repair run)', async () => {
+    const lenient = { ...writeVision({ ...strict(), a11y: 'advise' }) };
+    for (const receipt of [(await fit({ files, html: reference, browser })).receipt, (await fit({ files: lenient, html: built(lenient['mockup.html'] ?? ''), browser, repairRound: 2 })).receipt]) {
+      const text = receiptMarkdown(receipt);
+      const needs = text.slice(text.indexOf('## Still needs a person'));
+      expect(needs).toMatch(/- The Vision folder itself\. The program takes the files in the Vision folder as the owner’s own/);
+      expect(needs).toMatch(/- The count of repair rounds\. The number of the round comes from whoever runs the program/);
+      expect(needs).toMatch(/- Where a covering box lies\. The program works out the place of a box that a style rule draws from its style values, an approximation/);
+      expect(needs).toMatch(/- A blend mode on a box that a style rule draws\. The program does not read it/);
+      expect(receipt.stillNeedsPerson.length).toBe(needs.split('\n').filter((line) => line.startsWith('- ')).length);
+    }
+  }, 240_000);
+
   it.each([
     ['a faint headline', (page: string) => once(page, '<h1', '<h1 style="opacity:0.2"')],
     ['a box that covers the whole page', (page: string) => once(page, '</body>', '<div style="position:fixed;inset:0;background:#ffffff;z-index:99999"></div></body>')],

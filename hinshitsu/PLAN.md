@@ -30,14 +30,15 @@ All commits go to the branch `claude/festive-mendel-lfnahh`. For each commit: wr
 | 16 | The deliverable test: the fragment inside `local-test.html` equals `refraction-studio.html` | C3 | `apps/studio/e2e/deliverable.e2e.ts` | the new test |
 | 17 | The fifth case of C4: the stored folder `plugin/fit/trials/reference-floors/` and its freshness test | C4 | `plugin/fit/trials/reference-floors/`; `plugin/fit/e2e/exit.e2e.ts` | the test of C4, for all 5 cases; the freshness test |
 | 18 | The rows and records: each of the 54 rows gets its state, its reason and who must act; the stale sentences of `PROGRESS.md` (R-T06) and the reversed statements of trial 003's record (G-U07), with their 2 rows in this same commit; "Known gaps" with the list of rows that wait for the owner; the guarantees reference; 2 banned words leave the row R-S08 and a comment in `look.ts` (F-28) | C1, C6 | `redteam/FINDINGS.md`, `PROGRESS.md`, `SPEC.md`, `docs/reference/guarantees.md`, `plugin/fit/trials/003/RECORD.md`, `plugin/fit/src/look.ts` | the readers that C1 names; the command of C6 |
+| 19 | Added after the last check of the wording (FINDING F-54; decision D-8 in E-164), made after commit 13: every receipt states the 4 limits that the USER accepted as stated limits and that no receipt held (the Vision folder is taken as the owner's own; whoever runs the program counts the repair rounds; the place of a drawn covering box is an approximation; a blend mode on such a box is not read) | G-S11, G-S10, R-S04, R-S06 (the kept part of each) | `plugin/fit/src/receipt.ts`; the stored receipts; `plugin/fit/e2e/exit.e2e.ts` | 1 test asserts the 4 sentences in 2 receipts |
 
 ## WORK UNITS
 
-WU-1 is commits 1 to 18, with 1 audit round over the finished set (the USER's answer 3 in E-67; decision D-6 in E-70).
+WU-1 is commits 1 to 19, with 1 audit round over the finished set (the USER's answer 3 in E-67; decision D-6 in E-70).
 
 ## What the audit round checks
 
-Roles 1 to 7 of the audit skill on the final commit; a seeder plants 1 defect in a copy of each program changed (`collect.ts`, `fit.ts`, `receipt.ts`, `look.ts`); then the Vision as its RECIPIENT gets it, and 3 repeated runs for stability; the RED CELL before delivery; the final AUDITOR.
+Roles 1 to 7 of the audit skill on the final commit; a seeder plants 1 defect in a copy of each of the 8 programs changed (`collect.ts`, `fit.ts`, `floors.ts`, `receipt.ts`, `vision.ts` or `cli.ts` where a commit changed it, `look.ts`, `look-cli.ts`; FINDING F-62); then the Vision as its RECIPIENT gets it, and 3 repeated runs for stability; the RED CELL before delivery; the final AUDITOR.
 
 ## Not in the plan
 

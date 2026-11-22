@@ -1786,3 +1786,10 @@ Commit 13 of `PLAN.md`: `Measure` (3 optional fields), `headOf` and `readingsOf`
 - forward: `RECEIPT.md` and the program's one line change their words; `receipt.json` gains optional fields and keeps every count. `plugin/commands/fit-check.md` and `fit-repair.md` quote the one line in general words; commit 14 brings them and the guide to the new words. The stored receipts are written again by the program.
 - backward: the test of finding G-U01 keeps its assertions (`floors.notMeasured` 1, `status` 1): the count stays in `receipt.json`. `SPEC.md`: a text whose contrast cannot be read never changes the status: unchanged.
 - lateral: commit 12 changed trial 002's receipt and record (3 more deviations); this commit writes the receipts again on top. A fault found beside this commit and recorded here: commit 12's first snapshot left out trial 002's stored receipt and the row of its record's table; the snapshot was taken again with both before its checks ran.
+
+### E-180 · 2026-11-21T22:24:06Z · TRACE · orchestrator
+
+Commit 19 of `PLAN.md` (added by D-8, E-164): 4 sentences in `STILL_NEEDS_A_PERSON` of `receipt.ts` (FINDING F-54).
+- forward: every receipt gains 4 lines; the stored receipts are written again by the program. `fit.e2e.ts` asserts at least 6 such lines; more is allowed.
+- backward: the USER's answers 6 (E-67) and question 2, item 1 (E-112): "limits that every receipt states" is now true for these 4.
+- lateral: commits 4 and 5 changed 3 other sentences of the same list; commit 13 changed the head sentences.
