@@ -3930,3 +3930,268 @@ The full new text of each changed CRITERION:
 - Commit under review: 18272ef (the DELIVERABLE at 93526c5, commit 24)
 - SUB-AGENT identifier: aaecb7f1068513c85 — not openable by the USER
 - Report: `audits/final-audit.md`
+
+### E-420 · 2026-11-22T17:41:21Z · CORRECTION · orchestrator
+
+Corrects the field `Report` of 5 LAUNCH entries, which names a path that does not exist (the final AUDITOR's new finding 10). The saved files: E-290: `audits/WU-1-reaudit-code-E-290.md`; E-291: `audits/WU-1-reaudit-records-E-291.md`; E-372: `audits/S8-recipient-stability-E-372.md`; E-373: `audits/redcell-delivery-E-373.md`; E-286 and E-287: `memos/lens-recipient-experience-WU-1.md` and `memos/lens-structural-integrity-WU-1.md` (as named). E-419: `audits/final-audit.md` (as named).
+
+### E-421 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: `hinshitsu/DELIVERY-REPORT.md`, `Status`, part (2).
+- Trigger: my script over the log and the list between the marks: open BLOCKERS are F-162, F-170, F-171, F-172, F-173, F-188; F-152 is closed by E-400.
+- Violates: glossary, BLOCKER (d) (a false statement in the `Status`); the report's own citation.
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 1
+- Lens: trust and controls
+- Stop: the delivery report is corrected before it is sent
+- ID: F-192
+
+### E-422 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: `DELIVERY-REPORT.md`, `Summary`, "What you got"; also "re-ran every earlier finding".
+- Trigger: `git show --name-only 52d1e73` holds no test file; commits `bafb507` and `8c03b63` hold a test and no repair; the 24 evidence files hold pass lines only; E-290 and E-291 re-ran 28 and 37 FINDINGS.
+- Violates: glossary, BLOCKER (d) and ASSERTED; `CLAUDE.md` hard rule 13.
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 2
+- Lens: trust and controls
+- Stop: the delivery report is corrected before it is sent
+- ID: F-193
+
+### E-423 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/fit/src/collect.ts` lines 492 and 693 to 694; `plugin/fit/e2e/exit.e2e.ts` lines 1122 to 1123; `redteam/FINDINGS.md` row RC-05; `PROGRESS.md` line 113.
+- Trigger: pages `q02-br`, `q03-blockspan`, `o6` above.
+- Violates: the Content measure's own sentence; `CLAUDE.md` hard rule 13 (the row and the build log state a repair that 2 of the 3 named pages do not show); the open F-178.
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 3
+- Lens: trust and controls
+- ID: F-194
+
+### E-424 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `collect.ts` line 232 (the limit of 24 pixels is taken from the drawn rectangle).
+- Trigger: page `o3b`.
+- Violates: row RC-05 ("a small icon gave a corner deviation … Repaired") for icons above 24 pixels; the rest of F-179.
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 4
+- Lens: trust and controls
+- ID: F-195
+
+### E-425 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/fit/src/cli.ts` line 180; `fit.ts` line 566 ("a text that the Mockup shows readably"); the same narrower wording in `plugin/README.md` line 58, `fit-check.md` lines 13 and 16, `fit-build.md` line 18, `guarantees.md` §66.12, and in C4 (E-418), which names no case for a text that the Mockup does not hold.
+- Trigger: page `n1`.
+- Violates: C4's clause "no sentence of the receipt says that the program did something it did not do", outside its 5 cases; C6 for the guide and the reference.
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 5
+- Lens: trust and controls
+- ID: F-196
+
+### E-426 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: line 9: '("repair run, commit 1" to "commit 23"; commits 20 to 23 are the repairs after the run's audit round…)'.
+- Trigger: `grep -n "repair run, commit 24" PROGRESS.md` → line 111.
+- Violates: C1, row R-T06, and C6 if the range counts as a count (the kind and the class of F-156).
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 6
+- Lens: trust and controls
+- ID: F-197
+
+### E-427 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: part 4 above.
+- Trigger: see the report, new finding 7
+- Violates: C6 for `guarantees.md` line 955; the form that C1 asks of G-U07 for `SPEC.md` point 18 (a mark at the first place).
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 7
+- Lens: trust and controls
+- ID: F-198
+
+### E-428 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: the table "Claims and citations": "59 closed as fixed" (57); "not yet logged as entries" (E-396 to E-399); "187 further findings" (191); "Every row … at least 1 unverified cell" (C1, C5, C9); "the final commit 93526c5"; RC-01 "still get No deviation" (status 1 where contrast is required).
+- Trigger: see the report, new finding 8
+- Violates: glossary, DEFECT (a false statement in the report outside `Summary` and `Status`).
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 8
+- Lens: trust and controls
+- ID: F-199
+
+### E-429 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: C5 as in E-418; `581e963`.
+- Trigger: C5 names 18 fixes "1 commit each" and commits 20 to 24; `git log` holds 24 code commits.
+- Violates: C5 ("`git log` of the working branch from 859c643, read against the list of fixes above").
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 9
+- Lens: trust and controls
+- Stop: the delivery report is corrected before it is sent
+- ID: F-200
+
+### E-430 · 2026-11-22T17:41:21Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: E-290, E-291, E-372, E-373.
+- Trigger: the table "Missing paths".
+- Violates: glossary, EVIDENCE ("a file … that a third party can open").
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 10
+- Lens: trust and controls
+- ID: F-201
+
+### E-431 · 2026-11-22T17:41:22Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: lines 1 to 24 and line 192.
+- Trigger: part "Maps".
+- Violates: glossary, DEFECT (an out-of-date statement in a file of the RUN FOLDER); the file's own first sentence.
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 11
+- Lens: trust and controls
+- ID: F-202
+
+### E-432 · 2026-11-22T17:41:22Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `COVERAGE-LEDGER.md`, row "the stored trials", STAB.
+- Trigger: `git log -1 --format=%h -- plugin/fit/trials` → `4d3376c`, after E-372.
+- Violates: the ledger's rule 10.5 as its head states it.
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 12
+- Lens: trust and controls
+- ID: F-203
+
+### E-433 · 2026-11-22T17:41:22Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: `.github/workflows/ci.yml`, 45 minutes.
+- Trigger: on each of the 8 newest pushed commits at least 1 of the 2 `check` runs ended `cancelled` at the limit; on `6c9d8f8` both did.
+- Violates: see the report
+- Raised by: final AUDITOR, LAUNCH E-419, `audits/final-audit.md`, new finding 13
+- Lens: trust and controls
+- ID: F-204
+
+### E-434 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-170
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (row G-S05 cites E-293 and E-294).
+
+### E-435 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-188
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (S8 new finding 1).
+
+### E-436 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-189
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (S8 new finding 2).
+
+### E-437 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-190
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (S8 new finding 3).
+
+### E-438 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-191
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (S8 new finding 4).
+
+### E-439 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-161
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (F-161).
+
+### E-440 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-174
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (page q13c-allop).
+
+### E-441 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-175
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (pages p03-scale and p04-zoom).
+
+### E-442 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-180
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (page q07-canon).
+
+### E-443 · 2026-11-22T17:41:22Z · RESOLUTION · orchestrator
+
+- Finding: F-181
+- Result: FIXED
+
+Repaired in commits 23 and 24. The final AUDITOR, a new SUB-AGENT, re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/final-audit.md`, part "The repairs of commits 23 and 24 re-run" (page r01-reorder).
+
+### E-444 · 2026-11-22T17:41:22Z · STAGE · orchestrator
+
+- Stage: S10
+- Event: end
+- Artifacts: `audits/final-audit.md` (duty 1: (c) and (g) passed, (f) passed for N/A; (a), (b), (d), (e), (h) failed or failed in part; 13 new findings, logged after this run's CORRECTION entry); the delivery report is corrected from it before it is sent
+
+### E-445 · 2026-11-22T17:41:22Z · STAGE · orchestrator
+
+- Stage: S11
+- Event: start
+- Skills read: `hinshitsu-delivery/SKILL.md`, as in the start entry of S10
+- Note: no language auditor reads the corrected report: the plan of 30 SUB-AGENT runs has 2 left, and the USER set the end of the run in E-377; the report says so under Status
+
+### E-446 · 2026-11-22T17:43:02Z · STAGE · orchestrator
+
+- Stage: S11
+- Event: end
+- Artifacts: `DELIVERY-REPORT.md`, second text (it corrects the first from `audits/final-audit.md`, new findings 1, 2 and 8); commit 25 of the project (records only)
+
+### E-447 · 2026-11-22T17:43:02Z · STAGE · orchestrator
+
+- Stage: S12
+- Event: start
+- Skills read: `hinshitsu-delivery/SKILL.md`, as in the start entry of S10
+
+### E-448 · 2026-11-22T17:43:02Z · LESSON · orchestrator
+
+1 review round over 19 commits (E-70), then 4 repair rounds, each of which a later check showed to hold new faults (E-290, E-373, E-419). Proposed change: review each group of at most 5 commits, and re-check each repair round before the next begins. Not applied; the USER decides.
+
+### E-449 · 2026-11-22T17:43:03Z · LESSON · orchestrator
+
+The ORCHESTRATOR's own error: it wrote the count "two remarks" into the guide from a report and ran no command; a run showed four (F-152). Proposed change: a count enters a record only from a command run in the same step. Not applied; the USER decides.
+
+### E-450 · 2026-11-22T17:43:03Z · LESSON · orchestrator
+
+The ORCHESTRATOR's own error: the first text of the delivery report held 2 false statements in `Summary` and `Status` (F-192, F-193). Proposed change: each sentence of the `Summary` is written from a command's output, and the report is drafted after the last log entry. Not applied; the USER decides.
+
+### E-451 · 2026-11-22T17:43:03Z · LESSON · orchestrator
+
+The ORCHESTRATOR's own error: it called the repair of a false alarm done on a test with an easier page than the reporter's (row RC-05; `audits/final-audit.md`, new finding 3). Proposed change: a repair's test uses the reporter's exact page. Not applied; the USER decides.
+
+### E-452 · 2026-11-22T17:43:03Z · LESSON · orchestrator
+
+The rows of the coverage ledger were written after the swarm, against rule 10.1. Proposed change: the start entry of S7 lists the ledger's rows. Not applied; the USER decides.
+
+### E-453 · 2026-11-22T17:43:03Z · STAGE · orchestrator
+
+- Stage: S12
+- Event: end
+- Artifacts: 5 LESSON entries; `DELIVERY-REPORT.md`, part LESSONS (6 lessons; the sixth concerns the product and is the USER's decision)
+
+### E-454 · 2026-11-22T17:43:03Z · DELIVERY · orchestrator
+
+- Status: DELIVERED — NOT DONE
+- Channel: the session's chat, with the files `hinshitsu/DELIVERY-REPORT.md` and `apps/studio/dist/artifact/local-test.html`
+
+The report's `Status` names the 6 parts of DONE that are not met. 70 FINDINGS are open. The run pushed to `claude/festive-mendel-lfnahh` only; pull request 24 stays a draft; the main line is untouched.
