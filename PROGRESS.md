@@ -108,6 +108,11 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-22: GitHub's long check gets 75 minutes in place of 45 (the owner asked to clear what blocks pull request 24)
+- Pull request 24 has no merge conflict with the main line (`git merge-tree` of the 2 heads writes a tree with no conflict). What blocked it: on the newest commit both runs of GitHub's check "check" were stopped at their 45-minute limit before the browser tests ended (the run's finding F-183; the job took 41 to 42 minutes on the commits before).
+- `.github/workflows/ci.yml`: `timeout-minutes: 75`. No test and no step changed. Rows A1-09 and T6-01 of `redteam/FINDINGS.md` (split the long job) stay open for the next run.
+- Not verified at the time of this entry: that the check ends green on this commit; GitHub runs it after the push.
+
 ### 2026-11-22: repair run, commit 25: records only, after the final reviewer
 - Feature worked on (ID): none in the list. The run's final reviewer (`hinshitsu/audits/final-audit.md`) re-ran the saved commands (all equal), rebuilt the page at 2 commits (the checksums equal the saved ones: the built page differs from a build of the published version), and re-ran the repairs of commits 23 and 24.
 - It showed that 1 repair of commit 24 is half done: a line break or a line box directly before a marked word of the headline still gives "headline missing", and an icon's rounded square drawn at more than 24 pixels still gives a corner deviation. No code changes here: row RC-05 of `redteam/FINDINGS.md` and the entry of commit 24 now say "repaired in part" and name the rest; row RC-01 says what commit 24 changed for it.

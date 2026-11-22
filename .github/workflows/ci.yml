@@ -14,7 +14,9 @@ jobs:
     # The browser tests grew with every feature: on 2026-11-16 this job took 19 to 24 minutes on GitHub (run 164: 24 minutes
     # 4 seconds, 56 seconds below the old limit of 25; audit finding A1-09). A run that stops at the limit is a red run, and
     # no milestone closes on a red run (hard rule 3). The limit leaves room to grow; a run that hangs still ends.
-    timeout-minutes: 45
+    # On 2026-11-22 the job took 41 to 42 minutes after the repair run added browser tests, and on the newest commit both
+    # runs stopped at the old limit of 45 minutes (the run's finding F-183). The limit is 75 minutes since then; no test changed.
+    timeout-minutes: 75
     steps:
       # Actions are pinned by commit hash so that a moved tag cannot change what runs.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
