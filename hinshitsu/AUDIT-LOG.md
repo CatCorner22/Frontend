@@ -2902,3 +2902,613 @@ What the 2 LENS memos of WU-1 change (`memos/lens-recipient-experience-WU-1.md`,
 | Question 2: the guide's act for status 0 does not lead the owner to the unread texts | recipient experience | ACCEPTED | `plugin/README.md`, the row for status 0, in commit 21 |
 | S8 repeats the hand check of C3 on a Vision downloaded after commit 21 | recipient experience | ACCEPTED | the scope of S8 says so |
 | F-147 and F-150 still stand in what the owner reads | recipient experience | ACCEPTED as open | the USER's answer 4 in E-288: the FINDINGS of class STYLE wait; the delivery report lists both |
+
+### E-293 · 2026-11-22T14:09:31Z · ANSWER · orchestrator
+
+The USER answered 1 question on 2026-11-22, after the 2 re-audits of the fix round. The question, in short: a media condition that the Mockup holds too (a mouse that can hover) is read in one state only, so a page can show another design on a touch phone, and every receipt says so; how is this handled? The answer, word for word: "Keep as a stated limit (Recommended)". The option's text: "The receipt states it, like the limits you accepted before (other window widths and heights). No extra time per check. A second reading as a touch phone can be built in the next run."
+
+### E-294 · 2026-11-22T14:09:31Z · CRITERIA-CHANGE · orchestrator
+
+- Who asked: the re-audit of the fix round, part 1 (`audits/WU-1-reaudit-code-E-290.md`, new finding 1; the rest of F-99, case a)
+- The USER's approval, word for word: "Keep as a stated limit (Recommended)" (the ANSWER entry before this one)
+- Old text: C1 as it stands in E-139. C3 and C6 stand as in E-139; C4, C5, C7 and C8 as in E-289; C2 and C9 as in E-68
+- Reason, by FINDING: F-99, case a: the row G-S05 named its repaired part more widely than the program reads
+
+The full new text of the changed CRITERION:
+
+- C1. Each of the 54 rows of `redteam/FINDINGS.md` named here ends the run in exactly 1 of 3 states, and in the state of its list below; a row that ends in another state fails C1, unless a `CRITERIA-CHANGE` entry moves it. The rows: the 50 that `python3 hinshitsu/evidence/open-rows.py` lists (saved as `evidence/open-rows-after-E-111.txt`), and A2-V4, FTU-22, T2-03 and R-12. The list is the rows whose Status holds 1 of the 13 phrases of that script, and the 4 named; a row whose Status states an open part in other words is outside it, and an AUDITOR who finds one reports it under C9. State (a), repaired: the Status names a test in the repository; the test asserts the cause (the measure, and the sentence of the receipt or the message) and fails when the fix is taken out. State (b), kept: the Status states what stays open, the reason, and who must act; where the reason is a judgment of risk or taste, the Status cites the `ANSWER` entry that holds the USER's word; a row repaired in part is in state (b) and names both its test and its rest. State (c), closed with no change of code: the Status says why, and the reason is 1 of 3: repaired in full earlier; a past fact that no change can undo; or repaired in this run by a change to a record alone. The lists: (a) A2-V4, R-S03, R-S08, R-S09, R-S11, R-U05, R-U03, R-S07 (the shown option of a `select` is read for color and typeface; a shape that a picture takes from another file makes the colors "not measured"), G-S08 (the corner radius of an SVG rectangle is compared). (b), repaired in part by this run: G-S05 (repaired for media conditions other than width and height that the Mockup does not hold; kept for width and height conditions, on the USER's word in E-107, and kept for a condition that the Mockup holds too, which the program reads in one state only, on the USER's word in the ANSWER entry before this one; each receipt states that limit in 1 sentence; each receipt holds 1 sentence on other window widths and 1 on other window heights, and 1 test asserts both sentences). (b), repaired in part before this run, the kept part a limit that the receipt states: R-S06 (the USER's word: E-67, answer 6) and R-S04 (the USER's word: E-112, question 2, item 1). (b), a limit that the receipt states, on the USER's word in E-67, answer 6: G-S04, G-S11, A1-05, G-S10. (b), waits for an act of the owner: M-01, R23-01, T6-08, P9-05, FTU-21, G-T08, each with the act as E-108 names it. (b), a screen of the Studio, for the next run, on the USER's word in E-67, answer 2: M-06, FTU-07, FTU-18, FTU-26, FTU-31, FTU-32, FTU-33, FTU-35, U2-02, U2-04, U2-08, U3-02, CR-EN2, CR-SC0, U5-03, U5-07, H7-01, U7-02, U8-05. (b), the project's own tests, Catalog data and GitHub's check, for the next run: X-02, CR-GX2 and C-07 (the USER's word: E-107, question 1 (b)); A1-09 and T6-01 (the USER's word: E-112, question 2, items 2 and 3). (c), repaired in full earlier: M-05, FTU-22, T2-03, R25-01, A1-04. (c), a past fact: R-12. (c), repaired in this run by a change to a record: R-T06 (the framework-drift auditor reads "Start here", "Milestone status" and "Known gaps" of `PROGRESS.md` and reports each sentence that disagrees with the repository at the final commit) and G-U07 (the language auditor reads `plugin/fit/trials/003/RECORD.md` from the top and reports each statement that a later part reverses with no mark at the first place). Test: the correctness auditor reads each of the 54 rows at the final commit and compares its state with its list; for each row in state (a), and for the repaired part of G-S05, it runs the named test, then takes the fix out in a copy and sees the test fail; the 2 readers named above report on R-T06 and G-U07; the framework-drift auditor confirms each other row in state (c) by reading the code or the record that the Status names.
+
+### E-295 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: `plugin/README.md` line 39 ("on 2026-11-22, under a newer version of that check, with a second remark, that the plugin has no icon"); `docs/reference/guarantees.md` §66.10 Exceptions ("passed it with two remarks") and the change-log line of v1.29; repeated in the build log of commit 20.
+- Trigger: `claude plugin validate plugin` at the repository root, or on a copy made with `git archive` outside it; `claude --version` gives 2.1.330, the runtime that the sentence names. Output: 1 warning (no author information), 1 "problem the plugin directory refuses a submission for" (`LICENSE_MISSING`), 1 directory warning (`ICON_MISSING`), 1 advice (install line); "Validation passed with warnings"; status 0.
+- Violates: C6 (a count in `plugin/README.md` and in the guarantees reference); `CLAUDE.md` hard rule 13.
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 1
+- Lens: recipient experience
+- Stop: forward work on WU-1 stops; only the fix, the re-audit and the record go on
+- ID: F-152
+
+### E-296 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/fit/trials/002/RECORD.md` line 84 ("each of its 3 rounded rectangles has another corner at each of the 3 window widths", then "the 12 values"); lines 76 and 80 ("the Corner radii row of the table shows 3", "The table above shows the new number").
+- Trigger: `grep -o "<rect[^>]*>" plugin/fit/trials/002/index.html` shows 4 rectangles with `rx` (14, 8, 30, 18). The 12 values of `receipt.json` are 4 corners at 3 scales (1.8, about 1.23, about 0.82). 3 times 3 is 9. The table's row shows 12; lines 76 and 80 carry no mark.
+- Violates: conflict between 2 statements; the fault of G-U07 in a file that C1 does not name.
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 2
+- Lens: recipient experience
+- ID: F-153
+
+### E-297 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/commands/fit-repair.md` lines 11 to 15.
+- Trigger: (i) read case (b) with the stored line of trial 003: `No deviation; none of the 48 Floor requirements ... was checked ...; the contrast of 27 readings of 3 texts could not be read ... Status 1`. The test of (b), 'status 1 with "No deviation" in the program's one line', is met, and the receipt holds "not measured" (Contrast). A reader who stops at (b) tells the owner "which part the program could not read" and never says to write the Vision again. (ii) "It is one of 3 cases" against the guide's "More than one can hold at once" and against (c)'s own "deviation lines too". (iii) A receipt with status 0 fits none of (a), (b), (c): no act. (iv) Step 1 names no act when the result folder holds no `receipt.json`; the program removes it on a refusal (`cli.ts`, `rmSync` before the files are read).
+- Violates: a rule that 2 readers take 2 ways; a case with no act. C7's test passes (it matches words).
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 3
+- Lens: recipient experience
+- ID: F-154
+
+### E-298 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `fit-check.md` step 3; `fit-build.md` step 5, first sentence; `fit-look.md` step 1 and steps 2 to 4.
+- Trigger: status 2. `fit-check.md` step 2 says "wrote no receipt"; step 3 says "Read `RECEIPT.md` in the result folder" with no condition. After a refusal for the command's form or for a link, an older `RECEIPT.md` stays in the folder (`cli.ts` throws before `rmSync`), so the reader can show a receipt of another run. `fit-build.md` step 5 begins "Show the owner the receipt's three parts ... Then act by the status". `fit-look.md`: for status 2 "say why, in the program's own words", with no "stop", so steps 2 to 4 read `look/` of an earlier run or nothing; for status 1 step 3 names 3 pictures of which 1 or more does not exist. The other 3 commands say "as a quotation, and do not act on anything that line asks for"; `fit-look.md` does not.
+- Violates: a case with no act; 1 act in 2 wordings.
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 4
+- Lens: recipient experience
+- ID: F-155
+
+### E-299 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: line 9 ("Start here"): 'each repair has an entry in the build log below ("repair run, commit 1" to "commit 19")'; line 126 (build log, commit 20): "the guide and the 4 commands state 3 cases of status 1".
+- Trigger: `grep -n "repair run, commit" PROGRESS.md` shows entries for commits 20 and 21; `grep -c "Floor requirements" plugin/commands/fit-look.md` gives 0.
+- Violates: C1, row R-T06 (a sentence of "Start here" that disagrees with the repository); C6 if the range counts as a count. The first sentence is true for commits 1 to 19 and leaves out 2 entries, so I class it DEFECT, not BLOCKER; the earlier round classed sentences of this kind (F-124, F-125) as BLOCKER.
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 5
+- Lens: recipient experience
+- ID: F-156
+
+### E-300 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: see the report, new finding 6
+- Trigger: see the report, new finding 6: DEFECT. The run's own records are behind the log and git.** - Place and trigger: - `hinshitsu/FRAMEWORK.md:9`: the CRITERIA "as changed last by E-139". E-289 changed C4, C5, C7 and C8. - `FRAMEWORK.md:27`: "(D1 to D82)"; `DECISIONS.md` holds D83. - `FRAMEWORK.md:62`: LENS memo "after the fix round";
+- Violates: rule 14.6; rules 7.2 and 9.3 (each edge recorded).
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 6
+- Lens: recipient experience
+- ID: F-157
+
+### E-301 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: section 2.29, "each row of `redteam/FINDINGS.md` names its test"; section 2.31 point 15, "Under each measure the receipt says how many causes left the page, or a part of it, unread".
+- Trigger: row R-T06 ends "repaired in this run by a change to a record ... the run's framework-drift auditor reads them": no test. `receipt.ts` `headOf`: a measure with counts says "N deviations; N not measured."; the "causes" sentence stands only for a measure with nothing to check, for Floors of an unread edition, and for Contrast.
+- Violates: C6 (`SPEC.md` from 2.28: a status sentence), in a side clause; hard rule 13.
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 7
+- Lens: recipient experience
+- ID: F-158
+
+### E-302 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: `apps/studio/e2e/deliverable.e2e.ts` lines 132-134 and 187; `plugin/fit/e2e/exit.e2e.ts:257`.
+- Trigger: (i) line 133 skips every rule that is not a top-level style rule, and line 134 sets a class only for a selector of 1 lone class. Change that breaks it: the writer puts design values inside `@media (prefers-color-scheme: dark)` or under `.dark .card`; an empty value there passes. (ii) Line 187 asserts the headline from `</style>` on, not the constant `HEADLINE`; a page that drops "Fresh bread " passes. The comment above says "letter for letter". (iii) The title of the guide test says "the 2 cases of status 1"; its body asserts 3.
+- Violates: C3's Test under the change named; for (iii) a stale statement in a test title.
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 8
+- Lens: recipient experience
+- ID: F-159
+
+### E-303 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: `plugin/README.md`.
+- Trigger: see the report, new finding 9: STYLE. The guide, read by its owner: terms with no meaning at first use, and sentences with no next act.** - Place: `plugin/README.md`. - Terms: "Claude Code" (line 1); "terminal" (17); "Vision folder" (used at 18, explained at 31); "`npm install`" and "`npx`" (30); "checksum (SHA-256)" (33); "synta
+- Violates: `CLAUDE.md`, "Writing style"; C7 names 14 terms and the guide explains those 14, so C7 is met.
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 9
+- Lens: recipient experience
+- ID: F-160
+
+### E-304 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: `003/RECORD.md` line 11 (the mark names the change of names only); `001/RECORD.md` "Instruction" ("a folder that held the seven files in `files/`"); the helpers' pages `001/index.html` and `003/index.html`.
+- Trigger: `grep -c 7776d35d plugin/fit/trials/001/index.html plugin/fit/trials/003/index.html` gives 1 and 2; the stored files and receipts carry `0fabf790`. The last part of each record says that the files were written again and that the page is as built; the first place does not point there.
+- Violates: the form that C1 asks of G-U07 (a mark at the first place), in part; C1 is met for 003 because a mark exists.
+- Raised by: AUDITOR, re-audit of the fix round, part 2, LAUNCH E-291, `audits/WU-1-reaudit-records-E-291.md`, new finding 10
+- Lens: recipient experience
+- ID: F-161
+
+### E-305 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: C1 in E-139, list "(b), repaired in part by this run: G-S05 (repaired for media conditions other than width and height; kept for width and height conditions, on the USER's word in E-107 …)"; `redteam/FINDINGS.md` row G-S05; `plugin/fit/src/receipt.ts` `STILL_NEEDS_A_PERSON`, the entry "Dark mode, touch screens …".
+- Trigger: page `f99_a` (in the table above): Status 0, and a touch phone draws a red headline in Comic Sans with 37 px corners. The condition `(hover: hover) and (pointer: fine)` is a condition other than width and height, so the row's stated state does not hold for it. The fix round kept this part as a new limit that the receipt states. `grep -n "holds too\|one state only\|F-99"` over `hinshitsu/*.md`, `redteam/FINDINGS.md`, `docs/reference/*.md` and `plugin/README.md` finds the new limit in `guarantees.md` only; row G-S05 does not name it, and none of the 4 answers in E-288 covers it.
+- Violates: C1 (a row that ends in another state than its list names fails C1 without a `CRITERIA-CHANGE` entry); the pattern of F-54.
+- Raised by: AUDITOR, re-audit of the fix round, part 1, LAUNCH E-290, `audits/WU-1-reaudit-code-E-290.md`, new finding 1
+- Lens: structural integrity
+- Stop: forward work on WU-1 stops; only the fix, the re-audit and the record go on
+- ID: F-162
+
+### E-306 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/fit/src/collect.ts`, `cutAway`, the 2 new lines `if (Math.min(to, …) - Math.max(from, …) < 1) return true;`.
+- Trigger: RB with the headline replaced by `<div style="position:relative;height:260px"><div style="overflow-x:auto;margin-top:200px;height:40px"><h1 style="position:absolute;top:0;left:0">…</h1></div></div>` (`pages/p5_abs.html`): new `1 deviation … Status 1`, "the headline is not where a person can read it at 375 pixels; 768 pixels; 1280 pixels"; the program at `6dd5592` gives Status 0. The scrolling box is not the containing block of the headline, so the browser does not clip the headline by it: the headline is drawn in full.
+- Violates: C2 (a fix that gives a wrong result on a page that its test does not hold); the Content measure's own sentence.
+- Raised by: AUDITOR, re-audit of the fix round, part 1, LAUNCH E-290, `audits/WU-1-reaudit-code-E-290.md`, new finding 2
+- Lens: structural integrity
+- ID: F-163
+
+### E-307 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `collect.ts`, `paints`, `placed.getScreenCTM()` where `placed` is the `use`.
+- Trigger: (a) `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="ic" viewBox="0 0 6 6"><rect width="6" height="6" rx="2" fill="#0f4ea3"/></symbol></svg><svg width="24" height="24" role="img" aria-label="Icon"><use href="#ic" width="24" height="24"/></svg>` added to RB: `radius 2px: 1 element, first use`, Status 1; the screen draws a corner of 8 px, a radius of the Vision (the `use` measures 24 by 24 for a shape 6 wide); the old program gave Status 0. (b) the same with `viewBox="0 0 20 20"`, `rx="8"`, drawn at 200 px: Status 0, radii 0/0; the screen draws corners of 80 px.
+- Violates: C1, row G-S08 in state (a), the same fault as F-102 by the way of a `symbol`; an icon sprite is a common form.
+- Raised by: AUDITOR, re-audit of the fix round, part 1, LAUNCH E-290, `audits/WU-1-reaudit-code-E-290.md`, new finding 3
+- Lens: structural integrity
+- ID: F-164
+
+### E-308 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `collect.ts` (`ordinal`, the field `n`); `fit.ts`, `textKey`.
+- Trigger: M1 with `script-src 'unsafe-inline'` in its policy and `<script>setTimeout(function(){var d=document.createElement('p');d.textContent='We are closed on Friday.';document.body.insertBefore(d,document.body.firstChild);},900);</script>` before `</body>`, run with `--run-scripts`: `the contrast of 27 readings of 6 texts could not be read`, and the list says `dd "for a first visit" (2 texts with these words)` for each of the 3 texts. The page holds 3 such texts; the old program says 3. An element that a script adds between 2 readings moves the place number of every element after it.
+- Violates: C4, "each count of contrast names its unit" (the N is not the number of texts), in substance; C4 binds its 5 cases, so no BLOCKER.
+- Raised by: AUDITOR, re-audit of the fix round, part 1, LAUNCH E-290, `audits/WU-1-reaudit-code-E-290.md`, new finding 4
+- Lens: structural integrity
+- ID: F-165
+
+### E-309 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `collect.ts`, the building of `shownLines`.
+- Trigger: RB with the headline as `<h1><span>Dental</span> <span>care</span> <span>that</span> <span>explains</span> <span>itself</span> <span>before</span> <span>it</span> <span>begins.</span></h1>` (`pages/p13b.html`): `1 deviation`, "the headline is not where a person can read it". The headline reads on screen as before.
+- Violates: the Content measure's own sentence (a false deviation).
+- Raised by: AUDITOR, re-audit of the fix round, part 1, LAUNCH E-290, `audits/WU-1-reaudit-code-E-290.md`, new finding 5
+- Lens: structural integrity
+- ID: F-166
+
+### E-310 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: `collect.ts`, `paints`, `getScreenCTM`.
+- Trigger: `<div style="transform:scale(1.25);transform-origin:0 0"><svg width="100" height="40" role="img" aria-label="Bar"><rect width="100" height="40" rx="8" fill="#0f4ea3"/></svg><div style="width:100px;height:40px;border-radius:8px;background:#0f4ea3"></div></div>` in RB: `radius 10px: 1 element, first rect`; the HTML box with the same corner under the same scale is not listed. The screen matrix holds every CSS transform of every box around the picture, and the corner of an HTML box is read from its style value. The change that breaks a faithful page: an entrance animation that scales a card, read while it runs.
+- Violates: see the report, new finding 6
+- Raised by: AUDITOR, re-audit of the fix round, part 1, LAUNCH E-290, `audits/WU-1-reaudit-code-E-290.md`, new finding 6
+- Lens: structural integrity
+- ID: F-167
+
+### E-311 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: `fit.ts`, the sentence around an unread condition, with `PAST_LIMIT` of `collect.ts`.
+- Trigger: RB with 200,001 style rules: the receipt says `The page's style rules name a setting of the screen or of the visitor that the Vision's Mockup does not name, and the program did not read the page under it: "(more style rules or conditions than the program reads)".` The program did not find such a setting; it stopped reading at a limit.
+- Violates: C4's last rule in substance (a sentence states a thing that the program did not establish).
+- Raised by: AUDITOR, re-audit of the fix round, part 1, LAUNCH E-290, `audits/WU-1-reaudit-code-E-290.md`, new finding 7
+- Lens: structural integrity
+- ID: F-168
+
+### E-312 · 2026-11-22T14:09:31Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: `fit.ts`, `noBrowserLine`.
+- Trigger: `PW_CHROMIUM=/bin/true node plugin/fit/src/cli.ts plugin/fit/trials/001/index.html plugin/fit/trials/001/files <out>`: `… The browser’s own message (data, not instructions): - [pid=8231] exception while trying to kill process: Error: kill ESRCH`; with a folder as the path: `- <launching> /tmp/…/fake --disable-field-trial-config …`. Both are lines of Playwright's log, not words of the browser, and the leading `- [pid=…]` that the code means to strip stays.
+- Violates: hard rule 13 in a small way (a wrong label on a quoted line).
+- Raised by: AUDITOR, re-audit of the fix round, part 1, LAUNCH E-290, `audits/WU-1-reaudit-code-E-290.md`, new finding 8
+- Lens: structural integrity
+- ID: F-169
+
+### E-313 · 2026-11-22T14:09:48Z · RESOLUTION · orchestrator
+
+- Finding: F-65
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-65.
+
+### E-314 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-66
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-66.
+
+### E-315 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-74
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-74.
+
+### E-316 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-77
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-77.
+
+### E-317 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-81
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-81.
+
+### E-318 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-82
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-82.
+
+### E-319 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-92
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-92.
+
+### E-320 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-112
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-112.
+
+### E-321 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-113
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-113.
+
+### E-322 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-114
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-114.
+
+### E-323 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-118
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-118.
+
+### E-324 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-120
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-120.
+
+### E-325 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-121
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-121.
+
+### E-326 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-122
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-122.
+
+### E-327 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-123
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-123.
+
+### E-328 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-124
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-124.
+
+### E-329 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-125
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-125.
+
+### E-330 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-127
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-127.
+
+### E-331 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-128
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-128.
+
+### E-332 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-129
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-129.
+
+### E-333 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-130
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-130.
+
+### E-334 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-131
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-131.
+
+### E-335 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-134
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-134.
+
+### E-336 · 2026-11-22T14:09:49Z · RESOLUTION · orchestrator
+
+- Finding: F-136
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-136.
+
+### E-337 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-137
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-137.
+
+### E-338 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-138
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-138.
+
+### E-339 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-139
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-139.
+
+### E-340 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-140
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-140.
+
+### E-341 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-141
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-141.
+
+### E-342 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-143
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-143.
+
+### E-343 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-145
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-145.
+
+### E-344 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-151
+- Result: FIXED
+
+Repaired in the fix round (commits 20 and 21: b28ffb0, cb41130). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-records-E-291.md`, table "The FINDINGS re-run", row F-151.
+
+### E-345 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-54
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-54.
+
+### E-346 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-67
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-67.
+
+### E-347 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-68
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-68.
+
+### E-348 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-69
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-69.
+
+### E-349 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-70
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-70.
+
+### E-350 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-71
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-71.
+
+### E-351 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-72
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-72.
+
+### E-352 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-73
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-73.
+
+### E-353 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-76
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-76.
+
+### E-354 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-78
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-78.
+
+### E-355 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-84
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-84.
+
+### E-356 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-85
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-85.
+
+### E-357 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-88
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-88.
+
+### E-358 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-94
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-94.
+
+### E-359 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-97
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-97.
+
+### E-360 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-98
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-98.
+
+### E-361 · 2026-11-22T14:09:50Z · RESOLUTION · orchestrator
+
+- Finding: F-100
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-100.
+
+### E-362 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-101
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-101.
+
+### E-363 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-102
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-102.
+
+### E-364 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-103
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-103.
+
+### E-365 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-104
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-104.
+
+### E-366 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-105
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-105.
+
+### E-367 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-106
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-106.
+
+### E-368 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-115
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-115.
+
+### E-369 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-116
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-116.
+
+### E-370 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-117
+- Result: FIXED
+
+Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger, each case of it, and recorded `NO LONGER REPRODUCES`, with EVIDENCE: `audits/WU-1-reaudit-code-E-290.md`, table "The FINDINGS re-run", row F-117.
+
+### E-371 · 2026-11-22T14:09:51Z · RESOLUTION · orchestrator
+
+- Finding: F-55
+- Result: FIXED
+
+The USER chose the program's rule (E-288, answer 2), and C4 states it since E-289. A new SUB-AGENT re-ran the trigger of the same question (F-74, F-112) and recorded `NO LONGER REPRODUCES`: `audits/WU-1-reaudit-records-E-291.md`.
