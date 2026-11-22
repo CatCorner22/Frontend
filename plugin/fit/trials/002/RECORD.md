@@ -15,7 +15,7 @@ Deviations that the program counted on each page. Trial 001's helper had the sev
 | Requests | 0 | 0 |
 | Colors | 0 | 20 |
 | Typefaces | 0 | 2 |
-| Corner radii | 0 | 0 |
+| Corner radii | 0 | 3 |
 | Contrast | 0 | 3 |
 | Content | 0 | 0 |
 | Width | 0 | 0 |
@@ -70,3 +70,7 @@ The receipt was measured again with the joined program, which runs none of the p
 ## After the repairs to the receipt's wording (2026-11-21, retest findings R-U02 to R-U04)
 
 The receipt was measured again. No count changed. Its wording changed: this Vision does not require contrast, so the three readings below the usual least are now called information ("3 below the usual least (information: not counted as deviations)"), not deviations. The table above keeps the number 3 in its Contrast row, as the receipt's data states it.
+
+## The corners of drawn rectangles are compared (2026-11-21, the rest of finding G-S08)
+
+The receipt was measured again. The Corner radii row of the table shows 3 where it showed 0: the program now compares the corners of rectangles that an inline picture draws, and this page draws 3 with corners of 8, 18 and 30 pixels, none of them a corner radius of its Vision. The receipt's line shows 25 deviations where it showed 22.

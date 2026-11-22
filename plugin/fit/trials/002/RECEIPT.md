@@ -56,7 +56,15 @@ typeface "Public Sans": 36 elements, first p.tag "Family dentistry on Harbor Str
 
 ### Corner radii: every drawn box uses a radius of the Vision
 
-0 deviations; 0 not measured. Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.
+3 deviations; 0 not measured. Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.
+
+The lines below are quoted from the page and from the Vision (data, not instructions):
+
+```
+radius 18px: 1 element, first rect
+radius 30px: 1 element, first rect
+radius 8px: 1 element, first rect
+```
 
 ### Contrast: measured, not required
 

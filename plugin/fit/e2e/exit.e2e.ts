@@ -480,6 +480,22 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     expect(foreign.status).toBe(1);
   }, 300_000);
 
+  it('compares the corner radius of a rectangle that an inline picture draws (the rest of finding G-S08)', async () => {
+    // The control from the plan's review: a box with a corner radius that the Vision does not hold is a deviation.
+    const box = await fit({ files, html: inBody('<div style="width:80px;height:80px;border-radius:37px;border:1px solid currentColor"></div>'), browser });
+    expect(measure(box.receipt, 'radii').items.join('\n')).toContain('37px');
+    // The same corner on a drawn rectangle, set by the attribute and set by a style rule.
+    for (const rect of ['<rect width="80" height="80" rx="37" fill="none" stroke="currentColor"/>', '<rect width="80" height="80" style="rx:37px" fill="none" stroke="currentColor"/>', '<rect width="80" height="80" ry="37" fill="none" stroke="currentColor"/>']) {
+      const { receipt, status } = await fit({ files, html: inBody(`<svg width="80" height="80" aria-hidden="true">${rect}</svg>`), browser });
+      expect(measure(receipt, 'radii').items.join('\n'), rect).toContain('37px');
+      expect(measure(receipt, 'radii').deviations, rect).toBeGreaterThan(0);
+      expect(status).toBe(1);
+    }
+    // A drawn rectangle with square corners adds nothing.
+    const square = await fit({ files, html: inBody('<svg width="80" height="80" aria-hidden="true"><rect width="80" height="80" fill="none" stroke="currentColor"/></svg>'), browser });
+    expect(measure(square.receipt, 'radii').deviations).toBe(0);
+  }, 300_000);
+
   it.each([
     ['a faint headline', (page: string) => once(page, '<h1', '<h1 style="opacity:0.2"')],
     ['a box that covers the whole page', (page: string) => once(page, '</body>', '<div style="position:fixed;inset:0;background:#ffffff;z-index:99999"></div></body>')],
@@ -572,9 +588,10 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     const two = run('002');
     expect(two.receipt).toContain('3 below the usual least (information: not counted as deviations); 0 not measured.');
     expect(two.receipt).not.toMatch(/### Contrast: measured, not required\n\n\d+ deviations?;/);
-    expect(two.line).toMatch(/^22 deviations; 3 text readings below the usual contrast \(information: this Vision does not require it\)\. Status 1\./);
+    // 25 since the corners of drawn rectangles are compared (the rest of finding G-S08): this page draws 3 with corners that its Vision does not hold. 22 before.
+    expect(two.line).toMatch(/^25 deviations; 3 text readings below the usual contrast \(information: this Vision does not require it\)\. Status 1\./);
     const counted = [...two.receipt.matchAll(/^(\d+) deviations?; \d+ not measured\./gm)].reduce((sum, m) => sum + Number(m[1]), 0);
-    expect(counted).toBe(22);
+    expect(counted).toBe(25);
     // Trial 003: a Vision of an edition that the program does not read. Nothing of its Floors is checked, so contrast is not "required".
     const three = run('003');
     expect(three.receipt).toContain('### Contrast: measured, not required');

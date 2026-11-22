@@ -289,6 +289,13 @@ export function collect(): Collected {
       // The paint's own opacity joins the color's alpha, so a half-transparent fill is listed as partly transparent (audit branch, finding CX-02).
       if (cs.fill !== 'none' && !cs.fill.startsWith('url(') && Number.parseFloat(cs.fillOpacity) > 0) add('background', withAlpha(rgbOf(cs.fill), Number.parseFloat(cs.fillOpacity)), label, recolored);
       if (cs.stroke !== 'none' && !cs.stroke.startsWith('url(') && Number.parseFloat(cs.strokeWidth) > 0 && Number.parseFloat(cs.strokeOpacity) > 0) add('border', withAlpha(rgbOf(cs.stroke), Number.parseFloat(cs.strokeOpacity)), label, recolored);
+      // A rectangle of the picture has corners of its own (`rx`, `ry`): they are compared as a box's corners are (the rest of
+      // finding G-S08). One of the two alone rounds both directions, as the browser draws it.
+      if (el instanceof SVGRectElement && (cs.fill !== 'none' || cs.stroke !== 'none')) {
+        const corners = cs as unknown as { rx?: string; ry?: string };
+        const seen = new Set<string>();
+        for (const part of [corners.rx ?? '', corners.ry ?? '']) if (part !== '' && part !== 'auto' && part !== '0px' && part !== '0' && !seen.has(part)) { seen.add(part); radii.push({ value: part, where: label }); }
+      }
       // A text that the picture draws (`text`, `tspan`) is a text of the page: its typeface is compared, and its contrast is read
       // from its fill against the boxes around the picture (automatic reviewer of pull request 16, finding 2).
       if (el instanceof SVGTextContentElement && hasText && (cs.fill !== 'none' || cs.stroke !== 'none')) {

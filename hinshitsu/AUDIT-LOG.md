@@ -1772,3 +1772,10 @@ Commit 11 of `PLAN.md`: the main loop of `collect` (form fields; `use`) and the 
 - forward: `Collected` gains 1 field; `fit.ts` reads it. `look.ts` does not use `collect`. A Mockup that holds a `select` now has its words compared: the exit test's reference builds of all Directions show whether any false deviation appears.
 - backward: the first repair of R-S07 (commit ab2403e and after): input, textarea and same-page `use` are read as before.
 - lateral: commits 1, 2 and 4 changed other parts of `collect.ts`.
+
+### E-178 · 2026-11-21T22:17:19Z · TRACE · orchestrator
+
+Commit 12 of `PLAN.md`: the branch for SVG shapes in `collect.ts` (the rest of G-S08).
+- forward: `radii` gains entries for drawn rectangles; `fit.ts` compares them as a box's. The Mockup of each Direction draws no rectangle (`grep -c '<rect'` in a stored Mockup: 0), and the reference builds of all Directions stay without deviation (run before this entry).
+- backward: the first repair of G-S08 (fill and stroke) stands.
+- lateral: commit 2 added the branch for SVG text just below; commit 11 changed the `use` branch above.

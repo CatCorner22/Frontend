@@ -106,6 +106,13 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-21: repair run, commit 12: the corners of a drawn rectangle are compared (the rest of finding G-S08)
+- Feature worked on (ID): none in the list. The rest of finding G-S08 (grade major), which the plan's reviewers found outside the first bug list: a box with `border-radius: 37px` was a deviation, the same corner on an SVG rectangle (`rx="37"`) was not.
+- Now: the Corner radii measure reads `rx` and `ry` of each rectangle that draws something.
+- Test (written first; it failed because the measure held no line): "compares the corner radius of a rectangle that an inline picture draws ..." in `plugin/fit/e2e/exit.e2e.ts`. Checked beside it: the reference builds of the plain start and of all 38 Directions still show no deviation with commits 1 to 12 together (the Mockup draws no rectangle).
+- Found by this repair in a stored trial: the page of trial 002 (built by a model on 2026-11-16) draws 3 rectangles with rounded corners of 8, 18 and 30 pixels, none of them a corner radius of its Vision. Its stored receipt is written again by the program and now counts 25 deviations where it counted 22; the trial's record keeps its dated text.
+- Evidence: `hinshitsu/evidence/commit-12-checks.txt`.
+
 ### 2026-11-21: repair run, commit 11: a drop-down list's shown option is read, and a shape from another file is not measured (the rest of finding R-S07)
 - Feature worked on (ID): none in the list. The rest of finding R-S07 (grade major), which the plan's reviewers found outside the first bug list: a `select` in another color and typeface got "No deviation. Status 0".
 - Now: a `select` with an option that holds words is read as a text. A `use` element that points into another file adds 1 to "not measured" in the Colors measure, and the measure's note says why.

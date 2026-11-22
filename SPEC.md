@@ -517,6 +517,7 @@ The owner asked for a run that repairs the current bugs, with the final delivera
 8. The look writes a typeface name from the Vision folder into `LOOK.md` only as quoted data: without any sign that is not a letter, a digit, a space or a hyphen, at most 60 characters, inside one fence. Edge cases: a name that is a sentence with a heading and a command; a name with no letter at all (shown as "a name without letters").
 9. The look's command line reads the build and each Vision file only when it is an ordinary file of at most 20 megabytes; a pipe, a device or a larger file is refused (status 2) before any browser starts. A page whose script never returns ends the look by itself with status 1 and the widths listed under "Not pictured". Edge cases: a pipe in place of the build; `/dev/zero`; a pipe in place of a Vision file; a Vision file that is missing (named by the look, as before).
 10. A drop-down list (`select`) with an option that holds words is read as a text: color, typeface, contrast. A shape that an inline picture takes from another file counts as not measured in the Colors measure. Edge cases: a list without options (no text, nothing to compare); a `use` that points into the same page (read, as before).
+11. The corner radius of a rectangle that an inline SVG picture draws (`rx`, `ry`) is compared with the Vision's corner radii. Edge cases: only one of the two set; a radius set by a style rule; a rectangle with square corners (nothing to compare); a rectangle that draws nothing (no fill, no stroke: not compared).
 
 ## 3. Out of scope
 
