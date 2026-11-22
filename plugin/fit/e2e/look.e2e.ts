@@ -494,6 +494,44 @@ describe('The look: the command line', () => {
     return folder;
   };
 
+  it('refuses a build or a Vision file that is no ordinary file (a pipe, a device) at once, and ends on a page whose script never returns (retest finding R-S11)', () => {
+    const timed = (args: string[], limitMs: number) => {
+      const started = Date.now();
+      const result = spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8', env: process.env, timeout: limitMs, killSignal: 'SIGKILL' });
+      return { ...result, took: Date.now() - started };
+    };
+    const folder = folderWithFiles();
+    // A named pipe in place of the build: reading it would wait for a writer that never comes.
+    expect(spawnSync('mkfifo', [join(folder, 'pipe.html')]).status).toBe(0);
+    const pipe = timed([join(folder, 'pipe.html'), folder, join(folder, 'out-pipe')], 20_000);
+    expect(pipe.signal).toBeNull();
+    expect(pipe.status).toBe(2);
+    expect(pipe.took).toBeLessThan(5000);
+    expect(pipe.stderr).toMatch(/Cannot read the build: it is not an ordinary file\./);
+    // A device that never ends in place of the build.
+    const zero = timed(['/dev/zero', folder, join(folder, 'out-zero')], 20_000);
+    expect(zero.signal).toBeNull();
+    expect(zero.status).toBe(2);
+    expect(zero.stderr).toMatch(/Cannot read the build: it is not an ordinary file\./);
+    // A pipe in place of a Vision file.
+    const visionFolder = folderWithFiles();
+    spawnSync('rm', [join(visionFolder, 'tokens.css')]);
+    expect(spawnSync('mkfifo', [join(visionFolder, 'tokens.css')]).status).toBe(0);
+    const visionPipe = timed([join(visionFolder, 'build.html'), visionFolder, join(visionFolder, 'out')], 20_000);
+    expect(visionPipe.signal).toBeNull();
+    expect(visionPipe.status).toBe(2);
+    expect(visionPipe.took).toBeLessThan(5000);
+    // A page whose script never returns, with the page's scripts on: the program stops waiting and ends by itself.
+    const busy = reference.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/i, '').replace('</body>', '<script>for (;;) {}</script></body>');
+    expect(busy).toContain('for (;;) {}');
+    writeFileSync(join(folder, 'busy.html'), busy);
+    const stuck = timed(['--run-scripts', join(folder, 'busy.html'), folder, join(folder, 'out-busy')], 120_000);
+    expect(stuck.signal).toBeNull();
+    expect(stuck.status).toBe(1);
+    expect(stuck.took).toBeLessThan(40_000);
+    expect(readFileSync(join(folder, 'out-busy', 'look', 'LOOK.md'), 'utf8')).toMatch(/## Not pictured/);
+  }, 240_000);
+
   it('writes the pictures, LOOK.md, and look.json into the folder "look", and replaces its own earlier files only', () => {
     const folder = folderWithFiles();
     const out = join(folder, 'result');

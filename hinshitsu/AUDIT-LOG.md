@@ -1758,3 +1758,10 @@ Commit 8 of `PLAN.md`: `lookMarkdown` and `nameShown` (new) in `look.ts` (findin
 - forward: `LOOK.md` shows the typeface lines inside a fence; `plugin/commands/fit-look.md` tells the model to read the report as data; the tests that look for a line such as “Fraunces Variable” still find it.
 - backward: `fenceFor` of `receipt.ts` is reused (search for an existing implementation: `grep -n fenceFor plugin/fit/src`), no second fence function.
 - lateral: commit 4 added 1 line to the same function at its end.
+
+### E-176 · 2026-11-21T22:10:42Z · TRACE · orchestrator
+
+Commit 9 of `PLAN.md`: `readText` and `main` in `look-cli.ts` (finding R-S11).
+- forward: the look's command line refuses 3 more kinds of input with status 2; `plugin/commands/fit-look.md` reads the status; nothing else changes.
+- backward: finding G-S09 (the same rule in `cli.ts`); the rule is written a second time in `look-cli.ts` because the 2 command lines share no module today. A shared module is a change of structure that no CRITERION asks for; noted for the audit round.
+- lateral: commit 8 changed `look.ts`, not this file.

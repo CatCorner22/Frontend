@@ -33,7 +33,23 @@ function writeNoFollow(path: string, data: string | Uint8Array): void {
   }
 }
 
+/** The largest build or Vision file that the program reads, as in the Fit check. */
+const FILE_MAX = 20_000_000;
+
 function readText(path: string, what: string): string {
+  // Only an ordinary file is read: a pipe or a device would make the program wait for ever, as in the Fit check (gate review,
+  // finding G-S09; retest finding R-S11).
+  let ordinary = false;
+  let size = 0;
+  try {
+    const stat = statSync(path);
+    ordinary = stat.isFile();
+    size = stat.size;
+  } catch {
+    throw new FitError(`Cannot read ${what}: ${path}`);
+  }
+  if (!ordinary) throw new FitError(`Cannot read ${what}: it is not an ordinary file.`);
+  if (size > FILE_MAX) throw new FitError(`Cannot read ${what}: it is larger than ${String(FILE_MAX / 1_000_000)} megabytes.`);
   try {
     return readFileSync(path, 'utf8');
   } catch {
@@ -104,9 +120,17 @@ async function main(args: string[]): Promise<number> {
   const files: Record<string, string> = {};
   for (const name of [...READ_FILES, 'FONTS.md']) {
     try {
-      files[name] = readFileSync(join(resolve(folder), name), 'utf8');
-    } catch {
-      // A missing file is named by the check inside `look`; FONTS.md is needed only for the Mockup's letters.
+      files[name] = readText(join(resolve(folder), name), `the file "${name}" of the Vision`);
+    } catch (error) {
+      // A missing file is named by the check inside `look`; FONTS.md is needed only for the Mockup's letters. A file that is
+      // there and is no ordinary file, or is too large, is refused here.
+      let there = true;
+      try {
+        lstatSync(join(resolve(folder), name));
+      } catch {
+        there = false;
+      }
+      if (there) throw error;
     }
   }
   const fonts = fontsFolder === undefined ? {} : findFonts(resolve(fontsFolder), new Set(fontFilesOf(files['FONTS.md'] ?? '').map((font) => font.file)));
