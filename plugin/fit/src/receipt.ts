@@ -21,7 +21,7 @@ export interface Measure {
    * times at each); `below` and `unread` say how many texts those readings belong to, and `unreadReadings` how many of the "not
    * measured" are readings of a text (the rest are readings of the whole page that failed).
    */
-  texts?: { below: number; unread: number; unreadReadings: number };
+  texts?: { below: number; unread: number; unreadReadings: number; unexcused?: number };
   /** For Floors alone: true when the Vision writes no requirement that the program reads, so that there is nothing to check. */
   nothingToCheck?: boolean;
   /** For Floors alone: how many requirements the Vision writes in an edition that the program does not read; it checked none of them. */

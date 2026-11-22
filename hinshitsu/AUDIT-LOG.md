@@ -3550,3 +3550,374 @@ The USER chose the program's rule (E-288, answer 2), and C4 states it since E-28
 - Event: start
 - Skills read: `hinshitsu-challenge/SKILL.md` SHA-256 c9169b39ddb43107186e4320fc3966404990b84bdc1e532843547eddf87dc2ad
 - Note: started beside S8 (see the entry before this one)
+
+### E-377 · 2026-11-22T15:25:26Z · ANSWER · orchestrator
+
+The USER answered 2 questions on 2026-11-22, after the RED CELL's report before delivery (`audits/redcell-delivery-E-373.md`). Each question as the USER saw it, word for word, then the answer, word for word.
+
+Question 1: "The last independent checker attacked the finished work. The named tests hold, but it built 12 new pages that the Fit check reads wrongly: 5 hidden-text tricks that still get \"No deviation\" (for example a headline shrunk to 1.5 pixels), and 5 false alarms on ordinary pages (for example a line break inside the headline is reported as \"headline missing\"). Each repair round so far has turned up new cases. How should this run end?" Options: "Fix the false alarms, list the rest (Recommended)": "One more round of about 2 hours: I repair the 5 false alarms (they hit honest pages in your real run) plus the 2 simplest tricks, re-check with a fresh reviewer, then deliver. The remaining tricks are listed in the delivery report as known open bugs for the next run."; "Stop now and deliver"; "Fix all 12 first". Answer: "Fix the false alarms, list the rest (Recommended)".
+
+Question 2: "The checker also showed: where your Vision requires contrast, one style line (making every text 0.01% see-through) turns 114 contrast failures into \"unread\", and the status becomes 0. You chose earlier that unread contrast keeps status 0, based on 3 harmless texts in your sample website. Do you want a tighter rule?" Options: "Count only what the sample also leaves unread (Recommended)": "A text is excused only if the same text is unread in your sample website too. Any other unread text, where contrast is required, makes status 1 (\"not measured\"). Faithful pages keep status 0; the trick stops working."; "Keep status 0 for all unread". Answer: "Count only what the sample also leaves unread (Recommended)".
+
+Said here, because the RED CELL asked for it (its finding 17): the entries E-288 and E-293 hold their questions in short. The full questions and option texts stand in the session's transcript, which the USER holds; they are not copied into this log after the fact.
+
+### E-378 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: `redteam/FINDINGS.md`, row G-S05, at `6c9d8f8` and `19e8677`.
+- Trigger: `git show 19e8677:redteam/FINDINGS.md | grep "^| G-S05 |" | grep -c "E-293"` → 0; the row ends "Who must act: the owner, who decides whether it stays a stated limit…".
+- Violates: C1 (E-294), state (b): "the Status cites the `ANSWER` entry that holds the USER's word"; `PROGRESS.md` line 116 says the same open thing; `DECISIONS.md` holds no record of the answer (`CLAUDE.md` hard rule 2). An uncommitted edit seen in the working tree at 14:57Z adds "E-293" to the row.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 1 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- Stop: no delivery report says that a CRITERION is met while this stands
+- ID: F-170
+
+### E-379 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: row R-S08 ("Not covered, and said here: a text whose contrast the program cannot read … still counts as found"); `collect.ts` (`nominal` is null for a gradient of 2 colors).
+- Trigger: page `q11-gradhide` → Status 0, Content 0 deviations.
+- Violates: C1 ("a row repaired in part is in state (b) and names both its test and its rest", with the USER's word); the USER's answer 5 of E-67; no receipt sentence states the way.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 2 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- Stop: no delivery report says that a CRITERION is met while this stands
+- ID: F-171
+
+### E-380 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: `504b1d7`.
+- Trigger: `git show --stat 504b1d7` (22 files, at least 6 fixes in `collect.ts`, `fit.ts`, the guide, 4 commands); C5 (E-289) names commits 20 and 21 only, and the USER's word is "the whole fix round is 1 commit". With 2 of its fixes taken out, 118 of 118 tests pass (section 4).
+- Violates: C5 ("Each fix is 1 commit that holds its test and its record"); D-3.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 3 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- Stop: no delivery report says that a CRITERION is met while this stands
+- ID: F-172
+
+### E-381 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: `hinshitsu/AUDIT-LOG.md`.
+- Trigger: my script over the log: 169 FINDING entries, 109 with a closing entry, 60 without (F-152 and F-162 of class BLOCKER; 22 of class DEFECT, among them F-15 to F-17, F-56 to F-59, F-62, F-75, F-99). 0 `OVERRULE` entries, so no KNOWN LIMIT exists. Answer 4 of E-288 (12:14Z) names a class; F-159 to F-161 and F-167 to F-169 were raised at 14:09Z. E-371 closes F-55 as FIXED on EVIDENCE that holds no F-55 row.
+- Violates: C9 ("accepted by the USER by name"); glossary, KNOWN LIMIT.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 4 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- Stop: no delivery report says that a CRITERION is met while this stands
+- ID: F-173
+
+### E-382 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `fit.ts` (unread contrast never counts); `fit-repair.md`.
+- Trigger: `q13b-noop` against `q13c-allop`.
+- Violates: O1 of E-9; the question behind answer 2 of E-288 did not show this.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 5 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-174
+
+### E-383 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `collect.ts`, `shownLines` (reads `font-size`, not the drawn size).
+- Trigger: `p03-scale`, `p04-zoom`.
+- Violates: the Content measure's own sentence ("drawn at 6 pixels or more").
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 6 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-175
+
+### E-384 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `collect.ts` (`layers` walks ancestors only; `drawnCovers` skips `z < 0`).
+- Trigger: `q12-under`.
+- Violates: answer 5 of E-67; the limit sentence speaks of "another contrast", not of an unseen required text.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 7 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-176
+
+### E-385 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `fit.ts`, Requests ("not shipped with the page").
+- Trigger: `s03-extcss`.
+- Violates: the sense of C4 ("status 0 goes only with … 0 'not measured'"), outside its 5 cases.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 8 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-177
+
+### E-386 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `collect.ts`, `shownLines` (`parts.join('')`, 1 block for 1 line), `fit.ts` `collapse`.
+- Trigger: `q02-br`, `q03-blockspan`, `s01-shyonly`.
+- Violates: the Content measure's sentence; same family as F-166.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 9 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-178
+
+### E-387 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `collect.ts`, `paints` (the rest of G-S08).
+- Trigger: `q05-icon`.
+- Violates: the measure's title ("every drawn box").
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 10 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-179
+
+### E-388 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `collect.ts`, `holders` (`['link','href']` for every `rel`).
+- Trigger: `q07-canon`.
+- Violates: the measure's title ("asks for nothing from another site").
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 11 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-180
+
+### E-389 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `fit.ts`, `unreadConditions` (compares strings).
+- Trigger: `r01-reorder`, `r02-hoveronly`.
+- Violates: row G-S05's stated repair; the sentence "that the Vision's Mockup does not name".
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 12 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-181
+
+### E-390 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `cli.ts` (reads `receipt.json` from the result folder).
+- Trigger: the forgery run in section 5.
+- Violates: the purpose of C8 (its test passes).
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 13 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-182
+
+### E-391 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: FRAGILITY
+- Where: `.github/workflows/ci.yml` (45 minutes).
+- Trigger: `gh api repos/CatCorner22/Frontend/commits/<sha>/check-runs`: `b28ffb0` shows 1 run `cancelled` after 45 min 11 s and 1 `success` after 40 min 10 s.
+- Violates: C5 says "check … succeed on that commit" and does not say which of the 2 runs counts.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 14 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-183
+
+### E-392 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `receipt.ts`, `STILL_NEEDS_A_PERSON`, the 5 lines marked "No" or "In part" in section 3.
+- Trigger: see the report, finding 15: DEFECT — the limit sentences give the owner no act.
+- Violates: `CLAUDE.md`, writing style (explain each technical term; say what can go wrong); V4 of E-9.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 15 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-184
+
+### E-393 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: DEFECT — records behind the log.
+- Trigger: see the report, finding 16: DEFECT — records behind the log.
+- Violates: rule 14.6 of the glossary.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 16 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-185
+
+### E-394 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: DEFECT — E-288 and E-293 hold each question "in short", with no CARD entry.
+- Trigger: `grep -c "· CARD ·" hinshitsu/AUDIT-LOG.md` → 1 (E-64).
+- Violates: the form of a DECISION CARD (rule 23.4 as the glossary names it); a third party cannot compare the USER's word with the question seen.
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 17 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-186
+
+### E-395 · 2026-11-22T15:25:26Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: STYLE — no prose file of the Vision names `--font-numeric`.
+- Trigger: `grep -c "font-numeric" VISION.md DESIGN.md` in `reference-floors` → 0 and 0.
+- Violates: see the report, finding 18
+- Raised by: RED CELL, the attack before delivery, LAUNCH E-373, `audits/redcell-delivery-E-373.md`, finding 18 (the report's own class is kept; by the rule on RED CELL findings each is handled as a BLOCKER until closed or put to the USER)
+- Lens: trust and controls
+- ID: F-187
+
+### E-396 · 2026-11-22T15:43:29Z · FINDING · orchestrator
+
+- Class: BLOCKER
+- Where: `redteam/FINDINGS.md` row G-S05; `SPEC.md` section 2.31; `PROGRESS.md` "Known gaps"
+- Trigger: the row and `SPEC.md` say that the touch-phone limit waits for the owner, after the owner's answer in E-293
+- Violates: C1 as in E-294; C6
+- Raised by: AUDITOR of S8, LAUNCH E-372, `audits/S8-recipient-stability-E-372.md`, new finding 1
+- Lens: recipient experience
+- Stop: no delivery report says that C1 is met while this stands
+- ID: F-188
+
+### E-397 · 2026-11-22T15:43:29Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/README.md`, the 2 lines "without Claude Code"
+- Trigger: from a folder other than `plugin/`, `node fit/src/cli.ts ...` ends with Node's "Cannot find module", status 1; the guide does not name the folder
+- Violates: `CLAUDE.md`, writing style; a step of the fresh install that the guide omits
+- Raised by: AUDITOR of S8, LAUNCH E-372, `audits/S8-recipient-stability-E-372.md`, new finding 2
+- Lens: recipient experience
+- ID: F-189
+
+### E-398 · 2026-11-22T15:43:29Z · FINDING · orchestrator
+
+- Class: DEFECT
+- Where: `plugin/commands/fit-check.md`, `fit-build.md`
+- Trigger: trial 003's receipt has no deviation line and holds unread contrast; 2 readers can report the third case alone or add the second
+- Violates: a rule that 2 readers take 2 ways
+- Raised by: AUDITOR of S8, LAUNCH E-372, `audits/S8-recipient-stability-E-372.md`, new finding 3
+- Lens: recipient experience
+- ID: F-190
+
+### E-399 · 2026-11-22T15:43:29Z · FINDING · orchestrator
+
+- Class: STYLE
+- Where: `plugin/README.md`, the statuses
+- Trigger: the Fit check on a fresh Vision's own `mockup.html` gives 7 Floor deviations, and the guide's act for deviation lines is "repair"
+- Violates: form only
+- Raised by: AUDITOR of S8, LAUNCH E-372, `audits/S8-recipient-stability-E-372.md`, new finding 4
+- Lens: recipient experience
+- ID: F-191
+
+### E-400 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-152
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-152.
+
+### E-401 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-153
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-153.
+
+### E-402 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-154
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-154.
+
+### E-403 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-155
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-155.
+
+### E-404 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-156
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-156.
+
+### E-405 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-157
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-157.
+
+### E-406 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-158
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-158.
+
+### E-407 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-159
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-159.
+
+### E-408 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-163
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-163.
+
+### E-409 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-164
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-164.
+
+### E-410 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-165
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-165.
+
+### E-411 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-166
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-166.
+
+### E-412 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-167
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-167.
+
+### E-413 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-168
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-168.
+
+### E-414 · 2026-11-22T15:43:29Z · RESOLUTION · orchestrator
+
+- Finding: F-169
+- Result: FIXED
+
+Repaired in commit 22 (504b1d7). A new SUB-AGENT re-ran the trigger and recorded `NO LONGER REPRODUCES`: `audits/S8-recipient-stability-E-372.md`, table "The FINDINGS re-run", row F-169.
+
+### E-415 · 2026-11-22T15:43:29Z · STAGE · orchestrator
+
+- Stage: S8
+- Event: end
+- Artifacts: `audits/S8-recipient-stability-E-372.md` (12 recipient tasks performed; 3 UNVERIFIED with steps for the USER; 4 stability checks; 16 FINDINGS re-run); `evidence/S8/`; `evidence/compare-builds.txt`
+
+### E-416 · 2026-11-22T15:43:29Z · STAGE · orchestrator
+
+- Stage: S9
+- Event: end
+- Artifacts: `audits/redcell-delivery-E-373.md` (verdict PLAN SURVIVES WITH CHANGES; FINDING F-170 to F-187); ANSWER E-377; commits 23 and 24
+
+### E-417 · 2026-11-22T15:43:29Z · STAGE · orchestrator
+
+- Stage: S10
+- Event: start
+- Skills read: `hinshitsu-delivery/SKILL.md` SHA-256 ea9e62e9ee2800efbbeb26919977693bc8f3422f0051f5e5a5f62fdb186777ac
+- Note: the final AUDITOR also re-runs the repairs of commits 23 and 24, because no other SUB-AGENT run is left for them in the plan of 30
+
+### E-418 · 2026-11-22T15:44:17Z · CRITERIA-CHANGE · orchestrator
+
+- Who asked: the RED CELL before delivery (`audits/redcell-delivery-E-373.md`, findings 3 and 5; F-172, F-174)
+- The USER's approval, word for word (E-377): to question 2: "Count only what the sample also leaves unread (Recommended)"; to question 1: "Fix the false alarms, list the rest (Recommended)", whose option text names "One more round". The USER was not asked in words whether commits 22 and 23 may each be 1 commit for their round; C5's new sentence states what was made, and the delivery report lists C5 as not met for that reason
+- Old text: C4 and C5 as they stand in E-289
+- Reason, by FINDING: F-174 (1 style line cleared Floor A1); F-172 (C5 named 2 commits of the fix round, and the branch holds more)
+
+The full new text of each changed CRITERION:
+
+- C4. For each of 5 cases, the Fit check's summary line and its `RECEIPT.md` agree. The cases: the 3 stored trials (`plugin/fit/trials/001`, `002`, `003`); the Vision's own page of trial 001 (`node plugin/fit/src/cli.ts plugin/fit/trials/001/files/mockup.html plugin/fit/trials/001/files <result folder>`; this Vision writes no Floor); and the stored folder `plugin/fit/trials/reference-floors/` (the Vision of the plain start with every Floor written in the edition that the program reads, checked against its own `mockup.html` by the same command form; 1 test shows that the folder equals what the Catalog writes today). They agree when: the number that the line calls deviations equals the sum of the numbers that the receipt calls deviations; each count of contrast names its unit ("readings of N texts") in the line and in the receipt alike; status 0 goes only with "No deviation" and with 0 "not measured" in a measure that counts, with 1 exception: a text whose contrast the program could not read does not change the status where the Vision's Mockup leaves a text with the same words unread too, or where Contrast does not count; where Contrast counts and the Mockup shows that text readably, the unread text makes the page "not measured" and the status 1; in both cases the line gives the count of such readings and texts and the receipt lists each text; a measure with nothing to check says so and gives no count; a Vision that writes its Floors in an edition that the program does not read ends with status 1, and its line and its receipt say in words that none of its Floor requirements was checked and do not present the number 1 as a count of requirements (row R-U03; `receipt.json` keeps the count that the status rests on, and the test of finding G-U01 in `exit.e2e.ts` keeps its assertions of `floors.notMeasured` 1 and `status` 1); and no sentence of the receipt says that the program did something it did not do. The measures that count are Requests, Colors, Typefaces, Corner radii, Content, Width and Floors, and Contrast only where the Vision writes Floor A1 in the edition of the Floors that the program reads. Test: the test "says nothing in the receipt that disagrees with its own summary line" in `plugin/fit/e2e/exit.e2e.ts` makes those assertions for all 5 and passes; the language auditor reads the 3 stored receipts and the 2 receipts that the 2 commands write.
+- C5. Each fix is 1 commit that holds its test and its record. The fixes of this run, 1 commit each: the 3 findings of C2 (3 commits); G-S05; A2-V4; R-S08; C8; R-S09; R-S11; R-S03; R-S07; G-S08; the receipt's wording (R-U03 and the units and "nothing to check" of C4); the guide and the 2 commands (R-U05, C7); the message for a missing browser (C7); the deliverable test (C3); the fifth case of C4; the rows and records (C1's states, R-T06, G-U07, C6). After the audit round of WU-1, the fix round is 1 commit for the FINDINGS in the code, the guide, the commands and the records (commit 20), and 1 commit for the deliverable test and the USER's answer on `--font-numeric` (commit 21); each holds its tests and its records Three more fix rounds followed, each 1 commit with its tests and records: commit 22 (the FINDINGS of the 2 re-audits), commit 23 (the FINDINGS of S8, and 2 tests that the RED CELL showed were missing), commit 24 (the round that the USER chose in E-377). Before each such commit, on the building machine: `npm run check` exits 0; `npx vitest run --config vitest.e2e.config.ts plugin/fit/e2e` reports 0 failed; and `npm run build:page` followed by `npx vitest run --config vitest.e2e.config.ts apps/studio/e2e/deliverable.e2e.ts` reports 0 failed; the last lines of the 3 outputs are saved as `evidence/commit-<n>-checks.txt` in that commit. At the final commit the same commands pass on the building machine, and GitHub's checks "check" (which runs the whole browser suite, `npm run e2e`) and "Outside validators" succeed on that commit. The whole suite is not run on the building machine (PREMISE A-3); the USER accepted GitHub's run in its place (E-67, answer 7). The run pushes to the working branch only. Test: the saved outputs under `evidence/`; the check runs of pull request 24 as GitHub reports them; `git log` of the working branch from 859c643, read against the list of fixes above; and the head of `claude/brave-mayer-sawqz9`, which stays `4dc8649` unless the USER moves it; all read by the final AUDITOR.

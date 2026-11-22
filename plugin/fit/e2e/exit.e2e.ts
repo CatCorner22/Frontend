@@ -451,8 +451,10 @@ describe('the gate review of 2026-11-17: what a hostile page or folder can no lo
     const mockup = ['(hover: hover) and (pointer: fine)', '(min-width: 860px)'];
     expect(unreadConditions(['(hover: hover) and (pointer: fine)', '(min-width: 860px)', '(max-width: 599px)', '(prefers-reduced-motion: reduce)', 'print', 'screen and (min-width: 40em)', '(400px <= width <= 700px)', '(orientation: landscape)'], mockup)).toEqual([]);
     expect(unreadConditions(['(pointer: coarse)', '(min-width: 600px) and (prefers-color-scheme: dark)', 'screen and (-webkit-min-device-pixel-ratio: 2)', 'print, (hover: none)', '(forced-colors: active)'], mockup)).toEqual(['(forced-colors: active)', '(min-width: 600px) and (prefers-color-scheme: dark)', '(pointer: coarse)', 'print, (hover: none)', 'screen and (-webkit-min-device-pixel-ratio: 2)']);
-    // The Mockup's own condition in another order of words is another condition: the program compares the text that the browser writes.
-    expect(unreadConditions(['(pointer: fine) and (hover: hover)'], mockup)).toEqual(['(pointer: fine) and (hover: hover)']);
+    // The Mockup's own condition with its parts in another order is the same condition (attack before delivery, 2026-11-22; before
+    // that the program compared the text and called it another condition).
+    expect(unreadConditions(['(pointer: fine) and (hover: hover)'], mockup)).toEqual([]);
+    expect(unreadConditions(['(pointer: coarse) and (hover: hover)'], mockup)).toEqual(['(pointer: coarse) and (hover: hover)']);
   });
 
   it('counts the page as not measured when it holds a closed shadow root, written in the markup or made by a script, and names it in the receipt (finding A2-V4)', async () => {
@@ -1112,4 +1114,31 @@ describe('the audit round of the repair run (2026-11-22): what the seven reviewe
     expect(measure(still.receipt, 'contrast').texts?.unread).toBeGreaterThan(0);
     expect(measure(moving.receipt, 'contrast').texts?.unread).toBe(measure(still.receipt, 'contrast').texts?.unread);
   }, 600_000);
+
+  it('attack before delivery: ordinary pages get no false alarm (a line break, lines as boxes and a soft hyphen in the headline; a small icon; a canonical link; the Mockup’s own condition in another order), and a shrunk headline and an unread text that the Mockup shows readably are not passed', async () => {
+    const words = h1.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().split(' ');
+    const half = Math.ceil(words.length / 2);
+    const ordinary: [string, string][] = [
+      ['a line break in the headline', once(reference, h1, `<h1>${words.slice(0, half).join(' ')}<br>${words.slice(half).join(' ')}</h1>`)],
+      ['the headline’s lines as boxes', once(reference, h1, `<h1><span style="display:block">${words.slice(0, half).join(' ')}</span><span style="display:block">${words.slice(half).join(' ')}</span></h1>`)],
+      ['a soft hyphen in the headline', once(reference, h1, `<h1>${words.join(' ').replace(/(\w{3})(\w{3})/, '$1&shy;$2')}</h1>`)],
+      ['a small icon with a rounded stroke', inBody('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/></svg>')],
+      ['a canonical link', inHead('<link rel="canonical" href="https://harborstreetdental.example/">')],
+      ['the Mockup’s own condition, its parts in another order', inHead('<style>@media (pointer: fine) and (hover: hover) { .zz { top: 0 } }</style>')],
+    ];
+    for (const [name, html] of ordinary) {
+      const { receipt, status } = await fit({ files, html, browser });
+      expect(receipt.measured.flatMap((m) => (m.id === 'contrast' ? [] : m.items)).join('\n'), name).toBe('');
+      expect(status, name).toBe(0);
+    }
+    expect(await headlineMissing(inHead('<style>h1{transform:scale(0.03)}</style>'))).toBe(true);
+    // The Vision requires contrast: a text that the Mockup shows readably and the program cannot read makes the page "not measured".
+    const base = await fit({ files, html: reference, browser });
+    expect(base.status).toBe(0);
+    expect(measure(base.receipt, 'contrast').texts?.unexcused).toBe(0);
+    const faint = await fit({ files, html: inBody('<p style="opacity:0.9999">Planted faint words</p>'), browser });
+    expect(measure(faint.receipt, 'contrast').texts?.unexcused).toBe(1);
+    expect(faint.status).toBe(1);
+    expect(faint.markdown).toMatch(/1 of these texts is not unread in the Vision’s Mockup, so the page counts as not measured/);
+  }, 900_000);
 });

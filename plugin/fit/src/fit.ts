@@ -270,7 +270,8 @@ async function readAt(browser: Browser, html: string, reading: (typeof READINGS)
   }
 }
 
-const collapse = (text: string): string => text.replace(/\s+/g, ' ').trim().toLowerCase();
+// A soft hyphen (U+00AD) only says where a word may break: it is no letter of the text.
+const collapse = (text: string): string => text.replace(/\u00ad/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
 
 const INFORMATION_LISTED = 50;
 
@@ -395,7 +396,7 @@ function contrastOf(text: Pick<Collected['texts'][number], 'foreground' | 'layer
   return contrastRatio(fg.a < 1 ? over(fg, behind) : fg, behind);
 }
 
-function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[], edition: number | null, unrun = '', mockupMedia: readonly string[] = []): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
+function measures(design: DesignValues, passes: Pass[], mockupBrief: { business: string; headline: string; primaryAction: string }, source: { inline: number; external: number }, written: readonly string[], edition: number | null, unrun = '', mockupMedia: readonly string[] = [], mockupUnread: ReadonlySet<string> = new Set()): { measured: Measure[]; pageErrors: string[]; scripts: Receipt['scripts']; loadFailures: Receipt['loadFailures']; floorsNotChecked: string[] } {
   const good = passes.filter((p): p is Extract<Pass, { collected: Collected }> => 'collected' in p);
   const loadFailures = passes.flatMap((p) => ('failure' in p ? [{ width: p.width, reason: bounded(`${p.label}: ${p.failure}`) }] : []));
   // An animation with an end that has not ended at the last reading: the page may still change after the program stops (finding G-S04).
@@ -474,16 +475,22 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
   // of one label are counted in each reading on its own, and the largest count of any reading stands: an element that a script
   // adds between two readings cannot make one text count twice (second re-audit).
   const unreadLabels = new Map<string, number>();
+  // Where the Vision requires contrast, an unread text is excused only where the Mockup leaves a text with the same words unread
+  // too (the owner's answer of 2026-11-22): every other unread text makes the page "not measured".
+  const unexcusedLabels = new Map<string, number>();
+  const wordsOf = (where: string): string => collapse(/"(.*)"$/.exec(where)?.[1] ?? where);
   const belowLabels = new Map<string, number>();
   const mostOf = (into: Map<string, number>, here: Map<string, number>): void => { for (const [label, n] of here) into.set(label, Math.max(into.get(label) ?? 0, n)); };
   for (const p of good) {
     const unreadHere = new Map<string, number>();
+    const unexcusedHere = new Map<string, number>();
     const belowHere = new Map<string, number>();
     for (const text of p.collected.texts) {
       const ratio = contrastOf(text);
       if (ratio === null) {
         unreadable++;
         unreadHere.set(text.where, (unreadHere.get(text.where) ?? 0) + 1);
+        if (!mockupUnread.has(wordsOf(text.where))) unexcusedHere.set(text.where, (unexcusedHere.get(text.where) ?? 0) + 1);
         const why = text.unmeasured === '' ? 'a color could not be read' : text.unmeasured;
         reasons.set(why, (reasons.get(why) ?? 0) + 1);
         continue;
@@ -494,6 +501,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
       if (ratio < needed) contrastRows.push({ ratio, key: `${ratio.toFixed(2)} to 1, where ${String(needed)} to 1 is the usual least, on ${text.where}`, width: p.width, label: p.label });
     }
     mostOf(unreadLabels, unreadHere);
+    mostOf(unexcusedLabels, unexcusedHere);
     mostOf(belowLabels, belowHere);
   }
   const sum = (counts: Map<string, number>): number => [...counts.values()].reduce((total, n) => total + n, 0);
@@ -555,7 +563,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
     : otherEdition
     ? `The Vision’s section 7 writes ${String(written.length)} requirements in ${edition === null ? 'an edition without a number (an older Vision)' : `edition ${String(edition)}`} of the Floors; this program reads edition ${String(FLOORS_EDITION)}, and the two may word a requirement differently. The program checked none of them. Write the Vision again from the Studio, then check again.`
     : `The Vision’s section 7 writes ${String(written.length)} requirements. The program checked a part of ${String(partly.length)} of them (${partly.join(', ')}); each deviation line names its requirement, and the list below says which part of each the program checked. Passing that part does not show that the page meets the requirement: the rest of each, and all of ${floorsNotChecked.join(', ')}, stay with a person.`;
-  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : written.includes('A1') ? 'The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${readingsOf(unreadable, unreadTexts.size)} could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: ${whyUnread}.` : ''}`;
+  const contrastNote = `The ratio of each text to its background by the WCAG 2.x formula. ${binding ? 'The Vision writes Floor A1, so a ratio below its least is a deviation.' : written.includes('A1') ? 'The Vision writes Floor A1 in an edition of the Floors that this program does not read, so no ratio counts as a deviation here; the lines show texts below the usual least.' : 'The Vision does not write Floor A1 for this project, so no ratio is a deviation from it; the lines show texts below the usual least.'}${unreadable > 0 ? ` ${readingsOf(unreadable, unreadTexts.size)} could not be measured (the program reads each text at 3 window widths, and up to 3 times at each width). The reasons, by reading: ${whyUnread}.${binding ? (sum(unexcusedLabels) > 0 ? ` ${String(sum(unexcusedLabels))} of these texts ${sum(unexcusedLabels) === 1 ? 'is' : 'are'} not unread in the Vision’s Mockup, so the page counts as not measured (status 1): the Vision requires contrast, and a text that the Mockup shows readably must be readable to the program too.` : ' Each of these texts is unread in the Vision’s Mockup too, so they do not change the status.') : ''}` : ''}`;
   const pageErrors = [...new Set(good.flatMap((p) => p.errors.map((e) => [...shown(e)].slice(0, 200).join(''))))].sort().slice(0, 5);
   const most = (pick: (c: Collected) => number): number => Math.max(0, ...good.map((p) => pick(p.collected)));
   return {
@@ -567,7 +575,7 @@ function measures(design: DesignValues, passes: Pass[], mockupBrief: { business:
       measureOf('colors', 'Colors: every color that the page draws is a color of the Vision', colorNote, grouped(colorRows, (key, n, first) => `${key}: ${count(n)}, first ${first}`), failed + unreadColors + filtered + frames + foreignShapes, [...translucent], 'Listed for information and not compared: partly transparent colors. A person must judge them on the page.'),
       measureOf('typefaces', 'Typefaces: every text names a typeface of the Vision', 'The first family that each text names is compared; a fallback after it is not. The site’s font files are not there during the check, so the program compares names, not the letters drawn; an @font-face rule that gives a Vision typeface’s name to a font installed on the machine is a deviation.', [...grouped(fontRows, (key, n, first) => `typeface "${key}": ${count(n)}, first ${first}`), ...aliases], failed),
       measureOf('radii', 'Corner radii: every drawn box uses a radius of the Vision', 'Boxes with a fill, an edge, or a picture are compared; a radius of 0 is always allowed.', grouped(radiusRows, (key, n, first) => `radius ${key}: ${count(n)}, first ${first}`), failed),
-      { ...measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadLabels].map(([label, n]) => (n > 1 ? `${label} (${String(n)} texts with these words)` : label)), 'Texts whose contrast the program could not read. A person must judge these by eye:'), texts: { below: belowTexts.size, unread: unreadTexts.size, unreadReadings: unreadable } },
+      { ...measureOf('contrast', binding ? 'Contrast: required by Floor A1 of the Vision' : 'Contrast: measured, not required', contrastNote, contrastLines.map((c) => c.line), unreadable + failed, [...unreadLabels].map(([label, n]) => (n > 1 ? `${label} (${String(n)} texts with these words)` : label)), 'Texts whose contrast the program could not read. A person must judge these by eye:'), texts: { below: belowTexts.size, unread: unreadTexts.size, unreadReadings: unreadable, ...(binding ? { unexcused: sum(unexcusedLabels) } : {}) } },
       measureOf('content', 'Content: the three required texts of the Brief are where a person can read them', 'The business name, the headline, and the primary action, as the Mockup shows them, compared without regard to letter case or runs of white space, in each reading on its own. A text counts only where it is drawn at 6 pixels or more, not nearly transparent, in a color that is not transparent, and inside the window; a text under a clip-path or a mask is not measured.', contentLines, failed + contentUnsure),
       measureOf('width', 'Width: the page is not wider than its window', 'Measured in each reading; sideways scrolling, and text cut off at the window’s edge where a person cannot reach it, are deviations.', widthLines, failed),
       { ...measureOf('floors', 'Floors: the part of each requirement that a program can check', `${floorsNote}${!otherEdition && written.length > 0 && floorsCut > 0 ? ' The page held more entries than the program reads in at least one list (200 of each: titles, descriptions, robots tags, viewport tags, referrer tags, headings, forms, font rules); an entry after the first 200 was not read, so the Floors count as not measured once.' : ''}`, [...floorLines], failed + (otherEdition ? 1 : written.length > 0 ? floorsCut : 0), partly.map((id) => `${id}: ${CHECKED_PART[id] ?? ''}`), 'What the program checked of each requirement, and no more than this:'), ...(written.length === 0 ? { nothingToCheck: true } : {}), ...(otherEdition ? { noneCheckedOf: written.length } : {}) },
@@ -594,13 +602,13 @@ export async function fit(input: FitInput): Promise<FitResult> {
     const brief = await readMockupBrief(browser, input.files['mockup.html'] ?? '', ms);
     const visionMd = input.files['VISION.md'] ?? '';
     const written = writtenFloorIds(visionMd);
-    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written, statedEdition(visionMd), runScripts ? '' : unrunParts(input.html), brief.media);
+    const { measured, pageErrors, scripts, loadFailures, floorsNotChecked } = measures(design, passes, brief, scriptsInSource(input.html), written, statedEdition(visionMd), runScripts ? '' : unrunParts(input.html), brief.media, new Set(brief.texts.filter((text) => contrastOf(text) === null).map((text) => collapse(/"(.*)"$/.exec(text.where)?.[1] ?? text.where))));
     // "Not measured" is never "no deviation": anything not measured in a measure that counts gives status 1 (decision D71, A1-07).
     // Contrast counts when the Vision writes Floor A1: a ratio below its least is then a deviation. A text whose contrast could not
     // be read does not change the status (the Mockup itself holds such texts); the receipt and the command line name the count.
     const counted = measured.filter((m) => m.id !== 'contrast');
     const contrast = measured.find((m) => m.id === 'contrast');
-    const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || ((contrast?.title ?? '').startsWith('Contrast: required') && (contrast?.deviations ?? 0) > 0) || loadFailures.length > 0 ? 1 : 0;
+    const status = counted.some((m) => m.deviations > 0 || m.notMeasured > 0) || ((contrast?.title ?? '').startsWith('Contrast: required') && ((contrast?.deviations ?? 0) > 0 || (contrast?.texts?.unexcused ?? 0) > 0)) || loadFailures.length > 0 ? 1 : 0;
     const judged = (input.judged ?? []).map((line) => bounded(line.replace(/\s+/g, ' ').trim())).filter((line) => line !== '');
     const visionFiles = READ_FILES.map((name) => ({ name, ...(input.onDisk?.files?.[name] ?? { bytes: Buffer.byteLength(input.files[name] ?? '', 'utf8'), sha256: createHash('sha256').update(input.files[name] ?? '', 'utf8').digest('hex') }) }));
     const receipt: Receipt = {
@@ -673,11 +681,14 @@ function countClosedRoots(node: { shadowRoots?: unknown[]; children?: unknown[];
  * pointer, hover, color scheme, contrast, and the rest) names a setting under which the page may show another design.
  */
 export function unreadConditions(build: readonly string[], mockup: readonly string[]): string[] {
-  const known = new Set(mockup);
+  // A condition is its parts, in whatever order they are written: "(pointer: fine) and (hover: hover)" is the Mockup's own
+  // "(hover: hover) and (pointer: fine)" (attack before delivery, 2026-11-22).
+  const parts = (condition: string): string => condition.split(',').map((part) => part.trim().split(/\s+and\s+/).sort().join(' and ')).sort().join(', ');
+  const known = new Set(mockup.map(parts));
   const sizeOrMotion = /\((?:[^()]*\b(?:width|height|aspect-ratio|orientation)\b[^()]*|\s*prefers-reduced-motion[^()]*)\)/g;
   const unread = new Set<string>();
   for (const condition of build) {
-    if (known.has(condition)) continue;
+    if (known.has(parts(condition))) continue;
     // Each part between commas is a condition of its own.
     for (const part of condition.split(',')) {
       const text = part.trim();
@@ -689,18 +700,18 @@ export function unreadConditions(build: readonly string[], mockup: readonly stri
   return [...unread].sort();
 }
 
-async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief> & { media: string[] }> {
+async function readMockupBrief(browser: Browser, mockup: string, ms: number): Promise<ReturnType<typeof readBrief> & { media: string[]; texts: Collected['texts'] }> {
   // The Mockup comes from the Vision folder, which may come from anywhere: its window has no script, no network, and the same dead
   // proxy as the build's window, so that not even a prefetch or a preconnect link reaches a host (gate review, finding G-S01).
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, offline: true, javaScriptEnabled: false, serviceWorkers: 'block', proxy: DEAD_PROXY });
-  let brief: ReturnType<typeof readBrief> & { media: string[] };
+  let brief: ReturnType<typeof readBrief> & { media: string[]; texts: Collected['texts'] };
   try {
     const page = await context.newPage();
     await context.route('**/*', (route) => route.abort());
     await context.routeWebSocket(() => true, (socket) => socket.close());
     await within(page.setContent(mockup, { waitUntil: 'load', timeout: ms }), ms + 1000, 'the Mockup did not load');
     // Read from a world of its own, as the build is: a script in a changed mockup.html cannot blank or forge the texts (finding A1-14).
-    brief = { ...(await within(readInOwnWorld(page, readBrief), ms, 'the Mockup did not answer')), media: await within(readInOwnWorld(page, mediaConditions), ms, 'the Mockup did not answer') };
+    brief = { ...(await within(readInOwnWorld(page, readBrief), ms, 'the Mockup did not answer')), media: await within(readInOwnWorld(page, mediaConditions), ms, 'the Mockup did not answer'), texts: (await within(readInOwnWorld(page, collect), ms, 'the Mockup did not answer')).texts };
   } catch {
     throw new FitError('The file "mockup.html" could not be opened to read the three required texts.');
   } finally {

@@ -108,6 +108,16 @@ A fresh session reads this file to learn where the project stands. Update it aft
 
 ## Build log (verified build loop; newest entry first)
 
+### 2026-11-22: repair run, commit 24: the round that the owner chose after the attack (false alarms, 2 tricks, a tighter rule for unread contrast)
+- Feature worked on (ID): none in the list. The owner's decision D85 (2 answers on 2026-11-22).
+- False alarms on ordinary pages, repaired: a line break, lines as boxes, and a soft hyphen in the headline no longer give "headline missing"; a small icon's rounded stroke no longer gives a corner deviation; a canonical link no longer gives a request deviation; the sample website's own hover rule, written in another order, no longer gives "not measured".
+- Trick, repaired: a text drawn less than 6 pixels tall is not readable. A second repair was written and taken out again before the commit: it made a linked style sheet of the site's own address "not measured", and an older test showed that this breaks the rule of `SPEC.md` section 2.13 (such a file is information, no fault). The trick stays open as row RC-07.
+- The tighter rule: where the Vision requires contrast, a text whose contrast the Fit check cannot read is excused only where the Mockup leaves a text with the same words unread too; every other unread text gives status 1. The guide, 2 commands, the guarantees reference (version 1.30) and `SPEC.md` section 2.31 point 20 say so.
+- Test (written first; it failed before the repair): "attack before delivery: ordinary pages get no false alarm ..." in `plugin/fit/e2e/exit.e2e.ts`. One older assertion changed with the owner's decision: the hover rule in another order is now the same condition.
+- Known open, listed for the next run: rows RC-01 to RC-04 and RC-07 of `redteam/FINDINGS.md` (2 hidden-text tricks, the earlier receipt that anyone can edit, limit sentences that name no act, a linked style sheet of the site's own that is not read).
+- The stored trial receipts were written again; no count changed.
+- Evidence: `hinshitsu/evidence/commit-24-checks.txt`.
+
 ### 2026-11-22: repair run, commit 23: what the last two checkers found in records and tests
 - Feature worked on (ID): none in the list. Two more independent checkers ran on commit 22: one did each task of a recipient with the finished product and re-ran the last repairs (`hinshitsu/audits/S8-recipient-stability-E-372.md`: every task worked; 3 repeated runs gave equal bytes; 15 of 16 repairs confirmed); one attacked the product and the run's record (`hinshitsu/audits/redcell-delivery-E-373.md`, verdict "PLAN SURVIVES WITH CHANGES").
 - This commit: the row G-S05, `SPEC.md` and this file say that the owner accepted the touch-phone limit (decision D84); the guide says from which folder to run the two programs and that the Mockup is no built page; `fit-check` and `fit-build` say that an unread contrast is not the case "not measured"; the record of trial 001 marks its old fingerprint; 2 tests that the attacker showed were missing (a headline fixed to the window; a browser that ends without a word).

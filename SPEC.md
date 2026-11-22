@@ -543,6 +543,13 @@ The owner asked for a run that repairs the current bugs, with the final delivera
     - Point 13: the line for a browser that does not start quotes only a line that the browser itself wrote; without one it says that the browser gave no message.
     - The commands: `fit-repair` tests the case "none of the Floor requirements was checked" first, and names an act for a receipt with status 0 and for a result folder with no receipt; `fit-check`, `fit-build` and `fit-look` read the result files only for status 0 or 1.
     - A stated limit that the owner accepted on 2026-11-22 (row G-S05; the run's log, entry E-293): a media condition that the Mockup holds too, such as a mouse that can hover, is read in one state only; a page can use it the other way round to show another design on a touch phone.
+20. The round after the attack before delivery (2026-11-22; the owner's decision D85):
+    - Point 18 is replaced: where the Vision requires contrast, a text whose contrast the program cannot read makes the page "not measured" (status 1), unless the Mockup leaves a text with the same words unread too. The one line and the receipt say how many such texts there are. Edge cases: a faithful page keeps status 0 (its unread texts are the Mockup's); a Vision that does not require contrast is as before.
+    - Point 6: a line break, lines that are boxes of their own, and a soft hyphen inside a heading, a paragraph, a link or a button do not part the text; a text drawn less than 6 pixels tall (shrunk by a transform or a zoom) is not counted as readable.
+    - Point 11: a rectangle drawn smaller than 24 pixels (a stroke of an icon) is not compared.
+    - Requests: a `link` counts only for the kinds that make a browser fetch (a style sheet, a preload, an icon, a manifest and the like); a canonical or alternate link names a place and is no deviation. A style sheet at the page's own address stays what section 2.13 makes it: listed as "not shipped with the page", no deviation.
+    - Point 4: a media condition is compared by its parts, in whatever order they are written.
+    - Known open, listed for the next run (`redteam/FINDINGS.md`, rows RC-01 to RC-04 and RC-07): a page whose look rests on a linked style sheet of its own address is measured without that sheet; a headline in its ground color over a gradient of 2 colors or over a box that is no box around it still counts as found; the sentence on a changed Vision file can be made false by editing the earlier receipt; the receipt's limit sentences name no act for the owner in 5 cases.
 
 ## 3. Out of scope
 

@@ -176,7 +176,8 @@ async function main(args: string[]): Promise<number> {
   const parts = [deviations === 0 ? 'No deviation' : `${some(deviations, 'deviation', 'deviations')}${required && contrast.deviations > 0 ? ` (of these, ${readingsOf(contrast.deviations, texts.below)} below the least contrast)` : ''}`];
   if (unmeasured > 0) parts.push(`${some(unmeasured, 'thing', 'things')} could not be measured`);
   if (noneCheckedOf !== undefined) parts.push(`none of the ${some(noneCheckedOf, 'Floor requirement', 'Floor requirements')} of the Vision was checked (the Vision writes them in an edition that this program does not read)`);
-  if (texts.unreadReadings > 0) parts.push(`the contrast of ${readingsOf(texts.unreadReadings, texts.unread)} could not be read (this does not change the status)`);
+  const unexcused = contrast?.texts?.unexcused ?? 0;
+  if (texts.unreadReadings > 0) parts.push(`the contrast of ${readingsOf(texts.unreadReadings, texts.unread)} could not be read (${unexcused > 0 ? `${some(unexcused, 'of these texts is', 'of these texts are')} readable in the Vision’s Mockup, so the page counts as not measured` : 'this does not change the status'})`);
   // Texts below the usual contrast where the Vision does not require it: said, and not counted (finding R-U02).
   if (contrast && !required && contrast.deviations > 0) parts.push(`${readingsOf(contrast.deviations, texts.below)} below the usual contrast (information: this Vision does not require it)`);
   process.stdout.write(`${parts.join('; ')}. Status ${String(status)}. Receipt: ${join(resolve(outFolder), 'RECEIPT.md')}\n`);

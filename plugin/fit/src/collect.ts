@@ -129,7 +129,11 @@ export function collect(): Collected {
   for (const [tag, attribute] of holders) {
     for (const el of every(tag)) {
       const value = el.getAttribute(attribute) ?? '';
-      if (outside(value)) references.push({ kind: `${tag} ${attribute}`, value: collapse(value), address: value });
+      // A `link` makes a browser fetch only for some kinds (`rel`): a canonical address or an alternate language names a place and
+      // asks for nothing (attack before delivery, 2026-11-22). A style sheet is marked, because the page's look rests on it.
+      const rel = tag === 'link' ? (el.getAttribute('rel') ?? '').toLowerCase() : '';
+      if (tag === 'link' && !/\b(stylesheet|preload|modulepreload|prefetch|preconnect|dns-prefetch|prerender|icon|apple-touch-icon|mask-icon|manifest)\b/.test(rel)) continue;
+      if (outside(value)) references.push({ kind: tag === 'link' && /\bstylesheet\b/.test(rel) ? 'link href, a style sheet' : `${tag} ${attribute}`, value: collapse(value), address: value });
     }
   }
   // A ping holds several addresses, separated by spaces.
@@ -223,7 +227,9 @@ export function collect(): Collected {
     // A rectangle of the picture has corners of its own (`rx`, `ry`): they are compared as a box's corners are (the rest of
     // finding G-S08). One of the two alone rounds both directions, as the browser draws it. The picture's own scale (a
     // `viewBox`, a `transform`) changes the size on the screen, so the corner is compared as drawn (finding F-102).
-    if (shape instanceof SVGRectElement && (ss.fill !== 'none' || ss.stroke !== 'none')) {
+    // A rectangle drawn smaller than 24 pixels is a stroke of an icon, not a box of the design: its corner is not compared.
+    const size = (shape === placed ? shape : placed).getBoundingClientRect();
+    if (shape instanceof SVGRectElement && (ss.fill !== 'none' || ss.stroke !== 'none') && Math.min(size.width, size.height) >= 24) {
       const corners = ss as unknown as { rx?: string; ry?: string };
       const matrix = placed instanceof SVGGraphicsElement ? placed.getScreenCTM() : null;
       let scale = [matrix ? Math.hypot(matrix.a, matrix.b) : 1, matrix ? Math.hypot(matrix.c, matrix.d) : 1];
@@ -483,7 +489,9 @@ export function collect(): Collected {
   const blockOf = (el: Element): Element => {
     let up = el;
     while (up.parentElement && getComputedStyle(up).display.startsWith('inline') && !getComputedStyle(up).display.startsWith('inline-')) up = up.parentElement;
-    return up;
+    // The lines of one heading, paragraph, link or button are one text, also where each line is a box of its own (attack before
+    // delivery, 2026-11-22).
+    return up.closest('h1, h2, h3, h4, h5, h6, p, a, button, label, li, dt, dd') ?? up;
   };
   // Letters drawn in a transparent color are not read, unless a gradient fills them through the text (retest finding A2-V6).
   const fillsThroughText = (el: Element | null): boolean => {
@@ -673,14 +681,17 @@ export function collect(): Collected {
       const range = document.createRange();
       range.selectNodeContents(node);
       const r = range.getBoundingClientRect();
-      if (r.width <= 0 || r.height <= 0 || r.right <= 0 || r.left >= viewWidth) continue;
+      // Drawn less than 6 pixels tall (a transform or a zoom shrinks the letters whatever their font size): no person reads it.
+      if (r.width <= 0 || r.height < 6 || r.right <= 0 || r.left >= viewWidth) continue;
       // Above the top of the page, where no person can scroll, or cut away by a box that hides what overflows it (finding G-S03).
       if (r.bottom + window.scrollY <= 0 || cutAway(host, r)) continue;
       // A faint text, and a text that another box covers, may not be readable: not measured, never "found" (finding G-S03).
       const unsure = underClip(host) || opacity < 0.5 || behindOwnBox(host) || turnedAway(host) || (root === (document.body ?? document.documentElement) && covered(host, range));
       const into = unsure ? clipped : shown;
       const block = blockOf(host);
-      into.set(block, [...(into.get(block) ?? []), value]);
+      // A line break, and the edge of a box inside the text's block, part two words as a space does.
+      const broken = node.previousSibling?.nodeName === 'BR' || (host !== block && getComputedStyle(host).display === 'block');
+      into.set(block, [...(into.get(block) ?? []), broken ? ` ${value}` : value]);
     }
   }
 
