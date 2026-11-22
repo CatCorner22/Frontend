@@ -61,6 +61,8 @@ An example: `/frontend-focus-fitter:fit-check build/index.html vision/ result/`,
 
 **The measures that count** for the status are Requests, Colors, Typefaces, Corner radii, Content, Width, and Floors, and Contrast only where the Vision writes Floor A1 (the least contrast of text) in the edition that the Fit check reads. A text whose contrast the Fit check cannot read never changes the status, also where Contrast counts.
 
+**The Mockup is not a built page.** It is a still sample: its links lead nowhere and its form sends nothing. Checked against its own Vision it shows no deviation in the design, and it shows deviation lines under Floors. Do not repair the Mockup; build your page and check that.
+
 **The three cases of status 1.** More than one can hold at once.
 
 - *Deviation lines.* The receipt lists what differs. Repair each by hand, or let `fit-repair` do it.
@@ -92,7 +94,11 @@ The receipt keeps three things apart: what the Fit check measured, what the mode
 
 ## Running the Fit check without Claude Code
 
+In this folder (the folder that holds this guide), run:
+
 `node fit/src/cli.ts [--run-scripts] [--round <0 to 3>] [--judged <file>] <build.html> <Vision folder> <result folder>`
+
+From another folder, Node does not find the program and stops with "Cannot find module"; that is no status of the Fit check.
 
 | Option | What it does |
 |---|---|
@@ -103,6 +109,8 @@ The receipt keeps three things apart: what the Fit check measured, what the mode
 In the repository of Frontend Focus, `npm run fit -- <the same arguments>` runs the same program.
 
 ## Running the look without Claude Code
+
+In this folder, run:
 
 `node fit/src/look-cli.ts [--run-scripts] [--fonts <folder>] <build.html> <Vision folder> <result folder>`
 

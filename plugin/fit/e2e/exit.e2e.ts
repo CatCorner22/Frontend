@@ -1057,6 +1057,11 @@ describe('the audit round of the repair run (2026-11-22): what the seven reviewe
       expect(dead.stderr, program).toContain('the browser did not start');
       expect(dead.stderr, program).toContain('libplanted.so');
       expect(dead.stderr, program).not.toContain('found no browser');
+      // A browser that ends without a word: the line says so and quotes no line of the tool that started it.
+      const silent = spawnSync(process.execPath, [join(process.cwd(), 'plugin/fit/src', program), join(folder, 'build.html'), folder, join(folder, `silent-${program}`)], { encoding: 'utf8', env: { ...process.env, PW_CHROMIUM: '/bin/true' } });
+      expect(silent.status, program).toBe(2);
+      expect(silent.stderr, program).toContain('The browser gave no message of its own.');
+      expect(silent.stderr, program).not.toMatch(/\[pid=|<launching>/);
     }
     // A pipe under the name of a font file: the look leaves it alone and ends.
     const font = /[\w-]+\.woff2/.exec(files['FONTS.md'] ?? '')?.[0] ?? '';
@@ -1086,6 +1091,8 @@ describe('the audit round of the repair run (2026-11-22): what the seven reviewe
     // The scrolling box lies between the headline and the box that contains it for layout: the browser does not clip the headline by it.
     const placed = once(reference, h1, `<div style="position:relative;height:260px"><div style="overflow-x:auto;margin-top:200px;height:40px">${h1.replace('<h1>', '<h1 style="position:absolute;top:0;left:0">')}</div></div>`);
     expect(await headlineMissing(placed)).toBe(false);
+    // A headline fixed to the window is contained by the window: a box of no height that hides what overflows does not cut it away.
+    expect(await headlineMissing(once(reference, h1, `<div style="overflow:hidden;height:0">${h1.replace('<h1>', '<h1 style="position:fixed;top:120px;left:20px;margin:0">')}</div>`))).toBe(false);
     const words = h1.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().split(' ');
     expect(await headlineMissing(once(reference, h1, `<h1>${words.map((word) => `<span>${word}</span>`).join(' ')}</h1>`))).toBe(false);
     // An icon sprite: the shape is 6 wide in its own units and is drawn 24 wide, so its corner of 2 is 8 pixels on the screen.

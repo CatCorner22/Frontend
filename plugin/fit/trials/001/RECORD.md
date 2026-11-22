@@ -4,7 +4,7 @@ Date of the run: 2026-11-16. This is one run: one helper agent, one project, one
 
 ## Instruction
 
-The helper received the text in `INSTRUCTION.md`, word for word, and a folder that held the seven files in `files/` and nothing else. The files are the output of the Studio's core for the fixed project of `plugin/fit/e2e/trial-project.ts`: the plain start, six Decisions (menu, first screen, density, typeface, accent color, corner radius; each differs from the start), one reason in the owner's words, and the sample content. Their fingerprint is `7776d35d`.
+The helper received the text in `INSTRUCTION.md`, word for word, and a folder that held the seven files in `files/` and nothing else. The files are the output of the Studio's core for the fixed project of `plugin/fit/e2e/trial-project.ts`: the plain start, six Decisions (menu, first screen, density, typeface, accent color, corner radius; each differs from the start), one reason in the owner's words, and the sample content. Their fingerprint is `7776d35d` [as of the run's date; the stored files carry `0fabf790` since 2026-11-22: see the last part of this record].
 
 The helper was a general-purpose helper agent of this session. It ran on the session's model at that time; the builder did not read which model served the turn, and the record does not claim one. The helper ran for about 71 seconds and used 9 tool calls.
 

@@ -542,7 +542,7 @@ The owner asked for a run that repairs the current bugs, with the final delivera
     - Point 4: where the page holds more style rules, conditions or shadow roots than the program reads, the receipt says that in a sentence of its own.
     - Point 13: the line for a browser that does not start quotes only a line that the browser itself wrote; without one it says that the browser gave no message.
     - The commands: `fit-repair` tests the case "none of the Floor requirements was checked" first, and names an act for a receipt with status 0 and for a result folder with no receipt; `fit-check`, `fit-build` and `fit-look` read the result files only for status 0 or 1.
-    - A stated limit that waits for the owner's word (row G-S05): a media condition that the Mockup holds too, such as a mouse that can hover, is read in one state only; a page can use it the other way round to show another design on a touch phone.
+    - A stated limit that the owner accepted on 2026-11-22 (row G-S05; the run's log, entry E-293): a media condition that the Mockup holds too, such as a mouse that can hover, is read in one state only; a page can use it the other way round to show another design on a touch phone.
 
 ## 3. Out of scope
 
