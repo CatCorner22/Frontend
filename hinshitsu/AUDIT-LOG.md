@@ -3512,3 +3512,41 @@ Repaired in the fix round (commits 19 to 21). A new SUB-AGENT re-ran the trigger
 - Result: FIXED
 
 The USER chose the program's rule (E-288, answer 2), and C4 states it since E-289. A new SUB-AGENT re-ran the trigger of the same question (F-74, F-112) and recorded `NO LONGER REPRODUCES`: `audits/WU-1-reaudit-records-E-291.md`.
+
+### E-372 · 2026-11-22T14:33:41Z · LAUNCH · orchestrator
+
+- Role: AUDITOR, recipient-side verification and stability (S8), and the re-run of the repairs of commit 22
+- WORK UNIT: WU-1
+- Scope: `prompts/S8-recipient-stability.md`
+- Commit under review: 240a2bb (the DELIVERABLE at 504b1d7, commit 22)
+- SUB-AGENT identifier: a793feaf00d9d8074 — not openable by the USER
+- Report: `audits/S8-recipient-stability.md`
+
+### E-373 · 2026-11-22T14:33:41Z · LAUNCH · orchestrator
+
+- Role: RED CELL, the attack before delivery (S9)
+- WORK UNIT: WU-1
+- Scope: `prompts/S9-redcell-delivery.md`
+- Commit under review: 240a2bb (the DELIVERABLE at 504b1d7, commit 22)
+- SUB-AGENT identifier: adee14bba8a8ec843 — not openable by the USER
+- Report: `audits/redcell-delivery.md`
+
+### E-374 · 2026-11-22T14:33:53Z · STAGE · orchestrator
+
+- Stage: S7
+- Event: end
+- Artifacts: commits 1 to 22 (99240db to 504b1d7), each with `evidence/commit-<n>-checks.txt`; 8 reports of the audit round (E-186 to E-193); 2 LENS memos of WU-1 (E-286, E-287; reconciled in D-9, E-292); 2 re-audits (E-290, E-291); ANSWER E-288 and E-293; CRITERIA-CHANGE E-289 and E-294; FINDING F-64 to F-169; 61 RESOLUTION entries
+
+### E-375 · 2026-11-22T14:33:53Z · STAGE · orchestrator
+
+- Stage: S8
+- Event: start
+- Skills read: `hinshitsu-audit/SKILL.md` SHA-256 0f7094ca8204f5a138c6d1de18836e8af84e33d3b201039e571ad792920895c0; conductor `SKILL.md` SHA-256 a3907653b8a517f2597ec025d6b22eb5929730ff4f79291d4b74c60549250d0e; `GLOSSARY.md` SHA-256 92b526977fb5d1fc507f934ddba2a5c43144cfbe477c75adba9b7219bb46d599
+- Note: S8 and S9 run side by side, to save time: the recipient-side AUDITOR (LAUNCH E-372) and the RED CELL (LAUNCH E-373) each got the head 240a2bb. The findings of commit 22's own repairs (F-152 to F-169) are re-run by the S8 AUDITOR
+
+### E-376 · 2026-11-22T14:33:54Z · STAGE · orchestrator
+
+- Stage: S9
+- Event: start
+- Skills read: `hinshitsu-challenge/SKILL.md` SHA-256 c9169b39ddb43107186e4320fc3966404990b84bdc1e532843547eddf87dc2ad
+- Note: started beside S8 (see the entry before this one)
