@@ -3,7 +3,7 @@
 // one thing and expects the pictures or the readings to show it.
 import { spawnSync } from 'node:child_process';
 import { createSocket } from 'node:dgram';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium, type Browser } from 'playwright';
@@ -539,7 +539,7 @@ describe('The look: the command line', () => {
     expect(zero.stderr).toMatch(/Cannot read the build: it is not an ordinary file\./);
     // A pipe in place of a Vision file.
     const visionFolder = folderWithFiles();
-    spawnSync('rm', [join(visionFolder, 'tokens.css')]);
+    rmSync(join(visionFolder, 'tokens.css'));
     expect(spawnSync('mkfifo', [join(visionFolder, 'tokens.css')]).status).toBe(0);
     const visionPipe = timed([join(visionFolder, 'build.html'), visionFolder, join(visionFolder, 'out')], 20_000);
     expect(visionPipe.signal).toBeNull();

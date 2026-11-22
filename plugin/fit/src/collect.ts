@@ -492,7 +492,7 @@ export function collect(): Collected {
   // A box that scrolls (`auto`, `scroll`) cuts nothing away in the direction in which a visitor can scroll it: the visitor reaches the
   // text by scrolling the box. Such a box with no room at all in that direction shows nothing and still cuts (automatic reviewer of
   // pull request 16, finding 1).
-  const scrolls = (value: string): boolean => value === 'auto' || value === 'scroll' || value === 'overlay';
+  const scrolls = (value: string): boolean => value === 'auto' || value === 'scroll';
   const cutAway = (host: Element, r: DOMRect): boolean => {
     let left = r.left;
     let right = r.right;
@@ -662,7 +662,6 @@ export function collect(): Collected {
   return { references, scripts, drawn, families, radii, texts, shownLines: [...shown.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), clippedLines: [...clipped.values()].map((parts) => collapse(parts.join(''))).filter((line) => line !== ''), cutOff, frames: every('iframe, frame, object, embed').length, pendingAnimations, endlessAnimations, svgTimers, filtered, foreignShapes, fontFaces, scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, baseHref: document.querySelector('base[href]')?.getAttribute('href') ?? '' };
 }
 
-/** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */
 /**
  * The media conditions that the page's style rules and pictures name, each as the browser writes it: the conditions of `@media`
  * rules (also inside other rules), of `@import` rules, of `link`, `style`, and `source` elements, in the page and in every open
@@ -718,6 +717,7 @@ export function mediaConditions(): string[] {
   return [...found].sort();
 }
 
+/** The three texts that the Brief requires, as the Mockup shows them: the business name, the headline, and the primary action. */
 export function readBrief(): { business: string; headline: string; primaryAction: string } {
   const text = (selector: string): string => (document.querySelector<HTMLElement>(selector)?.innerText ?? '').replace(/\s+/g, ' ').trim();
   return { business: text('.brand'), headline: text('h1'), primaryAction: text('.btn-primary') };

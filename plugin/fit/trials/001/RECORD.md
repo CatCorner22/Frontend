@@ -83,3 +83,7 @@ The receipt was measured again. No count changed. Its wording changed: it now sa
 ## After the repair run of 2026-11-21 (record: `hinshitsu/AUDIT-LOG.md`)
 
 The receipt was measured again by the program after each repair of the run that changed its wording. No count changed, and the status is 0 as before. What changed in the words: the receipt names each Vision file that the program read by its SHA-256; under Floors it says "Nothing to check" where it said "0 deviations; 0 not measured"; the counts of contrast carry their unit ("27 readings of 3 texts not measured"); "Still needs a person" says what the program now does about closed shadow roots and about settings of the screen that the page's style rules name.
+
+## The typeface for numerals and one sentence changed (2026-11-22, decision D83)
+
+The stored files in `files/` were written again, because a test keeps them equal to what the core writes today. Two things changed in them, and nothing else: (1) the design value `--font-numeric` is the body typeface, a real list of typefaces, where it was the keyword `inherit` (the owner's decision D83); with it the fingerprint of the design values changed from `7776d35d` to `0fabf790` in all seven files; (2) `VISION.md` says "each carries the fingerprint stated above" where it said "below". The helper's page (`index.html`) is as the helper built it. The receipt was measured again: its fingerprint and the SHA-256 of the Vision files are new, and no count changed.

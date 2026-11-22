@@ -2824,3 +2824,30 @@ The defect is the one that the seeder planted in the copy `kite` (CHECK E-282). 
 ### E-285 · 2026-11-22T11:32:17Z · WAIVER · orchestrator
 
 WU-1 is larger than the glossary's size of a WORK UNIT (1 component): it holds 7 programs, 2 test files, the guide, the commands and the records. The USER chose 1 audit round over the finished set, in the USER's words: "Once, at the end (Recommended)" (E-67, answer 3). What the size costs: a finding of the round can touch several components, and the fix round is 1 commit over them (commit 20). Raised by the framework-drift auditor as F-134.
+
+### E-286 · 2026-11-22T12:02:38Z · LAUNCH · orchestrator
+
+- Role: LENS, recipient experience (after WU-1; its turn, WORK UNIT 1 modulo 4)
+- WORK UNIT: WU-1
+- Scope: `prompts/S7-WU1-lens-recipient-experience.md`
+- Commit under review: eaab1ff (the DELIVERABLE at b28ffb0, commit 20; commit 21 is in its checks)
+- SUB-AGENT identifier: a26a6f7a6c9c4756b — not openable by the USER
+- Report: `memos/lens-recipient-experience-WU-1.md`
+
+### E-287 · 2026-11-22T12:02:38Z · LAUNCH · orchestrator
+
+- Role: LENS, structural integrity (after WU-1; it received BLOCKERS)
+- WORK UNIT: WU-1
+- Scope: `prompts/S7-WU1-lens-structural-integrity.md`
+- Commit under review: eaab1ff (the DELIVERABLE at b28ffb0, commit 20; commit 21 is in its checks)
+- SUB-AGENT identifier: a6517fb885dd7c820 — not openable by the USER
+- Report: `memos/lens-structural-integrity-WU-1.md`
+
+### E-288 · 2026-11-22T12:14:02Z · ANSWER · orchestrator
+
+The USER answered 4 questions of the card after the audit round of WU-1 (2026-11-22). Each answer, word for word, after its question in short:
+
+1. The value `--font-numeric: inherit` (F-65, F-113): "Write a real typeface (Recommended)". The option's text: "The value becomes your body typeface. It works however an AI builder writes it. Cost: every design gets a new 8-character fingerprint from now on (older Visions stay valid), and numbers inside a headline take the body typeface where a builder uses this value."
+2. An unread contrast where the Vision requires contrast (F-55, F-74, F-112): "Stay status 0, say it (Recommended)". The option's text: "Status 0, with the count in the one line and the texts listed in the receipt. I add a sentence to the guide that tells you to judge those texts by eye. I reword my own check to match."
+3. The 3 wordings that the fix round changed in the CRITERIA (3 cases of status 1 in C7; "the earlier receipt" in C8; 1 commit for the fix round in C5): "Approve (Recommended)".
+4. The findings of class FRAGILITY and STYLE that stay open after the fix round: "Yes, they wait (Recommended)". The option's text: "I list each one, in plain words, in the delivery report and in the findings log, for the next run. This run goes on to its final checks."

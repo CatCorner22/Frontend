@@ -121,6 +121,46 @@ describe('the Vision as its recipient gets it: downloaded, unpacked by an outsid
         const written = (files[name]!.replace(/\/\*[\s\S]*?\*\//g, '').match(/(^|[;{\s])(--[\w-]+)\s*:/g) ?? []).length;
         expect(written, `${name} writes design values`).toBeGreaterThan(10);
         expect(kept, `${name}: a browser keeps every design value`).toBeGreaterThanOrEqual(written);
+        // Each design value has a value in the browser where its rule holds: read from the page's root, with the rule's class set
+        // on it for a rule such as `.dark` (audit round of 2026-11-22, finding F-66).
+        const empty = await reader.evaluate((css) => {
+          const style = document.createElement('style');
+          style.textContent = css;
+          document.head.append(style);
+          const root = document.documentElement;
+          const none: string[] = [];
+          for (const rule of style.sheet?.cssRules ?? []) {
+            if (!(rule instanceof CSSStyleRule)) continue;
+            const group = /^\.([\w-]+)$/.exec(rule.selectorText)?.[1];
+            if (group) root.classList.add(group);
+            for (const property of rule.style) if (property.startsWith('--') && getComputedStyle(root).getPropertyValue(property).trim() === '') none.push(property);
+            if (group) root.classList.remove(group);
+          }
+          style.remove();
+          return none;
+        }, files[name]!);
+        expect(empty, `${name}: every design value has a value in the browser`).toEqual([]);
+        // The typeface for numerals is a real list of typefaces (the owner's decision D83): a rule that uses it in the `font`
+        // shorthand keeps its size and weight, which the keyword `inherit` lost (findings F-65 and F-113 of the run's log).
+        if (name === 'tokens.css') {
+          const drawn = await reader.evaluate((css) => {
+            const style = document.createElement('style');
+            style.textContent = `${css}\n.probe-number { font: 700 40px var(--font-numeric); }`;
+            document.head.append(style);
+            const number = document.createElement('span');
+            number.className = 'probe-number';
+            document.body.append(number);
+            const computed = getComputedStyle(number);
+            const read = { size: computed.fontSize, weight: computed.fontWeight, family: computed.fontFamily, value: getComputedStyle(document.documentElement).getPropertyValue('--font-numeric').trim(), body: getComputedStyle(document.documentElement).getPropertyValue('--font-body').trim() };
+            number.remove();
+            style.remove();
+            return read;
+          }, files[name]!);
+          expect(drawn.size).toBe('40px');
+          expect(drawn.weight).toBe('700');
+          expect(drawn.value).not.toBe('inherit');
+          expect([drawn.body, 'monospace'].some((part) => drawn.value === part || drawn.value.includes(part))).toBe(true);
+        }
       }
 
       // 5. mockup.html, opened from the unpacked folder, with no network.
@@ -128,12 +168,14 @@ describe('the Vision as its recipient gets it: downloaded, unpacked by an outsid
       const pageErrors: string[] = [];
       reader.on('request', (request) => { if (!/^(file|data|about|blob):/.test(request.url())) requests.push(request.url()); });
       reader.on('pageerror', (error) => pageErrors.push(String(error)));
+      reader.on('console', (message) => { if (message.type() === 'error') pageErrors.push(message.text()); });
       await reader.goto(`file://${join(folder, 'unpacked', 'mockup.html')}`);
       const facts = await reader.evaluate(() => {
         const css = [...document.querySelectorAll('style')].map((style) => style.textContent ?? '').join('\n');
         const defined = new Set([...css.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
         const used = [...new Set([...css.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map((m) => m[1]))];
-        return { missing: used.filter((name) => !defined.has(name)), scripts: document.scripts.length, h1: document.querySelectorAll('h1').length, bold: document.querySelectorAll('b').length, text: document.body.innerText.replace(/\s+/g, ' '), title: document.title };
+        return { missing: used.filter((name) => !defined.has(name)), scripts: document.scripts.length, h1: document.querySelectorAll('h1').length, bold: document.querySelectorAll('b').length, // The words as the markup holds them: `innerText` would give the capitals that a Direction with capital headings draws (recipient review of 2026-11-22).
+          text: (document.body.textContent ?? '').replace(/\s+/g, ' '), title: document.title };
       });
       expect(facts.missing, 'mockup.html uses no design value that it does not define').toEqual([]);
       expect(facts.scripts, 'mockup.html holds no script').toBe(0);
@@ -156,6 +198,14 @@ describe('the Vision as its recipient gets it: downloaded, unpacked by an outsid
       expect(vision.split('\n').filter((line) => /^## \d+\. /.test(line)).map((line) => line.slice(3, 5))).toEqual(['1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.']);
       expect(vision.split('\n').filter((line) => /^\s*(`{3,}|~{3,})/.test(line)).length % 2, 'VISION.md closes every fence').toBe(0);
       for (const name of NAMES.filter((other) => other !== 'VISION.md')) expect(vision.includes(name), `VISION.md names ${name}`).toBe(true);
+      // The owner's own account of the project stands in VISION.md as text, on one line (its line breaks are spaces there), inside
+      // a fence that its own fence marks do not close.
+      expect(vision).toContain(BRIEF.replace(/\s+/g, ' '));
+      const briefLine = vision.split('\n').findIndex((line) => line.includes(BRIEF.replace(/\s+/g, ' ')));
+      const fencesBefore = vision.split('\n').slice(0, briefLine).filter((line) => /^\s*(`{3,}|~{3,})/.test(line)).length;
+      expect(fencesBefore % 2, 'the Brief stands inside a fence').toBe(1);
+      // The sentence that tells the reader where the fingerprint is points to the right place.
+      expect(vision.indexOf(String(mark))).toBeLessThan(vision.indexOf('carries the fingerprint stated above'));
       expect(/^---\n[\s\S]+?\n---\n/.test(files['DESIGN.md']!), 'DESIGN.md starts with its data block').toBe(true);
 
       // 7. The Fit check reads the unpacked folder, and the Mockup shows no deviation from its own Vision in the six design measures.

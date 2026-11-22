@@ -572,7 +572,10 @@ function typeTokens(p: DesignParams): Record<string, string> {
   out['--leading-heading'] = r >= 1.333 ? '1.04' : r >= 1.2 ? '1.12' : '1.22';
   out['--leading-body'] = b >= 18 ? '1.6' : '1.55';
   out['--numeric'] = p.numerals === 'proportional' ? 'normal' : 'tabular-nums';
-  out['--font-numeric'] = p.numerals === 'mono' ? FONTS['jetbrains-mono'].stack : 'inherit';
+  // Where the numerals are not set apart, the value is the body typeface: a real list of typefaces, so that a rule which uses
+  // the value works however a builder writes it. The keyword `inherit` stood here until 2026-11-22; at the page's root it has no
+  // value, and a browser drops a `font` shorthand or takes a fallback that uses it (the owner's decision D83; row DV-01).
+  out['--font-numeric'] = p.numerals === 'mono' ? FONTS['jetbrains-mono'].stack : FONTS[p.fontBody].stack;
   return out;
 }
 

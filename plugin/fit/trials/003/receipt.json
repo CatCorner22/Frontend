@@ -1,5 +1,5 @@
 {
-  "fingerprint": "7776d35d",
+  "fingerprint": "0fabf790",
   "build": {
     "bytes": 22625,
     "sha256": "e4efc468a119001634e8de8e79fa74d580641153e7b22a2060adf71c0359570b"
@@ -8,23 +8,23 @@
     "files": [
       {
         "name": "VISION.md",
-        "bytes": 43566,
-        "sha256": "ce236b2cc03f91e25240e36a7768a62b340149993356389c3e4138d3f6d81bdc"
+        "bytes": 43573,
+        "sha256": "7b0b2e00eaab8f6084d62e636c9b8d467a60feb361452d17caa2e21116b45b23"
       },
       {
         "name": "tokens.css",
-        "bytes": 3412,
-        "sha256": "697ca6b49cf2fd1691e00afa29054922b8db995eef84ba21f7cf67ec442d0ddc"
+        "bytes": 3485,
+        "sha256": "1c8318c02d1129fc2944c152ed4aaadb76c5b309953d9cf755d194c796a44284"
       },
       {
         "name": "tokens.json",
-        "bytes": 16838,
-        "sha256": "cb5ff8cc476233778fcbd16e460e6edba0ff5b2dcaf440b4696600574e8ad7a9"
+        "bytes": 17022,
+        "sha256": "a27772d0c858dc80a5ec571cdc4dc9a24d29c5003d34d5085d38e5af6aa5b34f"
       },
       {
         "name": "mockup.html",
-        "bytes": 41664,
-        "sha256": "9902cbd9e1be663a4552a057e61e2c20d4dc559b158f8962d0b54d68bc99e8a2"
+        "bytes": 41737,
+        "sha256": "cbbac8327a74ef5255c75cd4703b6b4da67248b01d5fef39553cdae5be70c33e"
       }
     ],
     "floorsRead": 0,

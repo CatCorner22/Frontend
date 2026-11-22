@@ -65,7 +65,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 2ae65e18. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: a839dbdb. */
 :root {
   --bg: #fafafa;
   --surface: #ffffff;
@@ -155,7 +155,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.275rem;
   --space-2: 0.55rem;
   --space-3: 0.825rem;
@@ -232,7 +232,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 2237d140. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 98caaa11. */
 :root {
   --bg: #f8fafd;
   --surface: #ffffff;
@@ -322,7 +322,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Manrope Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.325rem;
   --space-2: 0.65rem;
   --space-3: 0.975rem;
@@ -409,7 +409,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: c99622a0. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 603ccbad. */
 :root {
   --bg: #f4fcfb;
   --surface: #ffffff;
@@ -499,7 +499,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.6;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Public Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.2875rem;
   --space-2: 0.575rem;
   --space-3: 0.8625rem;
@@ -583,7 +583,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 72f9601a. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: c204e71d. */
 :root {
   --bg: #fcfaf7;
   --surface: #ffffff;
@@ -673,7 +673,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.335rem;
   --space-2: 0.67rem;
   --space-3: 1.005rem;
@@ -750,7 +750,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 176179c4. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4d271ce1. */
 :root {
   --bg: #ecf3ff;
   --surface: #f9fbff;
@@ -840,7 +840,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Manrope Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.275rem;
   --space-2: 0.55rem;
   --space-3: 0.825rem;
@@ -927,7 +927,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 5fbf04d8. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: aea7e7f9. */
 :root {
   --bg: #fdfaf3;
   --surface: #ffffff;
@@ -1017,7 +1017,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.295rem;
   --space-2: 0.59rem;
   --space-3: 0.885rem;
@@ -1104,7 +1104,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 441f303e. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 9a256d8f. */
 :root {
   --bg: #f8faff;
   --surface: #ffffff;
@@ -1194,7 +1194,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.305rem;
   --space-2: 0.61rem;
   --space-3: 0.915rem;
@@ -1281,7 +1281,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: b80546d2. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4677227d. */
 :root {
   --bg: #e0f9f1;
   --surface: #f2fefa;
@@ -1371,7 +1371,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.6;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.3rem;
   --space-2: 0.6rem;
   --space-3: 0.9rem;
@@ -1636,7 +1636,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4706fbc8. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 8593fbff. */
 :root {
   --bg: #fefaf1;
   --surface: #ffffff;
@@ -1726,7 +1726,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.3375rem;
   --space-2: 0.675rem;
   --space-3: 1.0125rem;
@@ -1807,7 +1807,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 8160f55b. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: fadbf082. */
 :root {
   --bg: #fffaec;
   --surface: #ffffff;
@@ -1897,7 +1897,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.3125rem;
   --space-2: 0.625rem;
   --space-3: 0.9375rem;
@@ -1983,7 +1983,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 7eb1ccea. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: a2c908e5. */
 :root {
   --bg: #fcf9f7;
   --surface: #ffffff;
@@ -2073,7 +2073,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Public Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.3rem;
   --space-2: 0.6rem;
   --space-3: 0.9rem;
@@ -2152,7 +2152,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 919ddd7e. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f2ea15f1. */
 :root {
   --bg: #060a13;
   --surface: #0e121d;
@@ -2242,7 +2242,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Manrope Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.275rem;
   --space-2: 0.55rem;
   --space-3: 0.825rem;
@@ -2329,7 +2329,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: c18e6fac. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 82a3dee9. */
 :root {
   --bg: #130e09;
   --surface: #1c1612;
@@ -2419,7 +2419,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.2625rem;
   --space-2: 0.525rem;
   --space-3: 0.7875rem;
@@ -2506,7 +2506,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 03a701c0. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4839bddf. */
 :root {
   --bg: #140e16;
   --surface: #1d171f;
@@ -2596,7 +2596,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.325rem;
   --space-2: 0.65rem;
   --space-3: 0.975rem;
@@ -3037,7 +3037,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4d17345e. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: dca210b7. */
 :root {
   --bg: #0d0615;
   --surface: #160e1f;
@@ -3127,7 +3127,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "Manrope Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.28rem;
   --space-2: 0.56rem;
   --space-3: 0.84rem;
@@ -3214,7 +3214,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: da21164d. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: e6afaf34. */
 :root {
   --bg: #0d0905;
   --surface: #15120c;
@@ -3304,7 +3304,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.2875rem;
   --space-2: 0.575rem;
   --space-3: 0.8625rem;
@@ -3391,7 +3391,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 19403a22. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 5042a68f. */
 :root {
   --bg: #0b0705;
   --surface: #14100c;
@@ -3481,7 +3481,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.28rem;
   --space-2: 0.56rem;
   --space-3: 0.84rem;
@@ -3568,7 +3568,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: cce1a2f4. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: d4bc852d. */
 :root {
   --bg: #0e0603;
   --surface: #170e09;
@@ -3658,7 +3658,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.6;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.3rem;
   --space-2: 0.6rem;
   --space-3: 0.9rem;
@@ -3745,7 +3745,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 31d97830. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 7518a365. */
 :root {
   --bg: #07080b;
   --surface: #0e1113;
@@ -3835,7 +3835,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -3924,7 +3924,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 1eb0f7a4. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: c4b1e4ad. */
 :root {
   --bg: #fefaf1;
   --surface: #ffffff;
@@ -4014,7 +4014,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.6;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.2875rem;
   --space-2: 0.575rem;
   --space-3: 0.8625rem;
@@ -4091,7 +4091,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 3b37d042. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f467508d. */
 :root {
   --bg: #f5fdf6;
   --surface: #ffffff;
@@ -4181,7 +4181,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.6;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.28rem;
   --space-2: 0.56rem;
   --space-3: 0.84rem;
@@ -4269,7 +4269,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f32230ee. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 85d34837. */
 :root {
   --bg: #fff9f1;
   --surface: #ffffff;
@@ -4359,7 +4359,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "Literata Variable", Georgia, "Times New Roman", serif;
   --space-1: 0.2625rem;
   --space-2: 0.525rem;
   --space-3: 0.7875rem;
@@ -4446,7 +4446,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 9383ab0c. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 04cdd325. */
 :root {
   --bg: #050617;
   --surface: #0c0f21;
@@ -4536,7 +4536,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "Newsreader Variable", Georgia, "Times New Roman", serif;
   --space-1: 0.3rem;
   --space-2: 0.6rem;
   --space-3: 0.9rem;
@@ -4623,7 +4623,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 5454835c. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 5d7ab94b. */
 :root {
   --bg: #fff9f2;
   --surface: #ffffff;
@@ -4713,7 +4713,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.295rem;
   --space-2: 0.59rem;
   --space-3: 0.885rem;
@@ -4800,7 +4800,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: e37f3e03. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 558ce21a. */
 :root {
   --bg: #fff9f1;
   --surface: #ffffff;
@@ -4890,7 +4890,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.3rem;
   --space-2: 0.6rem;
   --space-3: 0.9rem;
@@ -4977,7 +4977,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: a0befd49. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 4b45a3d6. */
 :root {
   --bg: #fff9f2;
   --surface: #ffffff;
@@ -5067,7 +5067,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "Literata Variable", Georgia, "Times New Roman", serif;
   --space-1: 0.295rem;
   --space-2: 0.59rem;
   --space-3: 0.885rem;
@@ -5154,7 +5154,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 596917e0. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 00d49bb7. */
 :root {
   --bg: #fff9f3;
   --surface: #ffffff;
@@ -5244,7 +5244,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.6;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "Newsreader Variable", Georgia, "Times New Roman", serif;
   --space-1: 0.2875rem;
   --space-2: 0.575rem;
   --space-3: 0.8625rem;
@@ -5331,7 +5331,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 0314835b. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 61723eea. */
 :root {
   --bg: #fff9f6;
   --surface: #ffffff;
@@ -5421,7 +5421,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.295rem;
   --space-2: 0.59rem;
   --space-3: 0.885rem;
@@ -5508,7 +5508,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f544f98f. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: ddbd6952. */
 :root {
   --bg: #fff9f0;
   --surface: #ffffff;
@@ -5598,7 +5598,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.6;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "Newsreader Variable", Georgia, "Times New Roman", serif;
   --space-1: 0.3125rem;
   --space-2: 0.625rem;
   --space-3: 0.9375rem;
@@ -5860,7 +5860,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: db86d58d. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f504b4b0. */
 :root {
   --bg: #fff9f0;
   --surface: #ffffff;
@@ -5950,7 +5950,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -6037,7 +6037,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 3e162b7c. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 1dd37997. */
 :root {
   --bg: #f4fdf7;
   --surface: #ffffff;
@@ -6127,7 +6127,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.12;
   --leading-body: 1.55;
   --numeric: tabular-nums;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.28rem;
   --space-2: 0.56rem;
   --space-3: 0.84rem;
@@ -6214,7 +6214,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: 0cc93b9c. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: fbb3cfe1. */
 :root {
   --bg: #fff8fb;
   --surface: #ffffff;
@@ -6304,7 +6304,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.275rem;
   --space-2: 0.55rem;
   --space-3: 0.825rem;
@@ -6568,7 +6568,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
 **Colors, type, spacing, corners, and motion** (the `tokens.css` that a new project from this Direction gets):
 
 ```css
-/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: f1e7d4ac. */
+/* Design values of one Frontend Focus project. Use each value by its name; do not copy a raw value into a component. Fingerprint: b58acef8. */
 :root {
   --bg: #fffaee;
   --surface: #ffffff;
@@ -6658,7 +6658,7 @@ How to read a part: the design settings are the Studio’s inputs; the `tokens.c
   --leading-heading: 1.04;
   --leading-body: 1.55;
   --numeric: normal;
-  --font-numeric: inherit;
+  --font-numeric: "Space Grotesk Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;

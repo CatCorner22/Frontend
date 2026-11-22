@@ -2,7 +2,7 @@
 
 This file belongs to a Vision from Frontend Focus Studio. It tells an AI coding tool, and the owner, which typefaces the design uses and how the built site ships them.
 
-Fingerprint of the design values: `7776d35d`. Every file of this Vision carries the same eight characters; where one differs, the files do not belong together.
+Fingerprint of the design values: `0fabf790`. Every file of this Vision carries the same eight characters; where one differs, the files do not belong together.
 
 ## Rules
 

@@ -635,7 +635,7 @@ export function noBrowserLine(program: string, error: unknown): string | null {
 }
 
 /** How many closed shadow roots the page's tree holds, as the browser lists it (a root of the browser's own controls is not one). */
-function countClosedRoots(node: { shadowRoots?: unknown[]; children?: unknown[]; contentDocument?: unknown; templateContent?: unknown; shadowRootType?: string }): number {
+function countClosedRoots(node: { shadowRoots?: unknown[]; children?: unknown[]; shadowRootType?: string }): number {
   let found = 0;
   const stack: (typeof node)[] = [node];
   // Every node of the tree that the browser handed over is visited: a limit here would let a root hide behind many elements

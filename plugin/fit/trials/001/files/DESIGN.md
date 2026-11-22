@@ -1,6 +1,6 @@
 ---
 version: alpha
-name: "Frontend Focus design 7776d35d"
+name: "Frontend Focus design 0fabf790"
 description: "One design from Frontend Focus Studio. VISION.md is the instruction; tokens.css holds every value."
 colors:
   primary: "#005729"
@@ -113,7 +113,7 @@ components:
 
 A light page with one main color and a plain background. This file is one file of a Vision from Frontend Focus Studio. `VISION.md` is the instruction and decides where two files differ; `tokens.css` holds every value of the design, also those that this format has no place for; `mockup.html` is the reference page.
 
-Fingerprint of the design values: `7776d35d`. Every file of this Vision carries the same eight characters; where one differs, the files do not belong together.
+Fingerprint of the design values: `0fabf790`. Every file of this Vision carries the same eight characters; where one differs, the files do not belong together.
 
 ## Colors
 

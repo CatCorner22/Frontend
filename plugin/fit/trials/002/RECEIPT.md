@@ -1,8 +1,8 @@
 # Fit check receipt
 
-Fingerprint of the Vision that this receipt measured against: `7776d35d`. The build: 11022 bytes, SHA-256 `f50b23e8363a0c8390056dea5ccdad1e6caefaad900bfd95ddae4a469c9ab54e`. Window widths: 375, 768, 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended (the program waits at most three seconds for them), and two seconds later.
+Fingerprint of the Vision that this receipt measured against: `0fabf790`. The build: 11022 bytes, SHA-256 `f50b23e8363a0c8390056dea5ccdad1e6caefaad900bfd95ddae4a469c9ab54e`. Window widths: 375, 768, 1280 pixels, each read with reduced motion and with motion allowed, the second one twice: when the page had loaded and its animations had ended (the program waits at most three seconds for them), and two seconds later.
 
-Vision files read: `VISION.md` SHA-256 `64fff2df884a236be8c92e86364fa092d61742de08f6a4ed0743c0b01cace894`; `tokens.css` SHA-256 `697ca6b49cf2fd1691e00afa29054922b8db995eef84ba21f7cf67ec442d0ddc`; `tokens.json` SHA-256 `cb5ff8cc476233778fcbd16e460e6edba0ff5b2dcaf440b4696600574e8ad7a9`; `mockup.html` SHA-256 `9902cbd9e1be663a4552a057e61e2c20d4dc559b158f8962d0b54d68bc99e8a2`. Floor requirements read from `VISION.md`: 0.
+Vision files read: `VISION.md` SHA-256 `47270c9ec5667a64dcf4371fc7c8a4a1d5c805e3c028611bcf131a78d3a5ab09`; `tokens.css` SHA-256 `1c8318c02d1129fc2944c152ed4aaadb76c5b309953d9cf755d194c796a44284`; `tokens.json` SHA-256 `a27772d0c858dc80a5ec571cdc4dc9a24d29c5003d34d5085d38e5af6aa5b34f`; `mockup.html` SHA-256 `cbbac8327a74ef5255c75cd4703b6b4da67248b01d5fef39553cdae5be70c33e`. Floor requirements read from `VISION.md`: 0.
 
 This is a first check: no repair round came before it.
 

@@ -311,8 +311,9 @@ describe('The Vision, first slice (SPEC.md section 2.6)', () => {
     };
     const usual = read(worked());
     expect(usual.json['typeface']!['font-mono']).toEqual({ $type: 'fontFamily', $value: ['JetBrains Mono Variable', 'ui-monospace', 'monospace'] });
-    expect(usual.json['typeface']!['font-numeric']).toBeUndefined();
-    expect(usual.cssOnly['--font-numeric']).toBe('inherit');
+    // Where the numerals are not set apart, the value is the body typeface, a real list (the owner's decision D83; it was the keyword `inherit`).
+    expect(usual.json['typeface']!['font-numeric']).toEqual(usual.json['typeface']!['font-body']);
+    expect(usual.cssOnly['--font-numeric']).toBeUndefined();
     const typewriter = read({ ...plain(), params: { ...DEFAULT_PARAMS, numerals: 'mono' } });
     expect(typewriter.json['typeface']!['font-numeric']!.$type).toBe('fontFamily');
     expect(typewriter.cssOnly['--font-numeric']).toBeUndefined();

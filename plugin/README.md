@@ -55,7 +55,7 @@ An example: `/frontend-focus-fitter:fit-check build/index.html vision/ result/`,
 
 | Status | Meaning | What you do |
 |---|---|---|
-| 0 | No deviation in the measures that count, and nothing "not measured" in them. One thing is left out of that: a text whose contrast the Fit check could not read never changes the status; the Fit check's one line and the receipt say how many readings of how many texts | Read "Still needs a person" in the receipt, and look at the page |
+| 0 | No deviation in the measures that count, and nothing "not measured" in them. One thing is left out of that: a text whose contrast the Fit check could not read never changes the status; the Fit check's one line and the receipt say how many readings of how many texts | Read "Still needs a person" in the receipt; where the one line names unread contrast, read the list of those texts under "Contrast" in the receipt and judge each by eye; and look at the page |
 | 1 | At least one deviation, or something that the Fit check could not measure or did not check. There are three cases; see below | Deviation lines: repair by hand or with `fit-repair`. "Not measured" and no deviation line: do not repair; read below. None of the Floor requirements checked: write the Vision again from the Studio |
 | 2 | The Fit check refused and wrote no receipt (a file is missing, a file was given in place of the Vision folder, the files do not belong together, the repair budget is spent, the command was not written in its form, or no browser started) | Read its one line; it says why |
 
