@@ -33,7 +33,7 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.3.0",
     "axe-core": "4.14.0",
-    "dependency-cruiser": "18.7.2",
+    "dependency-cruiser": "18.8.0",
     "eslint": "10.14.0",
     "playwright": "1.65.0",
     "prettier": "3.10.1",
